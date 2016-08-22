@@ -16,6 +16,7 @@ import datetime
 import time
 import datetime
 from scipy.optimize import curve_fit
+import socket
 
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
@@ -45,8 +46,9 @@ def parse_logfile(output_filename,logy):
   stepsize = ''
   lr_mult = ''
   decay_mult = ''
+  net_name = ''
 
-  past_beginning = False
+  past_beginning = False #
 
   for line in f:
 #    print('checking line:'+line)
@@ -446,6 +448,7 @@ def parse_solveoutput(output_filename):
   plt.title(dt.isoformat())
   plt.suptitle(f)
   plt.draw()
+
   savename = output_filename+'.jpg'
   plt.savefig(savename)
   plt.show()

@@ -1,4 +1,4 @@
-name: "voc8.15"
+name: "voc8.15_pixelLevel"
 layer {
   name: "data"
   type: "Input"

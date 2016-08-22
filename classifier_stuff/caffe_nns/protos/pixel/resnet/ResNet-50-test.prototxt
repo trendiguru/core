@@ -1,4 +1,4 @@
-name: "ResNet-50_multilabel"
+name: "ResNet-50_pixelLevel"
 
 layer {
       name: "data"

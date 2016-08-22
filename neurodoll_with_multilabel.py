@@ -15,9 +15,6 @@ import urllib
 
 from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
-from trendi import pipeline
-#from trendi.paperdoll import neurodoll_falcon_client as nfc
-
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 

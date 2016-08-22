@@ -1,3 +1,4 @@
+name: "voc8.15_pixelLevel"
 layer {
   name: "data"
   type: "Python"

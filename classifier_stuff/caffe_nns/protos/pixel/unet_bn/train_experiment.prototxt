@@ -1,4 +1,4 @@
-name: "unet_pixelLevel"
+name: "unet-bn_pixelLevel"
 layer {
     name: "data"
     type: "Python"
@@ -7,7 +7,7 @@ layer {
     python_param {
     module: "jrlayers"
     layer: "JrPixlevel"
-    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":1 }"
+    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":16 }"
     }
   }
 layer {
@@ -1325,25 +1325,12 @@ layer {
   top: "conv_final"
 }
 layer {
-  name: "score"
+  name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "conv_final"
   bottom: "label"
-  top: "score"
+  top: "loss"
 }
 
-layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "score"
-  top: "accuracy"
-}
 
-#layer {
-#  name: "score"
-#  type: "SoftmaxWithLoss"
-#  bottom: "conv_final"
-#  bottom: "label"
-#  top: "loss"
-#}
-
+#

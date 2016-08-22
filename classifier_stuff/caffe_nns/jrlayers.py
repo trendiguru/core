@@ -104,7 +104,7 @@ class JrPixlevel(caffe.Layer):
                 self.labelfiles = [s.split()[1] for s in lines]
                 self.n_files = len(self.imagefiles)
             else:
-                logging.debug('could not open '+self.images_and_labels_file)
+                logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
 #######begin vestigial code
@@ -429,6 +429,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
+        self.counter = 0
 
         #on the way out
         self.images_dir = params.get('images_dir',None)
@@ -552,7 +553,7 @@ class JrMultilabel(caffe.Layer):
 
     def reshape(self, bottom, top):
         pass
-        print('start reshape')
+        #print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
@@ -584,12 +585,14 @@ class JrMultilabel(caffe.Layer):
 
     def forward(self, bottom, top):
         # assign output
-        print('forward start')
+        #print('forward start')
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
         self.next_idx()
-        print('forward end')
+        #print('forward end')
+        self.counter += 1
+        print self.counter
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -602,7 +605,7 @@ class JrMultilabel(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
-        print('load_image_and_label start')
+        #print('load_image_and_label start')
         if idx is None:
             idx = self.idx
         while(1):
@@ -610,13 +613,13 @@ class JrMultilabel(caffe.Layer):
             label_vec = self.label_vecs[idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
-     #       print('the imagefile:'+filename+' index:'+str(idx))
+            print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
                 idx = self.idx
                 continue
-            print('calling augment_images with file '+filename)
+            #print('calling augment_images with file '+filename)
 
 #############start added code to avoid cv2.imread############
             im = Image.open(filename)
@@ -641,7 +644,7 @@ class JrMultilabel(caffe.Layer):
 #            out_,unused = augment_images.generate_image_onthefly(in_,mask_filename_or_nparray=in_)
             out_ = augment_images.generate_image_onthefly(in_)
 
-            print('returned from augment_images')
+            #print('returned from augment_images')
 
             #im = Image.open(filename)
             #if im is None:

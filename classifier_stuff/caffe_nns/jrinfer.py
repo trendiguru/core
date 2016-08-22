@@ -282,48 +282,45 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
+
     parser = argparse.ArgumentParser(description='get Caffe output')
-    parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
     parser.add_argument('--gpu', help='use gpu',default='True')
-    parser.add_argument('--Ngpu', help='gpu #',default='0')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
     parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
     args = parser.parse_args()
     print('args:'+str(args))
-
+    print('caffemodel:'+str(args.model))
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
-    if args.gpu == 'True' :
+    if args.gpu  :
         caffe.set_mode_gpu();
-        if args.Ngpu == '0':
-            caffe.set_device(0);
-        if args.Ngpu == '1':
-            caffe.set_device(1);
+        caffe.set_device(int(args.gpu))
     else:
         caffe.set_mode_cpu()
 
-    if args.iou == 'True':
-        print('using net defined by {} and {} '.format(args.prototxt,args.caffemodel))
+    if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
+        print('using net defined by {} and {} '.format(args.prototxt,args.model))
         solver = caffe.SGDSolver(args.prototxt)
-        solver.net.copy_from(caffemodel)
-        if args.image_file:
-            val = range(0,1)
-            seg_tests(solver, False, val, layer='score')
-        elif args.image_directory:
-            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
-            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-            val = range(0,len(images))
+        solver.net.copy_from(args.model)
+#        if args.image_file:
+#            val = range(0,1)
+#            seg_tests(solver, False, val, layer='score')
+#        elif args.image_directory:
+#            images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
+#            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
+        val = range(0,200)
             #this just runs the train net i think, doesnt test new images
-            seg_tests(solver, False, val, layer='score')
-        else:
-            print('gave neither image nor directory as input to iou test')
+        seg_tests(solver, False, val, layer='score')
+#        else:
+#            print('gave neither image nor directory as input to iou test')
     #do image level tests
     else:
         if args.image_file:

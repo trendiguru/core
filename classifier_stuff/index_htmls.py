@@ -4,35 +4,82 @@ import os
 
 from trendi import Utils
 
+def make_indices_onedeep(dir):
+    #do current direcotry
+
+    print('indexing directory '+str(dir))
+    make_index(dir)
+    #do subdirectories
+    dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
+    print('dirs in '+dir+':'+str(dirs))
+    for d in dirs:
+        print('onedeep now making index.html for '+str(d))
+        make_index(d)
 
 def make_index(dir):
     '''
     makes index.html linking all html files in directory
     '''
-    print('dir:' + str(dir))
-    files = Utils.files_in_directory(dir)
-    print('files:')
-    print(files)
+    print('make_index now making index for dir:' + str(dir))
+#    files = Utils.files_in_directory(dir)
+    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ]
+    files.sort()
+#    print('files in:'+str(dir))
+#    print(files)
+    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
+    dirs.sort()
     htmlfiles = []
     for file in files:
-        if file.endswith('html'):
-            htmlfiles.append(file)
-    htmlfiles.sort(key=lambda x: os.path.getmtime(x))
-    write_index_html(dir, htmlfiles)
-    print('htmlfiles:')
+#        actual_path =
+        htmlfiles.append(file)
+#        if file.endswith('html'):
+#            htmlfiles.append(file)
+#        if os.path.isdir(file):
+#            htmlfiles.append(file)
+    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
+    for d in dirs:
+        htmlfiles.append(d)
+    print('files+dirs in:'+str(dir))
     print(htmlfiles)
+    write_index_html_with_images(dir, htmlfiles)
+    print('wrote index.html for files in dir:' +str(dir))
+ #   print(htmlfiles)
 
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
     '''
-    f = open('index.html', 'w')
+    indexname = os.path.join(dir,'index.html')
+    print('writing to '+str(indexname))
+    f = open(indexname, 'w')
+    # write html file
+    f.write('<HTML><HEAD><TITLE>Results</TITLE>\n')
+    # <a href="http://www.w3schools.com">Visit W3Schools</a>
+    for file in files:
+        f.write('<br>\n')
+        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
+
+    f.write('</html>\n')
+    f.close
+
+def write_index_html_with_images(dir, files):
+    '''makes a page with image links to all files in dir
+    '''
+    indexname = os.path.join(dir,'index.html')
+    print('writing to '+str(indexname))
+    f = open(indexname, 'w')
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
         f.write('<br>\n')
-        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
+       # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
+        if file[-4:] == '.jpg' or file[-4:] == '.png':
+#            print('jpg line for '+file)
+            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
+        else:
+#            print('nonjpg line for '+file)
+            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
 
     f.write('</html>\n')
     f.close
@@ -46,20 +93,6 @@ def generate_filtered_index_html(dir, filter=''):
     files.sort()
     write_index_html_with_images(dir,files)
 
-def write_index_html_with_images(dir, files):
-    '''makes a page with image links to all files in dir
-    '''
-    f = open('index.html', 'w')
-    # write html file
-    f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
-    # <a href="http://www.w3schools.com">Visit W3Schools</a>
-    for file in files:
-        f.write('<br>\n')
-       # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
-        f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
-
-    f.write('</html>\n')
-    f.close
 
 def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
     f = open('index.html', 'w')
@@ -107,21 +140,23 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 if __name__ == "__main__":
     print('start')
 #    make_index('classifier_results')
+    make_indices_onedeep('/var/www/results')
 
-    origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
-    gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
-    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
-    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516_afterconclusions'
-    pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
+    if(0):
+        origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
+        gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
+        nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516'
+        nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/150x100_nn2_output_010516_afterconclusions'
+        pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
 
 
-    origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
-    gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
-    nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
-    nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516_afterconclusions'
-    pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
-    generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
+        origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
+        gt = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/groundtruth'
+        nnb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516'
+        nnafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/600x400_nn1_output_010516_afterconclusions'
+        pdb4 = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        pdafter = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/output/pd'
+        generate_html_allresults(origdir,gt,nnb4,nnafter,pdb4,pdafter)
 

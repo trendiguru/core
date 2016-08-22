@@ -1,5 +1,4 @@
-
-
+name: "ResNet-50_multilabel"
 layer {
   name: "data"
   type: "Input"
