@@ -362,6 +362,12 @@ layer {
     stride: 2
   }
 }
+layer {
+  name: "relu_up1"
+  type: "ReLU"
+  bottom: "upscore1"
+  top: "upscore1"
+}
 
 #out conv/relu 2
 layer {
