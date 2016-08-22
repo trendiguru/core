@@ -18,7 +18,9 @@ def category_tree_status(worksheet, merge_format, bold):
     for leaf in leafs:
         name = leaf['Name']
         node_id = leaf['BrowseNodeId']
-        parents = leaf['Parents']
+        parents = ''
+        for par in leaf['Parents']:
+            parents += par + ', '
         children = ''
         for child in leaf['Children']['names']:
             children += child[1] + ', '
@@ -29,7 +31,7 @@ def category_tree_status(worksheet, merge_format, bold):
         categories.append([name, node_id, parents, children, expected, downloaed, last_price, status])
     categories_length = leafs.count()+3
     worksheet.set_column('B:I', 15)
-    print(categories)
+    worksheet.set_column('D:E', 50)
     options = {'data': categories,
                'total_row': True,
                'columns': [{'header': 'Leaf', 'total_string': 'Total'},
