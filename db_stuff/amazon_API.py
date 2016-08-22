@@ -556,13 +556,13 @@ def download_all(col_name, gender='Female'):
             name = leaf['Name']
             node_id = leaf['BrowseNodeId']
             leaf_id = leaf['_id']
-            last_price = leaf['LastPrice']
+            last_price_downloaded = leaf['LastPrice']
             status = leaf['Status']
             items_downloaded = leaf['TotalDownloaded']
             if status != 'done':
-                if last_price > 5.00:
+                if last_price_downloaded > 5.00:
                     cache_msg = '%d/%d) node id: %s -> name: %s didn\'t finish -> continuing from %.2f' \
-                                % (x, total_leafs, node_id, name, last_price)
+                                % (x, total_leafs, node_id, name, last_price_downloaded)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
 
                 else:
@@ -584,7 +584,7 @@ def download_all(col_name, gender='Female'):
                     category_name = None
 
                 before_count = collection.count()
-                get_results(node_id, col_name, max_price=last_price, results_count_only=False,
+                get_results(node_id, col_name, max_price=last_price_downloaded, results_count_only=False,
                             family_tree=leaf_name, category=category_name)
                 after_count = collection.count()
                 items_downloaded += after_count - before_count
