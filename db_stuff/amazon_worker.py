@@ -252,6 +252,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
             if parent_asin_exists:
                 sizes = parent_asin_exists['features']['sizes']
+                dl_version = parent_asin_exists['download_data']['dl_version']
                 if dl_version != today_date:
                     collection.update_one({'id': asin}, {'download_data.dl_version': today_date})
                 if clothing_size not in sizes:
@@ -329,7 +330,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
                         'raw_info': attributes,
                         'tree': family_tree,
                         'status': {'instock': True, 'days_out': 0},
-                        'fingerprint': {'color':[]},
+                        'fingerprint': {},
                         'gender': gender,
                         'img_hash': img_hash,
                         'p_hash': p_hash,
