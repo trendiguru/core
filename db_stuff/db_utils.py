@@ -46,10 +46,10 @@ def progress_bar(blocksize, total, last_cnt=None, last_pct=None):
 
 def print_error(title, message=''):
     title_len = len(title)
-    if title_len > 50:
+    if title_len > 70:
         m = ''
     else:
-        minus_len = int(60 - title_len / 2)
+        minus_len = int(80 - title_len / 2)
         m = '-'
         for i in range(minus_len):
             m += '-'
