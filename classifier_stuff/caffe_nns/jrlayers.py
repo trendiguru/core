@@ -429,6 +429,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
+        self.counter = 0
 
         #on the way out
         self.images_dir = params.get('images_dir',None)
@@ -590,6 +591,8 @@ class JrMultilabel(caffe.Layer):
         # pick next input
         self.next_idx()
         #print('forward end')
+        self.counter += 1
+        print self.counter
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -610,7 +613,7 @@ class JrMultilabel(caffe.Layer):
             label_vec = self.label_vecs[idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
-     #       print('the imagefile:'+filename+' index:'+str(idx))
+            print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
