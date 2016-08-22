@@ -35,7 +35,7 @@ layer {
   name: "conv_in1"
   type: "Convolution"
   bottom: "data_bn"
-  top: "conv1_1"
+  top: "conv_in1"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -217,7 +217,7 @@ layer {
 
 #fc1/relu
 layer {
-	bottom: "conv_in5"
+	bottom: "conv_in4"
 	top: "fc1"
 	name: "fc1"
 	type: "InnerProduct"
@@ -465,7 +465,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "conv_final"
+  bottom: "pixlevel_output"
   bottom: "label"
   top: "loss"
 }
