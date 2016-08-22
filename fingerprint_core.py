@@ -154,7 +154,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         #                                      {'$inc': {"errors": 1}})
         print "error inserting"
 
-    return fp_as_list
+    return fingerprint['color']
 
 
 def get_hash(image):
