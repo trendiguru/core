@@ -125,6 +125,8 @@ def preparing_data_from_db(argv):
             if fresh_image is None:
                 continue
 
+
+            # only take the dresses images that with person in it
             faces = background_removal.find_face_dlib(fresh_image)
 
             if not faces["are_faces"]:

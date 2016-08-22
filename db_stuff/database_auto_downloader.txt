@@ -38,8 +38,10 @@
 0 12 * * * python -m trendi.db_stuff.recruit_API > /home/developer/yonti/recruit.log 2>&1
 #10 0 * * 0 echo "AMAZON LOG" >> /home/developer/yonti/amazon_status.log 2>&1
 #0 0 * * 0 date >> /home/developer/yonti/amazon_status.log 2>&1
-0 20 * * 0 echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
-1 20 * * 0 python -m trendi.db_stuff.amazon_API -d  > /home/developer/yonti/amazon_daily.log 2>&1
+0 20 * * * echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
+10 20 * * * python -m trendi.db_stuff.amazon_API -d  > /home/developer/yonti/amazon_daily.log 2>&1
+10 * * * * python -m trendi.db_stuff.amazon_API -u  > /home/developer/yonti/amazon_hourly.log 2>&1
+
 #14 0 * * 3 echo "amazon female dl started at wendsday" >> /home/developer/yonti/download.log 2>&1
 #15 0 * * 3 python -m trendi.db_stuff.amazon_API -g Female -f  > /home/developer/yonti/amazon_female.log 2>&1
 
