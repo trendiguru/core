@@ -217,7 +217,7 @@ layer {
 
 #fc1/relu
 layer {
-	bottom: "conv_in4"
+	bottom: "pool4"
 	top: "fc1"
 	name: "fc1"
 	type: "InnerProduct"
