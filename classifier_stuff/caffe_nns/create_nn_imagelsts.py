@@ -59,6 +59,9 @@ def consistency_check_multilabel_db():
 #        document = cursor.next()
 #        print(document)
         items_list = document['items']
+        if items_list is None:
+            print('no items in doc')
+            continue
         totlist = {}
         for item in items_list:
             cat = item['category']
@@ -76,7 +79,8 @@ def consistency_check_multilabel_db():
             else:
                 totlist[cat] = 1
         print('totlist:'+str(totlist))
-        if totlist=={}:
+        if totlist == {}:
+            print('totlist is {}')
             continue
         cat_totals = [totlist[cat] for cat in totlist]
 #        print('cat totals:'+str(cat_totals))
