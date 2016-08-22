@@ -339,6 +339,7 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
             leaf_tmp['Parents'] = p
             db.amazon_category_tree.insert_one(leaf_tmp)
             print('\t\t%s inserted' % cat_name)
+        db.amazon_category_tree.delete_one({'BrowseNodeId': node_id, 'Name': 'Clothing'})
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
