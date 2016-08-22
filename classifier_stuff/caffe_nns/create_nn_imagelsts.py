@@ -62,9 +62,11 @@ def inspect_multilabel_db():
             cat = item['category']
             print('cat:'+str(cat))
             if cat in constants.web_tool_categories_v2 :
-                print('cat in webtool cats vs')
+#                print('cat in webtool cats v2')
+                pass
             elif cat in constants.tamara_berg_to_web_tool_dict:
-                print('cat in tamara_ber_to_webtool_dict')
+#                print('cat in tamara_ber_to_webtool_dict')
+                pass
             else:
                 print('unrecognized cat')
             if cat in totlist:
@@ -76,6 +78,7 @@ def inspect_multilabel_db():
         print('cat totals:'+str(cat_totals))
         consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
         print('consistent:'+str(consistent))
+        raw_input('enter to continue')
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
