@@ -11,7 +11,7 @@ def make_indices_onedeep(dir):
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(d)]
-    print('dirs:'+str(dirs))
+    print('dirs in '+dir+':'+str(dirs))
     for d in dirs:
         print('onedeep now making index.html for '+str(d))
         make_index(d)

@@ -8,6 +8,7 @@ import sys
 
 import setproctitle
 import subprocess
+import socket
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
