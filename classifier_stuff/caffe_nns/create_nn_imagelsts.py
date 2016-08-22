@@ -80,7 +80,7 @@ def consistency_check_multilabel_db():
 #        print('cat totals:'+str(cat_totals))
         consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
         n_consistent = n_consistent + consistent
-        n_inconsistent = n_inconsistent + not(consistent)
+        n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 #        raw_input('enter to continue')
 
