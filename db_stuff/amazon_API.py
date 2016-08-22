@@ -307,7 +307,7 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         return name
 
     node_id = res_dict['BrowseNodeId']
-    result_count = get_results(node_id, price_flag=False, results_count_only=True)
+    result_count = get_results(0,node_id, price_flag=False, results_count_only=True)
 
     leaf = {'Name': name,
             'BrowseNodeId': node_id,
