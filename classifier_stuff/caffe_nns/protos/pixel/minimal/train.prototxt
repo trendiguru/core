@@ -359,7 +359,7 @@ layer {
     num_output: 256
     bias_term: false
     kernel_size: 2
-    stride: 1
+    stride: 2
   }
 }
 
