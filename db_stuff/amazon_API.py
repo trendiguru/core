@@ -662,6 +662,8 @@ def get_user_input():
                         help='build category tree from scratch')
     parser.add_argument('-u', '--updatedrive', dest="update_only", default=False, action='store_true',
                         help='only update the drive')
+    parser.add_argument('-d', '--daily', dest="daily_update", default=False, action='store_true',
+                        help='daily update - run annoy, reindex, update plus size and upload to drive')
     args = parser.parse_args()
     return args
 
@@ -674,7 +676,7 @@ if __name__ == "__main__":
     delete_cache = user_input.delete_cache
     build_tree = user_input.tree
     update_drive_only = user_input.update_only
-
+    daily = user_input.daily_update
     # verify valid country code
     cc_upper = c_c.upper()
     if cc_upper != 'US':
@@ -695,6 +697,9 @@ if __name__ == "__main__":
     collection_name = 'amazon_%s' % cc_upper
     if update_drive_only:
         update_drive('Female', cc_upper)
+    elif daily:
+        daily_amazon_updates('Female', cc_upper, FemaleCategories)
+        daily_amazon_updates('Male', cc_upper, MaleCategories)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
