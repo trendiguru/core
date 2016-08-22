@@ -26,7 +26,7 @@ def category_tree_status(worksheet, merge_format, bold):
         last_price = leaf['LastPrice']
         status = leaf['Status']
         categories.append([name, node_id, status, last_price, parents, expected, downloaed])
-    categories_length = leafs.count()+2
+    categories_length = leafs.count()+3
     worksheet.set_column('B:H', 20)
     worksheet.set_column('F:F', 50)
     options = {'data': categories,
@@ -39,7 +39,7 @@ def category_tree_status(worksheet, merge_format, bold):
                            {'header': 'expected'},
                            {'header': 'downloaded'}]}
 
-    worksheet.add_table('B2:I'+str(categories_length), options)
+    worksheet.add_table('B2:H'+str(categories_length), options)
     for x in ['G', 'H']:
         worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
 
