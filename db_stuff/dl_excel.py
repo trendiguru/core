@@ -27,7 +27,7 @@ def category_tree_status(worksheet, merge_format, bold):
         last_price = leaf['LastPrice']
         status = leaf['Status']
         categories.append([name, node_id, parents, children[:-2], expected, downloaed, last_price, status])
-    categories_length = len(categories)+3
+    categories_length = leafs.count()+3
     worksheet.set_column('B:I', 15)
 
     options = {'data': categories,
