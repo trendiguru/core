@@ -127,8 +127,8 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     if not Utils.is_valid_image(small_image):
         logging.warning("small_image is Bad. {img}".format(img=small_image))
         return
+    category = doc['categories']
     if neuro:
-        category = doc['categories']
         category_idx = recruit2category_idx[category]
         success, neuro_mask = neurodoll(image, category_idx)
         if not success:
@@ -139,10 +139,9 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     else:
         small_mask = background_removal.get_fg_mask(small_image)
 
-    fingerprint = fp(small_image, mask=small_mask)
+    fingerprint = dict_fp(small_image, small_mask, category)
 
-    fp_as_list = fingerprint.tolist()
-    doc["fingerprint"]["color"] = fp_as_list
+    doc["fingerprint"] = fingerprint
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version
@@ -155,7 +154,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         #                                      {'$inc': {"errors": 1}})
         print "error inserting"
 
-    return fp_as_list
+    return fingerprint['color']
 
 
 def get_hash(image):

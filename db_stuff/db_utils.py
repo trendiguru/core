@@ -1,5 +1,9 @@
 import logging
 import hashlib
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from ..constants import db, redis_conn
 from datetime import datetime
 from ..Yonti import pymongo_utils
@@ -187,7 +191,7 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     print('')
 
 
-def refresh_worker(doc, name):
+def refresh_worker(doc, name, cats=[]):
     from .. import find_similar_mongo
     collection = db.images
     for person in doc['people']:
@@ -198,21 +202,33 @@ def refresh_worker(doc, name):
             if name in similar_res:
                 fp = item['fp']
                 category = item['category']
-                _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp, collection=col_name,
-                                                                               category_id=category, number_of_results=100)
+                if len(cats) > 0:
+                    if category in cats:
+                        _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp,
+                                                                                       collection=col_name,
+                                                                                       category_id=category,
+                                                                                       number_of_results=100)
+                    else:
+                        new_similar_results = similar_res[name]
+
+                else:
+                    _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp,
+                                                                                   collection=col_name,
+                                                                                   category_id=category,
+                                                                                   number_of_results=100)
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
 
 
-def refresh_similar_results(name):
+def refresh_similar_results(name, cats=[]):
     collection = db.images
     query = 'people.items.similar_results.%s' % name
     relevant_imgs = collection.find({query: {'$exists': 1}})
     total = relevant_imgs.count()
     for current, img in enumerate(relevant_imgs):
-        refresh_q.enqueue(refresh_worker, doc=img, name=name, timeout=1800)
+        refresh_q.enqueue(refresh_worker, doc=img, name=name, cats=cats, timeout=1800)
         print ('%d/%d sent' % (current, total))
-    progress=0
+    progress = 0
     while refresh_q.count > 0:
         progress_new = (1 - refresh_q.count / float(total))*100
         if progress != progress_new:
@@ -318,6 +334,43 @@ def p_hash_many(col_name, redo_all=False):
             continue
     msg = '%s p_hash done!' % col_name
     print_error(msg)
+
+
+def email(col_name, title='DONE'):
+    yonti = 'yontilevin@gmail.com'
+    sender = 'Notifier@trendiguru.com'
+    # recipient = 'members@trendiguru.com'
+
+    # Open a plain text file for reading.  For this example, assume that
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = '%s download %s!' %(col_name, title)
+    msg['From'] = sender
+    msg['To'] = yonti
+
+    txt2 = '<h3> do something with it </h3>\n'
+
+    html = """\
+    <html>
+    <head>
+    </head>
+    <body>"""
+    html = html + txt2 + """
+    </body>
+    </html>
+    """
+    part1 = MIMEText(html, 'html')
+    msg.attach(part1)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # server.set_debuglevel(True)  # show communication with the server
+    try:
+        server.login('yonti0@gmail.com', "Hub,hKuhiPryh")
+        server.sendmail(sender, [yonti], msg.as_string())
+        print "sent"
+    except:
+        print "error"
+    finally:
+        server.quit()
 
 
 categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE', 'CAMISOLES', 'JEWELRY', 'SPORTS',

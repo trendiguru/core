@@ -51,7 +51,7 @@ def execute(img, bins=histograms_length, fp_length=fingerprint_length, mask=None
     result_vector = [hue_uniformity, sat_uniformity, int_uniformity, hue_entropy, sat_entropy, int_entropy]
     result_vector = np.concatenate((result_vector, hist_hue, hist_sat, hist_int), axis=0)
 
-    return result_vector[:fp_length]
+    return result_vector[:fp_length].tolist()
 
 
 def distance(fp1, fp2):
