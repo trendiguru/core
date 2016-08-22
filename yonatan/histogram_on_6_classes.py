@@ -29,7 +29,7 @@ array_tea_length = np.zeros(6)
 array_ankle_length = np.zeros(6)
 array_floor_length = np.zeros(6)
 
-all_predictions = np.zeros(8)
+all_predictions = np.zeros(6)
 
 text_file = open("db_dress_length_test.txt", "r")
 
