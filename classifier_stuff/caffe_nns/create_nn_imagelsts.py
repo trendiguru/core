@@ -76,6 +76,8 @@ def consistency_check_multilabel_db():
             else:
                 totlist[cat] = 1
         print('totlist:'+str(totlist))
+        if totlist=={}:
+            continue
         cat_totals = [totlist[cat] for cat in totlist]
 #        print('cat totals:'+str(cat_totals))
         consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
