@@ -10,8 +10,7 @@ from rq import Queue
 from datetime import datetime
 from amazon_worker import insert_items
 from .fanni import plantAnnoyForest, reindex_forest
-from .shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
-from .amazon_constants import blacklist, colors, status_log, log_dir, plus_sizes
+from .amazon_constants import blacklist, colors, status_log, log_dir, plus_sizes, amazon_categories_list
 from .dl_excel import mongo2xl
 import re
 
@@ -37,8 +36,6 @@ last_price = 3000.00
 last_pct = 0
 log_dir_name = log_dir
 log_name = ''
-FemaleCategories = list(set(shopstyle_paperdoll_female.values()))
-MaleCategories = list(set(shopstyle_paperdoll_male.values()))
 
 
 def proper_wait(print_flag=False):
@@ -501,13 +498,13 @@ def update_plus_size_collection(gender, categories, cc='US'):
     update_drive(collection_name, cc, items_before, dl_duration)
 
 
-def daily_amazon_updates(col_name, gender, categories=FemaleCategories, all_cats=False, cc='US'):
+def daily_amazon_updates(col_name, gender, all_cats=False, cc='US'):
     # redo annoy for categories which has been changed
-    daily_annoy(col_name, categories, all_cats)
+    daily_annoy(col_name, amazon_categories_list, all_cats)
 
     # refresh items which has been changed
     refresh_name = 'amazon_%s' % cc
-    refresh_similar_results(refresh_name, categories)
+    refresh_similar_results(refresh_name, amazon_categories_list)
 
     # upload file to drive
     update_drive('amazon', cc)
@@ -516,7 +513,7 @@ def daily_amazon_updates(col_name, gender, categories=FemaleCategories, all_cats
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
-    update_plus_size_collection(gender, categories, cc)
+    update_plus_size_collection(gender, amazon_categories_list, cc)
     plus = col_upper + ' PLUS SIZE'
     print_error('%s FINISHED' % plus)
     return
@@ -618,7 +615,7 @@ def download_all(col_name, gender='Female'):
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
 
 
-def download_by_gender(gender, cc, categories):
+def download_by_gender(gender, cc):
     global log_dir_name, log_name
     # build collection name and start logging
     col_name = 'amazon_%s_%s' % (cc, gender)
@@ -637,7 +634,7 @@ def download_by_gender(gender, cc, categories):
 
     # after download finished its time to build a new annoy forest
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'ANNOY'}})
-    daily_amazon_updates(col_name, gender, categories, all_cats=True, cc=cc)
+    daily_amazon_updates(col_name, gender, all_cats=True, cc=cc)
 
     notes_full_path = 'collections.' + col_name + '.notes'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
@@ -693,22 +690,22 @@ if __name__ == "__main__":
     if update_drive_only:
         update_drive('Female', cc_upper)
     elif daily:
-        daily_amazon_updates('Female', cc_upper, FemaleCategories)
-        daily_amazon_updates('Male', cc_upper, MaleCategories)
+        daily_amazon_updates('Female', cc_upper)
+        daily_amazon_updates('Male', cc_upper)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
         if gender_upper == 'BOTH':
-            download_by_gender('Female', cc_upper, FemaleCategories)
+            download_by_gender('Female', cc_upper)
             FashionGender = 'FashionMen'
-            download_by_gender('Male', cc_upper, MaleCategories)
+            download_by_gender('Male', cc_upper)
 
         elif gender_upper in ['FEMALE', 'WOMEN', 'WOMAN']:
-            download_by_gender('Female', cc_upper, FemaleCategories)
+            download_by_gender('Female', cc_upper)
 
         elif gender_upper in ['MALE', 'MEN', 'MAN']:
             FashionGender = 'FashionMen'
-            download_by_gender('Male', cc_upper, MaleCategories)
+            download_by_gender('Male', cc_upper)
 
         else:
             print("bad input - gender should be only Female, Male or Both ")
