@@ -695,24 +695,25 @@ if __name__ == "__main__":
     collection_name = 'amazon_%s' % cc_upper
     if update_drive_only:
         update_drive('Female', cc_upper)
-    # detect & convert gender to our word styling
-    gender_upper = col_gender.upper()
-    if gender_upper == 'BOTH':
-        download_by_gender('Female', cc_upper, FemaleCategories)
-        FashionGender = 'FashionMen'
-        download_by_gender('Male', cc_upper, MaleCategories)
-
-    elif gender_upper in ['FEMALE', 'WOMEN', 'WOMAN']:
-        download_by_gender('Female', cc_upper, FemaleCategories)
-
-    elif gender_upper in ['MALE', 'MEN', 'MAN']:
-        FashionGender = 'FashionMen'
-        download_by_gender('Male', cc_upper, MaleCategories)
-
     else:
-        print("bad input - gender should be only Female, Male or Both ")
+        # detect & convert gender to our word styling
+        gender_upper = col_gender.upper()
+        if gender_upper == 'BOTH':
+            download_by_gender('Female', cc_upper, FemaleCategories)
+            FashionGender = 'FashionMen'
+            download_by_gender('Male', cc_upper, MaleCategories)
 
-    email(collection_name)
+        elif gender_upper in ['FEMALE', 'WOMEN', 'WOMAN']:
+            download_by_gender('Female', cc_upper, FemaleCategories)
+
+        elif gender_upper in ['MALE', 'MEN', 'MAN']:
+            FashionGender = 'FashionMen'
+            download_by_gender('Male', cc_upper, MaleCategories)
+
+        else:
+            print("bad input - gender should be only Female, Male or Both ")
+
+        email(collection_name)
 
 '''
 useful request parameters:
