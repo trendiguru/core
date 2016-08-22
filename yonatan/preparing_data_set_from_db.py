@@ -20,7 +20,9 @@ import pymongo
 import argparse
 import shutil
 import yonatan_constants
+import dlib
 
+detector = dlib.get_frontal_face_detector()
 
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
@@ -38,6 +40,15 @@ def url_to_image(url):
 
     # return the image
     return new_image
+
+def find_face_dlib(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    print faces
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    #final_faces = choose_faces(image, faces, max_num_of_faces)
+    return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
 def preparing_data_from_db(argv):
@@ -113,6 +124,13 @@ def preparing_data_from_db(argv):
             fresh_image = url_to_image(link_to_image)
             if fresh_image is None:
                 continue
+
+            faces = background_removal.find_face_dlib(fresh_image)
+
+            if not faces["are_faces"]:
+                print "didn't find any faces"
+                continue
+
 
             # Resize it.
             #resized_image = cv2.resize(fresh_image, (width, height))
