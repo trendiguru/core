@@ -80,7 +80,7 @@ def format_price(price_float, period=False):
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
                             family_tree='sequoia', category=None):
-    global error_flag
+    global error_flag, last_price
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -103,6 +103,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = category
 
+    last_price = min_price
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
