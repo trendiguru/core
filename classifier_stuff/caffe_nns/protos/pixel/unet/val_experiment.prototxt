@@ -1,3 +1,4 @@
+name: "unet_pixelLevel"
 layer {
     name: "data"
     type: "Python"
@@ -1324,11 +1325,25 @@ layer {
   top: "conv_final"
 }
 layer {
-  name: "loss"
+  name: "score"
   type: "SoftmaxWithLoss"
   bottom: "conv_final"
   bottom: "label"
-  top: "loss"
+  top: "score"
 }
 
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "score"
+  top: "accuracy"
+}
+
+#layer {
+#  name: "score"
+#  type: "SoftmaxWithLoss"
+#  bottom: "conv_final"
+#  bottom: "label"
+#  top: "loss"
+#}
 

@@ -1,3 +1,4 @@
+name: "sharpnet_pixelLevel"
 layer {
     name: "data"
     type: "Python"

@@ -282,8 +282,9 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
+
     parser = argparse.ArgumentParser(description='get Caffe output')
-    parser.add_argument('--caffemodel', help='caffemodel', default=caffemodel)
+    parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
@@ -294,7 +295,7 @@ if __name__ == "__main__":
     parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
     args = parser.parse_args()
     print('args:'+str(args))
-
+    print('caffemodel:'+str(args.model))
 #    label_dir = '/root/imgdbs/image_dbs/colorful_fashion_parsing_data/labels/'
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
@@ -305,10 +306,10 @@ if __name__ == "__main__":
     else:
         caffe.set_mode_cpu()
 
-    if args.iou == 'True':
-        print('using net defined by {} and {} '.format(args.prototxt,args.caffemodel))
+    if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
+        print('using net defined by {} and {} '.format(args.prototxt,args.model))
         solver = caffe.SGDSolver(args.prototxt)
-        solver.net.copy_from(caffemodel)
+        solver.net.copy_from(args.model)
 #        if args.image_file:
 #            val = range(0,1)
 #            seg_tests(solver, False, val, layer='score')

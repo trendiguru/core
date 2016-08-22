@@ -1,4 +1,4 @@
-name: "ResNet-152_multilabel"
+name: "ResNet-152_pixelLevel"
 input: "data"
 input_dim: 1
 input_dim: 3

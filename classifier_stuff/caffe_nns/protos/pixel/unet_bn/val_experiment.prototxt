@@ -1,3 +1,4 @@
+name: "unet-bn_pixelLevel"
 layer {
     name: "data"
     type: "Python"
