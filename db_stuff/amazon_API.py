@@ -137,7 +137,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
             err_msg = 'no TotalPages in dict keys'
             raise ValueError(err_msg)
 
-    except Exception as e:
+    except ValueError as e:
         results_count = 0
         summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
                   % (family_tree, min_price, max_price, e.message)
@@ -201,6 +201,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
         summary += '(color -> %s)' % color
     log2file(mode='a', log_filename=log_name, message=summary)
     last_price = min_price
+
 
 def filter_by_color(col_name, node_id, price, family_tree, category=None):
     no_results_seq = 0
@@ -592,14 +593,14 @@ def download_all(col_name, gender='Female'):
 
                 if error_flag:
                     error_flag = False
-                    raise ValueError('probably bad request - will be sent for fresh try')
+                    raise NameError('probably bad request - will be sent for fresh try')
                 finished_msg = '%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded' \
                                % (x, total_leafs, node_id, name, items_downloaded)
                 log2file(mode='a', log_filename=log_name, message=finished_msg, print_flag=True)
                 db.amazon_category_tree.update_one({'_id': leaf_id},
                                                    {'$set': {'Status': 'done',
                                                              'LastPrice': 5.00}})
-            except Exception as e:
+            except NameError as e:
                 error_msg1 = 'ERROR! : node id: %s -> name: %s failed!' % (node_id, name)
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
                 error_msg2 = e.message
