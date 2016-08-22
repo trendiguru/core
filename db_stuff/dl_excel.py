@@ -32,7 +32,6 @@ def category_tree_status(worksheet, merge_format, bold):
     categories_length = leafs.count()+3
     worksheet.set_column('B:I', 15)
     worksheet.set_column('D:E', 50)
-    print(categories)
     options = {'data': categories,
                'total_row': True,
                'columns': [{'header': 'Leaf', 'total_string': 'Total'},
