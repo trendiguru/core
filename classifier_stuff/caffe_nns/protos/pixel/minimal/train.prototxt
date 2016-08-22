@@ -35,7 +35,7 @@ layer {
   name: "conv_in1"
   type: "Convolution"
   bottom: "data_bn"
-  top: "conv1_1"
+  top: "convin_1"
   param {
     lr_mult: 1
     decay_mult: 1
