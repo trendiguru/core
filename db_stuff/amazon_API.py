@@ -41,7 +41,7 @@ FemaleCategories = list(set(shopstyle_paperdoll_female.values()))
 MaleCategories = list(set(shopstyle_paperdoll_male.values()))
 
 
-def proper_wait(print_flag=True):
+def proper_wait(print_flag=False):
     global last_time
     current_time = time()
     time_diff = current_time - last_time
@@ -602,7 +602,7 @@ def download_all(col_name, gender='Female'):
                                                    {'$set': {'Status': 'done',
                                                              'LastPrice': 5.00}})
             except Exception as e:
-                error_msg1 = 'ERROR', 'node id: %s -> name: %s failed!' % (node_id, name)
+                error_msg1 = 'ERROR! : node id: %s -> name: %s failed!' % (node_id, name)
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
                 error_msg2 = e.message
                 log2file(mode='a', log_filename=log_name, message=error_msg2, print_flag=True)
