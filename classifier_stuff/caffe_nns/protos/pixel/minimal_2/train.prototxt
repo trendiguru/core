@@ -409,7 +409,7 @@ layer {
   name: "myupscore2"
   type: "Deconvolution"
   bottom: "myconv_out2"
-  top: "upscore2"
+  top: "myupscore2"
   param {
     lr_mult: 1
   }
