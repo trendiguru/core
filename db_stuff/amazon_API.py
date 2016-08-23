@@ -439,7 +439,7 @@ def daily_annoy(col_name, categories, all_cats=False):
 
     categories_num = len(categories)
     for c, cat in enumerate(categories):
-        forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=1800)
+        forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
             sleep(30)
         if forest_job.is_failed:
