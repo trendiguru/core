@@ -3,6 +3,8 @@ __author__ = 'kaggle_guy'
 import os
 import sys
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 import math
 import pylab
