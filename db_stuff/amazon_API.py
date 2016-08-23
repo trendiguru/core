@@ -482,9 +482,11 @@ def update_plus_size_collection(gender, categories, cc='US'):
         items_before += db[col_name].count()
     amazon_name = 'amazon_%s_%s' % (cc, gender)
     amazon = db[amazon_name].find()
-
+    amazon_total = amazon.count()
     inserted = 0
-    for item in amazon:
+    for x, item in enumerate(amazon):
+        if x % 100 == 0:
+            print('%d/%d' % (x, amazon_total))
         idx = item['id']
         # check if already exists in plus collection
         exists = amaze.find({'id': idx}).count()
