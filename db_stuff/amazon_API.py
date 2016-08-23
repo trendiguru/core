@@ -446,6 +446,7 @@ def daily_annoy(col_name, categories, all_cats=False):
         else:
             msg = "%d/%d annoy done!" % (c, categories_num)
             print_error(msg)
+
     reindex_forest(col_name)
 
 
@@ -693,8 +694,9 @@ if __name__ == "__main__":
     if update_drive_only:
         update_drive('Female', cc_upper)
     elif daily:
-        daily_amazon_updates('Female', cc_upper)
-        daily_amazon_updates('Male', cc_upper)
+        for gen in ['Female', 'Male']:
+            col = 'amazon_%s_%s' % (cc_upper, gen)
+            daily_amazon_updates(col, cc_upper)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
