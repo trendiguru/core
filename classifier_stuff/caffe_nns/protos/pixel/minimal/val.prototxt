@@ -469,11 +469,11 @@ layer {
 }
 
 layer {
-  name: "loss"
+  name: "myloss"
   type: "SoftmaxWithLoss"
   bottom: "pixlevel_output"
   bottom: "label"
-  top: "loss"
+  top: "myloss"
 }
 
 

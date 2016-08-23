@@ -1,4 +1,8 @@
 __author__ = 'jeremy'
+#ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/jrlayers.py /root/caffe/python
+#ln -s /usr/lib/python2.7/dist-packacges/trendi/classifier_stuff/caffe_nns/surgery.py /root/caffe/python
+#ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/score.py /root/caffe/python
+
 import caffe
 import surgery, score
 
@@ -30,11 +34,11 @@ solver = caffe.SGDSolver('solver.prototxt')
 solver.net.copy_from(weights)
 
 # surgeries
-interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+#interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
 all_layers = [k for k in solver.net.params.keys()]
 print('all layers:')
 print all_layers
-surgery.interp(solver.net, interp_layers)
+#surgery.interp(solver.net, interp_layers)
 
 # scoring
 #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
