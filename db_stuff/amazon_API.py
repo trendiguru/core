@@ -482,8 +482,11 @@ def update_plus_size_collection(gender, categories, cc='US'):
         items_before += db[col_name].count()
     amazon_name = 'amazon_%s_%s' % (cc, gender)
     amazon = db[amazon_name].find()
-
-    for item in amazon:
+    amazon_total = amazon.count()
+    inserted = 0
+    for x, item in enumerate(amazon):
+        if x % 100 == 0:
+            print('%d/%d' % (x, amazon_total))
         idx = item['id']
         # check if already exists in plus collection
         exists = amaze.find({'id': idx}).count()
@@ -495,6 +498,8 @@ def update_plus_size_collection(gender, categories, cc='US'):
 
         its_plus_size = verify_plus_size(sizes)
         if its_plus_size:
+            if inserted % 100 == 0:
+                print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
 
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
