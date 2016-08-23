@@ -111,14 +111,14 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             return []
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-
+    print "entries cursor count: {0}".format(entries.count())
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
         d = distance(category, fp, ent)
         if not d:
-            return []
+            continue
         if i < number_of_matches:
             nearest_n.append((entry, d))
             farthest_nearest = 1
