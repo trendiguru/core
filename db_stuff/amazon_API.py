@@ -339,7 +339,6 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
             leaf_tmp['Parents'] = p
             db.amazon_category_tree.insert_one(leaf_tmp)
             print('\t\t%s inserted' % cat_name)
-        db.amazon_category_tree.delete_one({'BrowseNodeId': node_id, 'Name': 'Clothing'})
 
     for child in children:
         if 'BrowseNodeId' not in child.keys():
@@ -435,6 +434,7 @@ def daily_annoy(col_name, categories, all_cats=False):
         for cat in categories:
             if collection.find({'categories': cat, 'download_data.first_dl': today_date}).count() > 0:
                 categories_with_changes.append(cat)
+                print('%s will be re-annoyed' % cat)
         categories = categories_with_changes
 
     categories_num = len(categories)
@@ -447,6 +447,7 @@ def daily_annoy(col_name, categories, all_cats=False):
         else:
             msg = "%d/%d annoy done!" % (c, categories_num)
             print_error(msg)
+
     reindex_forest(col_name)
 
 
@@ -680,6 +681,8 @@ if __name__ == "__main__":
     # every fresh start its a good idea to build from scratch the category tree
     if build_tree:
         build_category_tree([])
+        db.amazon_category_tree.delete_many({'Name': 'Clothing'})
+
     elif delete_cache:
         db.amazon_category_tree.update_many({'Children.count': 0},
                                             {'$set': {'LastPrice': 3000.00,
@@ -692,8 +695,9 @@ if __name__ == "__main__":
     if update_drive_only:
         update_drive('Female', cc_upper)
     elif daily:
-        daily_amazon_updates('Female', cc_upper)
-        daily_amazon_updates('Male', cc_upper)
+        for gen in ['Female', 'Male']:
+            col = 'amazon_%s_%s' % (cc_upper, gen)
+            daily_amazon_updates(col, cc_upper)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
