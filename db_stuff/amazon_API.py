@@ -477,10 +477,10 @@ def update_plus_size_collection(gender, categories, cc='US'):
     amaze_name = 'amaze_%s' % gender
     amaze = db[amaze_name]
     items_before = 0
-    for gender in ['Female', 'Male']:
-        col_name = '%s_%s' % ('amaze', gender)
+    for gen in ['Female', 'Male']:
+        col_name = '%s_%s' % ('amaze', gen)
         items_before += db[col_name].count()
-    amazon_name = 'amazon_%s_%s' % (cc, gender)
+    amazon_name = 'amazon_%s_%s' % (cc, gen)
     amazon = db[amazon_name].find()
     amazon_total = amazon.count()
     inserted = 0
