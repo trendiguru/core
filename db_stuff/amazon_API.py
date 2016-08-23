@@ -441,16 +441,16 @@ def daily_annoy(col_name, categories, all_cats=False):
     jobs = []
     for c, cat in enumerate(categories):
         forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=3600)
-        jobs.append({'cat':cat, 'job': forest_job})
+        jobs.append({'cat': cat, 'job': forest_job})
 
-    while not all(job for job in jobs if (job['job'].is_finished or job['job'].is_failed)):
+    while any(job for job in jobs if not (job['job'].is_finished or job['job'].is_failed)):
         sleep(30)
 
     for job in jobs:
         if job['job'].is_failed:
             print ('annoy for %s failed' % cat)
         else:
-            msg = "%d/%d annoy done!" % (c, categories_num)
+            msg = "%s annoy done!" % (job['cat'])
             print_error(msg)
 
     reindex_forest(col_name)
