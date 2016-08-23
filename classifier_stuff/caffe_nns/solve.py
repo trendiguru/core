@@ -55,13 +55,18 @@ jrinfer.seg_tests(solver, False, val, layer='score')
 progress_plot.parse_solveoutput(outfilename)
 subprocess.call(cmd,shell=True)
 
-
+i = 0
+losses = []
+iters = []
 for _ in range(1000):
+    i = i+1
     solver.step(20)
     loss = solver.net.blobs['loss'].data
     print('loss:'+str(loss))
+    losses.append(loss)
+    iters.append(i)
 #    score.seg_tests(solver, False, val, layer='score')
-#    jrinfer.seg_tests(solver, False, val, layer='score')
+    jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
 #    progress_plot.parse_solveoutput(outfilename)
     print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)

@@ -302,7 +302,7 @@ def parse_logfile(output_filename,logy):
             ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
-  plt.show()
+  #plt.show()
 
 def fit_exp(x, k,a, b, x0):
     return k*np.exp(np.multiply(a,x-x0)) + b
@@ -454,7 +454,7 @@ def parse_solveoutput(output_filename):
 
   savename = output_filename+'.jpg'
   plt.savefig(savename)
-  plt.show()
+#  plt.show()
 
 
 if __name__ == "__main__":
