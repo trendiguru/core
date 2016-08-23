@@ -332,7 +332,7 @@ class JrPixlevel(caffe.Layer):
             print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
-        print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
+ #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
@@ -613,7 +613,7 @@ class JrMultilabel(caffe.Layer):
             label_vec = self.label_vecs[idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
-            print('the imagefile:'+filename+' index:'+str(idx))
+            #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
