@@ -63,7 +63,6 @@ def find_top_n_results(image, mask, number_of_results, category_id, collection, 
     print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
-    fingerprint = {key: value for key, value in fingerprint.iteritems()}
     return fingerprint, closest_matches
 
 
