@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 #ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/jrlayers.py /root/caffe/python
 #ln -s /usr/lib/python2.7/dist-packacges/trendi/classifier_stuff/caffe_nns/surgery.py /root/caffe/python
 #ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/score.py /root/caffe/python
+#git -C /usr/lib/python2.7/dist-packages/trendi pull
 
 import caffe
 import surgery, score
@@ -56,9 +57,11 @@ subprocess.call(cmd,shell=True)
 
 
 for _ in range(1000):
-    solver.step(5000)
+    solver.step(20)
+    loss = solver.net.blobs['loss'].data
+    print('loss:'+str(loss))
 #    score.seg_tests(solver, False, val, layer='score')
-    jrinfer.seg_tests(solver, False, val, layer='score')
-    progress_plot.parse_solveoutput(outfilename)
+#    jrinfer.seg_tests(solver, False, val, layer='score')
+#    progress_plot.parse_solveoutput(outfilename)
     print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)
