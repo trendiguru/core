@@ -437,7 +437,6 @@ def daily_annoy(col_name, categories, all_cats=False):
                 print('%s will be re-annoyed' % cat)
         categories = categories_with_changes
 
-    categories_num = len(categories)
     jobs = []
     for c, cat in enumerate(categories):
         forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=3600)
@@ -448,7 +447,7 @@ def daily_annoy(col_name, categories, all_cats=False):
 
     for job in jobs:
         if job['job'].is_failed:
-            print ('annoy for %s failed' % cat)
+            print ('annoy for %s failed' % job['cat'])
         else:
             msg = "%s annoy done!" % (job['cat'])
             print_error(msg)
