@@ -207,7 +207,8 @@ def refresh_worker(doc, name, cats=[]):
                         _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp,
                                                                                        collection=col_name,
                                                                                        category_id=category,
-                                                                                       number_of_results=100)
+                                                                                       number_of_results=100,
+                                                                                       mask=[])
                     else:
                         new_similar_results = similar_res[name]
 
@@ -215,7 +216,8 @@ def refresh_worker(doc, name, cats=[]):
                     _, new_similar_results = find_similar_mongo.find_top_n_results(fingerprint=fp,
                                                                                    collection=col_name,
                                                                                    category_id=category,
-                                                                                   number_of_results=100)
+                                                                                   number_of_results=100,
+                                                                                   mask=[])
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
 
