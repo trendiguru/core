@@ -6,7 +6,7 @@ __author__ = 'jeremy'
 
 import caffe
 import surgery, score
-
+import time
 import numpy as np
 import os
 import sys
@@ -72,6 +72,10 @@ for _ in range(1000):
         print('loss:'+str(loss))
         losses.append(loss)
         iters.append(i)
+        with open('loss.txt','a') as f:
+            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
+            f.close()
+
 #    score.seg_tests(solver, False, val, layer='score')
     plt.plot(iters, loss,'bo:', label="train loss")
     plt.xlabel("iterations")
