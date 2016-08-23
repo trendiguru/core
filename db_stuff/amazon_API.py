@@ -434,6 +434,7 @@ def daily_annoy(col_name, categories, all_cats=False):
         for cat in categories:
             if collection.find({'categories': cat, 'download_data.first_dl': today_date}).count() > 0:
                 categories_with_changes.append(cat)
+                print('%s will be re-annoyed' % cat)
         categories = categories_with_changes
 
     categories_num = len(categories)
