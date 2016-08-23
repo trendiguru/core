@@ -201,7 +201,7 @@ def mask_to_multichannel(mask_arr,n_channels):
     :return:
     '''
     if len(mask_arr) != 2:
-        logging.debug('got multichannel image in mask_to_multichannel, converting to single chan')
+ #       logging.debug('got multichannel image in mask_to_multichannel, converting to single chan')
 #        assert(mask_arr[:,:,0] == mask_arr[:,:,1])   #include these if paranoid
 #        assert(mask_arr[:,:,0] == mask_arr[:,:,2])
         mask_arr = mask_arr[:,:,0]  #take 0th channel
@@ -299,7 +299,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
-            print('crop is larger than incoming image so I refuse to crop')
+            print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
             x_room = 0
             y_room = 0
 
@@ -365,7 +365,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #        cv2.imshow('xformed',img_arr)
 #        k = cv2.waitKey(0)
     if mask_arr is not None:  #do xform to mask
-        logging.debug('doing mask augmentation')
+      #  logging.debug('doing mask augmentation')
         mask_arr =do_xform(mask_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
         mask_arr = multichannel_to_mask(mask_arr)
         return img_arr,mask_arr
