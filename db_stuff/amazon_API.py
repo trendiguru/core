@@ -483,6 +483,7 @@ def update_plus_size_collection(gender, categories, cc='US'):
     amazon_name = 'amazon_%s_%s' % (cc, gender)
     amazon = db[amazon_name].find()
 
+    inserted = 0
     for item in amazon:
         idx = item['id']
         # check if already exists in plus collection
@@ -495,6 +496,8 @@ def update_plus_size_collection(gender, categories, cc='US'):
 
         its_plus_size = verify_plus_size(sizes)
         if its_plus_size:
+            if inserted % 100 == 0:
+                print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
 
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
