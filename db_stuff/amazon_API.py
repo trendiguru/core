@@ -452,6 +452,7 @@ def daily_annoy(col_name, categories, all_cats=False):
                 print_error(msg)
                 job['running'] = False
             else:
+                print('stolling')
                 sleep(15)
 
     reindex_forest(col_name)
