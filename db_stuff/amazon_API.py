@@ -443,7 +443,7 @@ def daily_annoy(col_name, categories, all_cats=False):
         forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=3600)
         jobs.append({'cat':cat, 'job': forest_job})
 
-    while any(job for job in jobs if not job['job'].is_finished and not job['job'].is_failed):
+    while not all(job for job in jobs if (job['job'].is_finished or job['job'].is_failed)):
         sleep(30)
 
     for job in jobs:
