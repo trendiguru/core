@@ -321,6 +321,7 @@ def parse_solveoutput(output_filename):
     f = open(output_filename, 'r')
   except:
     print('trouble opening file '+str(output_filename))
+    return
   times = []
   training_iterations = []
   overall_accuracy = []
