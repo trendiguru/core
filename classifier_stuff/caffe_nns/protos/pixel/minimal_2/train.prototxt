@@ -272,8 +272,8 @@ layer {
 #fc3/relu
 layer {
 	bottom: "fc2"
-	top: "fc3"
-	name: "fc3"
+	top: "myfc3"
+	name: "myfc3"
 	type: "InnerProduct"
 	inner_product_param {
             num_output: 21504   #32*32*21
@@ -292,8 +292,8 @@ layer {
 layer {
   name: "relu_fc3"
   type: "ReLU"
-  bottom: "fc3"
-  top: "fc3"
+  bottom: "myfc3"
+  top: "myfc3"
 }
 
 layer {
