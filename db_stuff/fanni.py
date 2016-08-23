@@ -92,6 +92,8 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
     log_name = '/home/developer/yonti/annoy.log'
+    if type(fingerprint)==dict:
+        fingerprint = fingerprint['color']
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
