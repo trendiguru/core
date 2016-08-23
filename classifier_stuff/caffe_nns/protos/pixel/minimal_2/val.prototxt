@@ -313,10 +313,10 @@ layer {
 
 #out conv/relu 1
 layer {
-  name: "conv_out1"
+  name: "myconv_out1"
   type: "Convolution"
   bottom: "reshape"
-  top: "conv_out1"
+  top: "myconv_out1"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -342,16 +342,16 @@ layer {
 layer {
   name: "relu_out1"
   type: "ReLU"
-  bottom: "conv_out1"
-  top: "conv_out1"
+  bottom: "myconv_out1"
+  top: "myconv_out1"
 }
 
 #upsample1 - 64x64
 layer {
-  name: "upscore1"
+  name: "myupscore1"
   type: "Deconvolution"
-  bottom: "conv_out1"
-  top: "upscore1"
+  bottom: "myconv_out1"
+  top: "myupscore1"
   param {
     lr_mult: 1
   }
@@ -363,18 +363,18 @@ layer {
   }
 }
 layer {
-  name: "relu_up1"
+  name: "myrelu_up1"
   type: "ReLU"
-  bottom: "upscore1"
-  top: "upscore1"
+  bottom: "myupscore1"
+  top: "myupscore1"
 }
 
 #out conv/relu 2
 layer {
-  name: "conv_out2"
+  name: "myconv_out2"
   type: "Convolution"
-  bottom: "upscore1"
-  top: "conv_out2"
+  bottom: "myupscore1"
+  top: "myconv_out2"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -398,17 +398,17 @@ layer {
   }
 }
 layer {
-  name: "relu_out2"
+  name: "myrelu_out2"
   type: "ReLU"
-  bottom: "conv_out2"
-  top: "conv_out2"
+  bottom: "myconv_out2"
+  top: "myconv_out2"
 }
 
 #upsample2 - 128x128
 layer {
-  name: "upscore2"
+  name: "myupscore2"
   type: "Deconvolution"
-  bottom: "conv_out2"
+  bottom: "myconv_out2"
   top: "upscore2"
   param {
     lr_mult: 1
@@ -421,18 +421,18 @@ layer {
   }
 }
 layer {
-  name: "relu_up2"
+  name: "myrelu_up2"
   type: "ReLU"
-  bottom: "upscore2"
-  top: "upscore2"
+  bottom: "myupscore2"
+  top: "myupscore2"
 }
 
 #out conv/relu 3
 layer {
-  name: "conv_out3"
+  name: "myconv_out3"
   type: "Convolution"
-  bottom: "upscore2"
-  top: "conv_out3"
+  bottom: "myupscore2"
+  top: "myconv_out3"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -456,18 +456,18 @@ layer {
   }
 }
 layer {
-  name: "relu_out3"
+  name: "myrelu_out3"
   type: "ReLU"
-  bottom: "conv_out3"
-  top: "conv_out3"
+  bottom: "myconv_out3"
+  top: "myconv_out3"
 }
 
 #out conv/relu 3b
 layer {
-  name: "conv_out3b"
+  name: "myconv_out3b"
   type: "Convolution"
-  bottom: "conv_out3"
-  top: "conv_out3b"
+  bottom: "myconv_out3"
+  top: "myconv_out3b"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -491,18 +491,18 @@ layer {
   }
 }
 layer {
-  name: "relu_out3b"
+  name: "myrelu_out3b"
   type: "ReLU"
-  bottom: "conv_out3b"
-  top: "conv_out3b"
+  bottom: "myconv_out3b"
+  top: "myconv_out3b"
 }
 
 #final output
 layer {
-  name: "pixlevel_output"
+  name: "mypixlevel_output"
   type: "Convolution"
-  bottom: "conv_out3"
-  top: "pixlevel_output"
+  bottom: "myconv_out3"
+  top: "mypixlevel_output"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -529,7 +529,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "pixlevel_output"
+  bottom: "mypixlevel_output"
   bottom: "label"
   top: "loss"
 }
