@@ -501,7 +501,7 @@ layer {
 layer {
   name: "mypixlevel_output"
   type: "Convolution"
-  bottom: "myconv_out3"
+  bottom: "myconv_out3b"
   top: "mypixlevel_output"
   param {
     lr_mult: 1
