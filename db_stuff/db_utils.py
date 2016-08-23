@@ -208,7 +208,8 @@ def refresh_worker(doc, name, cats=[]):
                                                                                        collection=col_name,
                                                                                        category_id=category,
                                                                                        number_of_results=100,
-                                                                                       mask=[])
+                                                                                       mask=[],
+                                                                                       image=[])
                     else:
                         new_similar_results = similar_res[name]
 
@@ -217,7 +218,8 @@ def refresh_worker(doc, name, cats=[]):
                                                                                    collection=col_name,
                                                                                    category_id=category,
                                                                                    number_of_results=100,
-                                                                                   mask=[])
+                                                                                   mask=[],
+                                                                                   image=[])
                 similar_res[name] = new_similar_results
     collection.replace_one({'_id': doc['_id']}, doc)
 
