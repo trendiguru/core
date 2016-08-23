@@ -447,10 +447,12 @@ def daily_annoy(col_name, categories, all_cats=False):
             if job['job'].is_failed:
                 print ('annoy for %s failed' % job['cat'])
                 job['running'] = False
+                jobs = [x for x in jobs if x['running']]
             elif job['job'].is_finished:
                 msg = "%s annoy done!" % (job['cat'])
                 print_error(msg)
                 job['running'] = False
+                jobs = [x for x in jobs if x['running']]
             else:
                 print('stolling')
                 sleep(15)
