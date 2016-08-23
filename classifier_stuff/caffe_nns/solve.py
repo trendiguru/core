@@ -15,6 +15,11 @@ import setproctitle
 import subprocess
 import socket
 
+import matplotlib
+matplotlib.use('Agg') #allow plot generation on X-less systems
+import matplotlib.pyplot as plt
+plt.ioff()
+
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
@@ -58,14 +63,21 @@ subprocess.call(cmd,shell=True)
 i = 0
 losses = []
 iters = []
+steps = 20
 for _ in range(1000):
-    i = i+1
-    solver.step(20)
-    loss = solver.net.blobs['loss'].data
-    print('loss:'+str(loss))
-    losses.append(loss)
-    iters.append(i)
+    for i in range(100):
+        i = i+steps
+        solver.step(steps)
+        loss = solver.net.blobs['loss'].data
+        print('loss:'+str(loss))
+        losses.append(loss)
+        iters.append(i)
 #    score.seg_tests(solver, False, val, layer='score')
+    plt.plot(iters, loss,'bo:', label="train loss")
+    plt.xlabel("iterations")
+    plt.ylabel("loss")
+    savename = 'loss.jpg'
+    plt.savefig(savename)
     jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
 #    progress_plot.parse_solveoutput(outfilename)
     print('jpgfile:'+str(jpgname))
