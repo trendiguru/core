@@ -165,7 +165,7 @@ class JrPixlevel(caffe.Layer):
             print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
-        print('reshaping')
+   #     print('reshaping')
         # reshape tops to fit (leading 1 is for batch dimension)
 
 #        self.data,self.label = self.load_image_and_mask()
