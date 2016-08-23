@@ -52,7 +52,7 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image, mask, number_of_results, category_id, collection, fingerprint=None):
+def find_top_n_results(image=None, mask=None, number_of_results=100, category_id=None, collection=None, fingerprint=None):
 
     print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)

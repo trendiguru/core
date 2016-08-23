@@ -34,7 +34,7 @@ all_predictions = np.zeros(6)
 text_file = open("db_dress_length_test.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_10k_images_iter_5000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3k_images_with_people_iter_5000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -229,4 +229,4 @@ plt.legend()
 plt.hist(array_failure_without, bins=100, range=(0.9, 1), color='pink', label='array_failure_without')
 plt.legend()
 
-histogram.savefig('db_dress_length_histogram_iter_5000.png')
+histogram.savefig('db_dress_length_histogram_iter_5000_dress_with_person.png')
