@@ -332,7 +332,7 @@ class JrPixlevel(caffe.Layer):
             print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
-        print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
+ #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)

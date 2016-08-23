@@ -64,7 +64,14 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
 
 
 def distance(category, main_fp, candidate_fp):
+    if isinstance(main_fp, list):
+        logging.warning("main_fp in distance function is a LIST!")
+        return None
+    if isinstance(candidate_fp, list):
+        logging.warning("candidate_fp in distance function is a LIST!")
+        return None
     if not main_fp.keys() == candidate_fp.keys():
+        logging.warning("2 fps has different keys!")
         return None
     d = 0
     weight_keys = constants.weights_per_category.keys()
