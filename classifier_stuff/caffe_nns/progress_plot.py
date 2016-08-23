@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
+plt.ioff()  #interactive plot off
 import math
 import pylab
 import sys
