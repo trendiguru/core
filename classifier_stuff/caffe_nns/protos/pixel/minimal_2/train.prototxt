@@ -299,7 +299,7 @@ layer {
 layer {
     name: "reshape"
     type: "Reshape"
-    bottom: "fc3"
+    bottom: "myfc3"
     top: "reshape"
     reshape_param {
       shape {
