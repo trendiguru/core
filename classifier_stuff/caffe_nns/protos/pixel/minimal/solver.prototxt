@@ -1,8 +1,8 @@
 train_net: "train.prototxt"
 test_net: "val.prototxt"
-test_iter: 500
+test_iter: 200
 # make test net, but don't invoke it from the solver itself
-test_interval: 100 
+test_interval: 1000
 display: 20
 average_loss: 20
 

@@ -316,9 +316,12 @@ def parse_solveoutput(output_filename):
   '''
   todo: add net name and params to title
   '''
-  print('parsing solve.py (jrinference) output')
-  f = open(output_filename, 'r')
-
+  print('parsing solve.py (jrinference) output file '+output_filename)
+  try:
+    f = open(output_filename, 'r')
+  except:
+    print('trouble opening file '+str(output_filename))
+    return
   times = []
   training_iterations = []
   overall_accuracy = []

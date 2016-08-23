@@ -165,7 +165,7 @@ class JrPixlevel(caffe.Layer):
             print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
-        print('reshaping')
+   #     print('reshaping')
         # reshape tops to fit (leading 1 is for batch dimension)
 
 #        self.data,self.label = self.load_image_and_mask()
@@ -547,7 +547,7 @@ class JrMultilabel(caffe.Layer):
             self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
-
+        logging.debug('new img size:'+str(self.new_size))
         logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
 
