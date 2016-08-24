@@ -424,7 +424,7 @@ def update_drive(col, cc, items_before=None, dl_duration=None):
                "items_before": items_before,
                "items_after": items_after,
                "items_new": items_new}
-    mongo2xl(collection_name, dl_info)
+    mongo2xl(col_name, dl_info)
 
 
 def daily_annoy(col_name, categories, all_cats=False):
@@ -458,6 +458,7 @@ def daily_annoy(col_name, categories, all_cats=False):
                 sleep(15)
 
     reindex_forest(col_name)
+    return categories
 
 
 def verify_plus_size(size_list):
@@ -472,7 +473,7 @@ def verify_plus_size(size_list):
     return any(size for size in splited_list if size in plus_sizes)
 
 
-def update_plus_size_collection(gender, categories, cc='US'):
+def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False):
     amaze_start = time()
     amaze_name = 'amaze_%s' % gender
     amaze = db[amaze_name]
@@ -480,7 +481,7 @@ def update_plus_size_collection(gender, categories, cc='US'):
     for gen in ['Female', 'Male']:
         col_name = '%s_%s' % ('amaze', gen)
         items_before += db[col_name].count()
-    amazon_name = 'amazon_%s_%s' % (cc, gen)
+    amazon_name = 'amazon_%s_%s' % (cc, gender)
     amazon = db[amazon_name].find()
     amazon_total = amazon.count()
     inserted = 0
@@ -498,29 +499,32 @@ def update_plus_size_collection(gender, categories, cc='US'):
 
         its_plus_size = verify_plus_size(sizes)
         if its_plus_size:
+            inserted += 1
             if inserted % 100 == 0:
                 print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
 
+    clear_duplicates(amaze_name)  # add status bar
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
 
-    daily_annoy(amaze_name, categories)
-
-    refresh_similar_results('amaze')
+    updated_categories = daily_annoy(amaze_name, categories, True)
+    if not skip_refresh:
+        refresh_similar_results('amaze', updated_categories)
 
     amaze_end = time()
     dl_duration = amaze_end - amaze_start
-    update_drive(collection_name, cc, items_before, dl_duration)
+    update_drive('amaze', cc, items_before, dl_duration)
 
 
-def daily_amazon_updates(col_name, gender, all_cats=False, cc='US'):
+def daily_amazon_updates(col_name, gender, all_cats=False, cc='US', skip_refresh=False):
     # redo annoy for categories which has been changed
     daily_annoy(col_name, amazon_categories_list, all_cats)
 
     # refresh items which has been changed
-    refresh_name = 'amazon_%s' % cc
-    refresh_similar_results(refresh_name, amazon_categories_list)
+    if not skip_refresh:
+        refresh_name = 'amazon_%s' % cc
+        refresh_similar_results(refresh_name, amazon_categories_list)
 
     # upload file to drive
     update_drive('amazon', cc)
@@ -529,7 +533,7 @@ def daily_amazon_updates(col_name, gender, all_cats=False, cc='US'):
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
-    update_plus_size_collection(gender, amazon_categories_list, cc)
+    update_plus_size_collection(gender, amazon_categories_list, cc, skip_refresh)
     plus = col_upper + ' PLUS SIZE'
     print_error('%s FINISHED' % plus)
     return
@@ -711,7 +715,7 @@ if __name__ == "__main__":
     elif daily:
         for gen in ['Female', 'Male']:
             col = 'amazon_%s_%s' % (cc_upper, gen)
-            daily_amazon_updates(col, cc_upper)
+            daily_amazon_updates(col, gen)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
