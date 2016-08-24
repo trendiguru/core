@@ -473,7 +473,7 @@ def verify_plus_size(size_list):
     return any(size for size in splited_list if size in plus_sizes)
 
 
-def update_plus_size_collection(gender, categories, cc='US'):
+def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False):
     amaze_start = time()
     amaze_name = 'amaze_%s' % gender
     amaze = db[amaze_name]
@@ -507,21 +507,22 @@ def update_plus_size_collection(gender, categories, cc='US'):
     print_error('ARCHIVE DOORMAN FINISHED')
 
     updated_categories = daily_annoy(amaze_name, categories)
-
-    refresh_similar_results('amaze', updated_categories)
+    if not skip_refresh:
+        refresh_similar_results('amaze', updated_categories)
 
     amaze_end = time()
     dl_duration = amaze_end - amaze_start
-    update_drive(collection_name, cc, items_before, dl_duration)
+    update_drive('amaze', cc, items_before, dl_duration)
 
 
-def daily_amazon_updates(col_name, gender, all_cats=False, cc='US'):
+def daily_amazon_updates(col_name, gender, all_cats=False, cc='US', skip_refresh=False):
     # redo annoy for categories which has been changed
     daily_annoy(col_name, amazon_categories_list, all_cats)
 
     # refresh items which has been changed
-    refresh_name = 'amazon_%s' % cc
-    refresh_similar_results(refresh_name, amazon_categories_list)
+    if not skip_refresh:
+        refresh_name = 'amazon_%s' % cc
+        refresh_similar_results(refresh_name, amazon_categories_list)
 
     # upload file to drive
     update_drive('amazon', cc)
@@ -530,7 +531,7 @@ def daily_amazon_updates(col_name, gender, all_cats=False, cc='US'):
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
-    update_plus_size_collection(gender, amazon_categories_list, cc)
+    update_plus_size_collection(gender, amazon_categories_list, cc, skip_refresh)
     plus = col_upper + ' PLUS SIZE'
     print_error('%s FINISHED' % plus)
     return
