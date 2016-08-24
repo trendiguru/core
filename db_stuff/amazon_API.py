@@ -504,6 +504,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
                 print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
 
+    clear_duplicates(amaze_name)  # add status bar
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
 
