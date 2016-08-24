@@ -63,7 +63,7 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
         return None
 
 
-def distance(category, main_fp, candidate_fp):
+def distance(category, main_fp, candidate_fp, coll):
     if isinstance(main_fp, list):
         logging.warning("main_fp in distance function is a LIST!")
         return None
@@ -72,7 +72,7 @@ def distance(category, main_fp, candidate_fp):
         return None
     if not main_fp.keys() == candidate_fp.keys():
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
-        logging.warning("category is {0}".format(category))
+        logging.warning("category is {0}, collection {1]".format(category, coll))
         return None
     d = 0
     weight_keys = constants.weights_per_category.keys()
@@ -120,7 +120,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
             continue
-        d = distance(category, fp, ent)
+        d = distance(category, fp, ent, collection)
         if not d:
             continue
         if i < number_of_matches:
