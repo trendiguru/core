@@ -424,7 +424,7 @@ def update_drive(col, cc, items_before=None, dl_duration=None):
                "items_before": items_before,
                "items_after": items_after,
                "items_new": items_new}
-    mongo2xl(collection_name, dl_info)
+    mongo2xl(col_name, dl_info)
 
 
 def daily_annoy(col_name, categories, all_cats=False):
@@ -499,14 +499,16 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
 
         its_plus_size = verify_plus_size(sizes)
         if its_plus_size:
+            inserted += 1
             if inserted % 100 == 0:
                 print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
 
+    clear_duplicates(amaze_name)  # add status bar
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
 
-    updated_categories = daily_annoy(amaze_name, categories)
+    updated_categories = daily_annoy(amaze_name, categories, True)
     if not skip_refresh:
         refresh_similar_results('amaze', updated_categories)
 
@@ -713,7 +715,7 @@ if __name__ == "__main__":
     elif daily:
         for gen in ['Female', 'Male']:
             col = 'amazon_%s_%s' % (cc_upper, gen)
-            daily_amazon_updates(col, cc_upper)
+            daily_amazon_updates(col, gen)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()
