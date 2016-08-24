@@ -82,7 +82,7 @@ def distance(category, main_fp, candidate_fp):
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
         elif feature == 'sleeve_length':
-            dist = sleeve_client.sleeve_distance(main_fp[feature], candidate_fp[feature])['data']
+            dist = sleeve_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
 
@@ -147,3 +147,11 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
     return nearest_n
+
+
+def sleeve_distance(v1, v2):
+    if len(v1) != 8 or len(v2) != 8:
+        return None
+    v1 = np.array(v1) if isinstance(v1, list) else v1
+    v2 = np.array(v2) if isinstance(v2, list) else v2
+    return np.linalg.norm(v1 - v2)
