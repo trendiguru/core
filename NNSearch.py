@@ -116,6 +116,9 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     nearest_n = []
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
+        if isinstance(ent, list):
+            logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
+            continue
         d = distance(category, fp, ent)
         if not d:
             continue
