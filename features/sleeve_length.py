@@ -45,5 +45,5 @@ def execute(image_or_url):
 
     # Classify
     predictions = classifier.predict(image_for_caffe)
-
-    return predictions[0]
+    pred = predictions[0].tolist() if isinstance(predictions[0], np.ndarray) else predictions[0]
+    return pred

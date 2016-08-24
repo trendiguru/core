@@ -1,4 +1,4 @@
-name: "minimal_pixelLevel"
+name: "minimal_pixelLevel2"
 layer {
     name: "data"
     type: "Python"
@@ -272,11 +272,11 @@ layer {
 #fc3/relu
 layer {
 	bottom: "fc2"
-	top: "fc3"
-	name: "fc3"
+	top: "myfc3"
+	name: "myfc3"
 	type: "InnerProduct"
 	inner_product_param {
-            num_output: 32768
+            num_output: 21504   #32*32*21
             weight_filler {type: "xavier"}
             bias_filler {type: "constant"}
 	  }
@@ -292,31 +292,31 @@ layer {
 layer {
   name: "relu_fc3"
   type: "ReLU"
-  bottom: "fc3"
-  top: "fc3"
+  bottom: "myfc3"
+  top: "myfc3"
 }
 
 layer {
     name: "reshape"
     type: "Reshape"
-    bottom: "fc3"
+    bottom: "myfc3"
     top: "reshape"
     reshape_param {
       shape {
         dim: 0  # copy the dimension from below
-        dim: 8
-        dim: 64
-        dim: 64
+        dim: 21 #maybe increase this as there are 21 classes
+        dim: 32
+        dim: 32
       }
     }
 }
 
 #out conv/relu 1
 layer {
-  name: "conv_out1"
+  name: "myconv_out1"
   type: "Convolution"
   bottom: "reshape"
-  top: "conv_out1"
+  top: "myconv_out1"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -342,16 +342,16 @@ layer {
 layer {
   name: "relu_out1"
   type: "ReLU"
-  bottom: "conv_out1"
-  top: "conv_out1"
+  bottom: "myconv_out1"
+  top: "myconv_out1"
 }
 
-#upsample
+#upsample1 - 64x64
 layer {
-  name: "upscore1"
+  name: "myupscore1"
   type: "Deconvolution"
-  bottom: "conv_out1"
-  top: "upscore1"
+  bottom: "myconv_out1"
+  top: "myupscore1"
   param {
     lr_mult: 1
   }
@@ -363,18 +363,18 @@ layer {
   }
 }
 layer {
-  name: "relu_up1"
+  name: "myrelu_up1"
   type: "ReLU"
-  bottom: "upscore1"
-  top: "upscore1"
+  bottom: "myupscore1"
+  top: "myupscore1"
 }
 
 #out conv/relu 2
 layer {
-  name: "conv_out2"
+  name: "myconv_out2"
   type: "Convolution"
-  bottom: "upscore1"
-  top: "conv_out2"
+  bottom: "myupscore1"
+  top: "myconv_out2"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -398,18 +398,76 @@ layer {
   }
 }
 layer {
-  name: "relu_out2"
+  name: "myrelu_out2"
   type: "ReLU"
-  bottom: "conv_out2"
-  top: "conv_out2"
+  bottom: "myconv_out2"
+  top: "myconv_out2"
+}
+
+#upsample2 - 128x128
+layer {
+  name: "myupscore2"
+  type: "Deconvolution"
+  bottom: "myconv_out2"
+  top: "myupscore2"
+  param {
+    lr_mult: 1
+  }
+  convolution_param {
+    num_output: 128
+    bias_term: false
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "myrelu_up2"
+  type: "ReLU"
+  bottom: "myupscore2"
+  top: "myupscore2"
 }
 
 #out conv/relu 3
 layer {
-  name: "conv_out3"
+  name: "myconv_out3"
   type: "Convolution"
-  bottom: "conv_out2"
-  top: "conv_out3"
+  bottom: "myupscore2"
+  top: "myconv_out3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+layer {
+  name: "myrelu_out3"
+  type: "ReLU"
+  bottom: "myconv_out3"
+  top: "myconv_out3"
+}
+
+#out conv/relu 3b
+layer {
+  name: "myconv_out3b"
+  type: "Convolution"
+  bottom: "myconv_out3"
+  top: "myconv_out3b"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -433,18 +491,18 @@ layer {
   }
 }
 layer {
-  name: "relu_out3"
+  name: "myrelu_out3b"
   type: "ReLU"
-  bottom: "conv_out3"
-  top: "conv_out3"
+  bottom: "myconv_out3b"
+  top: "myconv_out3b"
 }
 
 #final output
 layer {
-  name: "pixlevel_output"
+  name: "mypixlevel_output"
   type: "Convolution"
-  bottom: "conv_out3"
-  top: "pixlevel_output"
+  bottom: "myconv_out3b"
+  top: "mypixlevel_output"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -471,7 +529,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "pixlevel_output"
+  bottom: "mypixlevel_output"
   bottom: "label"
   top: "loss"
 }

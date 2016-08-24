@@ -22,7 +22,7 @@ iter_size: 2
 max_iter: 3000000
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "snapshot/minimal_net"
+snapshot_prefix: "snapshot/min2"
 test_initialization: false
 
 #type: "Adam"
