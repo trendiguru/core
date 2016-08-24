@@ -458,6 +458,7 @@ def daily_annoy(col_name, categories, all_cats=False):
                 sleep(15)
 
     reindex_forest(col_name)
+    return categories
 
 
 def verify_plus_size(size_list):
@@ -480,7 +481,7 @@ def update_plus_size_collection(gender, categories, cc='US'):
     for gen in ['Female', 'Male']:
         col_name = '%s_%s' % ('amaze', gen)
         items_before += db[col_name].count()
-    amazon_name = 'amazon_%s_%s' % (cc, gen)
+    amazon_name = 'amazon_%s_%s' % (cc, gender)
     amazon = db[amazon_name].find()
     amazon_total = amazon.count()
     inserted = 0
@@ -505,9 +506,9 @@ def update_plus_size_collection(gender, categories, cc='US'):
     thearchivedoorman(amaze_name, instock_limit=14, archive_limit=21)
     print_error('ARCHIVE DOORMAN FINISHED')
 
-    daily_annoy(amaze_name, categories)
+    updated_categories = daily_annoy(amaze_name, categories)
 
-    refresh_similar_results('amaze')
+    refresh_similar_results('amaze', updated_categories)
 
     amaze_end = time()
     dl_duration = amaze_end - amaze_start
