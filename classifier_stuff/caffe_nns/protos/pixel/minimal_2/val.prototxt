@@ -532,7 +532,51 @@ layer {
   bottom: "mypixlevel_output"
   bottom: "label"
   top: "loss"
+    loss_param {
+#    ignore_label: 255
+    normalize: true
+  }
 }
 
 
+layer {
+    name: "testreshape"
+    type: "Reshape"
+    bottom: "mypixlevel_output"
+    top: "testreshape"
+    reshape_param {
+      shape {
+        dim: 0  # copy the dimension from below
+        dim: 21 #maybe increase this as there are 21 classes
+        dim: -1
+        dim: 1
+      }
+    }
+}
 
+layer {
+    name: "testreshape_label"
+    type: "Reshape"
+    bottom: "label"
+    top: "testreshape_label"
+    reshape_param {
+      shape {
+        dim: 0  # copy the dimension from below
+        dim: 21 #maybe increase this as there are 21 classes
+        dim: -1
+        dim: 1
+      }
+    }
+}
+
+layer {
+  name: "testloss"
+  type: "SoftmaxWithLoss"
+  bottom: "testreshape"
+  bottom: "testreshape_label"
+  top: "testloss"
+    loss_param {
+#    ignore_label: 255
+    normalize: true
+  }
+}
