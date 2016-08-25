@@ -6,11 +6,14 @@ test_interval: 1000
 display: 20
 average_loss: 20
 
-lr_policy: "step"
+#lr_policy: "step"
 gamma: 0.1
 stepsize: 5000
 # lr for unnormalized softmax
-#lr_policy: "fixed"
+type: "Adam"
+#adam changes lr so leave fixed
+#type: AdaDelta
+lr_policy: "fixed"
 
 base_lr: 5e-3
 #base_lr: 5e-6
@@ -25,6 +28,4 @@ snapshot: 5000
 snapshot_prefix: "snapshot/minimal_net"
 test_initialization: false
 
-#type: "Adam"
-#type: AdaDelta
 #delta: 1e-5
