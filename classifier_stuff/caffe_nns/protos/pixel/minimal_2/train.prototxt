@@ -356,21 +356,13 @@ layer {
     lr_mult: 1
     decay_mult: 1
   }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 256
-    bias_term: true
+    bias_term: false
     kernel_size: 2
     stride: 2
     weight_filler {
       type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0.2
     }
   }
 }
@@ -429,28 +421,16 @@ layer {
     lr_mult: 1
     decay_mult: 1
   }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 128
-    bias_term: true
+    bias_term: false
     kernel_size: 2
     stride: 2
     weight_filler {
       type: "xavier"
     }
-    bias_filler {
-      type: "constant"
-      value: 0.2
-    }
   }
 }
-
-
-
-
 layer {
   name: "myrelu_up2"
   type: "ReLU"
