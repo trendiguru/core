@@ -711,7 +711,7 @@ if __name__ == "__main__":
 
     collection_name = 'amazon_%s' % cc_upper
     if update_drive_only:
-        update_drive('Female', cc_upper)
+        update_drive('amazon', cc_upper)
     elif daily:
         for gen in ['Female', 'Male']:
             col = 'amazon_%s_%s' % (cc_upper, gen)
