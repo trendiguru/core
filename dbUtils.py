@@ -1002,25 +1002,6 @@ def hash_the_image(id, image_url, collection):
             collection.update_one({'_id': id}, {'$set': {'img_hash': img_hash}})
 
 
-if __name__ == '__main__':
-    print('starting')
-    id = generate_id()
-    print('id:' + str(id))
-    # show_all_bbs_in_db()
-    # fix_all_bbs_in_db()
-    # doc = lookfor_next_unbounded_feature_from_db_category()
-    # print('doc:' + str(doc))
-    # suits_for_kyle()
-
-    # step_thru_images_db(use_visual_output=True, collection='products')
-
-    step_thru_db(use_visual_output=True, collection='products')
-    # prune_training_db(use_visual_output=False)
-    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
-    # which_to_show='showAll', filter_type='byCategoryID',
-    # category_id='dresses', word_in_description=None, db=None)
-
-
 def clean_duplicates_aggregate(collection, key):
     pipeline = [{"$group": {"_id": "$"+key, "dups": {'$addToSet': "$_id"}, "count": {"$sum": 1}}}]
     for group in list(db[collection].aggregate(pipeline)):
@@ -1147,3 +1128,21 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
     except Exception as e:
         print(e)
 
+
+if __name__ == '__main__':
+    print('starting')
+    id = generate_id()
+    print('id:' + str(id))
+    # show_all_bbs_in_db()
+    # fix_all_bbs_in_db()
+    # doc = lookfor_next_unbounded_feature_from_db_category()
+    # print('doc:' + str(doc))
+    # suits_for_kyle()
+
+    # step_thru_images_db(use_visual_output=True, collection='products')
+
+    step_thru_db(use_visual_output=True, collection='products')
+    # prune_training_db(use_visual_output=False)
+    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
+    # which_to_show='showAll', filter_type='byCategoryID',
+    # category_id='dresses', word_in_description=None, db=None)
