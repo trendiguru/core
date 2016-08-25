@@ -186,9 +186,13 @@ def batchnorm(bottom):
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     return batch_norm, scale
 
-def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
-    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
-                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+def conv_factory_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve'):
+    if pad=='preserve':
+        pad = (kernel_size-1)/2
+        if float(kernel_size/2) != float(kernel_size)/2:  #kernel size is even
+            print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
+    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
+                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
     batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
@@ -211,6 +215,7 @@ def vgg16(db,mean_value=[112.0,112.0,112.0]):
 
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 
+#    n.conv1_1 = conv_factory_relu(n.data,ks=3,nout=64,stride=1,pad=1)
     n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
     n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
     n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
@@ -262,8 +267,8 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
     #assuming input of size 224x224, ...
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 
-    n.conv1_1,n.relu1_1 = conv_relu(n.data,n_output=64,kernel_size=3,pad=1)
-    n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
+    n.conv1_1 = conv_factory_relu(n.data,n_output=64,kernel_size=3,pad=1)
+    n.conv1_2 = conv_factory_relu(n.conv1_1,n_output=64,kernel_size=3,pad=1)
     n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     #the following will be 112x112
@@ -290,9 +295,15 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
     n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     #the following will be 7x7
-    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
+
+    #convolutional - kernelsize of HxW will not suffice, 2Hx2W actuallyrequired to simulate fc
+ #   n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=15,pad=7)
+#    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=7,pad=3)
        #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
-    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+#    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+
+    #try nonconvolutional.
+
     n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=4096,kernel_size=7,pad=3)
     n.drop6_2 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
@@ -306,6 +317,77 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0]):
                             stride = 2,
                             weight_filler=dict(type='xavier'),
                             bias_filler=dict(type='constant',value=0.2))
+
+    #the following will be 7x7 (original /32)
+    n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=512,kernel_size=7,pad=3)
+       #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+    n.conv6_2,n.relu6_2 = conv_relu(n.conv6_1,n_output=1024,kernel_size=7,pad=3)
+        #instead of n.fc7 = L.InnerProduct(n.fc6,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
+    n.drop6_2 = L.Dropout(n.conv6_2, dropout_param=dict(dropout_ratio=0.5),in_place=True)
+    n.conv6_3,n.relu6_3 = conv_relu(n.conv6_2,n_output=1024,kernel_size=7,pad=3)
+
+#the following will be 14x14  (original /16)
+#deconv doesnt work from python , so these need to be changed by hand #
+    n.deconv7 = L.Convolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=1024,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+
+    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=2,pad=0)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
+    n.conv7_1,n.relu7_1 = conv_relu(n.deconv7,n_output=512,kernel_size=3,pad=1)  #watch out for padsize here, make sure outsize is 14x14 #indeed
+    bottom=[n.conv5_3, n.conv7_1]
+    n.cat7 = L.Concat(*bottom) #param=dict(concat_dim=1))
+    n.conv7_2,n.relu7_2 = conv_relu(n.cat7,n_output=1024,kernel_size=3,pad=1)
+    n.conv7_3,n.relu7_3 = conv_relu(n.conv7_2,n_output=1024,kernel_size=3,pad=1)
+
+    #the following will be 28x28  (original /8)
+    n.deconv8 = L.Convolution(n.conv7_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],#
+                    num_output=1024,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv8_1,n.relu8_1 = conv_relu(n.deconv8,n_output=512,kernel_size=3,pad=1)
+    bottom=[n.conv4_3, n.conv8_1]
+    n.cat8 = L.Concat(*bottom)
+    n.conv8_2,n.relu8_2 = conv_relu(n.cat8,n_output=512,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv8_3,n.relu8_3 = conv_relu(n.conv8_2,n_output=512,kernel_size=3,pad=1)
+
+    #the following will be 56x56  (original /4)
+    n.deconv9 = L.Convolution(n.conv8_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=512,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv9_1,n.relu9_1 = conv_relu(n.deconv9,n_output=256,kernel_size=3,pad=1)
+    bottom=[n.conv3_3, n.conv9_1]
+    n.cat9 = L.Concat(*bottom)
+    n.conv9_2,n.relu9_2 = conv_relu(n.cat9,n_output=256,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv9_3,n.relu9_3 = conv_relu(n.conv9_2,n_output=256,kernel_size=3,pad=1)
+
+    #the following will be 112x112  (original /2)
+    n.deconv10 = L.Convolution(n.conv9_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=256,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv10_1,n.relu10_1 = conv_relu(n.deconv10,n_output=128,kernel_size=3,pad=1)
+    bottom=[n.conv2_2, n.conv10_1]
+    n.cat10 = L.Concat(*bottom)
+    n.conv10_2,n.relu10_2 = conv_relu(n.cat10,n_output=128,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv10_3,n.relu10_3 = conv_relu(n.conv10_2,n_output=128,kernel_size=3,pad=1)
+
+    #the following will be 224x224  (original)
+    n.deconv11 = L.Convolution(n.conv10_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    num_output=128,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.conv11_1,n.relu11_1 = conv_relu(n.deconv11,n_output=64,kernel_size=3,pad=1)
+    bottom=[n.conv1_2, n.conv11_1]
+    n.cat11 = L.Concat(*bottom)
+    n.conv11_2,n.relu11_2 = conv_relu(n.cat11,n_output=64,kernel_size=3,pad=1)  #this is halving N_filters
+    n.conv11_3,n.relu11_3 = conv_relu(n.conv11_2,n_output=64,kernel_size=3,pad=1)
+
+    n.conv_final,n.relu_final = conv_relu(n.conv11_3,n_output=n_cats,kernel_size=3,pad=1)
+
+#    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
+    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label)
+
+#    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+#                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
+    return n.to_proto()
 
     return n.to_proto()
 

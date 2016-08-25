@@ -38,6 +38,7 @@ caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
 solver.net.copy_from(weights)
+solver.net.forward()  # train net
 
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
@@ -69,7 +70,7 @@ for _ in range(1000):
         i = i+steps
         solver.step(steps)
         loss = solver.net.blobs['loss'].data
-        print('loss:'+str(loss))
+        print('iter '+str(i)+' loss:'+str(loss))
         losses.append(loss)
         iters.append(i)
         with open('loss.txt','a') as f:

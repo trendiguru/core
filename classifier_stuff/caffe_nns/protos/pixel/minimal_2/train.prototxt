@@ -354,14 +354,21 @@ layer {
   top: "myupscore1"
   param {
     lr_mult: 1
+    decay_mult: 1
   }
   convolution_param {
     num_output: 256
     bias_term: false
     kernel_size: 2
     stride: 2
+    weight_filler {
+      type: "xavier"
+    }
   }
 }
+
+
+
 layer {
   name: "myrelu_up1"
   type: "ReLU"
@@ -412,12 +419,16 @@ layer {
   top: "myupscore2"
   param {
     lr_mult: 1
+    decay_mult: 1
   }
   convolution_param {
     num_output: 128
     bias_term: false
     kernel_size: 2
     stride: 2
+    weight_filler {
+      type: "xavier"
+    }
   }
 }
 layer {
@@ -532,7 +543,51 @@ layer {
   bottom: "mypixlevel_output"
   bottom: "label"
   top: "loss"
+    loss_param {
+#    ignore_label: 255
+    normalize: true
+  }
 }
 
+#check if softmax on vector=softmax on matrix
+layer {
+    name: "testreshape"
+    type: "Reshape"
+    bottom: "mypixlevel_output"
+    top: "testreshape"
+    reshape_param {
+      shape {
+        dim: 0  # copy the dimension from below
+        dim: 21
+        dim: -1
+        dim: 1
+      }
+    }
+}
 
+layer {
+    name: "testreshape_label"
+    type: "Reshape"
+    bottom: "label"
+    top: "testreshape_label"
+    reshape_param {
+      shape {
+        dim: 0  # copy the dimension from below
+        dim: 1 #maybe increase this as there are 21 classes
+        dim: -1
+        dim: 1
+      }
+    }
+}
 
+layer {
+  name: "testloss"
+  type: "SoftmaxWithLoss"
+  bottom: "testreshape"
+  bottom: "testreshape_label"
+  top: "testloss"
+    loss_param {
+#    ignore_label: 255
+    normalize: true
+  }
+}
