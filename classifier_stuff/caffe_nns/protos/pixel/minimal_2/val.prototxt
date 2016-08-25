@@ -581,7 +581,7 @@ layer {
     reshape_param {
       shape {
         dim: 0  # copy the dimension from below
-        dim: 21 #maybe increase this as there are 21 classes
+        dim: 1 #maybe increase this as there are 21 classes
         dim: -1
         dim: 1
       }
