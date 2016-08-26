@@ -633,7 +633,7 @@ def download_all(col_name, gender='Female'):
 
     log2file(mode='a', log_filename=log_name, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(col_name)  # add status bar
-    thearchivedoorman(col_name, instock_limit=10, archive_limit=30)
+    thearchivedoorman(col_name, instock_limit=30, archive_limit=60)
     print_error('ARCHIVE DOORMAN FINISHED')
 
     message = '%s is Done!' % col_name
