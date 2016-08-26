@@ -100,7 +100,6 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = category
 
-    last_price = min_price
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
@@ -108,8 +107,10 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if res.status_code != 200:
             err_msg = 'not 200!'
             error_flag = True
+            sleep(2)
             raise ValueError(err_msg)
 
+        last_price = min_price
         res_dict = dict(xmltodict.parse(res.text))
         if 'ItemSearchResponse' not in res_dict.keys():
             err_msg = 'No ItemSearchResponse'
@@ -552,7 +553,8 @@ def download_all(col_name, gender='Female'):
     # retrieve all the leaf nodes which hadn't been processed yet - assuming the higher branches has too many items
     leafs_cursor = db.amazon_category_tree.find({'Children.count': 0,
                                                  'Parents': parent_gender,
-                                                 'Status': {'$ne': 'done'}})
+                                                 'Status': {'$ne': 'done'},
+                                                 'CurrentRound': {'$lt': 10}})
 
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     status_title = '%s download started on %s' % (col_name, today_date)
@@ -570,11 +572,13 @@ def download_all(col_name, gender='Female'):
             items_downloaded = leaf['TotalDownloaded']
             if status != 'done':
                 if status == 'waiting':
-                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'working'}})
+                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'working'},
+                                                                          '$inc': {'CurrentRound': 1}})
                     cache_msg = '%d/%d) node id: %s -> name: %s starting download' \
                                 % (x, total_leafs, node_id, name)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
                 elif last_price_downloaded > 5.00:
+                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$inc': {'CurrentRound': 1}})
                     cache_msg = '%d/%d) node id: %s -> name: %s didn\'t finish -> continuing from %.2f' \
                                 % (x, total_leafs, node_id, name, last_price_downloaded)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
@@ -629,7 +633,7 @@ def download_all(col_name, gender='Female'):
 
     log2file(mode='a', log_filename=log_name, message='DOWNLOAD FINISHED', print_flag=True)
     clear_duplicates(col_name)  # add status bar
-    thearchivedoorman(col_name, instock_limit=10, archive_limit=30)
+    thearchivedoorman(col_name, instock_limit=30, archive_limit=60)
     print_error('ARCHIVE DOORMAN FINISHED')
 
     message = '%s is Done!' % col_name
