@@ -1118,31 +1118,25 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
             print("{0} documents modified..".format(rep_res))
             return
         else:
-            logging.warning('working on item from %s' %col_name)
-            sleeve_vector = [num.item() for num in sleeve_client.get_sleeve(image)['data']]
-            print("sleeve result: {0}".format(sleeve_vector))
-            image_obj['fingerprint']['sleeve_length'] = list(sleeve_vector)
-            rep_res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
-            print("{0} documents modified..".format(rep_res))
+            sleeve_res = sleeve_client.get_sleeve(image)
+            if sleeve_res['success']:
+                image_obj['fingerprint']['sleeve_length'] = sleeve_res['data']
+                collection.replace_one({'_id': image_obj['_id']}, image_obj)
             return
     except Exception as e:
         print(e)
+
+
+def update_non_sleeved_products(coll):
+    collection = db[coll]
+    query = {'categories': {'$in': ['dress', 'top', 'shirt', 't-shirt', 'blouse']},
+             'fingerprint.sleeve_length': {'$exists': 0}}
+    for doc in collection.find(query):
+        add_feature.enqueue(parallel_sleeve_and_replace, args=(doc['_id'], coll, doc['images']['XLarge']), timeout=2000)
 
 
 if __name__ == '__main__':
     print('starting')
     id = generate_id()
     print('id:' + str(id))
-    # show_all_bbs_in_db()
-    # fix_all_bbs_in_db()
-    # doc = lookfor_next_unbounded_feature_from_db_category()
-    # print('doc:' + str(doc))
-    # suits_for_kyle()
-
-    # step_thru_images_db(use_visual_output=True, collection='products')
-
     step_thru_db(use_visual_output=True, collection='products')
-    # prune_training_db(use_visual_output=False)
-    # lookfor_next_unbounded_feature_from_db_category(current_item=0, skip_if_marked_to_skip=False,
-    # which_to_show='showAll', filter_type='byCategoryID',
-    # category_id='dresses', word_in_description=None, db=None)
