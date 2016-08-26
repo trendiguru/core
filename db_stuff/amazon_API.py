@@ -100,7 +100,6 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = category
 
-    last_price = min_price
     req = get_amazon_signed_url(parameters, 'GET', False)
     proper_wait()
     res = get(req)
@@ -108,8 +107,10 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         if res.status_code != 200:
             err_msg = 'not 200!'
             error_flag = True
+            sleep(2)
             raise ValueError(err_msg)
 
+        last_price = min_price
         res_dict = dict(xmltodict.parse(res.text))
         if 'ItemSearchResponse' not in res_dict.keys():
             err_msg = 'No ItemSearchResponse'
