@@ -17,7 +17,7 @@ import re
 forest = Queue('annoy_forest', connection=redis_conn)
 today_date = str(datetime.date(datetime.now()))
 q = Queue('amazon_worker', connection=redis_conn)
-
+post_q = Queue('amazon_post', connection=redis_conn)
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
     'AssociateTag': 'fazz0b-20',
@@ -632,12 +632,24 @@ def download_all(col_name, gender='Female'):
             log2file(mode='a', log_filename=log_name, message=do_again_msg, print_flag=True)
 
     log2file(mode='a', log_filename=log_name, message='DOWNLOAD FINISHED', print_flag=True)
+
+
+def post_download(col_name, gender, cc):
     clear_duplicates(col_name)  # add status bar
     thearchivedoorman(col_name, instock_limit=30, archive_limit=60)
     print_error('ARCHIVE DOORMAN FINISHED')
 
     message = '%s is Done!' % col_name
     log2file(mode='a', log_filename=log_name, message=message, print_flag=True)
+    # after download finished its time to build a new annoy forest
+
+    daily_amazon_updates(col_name, gender, all_cats=True, cc=cc)
+
+    notes_full_path = 'collections.' + col_name + '.notes'
+    status_full_path = 'collections.' + col_name + '.status'
+
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
+                                                                  notes_full_path: 'so and so'}})
 
 
 def download_by_gender(gender, cc):
@@ -656,14 +668,9 @@ def download_by_gender(gender, cc):
     status_full_path = 'collections.' + col_name + '.status'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
     download_all(col_name=col_name, gender=gender)
+    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'POST'}})
+    post_q.enqueue(post_download, args=(col_name, gender, cc), timeout=10000)
 
-    # after download finished its time to build a new annoy forest
-    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'ANNOY'}})
-    daily_amazon_updates(col_name, gender, all_cats=True, cc=cc)
-
-    notes_full_path = 'collections.' + col_name + '.notes'
-    db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
-                                                                  notes_full_path: 'so and so'}})
     return
 
 
