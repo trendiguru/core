@@ -314,7 +314,8 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
             'TotalResultsExpected': result_count,
             'TotalDownloaded': 0,
             'LastPrice': 3000.00,
-            'Status': 'waiting'}
+            'Status': 'waiting',
+            'CurrentRound': 0}
 
     tab_space = '\t' * tab
     print('%sName: %s,  NodeId: %s,  Children: %d , result_count: %d'
