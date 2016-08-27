@@ -54,8 +54,11 @@ val = range(0,1500)
 #jrinfer.seg_tests(solver, False, val, layer='score')
 hostname = socket.gethostname()
 outfilename = hostname+'netoutput.txt'
+lossfilename = os.path.join('/home/jeremy/caffenets/production',hostname+'_loss.txt')
 jpgname = outfilename+'.jpg'
 cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
+copycmd = 'cp '+jpgname +' /home/jeremy/caffenets/production'
+copy2cmd = 'cp '+outfilename +' /home/jeremy/caffenets/production'
 
 jrinfer.seg_tests(solver, False, val, layer='score')
 progress_plot.parse_solveoutput(outfilename)
@@ -73,7 +76,10 @@ for _ in range(1000):
         print('iter '+str(i)+' loss:'+str(loss))
         losses.append(loss)
         iters.append(i)
-        with open('loss.txt','a') as f:
+        with open('loss.txt','a+') as f:
+            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
+            f.close()
+        with open(lossfilename,'a+') as f:
             f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
             f.close()
 
@@ -87,3 +93,5 @@ for _ in range(1000):
 #    progress_plot.parse_solveoutput(outfilename)
     print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)
+    subprocess.call(copycmd,shell=True)
+    subprocess.call(copy2cmd,shell=True)
