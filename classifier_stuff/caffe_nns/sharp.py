@@ -175,7 +175,11 @@ def conv(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=
                         bias_filler=dict(type=bias_filler,value=bias_const_val))
     return conv
 
-def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=64,pad=3,kernel_size=3,stride=1,weight_filler='xavier',bias_filler='constant',bias_const_val=0.2):
+def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=64,pad='preserve',kernel_size=3,stride=1,weight_filler='xavier',bias_filler='constant',bias_const_val=0.2):
+    if pad=='preserve':
+        pad = (kernel_size-1)/2
+        if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
+            print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom,
                         param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                         num_output=n_output,
