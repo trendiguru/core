@@ -198,7 +198,7 @@ def batchnorm(bottom,test=True):
     batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
                               batch_norm_param={'use_global_stats': test==True})
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
-    return scale
+    return batch_norm,scale
 
 def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',test=False):
     if pad=='preserve':
@@ -400,16 +400,14 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_
  #   n.conv6_1,n.relu6_1 = conv_relu(n.pool5,n_output=4096,kernel_size=15,pad=7)
        #instead of L.InnerProduct(n.pool5,param=[dict(lr_mult=lr_mult1),dict(lr_mult=lr_mult2)],weight_filler=dict(type='xavier'),num_output=4096)
 #    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
-
     #try nonconvolutional.
 
-    n.fc6,n.relu6 = fc_relu(n.pool5,6272)  #6272=7*7*128
-    n.bn6 = batchnorm(n.fc6)
+    n.fc6,n.relu6_1 = fc_relu(n.pool5,6272)  #6272=7*7*128
+    n.bn6,n.relu6_2 = batchnorm(n.fc6)
 #    n.drop6_2 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
-    n.fc7,n.relu6 = fc_relu(n.bn6,6272)
-    n.bn7 = batchnorm(n.fc7)
-
+    n.fc7,n.relu7_1 = fc_relu(n.bn6,6272)
+    n.bn7,n.relu7_2 = batchnorm(n.fc7)
 
 #layer {
 #    name: "reshape"
