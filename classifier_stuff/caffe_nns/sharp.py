@@ -428,9 +428,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_
 #    n.reshape8 = L.Reshape(n.fc7,
 #                            param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                            reshape_param = {'shape':{'dim':[0,128,7,7] }})    # batchsize X infer X 7 X 7 , infer should=6272/49=128
-    n.reshape8 = L.Reshape(n.bn7,
-                            param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            reshape_param = dict(shape=dict(dim=[0,128,7,7])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
+    n.reshape8 = L.Reshape(n.bn7, reshape_param = dict(shape=dict(dim=[0,128,7,7])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
 
 #    n.resh = L.Reshape(n.fc3, reshape_param={'shape':{'dim': [1, 1, 64, 64]}})
 
