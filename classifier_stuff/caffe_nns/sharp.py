@@ -402,12 +402,12 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_
 #    n.drop6_1 = L.Dropout(n.conv6_1, dropout_param=dict(dropout_ratio=0.5),in_place=True)
     #try nonconvolutional.
 
-    n.fc6,n.relu6_1 = fc_relu(n.pool5,6272)  #6272=7*7*128
-    n.bn6,n.relu6_2 = batchnorm(n.fc6)
+    n.fc6,n.relu6 = fc_relu(n.pool5,6272)  #6272=7*7*128
+    n.bn6,n.scale6 = batchnorm(n.fc6)
 #    n.drop6_2 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
     n.fc7,n.relu7_1 = fc_relu(n.bn6,6272)
-    n.bn7,n.relu7_2 = batchnorm(n.fc7)
+    n.bn7,n.scale7 = batchnorm(n.fc7)
 
 #layer {
 #    name: "reshape"
