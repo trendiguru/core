@@ -209,10 +209,10 @@ def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',test_
     # see https://groups.google.com/forum/#!topic/caffe-users/h4E6FV_XkfA - verify this if poss
     if test_train=='train':
         batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
-                             batch_norm_param={'use_global_stats': 'false')
+                             batch_norm_param={'use_global_stats': 'false'})
     else:
         batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
-                             batch_norm_param={'use_global_stats': 'true')
+                             batch_norm_param={'use_global_stats': 'true'})
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
 
 
