@@ -20,6 +20,9 @@ matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
 
+
+
+
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
@@ -95,3 +98,6 @@ for _ in range(1000):
     subprocess.call(cmd,shell=True)
     subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
+
+
+

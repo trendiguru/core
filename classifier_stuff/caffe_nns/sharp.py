@@ -426,20 +426,27 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
 
     n.reshape8 = L.Reshape(n.fc7,
                             param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                            reshape_param = dict(shape=[0,-1,7,7] ))    # batchsize X infer X 7 X 7 , infer should=6272/49=128
+                            reshape_param = {'shape':{'dim':[0,-1,7,7] }})    # batchsize X infer X 7 X 7 , infer should=6272/49=128
+#    n.resh = L.Reshape(n.fc3, reshape_param={'shape':{'dim': [1, 1, 64, 64]}})
 
-    return n.to_proto()
+    #from https://github.com/BVLC/caffe/issues/4052
+    #n.deconv = L.Deconvolution(n.input,
+    #convolution_param=dict(num_output=21, kernel_size=64, stride=32))
 
 
-    n.deconv8 = L.Convolution(n.reshape8,
+    n.deconv8 = L.Deconvolution(n.reshape8,
                             param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                            num_output=64,
-                            pad = 0,
+                            convolution_param = dict(num_output=128, pad = 0,
                             kernel_size=2,
                             stride = 2,
-                            weight_filler=dict(type='xavier'),
-                            bias_filler=dict(type='constant',value=0.2))
+                            weight_filler= {'type':'xavier'},
+                            bias_filler= {'type':'constant','value':0.2}) )
 
+#    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
+#                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+
+    return n.to_proto()
     n.conv9_1 = conv_bn_relu(n.deconv8,n_output=512,kernel_size=7,pad='preserve')
     n.conv9_2 = conv_bn_relu(n.conv9_1,n_output=1024,kernel_size=3,pad='preserve')
     n.conv9_3 = conv_bn_relu(n.conv9_2,n_output=1024,kernel_size=3,pad='preserve')
@@ -973,6 +980,7 @@ def replace_pythonlayer(proto):
     stride: 8
   }
 '''
+
 if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
@@ -981,8 +989,8 @@ if __name__ == "__main__":
 #    proto = unet('thedb')
     proto = sharpmask('thedb')
 #    proto = test_convbnrelu('thedb')
-    proto = correct_deconv(str(proto))
-    proto = replace_pythonlayer(proto)
+#    proto = correct_deconv(str(proto))
+    proto = replace_pythonlayer(str(proto))
 
     with open('train.prototxt','w') as f:
         f.write(str(proto))
