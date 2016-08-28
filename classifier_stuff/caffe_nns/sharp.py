@@ -446,17 +446,17 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
 #    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
 #                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 
-    return n.to_proto()
-    n.conv9_1 = conv_bn_relu(n.deconv8,n_output=512,kernel_size=7,pad='preserve')
+    n.conv9_1 = conv_bn_relu(n.deconv8,n_output=1024,kernel_size=7,pad='preserve')
     n.conv9_2 = conv_bn_relu(n.conv9_1,n_output=1024,kernel_size=3,pad='preserve')
-    n.conv9_3 = conv_bn_relu(n.conv9_2,n_output=1024,kernel_size=3,pad='preserve')
+    n.conv9_3 = conv_bn_relu(n.conv9_2,n_output=512,kernel_size=3,pad='preserve')
 
 #the following will be 14x14  (original /16)
 #deconv doesnt work from python , so these need to be changed by hand #
     # this is the 'more efficient equivalent' as listed in fb paper, except with extra relu's . try strict rewrite if this doesnt work
-    n.deconv10 = L.Convolution(n.conv9_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                    num_output=1024,pad = 0,kernel_size=2,stride = 2,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.deconv10 = L.Deconvolution(n.conv9_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    convolution_param = dict(num_output=1024,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
+
 
     n.conv10_1 = conv_bn_relu(n.deconv10,n_output=512,kernel_size=3,pad='preserve')  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
 #    n.conv10_2 = conv_bn_relu(n.conv10_1,n_output=512,kernel_size=3,pad='preserve')  #watch out for padsize here, make sure outsize is 14x14 #indeed
@@ -467,10 +467,11 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
     n.cat10 = L.Concat(*bottom) #param=dict(concat_dim=1))
     n.conv10_2 = conv_bn_relu(n.cat10,n_output=512,kernel_size=3,pad='preserve')
 
+
     #the following will be 28x28  (original /8)
-    n.deconv11 = L.Convolution(n.conv10_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],#
-                    num_output=512,pad = 0,kernel_size=2,stride = 2,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.deconv11 = L.Deconvolution(n.conv10_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    convolution_param = dict(num_output=512,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
     n.conv11_1 = conv_bn_relu(n.deconv11,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_cross1 = conv_bn_relu(n.conv4_3,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_cross2 = conv_bn_relu(n.conv4_cross1,n_output=512,kernel_size=3,pad='preserve')
@@ -478,23 +479,23 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
     n.cat11 = L.Concat(*bottom)
     n.conv11_2 = conv_bn_relu(n.cat11,n_output=512,kernel_size=3,pad='preserve')
 
-    return n.to_proto()
 
     #the following will be 56x56  (original /4)
-    n.deconv12 = L.Convolution(n.conv11_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                    num_output=256,pad = 0,kernel_size=2,stride = 2,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv12_1 = conv_bn_relu(n.deconv12,n_output=256,kernel_size=3,pad=1)
+    n.deconv12 = L.Deconvolution(n.conv11_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    convolution_param = dict(num_output=256,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
+    n.conv12_1 = conv_bn_relu(n.deconv12,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_cross1 = conv_bn_relu(n.conv3_3,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_cross2 = conv_bn_relu(n.conv3_cross1,n_output=256,kernel_size=3,pad='preserve')
     bottom=[n.conv3_cross2, n.conv12_1]
     n.cat12 = L.Concat(*bottom)
-    n.conv12_2 = conv_relu(n.cat12,n_output=256,kernel_size=3,pad='preserve')
+    n.conv12_2 = conv_bn_relu(n.cat12,n_output=256,kernel_size=3,pad='preserve')
+
 
     #the following will be 112x112  (original /2)
-    n.deconv13 = L.Convolution(n.conv12_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                    num_output=256,pad = 0,kernel_size=2,stride = 2,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
+    n.deconv13 = L.Deconvolution(n.conv12_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    convolution_param = dict(num_output=256,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
     n.conv13_1 = conv_bn_relu(n.deconv13,n_output=128,kernel_size=3,pad='preserve')
     n.conv2_cross1 = conv_bn_relu(n.conv2_2,n_output=128,kernel_size=3,pad='preserve')
     n.conv2_cross2 = conv_bn_relu(n.conv2_cross1,n_output=128,kernel_size=3,pad='preserve')
@@ -503,10 +504,12 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
     n.conv13_2 = conv_bn_relu(n.cat13,n_output=128,kernel_size=3,pad='preserve')  #this is halving N_filters
 
     #the following will be 224x224  (original)
-    n.deconv14 = L.Convolution(n.conv13_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
-                    num_output=128,pad = 0,kernel_size=2,stride = 2,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2))
-    n.conv14_1 = conv_relu(n.deconv14,n_output=64,kernel_size=3,pad='preserve')
+    n.deconv14 = L.Deconvolution(n.conv13_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
+                    convolution_param = dict(num_output=128,pad = 0,kernel_size=2,stride = 2,
+                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
+
+
+    n.conv14_1 = conv_bn_relu(n.deconv14,n_output=64,kernel_size=3,pad='preserve')
     n.conv1_cross1 = conv_bn_relu(n.conv1_2,n_output=64,kernel_size=3,pad='preserve')
     n.conv1_cross2 = conv_bn_relu(n.conv1_cross1,n_output=64,kernel_size=3,pad='preserve')
     bottom=[n.conv1_cross2, n.conv14_1]
