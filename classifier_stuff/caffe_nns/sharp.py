@@ -512,7 +512,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_
     n.cat13 = L.Concat(*bottom)
     n.conv13_2 = conv_bn_relu(n.cat13,n_output=128,kernel_size=3,pad='preserve')  #this is halving N_filters
 
-    n.conv_final = conv_bn_relu(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
+    n.conv_final,n.relu_final = conv_relu(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
 
 #    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
     n.loss = L.SoftmaxWithLoss(n.conv_final, n.label)

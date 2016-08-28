@@ -78,7 +78,7 @@ for _ in range(100000):
         loss_avg[i] = loss
         losses.append(loss)
         iters.append(i)
-    averaged_loss=sum(loss)/len(loss)
+    averaged_loss=sum(loss_avg)/len(loss_avg)
     with open('loss.txt','a+') as f:
         f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
         f.close()
