@@ -199,15 +199,24 @@ def batchnorm(bottom):
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     return scale
 
-def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve'):
+def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',test_train='train'):
     if pad=='preserve':
         pad = (kernel_size-1)/2
         if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
-    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    # see https://groups.google.com/forum/#!topic/caffe-users/h4E6FV_XkfA - verify this if poss
+    if test_train=='train':
+        batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
+                             batchnorm_param={'use_global_stats': 'false')
+    else:
+        batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
+                             batchnorm_param={'use_global_stats': 'true')
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+
+
+
     relu = L.ReLU(scale, in_place=True)
     return relu
 
@@ -346,7 +355,7 @@ def test_convbnrelu(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21
     n.conv1_1 = conv_bn_relu(n.data,n_output=64,kernel_size=3,pad='preserve')
     return n.to_proto()
 
-def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
+def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_train='train'):
     '''
     see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
     :param db:
