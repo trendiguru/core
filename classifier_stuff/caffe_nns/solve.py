@@ -5,9 +5,9 @@ __author__ = 'jeremy'
 #git -C /usr/lib/python2.7/dist-packages/trendi pull
 
 import caffe
-import surgery, score
+#import surgery, score
 import time
-import numpy as np
+#import numpy as np
 import os
 import sys
 
@@ -41,7 +41,7 @@ caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
 solver.net.copy_from(weights)
-solver.net.forward()  # train net
+#solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
