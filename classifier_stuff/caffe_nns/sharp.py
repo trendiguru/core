@@ -405,7 +405,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21):
 #    n.drop6_2 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
     n.fc7 = fc_relu(n.bn6,6272)
-    n.bn7 = batchnorm(n.fc6)
+    n.bn7 = batchnorm(n.fc7)
 
 
 #layer {

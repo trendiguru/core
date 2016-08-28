@@ -70,21 +70,24 @@ subprocess.call(cmd,shell=True)
 i = 0
 losses = []
 iters = []
-steps = 20
-for _ in range(1000):
-    for i in range(100):
-        i = i+steps
-        solver.step(steps)
+steps_per_iter = 2
+n_iter = 2
+loss_avg = [0]*n_iter
+for _ in range(100000):
+    for i in range(n_iter):
+        solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
-        print('iter '+str(i)+' loss:'+str(loss))
+        print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
+        loss_avg[i] = loss
         losses.append(loss)
         iters.append(i)
-        with open('loss.txt','a+') as f:
-            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
-            f.close()
-        with open(lossfilename,'a+') as f:
-            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
-            f.close()
+    averaged_loss=sum(loss)/len(loss)
+    with open('loss.txt','a+') as f:
+        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.close()
+    with open(lossfilename,'a+') as f:
+        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.close()
 
 #    score.seg_tests(solver, False, val, layer='score')
     plt.plot(iters, loss,'bo:', label="train loss")
