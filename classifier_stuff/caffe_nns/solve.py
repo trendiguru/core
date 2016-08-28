@@ -63,9 +63,6 @@ cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
 copycmd = 'cp '+jpgname +' /home/jeremy/caffenets/production'
 copy2cmd = 'cp '+outfilename +' /home/jeremy/caffenets/production'
 
-jrinfer.seg_tests(solver, False, val, layer='score')
-progress_plot.parse_solveoutput(outfilename)
-subprocess.call(cmd,shell=True)
 
 i = 0
 losses = []
@@ -89,17 +86,17 @@ for _ in range(100000):
         f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
         f.close()
 
+#PLOTS ARENT WORKING IN DOCKER EVEN USING matplotlib.use('Agg')
 #    score.seg_tests(solver, False, val, layer='score')
-    plt.plot(iters, loss,'bo:', label="train loss")
-    plt.xlabel("iterations")
-    plt.ylabel("loss")
-    savename = 'loss.jpg'
-    plt.savefig(savename)
+#    plt.plot(iters, loss,'bo:', label="train loss")
+#    plt.xlabel("iterations")
+#    plt.ylabel("loss")
+#    savename = 'loss.jpg'
+#    plt.savefig(savename)
     jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
 #    progress_plot.parse_solveoutput(outfilename)
-    print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)
-    subprocess.call(copycmd,shell=True)
+#    subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
 
 
