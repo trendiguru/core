@@ -192,7 +192,7 @@ def fc_relu(bottom, nout,lr_mult1=1,decay_mult1=1,lr_mult2=2,decay_mult2=0):
     fc = L.InnerProduct(bottom,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],num_output=nout,weight_filler=dict(type='xavier'))
     relu = L.ReLU(fc,in_place=True)
 #    return fc, L.ReLU(fc, in_place=True)
-    return relu
+    return fc,relu
 
 def batchnorm(bottom,test=True):
     batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
@@ -403,11 +403,11 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,test_
 
     #try nonconvolutional.
 
-    n.fc6 = fc_relu(n.pool5,6272)  #6272=7*7*128
+    n.fc6,n.relu6 = fc_relu(n.pool5,6272)  #6272=7*7*128
     n.bn6 = batchnorm(n.fc6)
 #    n.drop6_2 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.5),in_place=True)
 
-    n.fc7 = fc_relu(n.bn6,6272)
+    n.fc7,n.relu6 = fc_relu(n.bn6,6272)
     n.bn7 = batchnorm(n.fc7)
 
 
