@@ -455,8 +455,8 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
 #                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 
     n.conv8_1,n.relu8_1 = conv_bn_relu(n.deconv8,n_output=512,kernel_size=3,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
-    n.conv8_cross1,n.relu8_2 = conv_relu(n.conv5_3,n_output=512,kernel_size=3,pad='preserve')
-    n.conv8_cross2,n.relu8_3 = conv_relu(n.conv8_cross1,n_output=512,kernel_size=3,pad='preserve')
+    n.conv8_cross1,n.relu8_cross1 = conv_relu(n.conv5_3,n_output=512,kernel_size=3,pad='preserve')
+    n.conv8_cross2,n.relu8_cross2 = conv_relu(n.conv8_cross1,n_output=512,kernel_size=3,pad='preserve')
 
     bottom = [n.conv8_cross2, n.conv8_1]
     n.cat8 = L.Concat(*bottom) #param=dict(concat_dim=1))
