@@ -189,20 +189,20 @@ def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_ou
                         weight_filler=dict(type=weight_filler),
                         bias_filler=dict(type=bias_filler,value=bias_const_val))
     relu = L.ReLU(conv, in_place=True)
-    return relu
+    return conv
 
 # another helper function
 def fc_relu(bottom, nout,lr_mult1=1,decay_mult1=1,lr_mult2=2,decay_mult2=0):
     fc = L.InnerProduct(bottom,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],num_output=nout,weight_filler=dict(type='xavier'))
     relu = L.ReLU(fc,in_place=True)
 #    return fc, L.ReLU(fc, in_place=True)
-    return relu
+    return fc
 
 def batchnorm(bottom,stage='train'):
     batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
                               batch_norm_param={'use_global_stats': stage=='test'})
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
-    return scale
+    return batch_norm
 
 def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',stage='train'):
     if pad=='preserve':
@@ -216,7 +216,7 @@ def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',stage
                              batch_norm_param={'use_global_stats': stage=='test'})
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
-    return relu
+    return conv
 
 def Inception7A(data, num_1x1, num_3x3_red, num_3x3_1, num_3x3_2,
                 num_5x5_red, num_5x5, pool, proj):
