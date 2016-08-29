@@ -21,7 +21,8 @@ import yonatan_classifier
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("55k_face_test_list.txt", "r")
+#text_file = open("55k_face_test_list.txt", "r")
+text_file = open("test_dir.txt", "r")
 
 counter = 0
 test_flag = 1
