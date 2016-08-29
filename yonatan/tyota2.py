@@ -34,7 +34,7 @@ for root, dirs, files in os.walk(dir_path):
     for file in files:
         resized_image = imutils.resize_keep_aspect(file, output_size=(224, 224))
 
-        test_text_file.write(root + "/" + file + " 0\n")
+        test_text_file.write("/home/yonatan/resized_test_dir/" + file + " 0\n")
 
         cv2.imwrite(os.path.join('/home/yonatan/resized_test_dir', file), resized_image)
 
