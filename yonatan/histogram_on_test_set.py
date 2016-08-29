@@ -61,7 +61,6 @@ for line in text_file:
     input_file = os.path.expanduser(path[0])
     inputs = [caffe.io.load_image(input_file)]
     #inputs = [Utils.get_cv2_img_array(input_file)]
-    print input_file.shape
 
     print("Classifying %d inputs." % len(inputs))
 
