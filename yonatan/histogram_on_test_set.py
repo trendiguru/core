@@ -53,11 +53,15 @@ for line in text_file:
     # split line to full path and label
     path = line.split()
 
+    print path[0]
+    print path[1]
+
     if path == []:
         continue
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
+    print input_file
     inputs = [caffe.io.load_image(input_file)]
     #inputs = [Utils.get_cv2_img_array(input_file)]
 
