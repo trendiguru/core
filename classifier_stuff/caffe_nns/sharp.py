@@ -487,7 +487,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     n.deconv11 = L.Deconvolution(n.conv10_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     convolution_param = dict(num_output=256,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
-    n.conv11_1 = conv_bn_relu(n.deconv11,n_output=256,kernel_size=3,pad='preserve',stage=stage)
+    n.conv11_1,n.relu11_1 = conv_bn_relu(n.deconv11,n_output=256,kernel_size=3,pad='preserve',stage=stage)
     n.conv3_cross1,n.relu3_cross1 = conv_relu(n.conv3_3,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_cross2,n.relu3_cross2 = conv_relu(n.conv3_cross1,n_output=256,kernel_size=3,pad='preserve')
     bottom=[n.conv3_cross2, n.conv11_1]
