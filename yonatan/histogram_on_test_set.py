@@ -21,12 +21,14 @@ import yonatan_classifier
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("55k_face_test_list.txt", "r")
+#text_file = open("55k_face_test_list.txt", "r")
+text_file = open("test_dir.txt", "r")
 
 counter = 0
+test_flag = 1
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_15000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_30000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -67,6 +69,7 @@ for line in text_file:
     start = time.time()
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
+    print predictions
 
     #if the gender_detector is right
     if (predictions[0][0] > predictions[0][1]) and (path[1] == '0'):
@@ -85,6 +88,11 @@ for line in text_file:
 
     print counter
 
+    if test_flag:
+        if counter > 50:
+            print "test_flag is on"
+            break
+
 print "guessed_f_instead_m: {}".format(guessed_f_instead_m)
 print "guessed_m_instead_f: {}".format(guessed_m_instead_f)
 
@@ -95,7 +103,6 @@ if success == 0 or failure == 0:
     print "wrong!"
 else:
     print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
-
 
 
 histogram=plt.figure(1)

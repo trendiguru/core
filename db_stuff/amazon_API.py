@@ -113,12 +113,13 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
             raise ValueError(err_msg)
 
         res_dict = dict(res_dict['ItemSearchResponse']['Items'])
-        if 'Errors' in res_dict.keys():
+        res_keys = res_dict.keys()
+        if 'Errors' in res_keys:
             err_msg = 'Error'
             error_flag = True
             raise ValueError(err_msg)
 
-        if 'TotalResults' in res_dict.keys():
+        if 'TotalResults' in res_keys:
             results_count = int(res_dict['TotalResults'])
         else:
             err_msg = 'no TotalResults'
@@ -126,6 +127,10 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
 
         if results_count == 0:
             err_msg = 'no results for price_range'
+            raise ValueError(err_msg)
+
+        if 'Item' not in res_keys:
+            err_msg = 'no Item keys in results.items'
             raise ValueError(err_msg)
 
         if 'TotalPages' not in res_dict.keys():
