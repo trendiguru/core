@@ -21,9 +21,9 @@
 40 * * * * python -m trendi.db_stuff.dl_status -m check
 55 * * * * python -m trendi.db_stuff.dl_status -m check
 2 0 * * * echo "daily clean up - restarting all fingerprinters and ebay workers" >> /home/developer/yonti/download.log 2>&1
-2 0 * * * sudo rm -r /tmp/fingerprint* >> /home/developer/yonti/download.log 2>&1
-2 0 * * * sudo rm -r /tmp/ebay_worker* >> /home/developer/yonti/download.log 2>&1
-3 0 * * * sudo supervisorctl restart all >> /home/developer/yonti/download.log 2>&1
+#2 0 * * * sudo rm -r /tmp/fingerprint* >> /home/developer/yonti/download.log 2>&1
+#2 0 * * * sudo rm -r /tmp/ebay_worker* >> /home/developer/yonti/download.log 2>&1
+3 0 * * * sudo restart supervisor >> /home/developer/yonti/download.log 2>&1
 #4 0 * * * echo "shopstyle US Female download started at 00:05 am" >> /home/developer/yonti/download.log 2>&1
 #5 0 * * * python -m trendi.db_stuff.shopstyle_download -n ShopStyle -g Female > /home/developer/yonti/ShopStyle_US_Female.log 2>&1
 4 0 * * * echo "shopstyle KR Female download started at 03:00 am" >> /home/developer/yonti/download.log 2>&1
