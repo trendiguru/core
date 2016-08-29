@@ -104,7 +104,6 @@ else:
     print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
 
 
-
 histogram=plt.figure(1)
 
 #bins = np.linspace(-1000, 1000, 50)
