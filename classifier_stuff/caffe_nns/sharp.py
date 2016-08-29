@@ -370,7 +370,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     #assuming input of size 224x224, ...
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 
-    n.bn1 = batchnorm(n.data)
+    n.bn1 = batchnorm(n.data,stage=stage)
     n.conv1_1 = conv_relu(n.bn1,n_output=64,kernel_size=3,pad='preserve')
     n.conv1_2 = conv_bn_relu(n.conv1_1,n_output=64,kernel_size=3,pad='preserve',stage=stage)
     n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
