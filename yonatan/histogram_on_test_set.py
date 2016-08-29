@@ -26,7 +26,7 @@ text_file = open("55k_face_test_list.txt", "r")
 counter = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_15000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_20000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
