@@ -211,12 +211,12 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
-def seg_tests(solver, save_format, dataset, layer='score', gt='label'):
+def seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     print '>>>', datetime.now(), 'Begin seg tests'
     solver.test_nets[0].share_with(solver.net)
-    do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt)
+    do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
 
-def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
+def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     n_cl = net.blobs[layer].channels
     if save_format:
         save_format = save_format.format(iter)
@@ -236,7 +236,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     freq = hist.sum(1) / hist.sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
             (freq[freq > 0] * iu[freq > 0]).sum()
-    with open('net_output.txt','a') as f:
+    with open(outfilename,'a') as f:
         f.write('>>>'+ str(datetime.now())+' Iteration:'+ str(iter)+ ' loss:'+ str(loss)+'\n')
         f.write('<br>\n')
         f.write('acc per class:'+ str(acc)+'\n')

@@ -313,7 +313,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
 
             category, sub_category = find_paperdoll_cat(family_tree, short_d)
             if len(category) == 0:
-                category = 'unKnown'
+                category = 'unknown'
 
             new_item = {'id': asin,
                         'parent_asin': parent_asin,

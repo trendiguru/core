@@ -3,7 +3,10 @@ __author__ = 'kaggle_guy'
 import os
 import sys
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
+plt.ioff()  #interactive plot off
 import math
 import pylab
 import sys
@@ -302,7 +305,7 @@ def parse_logfile(output_filename,logy):
             ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
   savename = args.output_file+'.jpg'
   plt.savefig(savename)
-  plt.show()
+  #plt.show()
 
 def fit_exp(x, k,a, b, x0):
     return k*np.exp(np.multiply(a,x-x0)) + b
@@ -312,13 +315,39 @@ def fit_log(x, k,a, b, x0):
     #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
+def lossplot(input_filename):
+  print('parsing solve.py (jrinference) output file '+output_filename)
+  try:
+    f = open(input_filename, 'r')
+  except:
+    print('trouble opening file '+str(input_filename))
+    return
+  times = []
+  losses = []
+  for line in f:
+#    print('checking line:'+line)
+      print line
+      thesplit = line.split()
+      time = thesplit[0]
+      loss = thesplit[1]
+      times.append(time)
+      losses.append(loss)
+  plt.plot(times, losses,'ro:', label="loss")
+  plt.set_xlabel("time[s]")
+  plt.set_ylabel("loss")
+  plt.title(input_filename)
+
+
 def parse_solveoutput(output_filename):
   '''
   todo: add net name and params to title
   '''
-  print('parsing solve.py (jrinference) output')
-  f = open(output_filename, 'r')
-
+  print('parsing solve.py (jrinference) output file '+output_filename)
+  try:
+    f = open(output_filename, 'r')
+  except:
+    print('trouble opening file '+str(output_filename))
+    return
   times = []
   training_iterations = []
   overall_accuracy = []
@@ -451,7 +480,7 @@ def parse_solveoutput(output_filename):
 
   savename = output_filename+'.jpg'
   plt.savefig(savename)
-  plt.show()
+#  plt.show()
 
 
 if __name__ == "__main__":
@@ -466,3 +495,5 @@ if __name__ == "__main__":
     parse_logfile(args.output_file,args.logy)
   elif args.type =='1' or args.type=='txt':
     parse_solveoutput(args.output_file)
+  elif args.type =='2' or args.type=='loss':
+    lossplot(args.output_file)

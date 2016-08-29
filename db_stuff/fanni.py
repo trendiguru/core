@@ -13,7 +13,12 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
 
     items = db[col_name].find({'categories':category})
     for x, item in enumerate(items):
-        v = item['fingerprint']['color']
+        fp = item['fingerprint']
+        if type(fp) != dict:
+            fp = {'color': fp}
+            idx = item['_id']
+            db[col_name].update_one({'_d': idx}, {'$set': {'fingerprint': fp}})
+        v = fp['color']
         forest.add_item(x, v)
         """
         annoy index the items in the order the are inserted to the tree
@@ -21,15 +26,15 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         thats why we need to match between items in the database and their annoy index
         """
         if hold:
-            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex_tmp":x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": x}})
         else:
-            db[col_name].update_one({'_id':item['_id']},{'$set':{"AnnoyIndex":x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex": x}})
 
     forest.build(num_of_trees)
 
     if hold:
-        db[col_name].update_many({'categories':category}, {'$unset': {"AnnoyIndex": 1}})
-        db[col_name].update_many({'categories':category}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
+        db[col_name].update_many({'categories': category}, {'$unset': {"AnnoyIndex": 1}})
+        db[col_name].update_many({'categories': category}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
 
     """
     for now the tree is saved only on the database server
@@ -37,7 +42,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     """
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
-    print ("%s forest in planted! come here for picnics..." %(category))
+    print ("%s forest in planted! come here for picnics..." %( category))
 
 
 def reindex_forest(col_name):
@@ -109,8 +114,8 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     forest.unload()
     del forest
     print("got it in %s secs!"% total_duration)
-    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s)' \
-          % (col_name, category, total_duration, load_duration, search_duration)
+    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s), results count: %d' \
+          % (col_name, category, total_duration, load_duration, search_duration, len(result))
     db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
 

@@ -224,7 +224,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                    max_noise_level= 0,noise_type='gauss',
                    max_blur=0,
                    do_mirror_lr=True,do_mirror_ud=False,
-                   crop_size=(224,224),
+                   crop_size=None,
                     show_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
@@ -407,7 +407,7 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-    if crop_dx or crop_dy:
+    if crop_size and (crop_dx or crop_dy):
         left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
         right = int(round(left + crop_size[1]))
         top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))

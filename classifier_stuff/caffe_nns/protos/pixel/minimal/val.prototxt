@@ -224,7 +224,7 @@ layer {
 	inner_product_param {
             num_output: 4096
             weight_filler {type: "xavier"}
-            bias_filler {type: "constant"}
+            bias_filler {type: "constant",value: 0.2}
 	  }
     param {
             lr_mult: 1
@@ -251,8 +251,9 @@ layer {
 	inner_product_param {
             num_output: 8192
             weight_filler {type: "xavier"}
-            bias_filler {type: "constant"}
-	  }
+            bias_filler {type: "constant",value: 0.2	  }
+            }
+
     param {
             lr_mult: 1
             decay_mult: 1
@@ -278,7 +279,7 @@ layer {
 	inner_product_param {
             num_output: 32768
             weight_filler {type: "xavier"}
-            bias_filler {type: "constant"}
+            bias_filler {type: "constant",value: 0.2}
 	  }
     param {
             lr_mult: 1
@@ -354,14 +355,27 @@ layer {
   top: "upscore1"
   param {
     lr_mult: 1
+    decay_mult: 1
   }
+#  param {
+#    lr_mult: 2
+#    decay_mult: 0
+#  }
   convolution_param {
     num_output: 256
     bias_term: false
     kernel_size: 2
     stride: 2
+    weight_filler {
+      type: "xavier"
+    }
+#    bias_filler {
+#      type: "constant"
+#      value: 0.2
+#    }
   }
 }
+
 layer {
   name: "relu_up1"
   type: "ReLU"
@@ -469,11 +483,11 @@ layer {
 }
 
 layer {
-  name: "myloss"
+  name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "pixlevel_output"
   bottom: "label"
-  top: "myloss"
+  top: "loss"
 }
 
 

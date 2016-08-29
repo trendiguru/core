@@ -63,7 +63,7 @@ def distance_Bhattacharyya(fp1, fp2, weights, hist_length):
         return None
 
 
-def distance(category, main_fp, candidate_fp):
+def distance(category, main_fp, candidate_fp, coll):
     if isinstance(main_fp, list):
         logging.warning("main_fp in distance function is a LIST!")
         return None
@@ -71,7 +71,8 @@ def distance(category, main_fp, candidate_fp):
         logging.warning("candidate_fp in distance function is a LIST!")
         return None
     if not main_fp.keys() == candidate_fp.keys():
-        logging.warning("2 fps has different keys!")
+        logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
+        logging.warning("category is {0}, collection {1}".format(category, coll))
         return None
     d = 0
     weight_keys = constants.weights_per_category.keys()
@@ -82,7 +83,7 @@ def distance(category, main_fp, candidate_fp):
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
         elif feature == 'sleeve_length':
-            dist = sleeve_client.sleeve_distance(main_fp[feature], candidate_fp[feature])['data']
+            dist = sleeve_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
 
@@ -111,14 +112,17 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             return []
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-
+    print "entries cursor count: {0}".format(entries.count())
     farthest_nearest = 1
     nearest_n = []
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
-        d = distance(category, fp, ent)
+        if isinstance(ent, list):
+            logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
+            continue
+        d = distance(category, fp, ent, collection)
         if not d:
-            return []
+            continue
         if i < number_of_matches:
             nearest_n.append((entry, d))
             farthest_nearest = 1
@@ -144,3 +148,11 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
     return nearest_n
+
+
+def sleeve_distance(v1, v2):
+    if len(v1) != 8 or len(v2) != 8:
+        return None
+    v1 = np.array(v1) if isinstance(v1, list) else v1
+    v2 = np.array(v2) if isinstance(v2, list) else v2
+    return np.linalg.norm(v1 - v2)
