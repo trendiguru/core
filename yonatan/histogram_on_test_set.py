@@ -68,6 +68,7 @@ for line in text_file:
     start = time.time()
     predictions = classifier.predict(inputs)
     print("Done in %.2f s." % (time.time() - start))
+    print predictions
 
     #if the gender_detector is right
     if (predictions[0][0] > predictions[0][1]) and (path[1] == '0'):
