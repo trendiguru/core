@@ -28,7 +28,7 @@ test_flag = 1
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_30000.caffemodel"
-caffe.set_mode_gpu()
+caffe.set_mode_gpu(1)
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
