@@ -27,7 +27,7 @@ counter = 0
 test_flag = 1
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_15000.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_30000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -38,7 +38,7 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
