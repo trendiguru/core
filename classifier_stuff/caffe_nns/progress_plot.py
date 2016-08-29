@@ -315,6 +315,29 @@ def fit_log(x, k,a, b, x0):
     #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
+def lossplot(input_filename):
+  print('parsing solve.py (jrinference) output file '+output_filename)
+  try:
+    f = open(input_filename, 'r')
+  except:
+    print('trouble opening file '+str(input_filename))
+    return
+  times = []
+  losses = []
+  for line in f:
+#    print('checking line:'+line)
+      print line
+      thesplit = line.split()
+      time = thesplit[0]
+      loss = thesplit[1]
+      times.append(time)
+      losses.append(loss)
+  plt.plot(times, losses,'ro:', label="loss")
+  plt.set_xlabel("time[s]")
+  plt.set_ylabel("loss")
+  plt.title(input_filename)
+
+
 def parse_solveoutput(output_filename):
   '''
   todo: add net name and params to title
@@ -472,3 +495,5 @@ if __name__ == "__main__":
     parse_logfile(args.output_file,args.logy)
   elif args.type =='1' or args.type=='txt':
     parse_solveoutput(args.output_file)
+  elif args.type =='2' or args.type=='loss':
+    lossplot(args.output_file)

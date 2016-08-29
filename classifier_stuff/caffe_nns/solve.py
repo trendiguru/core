@@ -5,9 +5,9 @@ __author__ = 'jeremy'
 #git -C /usr/lib/python2.7/dist-packages/trendi pull
 
 import caffe
-import surgery, score
+#import surgery, score
 import time
-import numpy as np
+#import numpy as np
 import os
 import sys
 
@@ -19,6 +19,9 @@ import matplotlib
 matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
+
+
+
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
@@ -38,7 +41,7 @@ caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
 solver.net.copy_from(weights)
-solver.net.forward()  # train net
+#solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
@@ -60,38 +63,41 @@ cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
 copycmd = 'cp '+jpgname +' /home/jeremy/caffenets/production'
 copy2cmd = 'cp '+outfilename +' /home/jeremy/caffenets/production'
 
-jrinfer.seg_tests(solver, False, val, layer='score')
-progress_plot.parse_solveoutput(outfilename)
-subprocess.call(cmd,shell=True)
 
 i = 0
 losses = []
 iters = []
-steps = 20
-for _ in range(1000):
-    for i in range(100):
-        i = i+steps
-        solver.step(steps)
+steps_per_iter = 2
+n_iter = 2
+loss_avg = [0]*n_iter
+for _ in range(100000):
+    for i in range(n_iter):
+        solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
-        print('iter '+str(i)+' loss:'+str(loss))
+        print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
+        loss_avg[i] = loss
         losses.append(loss)
         iters.append(i)
-        with open('loss.txt','a+') as f:
-            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
-            f.close()
-        with open(lossfilename,'a+') as f:
-            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
-            f.close()
+    averaged_loss=sum(loss_avg)/len(loss_avg)
+    with open('loss.txt','a+') as f:
+        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.close()
+    with open(lossfilename,'a+') as f:
+        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.close()
 
+#PLOTS ARENT WORKING IN DOCKER EVEN USING matplotlib.use('Agg')
 #    score.seg_tests(solver, False, val, layer='score')
-    plt.plot(iters, loss,'bo:', label="train loss")
-    plt.xlabel("iterations")
-    plt.ylabel("loss")
-    savename = 'loss.jpg'
-    plt.savefig(savename)
+#    plt.plot(iters, loss,'bo:', label="train loss")
+#    plt.xlabel("iterations")
+#    plt.ylabel("loss")
+#    savename = 'loss.jpg'
+#    plt.savefig(savename)
     jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
 #    progress_plot.parse_solveoutput(outfilename)
-    print('jpgfile:'+str(jpgname))
     subprocess.call(cmd,shell=True)
-    subprocess.call(copycmd,shell=True)
+#    subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
+
+
+
