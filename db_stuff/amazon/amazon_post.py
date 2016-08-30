@@ -2,12 +2,12 @@ import re
 from datetime import datetime
 from time import sleep, time
 
-from core.db_stuff.db_utils import log2file, print_error, thearchivedoorman, progress_bar, refresh_similar_results
+from ..general.db_utils import log2file, print_error, thearchivedoorman, progress_bar, refresh_similar_results
 from rq import Queue
 
-from core.constants import db, redis_conn
-from core.db_stuff.annoy.fanni import plantAnnoyForest, reindex_forest
-from core.db_stuff.general.dl_excel import mongo2xl
+from ...constants import db, redis_conn
+from ..annoy_dir.fanni import plantAnnoyForest, reindex_forest
+from ..general.dl_excel import mongo2xl
 from .amazon_constants import plus_sizes, amazon_categories_list
 
 last_pct = 0

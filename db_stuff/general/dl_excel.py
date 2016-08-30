@@ -4,8 +4,8 @@ from datetime import datetime
 
 import xlsxwriter
 
-from core import constants
-from core.Yonti import drive
+from ... import constants
+from ...Yonti import drive
 
 db = constants.db
 

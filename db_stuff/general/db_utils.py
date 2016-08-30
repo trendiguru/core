@@ -4,15 +4,15 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from core.constants import db, redis_conn
+from ...constants import db, redis_conn
 from datetime import datetime
-from core.Yonti import pymongo_utils
+from ...Yonti import pymongo_utils
 from rq import Queue
 import sys
 from PIL import Image
 import numpy as np
 from scipy import fftpack
-from core.Utils import get_cv2_img_array
+from ...Utils import get_cv2_img_array
 from time import sleep
 
 

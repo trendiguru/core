@@ -4,10 +4,10 @@ from time import sleep
 
 from rq import Queue
 
-from core.Utils import get_cv2_img_array
-from core.constants import db, redis_conn, fingerprint_version
-from core.db_stuff.general.db_utils import print_error, get_hash, get_p_hash
-from core.fingerprint_core import generate_mask_and_insert
+from ...Utils import get_cv2_img_array
+from ...constants import db, redis_conn, fingerprint_version
+from ..general.db_utils import print_error, get_hash, get_p_hash
+from ...fingerprint_core import generate_mask_and_insert
 
 today_date = str(datetime.date(datetime.now()))
 
