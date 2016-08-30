@@ -70,7 +70,8 @@ for root, dirs, files in os.walk(source_dir):
 
         #img = cv2.imread(old_file_location)
 
-        width, height = cv2.GetSize(old_file_location)
+        img = cv2.imread(old_file_location, 0)
+        height, width = img.shape[:2]
         print width, height
     #     resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
     #
