@@ -22,7 +22,7 @@ iter_size: 10
 max_iter: 3000000
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "snapshot/unet"
+snapshot_prefix: "snapshot/sharp1"
 test_initialization: false
 
 #type: AdaDelta
