@@ -64,26 +64,30 @@ for root, dirs, files in os.walk(source_dir):
 
     for file in files:
 
-        print file
+        old_file_location = source_dir + '/' + file
+
+        input_file = os.path.expanduser(old_file_location)
+
+        print input_file
 
         # resized_image = imutils.resize_keep_aspect(file, output_size = (224, 224))
 
-        old_file_location = source_dir + '/' + file
 
-        if counter < counter_train:
-            new_file_location = train_dir_path + file
-            os.rename(old_file_location, new_file_location)
-            counter += 1
-        elif counter >= counter_train and counter < counter_train + counter_cv:
-            new_file_location = cv_dir_path + file
-            os.rename(old_file_location, new_file_location)
-            counter += 1
-        elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
-            new_file_location = test_dir_path + file
-            os.rename(old_file_location, new_file_location)
-            counter += 1
-        else:
-            print counter
-            break
 
-    print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
+    #     if counter < counter_train:
+    #         new_file_location = train_dir_path + file
+    #         os.rename(old_file_location, new_file_location)
+    #         counter += 1
+    #     elif counter >= counter_train and counter < counter_train + counter_cv:
+    #         new_file_location = cv_dir_path + file
+    #         os.rename(old_file_location, new_file_location)
+    #         counter += 1
+    #     elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+    #         new_file_location = test_dir_path + file
+    #         os.rename(old_file_location, new_file_location)
+    #         counter += 1
+    #     else:
+    #         print counter
+    #         break
+    #
+    # print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
