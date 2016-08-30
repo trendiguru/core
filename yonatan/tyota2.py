@@ -70,10 +70,12 @@ for root, dirs, files in os.walk(source_dir):
 
         #img = cv2.imread(old_file_location)
 
-        resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
-
-
-
+        width, height = cv2.GetSize(old_file_location)
+        print width, height
+    #     resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
+    #
+    #
+    #
     #     if counter < counter_train:
     #         new_file_location = train_dir_path + file
     #         os.rename(old_file_location, new_file_location)
