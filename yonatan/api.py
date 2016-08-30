@@ -2,6 +2,7 @@
 
 import urllib2
 import json
+import facebook
 
 locu_api = '17650e070e2bfccab3dd8f9605583793622ea6c1'
 
@@ -32,4 +33,19 @@ def fullContactCollect(email):
             print str(item['typeName']) + ' - followers: ' + str(item['followers'])
 
 
-fullContactCollect('markcuban@dallasmavs.com')
+# fullContactCollect('markcuban@dallasmavs.com')
+
+my_access_token = 'EAACEdEose0cBAAz0Ova3dDgTF6PsBXk8tKdduBmoCnm71zsI14V77dBFnlykuZCa5AmA3vaubZCaDtZBZByPwUfkscsYU0GB2rvSRzZCtRTzq46A8GSuGHgZCjnDFJoVSKnP8B8jKeo50DRqmwVh5fzyikPBH4kJwicMdIZAc3JngZDZD'
+
+my_fb_user_id = '693821542'
+
+
+your_access_token = my_access_token
+
+def get_fb_page_like_count(fb_page_id):
+    graph = facebook.GraphAPI(access_token=your_access_token)
+    args = {'fields': 'likes'}
+    page = graph.get_object(fb_page_id, **args)
+    print page.get('likes', 0)
+    return page.get('likes', 0)
+
