@@ -1,5 +1,6 @@
 from __future__ import print_function
 import xmltodict
+from ...constants import db
 
 
 def process_xml(file_name):
@@ -11,6 +12,7 @@ def process_xml(file_name):
     one_percent = int(total_items/100)
     print ('[', end='')
     tmp = 0
+    cat_ids = []
     cats = []
     for x, item in enumerate(d2):
         if divmod(x, one_percent)[0] > tmp:
@@ -56,13 +58,18 @@ def process_xml(file_name):
                     #                   'first_dl': today_date,
                     #                   'fp_version': fingerprint_version}
 
+        if category_id not in cat_ids:
+            cat_ids.append(category_id)
+            cats.append({'id':category_id,
+                         'url':image_url})
 
-        if category_id not in cats:
-             cats.append(category_id)
+        db.xl_raw.insert_one(new_item)
 
-    for c in cats:
-        print (c)
+    for x,c in enumerate(cats):
+        print ('%d/%d) %s -> %s' %(x,len(cats),c['id'],c['url']))
+        raw_input()
 
 if __name__ == "__main__":
+    db.xl_raw.delete_many({})
     filename = '/home/developer/yonti/affilinet_products_5420_777756.xml'
     process_xml(filename)
