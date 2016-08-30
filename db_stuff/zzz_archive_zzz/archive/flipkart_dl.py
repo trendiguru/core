@@ -10,9 +10,9 @@ import zipfile
 import requests
 from rq import Queue
 
-from core.db_stuff.archive.flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
-from core.db_stuff import dl_excel
 from core.constants import db, redis_conn
+from core.db_stuff.general import dl_excel
+from core.db_stuff.zzz_archive_zzz.archive.flipkart_constants import flipkart_relevant_categories, flipkart_paperdoll_women
 from core.fingerprint_core import generate_mask_and_insert
 
 q = Queue('fingerprint_new', connection=redis_conn)

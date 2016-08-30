@@ -16,10 +16,10 @@ from time import sleep,time
 from rq import Queue
 
 from core import constants
-from core.db_stuff import dl_excel
-from core.db_stuff import ebay_constants
-from core.db_stuff.archive import ebay_dl_utils
-from core.db_stuff.fanni import plantForests4AllCategories
+from core.db_stuff.annoy.fanni import plantForests4AllCategories
+from core.db_stuff.ebay import ebay_constants
+from core.db_stuff.general import dl_excel
+from core.db_stuff.zzz_archive_zzz.archive import ebay_dl_utils
 from .ebay_dl_worker import ebay_downloader
 
 q = Queue('ebay_worker', connection=constants.redis_conn)

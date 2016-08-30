@@ -1,20 +1,20 @@
 __author__ = 'yonatan'
 
 import collections
-import time
-import json
-import urllib
 import datetime
+import json
 import sys
+import time
+import urllib
 
 import requests
+from core.db_stuff.shopstyle_constants import shopstyle_relevant_items_Female
 from rq import Queue
 
 from core import constants
-from core.db_stuff.shopstyle_constants import shopstyle_relevant_items_Female
-from core.db_stuff.shopstyle2generic import convert2generic
+from core.db_stuff.general import dl_excel
+from core.db_stuff.shopstyle.shopstyle2generic import convert2generic
 from core.fingerprint_core import generate_mask_and_insert
-from core.db_stuff import dl_excel
 
 q = Queue('fingerprint_new', connection=constants.redis_conn)
 relevant = shopstyle_relevant_items_Female

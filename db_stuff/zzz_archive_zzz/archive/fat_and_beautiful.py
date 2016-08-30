@@ -27,22 +27,22 @@ download plus size from shopstyle
 
 __author__ = 'yonatan'
 
-import collections
-import time
-import json
-import urllib
-import datetime
-import sys
 import argparse
+import collections
+import datetime
+import json
+import sys
+import time
+import urllib
+
 import requests
 from rq import Queue
-from core.db_stuff.fanni import plantForests4AllCategories
+
 from core.constants import db, fingerprint_version as fp_version, redis_conn
 from core.db_stuff import shopstyle_constants
-from core.db_stuff.shopstyle2generic import convert2generic
+from core.db_stuff.general import dl_excel
+from core.db_stuff.shopstyle.shopstyle2generic import convert2generic
 from core.fingerprint_core import generate_mask_and_insert
-from core.db_stuff import dl_excel
-
 
 q = Queue('fingerprint_new', connection=redis_conn)
 forest = Queue('annoy_forest', connection=redis_conn)
