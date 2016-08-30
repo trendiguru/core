@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonself.blobs[in_].data.shape
+#!/usr/bin/env python self.blobs[in_].data.shape
 """
 Classifier is an image classifier specialization of Net.
 """
