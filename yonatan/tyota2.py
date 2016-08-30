@@ -86,4 +86,4 @@ for root, dirs, files in os.walk(source_dir):
         #     print counter
         #     break
 
-print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
+    print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
