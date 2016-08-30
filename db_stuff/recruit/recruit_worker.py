@@ -1,17 +1,19 @@
-from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
-from time import time, sleep
-import requests
-import json
-from ..constants import db, fingerprint_version, redis_conn
-from datetime import datetime
-import logging
-from rq import Queue
-from ..Utils import get_cv2_img_array
 import hashlib
-from ..fingerprint_core import generate_mask_and_insert
+import json
+import logging
 import re
-from .db_utils import get_p_hash
+from datetime import datetime
 from signal import signal, SIGPIPE, SIG_DFL
+from time import time, sleep
+
+import requests
+from rq import Queue
+
+from core.Utils import get_cv2_img_array
+from core.constants import db, fingerprint_version, redis_conn
+from core.db_stuff.general.db_utils import get_p_hash
+from core.fingerprint_core import generate_mask_and_insert
+from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
 
 signal(SIGPIPE, SIG_DFL)
 recruit_q = Queue('recruit_worker', connection=redis_conn)

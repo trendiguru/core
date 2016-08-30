@@ -1,8 +1,10 @@
 __author__ = 'yonatan'
 
 import sys
-from .. import constants
-from . import shopstyle_constants
+
+from core import constants
+from core.db_stuff.shopstyle import shopstyle_constants
+
 db = constants.db
 
 collections = ["products", "products_jp"]

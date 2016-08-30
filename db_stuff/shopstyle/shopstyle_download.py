@@ -1,23 +1,24 @@
 __author__ = 'yonatan'
 
-import collections
-import time
-import json
-import urllib
-import datetime
-import sys
 import argparse
-import requests
-from rq import Queue
-from fanni import plantForests4AllCategories
-from .. import constants
-from . import shopstyle_constants
-from .shopstyle2generic import convert2generic
-from ..fingerprint_core import generate_mask_and_insert
-from . import dl_excel
-from .db_utils import refresh_similar_results, get_p_hash
-from ..Utils import get_cv2_img_array
+import collections
+import datetime
+import json
+import sys
+import time
+import urllib
 
+import requests
+from core.db_stuff.db_utils import refresh_similar_results, get_p_hash
+from rq import Queue
+
+from core import constants
+from core.Utils import get_cv2_img_array
+from core.db_stuff.annoy.fanni import plantForests4AllCategories
+from core.db_stuff.general import dl_excel
+from core.db_stuff.shopstyle import shopstyle_constants
+from core.fingerprint_core import generate_mask_and_insert
+from .shopstyle2generic import convert2generic
 
 q = Queue('fingerprinter4db', connection=constants.redis_conn)
 forest = Queue('annoy_forest', connection=constants.redis_conn)

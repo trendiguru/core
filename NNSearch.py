@@ -1,14 +1,15 @@
 __author__ = 'jeremy'
-import logging
-import numpy as np
 import cv2
-import importlib
-from db_stuff import fanni
-import constants
+import logging
+from time import sleep
+
+import numpy as np
 from rq import Queue
-from time import sleep, time
+
+import constants
+from core.db_stuff.annoy import fanni
 from features import color
-from falcon import sleeve_client
+
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean

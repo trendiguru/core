@@ -2653,7 +2653,7 @@ layer {
 	name: "my_fc8"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 6
+		num_output: 4
 	}
          param {
                   lr_mult: 10
