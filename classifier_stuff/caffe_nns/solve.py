@@ -70,6 +70,7 @@ iters = []
 steps_per_iter = 2
 n_iter = 2
 loss_avg = [0]*n_iter
+tot_iters = 0
 for _ in range(100000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
@@ -78,12 +79,13 @@ for _ in range(100000):
         loss_avg[i] = loss
         losses.append(loss)
         iters.append(i)
+        tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
     with open('loss.txt','a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
         f.close()
     with open(lossfilename,'a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(averaged_loss)+'\n')
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
         f.close()
 
 #PLOTS ARENT WORKING IN DOCKER EVEN USING matplotlib.use('Agg')

@@ -210,7 +210,7 @@ def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',stage
         if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
-                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+                                num_output=n_output, pad=pad, bias_term=False, weight_filler=dict(type='xavier'))
     # see https://groups.google.com/forum/#!topic/caffe-users/h4E6FV_XkfA - verify this if poss
     batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
                              batch_norm_param={'use_global_stats': stage=='test'})
