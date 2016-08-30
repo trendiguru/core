@@ -64,16 +64,13 @@ for root, dirs, files in os.walk(source_dir):
 
     for file in files:
 
-        old_file_location = source_dir + '/' + file
+        old_file_location = root + '/' + file
 
-        input_file = os.path.expanduser(old_file_location)
+        #input_file = os.path.expanduser(old_file_location)
 
         #img = cv2.imread(old_file_location)
 
-        print img
-        print type(img)
-
-        resized_image = imutils.resize_keep_aspect(img, output_size = (224, 224))
+        resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
 
 
 
