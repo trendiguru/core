@@ -7,7 +7,7 @@ import numpy as np
 from rq import Queue
 
 import constants
-from core.db_stuff.annoy import fanni
+from db_stuff.annoy_dir import fanni
 from features import color
 
 q = Queue('annoy', connection=constants.redis_conn)

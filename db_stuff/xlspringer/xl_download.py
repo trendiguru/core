@@ -140,8 +140,11 @@ def find_category(family_tree):
     top_cat = split_tree[0]
     if top_cat != 'mode':
         return None, None
+    sec_cat = split_tree[1]
+    if sec_cat not in germender.keys():
+        return None, None
     gender = germender[split_tree[1]]
-    if gender=='Male':
+    if gender == 'Male':
         return gender, match_male_cat(split_tree[2:])
     elif gender == 'Female':
         return gender, match_female_cat(split_tree[2:])
