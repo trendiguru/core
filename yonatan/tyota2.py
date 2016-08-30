@@ -66,9 +66,9 @@ for root, dirs, files in os.walk(source_dir):
 
         old_file_location = source_dir + '/' + file
 
-        #input_file = os.path.expanduser(old_file_location)
+        input_file = os.path.expanduser(old_file_location)
 
-        img = cv2.imread(old_file_location)
+        #img = cv2.imread(old_file_location)
 
         print img
         print type(img)
