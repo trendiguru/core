@@ -49,3 +49,4 @@ def get_fb_page_like_count(fb_page_id):
     print page.get('likes', 0)
     return page.get('likes', 0)
 
+get_fb_page_like_count(my_fb_user_id)
