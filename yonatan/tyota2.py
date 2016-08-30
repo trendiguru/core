@@ -69,7 +69,7 @@ for root, dirs, files in os.walk(source_dir):
         input_file = os.path.expanduser(old_file_location)
 
         print input_file
-        print type.input_file
+        print type(input_file)
 
         resized_image = imutils.resize_keep_aspect(input_file, output_size = (224, 224))
 
