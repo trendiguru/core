@@ -12,8 +12,8 @@ import psutil
 from rq import Queue
 
 from core import constants, Utils
-from core.db_stuff import ebay_constants
-from core.db_stuff.archive import ebay_dl_utils
+from core.db_stuff.ebay import ebay_constants
+from core.db_stuff.zzz_archive_zzz.archive import ebay_dl_utils
 from core.fingerprint_core import generate_mask_and_insert
 
 maxInt = sys.maxsize

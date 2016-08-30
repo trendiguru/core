@@ -10,10 +10,10 @@ from time import time
 import requests
 import xmltodict
 
-from core.db_stuff.archive.ebay_global_constants import APPID, ebay_male_relevant_categories, \
+from core import constants
+from core.db_stuff.zzz_archive_zzz.archive import APPID, ebay_male_relevant_categories, \
     ebay_female_relevant_categories,ebay_not_relevant_categories, MAIN_CATEGORY,VERSION, \
     ebay_paperdoll_men,ebay_paperdoll_women
-from core import constants
 
 db = constants.db
 today_date = str(datetime.datetime.date(datetime.datetime.now()))
