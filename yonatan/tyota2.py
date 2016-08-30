@@ -23,12 +23,12 @@ from PIL import Image
 import pymongo
 import dlib
 
-test_text_file = open("test_dir.txt", "w")
+test_text_file = open("55k_test_set_new.txt", "w")
 
 counter = 0
 
 
-dir_path = '/home/yonatan/test_dir'
+dir_path = '/home/yonatan/55k_test_set'
 
 for root, dirs, files in os.walk(dir_path):
     for file in files:

@@ -54,15 +54,15 @@ dress_length_dict = {
     'mini_length': [db.yonatan_dresses.find(
         {'dress_length': ['true', 'false', 'false', 'false', 'false', 'false']}), 0],
     'above_knee': [db.yonatan_dresses.find(
-        {'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}), 1],
+        {'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}), 0],
     'knee_length': [db.yonatan_dresses.find(
-        {'dress_length': ['false', 'false', 'true', 'false', 'false', 'false']}), 2],
+        {'dress_length': ['false', 'false', 'true', 'false', 'false', 'false']}), 1],
     'tea_length': [db.yonatan_dresses.find(
-        {'dress_length': ['false', 'false', 'false', 'true', 'false', 'false']}), 3],
+        {'dress_length': ['false', 'false', 'false', 'true', 'false', 'false']}), 2],
     'ankle_length': [db.yonatan_dresses.find(
-        {'dress_length': ['false', 'false', 'false', 'false', 'true', 'false']}), 4],
+        {'dress_length': ['false', 'false', 'false', 'false', 'true', 'false']}), 3],
     'floor_length': [db.yonatan_dresses.find(
-        {'dress_length': ['false', 'false', 'false', 'false', 'false', 'true']}), 5]
+        {'dress_length': ['false', 'false', 'false', 'false', 'false', 'true']}), 3]
 }
 
 # men shirt sleeve #
