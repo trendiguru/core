@@ -58,7 +58,29 @@ def hand_picked():
             counter += 1
             print counter
 
-hand_picked()
+# hand_picked()
+
+
+def labeled():
+    labeled_images_file = open("labeled_images_file.txt", "w")
+    labeled_images_with_label_file = open("labeled_images_with_label_file.txt", "w")
+
+    counter = 0
+    num_of_each_category = 500
+
+    for key, value in yonatan_constants.dress_length_dict.iteritems():
+        print "starting " + str(key)
+        for i in range(1, value[0].count()):
+            if i > num_of_each_category:
+                break
+            labeled_images_file.write(str(value[0][i]['images']['XLarge']) + "\n")
+            labeled_images_with_label_file.write(str(value[0][i]['images']['XLarge']) + " " + str(value[1]) + "\n")
+
+            counter += 1
+            print counter
+
+labeled()
+
 
 # def check_how_many(category_dict, yonatan_category_db, item_type):
 #
