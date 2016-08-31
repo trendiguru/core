@@ -93,6 +93,8 @@ def not_catalog_images():
     # somtimes there's more than one url, so i'm taking only the first
     for doc in live_dress_images_cursor:
         #not_catalog_images_file.write(str(doc['image_urls'][0]) + "\n")
+
+        #got some
         url = doc['image_urls'][0].encode('ascii', 'ignore').decode('ascii')
         not_catalog_images_file.write(url + "\n")
 
@@ -102,75 +104,15 @@ def not_catalog_images():
 not_catalog_images()
 
 
-# def check_how_many(category_dict, yonatan_category_db, item_type):
+# - 100 hand picked - i got 170 (the rest isn't good enough), it's not 'n' from each category.
+# i got 2 files: with and without label (didn't know if you want to give them the answer or not):
+# "hand_picked_file.txt"   and  "hand_picked_labeled_file.txt"
 #
-#     dress_sleeve_dict = category_dict
+# - 3000 labeled - same: with and without label:
+# "labeled_images_file.txt"   and   "labeled_images_with_label_file.txt"
 #
-#     sum_of_all = sum(value[0].count() for key, value in dress_sleeve_dict.iteritems())
-#     sum_of_all_already_seen = yonatan_category_db.count({'already_seen_' + item_type: True})
+# - 10,000 from not catalog images - so i took only images with one person (and of course with a dress), so there's only 4555 that's qualified.
+# i also saw sometimes there's more than one link to an image, but (from what i checked) it's the same image in all of them, so i only took the first link.
+# "not_catalog_images_file.txt"
 #
-#     deleted = sum_of_all_already_seen - sum_of_all
-#
-#     print "\n\n" + item_type + "\n"
-#
-#     for key, value in dress_sleeve_dict.iteritems():
-#         category_value = value[0].count()
-#         print '{0}: {1}, percent: {2}%'.format(key, category_value,
-#                                                int(round(float(category_value) / sum_of_all, 2) * 100))
-#     print 'sum of all: {0}'.format(sum_of_all)
-#     print 'deleted: {0}'.format(deleted)
-#
-#
-# def how_many(argv):
-#
-#     parser = argparse.ArgumentParser()
-#     # Required arguments: input and output files.
-#     parser.add_argument(
-#         "input_file",
-#         help="the argument should be one of those:"
-#              "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve\ncheck_all"
-#     )
-#
-#     # if i run this function on braini2:
-#     # db = constants.db
-#
-#     # if i run this function on brainik80a:
-#     db = pymongo.MongoClient().mydb
-#
-#     args = parser.parse_args()
-#
-#     # dress sleeve #
-#     if args.input_file == 'dress_sleeve':
-#         check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, 'dress_sleeve')
-#
-#     # dress length #
-#     elif args.input_file == 'dress_length':
-#         check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, 'dress_length')
-#
-#     # men shirt sleeve #
-#     elif args.input_file == 'men_shirt_sleeve':
-#         check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, 'shirt_sleeve')
-#
-#     # pants length #
-#     elif args.input_file == 'pants_length':
-#         check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, 'pants_length')
-#
-#     # women shirt sleeve #
-#     elif args.input_file == 'women_shirt_sleeve':
-#         check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, 'shirt_sleeve')
-#
-#     elif args.input_file == 'check_all':
-#         check_how_many(yonatan_constants.dress_sleeve_dict, db.yonatan_dresses, 'dress_sleeve')
-#         check_how_many(yonatan_constants.dress_length_dict, db.yonatan_dresses, 'dress_length')
-#         check_how_many(yonatan_constants.men_shirt_sleeve_dict, db.yonatan_men_shirts, 'shirt_sleeve')
-#         check_how_many(yonatan_constants.pants_length_dict, db.yonatan_pants, 'pants_length')
-#         check_how_many(yonatan_constants.women_shirt_sleeve_dict, db.yonatan_women_shirts, 'shirt_sleeve')
-#
-#     else:
-#         print "wrong input!"
-#         print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('dress_sleeve',
-#                                                                                      'dress_length', 'men_shirt_sleeve', 'pants_length', 'women_shirt_sleeve', 'check_all')
-#         return
-#
-# if __name__ == '__main__':
-#     how_many(sys.argv)
+# sorry for the delay

@@ -109,6 +109,8 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
+    print predictions
+
     if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
         return 'Male'
