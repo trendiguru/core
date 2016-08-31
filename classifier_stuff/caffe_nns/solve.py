@@ -58,7 +58,7 @@ print all_layers
 
 # scoring
 #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
-val = range(0,1500)
+val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 docker_hostname = socket.gethostname()
