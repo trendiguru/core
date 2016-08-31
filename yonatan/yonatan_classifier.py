@@ -61,6 +61,8 @@ class Classifier(caffe.Net):
         predictions: (N x C) ndarray of class probabilities for N images and C
             classes.
         """
+        print inputs
+        print type(inputs)
         # Scale to standardize input dimensions.
         input_ = np.zeros((len(inputs),
                            self.image_dims[0],
