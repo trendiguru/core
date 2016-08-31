@@ -26,6 +26,12 @@ plt.ioff()
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
+
+def ensure_file(filename):
+    if not os.path.exists(filename):
+    open(filename, 'w').close()
+
+
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 weights = '../vgg16fc.caffemodel'  #cannot find this
@@ -55,14 +61,23 @@ print all_layers
 val = range(0,1500)
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
-hostname = socket.gethostname()
-outfilename = hostname+'netoutput.txt'
-lossfilename = os.path.join('/home/jeremy/caffenets/production',hostname+'_loss.txt')
-jpgname = outfilename+'.jpg'
-cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
+docker_hostname = socket.gethostname()
+baremetal_hostname = os.environ('HOST_HOSTNAME')
+prefix = baremetal_hostname+'.'+docker_hostname
+detailed_outputname = prefix + '.netoutput.txt'
+detailed_pubname = os.path.join('/home/jeremy/caffenets/production',detailed_outputname)
+loss_outputname = prefix + 'loss.txt'
+loss_pubname = os.path.join('/home/jeremy/caffenets/production',loss_outputname)
+jpgname = prefix+'.jpg'
 copycmd = 'cp '+jpgname +' /home/jeremy/caffenets/production'
-copy2cmd = 'cp '+outfilename +' /home/jeremy/caffenets/production'
+copy2cmd = 'cp '+detailed_outputname + detailed_pubname
+copy3cmd = 'cp '+loss_outputname + loss_pubname
+scpcmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scp2cmd = 'scp '+detailed_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 
+ensure_file(loss_outputname)
+ensure_file(detailed_outputname)
 
 i = 0
 losses = []
@@ -81,10 +96,7 @@ for _ in range(100000):
         iters.append(i)
         tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
-    with open('loss.txt','a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
-        f.close()
-    with open(lossfilename,'a+') as f:
+    with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
         f.close()
 
@@ -95,11 +107,15 @@ for _ in range(100000):
 #    plt.ylabel("loss")
 #    savename = 'loss.jpg'
 #    plt.savefig(savename)
-    jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
+    jrinfer.seg_tests(solver, False, val, layer='score',outfilename=detailed_outputname)
 #    progress_plot.parse_solveoutput(outfilename)
-    subprocess.call(cmd,shell=True)
-#    subprocess.call(copycmd,shell=True)
+    subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
+    subprocess.call(copy3cmd,shell=True)
+
+    subprocess.call(scpcmd,shell=True)
+    subprocess.call(scp2cmd,shell=True)
+    subprocess.call(scp3cmd,shell=True)
 
 
 
