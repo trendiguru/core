@@ -100,12 +100,12 @@ class Classifier(caffe.Net):
         for ix, in_ in enumerate(input_):
             caffe_in[ix] = self.transformer.preprocess(self.inputs[0], in_)
         out = self.forward_all(**{self.inputs[0]: caffe_in})
+        print out
         predictions = out[self.outputs[0]]
 
         # For oversampling, average predictions across crops.
         if oversample:
             predictions = predictions.reshape((len(predictions) / 10, 10, -1))
-            print predictions
             predictions = predictions.mean(1)
 
         return predictions
