@@ -101,7 +101,7 @@ def not_catalog_images():
         counter += 1
         print counter
 
-not_catalog_images()
+# not_catalog_images()
 
 
 # - 100 hand picked - i got 170 (the rest isn't good enough), it's not 'n' from each category.
