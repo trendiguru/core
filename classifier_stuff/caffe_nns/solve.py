@@ -20,16 +20,13 @@ matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
 
-
+from trendi import Utils
 
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
 
-def ensure_file(filename):
-    if not os.path.exists(filename):
-        open(filename, 'w').close()
 
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
@@ -63,6 +60,7 @@ val = range(0,200) #
 #jrinfer.seg_tests(solver, False, val, layer='score')
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
+Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+docker_hostname
 detailed_outputname = prefix + '.netoutput.txt'
@@ -75,8 +73,8 @@ scpcmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/'
 scp2cmd = 'scp '+detailed_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 
-ensure_file(loss_outputname)
-ensure_file(detailed_outputname)
+Utils.ensure_file(loss_outputname)
+Utils.ensure_file(detailed_outputname)
 
 i = 0
 losses = []
