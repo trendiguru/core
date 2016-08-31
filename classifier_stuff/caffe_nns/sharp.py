@@ -164,7 +164,11 @@ layer {
 }
 '''
 
-def conv(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=64,pad=3,kernel_size=3,stride=1,weight_filler='xavier',bias_filler='constant',bias_const_val=0.2):
+def conv(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_output=64,pad='preserve',kernel_size=3,stride=1,weight_filler='xavier',bias_filler='constant',bias_const_val=0.2):
+    if pad=='preserve':
+        pad = (kernel_size-1)/2
+        if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
+            print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom,
                         param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                         num_output=n_output,
@@ -516,7 +520,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     n.cat13 = L.Concat(*bottom)
     n.conv13_2,n.relu13_2 = conv_bn_relu(n.cat13,n_output=64,kernel_size=3,pad='preserve',stage=stage)  #this is halving N_filters
 
-    n.conv_final,n.relu_final = conv_relu(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
+    n.conv_final = conv_relu(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
 
 #    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
     n.loss = L.SoftmaxWithLoss(n.conv_final, n.label)
