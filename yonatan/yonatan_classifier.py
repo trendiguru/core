@@ -61,8 +61,6 @@ class Classifier(caffe.Net):
         predictions: (N x C) ndarray of class probabilities for N images and C
             classes.
         """
-        print inputs
-        print type(inputs)
         # Scale to standardize input dimensions.
         input_ = np.zeros((len(inputs),
                            self.image_dims[0],
@@ -101,6 +99,7 @@ class Classifier(caffe.Net):
                             dtype=np.float32)
         for ix, in_ in enumerate(input_):
             caffe_in[ix] = self.transformer.preprocess(self.inputs[0], in_)
+            print caffe_in[ix]
         out = self.forward_all(**{self.inputs[0]: caffe_in})
         predictions = out[self.outputs[0]]
 
