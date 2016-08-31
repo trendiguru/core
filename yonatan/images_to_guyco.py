@@ -92,7 +92,9 @@ def not_catalog_images():
 
     # somtimes there's more than one url, so i'm taking only the first
     for doc in live_dress_images_cursor:
-        not_catalog_images_file.write(str(doc['image_urls'][0]) + "\n")
+        #not_catalog_images_file.write(str(doc['image_urls'][0]) + "\n")
+        url = doc['image_urls'][0].encode('ascii', 'ignore').decode('ascii')
+        not_catalog_images_file.write(url + "\n")
 
         counter += 1
         print counter
