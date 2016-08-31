@@ -48,6 +48,7 @@ def hand_picked():
     # num_of_each_category = 0
 
     for key, value in dress_length_jeremy_dict.iteritems():
+        print "starting " + str(key)
         for i in range(1, value[0].count()):
             # if i > num_of_each_category:
             #   break
