@@ -1767,12 +1767,7 @@ layer {
     }
   }
 }
-layer {
-  name: "relu_final"
-  type: "ReLU"
-  bottom: "conv_final"
-  top: "conv_final"
-}
+
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"

@@ -62,16 +62,15 @@ val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 docker_hostname = socket.gethostname()
+host_dirname = '/home/jeremy/caffenets/production'
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+docker_hostname
 detailed_outputname = prefix + '.netoutput.txt'
-detailed_pubname = os.path.join('/home/jeremy/caffenets/production',detailed_outputname)
 loss_outputname = prefix + 'loss.txt'
-loss_pubname = os.path.join('/home/jeremy/caffenets/production',loss_outputname)
 jpgname = prefix+'.jpg'
-copycmd = 'cp '+jpgname +' /home/jeremy/caffenets/production'
-copy2cmd = 'cp '+detailed_outputname + detailed_pubname
-copy3cmd = 'cp '+loss_outputname + loss_pubname
+copycmd = 'cp '+jpgname + ' ' + host_dirname
+copy2cmd = 'cp '+detailed_outputname + ' ' + host_dirname
+copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 scpcmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/'
 scp2cmd = 'scp '+detailed_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
@@ -107,7 +106,7 @@ for _ in range(100000):
 #    plt.ylabel("loss")
 #    savename = 'loss.jpg'
 #    plt.savefig(savename)
-    jrinfer.seg_tests(solver, False, val, layer='score',outfilename=detailed_outputname)
+    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
 #    progress_plot.parse_solveoutput(outfilename)
     subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
