@@ -9,10 +9,10 @@ from time import time, sleep
 import requests
 from rq import Queue
 
-from core.Utils import get_cv2_img_array
-from core.constants import db, fingerprint_version, redis_conn
-from core.db_stuff.general.db_utils import get_p_hash
-from core.fingerprint_core import generate_mask_and_insert
+from ...Utils import get_cv2_img_array
+from ...constants import db, fingerprint_version, redis_conn
+from ..general.db_utils import get_p_hash
+from ...fingerprint_core import generate_mask_and_insert
 from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
 
 signal(SIGPIPE, SIG_DFL)

@@ -1,16 +1,15 @@
 import os
 from time import time
 
-import core.db_stuff.annoy
-import core.db_stuff.general.db_utils
-from core.constants import db
-
+import annoy
+from ...constants import db
+from ..general import db_utils
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
     create forest for collection
     """
-    forest = core.db_stuff.annoy.AnnoyIndex(696, distance_function)
+    forest = annoy.AnnoyIndex(696, distance_function)
 
     items = db[col_name].find({'categories':category})
     for x, item in enumerate(items):
@@ -56,20 +55,20 @@ def reindex_forest(col_name):
 
 def plantForests4AllCategories(col_name):
     if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
-        from core.db_stuff.shopstyle import shopstyle_constants
+        from ..shopstyle import shopstyle_constants
         if 'Male' in col_name:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
         else:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
     elif 'ebay' in col_name:
         if 'Male' in col_name or 'Unisex' in col_name:
-            from core.db_stuff.shopstyle import shopstyle_constants
+            from ..shopstyle import shopstyle_constants
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
         else:
-            from core.db_stuff.ebay import ebay_constants
+            from ..ebay import ebay_constants
             categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
     elif 'recruit' in col_name:
-        from core.db_stuff.recruit import recruit_constants
+        from ..recruit import recruit_constants
         categories = list(set(recruit_constants.recruit2category_idx.keys()))
     else:
         print('ERROR - Bad collection name')
@@ -102,7 +101,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
         fingerprint = fingerprint['color']
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
-    forest = core.db_stuff.annoy.AnnoyIndex(696, distance_function)
+    forest = annoy.AnnoyIndex(696, distance_function)
     name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
     t1= time()
     forest.load(name)
@@ -117,7 +116,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     print("got it in %s secs!"% total_duration)
     msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s), results count: %d' \
           % (col_name, category, total_duration, load_duration, search_duration, len(result))
-    core.db_stuff.general.db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
+    db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
 
 
@@ -137,7 +136,7 @@ def load_all_forests():
     forests = {}
     for f in fs:
         k = f[0]
-        forest_handle = core.db_stuff.annoy.AnnoyIndex(696, 'angular')
+        forest_handle = annoy.AnnoyIndex(696, 'angular')
         forest_handle.load(f[1])
         forests[k] = forest_handle
 

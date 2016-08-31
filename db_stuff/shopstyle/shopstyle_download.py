@@ -12,12 +12,12 @@ import requests
 from core.db_stuff.db_utils import refresh_similar_results, get_p_hash
 from rq import Queue
 
-from core import constants
-from core.Utils import get_cv2_img_array
-from core.db_stuff.annoy.fanni import plantForests4AllCategories
-from core.db_stuff.general import dl_excel
-from core.db_stuff.shopstyle import shopstyle_constants
-from core.fingerprint_core import generate_mask_and_insert
+from ... import constants
+from ...Utils import get_cv2_img_array
+from ..annoy_dir.fanni import plantForests4AllCategories
+from ..general import dl_excel
+from . import shopstyle_constants
+from ...fingerprint_core import generate_mask_and_insert
 from .shopstyle2generic import convert2generic
 
 q = Queue('fingerprinter4db', connection=constants.redis_conn)

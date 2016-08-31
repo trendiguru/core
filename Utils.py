@@ -552,6 +552,10 @@ def ensure_dir(f):
 
         os.makedirs(f)
 
+def ensure_file(filename):
+    if not os.path.exists(filename):
+        open(filename, 'w').close()
+
 
 def immediate_subdirs(dir):
     '''

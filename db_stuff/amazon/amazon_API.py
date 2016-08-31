@@ -7,10 +7,10 @@ import xmltodict
 from requests import get
 from rq import Queue
 
-from amazon_signature import get_amazon_signed_url
-from amazon_worker import insert_items
-from core.constants import db, redis_conn
-from core.db_stuff.general.db_utils import log2file, print_error, email
+from .amazon_signature import get_amazon_signed_url
+from .amazon_worker import insert_items
+from ...constants import db, redis_conn
+from ..general.db_utils import log2file, print_error, email
 from .amazon_constants import blacklist, colors, log_dir
 from .amazon_post import post_download, daily_amazon_updates, update_drive
 

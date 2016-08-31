@@ -2,8 +2,8 @@ __author__ = 'yonatan'
 
 import sys
 
-from core import constants
-from core.db_stuff.shopstyle import shopstyle_constants
+from ... import constants
+from . import shopstyle_constants
 
 db = constants.db
 
