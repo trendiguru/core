@@ -111,8 +111,8 @@ def theDetector(url_or_np_array):
 
     print predictions
     print type(predictions)
-    print float(predictions[0][0])
-    print float(predictions[0][1])
+    print int(predictions[0][0])
+    print int(predictions[0][1])
 
     if predictions[0][1] > predictions[0][0]:
         print predictions[0][1]
