@@ -23,6 +23,23 @@ import yonatan_constants
 db = pymongo.MongoClient().mydb
 
 
+# dress length #
+dress_length_jeremy_dict = {
+    'mini_length': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['true', 'false', 'false', 'false', 'false', 'false']}), 0],
+    'above_knee': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['false', 'true', 'false', 'false', 'false', 'false']}), 0],
+    'knee_length': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['false', 'false', 'true', 'false', 'false', 'false']}), 1],
+    'tea_length': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['false', 'false', 'false', 'true', 'false', 'false']}), 2],
+    'ankle_length': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['false', 'false', 'false', 'false', 'true', 'false']}), 3],
+    'floor_length': [db.yonatan_dresses.find(
+        {'user_name': 'jeremy', 'dress_length': ['false', 'false', 'false', 'false', 'false', 'true']}), 3]
+}
+
+
 def hand_picked():
     hand_picked_file = open("hand_picked_file.txt", "w")
     hand_picked_labeled_file = open("hand_picked_labeled_file.txt", "w")
@@ -30,7 +47,7 @@ def hand_picked():
     counter = 0
     # num_of_each_category = 0
 
-    for key, value in yonatan_constants.dress_length_dict.iteritems():
+    for key, value in dress_length_jeremy_dict.iteritems():
         for i in range(1, value[0].count()):
             # if i > num_of_each_category:
             #   break
