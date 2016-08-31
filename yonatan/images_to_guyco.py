@@ -53,7 +53,7 @@ def hand_picked():
             # if i > num_of_each_category:
             #   break
             hand_picked_file.write(str(value[0][i]['images']['XLarge']) + "\n")
-            hand_picked_labeled_file.write(str(value[0][i]['images']['XLarge']) + str(value[0]) + "\n")
+            hand_picked_labeled_file.write(str(value[0][i]['images']['XLarge']) + str(value[1]) + "\n")
 
             counter += 1
             print counter
