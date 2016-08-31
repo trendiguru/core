@@ -27,6 +27,7 @@ def hand_picked():
     hand_picked_file = open("hand_picked_file.txt", "w")
     hand_picked_labeled_file = open("hand_picked_labeled_file.txt", "w")
 
+    counter = 0
     # num_of_each_category = 0
 
     for key, value in yonatan_constants.dress_length_dict.iteritems():
@@ -35,6 +36,9 @@ def hand_picked():
             #   break
             hand_picked_file.write(str(value[0][i]['images']['XLarge']) + "\n")
             hand_picked_labeled_file.write(str(value[0][i]['images']['XLarge']) + str(value[0]) + "\n")
+
+            counter += 1
+            print counter
 
 hand_picked()
 
