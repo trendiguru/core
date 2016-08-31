@@ -55,20 +55,20 @@ def reindex_forest(col_name):
 
 def plantForests4AllCategories(col_name):
     if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
-        from core.db_stuff.shopstyle import shopstyle_constants
+        from ..shopstyle import shopstyle_constants
         if 'Male' in col_name:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
         else:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
     elif 'ebay' in col_name:
         if 'Male' in col_name or 'Unisex' in col_name:
-            from core.db_stuff.shopstyle import shopstyle_constants
+            from ..shopstyle import shopstyle_constants
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
         else:
-            from core.db_stuff.ebay import ebay_constants
+            from ..ebay import ebay_constants
             categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
     elif 'recruit' in col_name:
-        from core.db_stuff.recruit import recruit_constants
+        from ..recruit import recruit_constants
         categories = list(set(recruit_constants.recruit2category_idx.keys()))
     else:
         print('ERROR - Bad collection name')
