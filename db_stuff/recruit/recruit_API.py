@@ -1,12 +1,12 @@
 from datetime import datetime
 from time import sleep,time
 
-from core.db_stuff.db_utils import log2file, thearchivedoorman, refresh_similar_results
+from ..general.db_utils import log2file, thearchivedoorman, refresh_similar_results
 from rq import Queue
 
-from core.constants import db, redis_conn
-from core.db_stuff.annoy.fanni import plantForests4AllCategories
-from core.db_stuff.general.dl_excel import mongo2xl
+from ...constants import db, redis_conn
+from ..annoy_dir.fanni import plantForests4AllCategories
+from ..general.dl_excel import mongo2xl
 from .recruit_constants import api_stock, recruitID2generalCategory
 from .recruit_worker import genreDownloader, GET_ByGenreId, deleteDuplicates
 
@@ -84,7 +84,7 @@ def printCategories(only_known=True, useLog=False):
                 for s in range(99):
                     genreId = generate_genreid(gender, m, s)
                     category_name = getCategoryName(genreId)
-                    skip = API4printing(genreId, gender, category_name, skip,useLog=useLog, logger=logger)
+                    skip = API4printing(genreId, gender, category_name, skip)
                     if skip == 3:
                         break
                 print('xoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxoxox')

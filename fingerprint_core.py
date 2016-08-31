@@ -9,7 +9,7 @@ import numpy as np
 import Utils
 import background_removal
 import constants
-from core.db_stuff.recruit.recruit_constants import recruit2category_idx
+from db_stuff.recruit.recruit_constants import recruit2category_idx
 from falcon import sleeve_client
 from features import color
 from .paperdoll import neurodoll_falcon_client as nfc

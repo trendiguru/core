@@ -7,7 +7,7 @@ import numpy as np
 from rq import Queue
 
 import constants
-from core.db_stuff.annoy import fanni
+from db_stuff.annoy_dir import fanni
 from features import color
 
 q = Queue('annoy', connection=constants.redis_conn)
@@ -107,7 +107,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
 
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    if entries.count() > 2000:
+    if entries.count() > 2000 and 'xl' not in collection:
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         if not len(annoy_top_results):
             return []

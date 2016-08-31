@@ -53,7 +53,10 @@ train_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels
 cv_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv_set/'
 test_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set/'
 
-source_dir = '/home/yonatan/dress_length_from_my_pc'
+#source_dir = '/home/yonatan/dress_length_from_my_pc'
+source_dir = '/home/yonatan/dress_length_3_labels_sets'
+
+
 
 for root, dirs, files in os.walk(source_dir):
     file_count = len(files)
@@ -70,10 +73,19 @@ for root, dirs, files in os.walk(source_dir):
 
         #img = cv2.imread(old_file_location)
 
-        resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
+
+        img = cv2.imread(old_file_location, 0)
+        height, width = img.shape[:2]
+        print width, height
 
 
 
+
+
+    #     resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
+    #
+    #
+    #
     #     if counter < counter_train:
     #         new_file_location = train_dir_path + file
     #         os.rename(old_file_location, new_file_location)
@@ -91,3 +103,11 @@ for root, dirs, files in os.walk(source_dir):
     #         break
     #
     # print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv, counter_test, counter)
+
+# sets = {'train', 'cv', 'test'}
+#
+# for set in sets:
+#
+#     source = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_' + set + '_set/'
+#
+#     imutils.resize_keep_aspect_dir(source, source, False, (224, 224))

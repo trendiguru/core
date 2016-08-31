@@ -22,8 +22,8 @@ note that Xlsxwriter can only create new files - it cannot read or modify existi
 """
 
 import xlsxwriter
-from core.Yonti import drive
-from core import constants
+from ...Yonti import drive
+from ... import constants
 import pymongo
 import argparse
 import sys
