@@ -29,7 +29,7 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 
 def ensure_file(filename):
     if not os.path.exists(filename):
-    open(filename, 'w').close()
+        open(filename, 'w').close()
 
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
