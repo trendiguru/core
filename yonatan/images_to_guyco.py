@@ -79,7 +79,25 @@ def labeled():
             counter += 1
             print counter
 
-labeled()
+# labeled()
+
+
+def not_catalog_images():
+    not_catalog_images_file = open("not_catalog_images_file.txt", "w")
+
+    counter = 0
+
+    # only images with one person that have a dress
+    live_dress_images_cursor = db.images.find({'num_of_people': 1, 'people.items.category': {'$in': ['dress']}})
+
+    # somtimes there's more than one url, so i'm taking only the first
+    for doc in live_dress_images_cursor:
+        not_catalog_images_file.write(str(doc['image_urls'][0]) + "\n")
+
+        counter += 1
+        print counter
+
+not_catalog_images()
 
 
 # def check_how_many(category_dict, yonatan_category_db, item_type):
