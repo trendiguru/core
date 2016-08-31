@@ -192,7 +192,7 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
 
 
 def refresh_worker(doc, name, cats=[]):
-    from .. import find_similar_mongo
+    from ... import find_similar_mongo
     collection = db.images
     for person in doc['people']:
         gender = person['gender']

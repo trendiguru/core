@@ -178,13 +178,13 @@ def mongo2xl(collection_name, dl_info):
         #     f.close()
     # else:
     elif filename == 'recruit':
-        from core.db_stuff.recruit.recruit_constants import recruit2category_idx
+        from ..recruit.recruit_constants import recruit2category_idx
         categories_female = categories_male = list(set(recruit2category_idx.keys()))
     elif filename == 'amazon' or filename == 'amaze':
-        from core.db_stuff.amazon.amazon_constants import amazon_categories_list
+        from ..amazon.amazon_constants import amazon_categories_list
         categories_female = categories_male = amazon_categories_list
     else:
-        from core.db_stuff.shopstyle.shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
+        from ..shopstyle.shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
         categories_female = list(set(shopstyle_paperdoll_female.values()))
         categories_male = list(set(shopstyle_paperdoll_male.values()))
 
