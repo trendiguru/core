@@ -46,7 +46,7 @@ caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
-solver.net.copy_from(weights)
+#solver.net.copy_from(weights)
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 
 # surgeries
@@ -62,7 +62,7 @@ val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 docker_hostname = socket.gethostname()
-baremetal_hostname = os.environ('HOST_HOSTNAME')
+baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+docker_hostname
 detailed_outputname = prefix + '.netoutput.txt'
 detailed_pubname = os.path.join('/home/jeremy/caffenets/production',detailed_outputname)
