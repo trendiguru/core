@@ -20,6 +20,8 @@ import yonatan_constants
 # db = constants.db
 
 # if i run this function on brainik80a:
+# first run on shell: ssh -f -N -L 27017:mongodb1-instance-1:27017 -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+# then:
 db = pymongo.MongoClient().mydb
 
 
@@ -114,5 +116,3 @@ def not_catalog_images():
 # - 10,000 from not catalog images - so i took only images with one person (and of course with a dress), so there's only 4555 that's qualified.
 # i also saw sometimes there's more than one link to an image, but (from what i checked) it's the same image in all of them, so i only took the first link.
 # "not_catalog_images_file.txt"
-#
-# sorry for the delay
