@@ -61,6 +61,8 @@ source_dir = '/home/yonatan/dress_length_from_my_pc'
 for root, dirs, files in os.walk(source_dir):
     file_count = len(files)
 
+    counter = 0
+
     print file_count
 
     counter_train = file_count * 0.9
@@ -81,13 +83,7 @@ for root, dirs, files in os.walk(source_dir):
         print width, height
         print counter
 
-
-
-
-
         resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
-
-
 
         if counter < counter_train:
             #new_file_location = train_dir_path + file
