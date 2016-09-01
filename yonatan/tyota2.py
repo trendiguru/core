@@ -54,7 +54,7 @@ cv_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv
 test_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set'
 
 #source_dir = '/home/yonatan/dress_length_from_my_pc'
-source_dir = '/home/yonatan/dress_length_3_labels_sets'
+source_dir = '/home/yonatan/dress_length_from_my_pc'
 
 
 
