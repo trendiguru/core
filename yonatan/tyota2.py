@@ -61,6 +61,8 @@ source_dir = '/home/yonatan/dress_length_3_labels_sets'
 for root, dirs, files in os.walk(source_dir):
     file_count = len(files)
 
+    print file_count
+
     counter_train = file_count * 0.9
     counter_cv = file_count * 0.05
     counter_test = file_count * 0.05
