@@ -9,7 +9,7 @@ import time
 import urllib
 
 import requests
-from core.db_stuff.db_utils import refresh_similar_results, get_p_hash
+from ..general.db_utils import refresh_similar_results, get_p_hash
 from rq import Queue
 
 from ... import constants
