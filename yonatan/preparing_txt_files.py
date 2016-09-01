@@ -100,9 +100,9 @@ def create_txt_files_no_mongo():
     cv_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv_set'
     test_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set'
 
-    train_text_file = open("dress_length_3_labels_train.txt", "w")
-    cv_text_file = open("dress_length_3_labels_cv.txt", "w")
-    test_text_file = open("dress_length_3_labels_test.txt", "w")
+    train_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_train.txt", "w")
+    cv_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv.txt", "w")
+    test_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test.txt", "w")
 
     counter = 0
 
