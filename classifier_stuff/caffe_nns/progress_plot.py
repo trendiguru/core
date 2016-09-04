@@ -324,15 +324,18 @@ def lossplot(input_filename):
     return
   times = []
   losses = []
+  n_iters = []
   for line in f:
 #    print('checking line:'+line)
       print line
       thesplit = line.split()
-      time = thesplit[0]
-      loss = thesplit[1]
+      n_iter = thesplit[0]
+      time = thesplit[1]
+      loss = thesplit[2]
+      n_iters.append(n_iter)
       times.append(time)
       losses.append(loss)
-  plt.plot(times, losses,'ro:', label="loss")
+  plt.plot(n_iters, losses,'ro:', label="loss")
   plt.xlabel("iter")
   plt.ylabel("loss")
   plt.title(input_filename)
