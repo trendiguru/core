@@ -22,7 +22,7 @@ array_failure = np.array([])
 
 counter = 0
 
-text_file = open("dress_length_3_labels_sets/dress_length_3_labels_cv.txt", "r")
+text_file = open("dress_length_3_labels_sets/dress_length_3_labels_train.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_15000.caffemodel"
