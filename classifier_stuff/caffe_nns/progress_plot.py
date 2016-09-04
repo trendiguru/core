@@ -478,7 +478,7 @@ def parse_solveoutput(output_filename):
   plt.suptitle(f)
   plt.draw()
 
-  savename = output_filename+'.jpg'
+  savename = output_filename+'.png'
   plt.savefig(savename)
 #  plt.show()
 
