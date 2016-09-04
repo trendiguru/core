@@ -33,19 +33,31 @@ done
 
 
 #produce the iou plots from caffenets/production folder updated in last 300 minutes
+#do the iou ones
 counter=0
-logsdir=/home/jeremy/caffenets/production
-logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png)"
+logsdir=/home/jeremy/caffenets/production/
+logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
 for log in $logfiles;
    do echo "$log_command --type txt $log";
    python $log_command --type txt $log;
 done
+#now do the loss/acc files
+counter=0
+logsdir=/home/jeremy/caffenets/production/
+logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep loss)"
+log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
+echo $logfiles
+for log in $logfiles;
+   do echo "$log_command --type loss $log";
+   python $log_command --type log $log;
+done
+
 
 #send any image  updated in last 100 minutes to extremeli
 host=$(hostname)
-imgfiles="$(find $logsdir *png -mmin -10|grep -E 'jpg|png')"
+imgfiles="$(find $logsdir * -mmin -10|grep -E 'jpg|png')"
 echo $imgfiles
 for img in $imgfiles;
    do echo $img;
