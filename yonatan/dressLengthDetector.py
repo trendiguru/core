@@ -86,6 +86,5 @@ def theDetector(url_or_np_array):
         print 'maxi_dress'
         return 'maxi_dress'
 
-
     #print predictions[0][predict_label]
 
