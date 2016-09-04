@@ -1,14 +1,15 @@
 __author__ = 'jeremy'
-import logging
-import numpy as np
 import cv2
-import importlib
-from db_stuff import fanni
-import constants
+import logging
+from time import sleep
+
+import numpy as np
 from rq import Queue
-from time import sleep, time
+
+import constants
+from db_stuff.annoy_dir import fanni
 from features import color
-from falcon import sleeve_client
+
 q = Queue('annoy', connection=constants.redis_conn)
 db = constants.db
 K = constants.K  # .5 is the same as Euclidean
@@ -106,7 +107,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
 
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    if entries.count() > 2000:
+    if entries.count() > 2000 and 'xl' not in collection:
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         if not len(annoy_top_results):
             return []

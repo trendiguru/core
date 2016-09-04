@@ -5,9 +5,9 @@ __author__ = 'jeremy'
 #git -C /usr/lib/python2.7/dist-packages/trendi pull
 
 import caffe
-import surgery, score
+#import surgery, score
 import time
-import numpy as np
+#import numpy as np
 import os
 import sys
 
@@ -20,8 +20,14 @@ matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
 
+from trendi import Utils
+
+
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import progress_plot
+
+
+
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
@@ -37,8 +43,8 @@ caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
-solver.net.copy_from(weights)
-solver.net.forward()  # train net
+#solver.net.copy_from(weights)
+#solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
@@ -49,41 +55,64 @@ print all_layers
 
 # scoring
 #val = np.loadtxt('../data/segvalid11.txt', dtype=str)
-val = range(0,1500)
+val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
-hostname = socket.gethostname()
-outfilename = hostname+'netoutput.txt'
-jpgname = outfilename+'.jpg'
-cmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/';
+docker_hostname = socket.gethostname()
+host_dirname = '/home/jeremy/caffenets/production'
+Utils.ensure_dir(host_dirname)
+baremetal_hostname = os.environ.get('HOST_HOSTNAME')
+prefix = baremetal_hostname+'.'+docker_hostname
+detailed_outputname = prefix + '.netoutput.txt'
+loss_outputname = prefix + 'loss.txt'
+jpgname = prefix+'.jpg'
+copycmd = 'cp '+jpgname + ' ' + host_dirname
+copy2cmd = 'cp '+detailed_outputname + ' ' + host_dirname
+copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
+scpcmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scp2cmd = 'scp '+detailed_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 
-jrinfer.seg_tests(solver, False, val, layer='score')
-progress_plot.parse_solveoutput(outfilename)
-subprocess.call(cmd,shell=True)
+Utils.ensure_file(loss_outputname)
+Utils.ensure_file(detailed_outputname)
 
 i = 0
 losses = []
 iters = []
-steps = 20
-for _ in range(1000):
-    for i in range(100):
-        i = i+steps
-        solver.step(steps)
+steps_per_iter = 2
+n_iter = 2
+loss_avg = [0]*n_iter
+tot_iters = 0
+for _ in range(100000):
+    for i in range(n_iter):
+        solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
-        print('iter '+str(i)+' loss:'+str(loss))
+        print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
+        loss_avg[i] = loss
         losses.append(loss)
         iters.append(i)
-        with open('loss.txt','a') as f:
-            f.write(str(int(time.time()))+'\t'+str(iter)+'\t'+str(loss)+'\n')
-            f.close()
+        tot_iters = tot_iters + steps_per_iter*n_iter
+    averaged_loss=sum(loss_avg)/len(loss_avg)
+    with open(loss_outputname,'a+') as f:
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
+        f.close()
 
+#PLOTS ARENT WORKING IN DOCKER EVEN USING matplotlib.use('Agg')
 #    score.seg_tests(solver, False, val, layer='score')
-    plt.plot(iters, loss,'bo:', label="train loss")
-    plt.xlabel("iterations")
-    plt.ylabel("loss")
-    savename = 'loss.jpg'
-    plt.savefig(savename)
-    jrinfer.seg_tests(solver, False, val, layer='score',outfilename=outfilename)
+#    plt.plot(iters, loss,'bo:', label="train loss")
+#    plt.xlabel("iterations")
+#    plt.ylabel("loss")
+#    savename = 'loss.jpg'
+#    plt.savefig(savename)
+    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
 #    progress_plot.parse_solveoutput(outfilename)
-    print('jpgfile:'+str(jpgname))
-    subprocess.call(cmd,shell=True)
+    subprocess.call(copycmd,shell=True)
+    subprocess.call(copy2cmd,shell=True)
+    subprocess.call(copy3cmd,shell=True)
+
+    subprocess.call(scpcmd,shell=True)
+    subprocess.call(scp2cmd,shell=True)
+    subprocess.call(scp3cmd,shell=True)
+
+
+

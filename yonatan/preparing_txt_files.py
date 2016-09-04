@@ -90,5 +90,46 @@ def create_txt_files(argv):
                 counter += 1
                 print counter
 
+# if __name__ == '__main__':
+#     create_txt_files(sys.argv)
+
+
+def create_txt_files_no_mongo():
+
+    train_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_train_set'
+    cv_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv_set'
+    test_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set'
+
+    train_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_train.txt", "w")
+    cv_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv.txt", "w")
+    test_text_file = open("/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test.txt", "w")
+
+    counter = 0
+
+    sets = {'train', 'cv', 'test'}
+
+    for set in sets:
+        dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_' + set + '_set'
+
+        for root, dirs, files in os.walk(dir_path):
+            for file in files:
+                if "maxi" in file:
+                    label = 2
+                elif "midi" in file:
+                    label = 1
+                elif "mini" in file:
+                    label = 0
+
+                if set == 'train':
+                    train_text_file.write(root + "/" + file + " " + str(label) + "\n")
+                elif set == 'cv':
+                    cv_text_file.write(root + "/" + file + " " + str(label) + "\n")
+                elif set == 'test':
+                    test_text_file.write(root + "/" + file + " " + str(label) + "\n")
+
+                counter += 1
+                print counter
+
+
 if __name__ == '__main__':
-    create_txt_files(sys.argv)
+    create_txt_files_no_mongo()

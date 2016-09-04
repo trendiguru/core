@@ -1,16 +1,19 @@
 __author__ = 'yonti'
 
-import logging
-import hashlib
 import cv2
+import hashlib
+import logging
+
 import numpy as np
-from .paperdoll import neurodoll_falcon_client as nfc
-import background_removal
+
 import Utils
+import background_removal
 import constants
-from features import color
+from db_stuff.recruit.recruit_constants import recruit2category_idx
 from falcon import sleeve_client
-from db_stuff.recruit_constants import recruit2category_idx
+from features import color
+from .paperdoll import neurodoll_falcon_client as nfc
+
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
