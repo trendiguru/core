@@ -40,7 +40,7 @@ echo "act 3"
 counter=0
 logsdir=/home/jeremy/caffenets/production/
 cd $logsdir
-logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss)"
+logfiles="$(find . *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
 for log in $logfiles;
@@ -51,24 +51,24 @@ done
 echo "act 4"
 counter=0
 logsdir=/home/jeremy/caffenets/production/
-logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep loss)"
+logfiles="$(find . *loss.txt -mmin -300|grep -v jpg | grep -v png|grep loss)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
 for log in $logfiles;
    do echo "$log_command --type loss $log";
-   python $log_command --type log $log;
+   python $log_command --type loss $log;
 done
 
 #send any image  updated in last 100 minutes to extremeli
 echo "act 5"
 host=$(hostname)
-imgfiles="$(find $logsdir * -mmin -10|grep -E 'jpg|png')"
+imgfiles="$(find . * -mmin -10|grep -E 'jpg|png')"
 echo $imgfiles
 for img in $imgfiles;
    do echo $img;
 #   counter=$((counter+1))
 #   newname="$host-$counter.jpg"
-#   echo $newname
+   echo 'doing  scp $img root@104.155.22.95:/var/www/results/progress_plots/$img';
    scp $img root@104.155.22.95:/var/www/results/progress_plots/$img;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
