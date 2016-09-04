@@ -316,7 +316,7 @@ def fit_log(x, k,a, b, x0):
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
 def lossplot(input_filename):
-  print('parsing solve.py (jrinference) output file '+output_filename)
+  print('parsing solve.py (jrinference) output file '+input_filename)
   try:
     f = open(input_filename, 'r')
   except:
