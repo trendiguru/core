@@ -79,8 +79,8 @@ Utils.ensure_file(detailed_outputname)
 i = 0
 losses = []
 iters = []
-steps_per_iter = 2
-n_iter = 2
+steps_per_iter = 10
+n_iter = 10
 loss_avg = [0]*n_iter
 tot_iters = 0
 for _ in range(100000):

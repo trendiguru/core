@@ -29,3 +29,29 @@ for jpg in $jpgfiles;
    scp $jpg root@104.155.22.95:/var/www/results/progress_plots/$newname;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
+
+
+
+#produce the iou plots from caffenets/production folder updated in last 300 minutes
+counter=0
+logsdir=/home/jeremy/caffenets/production
+logfiles="$(find $logsdir *netoutput.txt -mmin -300)"
+log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
+echo $logfiles
+for log in $logfiles;
+   do echo "$log_command --type txt $log";
+   python $log_command --type txt $log;
+done
+
+#send any image  updated in last 100 minutes to extremeli
+host=$(hostname)
+imgfiles="$(find $logsdir *png -mmin -10|grep -E 'jpg|png')"
+echo $imgfiles
+for img in $imgfiles;
+   do echo $img;
+#   counter=$((counter+1))
+#   newname="$host-$counter.jpg"
+#   echo $newname
+   scp $img root@104.155.22.95:/var/www/results/progress_plots/$img;
+#   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
+done

@@ -316,7 +316,7 @@ def fit_log(x, k,a, b, x0):
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
 def lossplot(input_filename):
-  print('parsing solve.py (jrinference) output file '+output_filename)
+  print('parsing solve.py (jrinference) output file '+input_filename)
   try:
     f = open(input_filename, 'r')
   except:
@@ -333,8 +333,8 @@ def lossplot(input_filename):
       times.append(time)
       losses.append(loss)
   plt.plot(times, losses,'ro:', label="loss")
-  plt.set_xlabel("time[s]")
-  plt.set_ylabel("loss")
+  plt.label("time[s]")
+  plt.label("loss")
   plt.title(input_filename)
 
 
@@ -446,7 +446,7 @@ def parse_solveoutput(output_filename):
   par1 = host.twinx()
 
   host.set_xlabel("iterations")
-  host.set_ylabel("log loss, days elapsed")
+  host.set_ylabel("loss")
   par1.set_ylabel("accuracy, iou")
 
 
@@ -475,10 +475,10 @@ def parse_solveoutput(output_filename):
 #  plt.title(net_name)
   dt=datetime.datetime.today()
   plt.title(dt.isoformat())
-  plt.suptitle(f)
+  plt.suptitle(output_filename)
   plt.draw()
 
-  savename = output_filename+'.jpg'
+  savename = output_filename+'.png'
   plt.savefig(savename)
 #  plt.show()
 
@@ -487,8 +487,8 @@ if __name__ == "__main__":
   print('starting')
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
-  parser.add_argument('--type', help='logfile or solve.py output',default='0')
-  parser.add_argument('--logy', help='log of logloss',default=None)
+  parser.add_argument('--type', help='logfile or solve.py output (0 or log (reads caffe logfile), 1 or txt (reads solve.py iou logfile), 2 or loss (reads simple lossfile)',default='0')
+  parser.add_argument('--logy', help='log of logloss (True or False)',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
   if args.type == '0' or args.type=='log':
