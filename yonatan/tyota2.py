@@ -25,7 +25,9 @@ import dlib
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
-answer_dict = nfc.pd('/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set/cute_midi_dress(87).jpg')
+# answer_dict = nfc.pd('/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set/cute_midi_dress(87).jpg')
+answer_dict = nfc.pd('http://images.wolfordshop.com/product/56160/7005_large/barcelona-dress.jpg')
+
 if not answer_dict['success']:
    print 'false'
 neuro_mask = answer_dict['mask']
