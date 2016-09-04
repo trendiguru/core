@@ -35,7 +35,7 @@ done
 #produce the iou plots from caffenets/production folder updated in last 300 minutes
 counter=0
 logsdir=/home/jeremy/caffenets/production
-logfiles="$(find $logsdir *netoutput.txt -mmin -300)"
+logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
 for log in $logfiles;

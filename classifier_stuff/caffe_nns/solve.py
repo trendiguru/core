@@ -20,6 +20,7 @@ matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
 
+
 from trendi import Utils
 
 
@@ -64,14 +65,15 @@ Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+docker_hostname
 detailed_outputname = prefix + '.netoutput.txt'
+detailed_jsonfile = detailed_outputname[:-4]+'.json'
 loss_outputname = prefix + 'loss.txt'
-jpgname = prefix+'.jpg'
-copycmd = 'cp '+jpgname + ' ' + host_dirname
+
 copy2cmd = 'cp '+detailed_outputname + ' ' + host_dirname
 copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
-scpcmd = 'scp '+jpgname+' root@104.155.22.95:/var/www/results/progress_plots/'
-scp2cmd = 'scp '+detailed_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
+scp2cmd = 'scp '+detailed_outputname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
 Utils.ensure_file(loss_outputname)
 Utils.ensure_file(detailed_outputname)
@@ -79,8 +81,8 @@ Utils.ensure_file(detailed_outputname)
 i = 0
 losses = []
 iters = []
-steps_per_iter = 10
-n_iter = 10
+steps_per_iter = 1
+n_iter = 20
 loss_avg = [0]*n_iter
 tot_iters = 0
 for _ in range(100000):
@@ -96,23 +98,14 @@ for _ in range(100000):
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
         f.close()
-
-#PLOTS ARENT WORKING IN DOCKER EVEN USING matplotlib.use('Agg')
-#    score.seg_tests(solver, False, val, layer='score')
-#    plt.plot(iters, loss,'bo:', label="train loss")
-#    plt.xlabel("iterations")
-#    plt.ylabel("loss")
-#    savename = 'loss.jpg'
-#    plt.savefig(savename)
     jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
-#    progress_plot.parse_solveoutput(outfilename)
-    subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
+    subprocess.call(copy4cmd,shell=True)
 
-    subprocess.call(scpcmd,shell=True)
     subprocess.call(scp2cmd,shell=True)
     subprocess.call(scp3cmd,shell=True)
+    subprocess.call(scp4cmd,shell=True)
 
 
 
