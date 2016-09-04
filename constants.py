@@ -27,7 +27,7 @@ which_products_collection = {'default':
                              'fashionseoul.com':
                                  {'KR': 'GangnamStyle'}}
 products_per_ip_pid = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
+                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'xl'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
