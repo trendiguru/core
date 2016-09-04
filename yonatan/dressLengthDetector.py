@@ -39,15 +39,14 @@ def cv2_image_to_caffe(image):
 
 
 def distance(v1, v2):
-    if len(v1) != 8 or len(v2) != 8:
-        print "length of v1 or v2 is not 8!"
+    if len(v1) != 3 or len(v2) != 3:
+        print "length of v1 or v2 is not 3!"
         return None
     return np.linalg.norm(v1 - v2)
 
 
 def theDetector(url_or_np_array):
 
-    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         response = requests.get(url_or_np_array)  # download
