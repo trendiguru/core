@@ -8,6 +8,7 @@
 
 #produce the plots from any logfile updated in last 100 minutes
 counter=0
+echo "act 1"
 #find caffe logfiles from last 100 minutes
 logfiles="$(find /tmp caffe* -mmin -100|grep -v jpg|grep -v caffe.INFO|grep caffe.|grep -v FATAL |grep -v WARNING|grep -v ERROR)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py"
@@ -18,6 +19,7 @@ for log in $logfiles;
 done
 
 #send any .jpg  updated in last 100 minutes
+echo "act 2"
 host=$(hostname)
 jpgfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
 echo $jpgfiles
@@ -34,8 +36,10 @@ done
 
 #produce the iou plots from caffenets/production folder updated in last 300 minutes
 #do the iou ones
+echo "act 3"
 counter=0
 logsdir=/home/jeremy/caffenets/production/
+cd $logsdir
 logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
@@ -44,6 +48,7 @@ for log in $logfiles;
    python $log_command --type txt $log;
 done
 #now do the loss/acc files
+echo "act 4"
 counter=0
 logsdir=/home/jeremy/caffenets/production/
 logfiles="$(find $logsdir *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep loss)"
@@ -54,8 +59,8 @@ for log in $logfiles;
    python $log_command --type log $log;
 done
 
-
 #send any image  updated in last 100 minutes to extremeli
+echo "act 5"
 host=$(hostname)
 imgfiles="$(find $logsdir * -mmin -10|grep -E 'jpg|png')"
 echo $imgfiles
