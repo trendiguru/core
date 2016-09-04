@@ -14,6 +14,7 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
 array_success = np.array([])
@@ -35,7 +36,7 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
