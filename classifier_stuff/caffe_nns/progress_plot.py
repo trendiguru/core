@@ -336,6 +336,8 @@ def lossplot(input_filename):
   plt.xlabel("iter")
   plt.ylabel("loss")
   plt.title(input_filename)
+  output_filename = input_filename[:-4] + '.png'
+  plt.savefig(output_filename)
 
 
 def parse_solveoutput(output_filename):
@@ -478,7 +480,7 @@ def parse_solveoutput(output_filename):
   plt.suptitle(output_filename)
   plt.draw()
 
-  savename = output_filename+'.png'
+  savename = output_filename[:-4]+'.png'
   plt.savefig(savename)
 #  plt.show()
 
