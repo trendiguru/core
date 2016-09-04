@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_test.txt", "r")
-
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_only_dresses_on_models_iter_20000.caffemodel"
+text_file = open("dress_length_3_labels_sets/dress_length_3_labels_test.txt", "r")
+
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3k_images_with_people_iter_5000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [256, 256]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
 #channel_swap = None
