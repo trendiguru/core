@@ -25,8 +25,6 @@ import dlib
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
-i, j = 0
-
 answer_dict = nfc.pd(int(sys.argv[1]))
 if not answer_dict['success']:
    print 'false'
