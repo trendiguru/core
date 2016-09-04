@@ -333,8 +333,8 @@ def lossplot(input_filename):
       times.append(time)
       losses.append(loss)
   plt.plot(times, losses,'ro:', label="loss")
-  plt.label("time[s]")
-  plt.label("loss")
+  plt.xlabel("iter")
+  plt.ylabel("loss")
   plt.title(input_filename)
 
 
