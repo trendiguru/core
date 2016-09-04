@@ -78,7 +78,7 @@ def theDetector(url_or_np_array):
     predict_label = int(max_result_index)
 
     if predict_label == 0:
-        print 'minן_dress'
+        print 'mini_dress'
         return 'mini_dress'
     elif predict_label == 1:
         print 'midi_dress'
