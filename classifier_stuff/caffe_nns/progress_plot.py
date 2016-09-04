@@ -446,7 +446,7 @@ def parse_solveoutput(output_filename):
   par1 = host.twinx()
 
   host.set_xlabel("iterations")
-  host.set_ylabel("log loss, days elapsed")
+  host.set_ylabel("loss")
   par1.set_ylabel("accuracy, iou")
 
 
@@ -475,7 +475,7 @@ def parse_solveoutput(output_filename):
 #  plt.title(net_name)
   dt=datetime.datetime.today()
   plt.title(dt.isoformat())
-  plt.suptitle(f)
+  plt.suptitle(output_filename)
   plt.draw()
 
   savename = output_filename+'.png'
