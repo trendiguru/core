@@ -50,13 +50,13 @@ def get_fb_page_like_count(my_fb_user_id):
     args = {'fields': 'photos'}
     page = graph.get_object(my_fb_user_id, **args)
 
-    facebook_user = facebook.GraphAPI(my_access_token).get_object('me')
+    # facebook_user = facebook.GraphAPI(my_access_token).get_object('me')
     # page = graph.get_object(my_fb_user_id)
     # post = graph.get_object(id=my_fb_user_id)
     friends = graph.get_connections(id=my_fb_user_id, connection_name='fans')
     # friends = graph.get_connections(id=my_fb_user_id)
 
-    print friends
+    # print friends
 
     # print page.get('photos', 0)
     # return page.get('photos', 0)

@@ -47,7 +47,6 @@ def distance(v1, v2):
 
 def theDetector(url_or_np_array):
 
-    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         response = requests.get(url_or_np_array)  # download
