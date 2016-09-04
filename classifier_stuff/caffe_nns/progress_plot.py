@@ -487,8 +487,8 @@ if __name__ == "__main__":
   print('starting')
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
-  parser.add_argument('--type', help='logfile or solve.py output',default='0')
-  parser.add_argument('--logy', help='log of logloss',default=None)
+  parser.add_argument('--type', help='logfile or solve.py output (0 or log (reads caffe logfile), 1 or txt (reads solve.py iou logfile), 2 or loss (reads simple lossfile)',default='0')
+  parser.add_argument('--logy', help='log of logloss (True or False)',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
   if args.type == '0' or args.type=='log':

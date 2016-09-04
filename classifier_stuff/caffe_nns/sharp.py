@@ -357,6 +357,8 @@ def test_convbnrelu(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21
     n.conv1_1 = conv_bn_relu(n.data,n_output=64,kernel_size=3,pad='preserve')
     return n.to_proto()
 
+
+
 def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='train'):
     '''
     see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
@@ -443,6 +445,9 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     #n.deconv = L.Deconvolution(n.input,
     #convolution_param=dict(num_output=21, kernel_size=64, stride=32))
     n.conv8_0,n.relu8_0 = conv_bn_relu(n.reshape8,n_output=512,kernel_size=7,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
+
+
+    return n.to_proto()
 
 
     #the following will be 14x14 (original /16).
@@ -720,6 +725,26 @@ def display_conv_layer(blob):
 #    plt.show(block=False)
 #    print solver.net.blobs['label'].data[:8]
 
+def estimate_mem(prototxt):
+    caffe.set_mode_gpu()
+
+    solver = caffe.SGDSolver(prototxt)
+    #solver.net.copy_from(weights)
+    #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
+
+    # surgeries
+    #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+    all_layers = [k for k in solver.net.params.keys()]
+    print('all layers:')
+    print all_layers
+
+    for k,v in solver.net.params:
+        print('key {} val {}'.format(k,v))
+
+    for k,v in solver.net.blobs:
+        print('key {} val {}'.format(k,v))
+
+
 def draw_net(prototxt,outfile):
     net = caffe_pb2.NetParameter()
     text_format.Merge(open(prototxt).read(), net)
@@ -994,6 +1019,9 @@ if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
+  #  estimate_mem('val.prototxt')
+
+
 #    proto = vgg16('thedb')
 #    proto = unet('thedb')
     proto = sharpmask('thedb',stage='train')
@@ -1009,6 +1037,7 @@ if __name__ == "__main__":
     with open('val.prototxt','w') as f:
         f.write(str(proto))
         f.close()
+    estimate_mem('val.prototxt')
 
 #    caffe.set_device(2)
 #    caffe.set_mode_gpu()
