@@ -57,8 +57,8 @@ def divide_data_not_from_mongo():
 
 
             img = cv2.imread(old_file_location, 0)
-            height, width = img.shape[:2]
-            print width, height
+            #height, width = img.shape[:2]
+            #print width, height
             print counter
 
             resized_image = imutils.resize_keep_aspect(old_file_location, output_size = (224, 224))
