@@ -303,7 +303,7 @@ def parse_logfile(output_filename,logy):
             a_str = str.format('{0:.2e}', a)
             st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
             ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
-  savename = args.output_file+'.jpg'
+  savename = args.output_file+'.png'
   plt.savefig(savename)
   #plt.show()
 
@@ -324,18 +324,23 @@ def lossplot(input_filename):
     return
   times = []
   losses = []
+  n_iters = []
   for line in f:
 #    print('checking line:'+line)
       print line
       thesplit = line.split()
-      time = thesplit[0]
-      loss = thesplit[1]
+      n_iter = thesplit[0]
+      time = thesplit[1]
+      loss = thesplit[2]
+      n_iters.append(n_iter)
       times.append(time)
       losses.append(loss)
-  plt.plot(times, losses,'ro:', label="loss")
-  plt.label("time[s]")
-  plt.label("loss")
+  plt.plot(n_iters, losses,'ro:', label="loss")
+  plt.xlabel("iter")
+  plt.ylabel("loss")
   plt.title(input_filename)
+  output_filename = input_filename[:-4] + '.png'
+  plt.savefig(output_filename)
 
 
 def parse_solveoutput(output_filename):
@@ -478,7 +483,7 @@ def parse_solveoutput(output_filename):
   plt.suptitle(output_filename)
   plt.draw()
 
-  savename = output_filename+'.png'
+  savename = output_filename[:-4]+'.png'
   plt.savefig(savename)
 #  plt.show()
 
