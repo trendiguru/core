@@ -239,7 +239,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outf
             fwavacc
     mean_acc = np.nanmean(acc)
     mean_iou = np.nanmean(iu)
-    results_dict = {'iter':iter.tolist(),'loss':loss.tolist(),'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
+    results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
     jsonfile = outfilename[:-4]+'.json'
 #    with open(jsonfile, 'a+') as outfile:
 #        json.dump(results_dict, outfile)
