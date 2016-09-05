@@ -1,11 +1,10 @@
 __author__ = 'jeremy'
 import cv2
 import logging
-from time import sleep
-
+from time import sleep, time
 import numpy as np
 from rq import Queue
-
+import pymongo
 import constants
 from db_stuff.annoy_dir import fanni
 from features import color
@@ -104,7 +103,6 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
 
 
 def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
-
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     if entries.count() > 2000 and 'xl' not in collection:
@@ -112,10 +110,12 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         if not len(annoy_top_results):
             return []
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    print "entries cursor count: {0}".format(entries.count())
+                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).batch_size(1000)
     farthest_nearest = 1
     nearest_n = []
+    start = time()
+    entries = list(entries)
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
         if isinstance(ent, list):
@@ -144,7 +144,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
-
+    print "sorting entries took {0} secs".format(time()-start)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]

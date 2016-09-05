@@ -35,7 +35,7 @@ def fullContactCollect(email):
 
 # fullContactCollect('markcuban@dallasmavs.com')
 
-my_access_token = 'EAACEdEose0cBAItcXp9UlqLcdZAo1YZAPMZCu9ZCpPeMxcwV3EiCEs6lEiMJoDa7jD4ZBI0BNV4quMrxsrEuXL63vRUFupXSNGjTfaEX8EA0faF3PIqh2abn4zZAV5YUEL8YS9K6oBUAdiGjAMSKyWeUtKiPgZAh3Xseoj3BcMcZBAZDZD'
+my_access_token = 'EAACEdEose0cBAHLj2S88B0HvAakO7UZCUmRF9Bou7agidrSCZA9R4glbq0w8PzvZAnLZBHdMWeYoCMRoEno70LSq9FQWvQsHZBxkQfnXcagyKkWFSEP7CuTbXZABHwIZAQAT3p98NxazAO95KZAKE2AcvXZCpm8ZBHY4ENKbWkIWrDdDT6J45asZC60iWb6xnZAxcLz70uW3t7ZCaAAZDZD'
 michal_access_token = 'EAACEdEose0cBAOhZAAPZAhChSgjRwdHsbS8oTO6xvXSatkciSYQiZCZCTdlFmJAPfwjR3gjcThzmhkZC75wwbkkAqTbNUlMKs60Dx18uFpXJbgKZATRI5oSmQyCgHYQqF8X1lALQimDwNich5cLsXRJM6gAJDel5AtcZB8r58FHjgZDZD'
 Hilush_access_token = 'EAACEdEose0cBAMFjZCQ2dg2p7KiZA7K6NYhBQQ6DSIK4k0sFBHGJTZBeC6V0OZA61KuUKCOGsBmIcZCfsiGVvJ1b8Y47uNbZCtZAUQTygw7JitGyhPZBZCiOWxkXjzijlyRxJRwRCX1HohX2cGL2RpxN4KOdqvpEhaDIDWHfvud6AQgZDZD'
 
@@ -58,8 +58,8 @@ def get_fb_page_like_count(my_fb_user_id):
 
     # print friends
 
-    # print page.get('photos', 0)
-    # return page.get('photos', 0)
+    print page
+    return page.get
     # print facebook_user
 
 get_fb_page_like_count(my_fb_user_id)

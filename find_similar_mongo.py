@@ -2,7 +2,7 @@ __author__ = 'liorsabag'
 
 import os
 import subprocess
-
+import time
 import cv2
 import numpy as np
 
@@ -54,13 +54,9 @@ def mask2svg(mask, filename, save_in_folder):
 
 def find_top_n_results(image=None, mask=None, number_of_results=100, category_id=None, collection=None, fingerprint=None):
 
-    print "number of results to search: {0}".format(number_of_results)
     print "category: {0}".format(category_id)
-
     if not fingerprint:
         fingerprint = fp.dict_fp(image, mask, category_id)
-
-    print "calling find_n_nearest.."
     closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     return fingerprint, closest_matches
