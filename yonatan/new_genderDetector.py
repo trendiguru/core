@@ -14,11 +14,13 @@ import cv2
 import urllib
 import skimage
 import requests
+import dlib
+from ..utils import imutils
 import yonatan_classifier
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -38,17 +40,12 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def distance(v1, v2):
-    if len(v1) != 3 or len(v2) != 3:
-        print "length of v1 or v2 is not 3!"
-        return None
-    return np.linalg.norm(v1 - v2)
+def theDetector(url_or_np_array, face_coordinates):
 
-
-def theDetector(url_or_np_array):
-
+    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
         response = requests.get(url_or_np_array)  # download
         full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     elif type(url_or_np_array) == np.ndarray:
@@ -56,30 +53,34 @@ def theDetector(url_or_np_array):
     else:
         return None
 
+    #checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
         return None
 
-    image_for_caffe = [cv2_image_to_caffe(full_image)]
+    height, width, channels = full_image.shape
 
-    if image_for_caffe is None:
+    x, y, w, h = face_coordinates
+
+    if x > width or x + w > width or y > height or y + h > height:
+        return None
+
+    face_image = full_image[y: y + h, x: x + w]
+
+    face_for_caffe = [cv2_image_to_caffe(face_image)]
+    #face_for_caffe = [caffe.io.load_image(face_image)]
+
+    if face_for_caffe is None:
         return None
 
     # Classify.
     start = time.time()
-    predictions = classifier.predict(image_for_caffe)
+    predictions = classifier.predict(face_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    #max_result = max(predictions[0])
-
-    max_result_index = np.argmax(predictions[0])
-
-    predict_label = int(max_result_index)
-
-    if predict_label == 0:
-        return 'mini_dress'
-    elif predict_label == 1:
-        return 'midi_dress'
-    elif predict_label == 2:
-        return 'maxi_dress'
-
+    if predictions[0][1] > 0.7:
+        print predictions[0][1]
+        return 'Male'
+    else:
+        print predictions[0][0]
+        return 'Female'
