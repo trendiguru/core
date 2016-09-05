@@ -4,7 +4,7 @@ import logging
 from time import sleep, time
 import numpy as np
 from rq import Queue
-
+import pymongo
 import constants
 from db_stuff.annoy_dir import fanni
 from features import color
@@ -115,7 +115,8 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             return []
         start = time()
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(50)
+                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).batch_size(50)
         print "second query by annoy results took {0}".format(time()-start)
     farthest_nearest = 1
     nearest_n = []
