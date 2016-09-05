@@ -95,6 +95,7 @@ for _ in range(100000):
         iters.append(i)
         tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
+    print('avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss))
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
         f.close()
