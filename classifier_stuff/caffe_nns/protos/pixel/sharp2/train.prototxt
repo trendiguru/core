@@ -13,7 +13,7 @@ layer {
   name: "bn1"
   type: "BatchNorm"
   bottom: "data"
-  top: "data"
+  top: "bn1"
   param {
     lr_mult: 0
     decay_mult: 0

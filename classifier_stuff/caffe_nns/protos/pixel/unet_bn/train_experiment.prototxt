@@ -10,10 +10,43 @@ layer {
     param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":16 }"
     }
   }
+
+  layer {
+  name: "bn1"
+  type: "BatchNorm"
+  bottom: "data"
+  top: "bn1"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "scale1"
+  type: "Scale"
+  bottom: "data"
+  top: "data"
+  scale_param {
+    bias_term: true
+  }
+}
+
+
 layer {
   name: "conv1_1"
   type: "Convolution"
-  bottom: "data"
+  bottom: "bn1"
   top: "conv1_1"
   param {
     lr_mult: 1
@@ -43,10 +76,43 @@ layer {
   bottom: "conv1_1"
   top: "conv1_1"
 }
+
+layer {
+  name: "bn2"
+  type: "BatchNorm"
+  bottom: "conv1_1"
+  top: "data"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "scale2"
+  type: "Scale"
+  bottom: "bn2"
+  top: "bn2"
+  scale_param {
+    bias_term: true
+  }
+}
+
+
 layer {
   name: "conv1_2"
   type: "Convolution"
-  bottom: "conv1_1"
+  bottom: "bn2"
   top: "conv1_2"
   param {
     lr_mult: 1
@@ -87,6 +153,38 @@ layer {
     stride: 2
   }
 }
+
+layer {
+  name: "bn3"
+  type: "BatchNorm"
+  bottom: "pool1"
+  top: "data"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "scale3"
+  type: "Scale"
+  bottom: "bn3"
+  top: "bn3"
+  scale_param {
+    bias_term: true
+  }
+}
+
 layer {
   name: "conv2_1"
   type: "Convolution"
@@ -120,6 +218,40 @@ layer {
   bottom: "conv2_1"
   top: "conv2_1"
 }
+
+layer {
+  name: "bn4"
+  type: "BatchNorm"
+  bottom: "conv2_1"
+  top: "bn4"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "scale1"
+  type: "Scale"
+  bottom: "data"
+  top: "data"
+  scale_param {
+    bias_term: true
+  }
+}
+
+
+
 layer {
   name: "conv2_2"
   type: "Convolution"
