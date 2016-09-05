@@ -117,7 +117,6 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
         print "second query by annoy results took {0}".format(time()-start)
-    print "entries cursor count: {0}".format(entries.count())
     farthest_nearest = 1
     nearest_n = []
     start = time()
