@@ -125,9 +125,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
             continue
-        start_infor = time()
         d = distance(category, fp, ent, collection)
-        print "distance took {0}".format(time()-start_infor)
         if not d:
             continue
         if i < number_of_matches:
@@ -136,9 +134,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         else:
             if i == number_of_matches:
                 # sort by distance
-                start_infor = time()
                 nearest_n.sort(key=lambda tup: tup[1])
-                print "sort nearest_n took {0}".format(time()-start_infor)
                 # last item in the list (index -1, go python!)
                 farthest_nearest = nearest_n[-1][1]
 
@@ -152,6 +148,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+        print "after {0} products".format(i)
     print "sorting entries took {0} secs".format(time()-start)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
