@@ -222,7 +222,7 @@ def conv_relu_bn(bottom, n_output, kernel_size=1, stride=1, pad='preserve',stage
                              batch_norm_param={'use_global_stats': stage=='test'})
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
 
-    return conv,relu
+    return conv,scale
 
 def Inception7A(data, num_1x1, num_3x3_red, num_3x3_1, num_3x3_2,
                 num_5x5_red, num_5x5, pool, proj):
@@ -528,7 +528,7 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     n.cat13 = L.Concat(*bottom)
     n.conv13_2,n.relu13_2 = conv_relu_bn(n.cat13,n_output=64,kernel_size=3,pad='preserve',stage=stage)  #this is halving N_filters
 
-    n.conv_final,n.relu_final = conv_relu(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
+    n.conv_final = conv(n.conv13_2,n_output=n_cats,kernel_size=3,pad='preserve')
 
 #    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label,normalize=True)
     n.loss = L.SoftmaxWithLoss(n.conv_final, n.label)
