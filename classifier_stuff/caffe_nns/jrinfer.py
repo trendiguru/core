@@ -234,7 +234,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outf
     iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
     print '>>>', datetime.now(), 'Iteration', iter, 'mean IU', np.nanmean(iu)
     freq = hist.sum(1) / hist.sum()
-    fwavacc = freq[freq > 0] * iu[freq > 0]).sum()
+    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
             fwavacc
     mean_acc = np.nanmean(acc)
