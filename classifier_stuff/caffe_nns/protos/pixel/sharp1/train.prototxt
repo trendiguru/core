@@ -33,8 +33,8 @@ layer {
 layer {
   name: "scale1"
   type: "Scale"
-  bottom: "data"
-  top: "data"
+  bottom: "bn1"
+  top: "bn1"
   scale_param {
     bias_term: true
   }
@@ -89,6 +89,13 @@ layer {
   }
 }
 layer {
+  name: "relu1_2"
+  type: "ReLU"
+  bottom: "conv1_2"
+  top: "conv1_2"
+}
+
+layer {
   name: "BatchNorm1"
   type: "BatchNorm"
   bottom: "conv1_2"
@@ -112,17 +119,11 @@ layer {
 layer {
   name: "Scale1"
   type: "Scale"
-  bottom: "conv1_2"
-  top: "conv1_2"
+  bottom: "BatchNorm1"
+  top: "BatchNorm1"
   scale_param {
     bias_term: true
   }
-}
-layer {
-  name: "relu1_2"
-  type: "ReLU"
-  bottom: "conv1_2"
-  top: "conv1_2"
 }
 layer {
   name: "pool1"
@@ -185,6 +186,13 @@ layer {
   }
 }
 layer {
+  name: "relu2_2"
+  type: "ReLU"
+  bottom: "conv2_2"
+  top: "conv2_2"
+}
+
+layer {
   name: "BatchNorm2"
   type: "BatchNorm"
   bottom: "conv2_2"
@@ -208,17 +216,11 @@ layer {
 layer {
   name: "Scale2"
   type: "Scale"
-  bottom: "conv2_2"
-  top: "conv2_2"
+  bottom: "BatchNorm2"
+  top: "BatchNorm2"
   scale_param {
     bias_term: true
   }
-}
-layer {
-  name: "relu2_2"
-  type: "ReLU"
-  bottom: "conv2_2"
-  top: "conv2_2"
 }
 layer {
   name: "pool2"
@@ -314,6 +316,12 @@ layer {
   }
 }
 layer {
+  name: "relu3_3"
+  type: "ReLU"
+  bottom: "conv3_3"
+  top: "conv3_3"
+}
+layer {
   name: "BatchNorm3"
   type: "BatchNorm"
   bottom: "conv3_3"
@@ -337,17 +345,11 @@ layer {
 layer {
   name: "Scale3"
   type: "Scale"
-  bottom: "conv3_3"
-  top: "conv3_3"
+  bottom: "BatchNorm3"
+  top: "BatchNorm3"
   scale_param {
     bias_term: true
   }
-}
-layer {
-  name: "relu3_3"
-  type: "ReLU"
-  bottom: "conv3_3"
-  top: "conv3_3"
 }
 layer {
   name: "pool3"
@@ -443,6 +445,12 @@ layer {
   }
 }
 layer {
+  name: "relu4_3"
+  type: "ReLU"
+  bottom: "conv4_3"
+  top: "conv4_3"
+}
+layer {
   name: "BatchNorm4"
   type: "BatchNorm"
   bottom: "conv4_3"
@@ -462,6 +470,7 @@ layer {
   batch_norm_param {
     use_global_stats: false
   }
+
 }
 layer {
   name: "Scale4"
@@ -471,12 +480,6 @@ layer {
   scale_param {
     bias_term: true
   }
-}
-layer {
-  name: "relu4_3"
-  type: "ReLU"
-  bottom: "conv4_3"
-  top: "conv4_3"
 }
 layer {
   name: "pool4"

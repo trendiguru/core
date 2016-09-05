@@ -303,7 +303,7 @@ def parse_logfile(output_filename,logy):
             a_str = str.format('{0:.2e}', a)
             st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
             ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
-  savename = args.output_file+'.png'
+  savename = output_filename+'.png'
   plt.savefig(savename)
   #plt.show()
 
