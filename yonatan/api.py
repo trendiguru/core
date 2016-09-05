@@ -35,18 +35,31 @@ def fullContactCollect(email):
 
 # fullContactCollect('markcuban@dallasmavs.com')
 
-my_access_token = 'EAACEdEose0cBAAz0Ova3dDgTF6PsBXk8tKdduBmoCnm71zsI14V77dBFnlykuZCa5AmA3vaubZCaDtZBZByPwUfkscsYU0GB2rvSRzZCtRTzq46A8GSuGHgZCjnDFJoVSKnP8B8jKeo50DRqmwVh5fzyikPBH4kJwicMdIZAc3JngZDZD'
+my_access_token = 'EAACEdEose0cBAItcXp9UlqLcdZAo1YZAPMZCu9ZCpPeMxcwV3EiCEs6lEiMJoDa7jD4ZBI0BNV4quMrxsrEuXL63vRUFupXSNGjTfaEX8EA0faF3PIqh2abn4zZAV5YUEL8YS9K6oBUAdiGjAMSKyWeUtKiPgZAh3Xseoj3BcMcZBAZDZD'
+michal_access_token = 'EAACEdEose0cBAOhZAAPZAhChSgjRwdHsbS8oTO6xvXSatkciSYQiZCZCTdlFmJAPfwjR3gjcThzmhkZC75wwbkkAqTbNUlMKs60Dx18uFpXJbgKZATRI5oSmQyCgHYQqF8X1lALQimDwNich5cLsXRJM6gAJDel5AtcZB8r58FHjgZDZD'
+Hilush_access_token = 'EAACEdEose0cBAMFjZCQ2dg2p7KiZA7K6NYhBQQ6DSIK4k0sFBHGJTZBeC6V0OZA61KuUKCOGsBmIcZCfsiGVvJ1b8Y47uNbZCtZAUQTygw7JitGyhPZBZCiOWxkXjzijlyRxJRwRCX1HohX2cGL2RpxN4KOdqvpEhaDIDWHfvud6AQgZDZD'
 
 my_fb_user_id = '693821542'
-
+michal_fb_page_id = '423546661173003'
+Hilush_fb_user_id = '1043151871'
 
 your_access_token = my_access_token
 
-def get_fb_page_like_count(fb_page_id):
-    graph = facebook.GraphAPI(access_token=your_access_token)
-    args = {'fields': 'likes'}
-    page = graph.get_object(fb_page_id, **args)
-    print page.get('likes', 0)
-    return page.get('likes', 0)
+def get_fb_page_like_count(my_fb_user_id):
+    graph = facebook.GraphAPI(access_token=my_access_token)
+    args = {'fields': 'photos'}
+    page = graph.get_object(my_fb_user_id, **args)
+
+    # facebook_user = facebook.GraphAPI(my_access_token).get_object('me')
+    # page = graph.get_object(my_fb_user_id)
+    # post = graph.get_object(id=my_fb_user_id)
+    friends = graph.get_connections(id=my_fb_user_id, connection_name='fans')
+    # friends = graph.get_connections(id=my_fb_user_id)
+
+    # print friends
+
+    # print page.get('photos', 0)
+    # return page.get('photos', 0)
+    # print facebook_user
 
 get_fb_page_like_count(my_fb_user_id)

@@ -17,8 +17,8 @@ import requests
 import yonatan_classifier
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -39,8 +39,8 @@ def cv2_image_to_caffe(image):
 
 
 def distance(v1, v2):
-    if len(v1) != 8 or len(v2) != 8:
-        print "length of v1 or v2 is not 8!"
+    if len(v1) != 3 or len(v2) != 3:
+        print "length of v1 or v2 is not 3!"
         return None
     return np.linalg.norm(v1 - v2)
 
@@ -77,21 +77,14 @@ def theDetector(url_or_np_array):
     predict_label = int(max_result_index)
 
     if predict_label == 0:
-        return 'strapless'
+        print 'mini_dress'
+        return 'mini_dress'
     elif predict_label == 1:
-        return 'spaghetti_straps'
+        print 'midi_dress'
+        return 'midi_dress'
     elif predict_label == 2:
-        return 'regular_straps'
-    elif predict_label == 3:
-        return 'sleeveless'
-    elif predict_label == 4:
-        return 'cap_sleeve'
-    elif predict_label == 5:
-        return 'short_sleeve'
-    elif predict_label == 6:
-        return 'midi_sleeve'
-    elif predict_label == 7:
-        return 'long_sleeve'
+        print 'maxi_dress'
+        return 'maxi_dress'
 
     #print predictions[0][predict_label]
 

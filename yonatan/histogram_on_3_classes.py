@@ -14,19 +14,20 @@ from PIL import Image
 from . import gender_detector
 import random
 import matplotlib.pyplot as plt
+import yonatan_classifier
 
 
 array_success = np.array([])
 array_failure = np.array([])
 
-text_file = open("dresses_test.txt", "r")
-
 counter = 0
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy_for_dresses.prototxt"
-PRETRAINED = "/home/yonatan/caffe_alexnet_only_dresses_on_models_iter_20000.caffemodel"
+text_file = open("dress_length_3_labels_sets/dress_length_3_labels_test.txt", "r")
+
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [256, 256]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 #mean, input_scale = None, None
 #channel_swap = None
@@ -35,7 +36,7 @@ raw_scale = 255.0
 ext = 'jpg'
 
 # Make classifier.
-classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
@@ -103,8 +104,6 @@ for line in text_file:
         counter_95_percent += 1
         counter_97_percent += 1
         counter_99_percent += 1
-
-
 
     print mini_predict
     print midi_predict

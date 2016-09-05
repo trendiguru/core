@@ -303,7 +303,7 @@ def parse_logfile(output_filename,logy):
             a_str = str.format('{0:.2e}', a)
             st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
             ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
-  savename = args.output_file+'.jpg'
+  savename = output_filename+'.png'
   plt.savefig(savename)
   #plt.show()
 
@@ -316,7 +316,7 @@ def fit_log(x, k,a, b, x0):
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
 def lossplot(input_filename):
-  print('parsing solve.py (jrinference) output file '+output_filename)
+  print('parsing solve.py (jrinference) output file '+input_filename)
   try:
     f = open(input_filename, 'r')
   except:
@@ -324,18 +324,23 @@ def lossplot(input_filename):
     return
   times = []
   losses = []
+  n_iters = []
   for line in f:
 #    print('checking line:'+line)
       print line
       thesplit = line.split()
-      time = thesplit[0]
-      loss = thesplit[1]
+      n_iter = thesplit[0]
+      time = thesplit[1]
+      loss = thesplit[2]
+      n_iters.append(n_iter)
       times.append(time)
       losses.append(loss)
-  plt.plot(times, losses,'ro:', label="loss")
-  plt.set_xlabel("time[s]")
-  plt.set_ylabel("loss")
+  plt.plot(n_iters, losses,'ro:', label="loss")
+  plt.xlabel("iter")
+  plt.ylabel("loss")
   plt.title(input_filename)
+  output_filename = input_filename[:-4] + '.png'
+  plt.savefig(output_filename)
 
 
 def parse_solveoutput(output_filename):
@@ -446,7 +451,7 @@ def parse_solveoutput(output_filename):
   par1 = host.twinx()
 
   host.set_xlabel("iterations")
-  host.set_ylabel("log loss, days elapsed")
+  host.set_ylabel("loss")
   par1.set_ylabel("accuracy, iou")
 
 
@@ -475,10 +480,10 @@ def parse_solveoutput(output_filename):
 #  plt.title(net_name)
   dt=datetime.datetime.today()
   plt.title(dt.isoformat())
-  plt.suptitle(f)
+  plt.suptitle(output_filename)
   plt.draw()
 
-  savename = output_filename+'.jpg'
+  savename = output_filename[:-4]+'.png'
   plt.savefig(savename)
 #  plt.show()
 
@@ -487,8 +492,8 @@ if __name__ == "__main__":
   print('starting')
   parser = argparse.ArgumentParser(description='makes a plot from Caffe output')
   parser.add_argument('output_file', help='file of captured stdout and stderr')
-  parser.add_argument('--type', help='logfile or solve.py output',default='0')
-  parser.add_argument('--logy', help='log of logloss',default=None)
+  parser.add_argument('--type', help='logfile or solve.py output (0 or log (reads caffe logfile), 1 or txt (reads solve.py iou logfile), 2 or loss (reads simple lossfile)',default='0')
+  parser.add_argument('--logy', help='log of logloss (True or False)',default=None)
   args = parser.parse_args()
   print('args:'+str(args))
   if args.type == '0' or args.type=='log':

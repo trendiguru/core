@@ -202,10 +202,10 @@ def fc_relu(bottom, nout,lr_mult1=1,decay_mult1=1,lr_mult2=2,decay_mult2=0):
 #    return fc, L.ReLU(fc, in_place=True)
     return fc,relu
 
-def batchnorm(bottom,stage='train'):
-    batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
+def batchnorm(bottom,stage='train',in_place=True):
+    batch_norm = L.BatchNorm(bottom, in_place=in_place, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],
                               batch_norm_param={'use_global_stats': stage=='test'})
-    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    scale = L.Scale(batch_norm, bias_term=True, in_place=in_place)
     return batch_norm,scale
 
 def conv_bn_relu(bottom, n_output, kernel_size=1, stride=1, pad='preserve',stage='train'):
@@ -357,6 +357,8 @@ def test_convbnrelu(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21
     n.conv1_1 = conv_bn_relu(n.data,n_output=64,kernel_size=3,pad='preserve')
     return n.to_proto()
 
+
+
 def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='train'):
     '''
     see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
@@ -374,20 +376,22 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     #assuming input of size 224x224, ...
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
 
-    n.bn1,n.scale1 = batchnorm(n.data,stage=stage)
-    n.conv1_1,n.relu1_1 = conv_relu(n.bn1,n_output=64,kernel_size=3,pad='preserve')
-    n.conv1_2,n.relu1_2 = conv_bn_relu(n.conv1_1,n_output=64,kernel_size=3,pad='preserve',stage=stage)
-    n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.bn1,n.scale1 = batchnorm(n.data,stage=stage,in_place=False)
+    n.conv1_1,n.relu1_1 = conv_relu(n.scale1,n_output=64,kernel_size=3,pad='preserve')
+    n.conv1_2,n.relu1_2 = conv_relu(n.conv1_1,n_output=64,kernel_size=3,pad='preserve')
+    n.bn2,n.scale2 = batchnorm(n.conv1_2,stage=stage,in_place=False,stage=stage)
+    n.pool1 = L.Pooling(n.scale2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     #the following will be 112x112
     n.conv2_1,n.relu2_1 = conv_relu(n.pool1,n_output=128,kernel_size=3,pad='preserve')
-    n.conv2_2,n.relu2_2 = conv_bn_relu(n.conv2_1,n_output=128,kernel_size=3,pad='preserve',stage=stage)
-    n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    n.conv2_2,n.relu2_2 = conv_relu(n.conv2_1,n_output=128,kernel_size=3,pad='preserve',stage=stage)
+    n.bn3,n.scale3 = batchnorm(n.conv2_2,stage=stage,in_place=False)
+    n.pool2 = L.Pooling(n.scale3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     #the following will be 56x56
     n.conv3_1,n.relu3_1 = conv_relu(n.pool2,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_2,n.relu3_2 = conv_relu(n.conv3_1,n_output=256,kernel_size=3,pad='preserve')
-    n.conv3_3,n.relu3_3 = conv_bn_relu(n.conv3_2,n_output=256,kernel_size=3,pad='preserve',stage=stage)
+    n.conv3_3,n.relu3_3 = conv_relu(n.conv3_2,n_output=256,kernel_size=3,pad='preserve',stage=stage)
     n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
 
     #the following will be 28x28
@@ -443,6 +447,9 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
     #n.deconv = L.Deconvolution(n.input,
     #convolution_param=dict(num_output=21, kernel_size=64, stride=32))
     n.conv8_0,n.relu8_0 = conv_bn_relu(n.reshape8,n_output=512,kernel_size=7,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
+
+
+    return n.to_proto()
 
 
     #the following will be 14x14 (original /16).
@@ -720,6 +727,26 @@ def display_conv_layer(blob):
 #    plt.show(block=False)
 #    print solver.net.blobs['label'].data[:8]
 
+def estimate_mem(prototxt):
+    caffe.set_mode_gpu()
+
+    solver = caffe.SGDSolver(prototxt)
+    #solver.net.copy_from(weights)
+    #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
+
+    # surgeries
+    #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+    all_layers = [k for k in solver.net.params.keys()]
+    print('all layers:')
+    print all_layers
+
+    for k,v in solver.net.params:
+        print('key {} val {}'.format(k,v))
+
+    for k,v in solver.net.blobs:
+        print('key {} val {}'.format(k,v))
+
+
 def draw_net(prototxt,outfile):
     net = caffe_pb2.NetParameter()
     text_format.Merge(open(prototxt).read(), net)
@@ -994,6 +1021,9 @@ if __name__ == "__main__":
 #    run_net(googLeNet_2_inceptions,nn_dir,db_name+'_train',db_name+'_test',batch_size = batch_size,n_classes=11,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 #    run_net(alexnet_linearized,nn_dir,db_name+'.train',db_name+'.test',batch_size = batch_size,n_classes=n_classes,meanB=B,meanR=R,meanG=G,n_filters=50,n_ip1=1000)
 
+  #  estimate_mem('val.prototxt')
+
+
 #    proto = vgg16('thedb')
 #    proto = unet('thedb')
     proto = sharpmask('thedb',stage='train')
@@ -1009,6 +1039,7 @@ if __name__ == "__main__":
     with open('val.prototxt','w') as f:
         f.write(str(proto))
         f.close()
+    estimate_mem('val.prototxt')
 
 #    caffe.set_device(2)
 #    caffe.set_mode_gpu()
