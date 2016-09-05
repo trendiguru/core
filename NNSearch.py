@@ -153,6 +153,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
+    print "gonna return after {0}".format(time()-start)
     return nearest_n
 
 
