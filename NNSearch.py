@@ -115,7 +115,6 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     farthest_nearest = 1
     nearest_n = []
     start = time()
-    entries = list(entries)
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
         if isinstance(ent, list):

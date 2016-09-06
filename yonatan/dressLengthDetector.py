@@ -70,16 +70,18 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(image_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
+    return list(predictions[0])
+
     #max_result = max(predictions[0])
 
-    max_result_index = np.argmax(predictions[0])
-
-    predict_label = int(max_result_index)
-
-    if predict_label == 0:
-        return 'mini_dress'
-    elif predict_label == 1:
-        return 'midi_dress'
-    elif predict_label == 2:
-        return 'maxi_dress'
+    # max_result_index = np.argmax(predictions[0])
+    #
+    # predict_label = int(max_result_index)
+    #
+    # if predict_label == 0:
+    #     return 'mini_dress'
+    # elif predict_label == 1:
+    #     return 'midi_dress'
+    # elif predict_label == 2:
+    #     return 'maxi_dress'
 
