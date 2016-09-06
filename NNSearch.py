@@ -4,7 +4,7 @@ import logging
 from time import sleep, time
 import numpy as np
 from rq import Queue
-
+import pymongo
 import constants
 from db_stuff.annoy_dir import fanni
 from features import color
@@ -103,24 +103,18 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
 
 
 def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
-    start = time()
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    print "Entries query find took {0} secs".format(time()-start)
     if entries.count() > 2000 and 'xl' not in collection:
-        start = time()
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
-        print "annoy_search function took {0}".format(time()-start)
         if not len(annoy_top_results):
             return []
-        start = time()
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).batch_size(50)
-        print "second query by annoy results took {0}".format(time()-start)
+                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).batch_size(1000)
     farthest_nearest = 1
     nearest_n = []
     start = time()
-    entries = list(entries)
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
         if isinstance(ent, list):
@@ -149,12 +143,10 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
-        print "after {0} products".format(i)
     print "sorting entries took {0} secs".format(time()-start)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
-    print "gonna return after {0}".format(time()-start)
     return nearest_n
 
 
