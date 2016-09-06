@@ -1,0 +1,31 @@
+#sharp4 has bn after every conv
+train_net: "train.prototxt"
+test_net: "val.prototxt"
+test_iter: 500
+# make test net, but don't invoke it from the solver itself
+test_interval: 10000000
+display: 20
+average_loss: 20
+
+lr_policy: "step"
+gamma: 0.1
+stepsize: 5000
+# lr for unnormalized softmax
+#lr_policy: "fixed"
+
+base_lr: 1e-3
+#base_lr: 5e-6
+# high momentum
+momentum: 0.95
+#momentum: 0.99
+# no gradient accumulation
+iter_size: 10
+max_iter: 3000000
+weight_decay: 0.0005
+snapshot: 1000
+#snapshot 5000 was leaving 2 days bet snapshots
+snapshot_prefix: "snapshot/sharp4_all_bn"
+test_initialization: false
+
+#type: AdaDelta
+#delta: 1e-5
