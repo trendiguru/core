@@ -234,16 +234,16 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outf
     iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
     print '>>>', datetime.now(), 'Iteration', iter, 'mean IU', np.nanmean(iu)
     freq = hist.sum(1) / hist.sum()
-    fwavacc = freq[freq > 0] * iu[freq > 0]).sum()
+    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'fwavacc', \
             fwavacc
     mean_acc = np.nanmean(acc)
     mean_iou = np.nanmean(iu)
-    results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc,'overall_acc':overall_acc,'mean_acc':mean_acc,'class_iou':iu,'mean_iou':mean_iou,'fwavacc':fwavacc}
+    results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
     jsonfile = outfilename[:-4]+'.json'
-    with open(jsonfile, 'a+') as outfile:
-        json.dump(results_dict, outfile)
-        outfile.close()
+#    with open(jsonfile, 'a+') as outfile:
+#        json.dump(results_dict, outfile)
+#        outfile.close()
 
     with open(outfilename,'a') as f:
         f.write('>>>'+ str(datetime.now())+' Iteration:'+ str(iter)+ ' loss:'+ str(loss)+'\n')
