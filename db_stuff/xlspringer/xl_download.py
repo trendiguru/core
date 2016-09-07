@@ -11,6 +11,8 @@ import re
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('fingerprinter4db', connection=redis_conn)
+url1 = 'http://adzeile.ladenzeile.de/adzeile/redirect?ad=412&adt=17&is=14&t=NopLblSh-1&id='
+url2 = '&r=http://www.ladenzeile.de'
 
 germender = {'herrenmode': 'Male',
              'damenmode': 'Female'}
@@ -186,7 +188,7 @@ def process_xml(file_name):
                  'currency': item['Price']['CurrencySymbol'],
                  'priceLabel': item['Price']['DisplayPrice']}
 
-        click_url = item['Deeplinks']['Product']
+        click_url = url1 + item_id + url2
 
         image_url = item['Images']['Img'][0]['URL']
 

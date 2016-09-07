@@ -319,20 +319,20 @@ class ShopStyleDownloader:
         if prod_in_coll is None:
             # print "Product not in db." + collection
             # case 1.1: try finding this product in the products
-            if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
-                if self.gender =='Female':
-                    prod_in_prod = self.db.ShopStyle_Female.find_one({"id": prod["id"]})
-                else:
-                    prod_in_prod = self.db.ShopStyle_Male.find_one({"id": prod["id"]})
-
-                if prod_in_prod is not None:
-                    # print "but new product is already in db.products"
-                    prod["download_data"] = prod_in_prod["download_data"]
-                    prod = convert2generic(prod, self.gender)
-                    prod["fingerprint"] = prod_in_prod["fingerprint"]
-                    prod["download_data"]["dl_version"] = self.current_dl_date
-                    self.collection.insert_one(prod)
-                    return
+            # if self.collection_name in ['GangnamStyle_Female','GangnamStyle_Male'] :
+            #     # if self.gender =='Female':
+            #     #     prod_in_prod = self.db.ShopStyle_Female.find_one({"id": prod["id"]})
+            #     # else:
+            #     #     prod_in_prod = self.db.ShopStyle_Male.find_one({"id": prod["id"]})
+            #
+            #     if prod_in_prod is not None:
+            #         # print "but new product is already in db.products"
+            #         prod["download_data"] = prod_in_prod["download_data"]
+            #         prod = convert2generic(prod, self.gender)
+            #         prod["fingerprint"] = prod_in_prod["fingerprint"]
+            #         prod["download_data"]["dl_version"] = self.current_dl_date
+            #         self.collection.insert_one(prod)
+            #         return
 
             prod = convert2generic(prod, self.gender)
             self.insert_and_fingerprint(prod)
