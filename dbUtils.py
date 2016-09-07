@@ -1160,7 +1160,7 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
             print("GOT TO AFTER LENGTH WITH {0}".format(length_res['data']))
             if length_res['success']:
                 if not isinstance(length_res['data'], list):
-                    list_res = list(length_res['data'])
+                    list_res = length_res['data'].tolist()
                 else:
                     list_res = length_res['data']
                 image_obj['fingerprint']['length'] = list_res
