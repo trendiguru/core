@@ -21,7 +21,7 @@ from .find_similar_mongo import get_all_subcategories, find_top_n_results
 from . import background_removal
 from . import Utils
 from .constants import db, redis_conn
-from falcon import sleeve_client
+from falcon import sleeve_client, length_client
 rq.push_connection(redis_conn)
 min_images_per_doc = constants.min_images_per_doc
 max_image_val = constants.max_image_val
@@ -1127,12 +1127,56 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
         print(e)
 
 
+def parallel_length_and_replace(image_obj_id, col_name, img_url):
+    rel_cats = set([cat for cat in constants.features_per_category.keys() if 'length' in constants.features_per_category[cat]])
+    collection = db[col_name]
+    try:
+        image = Utils.get_cv2_img_array(img_url)
+        if image is None:
+            collection.delete_one({'_id': image_obj_id})
+            print("images deleted")
+            return
+        image_obj = collection.find_one({'_id': image_obj_id})
+        if col_name == 'images':
+            logging.warning('inside parallel replace')
+            for person in image_obj['people']:
+                person_cats = set([item['category'] for item in person['items']])
+                if len(rel_cats.intersection(person_cats)):
+                    print("there are matching categories")
+                    if len(image_obj['people']) > 1:
+                        image = background_removal.person_isolation(image, person['face'])
+                    for item in person['items']:
+                        if item['category'] in rel_cats:
+                            length_vector = [num.item() for num in length_client.get_length(image)['data']]
+                            item['fp']['sleeve_length'] = list(length_vector)
+            rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+            print("{0} documents modified..".format(rep_res))
+            return
+        else:
+            length_res = length_client.get_length(image)
+            if length_res['success']:
+                image_obj['fingerprint']['length'] = length_res['data'] if isinstance(length_res['data'], list) \
+                    else list(length_res['data'])
+                collection.replace_one({'_id': image_obj['_id']}, image_obj)
+            return
+    except Exception as e:
+        print(e)
+
+
 def update_non_sleeved_products(coll):
     collection = db[coll]
     query = {'categories': {'$in': ['dress', 'top', 'shirt', 't-shirt', 'blouse']},
              'fingerprint.sleeve_length': {'$exists': 0}}
     for doc in collection.find(query):
         add_feature.enqueue(parallel_sleeve_and_replace, args=(doc['_id'], coll, doc['images']['XLarge']), timeout=2000)
+
+
+def update_non_lengthed_products(coll):
+    collection = db[coll]
+    query = {'categories': {'$in': ['dress', 'skirt']},
+             'fingerprint.length': {'$exists': 0}}
+    for doc in collection.find(query):
+        add_feature.enqueue(parallel_length_and_replace, args=(doc['_id'], coll, doc['images']['XLarge']), timeout=2000)
 
 
 if __name__ == '__main__':

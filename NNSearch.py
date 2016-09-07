@@ -73,7 +73,7 @@ def distance(category, main_fp, candidate_fp, coll):
     if not main_fp.keys() == candidate_fp.keys():
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
-        return None
+        candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
     d = 0
     weight_keys = constants.weights_per_category.keys()
     if category not in weight_keys:
@@ -83,10 +83,11 @@ def distance(category, main_fp, candidate_fp, coll):
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
         elif feature == 'sleeve_length':
-            dist = sleeve_distance(main_fp[feature], candidate_fp[feature])
+            dist = l2_distance(main_fp[feature], candidate_fp[feature])
+        elif feature == 'length':
+            dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
-
         d += weights[feature]*dist
     return d
 
@@ -150,9 +151,9 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     return nearest_n
 
 
-def sleeve_distance(v1, v2):
-    if len(v1) != 8 or len(v2) != 8:
-        return None
+def l2_distance(v1, v2):
     v1 = np.array(v1) if isinstance(v1, list) else v1
     v2 = np.array(v2) if isinstance(v2, list) else v2
+    if not v1.size == v2.size:
+        return None
     return np.linalg.norm(v1 - v2)
