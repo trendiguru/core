@@ -7,25 +7,22 @@ from rq import Queue
 
 redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
-features_per_category = {'dress': ['color', 'sleeve_length'],
+features_per_category = {'dress': ['color', 'sleeve_length', 'length'],
                          'top': ['color', 'sleeve_length'],
                          'shirt': ['color', 'sleeve_length'],
                          'blouse': ['color', 'sleeve_length'],
                          't-shirt': ['color', 'sleeve_length'],
+                         'skirt': ['color', 'length'],
                          'other': ['color']}
 
-weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.2},
+weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 0.1},
                         'top': {'color': 0.8, 'sleeve_length': 0.2},
                         'shirt': {'color': 0.8, 'sleeve_length': 0.2},
                         'blouse': {'color': 0.8, 'sleeve_length': 0.2},
                         't-shirt': {'color': 0.8, 'sleeve_length': 0.2},
+                        'skirt': {'color': 0.9, 'length': 0.1},
                         'other': {'color': 1}}
 
-manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
-which_products_collection = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
-                             'fashionseoul.com':
-                                 {'KR': 'GangnamStyle'}}
 products_per_ip_pid = {'default':
                                  {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'xl'},
                        'fashionseoul':
@@ -47,9 +44,7 @@ products_per_ip_pid = {'default':
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
-products_per_pid = {}
-products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
-# file containing constants for general TG use
+
 # fingerprint related consts
 
 fingerprint_length = 696
@@ -75,7 +70,6 @@ string_to_look_for_in_pd_command = 'tgworker'
 q1 = Queue('start_pipeline', connection=redis_conn)
 q2 = Queue('check_if_relevant', connection=redis_conn)
 q3 = Queue('manual_gender', connection=redis_conn)
-
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47

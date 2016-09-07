@@ -14,15 +14,20 @@ today_date = str(datetime.date(datetime.now()))
 q = Queue('fingerprinter4db', connection=redis_conn)
 pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS',
          'PONTE']
+big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF']
 
 
 def verify_by_title(title):
     title_upper = title.upper()
+    if any(x in title_upper for x in big_no_no):
+        return ''
     if any(x in title_upper for x in ['BLAZER', 'BLAZERS']):
         return 'blazer'
     if any(x in title_upper for x in ['STOCKING', 'STOCKINGS']):
         return 'stockings'
     elif any(x in title_upper for x in pants):
+        if any(x in title_upper for x in ['SHORTS','SHORT']):
+            return 'shorts'
         return 'pants'
     elif any(x in title_upper for x in ['DRESS', 'DRESSES', 'MAXI', 'GOWN']):
         return 'dress'

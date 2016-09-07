@@ -196,7 +196,7 @@ def genreDownloader(genreId, start_page=1):
         else:
             while recruit_q.count>50:
                 sleep(30)
-            recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=5400)
+            recruit_q.enqueue(genreDownloader, args=(genreId, end_page), timeout=10000)
     for i in range(start_page+1, end_page):
         success, response_dict = GET_ByGenreId(genreId, page=i, limit=100, instock=True)
         if not success:

@@ -67,7 +67,7 @@ def clear_duplicates(col_name):
 
 
 def update_drive(col, cc, items_before=None, dl_duration=None):
-    items_after = items_new = 0
+    items_after = items_new = items_scanned =  0
     for gender in ['Female', 'Male']:
         if col == 'amazon':
             col_name = '%s_%s_%s' %(col, cc, gender)
@@ -75,7 +75,8 @@ def update_drive(col, cc, items_before=None, dl_duration=None):
             col_name = '%s_%s' % (col, gender)
         collection = db[col_name]
         items_after += collection.count()
-        items_new += collection.find({'download_data.first_dl': today_date}).count()
+        items_new += collection.count({'download_data.first_dl': today_date})
+        items_scanned += collection.count({'download_data.dl_version': today_date})
     dl_duration = dl_duration or 'daily-update'
     items_before = items_before or 'daily-update'
     dl_info = {"start_date": today_date,

@@ -8,6 +8,7 @@ __author__ = 'jeremy'
 import logging
 import rq
 import cv2
+import sys
 from bson import objectid, ObjectId
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1130,11 +1131,13 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
 def parallel_length_and_replace(image_obj_id, col_name, img_url):
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'length' in constants.features_per_category[cat]])
     collection = db[col_name]
+    print("GOT INTO LENGTH_REPLACE, REL_CATS : {0}".format(rel_cats))
+    sys.stdout.flush()
     try:
         image = Utils.get_cv2_img_array(img_url)
         if image is None:
             collection.delete_one({'_id': image_obj_id})
-            print("images deleted")
+            print("IMAGE IS NONE!! DELETING FROM DB..")
             return
         image_obj = collection.find_one({'_id': image_obj_id})
         if col_name == 'images':
@@ -1148,15 +1151,21 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
                     for item in person['items']:
                         if item['category'] in rel_cats:
                             length_vector = [num.item() for num in length_client.get_length(image)['data']]
-                            item['fp']['sleeve_length'] = list(length_vector)
+                            item['fp']['length'] = list(length_vector)
             rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
             print("{0} documents modified..".format(rep_res))
             return
         else:
-            sleeve_res = sleeve_client.get_sleeve(image)
-            if sleeve_res['success']:
-                image_obj['fingerprint']['sleeve_length'] = sleeve_res['data']
-                collection.replace_one({'_id': image_obj['_id']}, image_obj)
+            length_res = length_client.get_length(image)
+            print("GOT TO AFTER LENGTH WITH {0}".format(length_res['data']))
+            if length_res['success']:
+                if not isinstance(length_res['data'], list):
+                    list_res = length_res['data'].tolist()
+                else:
+                    list_res = length_res['data']
+                image_obj['fingerprint']['length'] = list_res
+                res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+                print("modified {0} docs".format(res))
             return
     except Exception as e:
         print(e)
