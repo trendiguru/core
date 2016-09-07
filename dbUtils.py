@@ -1130,11 +1130,12 @@ def parallel_sleeve_and_replace(image_obj_id, col_name, img_url):
 def parallel_length_and_replace(image_obj_id, col_name, img_url):
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'length' in constants.features_per_category[cat]])
     collection = db[col_name]
+    print("GOT INTO LENGTH_REPLACE, REL_CATS : {0}".format(rel_cats))
     try:
         image = Utils.get_cv2_img_array(img_url)
         if image is None:
             collection.delete_one({'_id': image_obj_id})
-            print("images deleted")
+            print("IMAGE IS NONE!! DELETING FROM DB..")
             return
         image_obj = collection.find_one({'_id': image_obj_id})
         if col_name == 'images':
@@ -1148,7 +1149,7 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
                     for item in person['items']:
                         if item['category'] in rel_cats:
                             length_vector = [num.item() for num in length_client.get_length(image)['data']]
-                            item['fp']['sleeve_length'] = list(length_vector)
+                            item['fp']['length'] = list(length_vector)
             rep_res = db.images.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
             print("{0} documents modified..".format(rep_res))
             return
