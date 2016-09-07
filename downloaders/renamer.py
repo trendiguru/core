@@ -136,7 +136,7 @@ def getty_dl(searchphrase,n_pages = 100):
     #        print imgs
             print l
             for j in range(l):
-                nth_img = imgs[i]
+                nth_img = imgs[j]
       #          print nth_img
                 ds = nth_img['display_sizes']
     #            print ds
