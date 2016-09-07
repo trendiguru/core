@@ -115,7 +115,7 @@ def download_recruit(delete=False):
     log2file(mode='w', log_filename='/home/developer/yonti/recruit_download_stats.log', message='download started' )
     id_count = len(recruitID2generalCategory)
     for x, genreId in enumerate(recruitID2generalCategory.keys()):
-        q.enqueue(genreDownloader, args=([genreId]), timeout=5400)
+        q.enqueue(genreDownloader, args=([genreId]), timeout=10000)
         print('%d/%d -> %s sent to download worker' %(x,id_count, genreId))
         while q.count > 5:
             sleep(60)

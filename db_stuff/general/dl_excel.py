@@ -109,8 +109,11 @@ def mongo2xl(collection_name, dl_info):
     worksheet_main.write(7, 2, dl_info['items_before'])
     worksheet_main.write(8, 1, "items after")
     worksheet_main.write(8, 2, dl_info['items_after'])
-    worksheet_main.write(9, 1, "items downloaded today")
+    worksheet_main.write(9, 1, "new items")
     worksheet_main.write(9, 2, dl_info['items_new'])
+    if 'items_scanned' in dl_info.keys():
+        worksheet_main.write(10, 1, "items scanned today")
+        worksheet_main.write(10, 2, dl_info['items_scanned'])
 
     instock_items = 0
     archived_items = 0
