@@ -102,13 +102,13 @@ def download_recruit(delete=False):
         col_name = 'recruit_'+gender
         collection = db[col_name]
         before_count += collection.count()
-        if delete:
-            collection.delete_many({})
-        indexes = collection.index_information().keys()
-        for idx in ['id', 'img_hash', 'categories', 'images.XLarge', 'download_data.dl_version']:
-            idx_1 = idx + '_1'
-            if idx_1 not in indexes:
-                collection.create_index(idx, background=True)
+        # if delete:
+        #     collection.delete_many({})
+        # indexes = collection.index_information().keys()
+        # for idx in ['id', 'img_hash', 'categories', 'images.XLarge', 'download_data.dl_version']:
+        #     idx_1 = idx + '_1'
+        #     if idx_1 not in indexes:
+        #         collection.create_index(idx, background=True)
         status_full_path = 'collections.'+col_name+'.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
 

@@ -70,7 +70,7 @@ def theDetector(url_or_np_array):
     predictions = classifier.predict(image_for_caffe)
     print("Done in %.2f s." % (time.time() - start))
 
-    return list(predictions[0])
+    return predictions[0]
 
     #max_result = max(predictions[0])
 
