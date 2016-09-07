@@ -117,7 +117,7 @@ def save_img_at_url(url,savename=None):
 
 
 
-def getty_dl(searchphrase,n_pages = 100):
+def getty_dl(searchphrase,n_pages = 100,savedir='./'):
 
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
@@ -149,6 +149,8 @@ def getty_dl(searchphrase,n_pages = 100):
                 savename=clean_url.split('?')[0]
                 savename=savename.split('/')[-1]
                 savename = searchphrase + savename
+                savename = os.path.join(savedir,savename)
+                Utils.ensure_dir(savedir)
                 print(savename)
                 save_img_at_url(uri,savename=savename)
         query = '?page='+str(i+1)
