@@ -151,7 +151,7 @@ def getty_dl(searchphrase,n_pages = 100):
                 savename = searchphrase + savename
                 print(savename)
                 save_img_at_url(uri,savename=savename)
-        query = '?page='+str(i)
+        query = '?page='+str(i+1)
 
 
 if __name__=="__main__":
