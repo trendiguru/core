@@ -11,6 +11,7 @@ def make_indices_onedeep(dir):
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
+    dirs.sort()
     print('dirs in '+dir+':'+str(dirs))
     for d in dirs:
         print('onedeep now making index.html for '+str(d))
@@ -36,7 +37,11 @@ def make_index(dir):
 #            htmlfiles.append(file)
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
-    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
+
+#   sort by mod time
+#    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
+    #sort alphabetically
+    htmlfiles.sort()
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
