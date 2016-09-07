@@ -31,6 +31,8 @@ products_per_ip_pid = {'default':
                                  {'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
+                       'recruit-Pilot':
+                                 {'default': 'recruit'},
                        '6t50LSJxeNEkQ42p':
                                  {'default': 'recruit'},
                        'xuSiNIs695acaHPE':

@@ -73,7 +73,11 @@ def distance(category, main_fp, candidate_fp, coll):
     if not main_fp.keys() == candidate_fp.keys():
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
-        candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
+        if len(main_fp.keys()) > len(candidate_fp.keys()):
+            main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
+        else:
+            candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
+
     d = 0
     weight_keys = constants.weights_per_category.keys()
     if category not in weight_keys:
