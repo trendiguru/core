@@ -1155,9 +1155,11 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
         else:
             length_res = length_client.get_length(image)
             if length_res['success']:
+                print("GOT TO THE REPLACEMENT")
                 image_obj['fingerprint']['length'] = length_res['data'] if isinstance(length_res['data'], list) \
                     else list(length_res['data'])
-                collection.replace_one({'_id': image_obj['_id']}, image_obj)
+                res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
+                print("modified {0} docs".format(res))
             return
     except Exception as e:
         print(e)
