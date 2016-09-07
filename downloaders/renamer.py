@@ -9,6 +9,11 @@ import numpy as np
 import requests
 from trendi import constants
 from multiprocessing import Pool
+import urllib2
+import subprocess
+import json
+from pprint  import pprint
+from cv2 import imdecode, imwrite
 
 
 def rename_goog_dirs(dir='/home/jeremy/binary_images'):
@@ -85,12 +90,6 @@ def selectsiya(dir):
             print('nothing')
         n = n + 1
 
-import urllib2
-import subprocess
-from subprocess import Popen, PIPE
-import json
-from pprint  import pprint
-from cv2 import imdecode, imwrite
 
 
 def save_img_at_url(url,savename=None):
@@ -118,7 +117,7 @@ def save_img_at_url(url,savename=None):
 
 
 
-def getty_dl(searchphrase,n_pages = 1):
+def getty_dl(searchphrase,n_pages = 100):
 
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
@@ -136,7 +135,7 @@ def getty_dl(searchphrase,n_pages = 1):
             l = len(imgs)
     #        print imgs
             print l
-            for i in range(l):
+            for j in range(l):
                 nth_img = imgs[i]
       #          print nth_img
                 ds = nth_img['display_sizes']
@@ -153,11 +152,6 @@ def getty_dl(searchphrase,n_pages = 1):
                 print(savename)
                 save_img_at_url(uri,savename=savename)
         query = '?page='+str(i)
-
-def f(x):
-    return x*x
-
-
 
 
 if __name__=="__main__":
