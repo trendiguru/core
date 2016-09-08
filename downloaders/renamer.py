@@ -118,7 +118,7 @@ def save_img_at_url(url,savename=None):
 
 
 
-def getty_dl(searchphrase,n_pages = 2,savedir=None):
+def getty_dl(searchphrase,n_pages = 2000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
