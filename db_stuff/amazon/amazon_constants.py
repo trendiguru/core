@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
