@@ -185,6 +185,7 @@ if __name__=="__main__":
             getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
     else:
         n_proc = multiprocessing.cpu_count()
+        print('nprocessors:'+str(n_proc))
         pool = multiprocessing.Pool(processes=n_proc)
         pool.map(getty_dl, items)
 
