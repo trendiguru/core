@@ -369,6 +369,8 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
             print('\t\t%s inserted' % cat_name)
 
     for child in children:
+        if type(child) != dict:
+            continue
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
