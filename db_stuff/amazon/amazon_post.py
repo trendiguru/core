@@ -83,7 +83,8 @@ def update_drive(col, cc, items_before=None, dl_duration=None):
                "dl_duration": dl_duration,
                "items_before": items_before,
                "items_after": items_after,
-               "items_new": items_new}
+               "items_new": items_new,
+               'items_scanned': items_scanned}
     mongo2xl(col_name, dl_info)
 
 
