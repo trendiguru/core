@@ -5,6 +5,8 @@ import cv2
 import random
 import logging
 logging.basicConfig(level=logging.DEBUG)
+from PIL import Image
+
 
 from trendi import constants
 from trendi.utils import imutils
@@ -89,7 +91,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile_dir = './'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/',catsfile_dir = './'):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -146,8 +148,11 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
             path = line.split()[0]
             cat = line.split()[1]
             print(cat)
-            img_arr = cv2.imread(path)
-            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            im = Image.open(path)
+            im.show()
+
+            #img_arr = cv2.imread(path)
+            #imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
