@@ -74,7 +74,7 @@ def format_price(price_float, period=False):
 
 def make_itemsearch_request(pagenum, node_id, min_price, max_price, cc, price_flag=True, print_flag=False, color='',
                             family_tree='sequoia', category=None):
-    global error_flag, last_price
+    global error_flag, last_price, log_name
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
@@ -369,9 +369,10 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
             print('\t\t%s inserted' % cat_name)
 
     for child in children:
-        print type(child)
-
-        if 'BrowseNodeId' not in child.keys():
+        try:
+            if 'BrowseNodeId' not in child.keys():
+                continue
+        except EnvironmentError:
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(p, cc, child_id, tab, False)
