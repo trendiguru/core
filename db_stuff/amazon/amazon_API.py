@@ -166,7 +166,7 @@ def process_results(col_name, pagenum, node_id, min_price, max_price, family_tre
             return -1
 
     item_list = res_dict['Item']
-    q.enqueue(insert_items, args=(col_name, item_list, items_in_page, print_flag, family_tree), timeout=5400)
+    q.enqueue(insert_items, args=(col_name, 'US', item_list, items_in_page, print_flag, family_tree), timeout=5400)
 
     return 0
 
