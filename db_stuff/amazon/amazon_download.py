@@ -296,12 +296,19 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['Operation'] = 'BrowseNodeLookup'
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
-    if tab:
-        root = root
-    elif cc == 'US':
-        root = '7141124011'
+    if cc == 'US':
+        parameters['AssociateTag'] = 'fazz0b-20'
+        parameters['SearchIndex'] = FashionGender
+        if not tab:
+            root = '7141124011'
     elif cc == 'DE':
-        root = '78689031'
+        parameters['AssociateTag'] = 'trendiguru-21'
+        parameters['SearchIndex'] = 'Apparel'
+        if not tab:
+            root = '78689031'
+    else:
+        return 0
+
     parameters['BrowseNodeId'] = root
     req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
