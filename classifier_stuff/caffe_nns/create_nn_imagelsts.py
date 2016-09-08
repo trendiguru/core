@@ -99,33 +99,34 @@ def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    with open(catsfile,'w') as fp:
-        for i in range(n_done):
-            document = cursor.next()
-            url = document['url']
-            filename = os.path.basename(url)
-            full_path = os.path.join(image_dir,filename)
-            items_list = document['items'] #
-            if items_list is None:
-                print('no items in doc')
+    for i in range(n_done):
+        document = cursor.next()
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
                 continue
-            print('items:'+str(items_list))
-            votelist = [0]*len(constants.web_tool_categories_v2)
-            for item in items_list:
-                cat = item['category']
-                if cat in constants.web_tool_categories_v2:
-                    index = constants.web_tool_categories_v2.index(cat)
-                elif cat in constants.tamara_berg_to_web_tool_dict:
-                    print('old cat being translated')
-                    cat = constants.tamara_berg_to_web_tool_dict[cat]
-                    index = constants.web_tool_categories.index(cat)
-                else:
-                    print('unrecognized cat')
-                    continue
-                votelist[index] += 1
-                print('item:'+str(cat) +' votes:'+str(votelist[index]))
-            for i in range(len(votelist)):
-                catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[index])
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        for i in range(len(votelist)):
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[index])
+            print('catrsfile:'+catsfile)
+            with open(catsfile,'w') as fp:
                 if votelist[i]==0:
                     line = str(full_path) + ' 1\n'
                     print line
@@ -133,7 +134,7 @@ def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy
                 if votelist[i] >= 2:
                     line = str(full_path) + ' 0\n'
                     print line
-
+                fp.close()
 
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
