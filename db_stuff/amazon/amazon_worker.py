@@ -17,6 +17,10 @@ pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO',
 big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF']
 
 
+def amazon_de_to_ppd(cat, sub_cat, title):
+    return cat
+
+
 def verify_by_title(title):
     title_upper = title.upper()
     if any(x in title_upper for x in big_no_no):
@@ -57,7 +61,7 @@ def verify_by_title(title):
         return ''
 
 
-def swap_amazon_to_ppd(cat, sub_cat, title):
+def amazon_usa_to_ppd(cat, sub_cat, title):
     if cat == 'Dresses':
         return 'dress'
     if cat == 'tights':
@@ -185,7 +189,7 @@ def swap_amazon_to_ppd(cat, sub_cat, title):
         return ''
 
 
-def find_paperdoll_cat(family, title):
+def find_paperdoll_cat(family, title, cc):
     leafs = re.split(r'->', family)
     category = leafs[3]
     sub_category = None
@@ -196,12 +200,21 @@ def find_paperdoll_cat(family, title):
     if len(leafs) > 5:
         sub2 = leafs[5]
         sub_category = '%s.%s' % (sub_category, sub2)
+    if cc == 'US':
+        category = amazon_usa_to_ppd(category, sub1, title)
+    elif cc == 'DE':
+        category = amazon_de_to_ppd(category, sub1, title)
 
-    category = swap_amazon_to_ppd(category, sub1, title)
     return category, sub_category
 
 
-def insert_items(collection_name, item_list, items_in_page, print_flag, family_tree):
+def update_dl_version(current_version, asin, collection_name):
+    if current_version != today_date:
+        collection = db[collection_name]
+        collection.update_one({'id': asin}, {'$set': {'download_data.dl_version': today_date}})
+
+
+def insert_items(collection_name, cc, item_list, items_in_page, print_flag, family_tree):
     collection = db[collection_name]
 
     col_name_parts = re.split(r'_', collection_name)
@@ -223,9 +236,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             if asin_exists:
                 if print_flag:
                     print_error('item exists already!')
-                dl_version = asin_exists['download_data']['dl_version']
-                if dl_version != today_date:
-                    collection.update_one({'id': asin}, {'$set': {'download_data.dl_version': today_date}})
+                update_dl_version(asin_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             if 'ParentASIN' not in item_keys:
@@ -238,46 +249,49 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             price = {'price': float(offer['Amount']) / 100,
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
+
             attributes = item['ItemAttributes']
             attr_keys = attributes.keys()
-            if 'ClothingSize' in attr_keys:
-                clothing_size = attributes['ClothingSize']
-            elif 'Size' in attr_keys:
-                clothing_size = attributes['Size']
-            else:
-                if print_flag:
-                    print_error('No Size', attr_keys)
-                continue
-
             if 'Brand' in attr_keys:
                 brand = attributes['Brand']
             else:
                 brand = 'unknown'
 
-            color = attributes['Color']
-            sizes = [clothing_size]
-
-            parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
-            if parent_asin_exists:
-                sizes = parent_asin_exists['features']['sizes']
-                dl_version = parent_asin_exists['download_data']['dl_version']
-                if dl_version != today_date:
-                    collection.update_one({'id': asin}, {'download_data.dl_version': today_date})
-                if clothing_size not in sizes:
-                    sizes.append(clothing_size)
-                    collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes,
-                                                                                        'download_data.dl_version':
-                                                                                            today_date}})
-                    if print_flag:
-                        print_error('added another size to existing item')
+            if cc == 'US':
+                if 'ClothingSize' in attr_keys:
+                    clothing_size = attributes['ClothingSize']
+                elif 'Size' in attr_keys:
+                    clothing_size = attributes['Size']
                 else:
                     if print_flag:
-                        print_error('parent_asin + color + size already exists ----- %s->%s' %
-                                    (color, clothing_size))
-                    dl_version = asin_exists['download_data']['dl_version']
-                    if dl_version != today_date:
-                        collection.update_one({'id': asin}, {'$set': {'download_data.dl_version': today_date}})
-                continue
+                        print_error('No Size', attr_keys)
+                    continue
+
+                color = attributes['Color']
+                sizes = [clothing_size]
+                parent_asin_exists = collection.find_one({'parent_asin': parent_asin, 'features.color': color})
+                if parent_asin_exists:
+                    sizes = parent_asin_exists['features']['sizes']
+                    update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
+                    if clothing_size not in sizes:
+                        sizes.append(clothing_size)
+                        collection.update_one({'_id': parent_asin_exists['_id']}, {'$set': {'features.sizes': sizes}})
+                        if print_flag:
+                            print_error('added another size to existing item')
+                    else:
+                        if print_flag:
+                            print_error('parent_asin + color + size already exists ----- %s->%s' %
+                                        (color, clothing_size))
+                        update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
+                    continue
+
+            else:
+                color = None
+                sizes = []
+                parent_asin_exists = collection.find_one({'parent_asin': parent_asin})
+                if parent_asin_exists:
+                    update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
+                    continue
 
             if 'LargeImage' in item_keys:
                 image_url = item['LargeImage']['URL']
@@ -293,6 +307,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             img_url_exists = collection.find_one({'images.XLarge': image_url})
             if img_url_exists:
                 print ('img url already exists')
+                update_dl_version(img_url_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             image = get_cv2_img_array(image_url)
@@ -305,12 +320,14 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             hash_exists = collection.find_one({'img_hash': img_hash})
             if hash_exists:
                 print ('hash already exists')
+                update_dl_version(hash_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             p_hash = get_p_hash(image)
             p_hash_exists = collection.find_one({'p_hash': p_hash})
             if p_hash_exists:
                 print ('p_hash already exists')
+                update_dl_version(p_hash_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             short_d = attributes['Title']
@@ -319,7 +336,7 @@ def insert_items(collection_name, item_list, items_in_page, print_flag, family_t
             else:
                 long_d = ''
 
-            category, sub_category = find_paperdoll_cat(family_tree, short_d)
+            category, sub_category = find_paperdoll_cat(family_tree, short_d, cc)
             if len(category) == 0:
                 category = 'unknown'
 

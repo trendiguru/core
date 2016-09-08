@@ -7,7 +7,7 @@ import xmltodict
 from requests import get
 from rq import Queue
 
-from .amazon_signature import get_amazon_signed_url
+from .signature import get_amazon_signed_url
 from .amazon_worker import insert_items
 from ...constants import db, redis_conn
 from ..general.db_utils import log2file, print_error, email
@@ -19,7 +19,6 @@ q = Queue('amazon_worker', connection=redis_conn)
 post_q = Queue('amazon_post', connection=redis_conn)
 base_parameters = {
     'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-    'AssociateTag': 'fazz0b-20',
     'Version': '2013-08-01',
     'Availability': 'Available',
     'Operation': 'ItemSearch',
@@ -73,13 +72,20 @@ def format_price(price_float, period=False):
     return price_str
 
 
-def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=True, print_flag=False, color='',
+def make_itemsearch_request(pagenum, node_id, min_price, max_price, cc, price_flag=True, print_flag=False, color='',
                             family_tree='sequoia', category=None):
-    global error_flag, last_price
+    global error_flag, last_price, log_name
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-    parameters['SearchIndex'] = FashionGender
+    if cc == 'US':
+        parameters['AssociateTag'] = 'fazz0b-20'
+        parameters['SearchIndex'] = FashionGender
+    elif cc == 'DE':
+        parameters['AssociateTag'] = 'trendiguru-21'
+        parameters['SearchIndex'] = 'Apparel'
+    else:
+        return 0
     parameters['BrowseNode'] = node_id
     if not price_flag:
         parameters['ResponseGroup'] = 'SearchBins'
@@ -98,7 +104,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
         else:
             parameters['Keywords'] = category
 
-    req = get_amazon_signed_url(parameters, 'GET', False)
+    req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
     res = get(req)
     try:
@@ -155,10 +161,10 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
     return res_dict, results_count
 
 
-def process_results(col_name, pagenum, node_id, min_price, max_price, family_tree, res_dict=None,
+def process_results(col_name, pagenum, node_id, min_price, max_price, cc, family_tree, res_dict=None,
                     items_in_page=10, print_flag=False, color='', category=None):
     if pagenum is not 1:
-        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price,
+        res_dict, new_item_count = make_itemsearch_request(pagenum, node_id, min_price, max_price, cc,
                                                            print_flag=print_flag, color=color,
                                                            family_tree=family_tree,
                                                            category=category)
@@ -166,19 +172,19 @@ def process_results(col_name, pagenum, node_id, min_price, max_price, family_tre
             return -1
 
     item_list = res_dict['Item']
-    q.enqueue(insert_items, args=(col_name, 'US', item_list, items_in_page, print_flag, family_tree), timeout=5400)
+    q.enqueue(insert_items, args=(col_name, cc, item_list, items_in_page, print_flag, family_tree), timeout=5400)
 
     return 0
 
 
-def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, family_tree,
+def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, cc, family_tree,
                           res_dict, color='', category=None):
     global last_price
     if total_pages == 1:
         num_of_items_in_page = results_count
     else:
         num_of_items_in_page = 10
-    process_results(col_name, 1, node_id, min_price, max_price, family_tree=family_tree, res_dict=res_dict,
+    process_results(col_name, 1, node_id, min_price, max_price, cc, family_tree=family_tree, res_dict=res_dict,
                     items_in_page=num_of_items_in_page, color=color, category=category)
     last_price = min_price
     for pagenum in range(2, total_pages + 1):
@@ -186,7 +192,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
             num_of_items_in_page = results_count - 10 * (pagenum - 1)
             if num_of_items_in_page < 2:
                 break
-        ret = process_results(col_name, pagenum, node_id, min_price, max_price, family_tree=family_tree,
+        ret = process_results(col_name, pagenum, node_id, min_price, max_price, cc, family_tree=family_tree,
                               items_in_page=num_of_items_in_page, color=color, category=category)
         if ret < 0:
             return
@@ -198,12 +204,12 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
     log2file(mode='a', log_filename=log_name, message=summary)
 
 
-def filter_by_color(col_name, node_id, price, family_tree, category=None):
+def filter_by_color(col_name, node_id, price, cc, family_tree, category=None):
     no_results_seq = 0
     for color in colors:
         if no_results_seq > 5:
             break
-        res_dict, results_count = make_itemsearch_request(1, node_id, price, price, color=color,
+        res_dict, results_count = make_itemsearch_request(1, node_id, price, price, cc, color=color,
                                                           family_tree=family_tree,
                                                           category=category)
         if results_count < 1:
@@ -214,19 +220,19 @@ def filter_by_color(col_name, node_id, price, family_tree, category=None):
         if total_pages < 1:
             no_results_seq += 1
             continue
-        iterate_over_pagenums(total_pages, results_count, col_name, node_id, price, price, family_tree,
+        iterate_over_pagenums(total_pages, results_count, col_name, node_id, price, price, cc, family_tree,
                               res_dict, color, category=category)
         no_results_seq = 0
     return
 
 
 def get_results(leaf_id, node_id, col_name='moshe', price_flag=True, max_price=3000.0, min_price=5.0,
-                results_count_only=False, family_tree='moshe', category=None):
+                results_count_only=False, family_tree='moshe', category=None, cc='US'):
 
     current_last_price = last_price-0.01
     if max_price < current_last_price:
         max_price = current_last_price
-    res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, price_flag=price_flag,
+    res_dict, results_count = make_itemsearch_request(1, node_id, min_price, max_price, cc, price_flag=price_flag,
                                                       family_tree=family_tree,
                                                       category=category)
     if results_count_only:
@@ -235,7 +241,9 @@ def get_results(leaf_id, node_id, col_name='moshe', price_flag=True, max_price=3
     if results_count < 2:
         return 0
 
-    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'LastPrice': max_price}})
+    category_tree_name = 'amazon_%s_category_tree' % cc
+    category_tree = db[category_tree_name]
+    category_tree.update_one({'_id': leaf_id}, {'$set': {'LastPrice': max_price}})
 
     total_pages = int(res_dict['TotalPages'])
     color_flag = False
@@ -248,46 +256,61 @@ def get_results(leaf_id, node_id, col_name='moshe', price_flag=True, max_price=3
             total_pages = 10
         elif diff <= 0.02:
             get_results(leaf_id, node_id, col_name, min_price=max_price, max_price=max_price, family_tree=family_tree,
-                        category=category)
+                        category=category, cc=cc)
             new_min_price = max_price - 0.01
             get_results(leaf_id, node_id, col_name, min_price=new_min_price, max_price=new_min_price,
-                        family_tree=family_tree, category=category)
+                        family_tree=family_tree, category=category, cc=cc)
             return 0
         else:
             mid_price = (max_price+min_price)/2.0
             mid_price_rounded = truncate_float_to_2_decimal_places(mid_price)
             get_results(leaf_id, node_id, col_name, min_price=mid_price_rounded, max_price=max_price,
-                        family_tree=family_tree, category=category)
+                        family_tree=family_tree, category=category, cc=cc)
             get_results(leaf_id, node_id, col_name, min_price=min_price, max_price=mid_price_rounded - 0.01,
-                        family_tree=family_tree, category=category)
+                        family_tree=family_tree, category=category, cc=cc)
             return 0
 
-    iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, family_tree,
+    iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_price, max_price, cc, family_tree,
                           res_dict, category=category)
 
     if color_flag:
         max_rounded = format_price(max_price, True)
         min_rounded = format_price(min_price, True)
         if max_rounded[-2:] != '01':
-            filter_by_color(col_name, node_id, max_price, family_tree=family_tree,
+            filter_by_color(col_name, node_id, max_price, cc, family_tree=family_tree,
                             category=category)
         if max_rounded != min_rounded:
-            filter_by_color(col_name, node_id, min_price, family_tree=family_tree,
+            filter_by_color(col_name, node_id, min_price, cc, family_tree=family_tree,
                             category=category)
     return 0
 
 
-def build_category_tree(parents, root='7141124011', tab=0, delete_collection=True):
+def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection=True):
 
+    category_tree_name = 'amazon_%s_category_tree' % cc
+    category_tree = db[category_tree_name]
     if delete_collection:
-        db.amazon_category_tree.delete_many({})
+        category_tree.delete_many({})
 
     parameters = base_parameters.copy()
     parameters['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
     parameters['Operation'] = 'BrowseNodeLookup'
     parameters['ResponseGroup'] = 'BrowseNodeInfo'
+    if cc == 'US':
+        parameters['AssociateTag'] = 'fazz0b-20'
+        parameters['SearchIndex'] = FashionGender
+        if not tab:
+            root = '7141124011'
+    elif cc == 'DE':
+        parameters['AssociateTag'] = 'trendiguru-21'
+        parameters['SearchIndex'] = 'Apparel'
+        if not tab:
+            root = '78689031'
+    else:
+        return 0
+
     parameters['BrowseNodeId'] = root
-    req = get_amazon_signed_url(parameters, 'GET', False)
+    req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
     res = get(req)
 
@@ -311,7 +334,7 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         return name
 
     node_id = res_dict['BrowseNodeId']
-    result_count = get_results(0, node_id, price_flag=False, results_count_only=True)
+    result_count = get_results(0, node_id, price_flag=False, results_count_only=True, cc=cc)
 
     leaf = {'Name': name,
             'BrowseNodeId': node_id,
@@ -336,7 +359,7 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
         p.append(name)
 
     if node_id == '1040660' or node_id == '1040658':
-        db.amazon_category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
+        category_tree.delete_many({'BrowseNodeId': node_id, 'Name': {'$in': ['tights', 'stockings']}})
         for cat_name in ['tights', 'stockings']:
             leaf_tmp = leaf.copy()
             leaf_tmp['Name'] = cat_name
@@ -346,36 +369,48 @@ def build_category_tree(parents, root='7141124011', tab=0, delete_collection=Tru
             print('\t\t%s inserted' % cat_name)
 
     for child in children:
-        if 'BrowseNodeId' not in child.keys():
+        try:
+            if 'BrowseNodeId' not in child.keys():
+                continue
+        except EnvironmentError:
             continue
         child_id = child['BrowseNodeId']
-        child_name = build_category_tree(p, child_id, tab, False)
+        child_name = build_category_tree(p, cc, child_id, tab, False)
+
         if child_name is None:
             print_error('try again')
-            child_name = build_category_tree(p, child_id, tab, False)
+            child_name = build_category_tree(p, cc, child_id, tab, False)
 
         leaf['Children']['names'].append((child_id, child_name))
 
-    db.amazon_category_tree.delete_one({'BrowseNodeId': node_id, 'Name': name})
-    db.amazon_category_tree.insert_one(leaf)
+    category_tree.delete_one({'BrowseNodeId': node_id, 'Name': name})
+    category_tree.insert_one(leaf)
     return name
 
 
-def download_all(col_name, gender='Female'):
+def download_all(col_name, cc, gender):
     global error_flag, last_price, log_name
     collection = db[col_name]
 
     # we will need that for querying the category tree
     if gender is 'Female':
-        parent_gender = 'Women'
+        if cc == 'DE':
+            parent_gender = 'Damen'
+        else:
+            parent_gender = 'Women'
     else:
-        parent_gender = 'Men'
+        if cc == 'DE':
+            parent_gender = 'Herren'
+        else:
+            parent_gender = 'Men'
 
+    category_tree_name = 'amazon_%s_category_tree' % cc
+    category_tree = db[category_tree_name]
     # retrieve all the leaf nodes which hadn't been processed yet - assuming the higher branches has too many items
-    leafs_cursor = db.amazon_category_tree.find({'Children.count': 0,
-                                                 'Parents': parent_gender,
-                                                 'Status': {'$ne': 'done'},
-                                                 'CurrentRound': {'$lt': 10}})
+    leafs_cursor = category_tree.find({'Children.count': 0,
+                                       'Parents': parent_gender,
+                                       'Status': {'$ne': 'done'},
+                                       'CurrentRound': {'$lt': 10}})
 
     leafs = [x for x in leafs_cursor]  # change the cursor into a list
     status_title = '%s download started on %s' % (col_name, today_date)
@@ -393,13 +428,13 @@ def download_all(col_name, gender='Female'):
             items_downloaded = leaf['TotalDownloaded']
             if status != 'done':
                 if status == 'waiting':
-                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'working'},
-                                                                          '$inc': {'CurrentRound': 1}})
+                    category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'working'},
+                                                                '$inc': {'CurrentRound': 1}})
                     cache_msg = '%d/%d) node id: %s -> name: %s starting download' \
                                 % (x, total_leafs, node_id, name)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
                 elif last_price_downloaded > 5.00:
-                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$inc': {'CurrentRound': 1}})
+                    category_tree.update_one({'_id': leaf_id}, {'$inc': {'CurrentRound': 1}})
                     cache_msg = '%d/%d) node id: %s -> name: %s didn\'t finish -> continuing from %.2f' \
                                 % (x, total_leafs, node_id, name, last_price_downloaded)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
@@ -407,7 +442,7 @@ def download_all(col_name, gender='Female'):
                 else:
                     cache_msg = '%d/%d) node id: %s -> name: %s already downloaded!' % (x, total_leafs, node_id, name)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
-                    db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'done'}})
+                    category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'done'}})
                     continue
 
             leaf_name = '->'.join(leaf['Parents']) + '->' + name
@@ -422,7 +457,7 @@ def download_all(col_name, gender='Female'):
                     category_name = None
 
                 get_results(leaf_id, node_id, col_name, max_price=last_price_downloaded, results_count_only=False,
-                            family_tree=leaf_name, category=category_name)
+                            family_tree=leaf_name, category=category_name, cc=cc)
 
                 if error_flag:
                     error_flag = False
@@ -432,7 +467,7 @@ def download_all(col_name, gender='Female'):
                 finished_msg = '%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded' \
                                % (x, total_leafs, node_id, name, downloaded)
                 log2file(mode='a', log_filename=log_name, message=finished_msg, print_flag=True)
-                db.amazon_category_tree.update_one({'_id': leaf_id},
+                category_tree.update_one({'_id': leaf_id},
                                                    {'$set': {'Status': 'done',
                                                              'LastPrice': 5.00}})
             except StandardError as e:
@@ -443,11 +478,11 @@ def download_all(col_name, gender='Female'):
 
             after_count = collection.count({'download_data.dl_version': today_date})
             items_downloaded += after_count - before_count
-            db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'TotalDownloaded': items_downloaded}})
+            category_tree.update_one({'_id': leaf_id}, {'$set': {'TotalDownloaded': items_downloaded}})
 
-        leafs_cursor = db.amazon_category_tree.find({'Children.count': 0,
-                                                     'Parents': parent_gender,
-                                                     'Status': {'$ne': 'done'}})
+        leafs_cursor = category_tree.find({'Children.count': 0,
+                                           'Parents': parent_gender,
+                                           'Status': {'$ne': 'done'}})
         leafs = [x for x in leafs_cursor]
         total_leafs = len(leafs)
         if total_leafs:
@@ -472,7 +507,7 @@ def download_by_gender(gender, cc):
     # start the downloading process
     status_full_path = 'collections.' + col_name + '.status'
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
-    download_all(col_name=col_name, gender=gender)
+    download_all(col_name=col_name, cc=cc, gender=gender)
     db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: 'POST'}})
     post_q.enqueue(post_download, args=(col_name, gender, cc, log_name), timeout=10000)
 
@@ -508,30 +543,32 @@ if __name__ == "__main__":
     daily = user_input.daily_update
     # verify valid country code
     cc_upper = c_c.upper()
-    if cc_upper != 'US':
-        print("bad input - for now only working on US")
+    if cc_upper != 'US' and cc_upper != 'DE':
+        print("bad input - for now only working on US and DE")
         sys.exit(1)
 
+    collection_name = 'amazon_%s' % cc_upper
+    tree_name = 'amazon_%s_category_tree' % cc_upper
+    tree_collection = db[tree_name]
     # every fresh start its a good idea to build from scratch the category tree
     if build_tree:
-        build_category_tree([])
-        db.amazon_category_tree.delete_many({'Name': 'Clothing'})
+        build_category_tree([], cc_upper)
+        tree_collection.delete_many({'Name': 'Clothing'})
 
     elif delete_cache:
-        db.amazon_category_tree.update_many({'Children.count': 0},
-                                            {'$set': {'LastPrice': 3000.00,
-                                                      'Status': 'waiting',
-                                                      'TotalDownloaded': 0}})
+        tree_collection.update_many({'Children.count': 0},
+                                    {'$set': {'LastPrice': 3000.00,
+                                              'Status': 'waiting',
+                                              'TotalDownloaded': 0}})
     else:
         pass
 
-    collection_name = 'amazon_%s' % cc_upper
     if update_drive_only:
         update_drive('amazon', cc_upper)
     elif daily:
         for gen in ['Female', 'Male']:
             col = 'amazon_%s_%s' % (cc_upper, gen)
-            daily_amazon_updates(col, gen)
+            daily_amazon_updates(col, gen, cc=cc_upper)
     else:
         # detect & convert gender to our word styling
         gender_upper = col_gender.upper()

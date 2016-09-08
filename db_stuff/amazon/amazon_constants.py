@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
@@ -49,7 +50,9 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
              'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
-             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
+             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters',
+             u"Nachtwäsche & Bademäntel", u"Socken & Strümpfe", 'Umstandskleidung', u"Unterwäsche & Dessous",
+             u"Mädchen", u"Jungen", u"Spezielle Anlässe & Arbeitskleidung", 'Accessoires']
 
 log_dir = '/home/developer/yonti/'
 log_name = '/home/developer/yonti/amazon_download_stats.log'

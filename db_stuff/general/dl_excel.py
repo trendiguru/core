@@ -84,7 +84,10 @@ def mongo2xl(collection_name, dl_info):
     #     filename = 'empty'
 
     try:
-        filename = re.split("_", collection_name)[0]
+        name_parts = re.split("_", collection_name)
+        filename = name_parts[0]
+        if filename == 'amazon':
+            filename += '_' + name_parts[1]
     except StandardError as e:
         print (e)
         return

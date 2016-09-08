@@ -31,7 +31,7 @@ products_per_ip_pid = {'default':
                                  {'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
-                       'recruit-Pilot':
+                       'recruit-pilot':
                                  {'default': 'recruit'},
                        '6t50LSJxeNEkQ42p':
                                  {'default': 'recruit'},
@@ -42,7 +42,9 @@ products_per_ip_pid = {'default':
                        "robsdemartino@yahoo.it":
                                  {'default': 'amazon_US'},
                        "mz1_ND":
-                                 {'default': 'amazon_US', 'US': 'amazon_US'}
+                                 {'default': 'amazon_US', 'US': 'amazon_US'},
+                       "stylebook":
+                                 {'default': 'xl'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
