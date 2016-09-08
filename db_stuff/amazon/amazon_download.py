@@ -555,7 +555,6 @@ if __name__ == "__main__":
     tree_collection = db[tree_name]
     # every fresh start its a good idea to build from scratch the category tree
     if build_tree:
-        global log_dir_name, log_name
         tmp_name = 'amazon_%s_%s' % (cc_upper, 'Category_tree')
 
         log_name = log_dir_name + tmp_name + '.log'
