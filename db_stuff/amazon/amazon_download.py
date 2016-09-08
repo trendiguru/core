@@ -373,6 +373,8 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(p, child_id, cc, tab, False)
+        print (child_name)
+
         if child_name is None:
             print_error('try again')
             child_name = build_category_tree(p, child_id, cc, tab, False)
