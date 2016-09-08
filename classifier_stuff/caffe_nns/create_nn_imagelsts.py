@@ -123,16 +123,17 @@ def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy
                 continue
             votelist[index] += 1
             print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
         for i in range(len(votelist)):
-            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[index])
-            print('catrsfile:'+catsfile)
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i])
+            print('catsfile:'+catsfile)
             with open(catsfile,'w') as fp:
                 if votelist[i]==0:
-                    line = str(full_path) + ' 1\n'
+                    line = str(full_path) + ' 0\n'
                     print line
 #                    fp.write(line+'\n')
                 if votelist[i] >= 2:
-                    line = str(full_path) + ' 0\n'
+                    line = str(full_path) + ' 1\n'
                     print line
                 fp.close()
 
