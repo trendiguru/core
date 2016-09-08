@@ -129,13 +129,13 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
             print('catsfile:'+catsfile)
             with open(catsfile,'a') as fp:
                 if votelist[i]==0:
-                    line = str(full_path) + ' 0\n'
+                    line = str(full_path) + ' 0'
                     print line
-                    fp.write(line+'\n')
+                    fp.write(line)
                 if votelist[i] >= 2:
-                    line = str(full_path) + ' 1\n'
+                    line = str(full_path) + ' 1'
                     print line
-                    fp.write(line+'\n')
+                    fp.write(line)
                 fp.close()
 
 
