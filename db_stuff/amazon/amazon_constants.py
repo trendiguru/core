@@ -50,7 +50,7 @@ blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep &
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
              'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
              'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters',
-             'Nachtwäsche', 'Socken', 'Umstandskleidung', 'Unterwäsche', 'Dessous' ]
+             u"Nachtwäsche", 'Socken', 'Umstandskleidung', u"Unterwäsche", 'Dessous' ]
 
 log_dir = '/home/developer/yonti/'
 log_name = '/home/developer/yonti/amazon_download_stats.log'
