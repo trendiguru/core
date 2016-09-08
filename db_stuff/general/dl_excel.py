@@ -219,7 +219,7 @@ def mongo2xl(collection_name, dl_info):
 
     worksheet_main.write(3, 2, instock_items)
     worksheet_main.write(4, 2, archived_items)
-    if filename == 'amazon':
+    if 'amazon' in filename:
         merge_format = workbook.add_format({'align': 'center'})
         current_worksheet = workbook.add_worksheet('categories_tree')
         category_tree_status(current_worksheet, merge_format, bold)
