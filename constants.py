@@ -1,5 +1,4 @@
 import os
-
 import cv2
 import pymongo
 from redis import Redis
@@ -110,8 +109,7 @@ neurodooll_queuename = 'neurodoll'
 #environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
 
 # to do the portforwards required to make this work:
-#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
-#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
