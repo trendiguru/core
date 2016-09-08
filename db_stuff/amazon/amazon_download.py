@@ -372,12 +372,11 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
         if 'BrowseNodeId' not in child.keys():
             continue
         child_id = child['BrowseNodeId']
-        child_name = build_category_tree(p, child_id, cc, tab, False)
-        print (child_name)
+        child_name = build_category_tree(p, cc, child_id, tab, False)
 
         if child_name is None:
             print_error('try again')
-            child_name = build_category_tree(p, child_id, cc, tab, False)
+            child_name = build_category_tree(p, cc, child_id, tab, False)
 
         leaf['Children']['names'].append((child_id, child_name))
 
