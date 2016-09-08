@@ -106,40 +106,40 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, price_flag=T
             err_msg = 'not 200!'
             error_flag = True
             sleep(5)
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         last_price = min_price
         res_dict = dict(xmltodict.parse(res.text))
         if 'ItemSearchResponse' not in res_dict.keys():
             err_msg = 'No ItemSearchResponse'
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         res_dict = dict(res_dict['ItemSearchResponse']['Items'])
         res_keys = res_dict.keys()
         if 'Errors' in res_keys:
             err_msg = 'Error'
             error_flag = True
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         if 'TotalResults' in res_keys:
             results_count = int(res_dict['TotalResults'])
         else:
             err_msg = 'no TotalResults'
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         if results_count == 0:
             err_msg = 'no results for price_range'
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         if 'Item' not in res_keys:
             err_msg = 'no Item keys in results.items'
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
         if 'TotalPages' not in res_dict.keys():
             err_msg = 'no TotalPages in dict keys'
-            raise ValueError(err_msg)
+            raise Warning(err_msg)
 
-    except ValueError as e:
+    except Warning as e:
         results_count = 0
         summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
                   % (family_tree, min_price, max_price, e.message)
@@ -412,7 +412,7 @@ def download_all(col_name, gender='Female'):
 
             leaf_name = '->'.join(leaf['Parents']) + '->' + name
 
-            before_count = collection.count()
+            before_count = collection.count({'download_data.dl_version': today_date})
             try:
                 if name == 'stockings':
                     category_name = 'Stockings'
@@ -426,20 +426,22 @@ def download_all(col_name, gender='Female'):
 
                 if error_flag:
                     error_flag = False
-                    raise NameError('probably bad request - will be sent for fresh try')
+                    raise StandardError('probably bad request - will be sent for fresh try')
+                after_count = collection.count({'download_data.dl_version': today_date})
+                downloaded = after_count - before_count
                 finished_msg = '%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded' \
-                               % (x, total_leafs, node_id, name, items_downloaded)
+                               % (x, total_leafs, node_id, name, downloaded)
                 log2file(mode='a', log_filename=log_name, message=finished_msg, print_flag=True)
                 db.amazon_category_tree.update_one({'_id': leaf_id},
                                                    {'$set': {'Status': 'done',
                                                              'LastPrice': 5.00}})
-            except NameError as e:
+            except StandardError as e:
                 error_msg1 = 'ERROR! : node id: %s -> name: %s failed!' % (node_id, name)
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
                 error_msg2 = e.message
                 log2file(mode='a', log_filename=log_name, message=error_msg2, print_flag=True)
 
-            after_count = collection.count()
+            after_count = collection.count({'download_data.dl_version': today_date})
             items_downloaded += after_count - before_count
             db.amazon_category_tree.update_one({'_id': leaf_id}, {'$set': {'TotalDownloaded': items_downloaded}})
 
