@@ -160,7 +160,7 @@ def getty_dl(searchphrase,n_pages = 100,savedir='./'):
             savename = searchphrase + savename
             savename = os.path.join(savedir,savename)
             Utils.ensure_dir(savedir)
-            print(savename)
+#            print(savename)
             save_img_at_url(uri,savename=savename)
         query = '?page='+str(i+1)
 
