@@ -76,7 +76,7 @@ def log2file(mode, log_filename, message='', print_flag=True):
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
     if type(message) == unicode:
-        unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
+        message = unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
     if type(message) != str:
         message = str(message)
     if len(message):
