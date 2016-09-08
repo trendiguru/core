@@ -301,9 +301,9 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
     elif cc == 'US':
         root = '7141124011'
     elif cc == 'DE':
-        root = ''
+        root = '78689031'
     parameters['BrowseNodeId'] = root
-    req = get_amazon_signed_url(parameters, cc,'GET', False)
+    req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
     res = get(req)
 

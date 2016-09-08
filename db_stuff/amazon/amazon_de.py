@@ -123,8 +123,8 @@ def test_run(operation='ItemSearch', searchindex='FashionWomen', itempage='1', t
 
     if keywords:
         parameters['Keywords'] = raw_input('enter keywords to filter by -> ')
-    # parameters['Operation'] = 'BrowseNodeLookup'
-    # parameters['ResponseGroup'] = 'BrowseNodeInfo'
-    # parameters['BrowseNodeId'] = 1981665031
+    parameters['Operation'] = 'BrowseNodeLookup'
+    parameters['ResponseGroup'] = 'BrowseNodeInfo'
+    parameters['BrowseNodeId'] = 78689031
     get_amazon_signed_url(parameters, 'GET')
 
