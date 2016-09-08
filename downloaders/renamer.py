@@ -4,6 +4,17 @@ __author__ = 'jeremy'
 import os
 from trendi import Utils
 import cv2
+import urllib
+import numpy as np
+import requests
+from trendi import constants
+from multiprocessing import Pool
+import urllib2
+import subprocess
+import json
+from pprint  import pprint
+from cv2 import imdecode, imwrite
+
 
 def rename_goog_dirs(dir='/home/jeremy/binary_images'):
     dirs = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
@@ -79,36 +90,78 @@ def selectsiya(dir):
             print('nothing')
         n = n + 1
 
-import urllib2
-import subprocess
-from subprocess import Popen, PIPE
-import json
-from pprint  import pprint
 
-def getty_dl(searchphrase):
 
-    for i in range(n_calls):
-        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?phrase='+searchphrase+'" > resout.txt'
+def save_img_at_url(url,savename=None):
+    # download the image, convert it to a NumPy array, and then save
+    # it into OpenCV format using last part of url (will overwrite imgs of same name at different url)
+    if not savename:
+        savename = url.split('?')[0]
+    img_arr = Utils.get_cv2_img_array(url)
+    print('name:'+savename)
+    cv2.imwrite(savename,img_arr)
+    return img_arr
+
+
+    if url.count('jpg') > 1:
+        print('np jpg here captain')
+        return None
+    resp = requests.get(url)
+    print resp
+#    resp = urllib.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    if image.size == 0:
+        return None
+    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    # return the image
+
+
+
+def getty_dl(searchphrase,n_pages = 100,savedir='./'):
+
+    cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
+    res = subprocess.call(cmd,shell=True)
+    query = '?phrase='+searchphrase
+    for i in range(n_pages):
+        print query
+        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > resout.txt'
+        print cmd
         res = subprocess.call(cmd,shell=True)
         with open('resout.txt','r') as f:
             d = json.load(f)
             f.close()
-            pprint(d)
+ #           pprint(d)
             imgs = d['images']
             l = len(imgs)
     #        print imgs
             print l
-            for i in range(l):
-                nth_img = imgs[i]
+            for j in range(l):
+                nth_img = imgs[j]
       #          print nth_img
                 ds = nth_img['display_sizes']
     #            print ds
                 first = ds[0]
      #           print first
                 uri = first['uri']
-                print uri
-
+#                print uri
+                clean_url = uri.split('?')[0]
+#                print(clean_url)
+                savename=clean_url.split('?')[0]
+                savename=savename.split('/')[-1]
+                savename = searchphrase + savename
+                savename = os.path.join(savedir,savename)
+                Utils.ensure_dir(savedir)
+                print(savename)
+                save_img_at_url(uri,savename=savename)
+        query = '?page='+str(i+1)
 
 
 if __name__=="__main__":
-    getty_dl('shoes')
+    items = constants.binary_cats
+#    items = [1,2,3]
+#    with Pool(4) as p:
+#    items = [items[0],items[1]]
+#    p = Pool(len(items))
+#    p.map(getty_dl, items)
+    for i in range(len(items)):
+        getty_dl(items[i],n_pages=1000)

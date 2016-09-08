@@ -8,6 +8,7 @@ __author__ = 'jeremy'
 import logging
 import rq
 import cv2
+import sys
 from bson import objectid, ObjectId
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1131,6 +1132,7 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
     rel_cats = set([cat for cat in constants.features_per_category.keys() if 'length' in constants.features_per_category[cat]])
     collection = db[col_name]
     print("GOT INTO LENGTH_REPLACE, REL_CATS : {0}".format(rel_cats))
+    sys.stdout.flush()
     try:
         image = Utils.get_cv2_img_array(img_url)
         if image is None:
@@ -1157,9 +1159,11 @@ def parallel_length_and_replace(image_obj_id, col_name, img_url):
             length_res = length_client.get_length(image)
             print("GOT TO AFTER LENGTH WITH {0}".format(length_res['data']))
             if length_res['success']:
-                print("GOT TO THE REPLACEMENT")
-                image_obj['fingerprint']['length'] = length_res['data'] if isinstance(length_res['data'], list) \
-                    else list(length_res['data'])
+                if not isinstance(length_res['data'], list):
+                    list_res = length_res['data'].tolist()
+                else:
+                    list_res = length_res['data']
+                image_obj['fingerprint']['length'] = list_res
                 res = collection.replace_one({'_id': image_obj['_id']}, image_obj).modified_count
                 print("modified {0} docs".format(res))
             return
