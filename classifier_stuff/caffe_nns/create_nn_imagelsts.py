@@ -103,6 +103,12 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
     print(str(n_done)+' docs done')
     for i in range(n_done):
         document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document.['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
