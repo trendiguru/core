@@ -372,7 +372,8 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
         try:
             if 'BrowseNodeId' not in child.keys():
                 continue
-        except EnvironmentError:
+        except Exception:
+            print (child)
             continue
         child_id = child['BrowseNodeId']
         child_name = build_category_tree(p, cc, child_id, tab, False)
