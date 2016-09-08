@@ -106,7 +106,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
         if not 'already_seen_image_level' in document:
             print('no votes for this doc')
             continue
-        if document.['already_seen_image_level']<2:
+        if document['already_seen_image_level']<2:
             print('not enough votes for this doc')
             continue
         url = document['url']
