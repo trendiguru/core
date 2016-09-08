@@ -149,12 +149,12 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, cc, price_fl
 
     except Warning as e:
         results_count = 0
-        summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s '\
+        summary = u"Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %s "\
                   % (family_tree, min_price, max_price, e.message)
         if print_flag:
             print_error(e.message)
         if color_flag:
-            summary += '(color -> %s)' % color
+            summary += u"(color -> %s)" % color
         log2file(mode='a', log_filename=log_name, message=summary)
         if e.message == 'no TotalResualts':
             results_count = -1
@@ -199,7 +199,7 @@ def iterate_over_pagenums(total_pages, results_count, col_name, node_id, min_pri
         if ret < 0:
             return
 
-    summary = 'Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %d ' \
+    summary = u"Name: %s, PriceRange: %.2f -> %.2f , ResultCount: %d " \
               % (family_tree, min_price, max_price, results_count)
     if len(color):
         summary += '(color -> %s)' % color
@@ -433,17 +433,17 @@ def download_all(col_name, cc, gender):
                 if status == 'waiting':
                     category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'working'},
                                                                 '$inc': {'CurrentRound': 1}})
-                    cache_msg = '%d/%d) node id: %s -> name: %s starting download' \
+                    cache_msg = u"%d/%d) node id: %s -> name: %s starting download" \
                                 % (x, total_leafs, node_id, name)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
                 elif last_price_downloaded > 5.00:
                     category_tree.update_one({'_id': leaf_id}, {'$inc': {'CurrentRound': 1}})
-                    cache_msg = '%d/%d) node id: %s -> name: %s didn\'t finish -> continuing from %.2f' \
+                    cache_msg = u"%d/%d) node id: %s -> name: %s didn\'t finish -> continuing from %.2f" \
                                 % (x, total_leafs, node_id, name, last_price_downloaded)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
 
                 else:
-                    cache_msg = '%d/%d) node id: %s -> name: %s already downloaded!' % (x, total_leafs, node_id, name)
+                    cache_msg = u"%d/%d) node id: %s -> name: %s already downloaded!" % (x, total_leafs, node_id, name)
                     log2file(mode='a', log_filename=log_name, message=cache_msg, print_flag=True)
                     category_tree.update_one({'_id': leaf_id}, {'$set': {'Status': 'done'}})
                     continue
@@ -467,14 +467,14 @@ def download_all(col_name, cc, gender):
                     raise StandardError('probably bad request - will be sent for fresh try')
                 after_count = collection.count({'download_data.dl_version': today_date})
                 downloaded = after_count - before_count
-                finished_msg = '%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded' \
+                finished_msg = u"%d/%d) node id: %s -> name: %s download done -> %d new_items downloaded" \
                                % (x, total_leafs, node_id, name, downloaded)
                 log2file(mode='a', log_filename=log_name, message=finished_msg, print_flag=True)
                 category_tree.update_one({'_id': leaf_id},
                                                    {'$set': {'Status': 'done',
                                                              'LastPrice': 5.00}})
             except StandardError as e:
-                error_msg1 = 'ERROR! : node id: %s -> name: %s failed!' % (node_id, name)
+                error_msg1 = u"ERROR! : node id: %s -> name: %s failed!" % (node_id, name)
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
                 error_msg2 = e.message
                 log2file(mode='a', log_filename=log_name, message=error_msg2, print_flag=True)
