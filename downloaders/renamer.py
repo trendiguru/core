@@ -13,6 +13,7 @@ from multiprocessing import Pool
 import urllib2
 import subprocess
 import json
+import time
 from pprint  import pprint
 from cv2 import imdecode, imwrite
 
@@ -146,6 +147,7 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
 #        print imgs
         print l
         for j in range(l):
+            time.sleep(0.01)
             nth_img = imgs[j]
   #          print nth_img
             if not 'display_sizes' in nth_img:
