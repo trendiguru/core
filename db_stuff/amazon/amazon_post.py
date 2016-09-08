@@ -67,7 +67,7 @@ def clear_duplicates(col_name):
 
 
 def update_drive(col, cc, items_before=None, dl_duration=None):
-    items_after = items_new = items_scanned =  0
+    items_after = items_new = items_scanned = 0
     for gender in ['Female', 'Male']:
         if col == 'amazon':
             col_name = '%s_%s_%s' %(col, cc, gender)
@@ -190,13 +190,14 @@ def daily_amazon_updates(col_name, gender, all_cats=False, cc='US', skip_refresh
     # upload file to drive
     update_drive('amazon', cc)
 
-    # update plus size
     col_upper = col_name.upper()
     print_error('%s DOWNLOAD FINISHED' % col_upper)
 
-    update_plus_size_collection(gender, amazon_categories_list, cc, skip_refresh)
-    plus = col_upper + ' PLUS SIZE'
-    print_error('%s FINISHED' % plus)
+    # update plus size
+    if cc == 'US':
+        update_plus_size_collection(gender, amazon_categories_list, cc, skip_refresh)
+        plus = col_upper + ' PLUS SIZE'
+        print_error('%s FINISHED' % plus)
     return
 
 

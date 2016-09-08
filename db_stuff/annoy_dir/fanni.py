@@ -37,8 +37,8 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         db[col_name].update_many({'categories': category}, {'$rename': {"AnnoyIndex_tmp": "AnnoyIndex"}})
 
     """
-    for now the tree is saved only on the database server
-    >>> the search can only run on database!!!
+    for now the tree is saved only on the annoy server
+    >>> the search can only run on that server!!!
     """
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
@@ -121,7 +121,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
 
 
 def load_all_forests():
-    base = '/home/developer/annpyJungle'
+    base = '/home/developer/annoyJungle'
     tmp = os.listdir(base)
     fs = []
     for dir_name in tmp:

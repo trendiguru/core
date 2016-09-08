@@ -5,12 +5,6 @@ import re
 import time
 
 
-# male node id = 1981298031
-# female node id = 1981665031
-# female cloth - top category = 1981721031
-# female cloth - bottom category = 77028031
-
-
 def sort_by_ascii_value(left, right):
     if not len(left) and not len(right):
         return 0
@@ -39,7 +33,7 @@ def encode_me(string_2_encode):
     return string_2_encode
 
 
-def create_signature(parameters, aws_secret_access_key, get_or_post):
+def create_signature(parameters, aws_secret_access_key, message):
     """
     1. rewrites the parameters dict as a string
     2. encodes whatever is needed
@@ -47,7 +41,6 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     """
     keys = parameters.keys()
     keys.sort(sort_by_ascii_value)
-    message = get_or_post + '\n' + 'webservices.amazon.de' + '\n' + '/onca/xml' + '\n'
     params = ''
     for key in keys:
         value = parameters[key]
@@ -61,7 +54,7 @@ def create_signature(parameters, aws_secret_access_key, get_or_post):
     return params, signature_encoded
 
 
-def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
+def get_amazon_signed_url(parameters, cc, get_or_post='GET', print_flag=True):
     """
     example parameters:
         aws_access_key = 'your_aws_access_key'  # DONT FORGET
@@ -88,8 +81,18 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
     """
 
     aws_secret_access_key = 'r82svvj4F8h6haYZd3jU+3HkChrW3j8RGcW7WXRK'
-    parameters, signature = create_signature(parameters, aws_secret_access_key, get_or_post)
-    url = 'http://webservices.amazon.de/onca/xml?'
+    if cc == 'US':
+        address = 'com'
+    elif cc == 'DE':
+        address = 'de'
+    else:
+        return None
+
+    message = get_or_post + '\n' + 'webservices.amazon.' + address + '\n' + '/onca/xml' + '\n'
+    url = 'http://webservices.amazon.' + address + '/onca/xml?'
+
+    parameters, signature = create_signature(parameters, aws_secret_access_key, message)
+
     amazon_signed_url = url+parameters+'Signature='+signature
     if print_flag:
         print(amazon_signed_url)
@@ -97,25 +100,25 @@ def get_amazon_signed_url(parameters, get_or_post='GET', print_flag=True):
 
 
 def test_run(operation='ItemSearch', searchindex='FashionWomen', itempage='1', true4onlynode=True,
-             node_id='1981721031', min_max=True, keywords=False):
+             node_id='2346727011', min_max=True, keywords=False):
 
     base_params = {
         'AWSAccessKeyId': 'AKIAIQJZVKJKJUUC4ETA',
-        'AssociateTag': 'trendiguru-21',  # '''fazz0b-20',
+        'AssociateTag': 'fazz0b-20',
         'Availability': 'Available',
         'Timestamp': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         'Service': 'AWSECommerceService',
         'Operation': operation,
-        'SearchIndex': 'Apparel' , # searchindex,
-        # 'ItemPage': itempage,
+        'SearchIndex': searchindex,
+        'ItemPage': itempage,
         'ResponseGroup': 'ItemAttributes, OfferSummary,Images'}
 
     parameters = base_params.copy()
     if true4onlynode:
-        parameters['BrowseNode'] = 1981665031
+        parameters['BrowseNode'] = node_id
     else:
         parameters['BrowseNodeId'] = 'node_id'
-        parameters['ResponseGroup'] = 'BrowseNodes'
+        parameters['ResponseGroup'] = 'BrowseNodeInfo'
 
     if min_max:
         parameters['MaximumPrice'] = raw_input('enter max price($10.00 -> 1000)')
@@ -123,8 +126,6 @@ def test_run(operation='ItemSearch', searchindex='FashionWomen', itempage='1', t
 
     if keywords:
         parameters['Keywords'] = raw_input('enter keywords to filter by -> ')
-    # parameters['Operation'] = 'BrowseNodeLookup'
-    # parameters['ResponseGroup'] = 'BrowseNodeInfo'
-    # parameters['BrowseNodeId'] = 1981665031
+
     get_amazon_signed_url(parameters, 'GET')
 
