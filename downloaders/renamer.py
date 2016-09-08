@@ -131,28 +131,37 @@ def getty_dl(searchphrase,n_pages = 100,savedir='./'):
             d = json.load(f)
             f.close()
  #           pprint(d)
-            imgs = d['images']
-            l = len(imgs)
-    #        print imgs
-            print l
-            for j in range(l):
-                nth_img = imgs[j]
-      #          print nth_img
-                ds = nth_img['display_sizes']
-    #            print ds
-                first = ds[0]
-     #           print first
-                uri = first['uri']
+        if not d:
+            print('no file found')
+            continue
+        if not 'images' in d:
+            print('no images field in result, continuing')
+            continue
+        imgs = d['images']
+        l = len(imgs)
+#        print imgs
+        print l
+        for j in range(l):
+            nth_img = imgs[j]
+  #          print nth_img
+            if not 'display_sizes' in nth_img:
+                print('no display sizes field found, continuing')
+                continue
+            ds = nth_img['display_sizes']
+#            print ds
+            first = ds[0]
+ #           print first
+            uri = first['uri']
 #                print uri
-                clean_url = uri.split('?')[0]
+            clean_url = uri.split('?')[0]
 #                print(clean_url)
-                savename=clean_url.split('?')[0]
-                savename=savename.split('/')[-1]
-                savename = searchphrase + savename
-                savename = os.path.join(savedir,savename)
-                Utils.ensure_dir(savedir)
-                print(savename)
-                save_img_at_url(uri,savename=savename)
+            savename=clean_url.split('?')[0]
+            savename=savename.split('/')[-1]
+            savename = searchphrase + savename
+            savename = os.path.join(savedir,savename)
+            Utils.ensure_dir(savedir)
+            print(savename)
+            save_img_at_url(uri,savename=savename)
         query = '?page='+str(i+1)
 
 
@@ -164,4 +173,4 @@ if __name__=="__main__":
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
     for i in range(len(items)):
-        getty_dl(items[i],n_pages=1000)
+        getty_dl(items[i],n_pages=1000,savedir = items[i])
