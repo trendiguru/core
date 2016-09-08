@@ -89,7 +89,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile_dir = './'):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -99,50 +99,55 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    with open(catsfile,'w') as fp:
-        for i in range(n_done):
-            document = cursor.next()
-            url = document['url']
-            filename = os.path.basename(url)
-            full_path = os.path.join(image_dir,filename)
-            items_list = document['items'] #
-            if items_list is None:
-                print('no items in doc')
-                continue
-            hotlist = np.zeros(len(constants.web_tool_categories))
-            for item in items_list:
-                cat = item['category']
-                if cat in constants.web_tool_categories_v2:
-                    index = constants.web_tool_categories_v2.index(cat)
-                elif cat in constants.tamara_berg_to_web_tool_dict:
-                        cat = constants.tamara_berg_to_web_tool_dict[cat]
-                        index = constants.web_tool_categories.index(cat)
-                else:
-                    print('unrecognized cat')
-                hotlist[index] = 1
-                print('item:'+str(cat))
-            print('hotlist:'+str(hotlist))
-            line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
-            fp.write(line+'\n')
-
-
-            totlist = {}
-
-            if cat in totlist:
-                totlist[cat] += 1
-            else:
-                totlist[cat] = 1
-        print('totlist:'+str(totlist))
-        if totlist == {}:
-            print('totlist is {}')
+    for i in range(n_done):
+        document = cursor.next()
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
             continue
-        cat_totals = [totlist[cat] for cat in totlist]
-        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
-        print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        for i in range(len(votelist)):
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_labels.txt')
+            print('catsfile:'+catsfile)
+            with open(catsfile,'a') as fp:
+                if votelist[i]==0:
+                    line = str(full_path) + ' 0\n'
+                    print line
+                    fp.write(line+'\n')
+                if votelist[i] >= 2:
+                    line = str(full_path) + ' 1\n'
+                    print line
+                    fp.write(line+'\n')
+                fp.close()
 
 
-
-
+def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
+    with open(filename,'r') as fp:
+        for line in fp:
+            print line
+            path = line.split()[0]
+            cat = line.split()[1]
+            print(cat)
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
