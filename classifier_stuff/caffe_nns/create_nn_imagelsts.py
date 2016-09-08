@@ -154,11 +154,11 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
             path = line.split()[0]
             cat = line.split()[1]
             print(cat)
-            im = Image.open(path)
-            im.show()
+#            im = Image.open(path)
+#            im.show()
 
-            #img_arr = cv2.imread(path)
-            #imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
