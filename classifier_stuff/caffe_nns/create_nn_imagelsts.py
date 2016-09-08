@@ -89,7 +89,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile_dir = './'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile_dir = './'):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -127,7 +127,7 @@ def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy
         for i in range(len(votelist)):
             catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_labels.txt')
             print('catsfile:'+catsfile)
-            with open(catsfile,'w') as fp:
+            with open(catsfile,'a') as fp:
                 if votelist[i]==0:
                     line = str(full_path) + ' 0\n'
                     print line
@@ -138,6 +138,16 @@ def binary_pos_and_neg_from_multilabel_db(category_index,image_dir='/home/jeremy
                     fp.write(line+'\n')
                 fp.close()
 
+
+def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
+    with open(filename,'r') as fp:
+        for line in fp:
+            print line
+            path = line.split()[0]
+            cat = line.split()[1]
+            print(cat)
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
