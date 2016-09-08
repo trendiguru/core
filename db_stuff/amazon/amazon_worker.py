@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import re
 from datetime import datetime
 from time import sleep
@@ -18,7 +20,48 @@ big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 
 
 
 def amazon_de_to_ppd(cat, sub_cat, title):
-    return cat
+    if cat == u"Badeanzüge":
+        return 'swimsuit'
+    elif cat in ['Bikini - Sets', 'Bikinioberteile']:
+        return 'bikini'
+    elif cat in ['Pareos & Strandkleider', 'Kleider']:
+        return 'dress'
+    elif cat in ['Badeshorts', 'Tankinis', 'Shorts', 'Badehosen']:
+        return 'shorts'
+    elif cat in ['Shirts & Blusen', 'Blusen & Tuniken']:
+        return 'blouse'
+    elif cat in ['Hosen', 'Smokinghosen', 'Anzughosen']:
+        return 'pants'
+    elif cat in ['Jacken', 'Smokingjacken', 'Sakkos', 'Anzugjacken']:
+        return 'jacket'
+    elif cat == u"Mäntel":
+        return 'coat'
+    elif cat == 'Westen':
+        return 'vest'
+    elif cat == 'Jeanshosen':
+        return 'jeans'
+    elif cat in ['Jumpsuits', u"Anzüge", 'Smokings', 'Smoking & Frack']:
+        return 'suit'
+    elif cat in ['Boleros', 'Strickjacken', 'Strickwesten']:
+        return 'cardigan'
+    elif cat in ['Pullunder', 'Pullover']:
+        return 'sweater'
+    elif cat in ['Kapuzenpullover', 'Sweatshirts', 'Kappen']:
+        return 'sweatshirt'
+    elif cat in ['Tops', 'Oberteile']:
+        return 'top'
+    elif cat == 'T-Shirts':
+        return 't-shirt'
+    elif cat in ['Langarmshirts', 'Poloshirts', 'Shirts & Hemden']:
+        return 'shirt'
+    elif cat == u"Röcke":
+        return 'skirt'
+    elif cat == 'Leggings':
+        return 'leggings'
+    elif cat == 'Strumpfhosen & Leggings':
+        return 'tights'
+    else:
+        return ''
 
 
 def verify_by_title(title):
@@ -191,7 +234,11 @@ def amazon_usa_to_ppd(cat, sub_cat, title):
 
 def find_paperdoll_cat(family, title, cc):
     leafs = re.split(r'->', family)
-    category = leafs[3]
+    if cc == 'DE':
+        leaf_length = len(leafs)
+        category = leafs[leaf_length-1]
+    else:
+        category = leafs[3]
     sub_category = None
     sub1 = None
     if len(leafs) > 4:
