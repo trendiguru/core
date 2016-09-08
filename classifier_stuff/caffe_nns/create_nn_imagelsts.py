@@ -5,6 +5,8 @@ import cv2
 import random
 import logging
 logging.basicConfig(level=logging.DEBUG)
+from PIL import Image
+
 
 from trendi import constants
 from trendi.utils import imutils
@@ -146,8 +148,11 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
             path = line.split()[0]
             cat = line.split()[1]
             print(cat)
-            img_arr = cv2.imread(path)
-            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            im = Image.open(path)
+            im.show()
+
+            #img_arr = cv2.imread(path)
+            #imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     with open(filename,'r') as fp:
