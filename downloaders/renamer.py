@@ -8,6 +8,7 @@ import urllib
 import numpy as np
 import requests
 from trendi import constants
+import multiprocessing
 from multiprocessing import Pool
 import urllib2
 import subprocess
@@ -117,17 +118,20 @@ def save_img_at_url(url,savename=None):
 
 
 
-def getty_dl(searchphrase,n_pages = 100,savedir='./'):
+def getty_dl(searchphrase,n_pages = 2,savedir=None):
+    if savedir is None:
+        savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
     query = '?phrase='+searchphrase
+    outfile = searchphrase+'out.txt'
     for i in range(n_pages):
         print query
-        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > resout.txt'
+        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
-        with open('resout.txt','r') as f:
+        with open(outfile,'r') as f:
             d = json.load(f)
             f.close()
  #           pprint(d)
@@ -164,13 +168,26 @@ def getty_dl(searchphrase,n_pages = 100,savedir='./'):
             save_img_at_url(uri,savename=savename)
         query = '?page='+str(i+1)
 
+def getty_star(a_b):
+    return getty_dl(*a_b)
 
 if __name__=="__main__":
     items = constants.binary_cats
+    items = items[3:]
 #    items = [1,2,3]
 #    with Pool(4) as p:
 #    items = [items[0],items[1]]
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
-    for i in range(len(items)):
-        getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+    parallel = True
+    if(parallel == False):
+        for i in range(len(items)):
+            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+    else:
+        n_proc = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(processes=n_proc)
+        pool.map(getty_dl, items)
+
+
+
+
