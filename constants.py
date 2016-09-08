@@ -305,6 +305,7 @@ binary_cats = ['bag', 'belt','blazer', 'bracelet','bodysuit', 'cardigan', 'coat'
 
 
 
+
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']

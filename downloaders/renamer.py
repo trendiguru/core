@@ -173,4 +173,4 @@ if __name__=="__main__":
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
     for i in range(len(items)):
-        getty_dl(items[i],n_pages=1000,savedir = items[i])
+        getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/items[i]/')
