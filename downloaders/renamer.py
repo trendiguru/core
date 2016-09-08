@@ -8,7 +8,14 @@ import urllib
 import numpy as np
 import requests
 from trendi import constants
+import multiprocessing
 from multiprocessing import Pool
+import urllib2
+import subprocess
+import json
+import time
+from pprint  import pprint
+from cv2 import imdecode, imwrite
 
 
 def rename_goog_dirs(dir='/home/jeremy/binary_images'):
@@ -85,12 +92,6 @@ def selectsiya(dir):
             print('nothing')
         n = n + 1
 
-import urllib2
-import subprocess
-from subprocess import Popen, PIPE
-import json
-from pprint  import pprint
-from cv2 import imdecode, imwrite
 
 
 def save_img_at_url(url,savename=None):
@@ -118,54 +119,78 @@ def save_img_at_url(url,savename=None):
 
 
 
-def getty_dl(searchphrase,n_pages = 1):
-
+def getty_dl(searchphrase,n_pages = 2000,savedir=None):
+    if savedir is None:
+        savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
+    Utils.ensure_dir(savedir)
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
     query = '?phrase='+searchphrase
+    outfile = searchphrase+'out.txt'
     for i in range(n_pages):
         print query
-        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > resout.txt'
+        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
-        with open('resout.txt','r') as f:
+        with open(outfile,'r') as f:
             d = json.load(f)
             f.close()
  #           pprint(d)
-            imgs = d['images']
-            l = len(imgs)
-    #        print imgs
-            print l
-            for i in range(l):
-                nth_img = imgs[i]
-      #          print nth_img
-                ds = nth_img['display_sizes']
-    #            print ds
-                first = ds[0]
-     #           print first
-                uri = first['uri']
+        if not d:
+            print('no file found')
+            continue
+        if not 'images' in d:
+            print('no images field in result, continuing')
+            continue
+        imgs = d['images']
+        l = len(imgs)
+#        print imgs
+        print l
+        for j in range(l):
+            time.sleep(0.05)
+            nth_img = imgs[j]
+  #          print nth_img
+            if not 'display_sizes' in nth_img:
+                print('no display sizes field found, continuing')
+                continue
+            ds = nth_img['display_sizes']
+#            print ds
+            first = ds[0]
+ #           print first
+            uri = first['uri']
 #                print uri
-                clean_url = uri.split('?')[0]
+            clean_url = uri.split('?')[0]
 #                print(clean_url)
-                savename=clean_url.split('?')[0]
-                savename=savename.split('/')[-1]
-                savename = searchphrase + savename
-                print(savename)
-                save_img_at_url(uri,savename=savename)
-        query = '?page='+str(i)
+            savename=clean_url.split('?')[0]
+            savename=savename.split('/')[-1]
+            savename = searchphrase + savename
+            savename = os.path.join(savedir,savename)
+            Utils.ensure_dir(savedir)
+#            print(savename)
+            save_img_at_url(uri,savename=savename)
+        query = '?page='+str(i+1)
 
-def f(x):
-    return x*x
-
-
-
+def getty_star(a_b):
+    return getty_dl(*a_b)
 
 if __name__=="__main__":
     items = constants.binary_cats
+    items = items[3:]
 #    items = [1,2,3]
 #    with Pool(4) as p:
 #    items = [items[0],items[1]]
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
-    for i in range(len(items)):
-        getty_dl(items[i],n_pages=1000)
+    parallel = True
+    if(parallel == False):
+        for i in range(len(items)):
+            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+    else:
+        n_proc = multiprocessing.cpu_count()
+        print('nprocessors:'+str(n_proc))
+        pool = multiprocessing.Pool(processes=10)
+        pool.map(getty_dl, items)
+
+
+
+
