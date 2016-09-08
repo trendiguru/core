@@ -118,7 +118,7 @@ def save_img_at_url(url,savename=None):
 
 
 def getty_dl(searchphrase,n_pages = 100,savedir='./'):
-
+    Utils.ensure_dir(savedir)
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
     query = '?phrase='+searchphrase
@@ -173,4 +173,4 @@ if __name__=="__main__":
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
     for i in range(len(items)):
-        getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/items[i]/')
+        getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
