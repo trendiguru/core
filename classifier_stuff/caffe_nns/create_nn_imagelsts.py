@@ -164,7 +164,7 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None)
         fp.close()
 
     for i in range(n_cats):
-        print('cat {} n_instances {}'.format(path,cat,n_instances))
+        print('cat {} n_instances {}'.format(cat,n_instances))
 
     with open(filename,'r') as fp:
         for line in fp:
