@@ -146,8 +146,26 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None):
+    '''
+    file lines are of the form /path/to/file class_number
+    :param filename:
+    :return:
+    '''
+    if not n_cats:
+        n_cats = len(constants.web_tool_categories_v2)
+    n_instances = [0]*n_cats
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = line.split()[1]
+            n_instances[cat]+=1
+        fp.close()
 
-def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
+    for i in range(n_cats):
+        print('cat {} n_instances {}'.format(path,cat,n_instances)
+
     with open(filename,'r') as fp:
         for line in fp:
             print line
@@ -156,11 +174,16 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt'):
             print(cat)
 #            im = Image.open(path)
 #            im.show()
-
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
+    '''
+    for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
+    so file lines are /path/to/file 0 0 1 0 0 1 0 1
+    :param filename:
+    :return:
+    '''
     with open(filename,'r') as fp:
         for line in fp:
             print line
@@ -208,7 +231,7 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         with open(test_name,'w') as trfp:
             trfp.writelines(test_lines)
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced'):
+def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced.txt'):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
