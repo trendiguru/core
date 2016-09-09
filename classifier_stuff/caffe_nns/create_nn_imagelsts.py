@@ -159,7 +159,7 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None)
         lines = fp.readlines()
         for line in lines:
             path = line.split()[0]
-            cat = line.split()[1]
+            cat = int(line.split()[1])
             n_instances[cat]+=1
         fp.close()
 
@@ -170,7 +170,7 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None)
         for line in fp:
             print line
             path = line.split()[0]
-            cat = line.split()[1]
+            cat = int(line.split()[1])
             print(cat)
 #            im = Image.open(path)
 #            im.show()
@@ -247,7 +247,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
         lines = fp.readlines()
         for line in lines:
             path = line.split()[0]
-            cat = line.split()[1]
+            cat = int(line.split()[1])
             n_instances[cat]+=1
             instances[cat].append(line)
             print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
