@@ -250,7 +250,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
             cat = line.split()[1]
             n_instances[cat]+=1
             instances[cat].append(line)
-            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances)
+            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
     min_instances = min(n_instances)
 
