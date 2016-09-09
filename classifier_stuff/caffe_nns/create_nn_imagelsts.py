@@ -208,6 +208,33 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         with open(test_name,'w') as trfp:
             trfp.writelines(test_lines)
 
+def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced'):
+    '''
+    balance the occurence of positives and negatives
+    :param filename:
+    :param fraction:
+    :return:
+    '''
+    n_instances = [0]*n_cats
+    instances = None*n_cats
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = line.split()[1]
+            n_instances[cat]+=1
+            instances[cat].append(line)
+            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances)
+        close(fp)
+    min_instances = min(n_instances)
+
+#  a shuffle cant hurt here
+    with open(outfilename,'w') as fp:
+        for i in range(n_cats):
+            for j in range(min_instances):
+                fp.write(instances[cat][j])
+    fp.close()
+
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
     if labelsdir == None:
