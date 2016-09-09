@@ -108,7 +108,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, cc, price_fl
 
     req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
-    res = get(req)
+    res = get(req, timeout=5)
     try:
         if res.status_code != 200:
             err_msg = 'not 200!'
@@ -314,7 +314,7 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
     parameters['BrowseNodeId'] = root
     req = get_amazon_signed_url(parameters, cc, 'GET', False)
     proper_wait()
-    res = get(req)
+    res = get(req, timeout=5)
 
     if res.status_code != 200:
         print_error('Bad request', req)
