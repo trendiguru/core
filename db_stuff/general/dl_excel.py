@@ -10,12 +10,12 @@ from ...Yonti import drive
 db = constants.db
 
 
-def category_tree_status(worksheet, merge_format, bold):
+def category_tree_status(cc, worksheet, merge_format, bold):
     worksheet.write(0, 1, 'last update', bold)
 
     worksheet.merge_range('C1:E1', datetime.ctime(datetime.now()), merge_format)
-
-    leafs = db.amazon_category_tree.find({'Children.count': 0})
+    category_tree = db['amazon_' + cc + '_category_tree']
+    leafs = category_tree.find({'Children.count': 0})
     categories = []
     for leaf in leafs:
         name = leaf['Name']
@@ -76,7 +76,7 @@ def fill_table(worksheet, main_categories, collection, archive, bold, today):
         worksheet.write_formula(x+str(categories_length), '=SUM('+x+'3:'+x+str(categories_length-1)+')')
 
 
-def mongo2xl(collection_name, dl_info):
+def mongo2xl(collection_name, dl_info, cc='US'):
     # if collection_name == 'ebay':
     #     filename = collection_name
     # else:
@@ -87,7 +87,8 @@ def mongo2xl(collection_name, dl_info):
         name_parts = re.split("_", collection_name)
         filename = name_parts[0]
         if filename == 'amazon':
-            filename += '_' + name_parts[1]
+            cc = name_parts[1]
+            filename += '_' + cc
     except StandardError as e:
         print (e)
         return
@@ -202,7 +203,7 @@ def mongo2xl(collection_name, dl_info):
         if filename == 'ebay':
             tmp += '_US'
         if filename == 'amazon':
-            tmp = 'amazon_US_' + col_gender
+            tmp = 'amazon_' + cc + '_' + col_gender
         print("working on " + tmp)
         collection = db[tmp]
         archive = db[tmp+"_archive"]
@@ -222,7 +223,7 @@ def mongo2xl(collection_name, dl_info):
     if 'amazon' in filename:
         merge_format = workbook.add_format({'align': 'center'})
         current_worksheet = workbook.add_worksheet('categories_tree')
-        category_tree_status(current_worksheet, merge_format, bold)
+        category_tree_status(cc, current_worksheet, merge_format, bold)
     workbook.close()
 
     print ('uploading to drive...')

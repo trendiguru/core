@@ -35,13 +35,14 @@
 0 4 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Male > /home/developer/yonti/ShopStyle_KR_Male.log 2>&1
 #59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
 #0 12 * * * python -m trendi.db_stuff.ebay_API > /home/developer/yonti/EBAY.log 2>&1
-59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
-0 12 * * * python -m trendi.db_stuff.recruit.recruit_API > /home/developer/yonti/recruit.log 2>&1
+#59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
+#0 12 * * * python -m trendi.db_stuff.recruit.recruit_API > /home/developer/yonti/recruit.log 2>&1
 #10 0 * * 0 echo "AMAZON LOG" >> /home/developer/yonti/amazon_status.log 2>&1
 #0 0 * * 0 date >> /home/developer/yonti/amazon_status.log 2>&1
 0 20 * * * echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
-10 20 * * * python -m trendi.db_stuff.amazon.amazon_API -d  > /home/developer/yonti/amazon_daily.log 2>&1
-10 * * * * python -m trendi.db_stuff.amazon.amazon_API -u  > /home/developer/yonti/amazon_hourly.log 2>&1
+10 20 * * * python -m trendi.db_stuff.amazon.amazon_download -d  > /home/developer/yonti/amazon_daily.log 2>&1
+30 * * * * python -m trendi.db_stuff.amazon.amazon_download -u  > /home/developer/yonti/amazon_hourly.log 2>&1
+15 * * * * python -m trendi.db_stuff.amazon.amazon_download -u -c DE > /home/developer/yonti/amazon_hourly.log 2>&1
 
 #14 0 * * 3 echo "amazon female dl started at wendsday" >> /home/developer/yonti/download.log 2>&1
 #15 0 * * 3 python -m trendi.db_stuff.amazon_API -g Female -f  > /home/developer/yonti/amazon_female.log 2>&1
