@@ -210,13 +210,16 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
 
 def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced'):
     '''
-    balance the occurence of positives and negatives
-    :param filename:
+    balance the occurence of categories - take minimum occurences and let all cats occur only that amt
+    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
+    to outfilename
+    there is a theorectical question here of whether this is desireable or not
+    :param filename: input file with lines of the form '/path/to/file  class_number'
     :param fraction:
     :return:
     '''
     n_instances = [0]*n_cats
-    instances = None*n_cats
+    instances = None*n_cats #iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -225,9 +228,12 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
             n_instances[cat]+=1
             instances[cat].append(line)
             print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances)
-        close(fp)
+        fp.close()
     min_instances = min(n_instances)
 
+    #kill the initial Nones
+    for i in range(n_cats):
+        del(instances[i][0])
 #  a shuffle cant hurt here
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
