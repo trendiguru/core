@@ -161,7 +161,7 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         files=[os.path.join(dir,f) for f in os.listdir(dir)]
     with open(outfile,'a') as fp:
         for f in files:
-            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
+            print('path {} cat {} '.format(f,cat))
             line = f + ' '+str(class_number)+'\n'
             print line
             fp.write(line)
