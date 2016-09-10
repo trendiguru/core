@@ -146,6 +146,8 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+
+
 def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     '''
     take a dir and add the files therein to a text file with lines like:
@@ -161,7 +163,6 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         files=[os.path.join(dir,f) for f in os.listdir(dir)]
     with open(outfile,'a') as fp:
         for f in files:
-            print('path {} cat {} '.format(f,cat))
             line = f + ' '+str(class_number)+'\n'
             print line
             fp.write(line)
