@@ -117,14 +117,14 @@ def save_img_at_url(url,savename=None):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
 
-
-
 def getty_dl(searchphrase,n_pages = 2000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
+    #do a first curl to set the page size
     cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
     res = subprocess.call(cmd,shell=True)
+    #next curl with the right phrase, all subsequent ones with ?page= to get next results from same query
     query = '?phrase='+searchphrase
     outfile = searchphrase+'out.txt'
     for i in range(n_pages):
