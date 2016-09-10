@@ -161,13 +161,15 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         files=[os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
     else:
         files=[os.path.join(dir,f) for f in os.listdir(dir)]
+    i = 0
     with open(outfile,'a') as fp:
         for f in files:
             line = f + ' '+str(class_number)+'\n'
             print line
             fp.write(line)
+            i+=1
         fp.close()
-
+    print(str(i)+' images written to '+outfile+' with label '+str(class_number))
 
 def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
     '''
