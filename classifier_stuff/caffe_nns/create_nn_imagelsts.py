@@ -168,7 +168,7 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         fp.close()
 
 
-def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False:
+def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
     '''
     file lines are of the form /path/to/file class_number
     :param filename:
