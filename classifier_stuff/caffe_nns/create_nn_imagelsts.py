@@ -146,6 +146,10 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number):
+    dirs = [d for d in os.listdir(dir_of_dirs) if os.path.isdir(d)]
+    for d in dirs:
+        dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg'):
 
 
 def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
@@ -164,9 +168,9 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     i = 0
     with open(outfile,'a') as fp:
         for f in files:
-            line = f + ' '+str(class_number)+'\n'
+            line = f + ' '+str(class_number)
             print line
-            fp.write(line)
+            fp.write(line+'\n')
             i+=1
         fp.close()
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
