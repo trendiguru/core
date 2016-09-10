@@ -168,7 +168,7 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         fp.close()
 
 
-def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None):
+def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False:
     '''
     file lines are of the form /path/to/file class_number
     :param filename:
@@ -187,16 +187,17 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None)
 
     print('n_instances {}'.format(n_instances))
 
-    with open(filename,'r') as fp:
-        for line in fp:
-            print line
-            path = line.split()[0]
-            cat = int(line.split()[1])
-            print(cat)
-#            im = Image.open(path)
-#            im.show()
-            img_arr = cv2.imread(path)
-            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+    if visual_output:
+        with open(filename,'r') as fp:
+            for line in fp:
+                print line
+                path = line.split()[0]
+                cat = int(line.split()[1])
+                print(cat)
+    #            im = Image.open(path)
+    #            im.show()
+                img_arr = cv2.imread(path)
+                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
