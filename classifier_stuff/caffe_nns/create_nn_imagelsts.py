@@ -146,6 +146,28 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
+    '''
+    take a dir and add the files therein to a text file with lines like:
+    /path/to/file class_number
+    :param dir:
+    :param class_number: assign all files this class #
+    :param outfile : write to this file.  Appends, doesn't overwrite
+    :return:
+    '''
+    if filter:
+        files=[os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    else:
+        files=[os.path.join(dir,f) for f in os.listdir(dir)]
+    with open(outfile,'a') as fp:
+        for f in files:
+            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
+            line = f + ' '+str(class_number)+'\n'
+            print line
+            fp.write(line)
+        fp.close()
+
+
 def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None):
     '''
     file lines are of the form /path/to/file class_number
