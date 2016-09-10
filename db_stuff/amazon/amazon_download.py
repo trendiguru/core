@@ -392,7 +392,7 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
 
 
 def download_all(col_name, cc, gender):
-    global error_flag, last_price, log_name, today_date
+    global error_flag, last_price, log_name
     collection = db[col_name]
 
     # we will need that for querying the category tree
@@ -422,7 +422,6 @@ def download_all(col_name, cc, gender):
     while total_leafs:
         # iterate over all leafs and download them one by one
         for x, leaf in enumerate(leafs):
-            today_date = str(datetime.date(datetime.now()))
             name = leaf['Name']
             node_id = leaf['BrowseNodeId']
             leaf_id = leaf['_id']
