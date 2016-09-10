@@ -146,10 +146,10 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
-def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number):
-    dirs = [d for d in os.listdir(dir_of_dirs) if os.path.isdir(d)]
+def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
+    dirs = [os.path.join(dir_of_dirs,d) for d in os.listdir(dir_of_dirs) if os.path.isdir(d)]
     for d in dirs:
-        dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg'):
+        dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
 
 def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
