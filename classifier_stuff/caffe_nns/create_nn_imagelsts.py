@@ -20,9 +20,9 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
     :return:
     '''
     db = constants.db
-    cursor = db.training_images.find({'already_seen_image_level':True})
+    cursor = db.training_images.find()
     n_done = cursor.count()
-    print(str(n_done)+' docs done')
+    print(str(n_done)+' docs in db')
     lines_written = 0
     with open(catsfile,'w') as fp:
         for i in range(n_done):
