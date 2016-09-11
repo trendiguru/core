@@ -195,7 +195,7 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         fp.close()
     print('n_negatives {}'.format(len(negs)))
 
-    with open(filename,'w') as fp:
+    with open(outfile,'w') as fp:
         for line in negs:
             fp.write(line)
 

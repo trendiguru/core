@@ -295,7 +295,11 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
                                     'intimate','necklace','bracelet','ring','earrings','gloves','watch',
                                     'wallet','hair','skin','face'] #
 
-
+#for our purposes -
+# blazer is a suit jacket (without the pants)
+# coat is a winter coat
+# jacket is a winter jacket (not a suit jacket)
+# suit has a jacket and pants
 binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
                'eyewear','footwear', 'glasses', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
                'overalls','pants', 'purse', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
