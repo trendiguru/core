@@ -103,7 +103,8 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
 
 
 def pose_net(input_shape=(3, 128, 128)):
-    model_description = 'pose_lite_model_weights_No2'
+    # model_description = 'pose_lite_model_weights_No2'
+    model_description = 'pose_lite_model_weights'
     # -----------------
     # Net META parameters:
     main_Nkernels = 32
@@ -675,3 +676,6 @@ def execute_pose(argv):
 
 if __name__ == '__main__':
     execute_pose(sys.argv)
+
+# an example line to run from command line:
+# python -m trendi.Natanel.pose.ninja "http://www.cstylejeans.com/wp-content/uploads/2016/03/women-dress-shoes.jpg"
