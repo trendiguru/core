@@ -301,9 +301,18 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
 # jacket is a winter jacket (not a suit jacket)
 # suit has a jacket and pants
 binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
-               'eyewear','footwear', 'glasses', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
-               'overalls','pants', 'purse', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
+               'eyewear','footwear', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+               'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
+
+missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', , 'lingerie', 'ring', 'swimwear%20AND%20man',]
+
+#web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+#                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+#                       'womens_swimwear_nonbikini','overalls','sweatshirt', 'bracelet','necklace','earrings','watch' ]
+
+
+
 
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
