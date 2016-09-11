@@ -113,7 +113,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
-        if not Utils.ensure_file(fullpath):
+        if not Utils.ensure_file(full_path):
             print('file '+full_path+' does not exist, skipping')
             continue
         items_list = document['items'] #
