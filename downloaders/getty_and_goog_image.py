@@ -122,14 +122,14 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
     #do a first curl to set the page size
-    cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  https://api.gettyimages.com/v3/search/images?page_size=100000 > resout1.txt'
-    res = subprocess.call(cmd,shell=True)
+#    cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  https://api.gettyimages.com/v3/search/images?page_size=100000 > resout1.txt'
+#    res = subprocess.call(cmd,shell=True)
     #next curl with the right phrase, all subsequent ones with ?page= to get next results from same query
     outfile = searchphrase+'out.txt'
     for i in range(n_pages):
         query = '?phrase='+searchphrase+'&page='+str(i+1)
         print query
-        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  https://api.gettyimages.com/v3/search/images'+query+ ' > ' + outfile
+        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
         with open(outfile,'r') as f:
