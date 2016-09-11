@@ -36,12 +36,15 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
                 continue
             for item in items_list:
                 cat = item['category']
-                if cat in constants.web_tool_categories:
+                if cat in constants.web_tool_categories_v2:
+                    index = constants.web_tool_categories_v2.index(cat)
+                elif cat in constants.tamara_berg_to_web_tool_dict:
+                    print('WARNING translating from TB')
+                    cat = constants.tamara_berg_to_web_tool_dict[cat]
                     index = constants.web_tool_categories.index(cat)
                 else:
-                    if cat in constants.tamara_berg_to_web_tool_dict:
-                        cat = constants.tamara_berg_to_web_tool_dict[cat]
-                        index = constants.web_tool_categories.index(cat)
+                    print('could not figure out this category : '+str(cat))
+                    continue
                 hotlist[index] = 1
                 print('item:'+str(cat))
             print('hotlist:'+str(hotlist))
