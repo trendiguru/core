@@ -301,11 +301,6 @@ binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan
                'overalls','pants', 'purse', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-
-
-
-
-
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']
