@@ -296,10 +296,10 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
                                     'wallet','hair','skin','face'] #
 
 
-binary_cats = ['bag', 'belt','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings', 'eyewear',
-               'footwear', 'glasses', 'gloves','hat', 'intimate', 'jacket', 'jeans', 'mens_swimwear', 'necklace', 'overalls',
-               'pants', 'purse', 'ring', 'scarf', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
-               'sweatshirt' ,'top', 'watch', 'womens_swimwear_bikini', 'womens_swimwear_nonbikini']
+binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
+               'eyewear','footwear', 'glasses', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+               'overalls','pants', 'purse', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
+               'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
 
 

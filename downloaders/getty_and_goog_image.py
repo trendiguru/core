@@ -180,7 +180,8 @@ if __name__=="__main__":
 #    items = [items[0],items[1]]
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
-    items = ['top','sweatshirt','sweater','suit','stocking','skirt','shorts','scarf']
+#    items = ['top','sweatshirt','sweater','suit','stocking','skirt','shorts','scarf']
+    items[18] = 'bikini'
     parallel = True
     if(parallel == False):
         for i in range(len(items)):
