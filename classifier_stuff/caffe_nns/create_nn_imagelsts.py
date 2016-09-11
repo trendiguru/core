@@ -48,7 +48,7 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
                     print('could not figure out this category : '+str(cat))
                     continue
                 hotlist[index] = 1
-                print('item:'+str(cat))
+#                print('item:'+str(cat))
             print('hotlist:'+str(hotlist))
             line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
             lines_written +=1
