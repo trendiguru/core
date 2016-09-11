@@ -20,7 +20,7 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
     :return:
     '''
     db = constants.db
-    cursor = db.training_images.find({'already_done':True})
+    cursor = db.training_images.find({'already_seen_image_level':True})
     n_done = cursor.count()
     print(str(n_done)+' docs done')
     lines_written = 0
@@ -34,6 +34,9 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
             hotlist = np.zeros(len(constants.web_tool_categories_v2))
             if not 'already_seen_image_level' in document:
                 print('no votes for this doc')
+                continue
+            if document['already_seen_image_level'] < 2:
+                print('not enough votes for this doc')
                 continue
             for item in items_list:
                 cat = item['category']
