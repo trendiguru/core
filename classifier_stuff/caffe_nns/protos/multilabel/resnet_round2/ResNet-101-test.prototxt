@@ -4747,7 +4747,7 @@ layer {
 	name: "mymyfc1000"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 25
+		num_output: 26
 	}
 }
 
