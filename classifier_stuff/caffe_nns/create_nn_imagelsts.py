@@ -10,6 +10,7 @@ from PIL import Image
 
 from trendi import constants
 from trendi.utils import imutils
+from trendi import Utils
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
@@ -91,7 +92,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/',catsfile_dir = './'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -112,6 +113,9 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
+        if not Utils.ensure_file(fullpath):
+            print('file '+full_path+' does not exist, skipping')
+            continue
         items_list = document['items'] #
         if items_list is None:
             print('no items in doc')
