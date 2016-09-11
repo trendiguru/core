@@ -49,6 +49,9 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
                     index = constants.web_tool_categories_v2.index(cat)
                 else:
                     print('could not figure out this category : '+str(cat))
+                    if cat == 'blazer':
+                        index = constants.web_tool_categories_v2.index('jacket')
+                        print('replacing blazer with jacket ( cat {}) '.format(index))
                     continue
                 hotlist[index] = 1
 #                print('item:'+str(cat))
