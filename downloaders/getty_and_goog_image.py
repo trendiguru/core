@@ -126,9 +126,12 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
     res = subprocess.call(cmd,shell=True)
     #next curl with the right phrase, all subsequent ones with ?page= to get next results from same query
     query = '?phrase='+searchphrase
+    original_query = '?phrase='+searchphrase
     outfile = searchphrase+'out.txt'
     for i in range(n_pages):
         print query
+        cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+original_query
+        res = subprocess.call(cmd,shell=True)
         cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
