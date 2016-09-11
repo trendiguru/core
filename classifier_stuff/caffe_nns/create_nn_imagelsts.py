@@ -23,6 +23,7 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
     cursor = db.training_images.find({'already_done':True})
     n_done = cursor.count()
     print(str(n_done)+' docs done')
+    lines_written = 0
     with open(catsfile,'w') as fp:
         for i in range(n_done):
             document = cursor.next()
@@ -50,7 +51,9 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
                 print('item:'+str(cat))
             print('hotlist:'+str(hotlist))
             line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
+            lines_written +=1
             fp.write(line+'\n')
+    print(str(lines_written)+' lines written to '+catsfile)
 
 def consistency_check_multilabel_db():
     '''
