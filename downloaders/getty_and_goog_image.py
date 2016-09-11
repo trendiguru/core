@@ -131,7 +131,9 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
     for i in range(n_pages):
         print query
         cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+original_query
+        print cmd
         res = subprocess.call(cmd,shell=True)
+        print('db1')
         cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
