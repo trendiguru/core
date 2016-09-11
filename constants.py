@@ -305,7 +305,7 @@ binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', , 'lingerie', 'ring', 'swimwear%20AND%20man',]
+missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man',]
 
 #web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
 #                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
