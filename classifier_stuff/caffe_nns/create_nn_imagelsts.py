@@ -31,6 +31,9 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
             full_path = os.path.join(image_dir,filename)
             items_list = document['items'] #
             hotlist = np.zeros(len(constants.web_tool_categories))
+            if not 'already_seen_image_level' in document:
+                print('no votes for this doc')
+                continue
             for item in items_list:
                 cat = item['category']
                 if cat in constants.web_tool_categories:
