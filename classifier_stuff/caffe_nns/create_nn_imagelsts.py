@@ -133,7 +133,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
             print('item:'+str(cat) +' votes:'+str(votelist[index]))
         print('votes:'+str(votelist))
         for i in range(len(votelist)):
-            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_labels.txt')
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
             print('catsfile:'+catsfile)
             with open(catsfile,'a') as fp:
                 if votelist[i]==0:
