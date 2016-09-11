@@ -254,14 +254,16 @@ tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 
 
 #these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
 #results of filipino categorization efforts
+#20 cats
 web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
 
 #removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
-web_tool_categories_v2 = ['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
-                       'womens_swimwear_nonbikini', 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+#25 cats
+web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
