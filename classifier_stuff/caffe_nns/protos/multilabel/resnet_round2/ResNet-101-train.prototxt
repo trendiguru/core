@@ -5156,13 +5156,13 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "mymyfc1000"
+	name: "mymyfc1000"
 	type: "InnerProduct"
 
 
 	inner_product_param {
-		num_output: 21
+		num_output: 25
                 weight_filler {
                 type: "xavier"
                    }
@@ -5171,11 +5171,11 @@ layer {
                   }
 	 }
          param {
-                  lr_mult: 1
-                  decay_mult: 1
+                  lr_mult: 10
+                  decay_mult: 10
                 }
          param {
-                    lr_mult: 2
+                    lr_mult: 20
                    decay_mult: 0
                 }
 }
@@ -5192,7 +5192,7 @@ layer {
 #}
 
 layer {
-	bottom: "myfc1000"
+	bottom: "mymyfc1000"
 	bottom: "labels"
 	top: "score"
 	name: "score"
