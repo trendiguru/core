@@ -3,6 +3,9 @@
 import cv2
 import os
 import numpy as np
+import argparse
+import sys
+import requests
 import h5py
 from skimage.segmentation import slic, quickshift
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
@@ -89,6 +92,10 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
         cv2.circle(image, (joints_location_vector[i, 0], joints_location_vector[i, 1]),
                    2, (0, 255/3, 255/2), thickness=joints_location_vector[i, 2]*2, lineType=8, shift=0)
         # print joints_location_vector[i, 2]
+
+    cv2.imwrite("/home/yonatan/", image)
+
+    print "saved the pose picture!"
 
     cv2.imshow('p', image)
     cv2.waitKey(0)
@@ -629,10 +636,42 @@ def cut_by_superpixels_and_limb_cojunction(image, joints_location_vector):
     return limb_masks, limb_superpixeled_masks, mask, grabbed_human_image
 
 
+# image = cv2.imread('/home/nate/Desktop/8c30a2582a64434c87fe0c504e2c1640.jpg')
+# print image.shape
+# model = pose_net()
+# joints_location_vector = find_pose(image, model)
+# plot_image_skeleton_for_testing(image, joints_location_vector)
 
-image = cv2.imread('/home/nate/Desktop/8c30a2582a64434c87fe0c504e2c1640.jpg')
-print image.shape
-model = pose_net()
-joints_location_vector = find_pose(image, model)
-plot_image_skeleton_for_testing(image, joints_location_vector)
 
+def execute_pose(argv):
+
+    parser = argparse.ArgumentParser()
+    # Required arguments: input and output files.
+    parser.add_argument(
+        "input_file",
+        help="the argument should be a link to url or numpy array"
+    )
+    args = parser.parse_args()
+
+    url_or_np_array = args.input_file
+
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        # full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    else:
+        return None
+
+    # checks if the face coordinates are inside the image
+    if image is None:
+        print "not a good image"
+        return None
+
+    model = pose_net()
+    joints_location_vector = find_pose(image, model)
+    plot_image_skeleton_for_testing(image, joints_location_vector)
+
+
+if __name__ == '__main__':
+    execute_pose(sys.argv)
