@@ -176,6 +176,29 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
         fp.close()
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
 
+def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
+    '''
+    file lines are of the form /path/to/file class_number
+    :param filename:
+    :return:
+    '''
+    negs = []
+    if outfile == None:
+        outfile = filename[:-4]+'_negs.txt'
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            if cat == 0:
+                negs.append(line)
+        fp.close()
+    print('n_negatives {}'.format(len(negs)))
+
+    with open(filename,'w') as fp:
+        for line in negs:
+            fp.write(line)
+
 def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
     '''
     file lines are of the form /path/to/file class_number
