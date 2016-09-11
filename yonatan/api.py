@@ -43,7 +43,7 @@ my_fb_user_id = '693821542'
 michal_fb_page_id = '423546661173003'
 Hilush_fb_user_id = '1043151871'
 
-your_access_token = my_access_token
+
 
 def get_fb_page_like_count(my_fb_user_id):
     graph = facebook.GraphAPI(access_token=my_access_token)
