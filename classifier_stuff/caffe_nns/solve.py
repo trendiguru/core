@@ -59,11 +59,12 @@ print all_layers
 val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
+net_name = 'MYNET'
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
-prefix = baremetal_hostname+'.'+docker_hostname
+prefix = baremetal_hostname+'.'+net_name+docker_hostname
 detailed_outputname = prefix + '.netoutput.txt'
 detailed_jsonfile = detailed_outputname[:-4]+'.json'
 loss_outputname = prefix + 'loss.txt'

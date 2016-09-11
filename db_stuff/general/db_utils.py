@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import logging
 import hashlib
 import smtplib
@@ -14,6 +16,7 @@ import numpy as np
 from scipy import fftpack
 from ...Utils import get_cv2_img_array
 from time import sleep
+import unicodedata
 
 
 refresh_q = Queue('refresh', connection=redis_conn)
@@ -72,6 +75,8 @@ def log2file(mode, log_filename, message='', print_flag=True):
     handler = logging.FileHandler(log_filename, mode=mode)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+    if type(message) == unicode:
+        message = unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
     if type(message) != str:
         message = str(message)
     if len(message):

@@ -1,5 +1,4 @@
 import os
-
 import cv2
 import pymongo
 from redis import Redis
@@ -7,25 +6,22 @@ from rq import Queue
 
 redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
-features_per_category = {'dress': ['color', 'sleeve_length'],
+features_per_category = {'dress': ['color', 'sleeve_length', 'length'],
                          'top': ['color', 'sleeve_length'],
                          'shirt': ['color', 'sleeve_length'],
                          'blouse': ['color', 'sleeve_length'],
                          't-shirt': ['color', 'sleeve_length'],
+                         'skirt': ['color', 'length'],
                          'other': ['color']}
 
-weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.2},
+weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 0.1},
                         'top': {'color': 0.8, 'sleeve_length': 0.2},
                         'shirt': {'color': 0.8, 'sleeve_length': 0.2},
                         'blouse': {'color': 0.8, 'sleeve_length': 0.2},
                         't-shirt': {'color': 0.8, 'sleeve_length': 0.2},
+                        'skirt': {'color': 0.9, 'length': 0.1},
                         'other': {'color': 1}}
 
-manual_gender_domains = ['fashionseoul.com', 'haaretz.co.il']
-which_products_collection = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle'},
-                             'fashionseoul.com':
-                                 {'KR': 'GangnamStyle'}}
 products_per_ip_pid = {'default':
                                  {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'xl'},
                        'fashionseoul':
@@ -33,6 +29,8 @@ products_per_ip_pid = {'default':
                        '5767jA8THOn2J0DD':
                                  {'KR': 'GangnamStyle'},
                        'RecruitPilot':
+                                 {'default': 'recruit'},
+                       'recruit-pilot':
                                  {'default': 'recruit'},
                        '6t50LSJxeNEkQ42p':
                                  {'default': 'recruit'},
@@ -43,13 +41,13 @@ products_per_ip_pid = {'default':
                        "robsdemartino@yahoo.it":
                                  {'default': 'amazon_US'},
                        "mz1_ND":
-                                 {'default': 'amazon_US', 'US': 'amazon_US'}
+                                 {'default': 'amazon_US', 'US': 'amazon_US'},
+                       "stylebook":
+                                 {'default': 'xl'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
-products_per_pid = {}
-products_per_country = {'default': 'ebay', 'ebay': ['US'], 'GangnhamStyle': ['KR']}
-# file containing constants for general TG use
+
 # fingerprint related consts
 
 fingerprint_length = 696
@@ -75,7 +73,6 @@ string_to_look_for_in_pd_command = 'tgworker'
 q1 = Queue('start_pipeline', connection=redis_conn)
 q2 = Queue('check_if_relevant', connection=redis_conn)
 q3 = Queue('manual_gender', connection=redis_conn)
-
 
 N_expected_pd_workers_per_server = 15
 N_expected_pd_workers_per_server_braini1 = 47
@@ -112,8 +109,7 @@ neurodooll_queuename = 'neurodoll'
 #environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
 
 # to do the portforwards required to make this work:
-#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
-#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
@@ -299,12 +295,21 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
                                     'intimate','necklace','bracelet','ring','earrings','gloves','watch',
                                     'wallet','hair','skin','face'] #
 
+#for our purposes -
+# blazer is a suit jacket (without the pants)
+# coat is a winter coat
+# jacket is a winter jacket (not a suit jacket)
+# suit has a jacket and pants
+binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
+               'eyewear','footwear', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+               'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
+               'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-binary_cats = ['bag', 'belt', 'blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings', 'eyewear',
-               'footwear', 'glasses', 'gloves','hat', 'intimate', 'jacket', 'jeans', 'mens_swimwear', 'necklace', 'overalls',
-               'pants', 'purse', 'ring', 'scarf', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
-               'sweatshirt' ,'top', 'wallet', 'watch', 'womens_swimwear_bikini', 'womens_swimwear_nonbikini']
+missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man',]
 
+#web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+#                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+#                       'womens_swimwear_nonbikini','overalls','sweatshirt', 'bracelet','necklace','earrings','watch' ]
 
 
 
