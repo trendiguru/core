@@ -103,8 +103,7 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
 
 
 def pose_net(input_shape=(3, 128, 128)):
-    # model_description = 'pose_lite_model_weights_No2'
-    model_description = 'pose_lite_model_weights'
+    model_description = 'pose_lite_model_weights_No2'
     # -----------------
     # Net META parameters:
     main_Nkernels = 32
