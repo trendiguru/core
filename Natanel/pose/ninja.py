@@ -7,6 +7,7 @@ import argparse
 import sys
 import requests
 import h5py
+from trendi.yonatan import crop_image
 from skimage.segmentation import slic, quickshift
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
 from keras.models import Sequential, Model
@@ -31,61 +32,61 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
     # Right ankle
     cv2.line(image, (joints_location_vector[0, 0], joints_location_vector[0, 1]),
             (joints_location_vector[1, 0], joints_location_vector[1, 1]), (255, 0, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Right knee
     cv2.line(image, (joints_location_vector[1, 0], joints_location_vector[1, 1]),
             (joints_location_vector[2, 0], joints_location_vector[2, 1]), (255*2/3, 0, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Right hip
     cv2.line(image, (joints_location_vector[2, 0], joints_location_vector[2, 1]),
             (joints_location_vector[3, 0], joints_location_vector[3, 1]), (0, 0, 255),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left hip
     cv2.line(image, (joints_location_vector[3, 0], joints_location_vector[3, 1]),
             (joints_location_vector[4, 0], joints_location_vector[4, 1]), (0, 255*2/3, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left knee
     cv2.line(image, (joints_location_vector[4, 0], joints_location_vector[4, 1]),
             (joints_location_vector[5, 0], joints_location_vector[5, 1]), (0, 255, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left ankle
     #
     # Right wrist
     cv2.line(image, (joints_location_vector[6, 0], joints_location_vector[6, 1]),
             (joints_location_vector[7, 0], joints_location_vector[7, 1]), (255, 0, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Right elbow
     cv2.line(image, (joints_location_vector[7, 0], joints_location_vector[7, 1]),
             (joints_location_vector[8, 0], joints_location_vector[8, 1]), (255*2/3, 0, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Right shoulder
     cv2.line(image, (joints_location_vector[8, 0], joints_location_vector[8, 1]),
             (joints_location_vector[9, 0], joints_location_vector[9, 1]), (0, 0, 255),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left shoulder
     cv2.line(image, (joints_location_vector[9, 0], joints_location_vector[9, 1]),
             (joints_location_vector[10, 0], joints_location_vector[10, 1]), (0, 255*2/3, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left elbow
     cv2.line(image, (joints_location_vector[10, 0], joints_location_vector[10, 1]),
             (joints_location_vector[11, 0], joints_location_vector[11, 1]), (0, 255, 0),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Left wrist
     #
     # Neck
     cv2.line(image, (joints_location_vector[12, 0], joints_location_vector[12, 1]),
             (joints_location_vector[13, 0], joints_location_vector[13, 1]), (0, 0, 255),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # Head top
 
     # left hip to right shoulder:
     cv2.line(image, (joints_location_vector[3, 0], joints_location_vector[3, 1]),
             (joints_location_vector[8, 0], joints_location_vector[8, 1]), (0, 0, 255),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
     # right hip to left shoulder:
     cv2.line(image, (joints_location_vector[2, 0], joints_location_vector[2, 1]),
             (joints_location_vector[9, 0], joints_location_vector[9, 1]), (0, 0, 255),
-            thickness=2, lineType=8, shift=0)
+            thickness=6, lineType=8, shift=0)
 
     ## plot appearant joints as full circles:
     for i in range(len(joints_location_vector[:])):
@@ -655,18 +656,20 @@ def execute_pose(argv):
 
     url_or_np_array = args.input_file
 
-    # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        # full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    else:
-        return None
+    image = crop_image.crop(url_or_np_array)
 
-    # checks if the face coordinates are inside the image
-    if image is None:
-        print "not a good image"
-        return None
+    # # check if i get a url (= string) or np.ndarray
+    # if isinstance(url_or_np_array, basestring):
+    #     # full_image = url_to_image(url_or_np_array)
+    #     response = requests.get(url_or_np_array)  # download
+    #     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    # else:
+    #     return None
+    #
+    # # checks if the face coordinates are inside the image
+    # if image is None:
+    #     print "not a good image"
+    #     return None
 
     model = pose_net()
     joints_location_vector = find_pose(image, model)
