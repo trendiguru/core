@@ -93,7 +93,7 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
                    2, (0, 255/3, 255/2), thickness=joints_location_vector[i, 2]*2, lineType=8, shift=0)
         # print joints_location_vector[i, 2]
 
-    cv2.imwrite("/home/yonatan/", image)
+    cv2.imwrite("pose_answer_image.png", image)
 
     print "saved the pose picture!"
 
