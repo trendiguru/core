@@ -18,17 +18,19 @@ import requests
 import yonatan_constants
 
 
-def crop(argv):
+def crop(url):
 
-    parser = argparse.ArgumentParser()
-    # Required arguments: input and output files.
-    parser.add_argument(
-        "input_file",
-        help="the argument should be a link to an image"
-    )
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # # Required arguments: input and output files.
+    # parser.add_argument(
+    #     "input_file",
+    #     help="the argument should be a link to an image"
+    # )
+    # args = parser.parse_args()
+    #
+    # url_or_np_array = args.input_file
 
-    url_or_np_array = args.input_file
+    url_or_np_array = url
 
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
@@ -47,11 +49,50 @@ def crop(argv):
 
     print "height: {0}, width: {1}".format(h, w)
 
-    crop_img = image[0:h, w / 2:w]  # Crop from x, y, w, h -> 100, 200, 300, 400
+    crop_img = image[12:h, (w / 2) + 15:w - 30]  # Crop from x, y, w, h -> 100, 200, 300, 400
     # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
 
-    cv2.imwrite("cropped_image.png", image)
+    cv2.imwrite("cropped_image.png", crop_img)
+
+    return crop_img
 
 
-if __name__ == '__main__':
-    crop(sys.argv)
+# def crop(argv):
+#
+#     parser = argparse.ArgumentParser()
+#     # Required arguments: input and output files.
+#     parser.add_argument(
+#         "input_file",
+#         help="the argument should be a link to an image"
+#     )
+#     args = parser.parse_args()
+#
+#     url_or_np_array = args.input_file
+#
+#     # check if i get a url (= string) or np.ndarray
+#     if isinstance(url_or_np_array, basestring):
+#         # full_image = url_to_image(url_or_np_array)
+#         response = requests.get(url_or_np_array)  # download
+#         image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+#     else:
+#         return None
+#
+#     # checks if the face coordinates are inside the image
+#     if image is None:
+#         print "not a good image"
+#         return None
+#
+#     h, w = image.shape[:2]
+#
+#     print "height: {0}, width: {1}".format(h, w)
+#
+#     crop_img = image[12:h, (w / 2) + 15:w - 30]  # Crop from x, y, w, h -> 100, 200, 300, 400
+#     # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+#
+#     cv2.imwrite("cropped_image.png", crop_img)
+#
+#     return crop_img
+#
+#
+# if __name__ == '__main__':
+#     crop(sys.argv)
