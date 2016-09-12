@@ -15,7 +15,7 @@ from ..general.db_utils import get_p_hash
 from ...fingerprint_core import generate_mask_and_insert
 from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
 
-signal(SIGPIPE, SIG_DFL)
+# signal(SIGPIPE, SIG_DFL)
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprinter4db', connection=redis_conn)
 tracking_id = '?vos=fcppmpcncapcone01'
@@ -81,7 +81,8 @@ def process_items(item_list, gender,category):
     col_name = 'recruit_'+gender
     collection = db[col_name]
     new_items = 0
-    for item in item_list:
+    for x,item in enumerate(item_list):
+        print (x)
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
