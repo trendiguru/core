@@ -677,4 +677,4 @@ if __name__ == '__main__':
     execute_pose(sys.argv)
 
 # an example line to run from command line:
-# python -m trendi.Natanel.pose.ninja "http://www.cstylejeans.com/wp-content/uploads/2016/03/women-dress-shoes.jpg"
+# python -m trendi.Natanel.pose.ninja "http://www.eclothing-style.com/wp-content/uploads/2014/04/12/8/2141-Bless-ed-are-the-Meek-Women-s-Splice-Dress-1.jpg"
