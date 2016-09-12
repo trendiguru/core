@@ -1,5 +1,4 @@
 import os
-
 import cv2
 import pymongo
 from redis import Redis
@@ -110,8 +109,7 @@ neurodooll_queuename = 'neurodoll'
 #environment=REDIS_HOST="localhost",REDIS_PORT=6379,MONGO_HOST="localhost",MONGO_PORT=27017
 
 # to do the portforwards required to make this work:
-#ssh -f -N -L 27017:mongodb1-instance-1:27017 root@extremeli.trendi.guru
-#ssh -f -N -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
+#ssh -f -N -L 27017:mongodb1-instance-1:27017 -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
 #to kill nound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
@@ -256,14 +254,16 @@ tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 
 
 #these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
 #results of filipino categorization efforts
+#20 cats
 web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
 
 #removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
-web_tool_categories_v2 = ['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
-                       'womens_swimwear_nonbikini', 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+#25 cats
+web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
@@ -297,13 +297,21 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
                                     'intimate','necklace','bracelet','ring','earrings','gloves','watch',
                                     'wallet','hair','skin','face'] #
 
+#for our purposes -
+# blazer is a suit jacket (without the pants)
+# coat is a winter coat
+# jacket is a winter jacket (not a suit jacket)
+# suit has a jacket and pants
+binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
+               'eyewear','footwear', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+               'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
+               'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-binary_cats = ['bag', 'belt','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings', 'eyewear',
-               'footwear', 'glasses', 'gloves','hat', 'intimate', 'jacket', 'jeans', 'mens_swimwear', 'necklace', 'overalls',
-               'pants', 'purse', 'ring', 'scarf', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
-               'sweatshirt' ,'top', 'watch', 'womens_swimwear_bikini', 'womens_swimwear_nonbikini']
+missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man',]
 
-
+#web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+#                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+#                       'womens_swimwear_nonbikini','overalls','sweatshirt', 'bracelet','necklace','earrings','watch' ]
 
 
 

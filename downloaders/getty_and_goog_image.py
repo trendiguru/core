@@ -117,17 +117,17 @@ def save_img_at_url(url,savename=None):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
 
-
-
 def getty_dl(searchphrase,n_pages = 2000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
-    cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images?page_size=100000" > resout1.txt'
-    res = subprocess.call(cmd,shell=True)
-    query = '?phrase='+searchphrase
+    #do a first curl to set the page size
+#    cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  https://api.gettyimages.com/v3/search/images?page_size=100000 > resout1.txt'
+#    res = subprocess.call(cmd,shell=True)
+    #next curl with the right phrase, all subsequent ones with ?page= to get next results from same query
     outfile = searchphrase+'out.txt'
     for i in range(n_pages):
+        query = '?phrase='+searchphrase+'&page='+str(i+1)
         print query
         cmd = 'curl -X GET -H "Api-Key: r6zm5n78dguspxkg2ss4xvje"  "https://api.gettyimages.com/v3/search/images'+query+ '" > ' + outfile
         print cmd
@@ -135,7 +135,7 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
         with open(outfile,'r') as f:
             d = json.load(f)
             f.close()
- #           pprint(d)
+            pprint(d)
         if not d:
             print('no file found')
             continue
@@ -168,7 +168,6 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
             Utils.ensure_dir(savedir)
 #            print(savename)
             save_img_at_url(uri,savename=savename)
-        query = '?page='+str(i+1)
 
 def getty_star(a_b):
     return getty_dl(*a_b)
@@ -181,6 +180,8 @@ if __name__=="__main__":
 #    items = [items[0],items[1]]
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
+#    items = ['top','sweatshirt','sweater','suit','stocking','skirt','shorts','scarf']
+    items[18] = 'bikini'
     parallel = True
     if(parallel == False):
         for i in range(len(items)):

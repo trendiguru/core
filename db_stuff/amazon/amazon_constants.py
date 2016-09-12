@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 plus_sizes = ['XL', '1X', '2X', '3X', '4X', 'XX', 'XXX', 'XXXX', 'XXXXX', 'LARGE', 'PLUS']
 
@@ -44,12 +45,18 @@ amazon_categories = {'Dresses': {'childs': ['Cocktail', 'Casual', 'Wedding Party
                                                         'Tuxedos', 'Vests']}
                      # under 'Suit Separates' there are sub sub categories
                      }
-
+# notice that some of the blacklist words are here only because we cant detect to that resolution yet!!!
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',
              'Shoe, Jewelry & Watch Accessories', 'Traditional & Cultural Wear', 'Active Underwear', 'Active Socks',
-             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters']
+             'Active Supporters', 'Active Base Layers', 'Sports Bras', 'Athletic Socks', 'Athletic Supporters',
+             u"Nachtwäsche & Bademäntel", u"Socken & Strümpfe", 'Umstandskleidung', u"Unterwäsche & Dessous",
+             u"Mädchen", u"Jungen", u"Spezielle Anlässe & Arbeitskleidung", 'Accessoires', u"Gürtel", 'Sport-BHs',
+             'Sportunterhosen', u"Sportunterwäsche", 'Freizeit', 'Business', u"Unterwäsche", 'Unterhemden',
+             u"Thermounterwäsche", 'Unterhosen', 'Strings', 'Slips', 'Retroshorts', 'Boxershorts', u"Sportunterwäsche",
+             'Sportsocken', 'Sportunterhemden', 'Bikinihosen', u"Schneeanzüge", 'Schneehosen', 'Regenhosen',
+             'Latzhosen', 'Ponchos & Capes', 'Twin-Sets', u"Regenmäntel", u"Trainingsanzüge", 'Overalls']
 
 log_dir = '/home/developer/yonti/'
 log_name = '/home/developer/yonti/amazon_download_stats.log'
