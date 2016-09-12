@@ -1,4 +1,4 @@
-#sharp4 has bn after every conv
+#sharp5 has bn after every conv, some corrections as compared to sharp4
 train_net: "train.prototxt"
 test_net: "val.prototxt"
 test_iter: 500
@@ -24,7 +24,7 @@ max_iter: 3000000
 weight_decay: 0.0005
 snapshot: 1000
 #snapshot 5000 was leaving 2 days bet snapshots
-snapshot_prefix: "snapshot/sharp4_all_bn"
+snapshot_prefix: "snapshot/sharp5_all_bn"
 test_initialization: false
 
 #type: AdaDelta
