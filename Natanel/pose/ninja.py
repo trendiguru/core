@@ -93,7 +93,7 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
                    2, (0, 255/3, 255/2), thickness=joints_location_vector[i, 2]*2, lineType=8, shift=0)
         # print joints_location_vector[i, 2]
 
-    cv2.imwrite("pose_answer_image.png", image)
+    print cv2.imwrite("pose_answer_image.png", image)
 
     print "saved the pose picture!"
 
@@ -649,7 +649,7 @@ def execute_pose(argv):
     # Required arguments: input and output files.
     parser.add_argument(
         "input_file",
-        help="the argument should be a link to url or numpy array"
+        help="the argument should be a link to url of an image"
     )
     args = parser.parse_args()
 
@@ -677,4 +677,4 @@ if __name__ == '__main__':
     execute_pose(sys.argv)
 
 # an example line to run from command line:
-# python -m trendi.Natanel.pose.ninja "http://www.eclothing-style.com/wp-content/uploads/2014/04/12/8/2141-Bless-ed-are-the-Meek-Women-s-Splice-Dress-1.jpg"
+# python -m trendi.Natanel.pose.ninja "http://www.cstylejeans.com/wp-content/uploads/2016/03/women-dress-shoes.jpg"
