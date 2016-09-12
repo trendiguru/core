@@ -10,6 +10,7 @@ from PIL import Image
 
 from trendi import constants
 from trendi.utils import imutils
+from trendi import Utils
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
@@ -19,9 +20,10 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
     :return:
     '''
     db = constants.db
-    cursor = db.training_images.find({'already_done':True})
+    cursor = db.training_images.find()
     n_done = cursor.count()
-    print(str(n_done)+' docs done')
+    print(str(n_done)+' docs in db')
+    lines_written = 0
     with open(catsfile,'w') as fp:
         for i in range(n_done):
             document = cursor.next()
@@ -29,20 +31,35 @@ def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg
             filename = os.path.basename(url)
             full_path = os.path.join(image_dir,filename)
             items_list = document['items'] #
-            hotlist = np.zeros(len(constants.web_tool_categories))
+            hotlist = np.zeros(len(constants.web_tool_categories_v2))
+            if not 'already_seen_image_level' in document:
+                print('no votes for this doc')
+                continue
+            if document['already_seen_image_level'] < 2:
+                print('not enough votes for this doc')
+                continue
             for item in items_list:
                 cat = item['category']
-                if cat in constants.web_tool_categories:
-                    index = constants.web_tool_categories.index(cat)
+                if cat in constants.web_tool_categories_v2:
+                    index = constants.web_tool_categories_v2.index(cat)
+                elif cat in constants.tamara_berg_to_web_tool_dict:
+                    print('WARNING translating from TB')
+                    raw_input('WARNING')
+                    cat = constants.tamara_berg_to_web_tool_dict[cat]
+                    index = constants.web_tool_categories_v2.index(cat)
                 else:
-                    if cat in constants.tamara_berg_to_web_tool_dict:
-                        cat = constants.tamara_berg_to_web_tool_dict[cat]
-                        index = constants.web_tool_categories.index(cat)
+                    print('could not figure out this category : '+str(cat))
+                    if cat == 'blazer':
+                        index = constants.web_tool_categories_v2.index('jacket')
+                        print('replacing blazer with jacket ( cat {}) '.format(index))
+                    continue
                 hotlist[index] = 1
-                print('item:'+str(cat))
+#                print('item:'+str(cat))
             print('hotlist:'+str(hotlist))
             line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
+            lines_written +=1
             fp.write(line+'\n')
+    print(str(lines_written)+' lines written to '+catsfile)
 
 def consistency_check_multilabel_db():
     '''
@@ -91,7 +108,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/',catsfile_dir = './'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -112,6 +129,9 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
+        if not os.path.exists(full_path):
+            print('file '+full_path+' does not exist, skipping')
+            continue
         items_list = document['items'] #
         if items_list is None:
             print('no items in doc')
@@ -133,7 +153,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
             print('item:'+str(cat) +' votes:'+str(votelist[index]))
         print('votes:'+str(votelist))
         for i in range(len(votelist)):
-            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_labels.txt')
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
             print('catsfile:'+catsfile)
             with open(catsfile,'a') as fp:
                 if votelist[i]==0:
@@ -175,6 +195,29 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
             i+=1
         fp.close()
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
+
+def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
+    '''
+    file lines are of the form /path/to/file class_number
+    :param filename:
+    :return:
+    '''
+    negs = []
+    if outfile == None:
+        outfile = filename[:-4]+'_negs.txt'
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            if cat == 0:
+                negs.append(line)
+        fp.close()
+    print('n_negatives {}'.format(len(negs)))
+
+    with open(outfile,'w') as fp:
+        for line in negs:
+            fp.write(line)
 
 def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
     '''
