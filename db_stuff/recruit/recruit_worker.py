@@ -16,12 +16,17 @@ from ...constants import db, fingerprint_version, redis_conn
 from ..general.db_utils import get_p_hash
 from ...fingerprint_core import generate_mask_and_insert
 from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
-
+import sys
 # signal(SIGPIPE, SIG_DFL)
 recruit_q = Queue('recruit_worker', connection=redis_conn)
 fp_q = Queue('fingerprinter4db', connection=redis_conn)
 tracking_id = '?vos=fcppmpcncapcone01'
 today_date = str(datetime.date(datetime.now()))
+
+
+def print_n_flush(msg):
+    print(msg)
+    sys.stdout.flush()
 
 
 def get_hash(image):
@@ -70,7 +75,7 @@ def catch_img(imgs, col_name):
         img_url = 'http:' + img
         url_exists = col.find_one({'images.XLarge': img_url})
         if url_exists:
-            print ('url already exists')
+            print_n_flush('url already exists')
             image = None
             break
         image = get_cv2_img_array(img_url)
@@ -84,7 +89,7 @@ def process_items(item_list, gender,category):
     collection = db[col_name]
     new_items = 0
     for x,item in enumerate(item_list):
-        print (x)
+        print_n_flush(x)
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
@@ -97,11 +102,11 @@ def process_items(item_list, gender,category):
                 clickUrl = exists['clickUrl']
                 if tracking_id not in clickUrl:
                     clickUrl += tracking_id
-                    collection.update_one({'_id':exists_id}, {'$set':{'clickUrl':clickUrl}})
+                    collection.update_one({'_id': exists_id}, {'$set':{'clickUrl':clickUrl}})
                 dl_version = exists['download_data']['dl_version']
                 if dl_version != today_date:
                     collection.update_one({'_id': exists_id}, {'$set': {'download_data.dl_version': today_date}})
-                print ('item already exists')
+                print_n_flush('item already exists')
                 continue
 
         else:
@@ -114,7 +119,7 @@ def process_items(item_list, gender,category):
                 archive.delete_one({'_id':exists_id})
                 collection.insert_one(exists)
                 # TODO: add checks
-                print ('item found in archive - returned to collection')
+                print_n_flush('item found in archive - returned to collection')
                 continue
 
         price = {'price': item['salePriceIncTax'],
@@ -125,20 +130,20 @@ def process_items(item_list, gender,category):
         image, img_url = catch_img(imgs, col_name)
 
         if image is None:
-            print ('bad img url')
+            print_n_flush('bad img url')
             continue
 
         img_hash = get_hash(image)
 
         hash_exists = collection.find_one({'img_hash': img_hash})
         if hash_exists:
-            print ('hash already exists')
+            print_n_flush('hash already exists')
             continue
 
         p_hash = get_p_hash(image)
         p_hash_exists = collection.find_one({'p_hash': p_hash})
         if p_hash_exists:
-            print ('p_hash already exists')
+            print_n_flush('p_hash already exists')
             continue
 
         if 'itemDescriptionText' in item.keys():
@@ -179,7 +184,7 @@ def genreDownloader(genreId, start_page=1):
     start_time = time()
     success, response_dict = GET_ByGenreId(genreId, page=start_page, limit=100, instock=True)
     if not success:
-        print ('GET failed')
+        print_n_flush('GET failed')
         return
     if genreId[1] == '1':
         gender = 'Female'
@@ -221,7 +226,7 @@ def deleteDuplicates(delete=True):
     '''
     for gender in ['Male','Female']:
         col = db['recruit_'+gender]
-        print ('\n #### %s ######' % gender)
+        print_n_flush('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
             delete_count = 0
             items = col.find({'categories':cat})
@@ -256,4 +261,4 @@ def deleteDuplicates(delete=True):
                 after_count = items.count()
             else:
                 after_count = before_count - delete_count
-            print ('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
+            print_n_flush('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
