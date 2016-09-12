@@ -75,8 +75,10 @@ def flaten_dict(info):
             percent = int(100 * updated_count / total)
             notes = str(percent) + "% is already done"
         elif status == "Done":
-            count = info['collections'][key]["notes"]
-            notes = str(count) + " new items dl today"
+            info_col = info['collections'][key]
+            if 'notes' in info_col.keys():
+                count = info_col["notes"]
+                notes = str(count) + " new items dl today"
         else:
             notes = info['collections'][key]["notes"]
         try:
