@@ -35,8 +35,8 @@
 0 4 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Male > /home/developer/yonti/ShopStyle_KR_Male.log 2>&1
 #59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
 #0 12 * * * python -m trendi.db_stuff.ebay_API > /home/developer/yonti/EBAY.log 2>&1
-#59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
-#0 12 * * * python -m trendi.db_stuff.recruit.recruit_API > /home/developer/yonti/recruit.log 2>&1
+59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
+0 12 * * * python -m trendi.db_stuff.recruit.recruit_API > /home/developer/yonti/recruit.log 2>&1
 #10 0 * * 0 echo "AMAZON LOG" >> /home/developer/yonti/amazon_status.log 2>&1
 #0 0 * * 0 date >> /home/developer/yonti/amazon_status.log 2>&1
 0 20 * * * echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
