@@ -46,7 +46,7 @@ def GET_ByGenreId( genreId, page=1,limit=1, img_size=500, instock = False):
                        '&limit='+str(limit) +
                        '&page='+str(page) +
                        '&inStockFlg='+str(int(instock)) +
-                       '&imgSize=' + str(img_size))
+                       '&imgSize=' + str(img_size), timeout=15)
     if res.status_code != 200:
         return False, []
     dic = json.loads(res.text)
@@ -230,7 +230,7 @@ def deleteDuplicates(delete=True):
                     continue
                 item_id = item['id']
                 img_url = item['images']['XLarge']
-                exists = col.find({'categories':cat, 'images.XLarge':img_url})
+                exists = col.find({'categories':cat, 'images.XLarge':img_url}).hint([('categories',1)])
                 if exists:
                     if exists.count()==1 :
                         idx2 = exists[0]['_id']
