@@ -23,7 +23,7 @@ weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 
                         'other': {'color': 1}}
 
 products_per_ip_pid = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'xl'},
+                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
@@ -43,7 +43,7 @@ products_per_ip_pid = {'default':
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "stylebook":
-                                 {'default': 'xl'}
+                                 {'default': 'amazon_DE'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}

@@ -68,17 +68,22 @@ def flaten_dict(info):
     keys = info["collections"].keys()
     keys.sort()
     for key in keys:
-        status = info["collections"][key]["status"]
+        info_col = info['collections'][key]
+        status = info_col["status"]
         if status == "Working":
             updated_count = db[key].find({'download_data.dl_version': current_date}).count()
             total = db[key].count()
             percent = int(100 * updated_count / total)
             notes = str(percent) + "% is already done"
-        elif status == "Done":
-            count = info['collections'][key]["notes"]
-            notes = str(count) + " new items dl today"
+        elif 'notes' in info_col.keys():
+            if status == "Done":
+                count = info_col["notes"]
+                notes = str(count) + " new items dl today"
+            else:
+                notes = info['collections'][key]["notes"]
         else:
-            notes = info['collections'][key]["notes"]
+            notes = 'no clue'
+
         try:
             eft = info['collections'][key]["EFT"]
         except:
