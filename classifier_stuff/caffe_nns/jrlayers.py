@@ -440,6 +440,7 @@ class JrMultilabel(caffe.Layer):
         # print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
         self.idx = 0
+        self.images_processed = 0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -557,6 +558,7 @@ class JrMultilabel(caffe.Layer):
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
+            self.images_processed += 1
         else:
             all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
@@ -567,6 +569,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
+            self.images_processed += self.batch_size
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -592,7 +595,7 @@ class JrMultilabel(caffe.Layer):
         self.next_idx()
         #print('forward end')
         self.counter += 1
-        print self.counter
+        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
 
     def backward(self, top, propagate_down, bottom):
         pass

@@ -13,7 +13,7 @@ layer {
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'tb_cats_from_webtool_round2_256x256_train.txt\', \'mean\': (104.0, 116.7, 122.7), \'augment\':True,\'augment_crop_size\':(224,224)  }"
+      param_str: "{\'images_and_labels_file\': \'tb_cats_from_webtool_round2_train.txt\', \'mean\': (104.0, 116.7, 122.7), \'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':15   }"
       }
 }
 
@@ -5156,13 +5156,13 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "mymyfc1000"
+	name: "mymyfc1000"
 	type: "InnerProduct"
 
 
 	inner_product_param {
-		num_output: 21
+		num_output: 26
                 weight_filler {
                 type: "xavier"
                    }
@@ -5171,11 +5171,11 @@ layer {
                   }
 	 }
          param {
-                  lr_mult: 1
-                  decay_mult: 1
+                  lr_mult: 10
+                  decay_mult: 10
                 }
          param {
-                    lr_mult: 2
+                    lr_mult: 20
                    decay_mult: 0
                 }
 }
@@ -5192,7 +5192,7 @@ layer {
 #}
 
 layer {
-	bottom: "myfc1000"
+	bottom: "mymyfc1000"
 	bottom: "labels"
 	top: "score"
 	name: "score"
