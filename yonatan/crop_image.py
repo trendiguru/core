@@ -47,8 +47,11 @@ def crop(argv):
 
     print "height: {0}, width: {1}".format(h, w)
 
-    # crop_img = img[200:400, 100:300]  # Crop from x, y, w, h -> 100, 200, 300, 400
-    # # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+    crop_img = image[0:h, w / 2:w]  # Crop from x, y, w, h -> 100, 200, 300, 400
+    # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+
+    cv2.imwrite("cropped_image.png", image)
+
 
 if __name__ == '__main__':
     crop(sys.argv)
