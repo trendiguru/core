@@ -81,7 +81,8 @@ def process_items(item_list, gender,category):
     col_name = 'recruit_'+gender
     collection = db[col_name]
     new_items = 0
-    for item in item_list:
+    for x,item in enumerate(item_list):
+        print (x)
         itemId = item['itemId']
         exists = collection.find_one({'id': itemId})
         if exists:
