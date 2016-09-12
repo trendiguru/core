@@ -7,7 +7,7 @@ import argparse
 import sys
 import requests
 import h5py
-from trendi.yonatan import crop_image
+# from trendi.yonatan import crop_image
 from skimage.segmentation import slic, quickshift
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
 from keras.models import Sequential, Model
@@ -94,7 +94,7 @@ def plot_image_skeleton_for_testing(image0, joints_location_vector):
                    2, (0, 255/3, 255/2), thickness=joints_location_vector[i, 2]*2, lineType=8, shift=0)
         # print joints_location_vector[i, 2]
 
-    print cv2.imwrite("pose_answer_image.png", image)
+    print cv2.imwrite("pose_answer_image2.png", image)
 
     print "saved the pose picture!"
 
@@ -656,20 +656,20 @@ def execute_pose(argv):
 
     url_or_np_array = args.input_file
 
-    image = crop_image.crop(url_or_np_array)
+    # image = crop_image.crop(url_or_np_array)
 
-    # # check if i get a url (= string) or np.ndarray
-    # if isinstance(url_or_np_array, basestring):
-    #     # full_image = url_to_image(url_or_np_array)
-    #     response = requests.get(url_or_np_array)  # download
-    #     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    # else:
-    #     return None
-    #
-    # # checks if the face coordinates are inside the image
-    # if image is None:
-    #     print "not a good image"
-    #     return None
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        # full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    else:
+        return None
+
+    # checks if the face coordinates are inside the image
+    if image is None:
+        print "not a good image"
+        return None
 
     model = pose_net()
     joints_location_vector = find_pose(image, model)
