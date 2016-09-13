@@ -74,11 +74,11 @@ def selectsiya(dir):
             destname = os.path.join(delete_dir, f)
             print('source:'+fullfile+' dest:'+destname)
             os.rename(fullfile,destname)
-        print('(d)elete (a)lone (b)ack (space)nothing ')
+        print('(d)elete (a)lone (b)ack (space)nothing (q)uit ')
         c = cv2.waitKey(0)
         if c == ord('b'):
             print('go back')
-            i=i-2
+            i=i-1
             continue
         if c == ord('d'):
             print('delete')
