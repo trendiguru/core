@@ -57,13 +57,14 @@ def selectsiya(dir):
  #   print('files:'+str(files))
     n = 0
     i = 0
+    start_time=time.time()
     while i < len(files):
         f = files[i]
         print('i='+str(i))
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
-        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted')
+        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/i+1))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
         img_arr = cv2.imread(fullfile)
@@ -100,7 +101,6 @@ def selectsiya(dir):
             print('nothing')
         n = n + 1
         i = i + 1
-
 
 def save_img_at_url(url,savename=None):
     # download the image, convert it to a NumPy array, and then save
