@@ -110,7 +110,7 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
 def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    if entries.count() > 2000 and 'xl' not in collection:
+    if entries.count() > 2000 and 'amazon_DE' not in collection:
         start = time()
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         print "annoy_search took {0} secs".format(time()-start)
