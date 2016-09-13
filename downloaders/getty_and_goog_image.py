@@ -73,6 +73,8 @@ def selectsiya(dir):
             print('something bad happened trying to imread')
             continue
         try:
+            h,w = img_arr.shape(0:2)
+            img_arr = cv2.resize(img_arr,dsize=(w*2,h*2))
             cv2.imshow('candidate',img_arr)
         except:
             print('something bad happened trying to imshow')
