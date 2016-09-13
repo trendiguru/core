@@ -219,6 +219,7 @@ def genreDownloader(genreId, start_page=1):
     logger.info(summery)
     print(sub + ' Done!')
 
+
 def deleteDuplicates(delete=True):
     '''
     true for deleting
@@ -229,7 +230,7 @@ def deleteDuplicates(delete=True):
         print_n_flush('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
             delete_count = 0
-            items = col.find({'categories':cat})
+            items = col.find({'categories':cat}, no_cursor_timeout=True)
             before_count = items.count()
             tmp = []
             for item in items:
@@ -254,11 +255,11 @@ def deleteDuplicates(delete=True):
                             if delete:
                                 col.delete_one({'_id':idx2del})
                             else:
-                                delete_count+=1
-
-            items = col.find({'categories':cat})
+                                delete_count += 1
+            items.close()
             if delete:
-                after_count = items.count()
+                items_count = col.count({'categories': cat})
+                after_count = items_count
             else:
                 after_count = before_count - delete_count
-            print_n_flush('%s : before-> %d, after-> %d' %(cat, before_count, after_count))
+            print_n_flush('%s : before-> %d, after-> %d' % (cat, before_count, after_count))

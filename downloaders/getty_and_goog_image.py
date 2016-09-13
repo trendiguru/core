@@ -56,23 +56,37 @@ def selectsiya(dir):
     files = [f for f in os.listdir(dir) if 'jpg' in f]
  #   print('files:'+str(files))
     n = 0
-    for f in files:
+    i = 0
+    start_time=time.time()
+    while i < len(files):
+        f = files[i]
+        print('i='+str(i))
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
-        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted')
+        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
-        img_arr = cv2.imread(fullfile)
         try:
+            img_arr = cv2.imread(fullfile)
+        except:
+            print('something bad happened trying to imread')
+            continue
+        try:
+            h,w = img_arr.shape[0:2]
+            img_arr = cv2.resize(img_arr,dsize=(w*2,h*2))
             cv2.imshow('candidate',img_arr)
         except:
             print('something bad happened trying to imshow')
             destname = os.path.join(delete_dir, f)
             print('source:'+fullfile+' dest:'+destname)
             os.rename(fullfile,destname)
+        print('(d)elete (a)lone (b)ack (space)nothing (q)uit ')
         c = cv2.waitKey(0)
-        print('(d)elete (a)lone (space)nothing')
+        if c == ord('b'):
+            print('go back')
+            i=i-1
+            continue
         if c == ord('d'):
             print('delete')
             destname = os.path.join(delete_dir, f)
@@ -87,12 +101,12 @@ def selectsiya(dir):
             print('do nothing')
         elif c == ord('q'):
             print('quit')
+            cv2.destroyAllWindows()
             return
         else:
             print('nothing')
         n = n + 1
-
-
+        i = i + 1
 
 def save_img_at_url(url,savename=None):
     # download the image, convert it to a NumPy array, and then save

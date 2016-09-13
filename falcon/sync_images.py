@@ -37,6 +37,7 @@ class Images(object):
         method = req.get_param("method") or 'nd'
         pid = req.get_param("pid") or 'default'
         products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
+        print "using products collection {0}".format(products)
         data = json_util.loads(req.stream.read())
         page_url = data.get("pageUrl")
         images = data.get("imageList")
