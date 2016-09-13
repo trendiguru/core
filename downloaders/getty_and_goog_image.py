@@ -64,7 +64,7 @@ def selectsiya(dir):
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
-        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/i+1))
+        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
         img_arr = cv2.imread(fullfile)
