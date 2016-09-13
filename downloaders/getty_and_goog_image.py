@@ -56,7 +56,9 @@ def selectsiya(dir):
     files = [f for f in os.listdir(dir) if 'jpg' in f]
  #   print('files:'+str(files))
     n = 0
-    for f in files:
+    for i  in range(len(files)):
+        f = files[i]
+        print('i='+str(i))
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
@@ -71,8 +73,12 @@ def selectsiya(dir):
             destname = os.path.join(delete_dir, f)
             print('source:'+fullfile+' dest:'+destname)
             os.rename(fullfile,destname)
+        print('(d)elete (a)lone (b)ack (space)nothing ')
         c = cv2.waitKey(0)
-        print('(d)elete (a)lone (space)nothing')
+        if c == ord('b'):
+            print('go back')
+            i=i-2
+            continue
         if c == ord('d'):
             print('delete')
             destname = os.path.join(delete_dir, f)
