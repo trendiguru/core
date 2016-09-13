@@ -42,7 +42,7 @@ products_per_ip_pid = {'default':
                                  {'default': 'amazon_US'},
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
-                       "stylebook":
+                       "6nGzEP7cp5s957P4":
                                  {'default': 'amazon_DE'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
