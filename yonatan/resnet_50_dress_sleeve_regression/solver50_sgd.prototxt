@@ -1,0 +1,22 @@
+#net: "train_val.prototxt"
+train_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-train.prototxt"
+test_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-test.prototxt"
+test_iter: 150
+test_interval: 20
+display: 20
+average_loss: 20
+weight_decay: 0.0005
+# no gradient accumulation
+iter_size: 20
+snapshot: 5000
+snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve_regression"
+test_initialization: true
+solver_mode : GPU
+type: "SGD"
+base_lr: 0.0001
+lr_policy: "step"
+#lr_policy: "fixed"
+gamma: 0.1
+stepsize: 3000
+max_iter: 100000
+momentum: 0.9
