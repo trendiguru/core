@@ -30,6 +30,7 @@ def make_index(dir):
     sortedfiles=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
     files=[os.path.basename(f) for f in sortedfiles]
+    files.sort #dont sort by date, it mixes nets up
     print('files in:'+str(files))
 #    print(files)
     sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
@@ -37,7 +38,7 @@ def make_index(dir):
     dirs = [os.path.basename(d) for d in sorteddirs ]
     print('dirs in '+str(dir)+':'+str(dirs))
 #    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
-#    dirs.sort()
+    dirs.sort() #dont sort by date, it mixes nets up
     htmlfiles = []
     for file in files:
 #        actual_path =
