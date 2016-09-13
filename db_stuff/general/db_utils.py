@@ -201,6 +201,8 @@ def refresh_worker(doc, name, cats=[]):
     collection = db.images
     for person in doc['people']:
         gender = person['gender']
+        if gender is None:
+            gender = 'Female'
         col_name = name + '_' + gender
         for item in person['items']:
             similar_res = item['similar_results']
