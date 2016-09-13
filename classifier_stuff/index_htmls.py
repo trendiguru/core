@@ -1,6 +1,7 @@
 __author__ = 'jeremy'
 
 import os
+import time
 
 from trendi import Utils
 
@@ -11,8 +12,9 @@ def make_indices_onedeep(dir):
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
-    dirs.sort()
-    print('dirs in '+dir+':'+str(dirs))
+    dirs=sorted(dirs,key=os.path.getmtime,reverse=True)
+
+    print('top dirs in '+dir+':'+str(dirs))
     for d in dirs:
         print('onedeep now making index.html for '+str(d))
         make_index(d)
@@ -23,15 +25,24 @@ def make_index(dir):
     '''
     print('make_index now making index for dir:' + str(dir))
 #    files = Utils.files_in_directory(dir)
-    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ]
-    files.sort()
-#    print('files in:'+str(dir))
+#    files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ]
+
+    sortedfiles=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ],
+                 key=os.path.getmtime,reverse=True)
+    files=[os.path.basename(f) for f in sortedfiles]
+    print('files in:'+str(files))
 #    print(files)
-    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
-    dirs.sort()
+    sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
+                 key=os.path.getmtime,reverse=True)
+    dirs = [os.path.basename(d) for d in sorteddirs ]
+    print('dirs in '+str(dir)+':'+str(dirs))
+#    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
+#    dirs.sort()
     htmlfiles = []
     for file in files:
 #        actual_path =
+        if file=='index.html':
+            continue
         htmlfiles.append(file)
 #        if file.endswith('html'):
 #            htmlfiles.append(file)
@@ -41,7 +52,7 @@ def make_index(dir):
 #   sort by mod time
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
-    htmlfiles.sort()
+#    htmlfiles.sort()
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
@@ -49,7 +60,6 @@ def make_index(dir):
     write_index_html_with_images(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
  #   print(htmlfiles)
-
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
@@ -61,8 +71,10 @@ def write_index_html(dir, files):
     f.write('<HTML><HEAD><TITLE>Results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
+        fullpath = os.path.join(dir,file)
+        modtime = time.ctime(os.path.getmtime(fullpath))
         f.write('<br>\n')
-        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
+        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
     f.write('</html>\n')
     f.close
@@ -78,13 +90,18 @@ def write_index_html_with_images(dir, files):
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
         f.write('<br>\n')
+
+        fullpath = os.path.join(dir,file)
+        modtime = time.ctime(os.path.getmtime(fullpath))
+
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
+        print('writing line for file:'+file)
         if file[-4:] == '.jpg' or file[-4:] == '.png':
-#            print('jpg line for '+file)
-            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a>')
+            print('jpg line for '+file)
+            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' + modtime+'\n')
         else:
-#            print('nonjpg line for '+file)
-            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a>\n')
+            print('nonjpg line for '+file)
+            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
     f.write('</html>\n')
     f.close
