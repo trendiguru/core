@@ -1,6 +1,6 @@
 #net: "train_val.prototxt"
-train_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-train.prototxt"
-test_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-test.prototxt"
+train_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/ResNet-50-train.prototxt"
+test_net: "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/ResNet-50-test.prototxt"
 test_iter: 150
 test_interval: 20
 display: 20
