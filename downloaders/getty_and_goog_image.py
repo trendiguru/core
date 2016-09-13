@@ -67,7 +67,11 @@ def selectsiya(dir):
         print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
-        img_arr = cv2.imread(fullfile)
+        try:
+            img_arr = cv2.imread(fullfile)
+        except:
+            print('something bad happened trying to imread')
+            continue
         try:
             cv2.imshow('candidate',img_arr)
         except:
