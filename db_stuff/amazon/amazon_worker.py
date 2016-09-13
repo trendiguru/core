@@ -16,7 +16,7 @@ today_date = str(datetime.date(datetime.now()))
 q = Queue('fingerprinter4db', connection=redis_conn)
 pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS',
          'PONTE']
-big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF', 'CUFFLINK']
+big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF', 'CUFFLINK', 'STUDS']
 
 
 def amazon_de_to_ppd(cat, sub_cat, title):
