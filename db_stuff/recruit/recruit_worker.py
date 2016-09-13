@@ -230,7 +230,7 @@ def deleteDuplicates(delete=True):
         print_n_flush('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
             delete_count = 0
-            items = col.find({'categories':cat}, no_cursor_timeout=False)
+            items = col.find({'categories':cat}, no_cursor_timeout=True)
             before_count = items.count()
             tmp = []
             for item in items:
