@@ -56,7 +56,8 @@ def selectsiya(dir):
     files = [f for f in os.listdir(dir) if 'jpg' in f]
  #   print('files:'+str(files))
     n = 0
-    for i  in range(len(files)):
+    i = 0
+    while i < len(files):
         f = files[i]
         print('i='+str(i))
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
@@ -97,7 +98,7 @@ def selectsiya(dir):
         else:
             print('nothing')
         n = n + 1
-
+        i = i + 1
 
 
 def save_img_at_url(url,savename=None):
