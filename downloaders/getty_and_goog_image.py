@@ -94,6 +94,7 @@ def selectsiya(dir):
             print('do nothing')
         elif c == ord('q'):
             print('quit')
+            cv2.destroyAllWindows()
             return
         else:
             print('nothing')
