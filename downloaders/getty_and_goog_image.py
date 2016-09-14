@@ -169,7 +169,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
                 for k,v in nth_img.iteritems():
                     for item in avoid_these_terms:
                         print('item:'+item+' k,v:'+str(k)+':'+str(v))
-                        if v and item in v:
+                        if v and type(v)==basestring and item in v:
                             skip_this = True
                             print('skipping due to :'+str(k)+':'+str(v))
                             break
