@@ -262,11 +262,12 @@ def get_indexes_names(coll):
 
 def reindex(collection_name, old_indexes=None):
     collection = db[collection_name]
-    oldindexes = old_indexes or get_indexes_names(collection)
-
+    current_keys = get_indexes_names(collection)
+    oldindexes = old_indexes or current_keys
     for index in oldindexes:
         print (index)
-        collection.drop_index(index)
+        if index in current_keys:
+            collection.drop_index(index)
         collection.create_index(index, background=True)
     print('Index done!')
 
