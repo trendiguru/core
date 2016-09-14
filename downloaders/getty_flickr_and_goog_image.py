@@ -201,9 +201,86 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
+    if savedir is None:
+        savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
+    Utils.ensure_dir(savedir)
+    outfile = tag+'out.txt'
+    for i in range(n_pages):
+        query = '&tags='+tag+'&page='+str(i+1)
+        print query
+        cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
+        print cmd
+        res = subprocess.call(cmd,shell=True)
+        print('res:'+str(type(res))+':'+str(res))
+        with open(outfile,'r') as f:
+            content=f.read()
+            #the info is returned inside a function call like flickerApi({bla:bla...}) so I need to strip the beginning and end stuff
+            stripped = content[14:-1]
+            f.close()
+        d = json.loads(stripped)
+        pprint(d)
+        if not d:
+            print('no file found')
+            continue
+        if not 'photos' in d:
+            print('no photos field in result, continuing')
+            continue
+        phot = d['photos']
+        if not 'photo' in phot:
+            print('no photo field in result, continuing')
+            continue
+        imgs = phot['photo']
+        l = len(imgs)
+#        print imgs
+        print(str(l)+' images found')
+        skip_this = False
+        for j in range(l):
+            time.sleep(0.05)
+            nth_img = imgs[j]
+            if avoid_these_terms:
+                #go thru the entire dict and check if terms to avoid is in there somewhere
+                for k,v in nth_img.iteritems():
+                    for item in avoid_these_terms:
+#                        print('item:'+item+' k,v:'+str(k)+':'+str(v)+' type:'+str(type(v)))
+                        if v and (type(v) is str or type(v) is unicode) and item in v.lower():
+                            skip_this = True
+                            print('SKIPPING due to :'+str(k)+':'+str(v))
+                            break
+                    if skip_this:
+                        break
+         #       raw_input('ret to cont')
+  #          print nth_img
+            if skip_this:
+                continue
+            if not 'farm' in nth_img:
+                print('no farm found, continuing')
+                continue
+            farm = nth_img['farm']
+            if not 'id' in nth_img:
+                print('no id found, continuing')
+                continue
+            id = nth_img['id']
+            if not 'server' in nth_img:
+                print('no server found, continuing')
+                continue
+            server = nth_img['server']
+            if not 'secret' in nth_img:
+                print('no secret found, continuing')
+                continue
+            secret = nth_img['secret']
+            url = 'https://farm'+str(farm)+'.staticflickr.com/'+str(server)+'/'+str(id)+'_'+str(secret)+'.jpg'
+            print url
+            savename=str(id)+'.'+str(server)+'.'+str(farm)+'.jpg'
+            savename = tag + savename
+            savename = os.path.join(savedir,savename)
+            Utils.ensure_dir(savedir)
+            print(savename)
+            save_img_at_url(url,savename=savename)
+
 if __name__=="__main__":
     items = constants.binary_cats
-    items = items[3:]
+#    items = items[3:]
 #    items = [1,2,3]
 #    with Pool(4) as p:
 #    items = [items[0],items[1]]
@@ -215,11 +292,13 @@ if __name__=="__main__":
     if(parallel == False):
         for i in range(len(items)):
             getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+            flickr_dl(items[i],n_pages=2000,savedir = '/home/jeremy/image_dbs/flickr/'+items[i]+'/')
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
         pool = multiprocessing.Pool(processes=10)
-        pool.map(getty_dl, items)
+#        pool.map(getty_dl, items)
+        pool.map(flickr_dl, items)
 
 
 
