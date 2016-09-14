@@ -1,6 +1,8 @@
 from datetime import datetime
 from time import sleep,time
 
+import argparse
+
 from ..general.db_utils import log2file, thearchivedoorman, refresh_similar_results
 from rq import Queue
 
@@ -95,6 +97,46 @@ use printCategories to scan the api and print all categories under ladies' and m
 """
 
 
+def post_download(duration=0, before_count=0, full=True):
+    deleteDuplicates()
+    after_count = 0
+    new_count = 0
+    for gender in ['Male', 'Female']:
+        col_name = 'recruit_' + gender
+        collection = db[col_name]
+        after_count += collection.count()
+        new_count += collection.find({'download_data.first_dl': today_date}).count()
+        if full:
+            status_full_path = 'collections.' + col_name + '.status'
+            db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
+        thearchivedoorman(col_name)
+        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
+        while not forest_job.is_finished and not forest_job.is_failed:
+            sleep(300)
+        if forest_job.is_failed:
+            print ('annoy plant forest failed')
+
+    dl_info = {"start_date": today_date,
+               "dl_duration": duration,
+               "items_before": before_count,
+               "items_after": after_count,
+               "items_new": new_count}
+
+    mongo2xl('recruit_me', dl_info)
+
+    for gender in ['Male', 'Female']:
+        col_name = 'recruit_' + gender
+        collection = db[col_name]
+        new_items = collection.find({'download_data.first_dl': today_date}).count()
+        if full:
+            status_full_path = 'collections.' + col_name + '.status'
+            notes_full_path = 'collections.' + col_name + '.notes'
+            db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
+                                                                 notes_full_path: new_items}})
+
+    refresh_similar_results('recruit')
+
+
 def download_recruit(delete=False):
     s = time()
     before_count = 0
@@ -123,45 +165,25 @@ def download_recruit(delete=False):
     e = time()
     duration = e-s
     print ('download time : %d' % duration )
+    return duration, before_count
 
-    deleteDuplicates()
-    after_count = 0
-    new_count = 0
-    for gender in ['Male', 'Female']:
-        col_name = 'recruit_' + gender
-        collection = db[col_name]
-        after_count += collection.count()
-        new_count += collection.find({'download_data.first_dl': today_date}).count()
-        status_full_path = 'collections.' + col_name + '.status'
-        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
-        thearchivedoorman(col_name)
-        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
-        while not forest_job.is_finished and not forest_job.is_failed:
-            sleep(300)
-        if forest_job.is_failed:
-            print ('annoy plant forest failed')
 
-    dl_info = {"start_date": today_date,
-               "dl_duration": duration,
-               "items_before": before_count,
-               "items_after": after_count,
-               "items_new": new_count}
+def get_user_input():
+    parser = argparse.ArgumentParser(description='"@@@ Recruit Download @@@')
+    parser.add_argument('-p', '--post', dest="only_post", default=False, action='store_true',
+                        help='only run post download steps')
+    args = parser.parse_args()
+    return args
 
-    mongo2xl('recruit_me', dl_info)
-
-    for gender in ['Male', 'Female']:
-        col_name = 'recruit_' + gender
-        collection = db[col_name]
-        status_full_path = 'collections.' + col_name + '.status'
-        notes_full_path = 'collections.' + col_name + '.notes'
-        new_items = collection.find({'download_data.first_dl': today_date}).count()
-        db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
-                                                                      notes_full_path: new_items}})
-
-    refresh_similar_results('recruit')
 
 if __name__=='__main__':
-    download_recruit()
+    user_inputs = get_user_input()
+    only_post = user_inputs.only_post
+    if only_post:
+        post_download(full=False)
+    else:
+        d, b = download_recruit()
+        post_download(d, b)
 
 
 # GET_gnereid(generate_genreid('Female',0,0))
