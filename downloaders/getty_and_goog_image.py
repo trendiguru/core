@@ -168,7 +168,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
                 #go thru the entire dict and check if terms to avoid is in there somewhere
                 for k,v in nth_img.iteritems():
                     for item in avoid_these_terms:
-                        print('item:'+item+' k,v:'+str(k)+':'+str(v))
+                        print('item:'+item+' k,v:'+str(k)+':'+str(v)+' type:'+str(type(v)==basestring))
                         if v and type(v)==basestring and item in v.lower():
                             skip_this = True
                             print('SKIPPING due to :'+str(k)+':'+str(v))
