@@ -260,9 +260,9 @@ def get_indexes_names(coll):
     return keys
 
 
-def reindex(collection_name):
+def reindex(collection_name, old_indexes=None):
     collection = db[collection_name]
-    oldindexes = get_indexes_names(collection)
+    oldindexes = old_indexes or get_indexes_names(collection)
     # remove indexes
     collection.drop_indexes()
     # build new indexes
