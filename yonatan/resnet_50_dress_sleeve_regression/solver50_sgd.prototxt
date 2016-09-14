@@ -18,5 +18,5 @@ lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
 stepsize: 3000
-max_iter: 100000
+max_iter: 100בג
 momentum: 0.9
