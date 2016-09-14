@@ -143,9 +143,9 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     archive_name = col_name+'_archive'
     pymongo_utils.delete_or_and_index(collection_name=archive_name, index_list=['id'])
     collection_archive = db[archive_name]
-    archivers = collection_archive.find()
-    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    out_stockers = collection.find({'status.instock': False})
+    archivers = collection_archive.find(no_cursor_timeout=True)
+    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}}, no_cursor_timeout=True)
+    out_stockers = collection.find({'status.instock': False}, no_cursor_timeout=True)
     archivers_count = archivers.count()
     not_updated_count = not_updated.count()
     out_stockers_count = out_stockers.count()
@@ -183,6 +183,9 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
                 collection_archive.insert_one(item)
     progress = n + a
     # move to the archive all the items which were downloaded today but are out of stock
+    archivers.close()
+    not_updated.close()
+    out_stockers.close()
     for o, item in enumerate(out_stockers):
         if (o + progress) % block_size == 0:
             progress_bar(block_size, total)
@@ -257,9 +260,9 @@ def get_indexes_names(coll):
     return keys
 
 
-def reindex(collection_name):
+def reindex(collection_name, old_indexes=None):
     collection = db[collection_name]
-    oldindexes = get_indexes_names(collection)
+    oldindexes = old_indexes or get_indexes_names(collection)
     # remove indexes
     collection.drop_indexes()
     # build new indexes

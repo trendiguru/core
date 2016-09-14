@@ -18,9 +18,9 @@ forest = Queue('annoy_forest', connection=redis_conn)
 def clear_duplicates(col_name):
     global last_pct
     collection = db[col_name]
-    bef = collection.count()
     all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
-                                     'color': 1, 'p_hash': 1})
+                                     'color': 1, 'p_hash': 1}, no_cursor_timeout=True)
+    bef = all_items.count()
     block_size = bef/100
     for i, item in enumerate(all_items):
         m, r = divmod(i, block_size)
@@ -62,6 +62,7 @@ def clear_duplicates(col_name):
 
         img_url = item['images']['XLarge']
         collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
+    all_items.close()
     print('')
     print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (bef, collection.count()))
 
@@ -93,7 +94,7 @@ def daily_annoy(col_name, categories, all_cats=False):
     if not all_cats:
         categories_with_changes = []
         for cat in categories:
-            if collection.find({'categories': cat, 'download_data.first_dl': today_date}).count() > 0:
+            if collection.count({'categories': cat, 'download_data.first_dl': today_date}) > 0:
                 categories_with_changes.append(cat)
                 print('%s will be re-annoyed' % cat)
         categories = categories_with_changes
@@ -143,7 +144,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
         col_name = '%s_%s' % ('amaze', gen)
         items_before += db[col_name].count()
     amazon_name = 'amazon_%s_%s' % (cc, gender)
-    amazon = db[amazon_name].find()
+    amazon = db[amazon_name].find(no_cursor_timeout=True)
     amazon_total = amazon.count()
     inserted = 0
     for x, item in enumerate(amazon):
@@ -151,7 +152,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
             print('%d/%d' % (x, amazon_total))
         idx = item['id']
         # check if already exists in plus collection
-        exists = amaze.find({'id': idx}).count()
+        exists = amaze.count({'id': idx})
         if exists:
             continue
         sizes = item['sizes']
@@ -164,7 +165,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
             if inserted % 100 == 0:
                 print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
-
+    amazon.close()
     clear_duplicates(amaze_name)  # add status bar
     thearchivedoorman(amaze_name, instock_limit=30, archive_limit=60)
     print_error('ARCHIVE DOORMAN FINISHED')
