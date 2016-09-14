@@ -23,7 +23,7 @@ weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 
                         'other': {'color': 1}}
 
 products_per_ip_pid = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'xl'},
+                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
                        'fashionseoul':
                                  {'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
@@ -42,8 +42,8 @@ products_per_ip_pid = {'default':
                                  {'default': 'amazon_US'},
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
-                       "stylebook":
-                                 {'default': 'xl'}
+                       "6nGzEP7cp5s957P4":
+                                 {'default': 'amazon_DE'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
@@ -302,12 +302,16 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
 # coat is a winter coat
 # jacket is a winter jacket (not a suit jacket)
 # suit has a jacket and pants
-binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet','bodysuit', 'cardigan', 'coat', 'dress', 'earrings',
-               'eyewear','footwear', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+binary_cats = ['belt','bikini','blazer', 'bracelet', 'cardigan', 'coat', 'dress', 'earrings',
+               'eyewear','footwear', 'gloves','handbag','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-missing_from_v2_compared_to_binary_cats = [ 'blazer', 'bodysuit',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man',]
+synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
+exclude_terms_for_binary_cats = [['conveyor','boxing','heavyweight'],None,['jeep','chevy','chevrolet','silverado','car'],['island'],['island'],['animal','cat','dog','doctor'],['animal','fox','wolf'],None,
+                                 None,None,None,None,None,['coat','suit']]
+
+missing_from_v2_compared_to_binary_cats = [ 'blazer',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man']
 
 #web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
 #                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
