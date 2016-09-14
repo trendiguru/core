@@ -2465,5 +2465,5 @@ layer {
 	bottom: "label"
 	top: "loss"
 	name: "loss"
-	type: "EUCLIDEAN_LOSS"
+	type: "EuclideanLoss"
 }
