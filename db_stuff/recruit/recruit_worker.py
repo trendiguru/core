@@ -235,8 +235,9 @@ def deleteDuplicates(delete=True):
             tmp = []
             for item in items:
                 idx1 = item['_id']
-                if idx1 in tmp:
-                    continue
+                if not delete:
+                    if idx1 in tmp:
+                        continue
                 img_url = item['images']['XLarge']
                 exists = col.find({'categories':cat, 'images.XLarge':img_url}).hint([('images.XLarge',1)])
                 if exists:
@@ -244,10 +245,10 @@ def deleteDuplicates(delete=True):
                         idx2del = e['_id']
                         if idx1 == idx2del:
                             continue
-                        tmp.append(idx2del)
                         if delete:
-                            col.delete_one({'_id':idx2del})
+                            col.delete_one({'_id': idx2del})
                         else:
+                            tmp.append(idx2del)
                             delete_count += 1
             items.close()
             if delete:

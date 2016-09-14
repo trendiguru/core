@@ -124,11 +124,11 @@ def post_download(duration=0, before_count=0, full=True):
 
     mongo2xl('recruit_me', dl_info)
 
-    for gender in ['Male', 'Female']:
-        col_name = 'recruit_' + gender
-        collection = db[col_name]
-        new_items = collection.find({'download_data.first_dl': today_date}).count()
-        if full:
+    if full:
+        for gender in ['Male', 'Female']:
+            col_name = 'recruit_' + gender
+            collection = db[col_name]
+            new_items = collection.find({'download_data.first_dl': today_date}).count()
             status_full_path = 'collections.' + col_name + '.status'
             notes_full_path = 'collections.' + col_name + '.notes'
             db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Done",
