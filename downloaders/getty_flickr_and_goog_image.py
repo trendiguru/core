@@ -201,7 +201,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_dl(tag,avoid_these_terms=None,n_pages = 10,savedir=None):
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
