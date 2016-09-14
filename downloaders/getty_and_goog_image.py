@@ -175,7 +175,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
                             break
                     if skip_this:
                         break
-                raw_input('ret to cont')
+         #       raw_input('ret to cont')
   #          print nth_img
             if skip_this:
                 continue
