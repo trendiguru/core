@@ -7,9 +7,13 @@ from bson import json_util
 class Editor(object):
 
     def on_get(self, req, resp, **kwargs):
-        ret = {'ok': False, 'data':{}}
+        ret = {'ok': False, 'data': {}}
         params = req.params
         try:
+            if "image_id" in kwargs:
+                print "Getting your image for you..."
+                ret['data'] = edit_results.get_image_obj_for_editor(None, id=kwargs["image_id"])
+                ret['ok'] = True
             if 'image_url' in params:
                 url = params["image_url"]
                 ret['data'] = edit_results.get_image_obj_for_editor(url)

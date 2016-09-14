@@ -21,8 +21,9 @@ EDITOR_PROJECTION = {'image_id': 1,
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
-def get_image_obj_for_editor(image_url):
-    sparse = db.images.find_one({'image_urls': image_url}, EDITOR_PROJECTION)
+def get_image_obj_for_editor(image_url, id=None):
+    query = {"_id": bson.ObjectId(id)} if id else {'image_urls': image_url}
+    sparse = db.images.find_one(query, EDITOR_PROJECTION)
     return sparse
 
 
