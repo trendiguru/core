@@ -13,7 +13,7 @@ snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve
 test_initialization: true
 solver_mode : GPU
 type: "SGD"
-base_lr: 0.0001
+base_lr: 0.000001
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
