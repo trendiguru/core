@@ -280,7 +280,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
 
 if __name__=="__main__":
     items = constants.binary_cats
-    items = items[3:]
+#    items = items[3:]
 #    items = [1,2,3]
 #    with Pool(4) as p:
 #    items = [items[0],items[1]]
