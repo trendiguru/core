@@ -24,7 +24,6 @@ import pymongo
 import dlib
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
-
 # answer_dict = nfc.pd('/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_test_set/cute_midi_dress(87).jpg')
 answer_dict = nfc.pd('http://g.nordstromimage.com/ImageGallery/store/product/Zoom/19/_12554259.jpg')
 
