@@ -131,7 +131,7 @@ def save_img_at_url(url,savename=None):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
 
-def getty_dl(searchphrase,n_pages = 2000,savedir=None):
+def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
@@ -163,7 +163,20 @@ def getty_dl(searchphrase,n_pages = 2000,savedir=None):
         for j in range(l):
             time.sleep(0.05)
             nth_img = imgs[j]
+            if avoid_these_terms:
+                skip_this = False
+                #go thru the entire dict and check if terms to avoid is in there somewhere
+                for k,v in nth_img.iteritems()
+                    for item in avoid_these_terms:
+                        if item in v:
+                            skip_this = True
+                            print('skipping due to :'+str(k)+':'+str(v))
+                            break
+                    if skip_this:
+                        break
   #          print nth_img
+            if skip_this:
+                continue
             if not 'display_sizes' in nth_img:
                 print('no display sizes field found, continuing')
                 continue
