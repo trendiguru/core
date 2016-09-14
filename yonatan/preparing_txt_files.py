@@ -132,4 +132,4 @@ def create_txt_files_no_mongo():
 
 
 if __name__ == '__main__':
-    create_txt_files_no_mongo()
+    create_txt_files(sys.argv)
