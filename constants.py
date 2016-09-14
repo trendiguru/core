@@ -302,12 +302,13 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
 # coat is a winter coat
 # jacket is a winter jacket (not a suit jacket)
 # suit has a jacket and pants
-binary_cats = ['bag', 'belt','bikini','blazer', 'bracelet', 'cardigan', 'coat', 'dress', 'earrings',
-               'eyewear','footwear', 'gloves','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+binary_cats = ['belt','bikini','blazer', 'bracelet', 'cardigan', 'coat', 'dress', 'earrings',
+               'eyewear','footwear', 'gloves','handbag','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
 
-exclude_terms_for_binary_cats = [None,['conveyor','boxing','heavyweight']]
+synonymous_cats = ['purse']
+exclude_terms_for_binary_cats = [['conveyor','boxing','heavyweight'] ]
 
 missing_from_v2_compared_to_binary_cats = [ 'blazer',  'gloves', 'lingerie', 'ring', 'swimwear%20AND%20man']
 
