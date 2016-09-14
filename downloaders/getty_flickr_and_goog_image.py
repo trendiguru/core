@@ -131,7 +131,7 @@ def save_img_at_url(url,savename=None):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
 
-def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
+def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
