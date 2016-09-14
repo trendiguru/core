@@ -260,13 +260,13 @@ def get_indexes_names(coll):
     return keys
 
 
-def reindex(collection_name, old_indexes=None):
+def reindex(collection_name, new_indexes=None):
     collection = db[collection_name]
     current_keys = get_indexes_names(collection)
-    oldindexes = old_indexes or current_keys
+    oldindexes = new_indexes or current_keys
     for index in oldindexes:
         print (index)
-        if index in current_keys:
+        if new_indexes is None:
             collection.drop_index(index)
         collection.create_index(index, background=True)
     print('Index done!')
