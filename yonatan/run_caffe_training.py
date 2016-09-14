@@ -21,7 +21,7 @@ solver.net.copy_from(weights)
 
 #run net learning iterations
 for _ in range(1000):
-    solver.step(5000)
+    solver.step(1)
     my_fc8 = solver.net.blobs['my_fc8'].data
     print('output of layer "my_fc8" {}'.format(my_fc8))
 #    score.seg_tests(solver, False, val, layer='score')
