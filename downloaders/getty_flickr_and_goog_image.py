@@ -231,7 +231,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
         try:
             d = json.loads(stripped)
         except:
-            print('json problem')
+            print('get_dates json problem')
             print('problem josn:'+str(stripped))
             maxtime = maxtime + time_inc
             continue
@@ -303,7 +303,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             try:
                 d = json.loads(stripped)
             except:
-                print('json problem')
+                print('json problem '+str(stripped))
                 continue
             pprint(d)
             if not d:
