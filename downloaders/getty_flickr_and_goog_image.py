@@ -210,7 +210,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
-    compressed_tag = tag.replace(' ','')
+    compressed_tag = tag.replace(' ','+')
     outfile = compressed_tag+'out.txt'
     maxtime = mintime+time_inc
     pages=0
@@ -266,7 +266,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     '''
     results_per_page = 500
     max_pages_returned = int(float(4900)/results_per_page)
-    compressed_tag = tag.replace(' ','%20')
+    compressed_tag = tag.replace(' ','+')
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+compressed_tag+'/'
     Utils.ensure_dir(savedir)
