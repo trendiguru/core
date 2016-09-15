@@ -48,7 +48,7 @@ def cancel_image(image_id):
 
 
 def get_latest_images(num=10):
-    curs = db.images.find({}, {'_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+    curs = db.images.find({}, {'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
     return list(curs)
 
 
