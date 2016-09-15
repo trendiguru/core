@@ -268,7 +268,8 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
-    outfile = tag+'out.txt'
+    compressed_tag = tag.replace(' ','')
+    outfile = compressed_tag+'out.txt'
     n_dl = 0
     mintime = 1262307661  #jan 2010
     n_dates = n_pages/max_pages_returned
