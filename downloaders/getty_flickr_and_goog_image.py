@@ -202,6 +202,16 @@ def getty_star(a_b):
     return getty_dl(*a_b)
 
 def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir=None):
+    '''
+    https://www.flickr.com/services/api/flickr.photos.search.html  tags (Optional)
+                A comma-delimited list of tags. Photos with one or more of the tags listed will be returned. You can exclude results that match a term by prepending it with a - character.
+    :param tag:
+    :param avoid_these_terms:
+    :param n_pages:
+    :param start_page:
+    :param savedir:
+    :return:
+    '''
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
@@ -231,6 +241,15 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir
         if not 'photo' in phot:
             print('no photo field in result, continuing')
             continue
+        if 'page' in phot:
+            print('page '+str(phot['page']))
+            page = phot['page']
+        if 'pages' in phot:
+            print('of total pages '+str(phot['pages']))
+            pages = phot['pages']
+        if page and pages and page>pages:
+            print('beyond last page')
+            return
         imgs = phot['photo']
         l = len(imgs)
 #        print imgs

@@ -75,8 +75,6 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
 
 
 
-
-
 def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
