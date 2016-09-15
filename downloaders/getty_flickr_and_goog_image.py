@@ -201,7 +201,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir=None):
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=None):
     '''
     https://www.flickr.com/services/api/flickr.photos.search.html  tags (Optional)
                 A comma-delimited list of tags. Photos with one or more of the tags listed will be returned. You can exclude results that match a term by prepending it with a - character.
