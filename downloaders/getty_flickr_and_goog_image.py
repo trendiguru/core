@@ -201,7 +201,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
@@ -296,7 +296,7 @@ if __name__=="__main__":
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
-        pool = multiprocessing.Pool(processes=10)
+        pool = multiprocessing.Pool(processes=n_proc)
 #        pool.map(getty_dl, items)
         pool.map(flickr_dl, items)
 
