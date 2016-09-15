@@ -218,7 +218,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     while(pages<40 and  maxtime<time.time()):
         time.sleep(3)
         initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
-        initial_query = '&text='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
+        initial_query = '&text='+compressed_tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         print('trying dates '+str(mintime)+' and '+str(maxtime))
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
         res = subprocess.call(cmd,shell=True)
@@ -282,7 +282,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
 
         for i in range(start_page,start_page+n_pages):
             query = '&tags='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page='+str(results_per_page)
-            query = '&text='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page='+str(results_per_page)
+            query = '&text='+compressed_tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page='+str(results_per_page)
             print query
             #kyle key 6351acc69daa0868c61319df617780c0   secret b7a74cf16401856b
             cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
