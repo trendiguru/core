@@ -18,53 +18,56 @@ forest = Queue('annoy_forest', connection=redis_conn)
 def clear_duplicates(col_name):
     global last_pct
     collection = db[col_name]
-    all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
+    cats = collection.distinct('categories')
+    for cat in cats:
+        print('working on %s' % cat)
+        all_items = collection.find({'categories':cat},
+                                    {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
                                      'color': 1, 'p_hash': 1},
-                                no_cursor_timeout=True, cursor_type=pymongo.CursorType.EXHAUST)
-    bef = all_items.count()
-    block_size = bef/100
-    for i, item in enumerate(all_items):
-        # m, r = divmod(i, block_size)
-        # if r == 0:
-        #     last_pct = progress_bar(block_size, bef, m, last_pct)
-        print i
-        item_id = item['_id']
-        keys = item.keys()
-        if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color', 'p_hash'] if x not in keys):
-            # collection.delete_one({'_id':item_id})
-            continue
-        idx = item['id']
-        collection.delete_many({'id': idx, '_id': {'$ne': item_id}})
+                                    no_cursor_timeout=True, cursor_type=pymongo.CursorType.EXHAUST)
+        bef = all_items.count()
+        block_size = bef/100
+        for i, item in enumerate(all_items):
+            m, r = divmod(i, block_size)
+            if r == 0:
+                last_pct = progress_bar(block_size, bef, m, last_pct)
+            item_id = item['_id']
+            keys = item.keys()
+            if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color', 'p_hash'] if x not in keys):
+                # collection.delete_one({'_id':item_id})
+                continue
+            idx = item['id']
+            collection.delete_many({'id': idx, '_id': {'$ne': item_id}})
 
-        parent = item['parent_asin']
-        parent_exists = collection.find({'parent_asin': parent, '_id': {'$ne': item_id}},
-                                        {'id': 1, 'sizes': 1, 'color': 1})
-        if parent_exists:
-            id_to_del = []
-            current_sizes = item['sizes']
-            current_color = item['color']
-            for tmp_item in parent_exists:
-                tmp_id = tmp_item['_id']
-                tmp_color = tmp_item['color']
-                if tmp_color != current_color:
-                    continue
-                tmp_sizes = tmp_item['sizes']
-                for size in tmp_sizes:
-                    if size not in current_sizes:
-                        current_sizes.append(size)
-                id_to_del.append(tmp_id)
-            if len(id_to_del):
-                collection.delete_many({'_id': {'$in': id_to_del}})
+            parent = item['parent_asin']
+            parent_exists = collection.find({'parent_asin': parent, '_id': {'$ne': item_id}},
+                                            {'id': 1, 'sizes': 1, 'color': 1})
+            if parent_exists:
+                id_to_del = []
+                current_sizes = item['sizes']
+                current_color = item['color']
+                for tmp_item in parent_exists:
+                    tmp_id = tmp_item['_id']
+                    tmp_color = tmp_item['color']
+                    if tmp_color != current_color:
+                        continue
+                    tmp_sizes = tmp_item['sizes']
+                    for size in tmp_sizes:
+                        if size not in current_sizes:
+                            current_sizes.append(size)
+                    id_to_del.append(tmp_id)
+                if len(id_to_del):
+                    collection.delete_many({'_id': {'$in': id_to_del}})
 
-        img_hash = item['img_hash']
-        collection.delete_many({'img_hash': img_hash, '_id': {'$ne': item_id}})
+            img_hash = item['img_hash']
+            collection.delete_many({'img_hash': img_hash, '_id': {'$ne': item_id}})
 
-        p_hash = item['p_hash']
-        collection.delete_many({'p_hash': p_hash, '_id': {'$ne': item_id}})
+            p_hash = item['p_hash']
+            collection.delete_many({'p_hash': p_hash, '_id': {'$ne': item_id}})
 
-        img_url = item['images']['XLarge']
-        collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
-    all_items.close()
+            img_url = item['images']['XLarge']
+            collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
+        all_items.close()
     print('')
     print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (bef, collection.count()))
 
