@@ -228,7 +228,11 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
             #the info is returned inside a function call like flickerApi({bla:bla...}) so I need to strip the beginning and end stuff
             stripped = content[14:-1]
             f.close()
-        d = json.loads(stripped)
+        try:
+            d = json.loads(stripped)
+        except:
+            print('json problem')
+            continue
     #    pprint(d)
         if not d:
             print('no file found')
@@ -294,7 +298,11 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
                 #the info is returned inside a function call like flickerApi({bla:bla...}) so I need to strip the beginning and end stuff
                 stripped = content[14:-1]
                 f.close()
-            d = json.loads(stripped)
+            try:
+                d = json.loads(stripped)
+            except:
+                print('json problem')
+                continue
             pprint(d)
             if not d:
                 print('no file found')
