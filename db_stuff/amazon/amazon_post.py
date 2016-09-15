@@ -20,7 +20,7 @@ def clear_duplicates(col_name):
     collection = db[col_name]
     all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
                                      'color': 1, 'p_hash': 1},
-                                no_cursor_timeout=True, cursor_type=pymongo.CursorType.EXHAUST).sort({'$natural':1})
+                                no_cursor_timeout=True, cursor_type=pymongo.CursorType.EXHAUST).sort('natural',1)
     bef = all_items.count()
     block_size = bef/100
     for i, item in enumerate(all_items):
