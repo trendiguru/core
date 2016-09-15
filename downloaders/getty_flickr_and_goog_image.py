@@ -237,8 +237,11 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
         if 'pages' in phot:
             print('of total pages '+str(phot['pages']))
             pages = phot['pages']
+            if pages==oldpages:
+                time_inc = time_inc*1.2
         print('got '+str(pages)+' pages')
         maxtime = maxtime + time_inc
+        oldpages=pages
     maxtime = maxtime - time_inc
     print('returning maxtime:'+str(maxtime)+' pages:'+str(pages))
     return maxtime
