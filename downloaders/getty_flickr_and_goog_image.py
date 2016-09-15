@@ -201,13 +201,26 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir=None):
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=None):
+    '''
+    https://www.flickr.com/services/api/flickr.photos.search.html  tags (Optional)
+                A comma-delimited list of tags. Photos with one or more of the tags listed will be returned. You can exclude results that match a term by prepending it with a - character.
+    :param tag:
+    :param avoid_these_terms:
+    :param n_pages:
+    :param start_page:
+    :param savedir:
+    :return:
+    '''
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
+    n_dl = 0
+    mintime = 1473948514 - 3600*24*100
+    maxtime = 1473948514
     for i in range(start_page,start_page+n_pages):
-        query = '&tags='+tag+'&page='+str(i+1)
+        query = '&tags='+tag+'&page='+str(i+1)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)
         print query
         #kyle key 6351acc69daa0868c61319df617780c0   secret b7a74cf16401856b
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
@@ -231,6 +244,15 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir
         if not 'photo' in phot:
             print('no photo field in result, continuing')
             continue
+        if 'page' in phot:
+            print('page '+str(phot['page']))
+            page = phot['page']
+        if 'pages' in phot:
+            print('of total pages '+str(phot['pages']))
+            pages = phot['pages']
+        if page and pages and page>pages:
+            print('beyond last page')
+            return
         imgs = phot['photo']
         l = len(imgs)
 #        print imgs
@@ -268,16 +290,22 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir
             server = nth_img['server']
             if not 'secret' in nth_img:
                 print('no secret found, continuing')
-                continue
+                continue #
             secret = nth_img['secret']
             url = 'https://farm'+str(farm)+'.staticflickr.com/'+str(server)+'/'+str(id)+'_'+str(secret)+'.jpg'
-            print url
+  #          print url
             savename=str(id)+'.'+str(server)+'.'+str(farm)+'.jpg'
             savename = tag + savename
             savename = os.path.join(savedir,savename)
             Utils.ensure_dir(savedir)
-            print(savename)
+            if os.path.exists(savename):
+                print(savename+' exists!!')
+                savename=savename[:-4]+'.b.jpg'
+#                raw_intput('check the flies')
             save_img_at_url(url,savename=savename)
+            n_dl = n_dl + 1
+        n_files = len(os.listdir(savedir))
+        print('n dl:'+str(n_dl)+' n_files:'+str(n_files)+' '+savename)
 
 if __name__=="__main__":
     items = constants.binary_cats
@@ -292,7 +320,7 @@ if __name__=="__main__":
     parallel = True
     if(parallel == False):
         for i in range(len(items)):
-            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+#            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
             flickr_dl(items[i],n_pages=2000,savedir = '/home/jeremy/image_dbs/flickr/'+items[i]+'/')
     else:
         n_proc = multiprocessing.cpu_count()
