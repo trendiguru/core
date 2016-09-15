@@ -288,7 +288,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             server = nth_img['server']
             if not 'secret' in nth_img:
                 print('no secret found, continuing')
-                continue
+                continue #
             secret = nth_img['secret']
             url = 'https://farm'+str(farm)+'.staticflickr.com/'+str(server)+'/'+str(id)+'_'+str(secret)+'.jpg'
   #          print url
