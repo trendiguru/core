@@ -211,6 +211,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     outfile = tag+'out.txt'
     maxtime = mintime+time_inc
     pages=0
+    oldpages = -1
     while(pages<40 and  maxtime<time.time()):
         initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         print('trying dates '+str(mintime)+' and '+str(maxtime))
