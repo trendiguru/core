@@ -32,16 +32,14 @@ def url_to_image(url):
     # return the image
     return new_image
 
-
-def get_layer_output(layer='myfc8'):
+def get_layer_output(layer='myfc7'):
     blobs = net.blobs
     blob_keys = [b for b in blobs.keys()]
-    print('blobs:'+str(blobs))
+#    print('blob keys:'+str(blob_keys))
     params = net.params
-    print('params:'+str(params))
     param_keys = [k for k in params.keys()]
-
-    loss = net.blobs['loss'].data
+#    print('param keys:'+str(param_keys))
+    layer_data = net.blobs[layer].data
 
 
 def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
@@ -54,7 +52,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
-
 #    in_ = in_.astype(float)
     if image is None:
         logging.debug('got None for image')
