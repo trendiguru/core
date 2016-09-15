@@ -8,12 +8,12 @@ average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
-snapshot: 5000
+snapshot: 1500
 snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve_regression"
 test_initialization: true
 solver_mode : GPU
 type: "SGD"
-base_lr: 0.0001
+base_lr: 0.000001
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1
