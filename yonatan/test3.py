@@ -18,7 +18,7 @@ import yonatan_classifier
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve_regression_iter_4500.caffemodel"
+PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve_regression_iter_15000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None

@@ -9,6 +9,7 @@ class Editor(object):
     def on_get(self, req, resp, **kwargs):
         ret = {'ok': False, 'data': {}}
         params = req.params
+        print params
         try:
             if "image_id" in kwargs:
                 print "Getting your image for you..."
