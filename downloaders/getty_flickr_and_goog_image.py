@@ -215,7 +215,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     pages=0
     oldpages = -1
     while(pages<40 and  maxtime<time.time()):
-        time.sleep(2)
+        time.sleep(3)
         initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         print('trying dates '+str(mintime)+' and '+str(maxtime))
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
@@ -386,7 +386,7 @@ if __name__=="__main__":
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
-        pool = multiprocessing.Pool(processes=n_proc)
+        pool = multiprocessing.Pool(processes=10)
 #        pool.map(getty_dl, items)
         pool.map(flickr_dl, items)
 
