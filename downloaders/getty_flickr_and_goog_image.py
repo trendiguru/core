@@ -206,9 +206,10 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
-    for i in range(start_page,n_pages):
+    for i in range(start_page,start_page+n_pages):
         query = '&tags='+tag+'&page='+str(i+1)
         print query
+        #kyle key 6351acc69daa0868c61319df617780c0   secret b7a74cf16401856b
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
         print cmd
         res = subprocess.call(cmd,shell=True)
