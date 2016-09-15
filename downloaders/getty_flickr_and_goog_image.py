@@ -232,6 +232,8 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
             d = json.loads(stripped)
         except:
             print('json problem')
+            print('problem josn:'+str(stripped))
+            maxtime = maxtime + time_inc
             continue
     #    pprint(d)
         if not d:
@@ -330,7 +332,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             skip_this = False
 
             for j in range(l):
-                time.sleep(0.05)
+ #               time.sleep(0.05)
                 nth_img = imgs[j]
                 if avoid_these_terms:
                     #go thru the entire dict and check if terms to avoid is in there somewhere
