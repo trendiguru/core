@@ -131,7 +131,7 @@ def save_img_at_url(url,savename=None):
     new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
 
-def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
+def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/getty/'+searchphrase+'/'
     Utils.ensure_dir(savedir)
@@ -201,12 +201,12 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 2000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
+def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=3000,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
-    for i in range(n_pages):
+    for i in range(start_page,n_pages):
         query = '&tags='+tag+'&page='+str(i+1)
         print query
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
@@ -236,7 +236,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
         print(str(l)+' images found')
         skip_this = False
         for j in range(l):
-#            time.sleep(0.05)
+            time.sleep(0.05)
             nth_img = imgs[j]
             if avoid_these_terms:
                 #go thru the entire dict and check if terms to avoid is in there somewhere
