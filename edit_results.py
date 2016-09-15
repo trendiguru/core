@@ -8,6 +8,7 @@ from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
 
 EDITOR_PROJECTION = {'image_id': 1,
+                     'image_urls': 1,
                      'saved_date': 1,
                      'num_of_people': 1,
                      'people.face': 1,
@@ -21,8 +22,8 @@ EDITOR_PROJECTION = {'image_id': 1,
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
-def get_image_obj_for_editor(image_url, id=None):
-    query = {"_id": bson.ObjectId(id)} if id else {'image_urls': image_url}
+def get_image_obj_for_editor(image_url, image_id=None):
+    query = {"image_id": image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
     return sparse
 
