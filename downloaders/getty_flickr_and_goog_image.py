@@ -203,7 +203,7 @@ def getty_star(a_b):
     return getty_dl(*a_b)
 
 def flickr_get_dates(tag,mintime=0,savedir=None):
-    time.sleep(1)
+    time.sleep(2)
 
     time_inc = 3600*24*1  #1 day
     print('getting dates, min is '+str(mintime))
@@ -215,7 +215,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     pages=0
     oldpages = -1
     while(pages<40 and  maxtime<time.time()):
-        time.sleep(1)
+        time.sleep(2)
         initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         print('trying dates '+str(mintime)+' and '+str(maxtime))
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
