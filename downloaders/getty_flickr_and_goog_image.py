@@ -210,7 +210,8 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
-    outfile = tag+'out.txt'
+    compressed_tag = tag.replace(' ','')
+    outfile = compressed_tag+'out.txt'
     maxtime = mintime+time_inc
     pages=0
     oldpages = -1
