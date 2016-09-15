@@ -216,6 +216,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
+    n_dl = 0
     for i in range(start_page,start_page+n_pages):
         query = '&tags='+tag+'&page='+str(i+1)
         print query
@@ -290,13 +291,16 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
                 continue
             secret = nth_img['secret']
             url = 'https://farm'+str(farm)+'.staticflickr.com/'+str(server)+'/'+str(id)+'_'+str(secret)+'.jpg'
-            print url
+  #          print url
             savename=str(id)+'.'+str(server)+'.'+str(farm)+'.jpg'
             savename = tag + savename
             savename = os.path.join(savedir,savename)
             Utils.ensure_dir(savedir)
             print(savename)
             save_img_at_url(url,savename=savename)
+            n_dl = n_dl + 1
+        n_files = len(os.listdir(savedir))
+        print('n dl:'+str(n_dl)+' n_files:'+str(n_files))
 
 if __name__=="__main__":
     items = constants.binary_cats
