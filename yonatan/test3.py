@@ -76,5 +76,5 @@ def theDetector(url_or_np_array):
 
     predict_label = int(max_result_index)
 
-    print predictions[0]
+    print "prediction: {0}, in percent: {1}".format(predictions[0], np.exp(predictions[0]))
 
