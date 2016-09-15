@@ -31,6 +31,12 @@ class PaperResource:
         print('get combined:'+str(get_combined_results))
         get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
+        get_layer_output = req.get_param('getLayerOutput')
+        print('get layer output:'+str(get_combined_results))
+        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
+            get_layer_output = 'myfc7'
+
+
 #        get_yolo_results = req.get_param('getYolo')
 #        print('get yolo:'+str(get_yolo_results))
 #        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
@@ -69,6 +75,14 @@ class PaperResource:
                 ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index)
                 if ret["mask"] is not None:
                     ret["success"] = True
+
+        # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
+            if get_layer_output:
+                ret["layer_output"] = neurodoll.get_layer_output(get_layer_output)
+                if ret["layer_output"] is not None:
+                    ret["success"] = True
+                else:
+                    ret["error"] = "no layer output obtained"
 
         # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:

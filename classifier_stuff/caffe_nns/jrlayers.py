@@ -416,6 +416,7 @@ class JrMultilabel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
+        self.regression = params.get('regression',False)  #######Not implemented, batchsize = 1
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',5)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
@@ -521,7 +522,11 @@ class JrMultilabel(caffe.Layer):
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
                 self.n_labels = len(vals)
-                label_vec = [int(i) for i in vals]
+                if self.regression:
+                    label_vec = [float(i) for i in vals]
+                else:
+                    label_vec = [int(i) for i in vals]
+
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
