@@ -160,6 +160,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
         l = len(imgs)
 #        print imgs
         print l
+        skip_this = False
         for j in range(l):
             time.sleep(0.05)
             nth_img = imgs[j]
@@ -202,14 +203,17 @@ def getty_star(a_b):
     return getty_dl(*a_b)
 
 def flickr_get_dates(tag,mintime=0,savedir=None):
+    time_inc = 3600*24*1  #1 day
+    print('getting dates, min is '+str(mintime))
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
-    maxtime = mintime+3600
-    n_pages=0
-    while(n_pages<40 and  maxtime<time.time())
-        initial_query = '&tags='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
+    maxtime = mintime+time_inc
+    pages=0
+    while(pages<40 and  maxtime<time.time()):
+        initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
+        print('trying dates '+str(mintime)+' and '+str(maxtime))
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
         res = subprocess.call(cmd,shell=True)
 
@@ -233,6 +237,9 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
         if 'pages' in phot:
             print('of total pages '+str(phot['pages']))
             pages = phot['pages']
+        print('got '+str(pages)+' pages')
+        maxtime = maxtime + time_inc
+    maxtime = maxtime - time_inc
     print('returning maxtime:'+str(maxtime)+' pages:'+str(pages))
     return maxtime
 
@@ -248,23 +255,21 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     :param savedir:
     :return:
     '''
-    max_pages_returned = 40
+    results_per_page = 500
+    max_pages_returned = 4000/results_per_page
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
     n_dl = 0
-    mintime = 0
+    mintime = 1262307661  #jan 2010
     n_dates = n_pages/max_pages_returned
     for dateloop in range(n_dates):
         maxtime = flickr_get_dates(tag,mintime,savedir=savedir)
         print('mintime '+str(mintime)+' maxtime:'+str(maxtime))
-        initial_query = '&tags='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
-        cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
-        res = subprocess.call(cmd,shell=True)
 
         for i in range(start_page,start_page+n_pages):
-            query = '&tags='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
+            query = '&tags='+tag+'&page='+str(i)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page='+str(results_per_page)
             print query
             #kyle key 6351acc69daa0868c61319df617780c0   secret b7a74cf16401856b
             cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
