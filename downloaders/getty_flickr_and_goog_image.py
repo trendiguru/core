@@ -277,7 +277,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     for dateloop in range(n_dates):
         time.sleep(1)
 
-        maxtime = flickr_get_dates(tag,mintime,savedir=savedir,max_pages_returned)
+        maxtime = flickr_get_dates(tag,mintime,savedir=savedir,n_pages=max_pages_returned)
         print('mintime '+str(mintime)+' maxtime:'+str(maxtime))
 
         for i in range(start_page,start_page+n_pages):
