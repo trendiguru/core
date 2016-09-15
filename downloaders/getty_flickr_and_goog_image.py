@@ -296,7 +296,6 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             savename = tag + savename
             savename = os.path.join(savedir,savename)
             Utils.ensure_dir(savedir)
-            print(savename)
             if os.path.exists(savename):
                 print(savename+' exists!!')
                 savename=savename[:-4]+'.b.jpg'
@@ -304,7 +303,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             save_img_at_url(url,savename=savename)
             n_dl = n_dl + 1
         n_files = len(os.listdir(savedir))
-        print('n dl:'+str(n_dl)+' n_files:'+str(n_files))
+        print('n dl:'+str(n_dl)+' n_files:'+str(n_files)+' '+savename)
 
 if __name__=="__main__":
     items = constants.binary_cats
