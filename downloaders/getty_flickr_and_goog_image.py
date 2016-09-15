@@ -265,10 +265,10 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     '''
     results_per_page = 500
     max_pages_returned = int(float(4900)/results_per_page)
-    if savedir is None:
-        savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
-    Utils.ensure_dir(savedir)
     compressed_tag = tag.replace(' ','')
+    if savedir is None:
+        savedir = '/home/jeremy/image_dbs/flickr/'+compressed_tag+'/'
+    Utils.ensure_dir(savedir)
     outfile = compressed_tag+'out.txt'
     n_dl = 0
     mintime = 1262307661  #jan 2010
@@ -356,7 +356,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
                 url = 'https://farm'+str(farm)+'.staticflickr.com/'+str(server)+'/'+str(id)+'_'+str(secret)+'.jpg'
       #          print url
                 savename=str(id)+'.'+str(server)+'.'+str(farm)+'.jpg'
-                savename = tag + savename
+                savename = compressed_tag + savename
                 savename = os.path.join(savedir,savename)
                 Utils.ensure_dir(savedir)
                 if os.path.exists(savename):
