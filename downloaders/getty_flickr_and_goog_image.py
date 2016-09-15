@@ -260,7 +260,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     :return:
     '''
     results_per_page = 500
-    max_pages_returned = 4000/results_per_page
+    max_pages_returned = int(float(4900)/results_per_page)
     if savedir is None:
         savedir = '/home/jeremy/image_dbs/flickr/'+tag+'/'
     Utils.ensure_dir(savedir)
@@ -354,7 +354,8 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
                 Utils.ensure_dir(savedir)
                 if os.path.exists(savename):
                     print(savename+' exists!!')
-                    savename=savename[:-4]+'.b.jpg'
+                    continue
+#                    savename=savename[:-4]+'.b.jpg'
     #                raw_intput('check the flies')
                 save_img_at_url(url,savename=savename)
                 n_dl = n_dl + 1
