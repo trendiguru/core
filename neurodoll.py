@@ -20,7 +20,6 @@ from trendi import pipeline
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
-
     if url.count('jpg') > 1:
         return None
 
@@ -33,6 +32,16 @@ def url_to_image(url):
     # return the image
     return new_image
 
+
+def get_layer_output(layer='myfc8'):
+    blobs = net.blobs
+    blob_keys = [b for b in blobs.keys()]
+    print('blobs:'+str(blobs))
+    params = net.params
+    print('params:'+str(params))
+    param_keys = [k for k in params.keys()]
+
+    loss = net.blobs['loss'].data
 
 
 def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
@@ -143,7 +152,7 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 
 
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(1)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
 #required_image_size = (256, 256)
