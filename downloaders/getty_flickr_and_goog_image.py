@@ -297,6 +297,10 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
             savename = os.path.join(savedir,savename)
             Utils.ensure_dir(savedir)
             print(savename)
+            if os.path.exists(savename):
+                print(savename+' exists!!')
+                savename=savename[:-4]+'.b.jpg'
+#                raw_intput('check the flies')
             save_img_at_url(url,savename=savename)
             n_dl = n_dl + 1
         n_files = len(os.listdir(savedir))
