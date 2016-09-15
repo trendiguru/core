@@ -202,7 +202,7 @@ def getty_dl(searchphrase,avoid_these_terms=None,n_pages = 20000,savedir=None):
 def getty_star(a_b):
     return getty_dl(*a_b)
 
-def flickr_get_dates(tag,mintime=0,savedir=None):
+def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
     time.sleep(2)
 
     time_inc = 3600*24*1  #1 day
@@ -215,7 +215,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None):
     maxtime = mintime+time_inc
     pages=0
     oldpages = -1
-    while(pages<40 and  maxtime<time.time()):
+    while(pages<n_pages and  maxtime<time.time()):
         time.sleep(3)
         initial_query = '&tags='+tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         initial_query = '&text='+compressed_tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
@@ -277,7 +277,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     for dateloop in range(n_dates):
         time.sleep(1)
 
-        maxtime = flickr_get_dates(tag,mintime,savedir=savedir)
+        maxtime = flickr_get_dates(tag,mintime,savedir=savedir,max_pages_returned)
         print('mintime '+str(mintime)+' maxtime:'+str(maxtime))
 
         for i in range(start_page,start_page+n_pages):
