@@ -217,8 +217,10 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     Utils.ensure_dir(savedir)
     outfile = tag+'out.txt'
     n_dl = 0
+    mintime = 1473948514 - 3600*24*100
+    maxtime = 1473948514
     for i in range(start_page,start_page+n_pages):
-        query = '&tags='+tag+'&page='+str(i+1)
+        query = '&tags='+tag+'&page='+str(i+1)+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)
         print query
         #kyle key 6351acc69daa0868c61319df617780c0   secret b7a74cf16401856b
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+query+'" > ' + outfile
@@ -318,7 +320,7 @@ if __name__=="__main__":
     parallel = True
     if(parallel == False):
         for i in range(len(items)):
-            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
+#            getty_dl(items[i],n_pages=1000,savedir = '/home/jeremy/image_dbs/getty/'+items[i]+'/')
             flickr_dl(items[i],n_pages=2000,savedir = '/home/jeremy/image_dbs/flickr/'+items[i]+'/')
     else:
         n_proc = multiprocessing.cpu_count()
