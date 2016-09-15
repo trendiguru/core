@@ -236,7 +236,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 2000,savedir=None):
         print(str(l)+' images found')
         skip_this = False
         for j in range(l):
-#            time.sleep(0.05)
+            time.sleep(0.05)
             nth_img = imgs[j]
             if avoid_these_terms:
                 #go thru the entire dict and check if terms to avoid is in there somewhere
@@ -296,7 +296,7 @@ if __name__=="__main__":
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
-        pool = multiprocessing.Pool(processes=n_proc)
+        pool = multiprocessing.Pool(processes=10)
 #        pool.map(getty_dl, items)
         pool.map(flickr_dl, items)
 
