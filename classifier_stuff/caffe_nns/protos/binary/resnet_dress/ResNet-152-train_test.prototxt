@@ -7115,7 +7115,7 @@ layer {
   name: "prob"
   bottom: "fc2"
   top: "prob"
-  type: "SoftMaxWithLoss"
+  type: "SoftmaxWithLoss"
 }
 
 layer {

@@ -2661,7 +2661,7 @@ layer {
 	bottom: "label"
 	top: "loss"
 	name: "loss"
-	type: "SoftMaxWithLoss"
+	type: "SoftmaxWithLoss"
 }
 
 layer {
