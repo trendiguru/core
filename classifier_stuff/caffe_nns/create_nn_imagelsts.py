@@ -286,18 +286,14 @@ def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt'):
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     with open(filename,'r') as fp:
         lines = fp.readlines()
-        for line in lines:
-    #        print line
-            pass
-        print lines[0]
+        print('file {} has lines like {}'.format(filename,lines[0]))
         random.shuffle(lines)
-        print lines[0]
         n_lines = len(lines)
         train_lines = lines[0:int(n_lines*(1-fraction))]
         test_lines = lines[int(n_lines*(1-fraction)):]
-        print('{} trainingfiles and {} testingfiles'.format(len(train_lines),len(test_lines)))
         train_name = filename[0:-4] + '_train.txt'
         test_name = filename[0:-4] + '_test.txt'
+        print('{} files written to {} and {} files written to {}'.format(len(train_lines),train_name,len(test_lines),test_name))
         with open(train_name,'w') as trfp:
             trfp.writelines(train_lines)
 
