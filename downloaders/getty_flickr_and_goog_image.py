@@ -384,14 +384,16 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
 
 if __name__=="__main__":
     items = constants.binary_cats
-#    items = items[3:]
+    items = items[27:]
+    print items
+    raw_input('ret to cont')
 #    items = [1,2,3]
 #    with Pool(4) as p:
 #    items = [items[0],items[1]]
 #    p = Pool(len(items))
 #    p.map(getty_dl, items)
 #    items = ['top','sweatshirt','sweater','suit','stocking','skirt','shorts','scarf']
-    items[18] = 'bikini'
+   # items[18] = 'bikini'
     parallel = True
     if(parallel == False):
         for i in range(len(items)):
