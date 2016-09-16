@@ -428,6 +428,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
         self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
+        self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
 #        self.n_labels = params.get('n_labels',21)  #this is obvious from the image/label file
         self.counter = 0
@@ -681,6 +682,9 @@ class JrMultilabel(caffe.Layer):
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
 #        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
+        if self.augment_save_visual_output:
+            name = self.idx+'.jpg'
+            cv2.imwrite(out_,name)
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
