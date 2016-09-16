@@ -296,9 +296,10 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         print('{} files written to {} and {} files written to {}'.format(len(train_lines),train_name,len(test_lines),test_name))
         with open(train_name,'w') as trfp:
             trfp.writelines(train_lines)
-
-        with open(test_name,'w') as trfp:
-            trfp.writelines(test_lines)
+            trfp.close()
+        with open(test_name,'w') as tefp:
+            tefp.writelines(test_lines)
+            tefp.close()
 
 def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced.txt'):
     '''
