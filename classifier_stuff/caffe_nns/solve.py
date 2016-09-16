@@ -74,7 +74,7 @@ copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
 scp2cmd = 'scp '+detailed_outputname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
-scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
+#scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
 Utils.ensure_file(loss_outputname)
 Utils.ensure_file(detailed_outputname)
@@ -93,21 +93,21 @@ for _ in range(100000):
         print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)
-        iters.append(i)
         tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
-    print('avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss))
+    accuracy = solver.net.blobs['accuracy'].data
+    print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
     with open(loss_outputname,'a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\n')
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
         f.close()
     jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
-    subprocess.call(copy4cmd,shell=True)
+#    subprocess.call(copy4cmd,shell=True)
 
     subprocess.call(scp2cmd,shell=True)
     subprocess.call(scp3cmd,shell=True)
-    subprocess.call(scp4cmd,shell=True)
+#    subprocess.call(scp4cmd,shell=True)
 
 
 
