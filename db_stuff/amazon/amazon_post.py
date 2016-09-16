@@ -28,9 +28,9 @@ def clear_duplicates(col_name):
         bef = all_items.count()
         block_size = bef/100
         for i, item in enumerate(all_items):
-            m, r = divmod(i, block_size)
-            if r == 0:
-                print (i)
+            # m, r = divmod(i, block_size)
+            # if r == 0:
+            #     print (i)
                 # last_pct = progress_bar(block_size, bef, m, last_pct)
             item_id = item['_id']
             keys = item.keys()
