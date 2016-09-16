@@ -4,15 +4,16 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "labels"
+      top: "label"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/tb_cats_from_webtool_256x256_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2}"
+
       }
 }
 
-#
+
 layer {
 	bottom: "data"
 	top: "conv1"
@@ -7075,39 +7076,28 @@ layer {
 }
 
 layer {
-	name: "myfc21"
 	bottom: "pool5"
 	top: "myfc21"
+	name: "myfc21"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 21
-                weight_filler {
-                type: "xavier"
-                   }
-                bias_filler {
-                type: "constant"
-                  }
 	}
-         param {
-                  lr_mult: 1
-                  decay_mult: 1
-                }
-         param {
-                    lr_mult: 2
-                   decay_mult: 0
-                }
 }
-#layer {
-#	bottom: "myfc21"
-#	top: "prob"
-#	name: "prob"
-#	type: "Softmax"
-#}
 
 layer {
-	bottom: "myfc21"
-	bottom: "labels"
-	top: "score"
-	name: "score"
-	type: "SigmoidCrossEntropyLoss"
+  name: "score"
+  bottom: "myfc21"
+  top: "score"
+  type: "Sigmoid"
 }
+
+#layer {
+#	bottom: "myfc21"
+#	bottom: "labels"
+#	top: "score"
+#	name: "score"
+#	type: "SigmoidCrossEntropyLoss"
+#}
+
+

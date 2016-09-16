@@ -415,21 +415,21 @@ class JrMultilabel(caffe.Layer):
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('new_size',None)
-        self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
-        self.regression = params.get('regression',False)  #######Not implemented, batchsize = 1
+        self.batch_size = params.get('batch_size',1)
+        self.regression = params.get('regression',False)
         self.augment_images = params.get('augment',False)
-        self.augment_max_angle = params.get('augment_max_angle',5)
-        self.augment_max_offset_x = params.get('augment_max_offset_x',10)
-        self.augment_max_offset_y = params.get('augment_max_offset_y',10)
-        self.augment_max_scale = params.get('augment_max_scale',1.2)
+        self.augment_max_angle = params.get('augment_max_angle',10)
+        self.augment_max_offset_x = params.get('augment_max_offset_x',20)
+        self.augment_max_offset_y = params.get('augment_max_offset_y',20)
+        self.augment_max_scale = params.get('augment_max_scale',1.4)
         self.augment_max_noise_level = params.get('augment_max_noise_level',0)
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
-        self.augment_crop_size = params.get('augment_crop_size',(227,227)) #
+        self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
-        self.n_labels = params.get('n_labels',21)
+#        self.n_labels = params.get('n_labels',21)  #this is obvious from the image/label file
         self.counter = 0
 
         #on the way out
@@ -639,18 +639,20 @@ class JrMultilabel(caffe.Layer):
                 return None
 #############end added code to avoid cv2.imread############
 
-#            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
-#               max_angle = self.augment_max_angle,
-#               max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
-#               max_scale=self.augment_max_scale,
-#             max_noise_level=self.augment_max_noise_level,noise_type='gauss',
-#               max_blur=self.augment_max_blur,
-#              do_mirror_lr=self.augment_do_mirror_lr,
- #              do_mirror_ud=self.augment_do_mirror_ud,
- #              crop_size=self.augment_crop_size,
- #              show_visual_output=self.augment_show_visual_output)
+            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
+                max_angle = self.augment_max_angle,
+                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+                max_scale=self.augment_max_scale,
+                max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+                max_blur=self.augment_max_blur,
+                do_mirror_lr=self.augment_do_mirror_lr,
+                do_mirror_ud=self.augment_do_mirror_ud,
+                crop_size=self.augment_crop_size,
+                show_visual_output=self.augment_show_visual_output,
+                save_visual_output=self.augment_save_visual_output)
+
 #            out_,unused = augment_images.generate_image_onthefly(in_,mask_filename_or_nparray=in_)
-            out_ = augment_images.generate_image_onthefly(in_)
+#            out_ = augment_images.generate_image_onthefly(in_)
 
             #print('returned from augment_images')
 

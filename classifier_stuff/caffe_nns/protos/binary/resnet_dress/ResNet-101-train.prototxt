@@ -9,11 +9,11 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "label"
+      top: "labels"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'tb_cats_from_webtool_256x256_test.txt\', \'mean\': (104.0, 116.7, 122.7), \'augment\':True,\'augment_crop_size\':(224,224)  }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
       }
 }
 
@@ -31,6 +31,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
          }
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -86,7 +90,12 @@ layer {
                 weight_filler { type: "xavier"}
 #                bias_filler { type:"constant"}
 	}
-}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
+
+ }
 
 layer {
 	bottom: "res2a_branch1"
@@ -122,6 +131,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -165,6 +178,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -208,6 +225,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -259,6 +280,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -300,6 +325,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -341,6 +370,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -392,6 +425,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -435,6 +472,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -478,6 +519,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -529,6 +574,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -565,6 +614,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -608,6 +661,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -651,6 +708,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -702,6 +763,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -745,6 +810,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -788,6 +857,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -839,6 +912,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -882,6 +959,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -925,6 +1006,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -976,6 +1061,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1019,6 +1108,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1062,6 +1155,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1113,6 +1210,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1149,6 +1250,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1192,6 +1297,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1235,6 +1344,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1286,6 +1399,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1329,6 +1446,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1372,6 +1493,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1423,6 +1548,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1466,6 +1595,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1509,6 +1642,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1560,6 +1697,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1603,6 +1744,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1646,6 +1791,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1697,6 +1846,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1740,6 +1893,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1783,6 +1940,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1834,6 +1995,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1877,6 +2042,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1920,6 +2089,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -1971,6 +2144,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2014,6 +2191,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2057,6 +2238,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2108,6 +2293,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2151,6 +2340,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2194,6 +2387,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2245,6 +2442,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2288,6 +2489,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2331,6 +2536,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2382,6 +2591,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2425,6 +2638,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2468,6 +2685,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2519,6 +2740,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2562,6 +2787,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2605,6 +2834,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2656,6 +2889,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2699,6 +2936,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2742,6 +2983,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2793,6 +3038,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2836,6 +3085,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2879,6 +3132,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2930,6 +3187,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -2973,6 +3234,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3016,6 +3281,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3067,6 +3336,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3110,6 +3383,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3153,6 +3430,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3204,6 +3485,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3247,6 +3532,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3290,6 +3579,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3341,6 +3634,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3384,6 +3681,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3427,6 +3728,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3478,6 +3783,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3521,6 +3830,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3562,6 +3875,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3613,6 +3930,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3656,6 +3977,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3697,6 +4022,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3748,6 +4077,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3791,6 +4124,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3834,6 +4171,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3885,6 +4226,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3928,6 +4273,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -3971,6 +4320,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4022,6 +4375,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4065,6 +4422,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4108,6 +4469,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4159,6 +4524,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4245,6 +4614,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4296,6 +4669,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4332,6 +4709,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4375,6 +4756,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4418,6 +4803,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4469,6 +4858,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4512,6 +4905,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4555,6 +4952,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4606,6 +5007,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4649,6 +5054,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4692,6 +5101,10 @@ layer {
                 weight_filler { type: "xavier"}
  #               bias_filler { type:"constant"}
 	}
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
 }
 
 layer {
@@ -4746,10 +5159,30 @@ layer {
 	top: "myfc1000"
 	name: "myfc1000"
 	type: "InnerProduct"
+
+
 	inner_product_param {
 		num_output: 21
-	}
+                weight_filler {
+                type: "xavier"
+                   }
+                bias_filler {
+                type: "constant"
+                  }
+	 }
+         param {
+                  lr_mult: 1
+                  decay_mult: 1
+                }
+         param {
+                    lr_mult: 2
+                   decay_mult: 0
+                }
 }
+
+
+
+
 
 #layer {#
 #	bottom: "myfc1000"#
@@ -4759,17 +5192,10 @@ layer {
 #}
 
 layer {
-  name: "prob"
-  bottom: "myfc1000"
-  top: "prob"
-  type: "Sigmoid"
+	bottom: "myfc1000"
+	bottom: "labels"
+	top: "score"
+	name: "score"
+	type: "SigmoidCrossEntropyLoss"
 }
-
-#layer {
-#	bottom: "myfc21"
-#	bottom: "labels"
-##	top: "score"
-#	name: "score"
-#	type: "SigmoidCrossEntropyLoss"
-#}
 
