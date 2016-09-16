@@ -6758,16 +6758,16 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc21"
-	name: "fc21"
+	top: "fc2"
+	name: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 21
+		num_output: 2
 	}
 }
 
 layer {
-	bottom: "fc21"
+	bottom: "fc2"
 	top: "prob"
 	name: "prob"
 	type: "Softmax"

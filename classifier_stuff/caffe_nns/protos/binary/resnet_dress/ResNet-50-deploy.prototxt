@@ -2305,11 +2305,11 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc21"
-	name: "myfc21"
+	top: "fc2"
+	name: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 21
+		num_output: 2
 	}
          param {
                   lr_mult: 1
@@ -2321,18 +2321,9 @@ layer {
                 }
 }
 
-#layer {
-#	bottom: "myfc21"#
-#	bottom: "labels"#
-#	top: "loss"
-#	name: "loss"
-#	type: "SigmoidCrossEntropyLoss"
-#}
-
-
 layer {
-  name: "score"
-  type: "Sigmoid"
-  bottom: "myfc21"
-  top: "score"
+  name: "prob"
+  type: "Softmax"
+  bottom: "fc2"
+  top: "prob"
 }

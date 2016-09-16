@@ -13,10 +13,22 @@ layer {
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2}"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
       }
+  include {phase: TRAIN}
 }
-
+layer {
+      name: "data"
+      type: "Python"
+      top: "data"
+      top: "label"
+      python_param {
+      module: "jrlayers"
+      layer: "JrMultilabel"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      }
+    include {phase: TEST}
+}
 layer {
 	bottom: "data"
 	top: "conv1"
@@ -4743,33 +4755,25 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "fc2"
+	name: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 21
+		num_output: 2
 	}
 }
 
-#layer {#
-#	bottom: "myfc1000"#
-#	top: "prob"
-#	name: "pr#ob"
-#	type: "Softmax"
-#}
-
 layer {
   name: "prob"
-  bottom: "myfc1000"
+  bottom: "fc2"
   top: "prob"
-  type: "Sigmoid"
+  type: "SoftMaxWithLoss"
 }
 
-#layer {
-#	bottom: "myfc21"
-#	bottom: "labels"
-##	top: "score"
-#	name: "score"
-#	type: "SigmoidCrossEntropyLoss"
-#}
-
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc2"
+  bottom: "label"
+  top: "accuracy"
+}

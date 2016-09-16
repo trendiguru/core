@@ -4531,25 +4531,25 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "fc2"
+	name: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 21
+		num_output: 2
 	}
 }
 
-layer {
-  name: "prob"
-  bottom: "myfc1000"
-  top: "prob"
-  type: "Sigmoid"
-}
-
 #layer {
-#	bottom: "fc1000"
-#	top: "prob"
-#	name: "prob"
-#	type: "Softmax"
+#  name: "prob"
+#  bottom: "fc2"
+#  top: "prob"
+#  type: "Sigmoid"
 #}
+
+layer {
+	bottom: "fc2"
+	top: "prob"
+	name: "prob"
+	type: "Softmax"
+}
 
