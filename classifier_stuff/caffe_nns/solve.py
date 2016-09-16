@@ -1,52 +1,29 @@
 __author__ = 'jeremy'
-#ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/jrlayers.py /root/caffe/python
-#ln -s /usr/lib/python2.7/dist-packacges/trendi/classifier_stuff/caffe_nns/surgery.py /root/caffe/python
-#ln -s /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/score.py /root/caffe/python
-#git -C /usr/lib/python2.7/dist-packages/trendi pull
-
 import caffe
-#import surgery, score
 import time
-#import numpy as np
 import os
 import sys
-
 import setproctitle
 import subprocess
 import socket
-
 import matplotlib
 matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
 plt.ioff()
 
-
 from trendi import Utils
-
-
 from trendi.classifier_stuff.caffe_nns import jrinfer
-from trendi.classifier_stuff.caffe_nns import progress_plot
-
-
-
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
-weights = '../vgg16fc.caffemodel'  #cannot find this
-weights = 'snapshot/train_iter_1799.caffemodel'
-weights = 'snapshot/train_iter_359310.caffemodel'
-weights = 'snapshot/train_iter_370000.caffemodel'
-weights = 'VGG_ILSVRC_16_layers.caffemodel'
 weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
 
-# init
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 
 solver = caffe.SGDSolver('solver.prototxt')
 #solver.net.copy_from(weights)
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
-
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
 all_layers = [k for k in solver.net.params.keys()]
