@@ -212,6 +212,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
     Utils.ensure_dir(savedir)
     compressed_tag = tag.replace(' ','+')
     outfile = compressed_tag+'out.txt'
+    print('outfile:'+outfile)
     maxtime = mintime+time_inc
     pages=0
     oldpages = -1
