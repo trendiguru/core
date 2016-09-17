@@ -500,7 +500,7 @@ layer {
 }
 
 layer {
-  name: "accuracy1"
+  name: "acc"
   type: "Accuracy"
   bottom: "myfc8"
   bottom: "label"
