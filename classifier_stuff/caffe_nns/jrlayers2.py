@@ -638,6 +638,8 @@ class JrMultilabel(caffe.Layer):
             if in_ is None:
                 logging.warning('could not get image '+filename)
                 return None
+            in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
+
 #############end added code to avoid cv2.imread############
 
             out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
@@ -685,7 +687,6 @@ class JrMultilabel(caffe.Layer):
 
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
 
-#        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
@@ -699,3 +700,79 @@ def spinning_cursor():
         for cursor in '|/-\\':
             yield cursor
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################3
+# test
+#######################################################################################
+
+class JrTestInput(caffe.Layer):
+    """
+    Load (input image, label vector) pairs where label vector is like [0 1 0 0 0 1 ... ]
+    """
+
+    def setup(self, bottom, top):
+        pass
+
+    def reshape(self, bottom, top):
+        ## reshape tops to fit (leading 1 is for batch dimension)
+        top[0].reshape(bottom[0].shape)
+        print('top 0 shape {} selfdata shape {}'.format(top[0].shape,bottom[0].shape))
+
+    def next_idx(self):
+        pass
+
+    def forward(self, bottom, top):
+        top[0].data = bottom[0].data
+        data = top[0].data
+        print('data shape:'+str(data.shape))
+        firstvals = data[0,:,0,0]
+        print('data first vals:'+str(firstvals))
+
+    def backward(self, top, propagate_down, bottom):
+        pass

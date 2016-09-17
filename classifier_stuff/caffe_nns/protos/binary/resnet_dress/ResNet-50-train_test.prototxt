@@ -1,28 +1,74 @@
 name: "ResNet-50_binary"
+
 layer {
-      name: "data"
-      type: "Python"
-      top: "data"
-      top: "label"
-      python_param {
-      module: "jrlayers"
-      layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
-      }
-  include {phase: TRAIN}
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  image_data_param {
+    source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt"
+    batch_size: 2
+	rand_skip: False
+	shuffle: False
+	  }
+  transform_param {
+    scale: 0.00390625
+    mirror: 1  # 1 = on, 0 = off
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+# 	new_height,new_width  #don't do these since aspect ratio may change
+  }
+include {phase: TRAIN}
 }
 layer {
-      name: "data"
-      type: "Python"
-      top: "data"
-      top: "label"
-      python_param {
-      module: "jrlayers"
-      layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
-      }
-    include {phase: TEST}
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  data_param {
+    source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_test.txt"
+    batch_size: 2
+	rand_skip: False
+	shuffle: False
+	  }
+  transform_param {
+    scale: 0.00390625
+    mirror: 1  # 1 = on, 0 = off
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+# 	new_height,new_width  #don't do these since aspect ratio may change
+  }
+include {phase: TEST}
 }
+
+#layer {
+#      name: "data"
+#      type: "Python"
+#      top: "data"
+#      top: "label"
+#      python_param {
+#      module: "jrlayers2"
+#      layer: "JrMultilabel"
+#      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+#      }
+#  include {phase: TRAIN}
+#}
+#layer {
+#      name: "data"
+#      type: "Python"
+#      top: "data"
+#      top: "label"
+#      python_param {
+#      module: "jrlayers"
+#      layer: "JrMultilabel"
+#      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+#     }
+#   include {phase: TEST}
+#}
 
 layer {
 	bottom: "data"
