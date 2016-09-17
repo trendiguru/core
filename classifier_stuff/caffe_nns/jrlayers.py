@@ -684,7 +684,8 @@ class JrMultilabel(caffe.Layer):
 #        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
         if self.augment_save_visual_output:
             name = self.idx+'.jpg'
-            cv2.imwrite(out_,name)
+            cv2.imwrite(name,out_)
+            print('saving '+name)
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
