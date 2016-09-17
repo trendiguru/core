@@ -8,7 +8,7 @@ layer {
   image_data_param {
     source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt"
     batch_size: 2
-	rand_skip: False
+#	rand_skip: False
 	shuffle: False
 	  }
   transform_param {
