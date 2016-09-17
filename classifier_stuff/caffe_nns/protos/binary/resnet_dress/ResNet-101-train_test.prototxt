@@ -4776,5 +4776,5 @@ layer {
   type: "Accuracy"
   bottom: "fc2"
   bottom: "label"
-  top: "accuracy"
+  top: "acc"
 }
