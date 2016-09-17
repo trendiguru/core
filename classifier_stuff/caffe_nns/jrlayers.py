@@ -678,7 +678,7 @@ class JrMultilabel(caffe.Layer):
             break #got good img, get out of while
 
         if self.augment_save_visual_output:
-            name = str(self.id)x+'.jpg'
+            name = str(self.idx)+'.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
         out_ = np.array(out_, dtype=np.float32)
