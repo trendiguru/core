@@ -70,10 +70,10 @@ for _ in range(100000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
-        print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter*n_iter
+        print('iter '+str(tot_iters)+' loss:'+str(loss))
     averaged_loss=sum(loss_avg)/len(loss_avg)
     accuracy = solver.net.blobs['accuracy'].data
     print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
