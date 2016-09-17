@@ -505,7 +505,7 @@ layer {
   bottom: "myfc8"
   bottom: "label"
   top: "acc"
-  include: { phase: TEST }
+#  include: { phase: TEST }
 #  accuracy_param {
 #    top_k: 1
 #  }

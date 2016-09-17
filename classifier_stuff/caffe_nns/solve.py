@@ -26,9 +26,12 @@ solver = caffe.SGDSolver('solver.prototxt')
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-all_layers = [k for k in solver.net.params.keys()]
-print('all layers:')
-print all_layers
+all_params = [k for k in solver.net.params.keys()]
+print('all params:')
+print all_params
+all_blobs = [k for k in solver.net.blobs.keys()]
+print('all blobs:')
+print all_blobs
 #surgery.interp(solver.net, interp_layers)
 
 # scoring
