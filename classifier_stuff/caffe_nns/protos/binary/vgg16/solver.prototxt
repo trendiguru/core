@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 10000
-snapshot_prefix: "snapshot/res50_binary_dress"
+snapshot_prefix: "snapshot/vgg16_binary_dress"
 test_initialization: false
 solver_mode : GPU
 
