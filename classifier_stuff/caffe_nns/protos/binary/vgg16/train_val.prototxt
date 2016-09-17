@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':20 }"
       }
   include {phase: TRAIN}
 }
@@ -20,7 +20,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
      }
    include {phase: TEST}
 }

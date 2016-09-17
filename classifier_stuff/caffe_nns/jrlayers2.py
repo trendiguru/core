@@ -530,7 +530,7 @@ class JrMultilabel(caffe.Layer):
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
-                    print('length 1 label')
+  #                  print('length 1 label')
                     label_vec = label_vec[0]
                 good_img_files.append(imgfilename)
                 good_label_vecs.append(label_vec)
