@@ -27,7 +27,7 @@ layer {
   type: "ImageData"
   top: "data"
   top: "label"
-  data_param {
+  image_data_param {
     source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_test.txt"
     batch_size: 2
 #	rand_skip: false
