@@ -670,7 +670,6 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
                 idx = self.idx
                 continue
-            out_ = np.array(out_, dtype=np.float32)
             if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
                 print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 self.next_idx()  #goto next
@@ -678,14 +677,15 @@ class JrMultilabel(caffe.Layer):
                 continue
             break #got good img, get out of while
 
-
-        #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
-
-#        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
         if self.augment_save_visual_output:
             name = self.idx+'.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
+        out_ = np.array(out_, dtype=np.float32)
+
+        #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+
+#        in_ = in_[:,:,::-1]  #RGB->BGR - since we're using cv2 no need
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
