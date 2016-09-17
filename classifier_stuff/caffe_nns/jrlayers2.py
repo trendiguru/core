@@ -649,8 +649,8 @@ class JrMultilabel(caffe.Layer):
                 do_mirror_lr=self.augment_do_mirror_lr,
                 do_mirror_ud=self.augment_do_mirror_ud,
                 crop_size=self.augment_crop_size,
-                show_visual_output=self.augment_show_visual_output)\
-                #                save_visual_output=self.augment_save_visual_output)
+                show_visual_output=self.augment_show_visual_output,
+                                save_visual_output=self.augment_save_visual_output)
 
 #            out_,unused = augment_images.generate_image_onthefly(in_,mask_filename_or_nparray=in_)
 #            out_ = augment_images.generate_image_onthefly(in_)

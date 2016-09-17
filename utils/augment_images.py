@@ -380,7 +380,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     if save_visual_output:
         lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
         name = "".join(lst)
-        cv2.imwrite(img_arr,name)
+        cv2.imwrite(name,img_arr)
     return img_arr
 
 
