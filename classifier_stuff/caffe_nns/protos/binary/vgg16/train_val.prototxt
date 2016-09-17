@@ -15,7 +15,8 @@ layer {
     mean_value:120
   }
   image_data_param {
-	source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt"
+#	source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt"
+	source: "dress_filipino_labels_250x250_train.txt"
 	batch_size: 10
 	shuffle: true
 #	new_height: 256
@@ -38,7 +39,8 @@ layer {
     mean_value:120
   }
   image_data_param {
-	source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt"
+#	source: "/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_test.txt"
+	source: "dress_filipino_labels_250x250_test.txt"
 	batch_size: 10
 	shuffle: true
 #	new_height: 256
