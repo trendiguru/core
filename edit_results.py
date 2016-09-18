@@ -23,7 +23,7 @@ EDITOR_PROJECTION = {'image_id': 1,
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
 def get_image_obj_for_editor(image_url, image_id=None):
-    query = {"image_id": image_id} if image_id else {'image_urls': image_url}
+    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
     return sparse
 
@@ -48,7 +48,7 @@ def cancel_image(image_id):
 
 
 def get_latest_images(num=10):
-    curs = db.images.find({}, {'_id':0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+    curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
     return list(curs)
 
 
