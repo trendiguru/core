@@ -192,7 +192,8 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label')
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     blobs = [ k for k in net.blobs.keys()]
     print('all blobs:'+str(blobs))
-    acc = 0.0 #
+    params = [ k for k in net.params.keys()]
+    print('all params:'+str(params))    acc = 0.0 #
     baseline_acc = 0.0
     n = 0
 
