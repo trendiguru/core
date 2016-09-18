@@ -302,10 +302,11 @@ fash_augmented_that_didnt_get_into_nn_categories = ['bag','purse','scarf','hat',
 # coat is a winter coat
 # jacket is a winter jacket (not a suit jacket)
 # suit has a jacket and pants
-binary_cats = ['belt','bikini','blazer', 'bracelet', 'cardigan', 'coat', 'dress', 'earrings',
-               'eyewear','footwear', 'gloves','handbag','hat', 'jacket', 'jeans', 'lingerie',  'necklace',
+binary_cats = ['belt -conveyor -boxing -heavyweight','bikini','blazer -jeep -Jeep -chevy -Chevy -silverado -Silverado',
+               'bracelet -island', 'cardigan -island', 'coat -animal -cat -dog -doctor', 'dress', 'earrings',
+               'eyewear','footwear', 'gloves','handbag','hat', 'jacket suit -coat', 'jeans', 'lingerie',  'necklace',
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
-               'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
+               'sweatshirt','swimwear AND man -bikini -woman -girl','shirt', 'watch']
 
 synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
 exclude_terms_for_binary_cats = [['conveyor','boxing','heavyweight'],None,['jeep','chevy','chevrolet','silverado','car'],['island'],['island'],['animal','cat','dog','doctor'],['animal','fox','wolf'],None,
@@ -316,8 +317,6 @@ missing_from_v2_compared_to_binary_cats = [ 'blazer',  'gloves', 'lingerie', 'ri
 #web_tool_v2=['bag', 'belt',       'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
 #                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
 #                       'womens_swimwear_nonbikini','overalls','sweatshirt', 'bracelet','necklace','earrings','watch' ]
-
-
 
 
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
