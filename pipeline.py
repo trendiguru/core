@@ -46,7 +46,7 @@ def after_pd_conclusions(mask, labels, face=None):
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
-        print "checking {0}".format(category)
+        # print "checking {0}".format(category)
         for key, item in constants.paperdoll_categories.iteritems():
             if category in item:
                 mask_sizes[key].append({num: cv2.countNonZero(item_mask)})
@@ -58,7 +58,7 @@ def after_pd_conclusions(mask, labels, face=None):
         max_amount = np.max([item.values()[0] for item in mask_sizes['whole_body']])
         max_item_num = [item.keys()[0] for item in mask_sizes['whole_body'] if item.values()[0] == max_amount][0]
         max_item_cat = list(labels.keys())[list(labels.values()).index(max_item_num)]
-        print "W2P: That's a {0}".format(max_item_cat)
+        # print "W2P: That's a {0}".format(max_item_cat)
         for num in np.unique(mask):
             cat = list(labels.keys())[list(labels.values()).index(num)]
             # 1.1, 1.2
@@ -71,7 +71,7 @@ def after_pd_conclusions(mask, labels, face=None):
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
     max_item_count = 0
     max_cat = 9
-    print "W2P: That's a 2-part clothing item!"
+    # print "W2P: That's a 2-part clothing item!"
     for section in sections.keys():
         for item in mask_sizes[section]:
             if item.values()[0] > max_item_count:
@@ -123,7 +123,7 @@ def after_nn_conclusions(mask, labels, face=None):
     for num in np.unique(mask):
         item_mask = 255 * np.array(mask == num, dtype=np.uint8)
         category = list(labels.keys())[list(labels.values()).index(num)]
-        print "W2P: checking {0}".format(category)
+        # print "W2P: checking {0}".format(category)
         if category in nn_categories:
             amount_of_category_pixels = cv2.countNonZero(item_mask)
             sector = [key for key, value in constants.nn_categories.iteritems() if category in value][0]
@@ -136,7 +136,7 @@ def after_nn_conclusions(mask, labels, face=None):
         max_amount_whole = np.max([item.values()[0] for item in mask_sizes['whole_body']])
         max_item_num_whole = [item.keys()[0] for item in mask_sizes['whole_body'] if item.values()[0] == max_amount_whole][0]
         max_item_cat_whole = list(labels.keys())[list(labels.values()).index(max_item_num_whole)]
-        print "W2P: That's a {0}".format(max_item_cat_whole)
+        # print "W2P: That's a {0}".format(max_item_cat_whole)
         for num in np.unique(mask):
             cat = list(labels.keys())[list(labels.values()).index(num)]
             # 1.1, 1.2
@@ -158,7 +158,7 @@ def after_nn_conclusions(mask, labels, face=None):
     sections = {"upper_cover": 0, "upper_under": 0, "lower_cover": 0, "lower_under": 0}
     max_item_count = 0
     max_cat = 9
-    print "W2P: That's a 2-part clothing item!"
+    # print "W2P: That's a 2-part clothing item!"
     for section in sections.keys():
         for item in mask_sizes[section]:
             if item.values()[0] > max_item_count:

@@ -879,6 +879,21 @@ def data_url_to_cv2_img(url):
     return img
 
 
+def get_person_bb_from_face(face, image_shape):
+    x, y, w, h,  = face
+
+    mid_face_x = x + w/2
+    p_width = 3.5 * w
+    p_height = 8 * h
+
+    # person bb x1,x2,y1,y2
+    p_x1 = int(round(max(0, mid_face_x - p_width/2)))
+    p_x2 = int(round(min(image_shape[1], mid_face_x + p_width/2)))
+    p_y1 = y
+    p_y2 = int(round(min(image_shape[0], y + p_height)))
+    return [p_x1, p_y1, p_x2, p_y2]
+
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()
