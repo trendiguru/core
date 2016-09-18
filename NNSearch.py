@@ -83,7 +83,7 @@ def distance(category, main_fp, candidate_fp, coll):
     if category not in weight_keys:
         category = 'other'
     weights = constants.weights_per_category[category]
-    print "fingerprinting a {0}, Distance ingredients are:".format(category)
+    # print "fingerprinting a {0}, Distance ingredients are:".format(category)
     for feature in main_fp.keys():
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
@@ -93,9 +93,9 @@ def distance(category, main_fp, candidate_fp, coll):
             dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
-        print "{0}: before weight = {1}, after weight = {2}\n".format(feature, dist, weights[feature]*dist)
+        # print "{0}: before weight = {1}, after weight = {2}\n".format(feature, dist, weights[feature]*dist)
         d += weights[feature]*dist
-    print "total distance is {0}".format(d)
+    # print "total distance is {0}".format(d)
     return d
 
 
@@ -114,19 +114,19 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     if entries.count() > 2000 and 'amazon_DE' not in collection:
-        start = time()
+        # start = time()
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
-        print "annoy_search took {0} secs".format(time()-start)
+        # print "annoy_search took {0} secs".format(time()-start)
         if not len(annoy_top_results):
             return []
-        start = time()
+        # start = time()
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                       cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('categories', 1)])
-        print "query by annoyIndex took {0} secs".format(time()-start)
+        # print "query by annoyIndex took {0} secs".format(time()-start)
     farthest_nearest = 1
     nearest_n = []
-    start = time()
+    # start = time()
     for i, entry in enumerate(entries):
         ent = entry['fingerprint']
         if isinstance(ent, list):
@@ -155,7 +155,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
-    print "sorting entries took {0} secs".format(time()-start)
+    # print "sorting entries took {0} secs".format(time()-start)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
