@@ -83,6 +83,7 @@ def distance(category, main_fp, candidate_fp, coll):
     if category not in weight_keys:
         category = 'other'
     weights = constants.weights_per_category[category]
+    print "fingerprinting a {0}, Distance ingredients are:".format(category)
     for feature in main_fp.keys():
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
@@ -92,7 +93,9 @@ def distance(category, main_fp, candidate_fp, coll):
             dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
+        print "{1}: before weight = {2}, after weight = {3]\n".format(feature, dist, weights[feature]*dist)
         d += weights[feature]*dist
+    print "total distance is {0}".format(d)
     return d
 
 
