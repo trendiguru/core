@@ -17,6 +17,7 @@ import argparse
 
 from trendi import constants
 from trendi.utils import imutils
+from trendi import Utils
 
 import math
 
@@ -398,8 +399,12 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 
 
-def open_html(model_base):
-    with open(model_base+'results.html','w') as g:
+def open_html(model_base,dir=None):
+    if dir is None:
+        dir = 'multilabel_results-'+model_base
+        Utils.ensure_dir(dir)
+    htmlname = os.path.join(dir,model_base+'results.html')
+    with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
         g.write('<head>')
@@ -428,16 +433,20 @@ def open_html(model_base):
 
 #        g.write('</table><br>')
 
-def close_html(model_base):
-    with open(model_base+'results.html','a') as g:
+def close_html(model_base,dir=None):
+    if dir is None:
+        dir = 'multilabel_results-'+model_base
+        Utils.ensure_dir(dir)
+    htmlname = os.path.join(dir,model_base+'results.html')
+    with open(htmlname,'a') as g:
         g.write('</table><br>')
         plotfilename = 'multilabel_results'+model_base+'.png'
 
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
-def summary_html():
-    htmlfiles = [f for f in os.listdir('./') if '.html' in f]
+def summary_html(dir):
+    htmlfiles = [f for f in os.listdir(dir) if '.html' in f]
     with open('summary.html','w') as g:
         g.write('<!DOCTYPE html><br>\n')
         g.write('<html><br>\n')
@@ -454,8 +463,12 @@ def summary_html():
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,model_base,positives=False):
-    with open(model_base+'results.html','a') as g:
+def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
+    if dir is None:
+        dir = 'multilabel_results-'+model_base
+        Utils.ensure_dir(dir)
+    htmlname = os.path.join(dir,model_base+'results.html')
+    with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0
         fwava = 0
@@ -481,7 +494,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
         fwava = fwavp/float(n_a)
         fwavn = n_sum/float(len(p))
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
@@ -515,7 +528,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
 
         g.write('<tr>\n')
         g.write('<td>')
-        g.write('precision')
+        g.write('fwavprecision')
         g.write('</td>\n')
         g.write('<td>')
         g.write(str(fwavp))
@@ -528,7 +541,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False):
 
         g.write('<tr>\n')
         g.write('<td>')
-        g.write('recall')
+        g.write('fwavrecall')
         g.write('</td>\n')
         g.write('<td>')
         g.write(str(fwavr))
@@ -599,7 +612,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
 
-    open_html(model_base)
+    dir = 'multilabel_results-'+model_base
+    Utils.ensure_dir(dir)
+    open_html(model_base,dir=dir)
     positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
@@ -609,9 +624,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
-        write_html(p,r,a,n_occurences,t,model_base,positives=positives)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
         positives = False
-    close_html(model_base)
+    close_html(model_base,dir=dir)
 
     p_all_np = np.transpose(np.array(p_all))
     r_all_np = np.transpose(np.array(r_all))
@@ -683,9 +698,12 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.1))
     plt.show()#
-    plt.savefig(model_base+'.png', bbox_inches='tight')
+
+    figname = os.path.join(dir,model_base+'.png')
+    print('saving figure:'+str(figname))
+    plt.savefig(figname, bbox_inches='tight')
 #
-    summary_html()
+    summary_html(dir)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
 
 
