@@ -89,7 +89,7 @@ for line in text_file:
     print counter
 
     if test_flag:
-        if counter > 50:
+        if counter > 500:
             print "test_flag is on"
             break
 
