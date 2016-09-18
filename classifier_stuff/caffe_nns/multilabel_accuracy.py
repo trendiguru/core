@@ -571,8 +571,12 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 
 #        g.write('threshold = '+str(t)+'\n')
 
-def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
-    with open(model_base+'results.txt','a') as f:
+def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
+    if dir is None:
+        dir = 'multilabel_results-'+model_base
+        Utils.ensure_dir(dir)
+    fname = os.path.join(dir,model_base+'results.txt')
+    with open(fname,'a') as f:
         f.write(model_base+' threshold = '+str(threshold)+'\n')
         f.write('solver:'+solverproto+'\n')
         f.write('model:'+caffemodel+'\n')
