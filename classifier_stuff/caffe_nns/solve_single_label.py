@@ -81,7 +81,7 @@ for _ in range(100000):
     averaged_acc=sum(accuracy_avg)/len(accuracy_avg)
     print('avg loss over last {} steps is {}, acc {}'.format(n_iter*steps_per_iter,averaged_loss,accuracy_avg))
     with open(loss_outputname,'a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(averaged_acc)+'\n')
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy_avg)+'\n')
         f.close()
 #    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
     subprocess.call(copy2cmd,shell=True)
