@@ -21,7 +21,9 @@ weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 
-solver = caffe.SGDSolver('solver.prototxt')
+#solver = caffe.SGDSolver('solver.prototxt')
+#get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
+solver = caffe.get_solver('solver.prototxt')
 #solver.net.copy_from(weights)
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
@@ -66,6 +68,10 @@ steps_per_iter = 1
 n_iter = 20
 loss_avg = [0]*n_iter
 tot_iters = 0
+
+#instead of taking steps its also possible to do
+#solver.solve()
+
 for _ in range(100000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
@@ -77,6 +83,8 @@ for _ in range(100000):
     averaged_loss=sum(loss_avg)/len(loss_avg)
     accuracy = solver.net.blobs['accuracy'].data
     print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
+    #for test net:
+#    solver.test_nets[0].forward()  # test net (there can be more than one)
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
         f.close()

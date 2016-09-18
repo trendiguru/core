@@ -190,6 +190,10 @@ def test_confmat():
 
 def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label'):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
+    blobs = [ k for k in net.blobs.keys()]
+    print('all blobs:'+str(blobs))
+    params = [ k for k in net.params.keys()]
+    print('all params:'+str(params))
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
@@ -719,6 +723,9 @@ if __name__ =="__main__":
 
 
     precision_accuracy_recall(caffemodel,solverproto,outlayer=outlayer,n_tests=n_tests)
+
+#    t = 0.5
+#    p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
 
 
 

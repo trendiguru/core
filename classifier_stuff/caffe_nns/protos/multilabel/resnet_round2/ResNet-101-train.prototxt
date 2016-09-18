@@ -5159,8 +5159,6 @@ layer {
 	top: "mymyfc1000"
 	name: "mymyfc1000"
 	type: "InnerProduct"
-
-
 	inner_product_param {
 		num_output: 26
                 weight_filler {
@@ -5179,10 +5177,6 @@ layer {
                    decay_mult: 0
                 }
 }
-
-
-
-
 
 #layer {#
 #	bottom: "myfc1000"#
