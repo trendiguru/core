@@ -447,7 +447,8 @@ def close_html(model_base,dir=None):
 
 def summary_html(dir):
     htmlfiles = [f for f in os.listdir(dir) if '.html' in f]
-    with open('summary.html','w') as g:
+    htmlname = os.path.join(dir,'summary.html')
+    with open(htmlname,'w') as g:
         g.write('<!DOCTYPE html><br>\n')
         g.write('<html><br>\n')
         g.write('<head><br>\n')
@@ -611,8 +612,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
-
     dir = 'multilabel_results-'+model_base
+    if '.caffemodel' in model_base:
+        dir = 'multilabel_results-'+model_base[:-11]
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
     positives = True
