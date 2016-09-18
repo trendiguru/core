@@ -75,7 +75,7 @@ for _ in range(100000):
         accuracy = solver.net.blobs['accuracy'].data
         accuracy_avg[i] = accuracy
         losses.append(loss)
-        tot_iters = tot_iters + steps_per_iter*n_iter
+        tot_iters = tot_iters + steps_per_iter
         print('iter '+str(tot_iters)+' loss:'+str(loss)+' acc:'+str(accuracy))
     averaged_loss=sum(loss_avg)/len(loss_avg)
     averaged_acc=sum(accuracy_avg)/len(accuracy_avg)
