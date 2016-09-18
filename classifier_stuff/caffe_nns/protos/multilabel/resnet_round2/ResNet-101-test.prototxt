@@ -9,7 +9,7 @@ layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "label"
+      top: "labels"
       python_param {
       module: "jrlayers"
       layer: "JrMultilabel"
