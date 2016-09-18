@@ -422,7 +422,7 @@ def open_html(model_base,dir=None):
         g.write('metric')
         g.write('</th>\n')
         g.write('<th>')
-        g.write('avg.')
+        g.write('fw avg.')
         g.write('</th>\n')
         for i in range(len(constants.web_tool_categories)):
             g.write('<th>')
@@ -529,7 +529,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 
         g.write('<tr>\n')
         g.write('<td>')
-        g.write('fwavprecision')
+        g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
         g.write(str(fwavp))
@@ -542,7 +542,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 
         g.write('<tr>\n')
         g.write('<td>')
-        g.write('fwavrecall')
+        g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
         g.write(str(fwavr))
