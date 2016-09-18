@@ -93,7 +93,7 @@ def distance(category, main_fp, candidate_fp, coll):
             dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
             return None
-        print "{1}: before weight = {2}, after weight = {3]\n".format(feature, dist, weights[feature]*dist)
+        print "{1}: before weight = {2}, after weight = {3}\n".format(feature, dist, weights[feature]*dist)
         d += weights[feature]*dist
     print "total distance is {0}".format(d)
     return d
