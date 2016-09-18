@@ -16,7 +16,7 @@ caffe.set_mode_gpu()
 
 weights = 'ResNet-50-model.caffemodel'
 
-solver = caffe.SGDSolver('/home/yonatan/trendi/yonatan/resnet_50_dress_length/solver50_sgd.prototxt')
+solver = caffe.SGDSolver('/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/solver50_sgd.prototxt')
 #solver.net.copy_from(weights)
 
 docker_hostname = socket.gethostname()

@@ -16,7 +16,8 @@ today_date = str(datetime.date(datetime.now()))
 q = Queue('fingerprinter4db', connection=redis_conn)
 pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS',
          'PONTE']
-big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF']
+big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF', 'CUFFLINK', 'STUDS',
+             'KILT', 'STRAP']
 
 
 def amazon_de_to_ppd(cat, sub_cat, title):
@@ -80,6 +81,8 @@ def verify_by_title(title):
         return 'dress'
     elif any(x in title_upper for x in ['SHIRT', 'SHIRTS']):
         return 'shirt'
+    elif any(x in title_upper for x in ['SUIT', 'TOXEDO']):
+        return 'suit'
     elif any(x in title_upper for x in ['SWEATSHIRT', 'SWEATSHIRTS']):
         return 'sweatshirt'
     elif any(x in title_upper for x in ['SWEATER', 'SWEATERS']):
@@ -219,7 +222,7 @@ def amazon_usa_to_ppd(cat, sub_cat, title):
         return 'swimsuit'
     elif cat == 'Suits & Sport Coats':
         if sub_cat in ['Suits', 'Tuxedos']:
-            return 'suit'
+            return verify_by_title(title)
         elif sub_cat == 'Suit Separates':
             return verify_by_title(title)
         elif sub_cat == 'Sport Coats & Blazers':

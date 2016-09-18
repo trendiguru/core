@@ -143,9 +143,9 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     archive_name = col_name+'_archive'
     pymongo_utils.delete_or_and_index(collection_name=archive_name, index_list=['id'])
     collection_archive = db[archive_name]
-    archivers = collection_archive.find()
-    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    out_stockers = collection.find({'status.instock': False})
+    archivers = collection_archive.find(no_cursor_timeout=True)
+    not_updated = collection.find({"download_data.dl_version": {"$ne": today_date}}, no_cursor_timeout=True)
+    out_stockers = collection.find({'status.instock': False}, no_cursor_timeout=True)
     archivers_count = archivers.count()
     not_updated_count = not_updated.count()
     out_stockers_count = out_stockers.count()
@@ -155,8 +155,8 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     y_new, m_new, d_new = map(int, today_date.split("-"))
     a = n = 0
     for a, item in enumerate(archivers):
-        if a % block_size == 0:
-            progress_bar(block_size, total)
+        # if a % block_size == 0:
+        #     progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
         if days_out < archive_limit:
@@ -167,8 +167,8 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
     # add to the archive items which were not downloaded in the last 2 days
     progress = a
     for n, item in enumerate(not_updated):
-        if (n+progress) % block_size == 0:
-            progress_bar(block_size, total)
+        # if (n+progress) % block_size == 0:
+        #     progress_bar(block_size, total)
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
         if days_out > instock_limit:
@@ -183,15 +183,19 @@ def thearchivedoorman(col_name, instock_limit=2, archive_limit=7):
                 collection_archive.insert_one(item)
     progress = n + a
     # move to the archive all the items which were downloaded today but are out of stock
+
     for o, item in enumerate(out_stockers):
-        if (o + progress) % block_size == 0:
-            progress_bar(block_size, total)
+        # if (o + progress) % block_size == 0:
+        #     progress_bar(block_size, total)
         collection.delete_one({'id': item['id']})
         existing = collection_archive.find_one({"id": item["id"]})
         if existing:
             continue
         collection_archive.insert_one(item)
 
+    archivers.close()
+    not_updated.close()
+    out_stockers.close()
     collection_archive.reindex()
     print('')
 
@@ -201,6 +205,8 @@ def refresh_worker(doc, name, cats=[]):
     collection = db.images
     for person in doc['people']:
         gender = person['gender']
+        if gender is None:
+            gender = 'Female'
         col_name = name + '_' + gender
         for item in person['items']:
             similar_res = item['similar_results']
@@ -255,14 +261,14 @@ def get_indexes_names(coll):
     return keys
 
 
-def reindex(collection_name):
+def reindex(collection_name, new_indexes=None):
     collection = db[collection_name]
-    oldindexes = get_indexes_names(collection)
-    # remove indexes
-    collection.drop_indexes()
-    # build new indexes
+    current_keys = get_indexes_names(collection)
+    oldindexes = new_indexes or current_keys
     for index in oldindexes:
         print (index)
+        if new_indexes is None:
+            collection.drop_index(index)
         collection.create_index(index, background=True)
     print('Index done!')
 

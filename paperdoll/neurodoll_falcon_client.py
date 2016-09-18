@@ -5,7 +5,7 @@ import requests
 CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/nd"
 
 
-def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None):
+def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None,get_layer_output=None):
     params = {}
     if category_index:
         params['categoryIndex'] = category_index
@@ -13,6 +13,8 @@ def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_c
         params['getMultilabelResults'] = get_multilabel_results
     if get_combined_results:
         params['getCombinedResults'] = get_combined_results
+    if get_layer_output:
+        params['getLayerOutput'] = get_layer_output
 #    if get_yolo:
 #        params['getYolo'] = get_yolo
     if params == {}:

@@ -26,12 +26,9 @@ solver = caffe.SGDSolver('solver.prototxt')
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-all_params = [k for k in solver.net.params.keys()]
-print('all params:')
-print all_params
-all_blobs = [k for k in solver.net.blobs.keys()]
-print('all blobs:')
-print all_blobs
+all_layers = [k for k in solver.net.params.keys()]
+print('all layers:')
+print all_layers
 #surgery.interp(solver.net, interp_layers)
 
 # scoring
@@ -66,21 +63,24 @@ steps_per_iter = 1
 n_iter = 20
 loss_avg = [0]*n_iter
 tot_iters = 0
+with open(loss_outputname,'a+') as f:
+    f.write('time \t tot_iters \t averaged_loss \t accuracy\n')
+    f.close()
 for _ in range(100000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
-        print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter*n_iter
+        print('iter '+str(tot_iters)+' loss:'+str(loss))
     averaged_loss=sum(loss_avg)/len(loss_avg)
     accuracy = solver.net.blobs['accuracy'].data
     print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
         f.close()
-    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
+#    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
 #    subprocess.call(copy4cmd,shell=True)

@@ -20,7 +20,6 @@ from trendi import pipeline
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
-
     if url.count('jpg') > 1:
         return None
 
@@ -32,6 +31,47 @@ def url_to_image(url):
 
     # return the image
     return new_image
+
+def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'):
+    if isinstance(url_or_np_array, basestring):
+        print('get_layer_output working on url:'+url_or_np_array)
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    if image is None:
+        logging.debug('got None for image')
+        return
+    if required_image_size is not None:
+        original_h,original_w = image.shape[0:2]
+        logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
+      #  image,r = background_removal.standard_resize(image,max_side = 256)
+        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+
+    in_ = np.array(image, dtype=np.float32)   #.astype(float)
+    if in_ is None:
+        logging.debug('got none image in neurodoll.get_layer_output()')
+        return None
+    if len(in_.shape) != 3:
+        if len(in_.shape) != 2:
+            print('got something weird with shape '+str(in_.shape)+' , giving up')
+            return None
+        else:
+            print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
+            in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
+            print('now image has shape '+str(in_.shape))
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return None
+    in_ -= np.array([104,116,122.0])  #was not used in training!!
+    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
+    # shape for input (data blob is N x C x H x W), set data
+    net.blobs['data'].reshape(1, *in_.shape)
+    net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    net.forward()
+
+    layer_data = net.blobs[layer].data
+    return layer_data
 
 
 
@@ -45,7 +85,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
-
 #    in_ = in_.astype(float)
     if image is None:
         logging.debug('got None for image')
@@ -143,7 +182,7 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 
 
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(1)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
 #required_image_size = (256, 256)

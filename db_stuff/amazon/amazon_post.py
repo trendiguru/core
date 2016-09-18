@@ -4,7 +4,7 @@ from time import sleep, time
 
 from ..general.db_utils import log2file, print_error, thearchivedoorman, progress_bar, refresh_similar_results
 from rq import Queue
-
+import pymongo
 from ...constants import db, redis_conn
 from ..annoy_dir.fanni import plantAnnoyForest, reindex_forest
 from ..general.dl_excel import mongo2xl
@@ -18,50 +18,57 @@ forest = Queue('annoy_forest', connection=redis_conn)
 def clear_duplicates(col_name):
     global last_pct
     collection = db[col_name]
-    bef = collection.count()
-    all_items = collection.find({}, {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
-                                     'color': 1, 'p_hash': 1})
-    block_size = bef/100
-    for i, item in enumerate(all_items):
-        m, r = divmod(i, block_size)
-        if r == 0:
-            last_pct = progress_bar(block_size, bef, m, last_pct)
-        item_id = item['_id']
-        keys = item.keys()
-        if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color', 'p_hash'] if x not in keys):
-            # collection.delete_one({'_id':item_id})
-            continue
-        idx = item['id']
-        collection.delete_many({'id': idx, '_id': {'$ne': item_id}})
+    cats = collection.distinct('categories')
+    for cat in cats:
+        print('working on %s' % cat)
+        all_items = collection.find({'categories': cat},
+                                    {'id': 1, 'parent_asin': 1, 'img_hash': 1, 'images.XLarge': 1, 'sizes': 1,
+                                     'color': 1, 'p_hash': 1},
+                                    no_cursor_timeout=True, cursor_type=pymongo.CursorType.EXHAUST)
+        bef = all_items.count()
+        block_size = bef/100
+        for i, item in enumerate(all_items):
+            # m, r = divmod(i, block_size)
+            # if r == 0:
+            #     print (i)
+                # last_pct = progress_bar(block_size, bef, m, last_pct)
+            item_id = item['_id']
+            keys = item.keys()
+            if any(x for x in ['id', 'parent_asin', 'img_hash', 'images', 'sizes', 'color', 'p_hash'] if x not in keys):
+                # collection.delete_one({'_id':item_id})
+                continue
+            idx = item['id']
+            collection.delete_many({'id': idx, '_id': {'$ne': item_id}, 'categories': cat})
 
-        parent = item['parent_asin']
-        parent_exists = collection.find({'parent_asin': parent, '_id': {'$ne': item_id}},
-                                        {'id': 1, 'sizes': 1, 'color': 1})
-        if parent_exists:
-            id_to_del = []
-            current_sizes = item['sizes']
-            current_color = item['color']
-            for tmp_item in parent_exists:
-                tmp_id = tmp_item['_id']
-                tmp_color = tmp_item['color']
-                if tmp_color != current_color:
-                    continue
-                tmp_sizes = tmp_item['sizes']
-                for size in tmp_sizes:
-                    if size not in current_sizes:
-                        current_sizes.append(size)
-                id_to_del.append(tmp_id)
-            if len(id_to_del):
-                collection.delete_many({'_id': {'$in': id_to_del}})
+            parent = item['parent_asin']
+            parent_exists = collection.find({'parent_asin': parent, '_id': {'$ne': item_id}, 'categories': cat},
+                                            {'id': 1, 'sizes': 1, 'color': 1})
+            if parent_exists:
+                id_to_del = []
+                current_sizes = item['sizes']
+                current_color = item['color']
+                for tmp_item in parent_exists:
+                    tmp_id = tmp_item['_id']
+                    tmp_color = tmp_item['color']
+                    if tmp_color != current_color:
+                        continue
+                    tmp_sizes = tmp_item['sizes']
+                    for size in tmp_sizes:
+                        if size not in current_sizes:
+                            current_sizes.append(size)
+                    id_to_del.append(tmp_id)
+                if len(id_to_del):
+                    collection.delete_many({'_id': {'$in': id_to_del}})
 
-        img_hash = item['img_hash']
-        collection.delete_many({'img_hash': img_hash, '_id': {'$ne': item_id}})
+            img_hash = item['img_hash']
+            collection.delete_many({'img_hash': img_hash, '_id': {'$ne': item_id}, 'categories': cat})
 
-        p_hash = item['p_hash']
-        collection.delete_many({'p_hash': p_hash, '_id': {'$ne': item_id}})
+            p_hash = item['p_hash']
+            collection.delete_many({'p_hash': p_hash, '_id': {'$ne': item_id},'categories': cat})
 
-        img_url = item['images']['XLarge']
-        collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}})
+            img_url = item['images']['XLarge']
+            collection.delete_many({'images.XLarge': img_url, '_id': {'$ne': item_id}, 'categories': cat})
+        all_items.close()
     print('')
     print_error('CLEAR DUPLICATES', 'count before : %d\ncount after : %d' % (bef, collection.count()))
 
@@ -93,7 +100,7 @@ def daily_annoy(col_name, categories, all_cats=False):
     if not all_cats:
         categories_with_changes = []
         for cat in categories:
-            if collection.find({'categories': cat, 'download_data.first_dl': today_date}).count() > 0:
+            if collection.count({'categories': cat, 'download_data.first_dl': today_date}) > 0:
                 categories_with_changes.append(cat)
                 print('%s will be re-annoyed' % cat)
         categories = categories_with_changes
@@ -143,7 +150,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
         col_name = '%s_%s' % ('amaze', gen)
         items_before += db[col_name].count()
     amazon_name = 'amazon_%s_%s' % (cc, gender)
-    amazon = db[amazon_name].find()
+    amazon = db[amazon_name].find(no_cursor_timeout=True)
     amazon_total = amazon.count()
     inserted = 0
     for x, item in enumerate(amazon):
@@ -151,7 +158,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
             print('%d/%d' % (x, amazon_total))
         idx = item['id']
         # check if already exists in plus collection
-        exists = amaze.find({'id': idx}).count()
+        exists = amaze.count({'id': idx})
         if exists:
             continue
         sizes = item['sizes']
@@ -164,7 +171,7 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
             if inserted % 100 == 0:
                 print ('so far %s inserted' % inserted)
             amaze.insert_one(item)
-
+    amazon.close()
     clear_duplicates(amaze_name)  # add status bar
     thearchivedoorman(amaze_name, instock_limit=30, archive_limit=60)
     print_error('ARCHIVE DOORMAN FINISHED')

@@ -6,6 +6,8 @@ import logging
 import time
 from trendi.utils import imutils
 from trendi import constants
+import string
+import random
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -225,7 +227,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                    max_blur=0,
                    do_mirror_lr=True,do_mirror_ud=False,
                    crop_size=None,
-                    show_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):
+                    show_visual_output=False,save_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -313,7 +315,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if max_offset_y:
             offset_y = np.random.normal(0,max_offset_y)
         if max_scale:
-   #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
+            #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
             scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
         if max_noise_level:
             noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
@@ -325,10 +327,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if y_room:
             crop_dy = max(-float(y_room)/2,int(np.random.normal(0,float(y_room)/2)))
             crop_dy = min(crop_dy,float(y_room)/2)
-
-    else:  #uniform distributed random numbers
         if max_angle:
             angle = np.random.uniform(-max_angle,max_angle)
+
+    else:  #uniform distributed random numbers
         if max_offset_x:
             offset_x = np.random.uniform(-max_offset_x,max_offset_x)
         if max_offset_y:
@@ -375,6 +377,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #   #             print('found new val in target:'+str(u))
      #           output_img[output_img==u] = 0
 ############
+    if save_visual_output:
+        lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+        name = "".join(lst)
+        cv2.imwrite(name,img_arr)
     return img_arr
 
 
