@@ -60,11 +60,7 @@ class Editor(object):
                                                          path_args["person_id"],
                                                          path_args["item_category"],
                                                          path_args["results_collection"],
-                                                         body["data"])
-            elif "person_id" in path_args:
-                ret["ok"] = edit_results.change_gender_and_rebuild_person(path_args["image_id"],
-                                                                          path_args["person_id"],
-                                                                          data["gender"])
+                                                         data[path_args["results_collection"]])
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200
