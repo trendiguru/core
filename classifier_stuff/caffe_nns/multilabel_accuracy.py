@@ -585,6 +585,8 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
     if dir is None:
         dir = 'multilabel_results-'+model_base
+        if '.caffemodel' in model_base:
+            dir = 'multilabel_results-'+model_base[:-11]
         Utils.ensure_dir(dir)
     fname = os.path.join(dir,model_base+'results.txt')
     with open(fname,'a') as f:
@@ -640,7 +642,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         a_all.append(a)
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
-        write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
+        write_textfile(p,r,a,tp,tn,fp,fn,t,model_base,dir=dir)
         write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
         positives = False
     close_html(model_base,dir=dir)
