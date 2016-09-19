@@ -62,6 +62,7 @@ iters = []
 steps_per_iter = 1
 n_iter = 20
 loss_avg = [0]*n_iter
+accuracy_avg = [0]*n_iter
 tot_iters = 0
 with open(loss_outputname,'a+') as f:
     f.write('time \t tot_iters \t averaged_loss \t accuracy\n')
@@ -71,14 +72,16 @@ for _ in range(100000):
         solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
         loss_avg[i] = loss
+        accuracy = solver.net.blobs['accuracy'].data
+        accuracy_avg[i] = accuracy
         losses.append(loss)
-        tot_iters = tot_iters + steps_per_iter*n_iter
-        print('iter '+str(tot_iters)+' loss:'+str(loss))
+        tot_iters = tot_iters + steps_per_iter
+        print('iter '+str(tot_iters)+' loss:'+str(loss)+' acc:'+str(accuracy))
     averaged_loss=sum(loss_avg)/len(loss_avg)
-    accuracy = solver.net.blobs['accuracy'].data
-    print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
+    averaged_acc=sum(accuracy_avg)/len(accuracy_avg)
+    print('avg loss over last {} steps is {}, acc {}'.format(n_iter*steps_per_iter,averaged_loss,accuracy_avg))
     with open(loss_outputname,'a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
+        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy_avg)+'\n')
         f.close()
 #    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
     subprocess.call(copy2cmd,shell=True)
