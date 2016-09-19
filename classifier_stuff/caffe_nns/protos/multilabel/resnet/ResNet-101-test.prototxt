@@ -4759,9 +4759,9 @@ layer {
 #}
 
 layer {
-  name: "prob"
+  name: "score"
   bottom: "myfc1000"
-  top: "prob"
+  top: "score"
   type: "Sigmoid"
 }
 

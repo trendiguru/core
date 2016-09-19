@@ -407,7 +407,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 def open_html(model_base,dir=None):
     if dir is None:
         protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+model_base.strip('.caffemodel')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -442,7 +442,7 @@ def open_html(model_base,dir=None):
 def close_html(model_base,dir=None):
     if dir is None:
         protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+model_base.strip('.caffemodel')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -474,7 +474,7 @@ def summary_html(dir):
 def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
     if dir is None:
         protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+model_base.strip('.caffemodel')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
     Utils.ensure_dir(dir)
 
     htmlname = os.path.join(dir,model_base+'results.html')
@@ -583,7 +583,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
     if dir is None:
         protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+model_base.strip('.caffemodel')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
     Utils.ensure_dir(dir)
     fname = os.path.join(dir,model_base+'results.txt')
     with open(fname,'a') as f:
@@ -627,7 +627,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
     protoname = solverproto.strip('.prototxt')
-    dir = 'multilabel_results-'+protoname+model_base.strip('.caffemodel')
+    dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
     positives = True
