@@ -1,6 +1,6 @@
 import falcon
 from falcon_cors import CORS
-#from . import falcon_jwt
+from . import falcon_jwt
 
 from . import editor
 from .temp_editor_users import USERS
