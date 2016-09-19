@@ -628,7 +628,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     open_html(model_base,dir=dir)
     positives = True
     for t in thresh:
-        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer,dir=dir)
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
         p_all.append(p)
         r_all.append(r)
         a_all.append(a)
