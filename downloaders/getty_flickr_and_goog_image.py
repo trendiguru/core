@@ -53,6 +53,8 @@ def selectsiya(dir):
     Utils.ensure_dir(alone_dir)
     delete_dir = os.path.join(dir,'delete_these')
     Utils.ensure_dir(delete_dir)
+    good_images_dir = os.path.join(dir,'good_images')
+    Utils.ensure_dir(good_images_dir)
     files = [f for f in os.listdir(dir) if 'jpg' in f]
  #   print('files:'+str(files))
     n = 0
@@ -64,7 +66,8 @@ def selectsiya(dir):
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
-        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
+        count_goodimagesdir = len([g for g in os.listdir(good_images_dir) if os.path.isfile(os.path.join(good_images_dir, g))])
+        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_goodimagesdir)+' good images, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
         try:
@@ -85,9 +88,12 @@ def selectsiya(dir):
         c = cv2.waitKey(0)
         if c == ord('b'):
             print('go back')
-            i=i-1
+            prev_dir = os.path.join(dir, files[i-1])
+            os.rename(destname, prev_dir)
+            print('moved image to main dir')
+            i=i-2
             continue
-        if c == ord('d'):
+        elif c == ord('d'):
             print('delete')
             destname = os.path.join(delete_dir, f)
             print('source:'+fullfile+' dest:'+destname)
@@ -98,7 +104,10 @@ def selectsiya(dir):
             print('source:'+fullfile+' dest:'+destname)
             os.rename(fullfile,destname)
         elif c == ord(' '):
-            print('do nothing')
+            print('good image')
+            destname = os.path.join(good_images_dir, f)
+            print('source:' + fullfile + ' dest:' + destname)
+            os.rename(fullfile, destname)
         elif c == ord('q'):
             print('quit')
             cv2.destroyAllWindows()
