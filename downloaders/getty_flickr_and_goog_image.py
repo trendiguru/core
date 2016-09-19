@@ -203,7 +203,7 @@ def getty_star(a_b):
     return getty_dl(*a_b)
 
 def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
-    time.sleep(2)
+    time.sleep(21)
 
     time_inc = 3600*24*1  #1 day
     print('getting dates, min is '+str(mintime))
@@ -252,7 +252,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
             print('of total pages '+str(phot['pages']))
             pages = phot['pages']
             if pages==oldpages:
-                time_inc = time_inc*1.2
+                time_inc = time_inc*1.4
         print('got '+str(pages)+' pages')
         maxtime = int(maxtime + time_inc)
         oldpages=pages
