@@ -267,7 +267,12 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label'):
+def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label',dir=None):
+    if dir is None:
+        dir = 'multilabel_results-'+model_base
+        Utils.ensure_dir(dir)
+        if '.caffemodel' in model_base:
+            dir = 'multilabel_results-'+model_base[:-11]
     print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
@@ -403,6 +408,8 @@ def open_html(model_base,dir=None):
     if dir is None:
         dir = 'multilabel_results-'+model_base
         Utils.ensure_dir(dir)
+        if '.caffemodel' in model_base:
+            dir = 'multilabel_results-'+model_base[:-11]
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
@@ -437,6 +444,8 @@ def close_html(model_base,dir=None):
     if dir is None:
         dir = 'multilabel_results-'+model_base
         Utils.ensure_dir(dir)
+        if '.caffemodel' in model_base:
+            dir = 'multilabel_results-'+model_base[:-11]
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         g.write('</table><br>')
@@ -467,6 +476,8 @@ def summary_html(dir):
 def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
     if dir is None:
         dir = 'multilabel_results-'+model_base
+        if '.caffemodel' in model_base:
+            dir = 'multilabel_results-'+model_base[:-11]
         Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -623,7 +634,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     open_html(model_base,dir=dir)
     positives = True
     for t in thresh:
-        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
+        p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer,dir=dir)
         p_all.append(p)
         r_all.append(r)
         a_all.append(a)
@@ -719,7 +730,7 @@ if __name__ =="__main__":
     parser.add_argument('--caffemodel', help='caffmodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='prob')
-    parser.add_argument('--n_tests', help='number of examples to test',default=100)
+    parser.add_argument('--n_tests', help='number of examples to test',default=1000)
 
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
