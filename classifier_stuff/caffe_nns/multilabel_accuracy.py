@@ -267,12 +267,7 @@ def results():#prediction results
         plt.axis('off')
 
 
-def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label',dir=None):
-    if dir is None:
-        dir = 'multilabel_results-'+model_base
-        Utils.ensure_dir(dir)
-        if '.caffemodel' in model_base:
-            dir = 'multilabel_results-'+model_base[:-11]
+def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label'):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
 #    solver = caffe.SGDSolver(solverproto)
      # Make classifier.
@@ -406,8 +401,8 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 def open_html(model_base,dir=None):
     if dir is None:
-        protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -441,8 +436,8 @@ def open_html(model_base,dir=None):
 
 def close_html(model_base,dir=None):
     if dir is None:
-        protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -473,8 +468,8 @@ def summary_html(dir):
 
 def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
     if dir is None:
-        protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
 
     htmlname = os.path.join(dir,model_base+'results.html')
@@ -582,8 +577,8 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 
 def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
     if dir is None:
-        protoname = solverproto.strip('.prototxt')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     fname = os.path.join(dir,model_base+'results.txt')
     with open(fname,'a') as f:
@@ -626,8 +621,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
-    protoname = solverproto.strip('.prototxt')
-    dir = 'multilabel_results-'+protoname+'_'+model_base.strip('.caffemodel')
+    protoname = solverproto.replace('.prototxt','')
+    dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
     positives = True
