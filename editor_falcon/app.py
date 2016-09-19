@@ -29,4 +29,4 @@ api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category
 api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category}/collections/{results_collection}', editor)
 api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category}/collections/{results_collection}/results/{result_id}', editor)
 
-api.add_route('/login')
+api.add_route('/login', login)
