@@ -91,7 +91,7 @@ def selectsiya(dir):
             prev_dir = os.path.join(dir, files[i-1])
             os.rename(destname, prev_dir)
             print('moved image to main dir')
-            i=i-2
+            i=i-1
             continue
         elif c == ord('d'):
             print('delete')
