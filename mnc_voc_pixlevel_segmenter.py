@@ -237,7 +237,7 @@ def mnc_pixlevel_detect(url_or_np_array):
     os.remove(superimpose_name)
     os.remove(target_cls_file)
     end = time.time()
-    print 'text and save time %f' % (end-start
+    print 'text and save time %f' % (end-start)
     return fig  #watch out this is returning an Image object not our usual cv2 np array
 
 #load net
