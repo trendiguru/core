@@ -20,7 +20,7 @@ class MNCResource:
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
-            mnc_mask,mnc_box = mnc_voc_pixlevel_segmenter.mnc_pixlevel_detect(img)
+            mnc_mask,mnc_box,im,im_name = mnc_voc_pixlevel_segmenter.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
                 ret['mnc_output'] = [mnc_mask,mnc_box,im,im_name]
