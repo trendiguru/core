@@ -11,7 +11,7 @@ def hexa2bin(hexa):
 
 
 def create_index(col_name, category):
-    space_type = 'hamming_distance'
+    space_type = 'bit_hamming'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
@@ -63,7 +63,7 @@ def create_index(col_name, category):
     nmslib_vector.freeIndex(index)
 
 def find_top_knn_nmslib(k, query, category, col_name):
-    space_type = 'hamming_distance'
+    space_type = 'bit_hamming'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
