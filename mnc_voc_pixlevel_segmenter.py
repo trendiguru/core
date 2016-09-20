@@ -20,10 +20,10 @@ import caffe
 #from mnc_config import cfg
 from mnc_config import cfg
 from transform.bbox_transform import clip_boxes
-from utils.blob import prep_im_for_blob, im_list_to_blob
+from utils2.blob import prep_im_for_blob, im_list_to_blob
 from transform.mask_transform import gpu_mask_voting
-from utils.vis_seg import _convert_pred_to_image, _get_voc_color_map
-import matpqlotlib.pyplot as plt
+from utils2.vis_seg import _convert_pred_to_image, _get_voc_color_map
+import matplotlib.pyplot as plt
 import Image
 import urllib
 
