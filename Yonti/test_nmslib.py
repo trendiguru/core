@@ -7,7 +7,11 @@ num_of_bits = 8
 
 
 def hexa2bin(hexa):
-    return bin(int(hexa, scale))[2:].zfill(num_of_bits)
+    b = bin(int(hexa, scale))[2:].zfill(num_of_bits)
+    p = []
+    for i in b:
+        p.append(int(i))
+    return p
 
 
 def create_index(col_name, category):
@@ -20,13 +24,14 @@ def create_index(col_name, category):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.FLOAT)
+        nmslib_vector.DistType.INT)
 
     all_items_in_category = db[col_name].find({'categories':category})
     t1 =time()
     for idx, item in enumerate(all_items_in_category):
         p = item['p_hash']
         p_bin = hexa2bin(p)
+
         # if type(fp) == list:
         #     color = fp
         # elif type(fp)== dict:
