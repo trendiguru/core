@@ -20,10 +20,10 @@ class MNCResource:
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
-            mnc_output = mnc_voc_pixlevel_segmenter.mnc_pixlevel_detect(img)
-            if mnc_output is not None:
+            mnc_mask,mnc_box = mnc_voc_pixlevel_segmenter.mnc_pixlevel_detect(img)
+            if mnc_mask is not None:
                 ret["success"] = True
-                ret['mnc_output'] = mnc_output
+                ret['mnc_output'] = [mnc_mask,mnc_box]
 
         except Exception as e:
             ret["error"] = str(e)
