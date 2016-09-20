@@ -144,7 +144,7 @@ def mnc_pixlevel_detect(url_or_np_array):
     demo_dir = './'
     start = time.time()
     if isinstance(url_or_np_array,basestring):
-        im = url_to_image(url)
+        im = url_to_image(url_or_np_array)
     else:
         im = url_or_np_array
     #resize to max dim of max_dim
