@@ -492,21 +492,22 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 fwava = fwava + a[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-            print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
+        print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
         fwavp = fwavp/float(n_p)
-        fwavr = fwavp/float(n_r)
-        fwava = fwavp/float(n_a)
+        fwavr = fwavr/float(n_r)
+        fwava = fwava/float(n_a)
         fwavn = n_sum/float(len(p))
 
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2))
+    #write line with n_positives
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(str(fwavn))
+            g.write(str(round(fwavn,2)))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -514,6 +515,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
+    #write line with threshold
  #       g.write('<table style=\"width:100%\">\n')
         g.write('<b>')
         g.write('<tr>\n')
@@ -530,43 +532,45 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         g.write('</tr>\n')
         g.write('</b>')
 
-
+    #write row with precision
         g.write('<tr>\n')
         g.write('<td>')
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavp))
+        g.write(str(round(fwavp,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(p[i],3)))
+            g.write(str(round(p[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with recall
         g.write('<tr>\n')
         g.write('<td>')
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavr))
+        g.write(str(round(fwavr,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(r[i],3)))
+            g.write(str(round(r[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with accuracy
         g.write('<tr>\n')
         g.write('<td>')
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwava))
+        g.write(str(round(fwava,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(a[i],3)))
+            g.write(str(round(a[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 

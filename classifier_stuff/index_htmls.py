@@ -96,6 +96,8 @@ def write_index_html_with_images(dir, files):
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
+    f.write('nn classifier / fingerprint results \n')
+    f.write('<br>')
     for file in files:
         f.write('<br>\n')
         if file == '':
