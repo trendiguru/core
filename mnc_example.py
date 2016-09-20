@@ -1,78 +1,16 @@
-#!/usr/bin/python
+__author__ = 'jeremy'
 
-# --------------------------------------------------------
-# Multitask Network Cascade
-# Modified from py-faster-rcnn (https://github.com/rbgirshick/py-faster-rcnn)
-# Copyright (c) 2016, Haozhi Qi
-# Licensed under The MIT License [see LICENSE for details]
-# --------------------------------------------------------
 
-# Standard module
+
+#example for using this
+#from . import mnc_voc_pixlevel_segmenter
+import time
 import os
-import argparse
-import time
-import cv2
 import numpy as np
-# User-defined module
-# import _init_paths
-from . import mnc_init_path
-import caffe
-#from mnc_config import cfg
-from mnc_config import cfg
-from transform.bbox_transform import clip_boxes
-from utils2.blob import prep_im_for_blob, im_list_to_blob
-from transform.mask_transform import gpu_mask_voting
-from utils2.vis_seg import _convert_pred_to_image, _get_voc_color_map
+from PIL import Image
+import cv2
 import matplotlib.pyplot as plt
-import Image
-import urllib
-import time
-
-#print('this has to be run from /root/MNC')
-
-# VOC 20 classes
-CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat',
-           'bottle', 'bus', 'car', 'cat', 'chair',
-           'cow', 'diningtable', 'dog', 'horse',
-           'motorbike', 'person', 'pottedplant',
-           'sheep', 'sofa', 'train', 'tvmonitor')
-
-mnc_root = '/root/MNC'
-
-
-
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-    if url.count('jpg') > 1:
-        return None
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    if image.size == 0:
-        return None
-    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    # return the image
-    return new_image
-
-
-def parse_args():
-    """Parse input arguments."""
-    parser = argparse.ArgumentParser(description='MNC demo')
-    parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=0, type=int)
-    parser.add_argument('--cpu', dest='cpu_mode',
-                        help='Use CPU mode (overrides --gpu)',
-                        action='store_true')
-    parser.add_argument('--def', dest='prototxt',
-                        help='prototxt file defining the network',
-                        default=mnc_root+'/models/VGG16/mnc_5stage/test.prototxt', type=str)
-    parser.add_argument('--net', dest='caffemodel',
-                        help='model to test',
-                        default=mnc_root+'/data/mnc_model/mnc_model.caffemodel.h5', type=str)
-
-    args = parser.parse_args()
-    return args
-
+from trendi.paperdoll import mnc_falcon_client
 
 def prepare_mnc_args(im, net):
     # Prepare image data blob
@@ -174,14 +112,95 @@ def mnc_pixlevel_detect(url_or_np_array):
 
     return result_mask,result_box,im,im_name
 
-#load net
-#args = parse_args()
-test_prototxt = mnc_root+'/models/VGG16/mnc_5stage/test.prototxt'
-test_model = mnc_root+'/data/mnc_model/mnc_model.caffemodel.h5'
-print('ok computer 0')
-caffe.set_mode_gpu()
-print('ok computer 1')
-caffe.set_device(0)
-print('ok computer 2')
-net = caffe.Net(test_prototxt, test_model, caffe.TEST)
-print('ok computer 3')
+
+def get_mnc_output_using_nfc(url):
+    demo_dir = './'
+
+    result_dict = mnc_falcon_client.mnc(url, cat_to_look_for='person')
+    print('dict from falcon dict:'+str(result_dict))
+    if not result_dict['success']:
+        print('did not get nfc mnc result succesfully')
+        return
+    mnc_output = result_dict['mnc_output']
+    print('mnc output:'+str(mnc_output))
+    result_mask = mnc_output[0]
+    result_box = mnc_output[1]
+    im = mnc_output[2]
+    im_name = mnc_output[3]
+    return mnc_output
+
+def extras():
+    start = time.time()
+    pred_dict = mnc_voc_pixlevel_segmenter.get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
+    end = time.time()
+    print 'gpu vis dicttime %f' % (end-start)
+
+    start = time.time()
+    img_width = im.shape[1]
+    img_height = im.shape[0]
+
+    inst_img, cls_img = mnc_voc_pixlevel_segmenter._convert_pred_to_image(img_width, img_height, pred_dict)
+    color_map = mnc_voc_pixlevel_segmenter._get_voc_color_map()
+    target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
+    cls_out_img = np.zeros((img_height, img_width, 3))
+    for i in xrange(img_height):
+        for j in xrange(img_width):
+           cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+    cv2.imwrite(target_cls_file, cls_out_img)
+
+    end = time.time()
+    print 'convert pred to image  %f' % (end-start)
+
+    start = time.time()
+    background = Image.open(gt_image)
+    mask = Image.open(target_cls_file)
+    background = background.convert('RGBA')
+    mask = mask.convert('RGBA')
+
+    end = time.time()
+    print 'superimpose 0 time %f' % (end-start)
+    start = time.time()
+
+    superimpose_image = Image.blend(background, mask, 0.8)
+    superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
+    superimpose_image.save(superimpose_name, 'JPEG')
+    im = cv2.imread(superimpose_name)
+
+    end = time.time()
+    print 'superimpose 1 time %f' % (end-start)
+    start = time.time()
+
+    im = im[:, :, (2, 1, 0)]
+    fig, ax = plt.subplots(figsize=(12, 12))
+    ax.imshow(im, aspect='equal')
+
+    end = time.time()
+    print 'superimpose 1.5 time %f' % (end-start)
+    start = time.time()
+
+    classes = pred_dict['cls_name']
+
+    end = time.time()
+    print 'pred_dict time %f' % (end-start)
+    start = time.time()
+
+    for i in xrange(len(classes)):
+        score = pred_dict['boxes'][i][-1]
+        bbox = pred_dict['boxes'][i][:4]
+        cls_ind = classes[i] - 1
+        ax.text(bbox[0], bbox[1] - 8,
+           '{:s} {:.4f}'.format(CLASSES[cls_ind], score),
+            bbox=dict(facecolor='blue', alpha=0.5),
+            fontsize=14, color='white')
+    plt.axis('off')
+    plt.tight_layout()
+    plt.draw()
+    fig.savefig(os.path.join(demo_dir, im_name[:-4]+'.png'))
+    os.remove(superimpose_name)
+    os.remove(target_cls_file)
+    end = time.time()
+    print 'text and save time %f' % (end-start)
+#    return fig  #watch out this is returning an Image object not our usual cv2 np array
+
+
+    return mnc_output #

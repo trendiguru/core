@@ -18,15 +18,3 @@ def mnc(image_array_or_url,cat_to_look_for='person'):
     resp = requests.post(CLASSIFIER_ADDRESS, data=data, params=params)
     return msgpack.loads(resp.content)
     
-
-#example for using this
-
-def get_mnc_output_using_nfc(url):
-    result_dict = mnc(url, cat_to_look_for='person')
-    print('dict from falcon dict:'+str(result_dict))
-    if not result_dict['success']:
-        print('did not get nfc mnc result succesfully')
-        return
-    mnc_output = result_dict['mnc_output']
-    print('mnc output:'+str(mnc_output))
-    return mnc_output #
