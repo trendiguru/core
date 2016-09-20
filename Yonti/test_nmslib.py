@@ -17,6 +17,8 @@ def create_index(col_name, catergory):
     all_items_in_category = db[col_name].find({'categories':catergory})
 
     for idx, item in enumerate(all_items_in_category):
+        if idx > 100:
+            break
         print(idx)
         fp = item['fingerprint']
         if type(fp) == list:
