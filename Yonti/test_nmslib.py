@@ -15,7 +15,7 @@ def hexa2bin(hexa):
 
 
 def create_index(col_name, category, query, k):
-    space_type = 'sqfd minus func'
+    space_type = 'angulardist'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
