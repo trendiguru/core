@@ -20,7 +20,7 @@ def create_index(col_name, category):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.INT)
+        nmslib_vector.DistType.FLOAT)
 
     all_items_in_category = db[col_name].find({'categories':category})
     t1 =time()
