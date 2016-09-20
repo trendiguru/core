@@ -1,0 +1,23 @@
+net: "ResNet-101-train_test.prototxt"
+#train_net: "ResNet-101-train.prototxt"
+#test_net: "ResNet-101-test.prototxt"
+test_iter: 500
+test_interval: 5000 
+display: 20
+average_loss: 20
+weight_decay: 0.0005
+# no gradient accumulation
+iter_size: 20
+snapshot: 10000
+snapshot_prefix: "snapshot/res101_binary_dress"
+test_initialization: false
+solver_mode : GPU
+
+type: "SGD"
+base_lr: 1e-4
+lr_policy: "step"
+#lr_policy: "fixed"
+gamma: 0.1
+stepsize: 10000
+max_iter: 3000000
+momentum: 0.95

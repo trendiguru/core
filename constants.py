@@ -306,7 +306,7 @@ binary_cats = ['belt -conveyor -boxing -heavyweight','bikini','blazer -jeep -Jee
                'bracelet -island', 'cardigan -island', 'coat -animal -cat -dog -doctor', 'dress', 'earrings',
                'eyewear','footwear', 'gloves','handbag','hat', 'jacket suit -coat', 'jeans', 'lingerie',  'necklace',
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
-               'sweatshirt','swimwear%20NOT%20bikini%AND%20woman', 'swimwear%20AND%20man','top', 'watch']
+               'sweatshirt','swimwear AND man -bikini -woman -girl','shirt', 'watch']
 
 synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
 exclude_terms_for_binary_cats = [['conveyor','boxing','heavyweight'],None,['jeep','chevy','chevrolet','silverado','car'],['island'],['island'],['animal','cat','dog','doctor'],['animal','fox','wolf'],None,

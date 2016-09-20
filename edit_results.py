@@ -23,7 +23,7 @@ EDITOR_PROJECTION = {'image_id': 1,
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
 def get_image_obj_for_editor(image_url, image_id=None):
-    query = {"image_id": image_id} if image_id else {'image_urls': image_url}
+    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
     return sparse
 
@@ -42,13 +42,13 @@ def cancel_image(image_id):
         return False
     # CANCEL IMAGE (INSERT TO IRRELEVANT_IMAGES BEFORE)
     sparse_obj = shrink_image_object(image_obj)
-    # db.irrelevant_images.insert_one(sparse_obj)
+    db.irrelevant_images.insert_one(sparse_obj)
     db.images.delete_one({'image_id': image_id})
     return True
 
 
 def get_latest_images(num=10):
-    curs = db.images.find({}, {'_id':0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+    curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
     return list(curs)
 
 
@@ -63,7 +63,7 @@ def cancel_person(image_id, person_id):
 
 
 def change_gender_and_rebuild_person(image_id, person_id, new_gender):
-    image_obj = db.test.find_one({'image_id': image_id})
+    image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return "image_obj haven't found"
 
@@ -81,8 +81,8 @@ def change_gender_and_rebuild_person(image_id, person_id, new_gender):
                                                                                                   category_id=item['category'],
                                                                                                   fingerprint=item['fp'],
                                                                                                   collection=res_coll_gen)
-    res1 = db.test.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    res2 = db.test.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
+    res1 = db.images.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    res2 = db.images.update_one({'image_id': image_id}, {'$push': {'people': new_person}})
     return bool(res1.modified_count*res2.modified_count)
 
 
@@ -110,8 +110,8 @@ def add_people_to_image(image_url, page_url, faces, products_collection='ShopSty
         # ADD PEOPLE TO AN EXISTING IMAGE
         people_to_add = [build_new_person(image, face, products_collection, method) for face in faces]
         if len(people_to_add):
-            db.test.update_one({'_id': image_obj['_id']}, {'$push': {'image_urls': {'$each': people_to_add}},
-                                                           '$set': {'num_of_people': len(people_to_add)}})
+            db.images.update_one({'_id': image_obj['_id']}, {'$push': {'image_urls': {'$each': people_to_add}},
+                                                             '$set': {'num_of_people': len(people_to_add)}})
             return True
         else:
             return False
@@ -133,16 +133,15 @@ def cancel_item(image_id, person_id, item_category):
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):
-    print "got into the function!"
     image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return False
+    if not isinstance(new_results, list) or not len(new_results):
+        return False
     for person in image_obj['people']:
         if person['_id'] == person_id:
-            print "Found person"
             for item in person['items']:
                 if item['category'] == item_category:
-                    print "Found item, gonna switch results with {0}".format(new_results)
                     item['similar_results'][collection] = new_results
     res = db.images.replace_one({'image_id': image_id}, image_obj)
     return res.modified_count
@@ -165,7 +164,7 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
                         if result['id'] == int(result_id):
                             item['similar_results'][results_collection].remove(result)
                             ret = True
-    res = db.images.replace_one({'image_id': image_id}, image_obj)
+    db.images.replace_one({'image_id': image_id}, image_obj)
     return ret
 
 

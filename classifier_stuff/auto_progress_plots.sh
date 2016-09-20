@@ -40,7 +40,7 @@ echo "act 3"
 counter=0
 logsdir=/home/jeremy/caffenets/production/
 cd $logsdir
-logfiles="$(find . *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss)"
+logfiles="$(find . *netoutput.txt -mmin -300|grep -v jpg | grep -v png|grep -v loss|grep -v nvidia)"
 log_command="/usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/progress_plot.py "
 echo $logfiles
 for log in $logfiles;

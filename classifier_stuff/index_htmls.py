@@ -12,7 +12,8 @@ def make_indices_onedeep(dir):
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
-    dirs=sorted(dirs,key=os.path.getmtime,reverse=True)
+    dirs=sorted(dirs,key=os.path.getmtime,reverse=True)  #sort by date
+#    dirs.sort()
 
     print('top dirs in '+dir+':'+str(dirs))
     for d in dirs:
@@ -30,11 +31,13 @@ def make_index(dir):
     sortedfiles=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
     files=[os.path.basename(f) for f in sortedfiles]
-    files.sort #dont sort by date, it mixes nets up
+    files.sort() #dont sort by date, it mixes nets up
     print('files in:'+str(files))
 #    print(files)
+    #sort by time
     sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
+    sorteddirs.sort()  #undo the sort by time
     dirs = [os.path.basename(d) for d in sorteddirs ]
     print('dirs in '+str(dir)+':'+str(dirs))
 #    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
