@@ -130,7 +130,7 @@ def get_mnc_output_using_nfc(url):
 
 
 def extras():
-        start = time.time()
+    start = time.time()
     pred_dict = mnc_voc_pixlevel_segmenter.get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
     end = time.time()
     print 'gpu vis dicttime %f' % (end-start)
