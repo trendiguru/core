@@ -26,6 +26,7 @@ from utils2.vis_seg import _convert_pred_to_image, _get_voc_color_map
 import matplotlib.pyplot as plt
 import Image
 import urllib
+import time
 
 print('this has to be run from /root/MNC')
 
@@ -145,8 +146,10 @@ def mnc_pixlevel_detect(url_or_np_array):
     start = time.time()
     if isinstance(url_or_np_array,basestring):
         im = url_to_image(url_or_np_array)
+        im_name = url_or_np_array.split('/')[-1]
     else:
         im = url_or_np_array
+        im_name=int(time.time())+'.jpg'
     #resize to max dim of max_dim
     max_dim = 400
     h,w = im.shape[0:2]
@@ -157,7 +160,6 @@ def mnc_pixlevel_detect(url_or_np_array):
     actual_new_h,actual_new_w = im.shape[0:2]
     print('old w,h {}x{}, planned {}x{}, actual {}x{}'.format(w,h,new_w,new_h,actual_new_w,actual_new_h))
 
-    im_name = url.split('/')[-1]
     gt_image = os.path.join(demo_dir, im_name)
     print gt_image
     cv2.imwrite(gt_image,im)
