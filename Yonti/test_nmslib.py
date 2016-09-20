@@ -2,7 +2,7 @@ import nmslib_vector
 from ..constants import db
 
 
-def create_index(col_name, catergory):
+def create_index(col_name, category):
     space_type = 'cosinesimil'
     space_param = []
     method_name = 'small_world_rand'
@@ -14,7 +14,7 @@ def create_index(col_name, catergory):
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
 
-    all_items_in_category = db[col_name].find({'categories':catergory})
+    all_items_in_category = db[col_name].find({'categories':category})
 
     for idx, item in enumerate(all_items_in_category):
         if idx > 100:
@@ -36,7 +36,6 @@ def create_index(col_name, catergory):
     print('upto here2')
     query_time_param = ['initSearchAttempts=3']
 
-
     print('upto here3')
 
     nmslib_vector.createIndex(index, index_param)
@@ -55,8 +54,7 @@ def create_index(col_name, catergory):
 
     nmslib_vector.freeIndex(index)
 
-
-def find_top_knn_nmslib(k, query, category):
+def find_top_knn_nmslib(k, query, category, col_name):
     space_type = 'cosinesimil'
     space_param = []
     method_name = 'small_world_rand'
@@ -68,7 +66,23 @@ def find_top_knn_nmslib(k, query, category):
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
     print('upto here4')
+    all_items_in_category = db[col_name].find({'categories':category})
 
+    for idx, item in enumerate(all_items_in_category):
+        if idx > 100:
+            break
+        print(idx)
+        fp = item['fingerprint']
+        if type(fp) == list:
+            color = fp
+        elif type(fp) == dict:
+            color = fp['color']
+        else:
+            print('else')
+            continue
+        nmslib_vector.addDataPoint(index, idx, color)
+        item_id = item['_id']
+        db[col_name].update_one({'_id': item_id}, {'$set': {'nmslib_index': idx}})
     query_time_param = ['initSearchAttempts=3']
     print('upto here5')
 
@@ -100,5 +114,5 @@ if __name__ == '__main__':
     col = 'ShopStyle_Female'
     q = db[col].find_one({})
     create_index(col, 'dress')
-    find_top_knn_nmslib(10, q, 'dress')
+    find_top_knn_nmslib(10, q, 'dress', col)
 
