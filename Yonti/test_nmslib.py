@@ -15,7 +15,7 @@ def create_index(col_name, category):
         nmslib_vector.DistType.FLOAT)
 
     all_items_in_category = db[col_name].find({'categories':category})
-
+    t1 =time()
     for idx, item in enumerate(all_items_in_category):
         fp = item['fingerprint']
         if type(fp) == list:
@@ -28,7 +28,8 @@ def create_index(col_name, category):
         nmslib_vector.addDataPoint(index, idx, color)
         item_id = item['_id']
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
-    print('upto here1')
+    t2 = time()
+    print('loop1 = %s' %str(t2-t1))
     index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=4']
     print('upto here2')
     query_time_param = ['initSearchAttempts=3']
@@ -36,7 +37,8 @@ def create_index(col_name, category):
     print('upto here3')
 
     nmslib_vector.createIndex(index, index_param)
-
+    t3 = time()
+    print('loop2 = %s' % str(t3 - t2))
     print 'The index is created'
 
     nmslib_vector.setQueryTimeParams(index, query_time_param)
@@ -83,7 +85,7 @@ def find_top_knn_nmslib(k, query, category, col_name):
     nmslib_vector.loadIndex(index, index_name)
 
     print "The index %s is loaded" % index_name
-
+    t1 = time()
     nmslib_vector.setQueryTimeParams(index, query_time_param)
 
     print 'Query time parameters are set'
@@ -101,13 +103,14 @@ def find_top_knn_nmslib(k, query, category, col_name):
     query_url = query['images']['XLarge']
     print nmslib_vector.knnQuery(index, k, color)
     print query_url
-
+    t2 = time()
+    print('loop3 = %s' % str(t2 - t1))
     nmslib_vector.freeIndex(index)
 
 if __name__ == '__main__':
     a= time()
     col = 'ShopStyle_Female'
-    q = db[col].find({'categories': 'dress'})[1000]
+    q = db[col].find({'categories': 'dress'})[1050]
     create_index(col, 'dress')
     b = time()
     print ('createtime = %s' %(str(b-a)))
