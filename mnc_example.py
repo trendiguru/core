@@ -3,7 +3,7 @@ __author__ = 'jeremy'
 
 
 #example for using this
-from classifier_stuff import mnc_voc_pixlevel_segmenter
+from . import mnc_voc_pixlevel_segmenter
 import time
 import os
 import numpy as np
