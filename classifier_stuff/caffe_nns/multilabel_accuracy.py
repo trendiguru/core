@@ -492,10 +492,10 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 fwava = fwava + a[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-            print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
+        print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
         fwavp = fwavp/float(n_p)
-        fwavr = fwavp/float(n_r)
-        fwava = fwavp/float(n_a)
+        fwavr = fwavr/float(n_r)
+        fwava = fwava/float(n_a)
         fwavn = n_sum/float(len(p))
 
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
