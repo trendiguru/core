@@ -145,9 +145,9 @@ def find_top_knn_nmslib(k, query, category, col_name):
 if __name__ == '__main__':
     a= time()
     col = 'amaze_Female'
-    url = 'http://ecx.images-amazon.com/images/I/41fpLFLh0CL.jpg'
+    url = 'http://ecx.images-amazon.com/images/I/41hc8sdCEkL.jpg'
     q = db[col].find_one({'images.XLarge': url})
-    l = create_index(col, 'dress', q, 100)
+    l = create_index(col, 'blazer', q, 100)
     # b = time()
     # print ('createtime = %s' %(str(b-a)))
     # l= find_top_knn_nmslib(, 'dress', col)
