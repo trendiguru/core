@@ -29,8 +29,13 @@ def create_index(col_name, catergory):
         nmslib_vector.addDataPoint(index, idx, color)
         item_id = item['_id']
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
+    print('upto here1')
     index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=4']
+    print('upto here2')
     query_time_param = ['initSearchAttempts=3']
+
+
+    print('upto here3')
 
     nmslib_vector.createIndex(index, index_param)
 
