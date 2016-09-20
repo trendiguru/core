@@ -20,12 +20,13 @@ def mnc(image_array_or_url,cat_to_look_for='person'):
     
 
 #example for using this
+import nfc
 def get_mnc_output_using_nfc(url_or_np_array):
     result_dict = nfc.mnc(url, cat_to_look_for='person')
     print('dict from falcon dict:'+str(result_dict))
-    if not reslut_dict['success']:
+    if not result_dict['success']:
         print('did not get nfc mnc result succesfully')
         return
-    mnc_output = mnc_dict['mnc_output']
+    mnc_output = result_dict['mnc_output']
     print('mnc output:'+str(mnc_output))
     return mnc_output #
