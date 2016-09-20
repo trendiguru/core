@@ -15,7 +15,7 @@ def hexa2bin(hexa):
 
 
 def create_index(col_name, category, query, k):
-    space_type = 'cosinesimil'
+    space_type = 'jsmetrslow'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
@@ -44,9 +44,9 @@ def create_index(col_name, category, query, k):
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
     print('loop1 = %s' %str(t2-t1))
-    index_param = ['NN=10', 'initIndexAttempts=100', 'indexThreadQty=4']
+    index_param = ['NN=5', 'initIndexAttempts=5', 'indexThreadQty=4']
     print('upto here2')
-    query_time_param = ['initSearchAttempts=100']
+    query_time_param = ['initSearchAttempts=5']
 
     print('upto here3')
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     col = 'amaze_Female'
     url = 'http://ecx.images-amazon.com/images/I/41hc8sdCEkL.jpg'
     q = db[col].find_one({'images.XLarge': url})
-    l = create_index(col, 'blazer', q, 100)
+    l = create_index(col, 'blazer', q, 20)
     # b = time()
     # print ('createtime = %s' %(str(b-a)))
     # l= find_top_knn_nmslib(, 'dress', col)
