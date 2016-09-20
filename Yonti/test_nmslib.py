@@ -56,18 +56,18 @@ def create_index(col_name, category, query, k):
     print 'The index is created'
 
     nmslib_vector.setQueryTimeParams(index, query_time_param)
-    # query_fp = query['fingerprint']
-    # if type(query_fp) == list:
-    #     color = query_fp
-    # elif type(query_fp) == dict:
-    #     color = query_fp['color']
-    # else:
-    #     print('bad fp')
-    #     return
-    p = query['p_hash']
-    p_bin = hexa2bin(p)
+    query_fp = query['fingerprint']
+    if type(query_fp) == list:
+        color = query_fp
+    elif type(query_fp) == dict:
+        color = query_fp['color']
+    else:
+        print('bad fp')
+        return
+    # p = query['p_hash']
+    # p_bin = hexa2bin(p)
     query_url = query['images']['XLarge']
-    l = nmslib_vector.knnQuery(index, k, p_bin)
+    l = nmslib_vector.knnQuery(index, k, color)
     print query_url
     t2 = time()
     print('loop3 = %s' % str(t2 - t1))
