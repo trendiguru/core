@@ -34,6 +34,7 @@ def create_index(col_name, category):
         # else:
         #     print('else')
         #     continue
+        print (p_bin)
         nmslib_vector.addDataPoint(index, idx, p_bin)
         item_id = item['_id']
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
