@@ -127,7 +127,7 @@ def get_mnc_output_using_nfc(url):
     result_box = mnc_output[1]
     im = mnc_output[2]
     im_name = mnc_output[3]
-
+    return mnc_output
 
 def extras():
     start = time.time()
