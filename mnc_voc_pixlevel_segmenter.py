@@ -178,6 +178,10 @@ def mnc_pixlevel_detect(url_or_np_array):
 #args = parse_args()
 test_prototxt = mnc_root+'/models/VGG16/mnc_5stage/test.prototxt'
 test_model = mnc_root+'/data/mnc_model/mnc_model.caffemodel.h5'
+print('ok computer 0')
 caffe.set_mode_gpu()
+print('ok computer 1')
 caffe.set_device(0)
+print('ok computer 2')
 net = caffe.Net(test_prototxt, test_model, caffe.TEST)
+print('ok computer 3')
