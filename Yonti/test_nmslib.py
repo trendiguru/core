@@ -67,8 +67,10 @@ def find_top_knn_nmslib(k, query, category):
         method_name,
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
+    print('upto here4')
 
     query_time_param = ['initSearchAttempts=3']
+    print('upto here5')
 
     nmslib_vector.loadIndex(index, index_name)
 
