@@ -1,6 +1,6 @@
 import nmslib_vector
 from ..constants import db
-
+from time import time
 
 def create_index(col_name, category):
     space_type = 'cosinesimil'
@@ -17,9 +17,6 @@ def create_index(col_name, category):
     all_items_in_category = db[col_name].find({'categories':category})
 
     for idx, item in enumerate(all_items_in_category):
-        if idx > 100:
-            break
-        print(idx)
         fp = item['fingerprint']
         if type(fp) == list:
             color = fp
@@ -69,9 +66,6 @@ def find_top_knn_nmslib(k, query, category, col_name):
     all_items_in_category = db[col_name].find({'categories':category})
 
     for idx, item in enumerate(all_items_in_category):
-        if idx > 100:
-            break
-        print(idx)
         fp = item['fingerprint']
         if type(fp) == list:
             color = fp
@@ -111,8 +105,14 @@ def find_top_knn_nmslib(k, query, category, col_name):
     nmslib_vector.freeIndex(index)
 
 if __name__ == '__main__':
+    a= time()
     col = 'ShopStyle_Female'
-    q = db[col].find_one({'categories':'dress'})
+    q = db[col].find({'categories': 'dress'})[1000]
     create_index(col, 'dress')
-    find_top_knn_nmslib(10, q, 'dress', col)
+    b = time()
+    print ('createtime = %s' %(str(b-a)))
+    find_top_knn_nmslib(1000, q, 'dress', col)
+    c= time()
+    print ('createtime = %s' %(str(c-b)))
+
 
