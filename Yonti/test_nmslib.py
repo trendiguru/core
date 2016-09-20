@@ -44,7 +44,7 @@ def create_index(col_name, category, query, k):
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
     print('loop1 = %s' %str(t2-t1))
-    index_param = ['NN=25', 'initIndexAttempts=5', 'indexThreadQty=4']
+    index_param = ['NN=10', 'initIndexAttempts=5', 'indexThreadQty=4']
     print('upto here2')
     query_time_param = ['initSearchAttempts=5']
 
