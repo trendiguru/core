@@ -20,7 +20,7 @@ def mnc(image_array_or_url,cat_to_look_for='person'):
     
 
 #example for using this
-import mnc_voc_pixlevel_segmenter
+from . import mnc_voc_pixlevel_segmenter
 import time
 import os
 import numpy as np
