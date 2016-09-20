@@ -15,7 +15,7 @@ def hexa2bin(hexa):
 
 
 def create_index(col_name, category, query, k):
-    space_type = 'jsdivslow'
+    space_type = 'linf'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
@@ -44,7 +44,7 @@ def create_index(col_name, category, query, k):
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
     print('loop1 = %s' %str(t2-t1))
-    index_param = ['NN=50', 'initIndexAttempts=5', 'indexThreadQty=4']
+    index_param = ['NN=17', 'initIndexAttempts=5', 'indexThreadQty=4']
     print('upto here2')
     query_time_param = ['initSearchAttempts=5']
 
