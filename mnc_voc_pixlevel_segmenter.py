@@ -245,10 +245,9 @@ def mnc_pixlevel_detect(url_or_np_array):
     return fig  #watch out this is returning an Image object not our usual cv2 np array
 
 #load net
-args = parse_args()
-test_prototxt = args.prototxt
-test_model = args.caffemodel
+#args = parse_args()
+test_prototxt = mnc_root+'/models/VGG16/mnc_5stage/test.prototxt'
+test_model = mnc_root+'/data/mnc_model/mnc_model.caffemodel.h5'
 caffe.set_mode_gpu()
-caffe.set_device(args.gpu_id)
+caffe.set_device(0)
 net = caffe.Net(test_prototxt, test_model, caffe.TEST)
-
