@@ -225,7 +225,7 @@ def deleteDuplicates(delete=True):
     true for deleting
     false for only printing out
     '''
-    for gender in ['Male','Female']:
+    for gender in ['Male', 'Female']:
         col = db['recruit_'+gender]
         print_n_flush('\n #### %s ######' % gender)
         for cat in recruit2category_idx.keys():
@@ -239,7 +239,7 @@ def deleteDuplicates(delete=True):
                     if idx1 in tmp:
                         continue
                 img_url = item['images']['XLarge']
-                exists = col.find({'categories':cat, 'images.XLarge':img_url}).hint([('images.XLarge',1)])
+                exists = col.find({'categories': cat, 'images.XLarge': img_url}).hint([('images.XLarge', 1)])
                 if exists:
                     for e in exists:
                         idx2del = e['_id']
