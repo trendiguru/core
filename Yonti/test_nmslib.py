@@ -1,5 +1,5 @@
 import nmslib_vector
-from ...constants import db
+from ..constants import db
 
 
 def create_index(col_name, catergory):
