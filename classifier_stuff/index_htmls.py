@@ -41,7 +41,7 @@ def make_index(dir):
     dirs = [os.path.basename(d) for d in sorteddirs ]
     print('dirs in '+str(dir)+':'+str(dirs))
 #    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
-    dirs.sort() #dont sort by date, it mixes nets up
+#    dirs.sort() #dont sort by date, it mixes nets up
     htmlfiles = []
     for file in files:
 #        actual_path =
