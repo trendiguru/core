@@ -17,7 +17,15 @@ def create_index(col_name, catergory):
     all_items_in_category = db[col_name].find({'categories':catergory})
 
     for idx, item in enumerate(all_items_in_category):
-        nmslib_vector.addDataPoint(index, idx, item['fingerprint']['color'])
+        fp = item['fingerprint']
+        if type(fp) == list:
+            color = fp
+        elif type(fp)== dict:
+            color = fp['color']
+        else:
+            print('else')
+            continue
+        nmslib_vector.addDataPoint(index, idx, color)
         item_id = item['_id']
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=4']
@@ -64,9 +72,16 @@ def find_top_knn_nmslib(k, query, category):
 
     print "Results for the loaded index"
 
-    query_fp = query['fingerprint']['color']
+    query_fp = query['fingerprint']
+    if type(query_fp) == list:
+        color = query_fp
+    elif type(query_fp) == dict:
+        color = query_fp['color']
+    else:
+        print('bad fp')
+        return
     query_url = query['images']['XLarge']
-    print nmslib_vector.knnQuery(index, k, query_fp)
+    print nmslib_vector.knnQuery(index, k, color)
     print query_url
 
     nmslib_vector.freeIndex(index)
