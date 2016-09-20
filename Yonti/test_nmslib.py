@@ -70,7 +70,7 @@ def create_index(col_name, category, query, k):
     l = nmslib_vector.knnQuery(index, k, color)
     print query_url
     t2 = time()
-    print('loop3 = %s' % str(t2 - t1))
+    print('loop3 = %s' % str(t2 - t3))
     nmslib_vector.freeIndex(index)
     return l
     # print 'Query time parameters are set'
