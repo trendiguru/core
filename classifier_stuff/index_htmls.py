@@ -31,7 +31,7 @@ def make_index(dir):
     sortedfiles=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
     files=[os.path.basename(f) for f in sortedfiles]
-    files.sort() #dont sort by date, it mixes nets up
+#    files.sort() #dont sort by date, it mixes nets up
     print('files in:'+str(files))
 #    print(files)
     #sort by time

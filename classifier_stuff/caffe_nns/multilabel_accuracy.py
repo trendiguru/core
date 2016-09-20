@@ -21,7 +21,6 @@ from trendi import Utils
 
 import math
 
-
 # matplotlib inline
 def setup():
     lt.rcParams['figure.figsize'] = (6, 6)
@@ -43,7 +42,6 @@ def setup():
     if not os.path.isfile(caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'):
         print("Downloading pre-trained CaffeNet model...")
     #    !../scripts/download_model_binary.py ../models/bvlc_reference_caffenet
-
 
 # helper function for common structures
 def conv_relu(bottom, ks, nout, stride=1, pad=0, group=1):
@@ -482,6 +480,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         n_a=0
         fwavn = 0
         n_sum = 0
+        #calculate frequency-weighted averages
         for i in range(len(p)):
             if not np.isnan(p[i]):
                 fwavp = fwavp + p[i]*n[i]
@@ -490,14 +489,15 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 fwavr = fwavr + r[i]*n[i]
                 n_r=n_r+n[i]
             if not np.isnan(a[i]):
-                fwava = fwava + p[i]*n[i]
+                fwava = fwava + a[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-            print('n sum'+str(n_sum))
+            print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
         fwavp = fwavp/float(n_p)
         fwavr = fwavp/float(n_r)
         fwava = fwavp/float(n_a)
         fwavn = n_sum/float(len(p))
+
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
         g.write('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
         if(positives):
