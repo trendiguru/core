@@ -28,7 +28,7 @@ import Image
 import urllib
 import time
 
-print('this has to be run from /root/MNC')
+#print('this has to be run from /root/MNC')
 
 # VOC 20 classes
 CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat',
