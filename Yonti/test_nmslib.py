@@ -45,9 +45,9 @@ def create_index(col_name, category):
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
     print('loop1 = %s' %str(t2-t1))
-    index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=4']
+    index_param = ['NN=25', 'initIndexAttempts=5', 'indexThreadQty=4']
     print('upto here2')
-    query_time_param = ['initSearchAttempts=3']
+    query_time_param = ['initSearchAttempts=5']
 
     print('upto here3')
 
@@ -95,7 +95,7 @@ def find_top_knn_nmslib(k, query, category, col_name):
         nmslib_vector.addDataPoint(index, idx, p_bin)
         # item_id = item['_id']
         # db[col_name].update_one({'_id': item_id}, {'$set': {'nmslib_index': idx}})
-    query_time_param = ['initSearchAttempts=3']
+    query_time_param = ['initSearchAttempts=5']
     print('upto here5')
 
     nmslib_vector.loadIndex(index, index_name)
@@ -119,21 +119,26 @@ def find_top_knn_nmslib(k, query, category, col_name):
     p = query['p_hash']
     p_bin = hexa2bin(p)
     query_url = query['images']['XLarge']
-    print nmslib_vector.knnQuery(index, k, p_bin)
+    l = nmslib_vector.knnQuery(index, k, p_bin)
     print query_url
     t2 = time()
     print('loop3 = %s' % str(t2 - t1))
     nmslib_vector.freeIndex(index)
+    return l
 
 if __name__ == '__main__':
     a= time()
     col = 'amaze_Female'
-    q = db[col].find({'categories': 'dress'})[1050]
+    q = db[col].find({'categories': 'dress'})[1550]
     create_index(col, 'dress')
     b = time()
     print ('createtime = %s' %(str(b-a)))
-    find_top_knn_nmslib(1000, q, 'dress', col)
+    l= find_top_knn_nmslib(100, q, 'dress', col)
     c= time()
-    print ('createtime = %s' %(str(c-b)))
+    print ('createtime = %s' % (str(c - b)))
+    items = db[col].find({'nmslib_index':{'$in':l}})
+    for item in items:
+        print item['images']['XLarge']
+
 
 
