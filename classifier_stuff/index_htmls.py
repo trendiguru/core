@@ -98,6 +98,8 @@ def write_index_html_with_images(dir, files):
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
         f.write('<br>\n')
+        if file == '':
+            continue
 
         fullpath = os.path.join(dir,file)
         modtime = time.ctime(os.path.getmtime(fullpath))
