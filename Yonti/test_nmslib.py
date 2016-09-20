@@ -3,7 +3,7 @@ from ..constants import db
 from time import time
 
 scale = 16
-num_of_bits = 8
+num_of_bits = 256
 
 
 def hexa2bin(hexa):
