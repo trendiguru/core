@@ -5,7 +5,7 @@ from ..constants import db
 def create_index(col_name, catergory):
     space_type = 'cosinesimil'
     space_param = []
-    method_name = 'test_'+catergory
+    method_name = 'small_world_rand'
     index_name = method_name + '.index'
     index = nmslib_vector.init(
         space_type,
@@ -59,7 +59,7 @@ def create_index(col_name, catergory):
 def find_top_knn_nmslib(k, query, category):
     space_type = 'cosinesimil'
     space_param = []
-    method_name = 'test_' + category
+    method_name = 'small_world_rand'
     index_name = method_name + '.index'
     index = nmslib_vector.init(
         space_type,
