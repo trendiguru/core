@@ -20,7 +20,7 @@ def create_index(col_name, category):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.FLOAT)
+        nmslib_vector.DistType.INT)
 
     all_items_in_category = db[col_name].find({'categories':category})
     t1 =time()
@@ -72,7 +72,7 @@ def find_top_knn_nmslib(k, query, category, col_name):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.FLOAT)
+        nmslib_vector.DistType.INT)
     print('upto here4')
     all_items_in_category = db[col_name].find({'categories':category})
 
