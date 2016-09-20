@@ -14,7 +14,8 @@ import time
 import cv2
 import numpy as np
 # User-defined module
-import _init_paths
+# import _init_paths
+import mnc_init_path
 import caffe
 #from mnc_config import cfg
 from mnc_config import cfg
