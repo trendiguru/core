@@ -57,7 +57,7 @@ def make_index(dir):
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
 #    htmlfiles.sort()
-    htmlfiles.append('\n')
+    htmlfiles.append('')
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
