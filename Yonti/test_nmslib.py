@@ -12,11 +12,12 @@ def create_index(col_name, catergory):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.DOUBLE)
+        nmslib_vector.DistType.FLOAT)
 
     all_items_in_category = db[col_name].find({'categories':catergory})
 
     for idx, item in enumerate(all_items_in_category):
+        print(idx)
         fp = item['fingerprint']
         if type(fp) == list:
             color = fp
@@ -58,7 +59,7 @@ def find_top_knn_nmslib(k, query, category):
         space_param,
         method_name,
         nmslib_vector.DataType.VECTOR,
-        nmslib_vector.DistType.DOUBLE)
+        nmslib_vector.DistType.FLOAT)
 
     query_time_param = ['initSearchAttempts=3']
 
