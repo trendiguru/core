@@ -7,7 +7,7 @@ __author__ = 'jeremy'
 import time
 import os
 import numpy as np
-import Image
+from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
 from trendi.paperdoll import mnc_falcon_client
