@@ -172,7 +172,7 @@ def mnc_pixlevel_detect(url_or_np_array):
                                                100, im.shape[1], im.shape[0])
     end = time.time()
 
-    return result_mask,result_box
+    return result_mask,result_box,im,im_name
 
 #load net
 #args = parse_args()
