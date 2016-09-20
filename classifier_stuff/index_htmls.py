@@ -37,7 +37,7 @@ def make_index(dir):
     #sort by time
     sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
-    sorteddirs.sort()  #undo the sort by time
+#    sorteddirs.sort()  #undo the sort by time
     dirs = [os.path.basename(d) for d in sorteddirs ]
     print('dirs in '+str(dir)+':'+str(dirs))
 #    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
@@ -57,6 +57,7 @@ def make_index(dir):
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
 #    htmlfiles.sort()
+    htmlfiles.append('\n')
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
@@ -75,10 +76,13 @@ def write_index_html(dir, files):
     f.write('<HTML><HEAD><TITLE>Results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
-        fullpath = os.path.join(dir,file)
-        modtime = time.ctime(os.path.getmtime(fullpath))
-        f.write('<br>\n')
-        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
+        if file == '':
+            f.write('<br>\n')
+        else:
+            fullpath = os.path.join(dir,file)
+            modtime = time.ctime(os.path.getmtime(fullpath))
+            f.write('<br>\n')
+            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
     f.write('</html>\n')
     f.close
