@@ -81,8 +81,8 @@ def find_top_knn_nmslib(k, query, category, col_name):
             print('else')
             continue
         nmslib_vector.addDataPoint(index, idx, color)
-        item_id = item['_id']
-        db[col_name].update_one({'_id': item_id}, {'$set': {'nmslib_index': idx}})
+        # item_id = item['_id']
+        # db[col_name].update_one({'_id': item_id}, {'$set': {'nmslib_index': idx}})
     query_time_param = ['initSearchAttempts=3']
     print('upto here5')
 
@@ -112,7 +112,7 @@ def find_top_knn_nmslib(k, query, category, col_name):
 
 if __name__ == '__main__':
     col = 'ShopStyle_Female'
-    q = db[col].find_one({})
+    q = db[col].find_one({'categories':'dress'})
     create_index(col, 'dress')
     find_top_knn_nmslib(10, q, 'dress', col)
 
