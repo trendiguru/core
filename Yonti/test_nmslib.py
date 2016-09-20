@@ -2,8 +2,16 @@ import nmslib_vector
 from ..constants import db
 from time import time
 
+scale = 16
+num_of_bits = 8
+
+
+def hexa2bin(hexa):
+    return bin(int(hexa, scale))[2:].zfill(num_of_bits)
+
+
 def create_index(col_name, category):
-    space_type = 'cosinesimil'
+    space_type = 'hamming_distance'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
@@ -17,15 +25,16 @@ def create_index(col_name, category):
     all_items_in_category = db[col_name].find({'categories':category})
     t1 =time()
     for idx, item in enumerate(all_items_in_category):
-        fp = item['fingerprint']
-        if type(fp) == list:
-            color = fp
-        elif type(fp)== dict:
-            color = fp['color']
-        else:
-            print('else')
-            continue
-        nmslib_vector.addDataPoint(index, idx, color)
+        p = item['p_hash']
+        p_bin = hexa2bin(p)
+        # if type(fp) == list:
+        #     color = fp
+        # elif type(fp)== dict:
+        #     color = fp['color']
+        # else:
+        #     print('else')
+        #     continue
+        nmslib_vector.addDataPoint(index, idx, p_bin)
         item_id = item['_id']
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
@@ -54,7 +63,7 @@ def create_index(col_name, category):
     nmslib_vector.freeIndex(index)
 
 def find_top_knn_nmslib(k, query, category, col_name):
-    space_type = 'cosinesimil'
+    space_type = 'hamming_distance'
     space_param = []
     method_name = 'small_world_rand'
     index_name = method_name + '.index'
@@ -68,15 +77,16 @@ def find_top_knn_nmslib(k, query, category, col_name):
     all_items_in_category = db[col_name].find({'categories':category})
 
     for idx, item in enumerate(all_items_in_category):
-        fp = item['fingerprint']
-        if type(fp) == list:
-            color = fp
-        elif type(fp) == dict:
-            color = fp['color']
-        else:
-            print('else')
-            continue
-        nmslib_vector.addDataPoint(index, idx, color)
+        p = item['p_hash']
+        p_bin = hexa2bin(p)
+        # if type(fp) == list:
+        #     color = fp
+        # elif type(fp) == dict:
+        #     color = fp['color']
+        # else:
+        #     print('else')
+        #     continue
+        nmslib_vector.addDataPoint(index, idx, p_bin)
         # item_id = item['_id']
         # db[col_name].update_one({'_id': item_id}, {'$set': {'nmslib_index': idx}})
     query_time_param = ['initSearchAttempts=3']
@@ -92,16 +102,18 @@ def find_top_knn_nmslib(k, query, category, col_name):
 
     print "Results for the loaded index"
 
-    query_fp = query['fingerprint']
-    if type(query_fp) == list:
-        color = query_fp
-    elif type(query_fp) == dict:
-        color = query_fp['color']
-    else:
-        print('bad fp')
-        return
+    # query_fp = query['fingerprint']
+    # if type(query_fp) == list:
+    #     color = query_fp
+    # elif type(query_fp) == dict:
+    #     color = query_fp['color']
+    # else:
+    #     print('bad fp')
+    #     return
+    p = query['p_hash']
+    p_bin = hexa2bin(p)
     query_url = query['images']['XLarge']
-    print nmslib_vector.knnQuery(index, k, color)
+    print nmslib_vector.knnQuery(index, k, p_bin)
     print query_url
     t2 = time()
     print('loop3 = %s' % str(t2 - t1))
@@ -109,7 +121,7 @@ def find_top_knn_nmslib(k, query, category, col_name):
 
 if __name__ == '__main__':
     a= time()
-    col = 'ShopStyle_Female'
+    col = 'amaze_Female'
     q = db[col].find({'categories': 'dress'})[1050]
     create_index(col, 'dress')
     b = time()
