@@ -27,6 +27,7 @@ class Editor(object):
         resp.body = json_util.dumps(ret)
 
     def on_delete(self, req, resp, **path_args):
+        print "ON_DELETE " + str(path_args)
         ret = {'ok': False, 'data': {}}
         try:
             if "result_id" in path_args:

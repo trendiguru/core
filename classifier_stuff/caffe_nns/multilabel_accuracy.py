@@ -21,7 +21,6 @@ from trendi import Utils
 
 import math
 
-
 # matplotlib inline
 def setup():
     lt.rcParams['figure.figsize'] = (6, 6)
@@ -43,7 +42,6 @@ def setup():
     if not os.path.isfile(caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'):
         print("Downloading pre-trained CaffeNet model...")
     #    !../scripts/download_model_binary.py ../models/bvlc_reference_caffenet
-
 
 # helper function for common structures
 def conv_relu(bottom, ks, nout, stride=1, pad=0, group=1):
@@ -401,8 +399,9 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 
 def open_html(model_base,dir=None):
     if dir is None:
-        dir = 'multilabel_results-'+model_base
-        Utils.ensure_dir(dir)
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
@@ -435,8 +434,9 @@ def open_html(model_base,dir=None):
 
 def close_html(model_base,dir=None):
     if dir is None:
-        dir = 'multilabel_results-'+model_base
-        Utils.ensure_dir(dir)
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         g.write('</table><br>')
@@ -466,8 +466,10 @@ def summary_html(dir):
 
 def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
     if dir is None:
-        dir = 'multilabel_results-'+model_base
-        Utils.ensure_dir(dir)
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    Utils.ensure_dir(dir)
+
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         fwavp = 0
@@ -478,6 +480,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         n_a=0
         fwavn = 0
         n_sum = 0
+        #calculate frequency-weighted averages
         for i in range(len(p)):
             if not np.isnan(p[i]):
                 fwavp = fwavp + p[i]*n[i]
@@ -486,23 +489,25 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 fwavr = fwavr + r[i]*n[i]
                 n_r=n_r+n[i]
             if not np.isnan(a[i]):
-                fwava = fwava + p[i]*n[i]
+                fwava = fwava + a[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-            print('n sum'+str(n_sum))
+        print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
         fwavp = fwavp/float(n_p)
-        fwavr = fwavp/float(n_r)
-        fwava = fwavp/float(n_a)
+        fwavr = fwavr/float(n_r)
+        fwava = fwava/float(n_a)
         fwavn = n_sum/float(len(p))
+
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2))
+    #write line with n_positives
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(str(fwavn))
+            g.write(str(round(fwavn,2)))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -510,6 +515,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
+    #write line with threshold
  #       g.write('<table style=\"width:100%\">\n')
         g.write('<b>')
         g.write('<tr>\n')
@@ -526,43 +532,45 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         g.write('</tr>\n')
         g.write('</b>')
 
-
+    #write row with precision
         g.write('<tr>\n')
         g.write('<td>')
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavp))
+        g.write(str(round(fwavp,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(p[i],3)))
+            g.write(str(round(p[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with recall
         g.write('<tr>\n')
         g.write('<td>')
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavr))
+        g.write(str(round(fwavr,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(r[i],3)))
+            g.write(str(round(r[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with accuracy
         g.write('<tr>\n')
         g.write('<td>')
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwava))
+        g.write(str(round(fwava,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(a[i],3)))
+            g.write(str(round(a[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
@@ -571,8 +579,13 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
 
 #        g.write('threshold = '+str(t)+'\n')
 
-def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base):
-    with open(model_base+'results.txt','a') as f:
+def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
+    if dir is None:
+        protoname = solverproto.replace('.prototxt','')
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    Utils.ensure_dir(dir)
+    fname = os.path.join(dir,model_base+'results.txt')
+    with open(fname,'a') as f:
         f.write(model_base+' threshold = '+str(threshold)+'\n')
         f.write('solver:'+solverproto+'\n')
         f.write('model:'+caffemodel+'\n')
@@ -612,9 +625,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 #    for t in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.92,0.95,0.98]:
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
-    dir = 'multilabel_results-'+model_base
-    if '.caffemodel' in model_base:
-        dir = 'multilabel_results-'+model_base[:-11]
+    protoname = solverproto.replace('.prototxt','')
+    dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
     positives = True
@@ -625,7 +638,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         a_all.append(a)
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
-        write_textfile(p,r,a,tp,tn,fp,fn,t,model_base)
+        write_textfile(p,r,a,tp,tn,fp,fn,t,model_base,dir=dir)
         write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
         positives = False
     close_html(model_base,dir=dir)
@@ -715,7 +728,7 @@ if __name__ =="__main__":
     parser.add_argument('--caffemodel', help='caffmodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='prob')
-    parser.add_argument('--n_tests', help='number of examples to test',default=100)
+    parser.add_argument('--n_tests', help='number of examples to test',default=1000)
 
     caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
     solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'

@@ -276,11 +276,13 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
 
         try:
             item_keys = item.keys()
-            if any(x for x in ['ASIN', 'DetailPageURL', 'OfferSummary', 'ItemAttributes'] if x not in item_keys):
+            if any(x for x in ['ASIN', 'DetailPageURL', 'OfferSummary', 'ItemAttributes', 'ProductGroup'] if x not in item_keys):
                 if print_flag:
                     print_error('%s not in item keys' % x)
                 continue
-
+            group = item['ProductGroup']
+            if group != 'Apparel' and group != 'Sports':
+                continue
             asin = item['ASIN']
             asin_exists = collection.find_one({'id': asin})
             if asin_exists:

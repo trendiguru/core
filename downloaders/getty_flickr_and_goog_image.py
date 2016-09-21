@@ -53,6 +53,8 @@ def selectsiya(dir):
     Utils.ensure_dir(alone_dir)
     delete_dir = os.path.join(dir,'delete_these')
     Utils.ensure_dir(delete_dir)
+    good_images_dir = os.path.join(dir,'good_images')
+    Utils.ensure_dir(good_images_dir)
     files = [f for f in os.listdir(dir) if 'jpg' in f]
  #   print('files:'+str(files))
     n = 0
@@ -64,7 +66,8 @@ def selectsiya(dir):
         count_curdir = len([g for g in os.listdir(dir) if os.path.isfile(os.path.join(dir, g))])
         count_alonedir = len([g for g in os.listdir(alone_dir) if os.path.isfile(os.path.join(alone_dir, g))])
         count_deletedir = len([g for g in os.listdir(delete_dir) if os.path.isfile(os.path.join(delete_dir, g))])
-        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
+        count_goodimagesdir = len([g for g in os.listdir(good_images_dir) if os.path.isfile(os.path.join(good_images_dir, g))])
+        print(str(n)+' done of '+ str(count_curdir)+' files, '+str(count_goodimagesdir)+' good images, '+str(count_alonedir)+' alone, '+str(count_deletedir)+' deleted, tpi='+str((time.time()-start_time)/(i+1)))
         fullfile = os.path.join(dir,f)
         print('file:'+str(fullfile))
         try:
@@ -85,9 +88,12 @@ def selectsiya(dir):
         c = cv2.waitKey(0)
         if c == ord('b'):
             print('go back')
+            prev_dir = os.path.join(dir, files[i-1])
+            os.rename(destname, prev_dir)
+            print('moved image to main dir')
             i=i-1
             continue
-        if c == ord('d'):
+        elif c == ord('d'):
             print('delete')
             destname = os.path.join(delete_dir, f)
             print('source:'+fullfile+' dest:'+destname)
@@ -98,7 +104,10 @@ def selectsiya(dir):
             print('source:'+fullfile+' dest:'+destname)
             os.rename(fullfile,destname)
         elif c == ord(' '):
-            print('do nothing')
+            print('good image')
+            destname = os.path.join(good_images_dir, f)
+            print('source:' + fullfile + ' dest:' + destname)
+            os.rename(fullfile, destname)
         elif c == ord('q'):
             print('quit')
             cv2.destroyAllWindows()
@@ -203,7 +212,7 @@ def getty_star(a_b):
     return getty_dl(*a_b)
 
 def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
-    time.sleep(2)
+    time.sleep(21)
 
     time_inc = 3600*24*1  #1 day
     print('getting dates, min is '+str(mintime))
@@ -222,6 +231,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
         initial_query = '&text='+compressed_tag+'&min_upload_date='+str(mintime)+'&max_upload_date='+str(maxtime)+'&per_page=500'
         print('trying dates '+str(mintime)+' and '+str(maxtime))
         cmd = 'curl -X GET "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d8548143cce923734f4093b4b063bc4f&format=json'+initial_query+'" > ' + outfile
+        print cmd
         res = subprocess.call(cmd,shell=True)
 
         with open(outfile,'r') as f:
@@ -251,7 +261,7 @@ def flickr_get_dates(tag,mintime=0,savedir=None,n_pages=9):
             print('of total pages '+str(phot['pages']))
             pages = phot['pages']
             if pages==oldpages:
-                time_inc = time_inc*1.2
+                time_inc = time_inc*1.4
         print('got '+str(pages)+' pages')
         maxtime = int(maxtime + time_inc)
         oldpages=pages
