@@ -17,8 +17,8 @@ import numpy as np
 # import _init_paths
 from . import mnc_init_path
 import caffe
-#from mnc_config import cfg
-from MNC.mnc_config import cfg
+from mnc_config import cfg
+#from MNC.mnc_config import cfg
 from transform.bbox_transform import clip_boxes
 from utils2.blob import prep_im_for_blob, im_list_to_blob
 from transform.mask_transform import gpu_mask_voting
