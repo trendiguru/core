@@ -262,3 +262,8 @@ def extras():
 
 
     return mnc_output #
+
+
+if __name__ == "__main__":
+    url = 'https://s.yimg.com/uu/api/res/1.2/hiF6uHd5LpKSV3Igz._7FQ--/aD03MjA7dz01NDA7c209MTthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/cd/resizer/2.0/FIT_TO_WIDTH-w540/b32d3065aaa7450f4590bf895635c052994a6525.jpg'
+    get_mnc_output_using_falcon(url)
