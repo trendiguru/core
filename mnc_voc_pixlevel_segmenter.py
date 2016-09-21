@@ -155,15 +155,15 @@ def mnc_pixlevel_detect(url_or_np_array):
     compress_factor = float(max(h, w))/max_dim
     new_h = int(float(h)/compress_factor)
     new_w = int(float(w)/compress_factor)
-    # orig_im = im
+    orig_im = im
 
     im = cv2.resize(im, (new_w, new_h))
     actual_new_h, actual_new_w = im.shape[0:2]
     print('old w,h {}x{}, planned {}x{}, actual {}x{}'.format(w, h, new_w, new_h, actual_new_w, actual_new_h))
 
-    # gt_image = os.path.join(demo_dir, im_name)
+    gt_image = os.path.join(demo_dir, im_name)
     # print gt_image
-    # cv2.imwrite(gt_image, im)
+    cv2.imwrite(gt_image, im)
 
     boxes, masks, seg_scores = im_detect(im, net)
     end = time.time()
@@ -172,49 +172,49 @@ def mnc_pixlevel_detect(url_or_np_array):
     result_mask, result_box = gpu_mask_voting(masks, boxes, seg_scores, len(CLASSES) + 1,
                                               100, im.shape[1], im.shape[0])
 
-    return result_mask, result_box
+ #   return result_mask, result_box
 
-    # start = time.time()
-    # pred_dict = get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
-    # end = time.time()
-    # print 'gpu vis dicttime %f' % (end-start)
-    #
-    # start = time.time()
-    # img_width = im.shape[1]
-    # img_height = im.shape[0]
-    #
-    # inst_img, cls_img = _convert_pred_to_image(img_width, img_height, pred_dict)
-    # color_map = _get_voc_color_map()
-    # target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
-    # cls_out_img = np.zeros((img_height, img_width, 3))
-    # for i in xrange(img_height):
-    #     for j in xrange(img_width):
-    #         cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
-    # cv2.imwrite(target_cls_file, cls_out_img)
-    #
-    # end = time.time()
-    #
-    # print 'convert pred to image  %f' % (end-start)
-    #
-    # start = time.time()
-    # background = Image.open(gt_image)
-    # mask = Image.open(target_cls_file)
-    # background = background.convert('RGBA')
-    # mask = mask.convert('RGBA')
-    #
-    # end = time.time()
-    # print 'superimpose 0 time %f' % (end-start)
-    # start = time.time()
-    #
-    # superimpose_image = Image.blend(background, mask, 0.8)
-    # superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
-    # superimpose_image.save(superimpose_name, 'JPEG')
-    # im = cv2.imread(superimpose_name)
-    #
-    # end = time.time()
-    # print 'superimpose 1 time %f' % (end-start)
-    #
-    # return result_mask, result_box, im, im_name, orig_im
+    start = time.time()
+    pred_dict = get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
+    end = time.time()
+    print 'gpu vis dicttime %f' % (end-start)
+
+    start = time.time()
+    img_width = im.shape[1]
+    img_height = im.shape[0]
+
+    inst_img, cls_img = _convert_pred_to_image(img_width, img_height, pred_dict)
+    color_map = _get_voc_color_map()
+    target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
+    cls_out_img = np.zeros((img_height, img_width, 3))
+    for i in xrange(img_height):
+        for j in xrange(img_width):
+            cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+    cv2.imwrite(target_cls_file, cls_out_img)
+
+    end = time.time()
+
+    print 'convert pred to image  %f' % (end-start)
+
+    start = time.time()
+    background = Image.open(gt_image)
+    mask = Image.open(target_cls_file)
+    background = background.convert('RGBA')
+    mask = mask.convert('RGBA')
+
+    end = time.time()
+    print 'superimpose 0 time %f' % (end-start)
+    start = time.time()
+
+    superimpose_image = Image.blend(background, mask, 0.8)
+    superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
+    superimpose_image.save(superimpose_name, 'JPEG')
+    im = cv2.imread(superimpose_name)
+
+    end = time.time()
+    print 'superimpose 1 time %f' % (end-start)
+
+    return result_mask, result_box, im, im_name, orig_im
 
     ##########################
     # this next stuff takes forever

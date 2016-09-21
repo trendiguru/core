@@ -24,8 +24,8 @@ class MNCResource:
         except Exception:
             ret["error"] = traceback.format_exc()
         try:
-            # mnc_mask, mnc_box, im, im_name, orig_im = mnc.mnc_pixlevel_detect(img)
-            mnc_mask, mnc_box = mnc.mnc_pixlevel_detect(img)
+            mnc_mask, mnc_box, im, im_name, orig_im = mnc.mnc_pixlevel_detect(img)
+#            mnc_mask, mnc_box = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
                 ret['mnc_output'] = {"mask": mnc_mask, "box": mnc_box}
