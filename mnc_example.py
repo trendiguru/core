@@ -164,17 +164,11 @@ def get_mnc_output_using_falcon(url):
     superimposed_im = mnc_output["superimposed_image"]
     im_name = mnc_output["image_name"]
     orig_im = mnc_output["original_image"]
-    bboxes = mnc_output["bounding_boxes"]
+    bboxes = mnc_output["bounding_boxes"]    #these are bb's (upperleft point, lower right point, confidence) scaled down to the small image that was sent to net, to scale up multiply by scale_factor
     first_bb = bboxes[0]
 #    center_x, center_y,w,h,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     pt1_x, pt1_y,pt2_x,pt2_y,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     scalefactor = mnc_output["scale_factor"]
-#    center_x = center_x*scalefactor
-#    center_y = center_y*scalefactor
-#    w = w*scalefactor
-#    h = h*scalefactor
-#    pt1 = (int(center_x - w/2), int(center_y - h/2))
-#    pt2 = (int(center_x + w/2), int(center_y + h/2))
     pt1 = (int(pt1_x*scalefactor), int(pt1_y*scalefactor))
     pt2 = (int(pt2_x*scalefactor), int(pt2_y*scalefactor))
     print('bb upper left {} bb lower right {} scalefactor {}'.format(pt1,pt2,scalefactor))
