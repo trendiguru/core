@@ -177,7 +177,7 @@ def get_mnc_output_using_falcon(url):
 #    pt2 = (int(center_x + w/2), int(center_y + h/2))
     pt1 = (int(pt1_x*scalefactor), int(pt1_y*scalefactor))
     pt2 = (int(pt2_x*scalefactor), int(pt2_y*scalefactor))
-    print('bb upper left {} bb lower right {} scalefactor {}'.format(pt1_x,pt1_y,pt2_x,pt2_y,pt1,pt2,scalefactor))
+    print('bb upper left {} bb lower right {} scalefactor {}'.format(pt1,pt2,scalefactor))
     cv2.rectangle(orig_im,pt1,pt2,color=[0,255,100],thickness=3)
     cv2.putText(orig_im,'human:'+str(round(confidence,3)),org=(pt1[0],pt1[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
     cv2.imwrite(im_name,orig_im)
