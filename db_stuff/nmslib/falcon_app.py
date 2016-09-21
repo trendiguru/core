@@ -17,9 +17,9 @@ class test_nmslib:
 
     def on_post(self, req, resp):
         ret = {"success": False}
-	try:
-	    data = msgpack.loads(req.stream.read())
-	    fp = data.get("fp")
+        try:
+            data = msgpack.loads(req.stream.read())
+            fp = data.get("fp")
             ret["data"] = test_nmslib.find_to_k(fp)
             ret["success"] = True
         except Exception as e:
