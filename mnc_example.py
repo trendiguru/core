@@ -166,15 +166,18 @@ def get_mnc_output_using_falcon(url):
     orig_im = mnc_output["original_image"]
     bboxes = mnc_output["bounding_boxes"]
     first_bb = bboxes[0]
-    center_x, center_y,w,h,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
+#    center_x, center_y,w,h,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
+    pt1_x, pt1_y,pt2_x,pt2_y,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     scalefactor = mnc_output["scale_factor"]
-    center_x = center_x*scalefactor
-    center_y = center_y*scalefactor
-    w = w*scalefactor
-    h = h*scalefactor
-    pt1 = (int(center_x - w/2), int(center_y - h/2))
-    pt2 = (int(center_x + w/2), int(center_y + h/2))
-    print('centerx {} centery {} w {} h {} pt1 {} pt2 {} scalefactor {}'.format(center_x,center_y,w,h,pt1,pt2,scalefactor))
+#    center_x = center_x*scalefactor
+#    center_y = center_y*scalefactor
+#    w = w*scalefactor
+#    h = h*scalefactor
+#    pt1 = (int(center_x - w/2), int(center_y - h/2))
+#    pt2 = (int(center_x + w/2), int(center_y + h/2))
+    pt1 = (int(pt1_x*scalefactor), int(pt1_y*scalefactor))
+    pt2 = (int(pt2_x*scalefactor), int(pt2_y*scalefactor))
+    print('centerx {} centery {} w {} h {} pt1 {} pt2 {} scalefactor {}'.format(pt1_x,pt1_y,pt2_x,pt2_y,pt1,pt2,scalefactor))
     cv2.rectangle(orig_im,pt1,pt2,color=[0,255,100],thickness=3)
     cv2.putText(orig_im,'human:'+str(confidence),org=(pt1[0],pt1[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=2,color=[100,100,255])
     cv2.imwrite(im_name,orig_im)
