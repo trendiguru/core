@@ -3,6 +3,43 @@ __author__ = 'jeremy'
 import unittest
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 
+url='https://s-media-cache-ak0.pinimg.com/236x/df/a3/0a/dfa30af65a46ad8267d148dcefd813d1.jpg'
+def test_nd_output():
+    dict = nfc.pd(url)
+    assert(dict['success'] is not None)
+    print('dict from falcon dict:'+str(dict))
+    return dict
+
+def test_nd_categorical_output():
+    category_index = 0
+    dict = nfc.pd(url, category_index=category_index)
+    assert(dict['success'] is not None)
+    if not dict['success']:
+        logging.debug('nfc pd not a success')
+        return False, []
+    return dict
+
+def test_multilabel_output():
+    multilabel_dict = nfc.pd(url, get_multilabel_results=True)
+    assert(multilabel_dict['success'] is not None)
+    print('dict from falcon dict:'+str(multilabel_dict))
+    if not multilabel_dict['success']:
+        print('did not get nfc pd result succesfully')
+        return
+    multilabel_output = multilabel_dict['multilabel_output']
+    print('multilabel output:'+str(multilabel_output))
+    assert(multilabel_output is not None)
+    return multilabel_dict #
+
+def test_combined_output():
+    output_dict = nfc.pd(url,get_combined_results=True)
+    assert(output_dict['success'] is not None)
+    print('dict from falcon:'+str(output_dict))
+    if not output_dict['success']:
+        print('did not get nfc pd result succesfully')
+        return
+    return output_dict #
+
 
 
 class OutcomesTest(unittest.TestCase):
