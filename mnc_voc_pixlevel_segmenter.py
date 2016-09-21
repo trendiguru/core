@@ -143,113 +143,113 @@ def get_vis_dict(result_box, result_mask, img_name, cls_names, vis_thresh=0.5):
 def mnc_pixlevel_detect(url_or_np_array):
     demo_dir = './'
     start = time.time()
-    if isinstance(url_or_np_array,basestring):
+    if isinstance(url_or_np_array, basestring):
         im = url_to_image(url_or_np_array)
         im_name = url_or_np_array.split('/')[-1]
     else:
         im = url_or_np_array
         im_name = str(int(time.time()))+'.jpg'
-    #resize to max dim of max_dim
+    # resize to max dim of max_dim
     max_dim = 400
-    h,w = im.shape[0:2]
-    compress_factor = float(max(h,w))/max_dim
+    h, w = im.shape[0:2]
+    compress_factor = float(max(h, w))/max_dim
     new_h = int(float(h)/compress_factor)
     new_w = int(float(w)/compress_factor)
-    im = cv2.resize(im,(new_w,new_h))
-    orig_im = im
-    actual_new_h,actual_new_w = im.shape[0:2]
-    print('old w,h {}x{}, planned {}x{}, actual {}x{}'.format(w,h,new_w,new_h,actual_new_w,actual_new_h))
+    # orig_im = im
 
-    gt_image = os.path.join(demo_dir, im_name)
-    print gt_image
-    cv2.imwrite(gt_image,im)
+    im = cv2.resize(im, (new_w, new_h))
+    actual_new_h, actual_new_w = im.shape[0:2]
+    print('old w,h {}x{}, planned {}x{}, actual {}x{}'.format(w, h, new_w, new_h, actual_new_w, actual_new_h))
+
+    # gt_image = os.path.join(demo_dir, im_name)
+    # print gt_image
+    # cv2.imwrite(gt_image, im)
 
     boxes, masks, seg_scores = im_detect(im, net)
     end = time.time()
     print 'im_detect time %f' % (end-start)
-    start = time.time()
+
     result_mask, result_box = gpu_mask_voting(masks, boxes, seg_scores, len(CLASSES) + 1,
-                                               100, im.shape[1], im.shape[0])
-    end = time.time()
+                                              100, im.shape[1], im.shape[0])
 
-#    return result_mask,result_box,im,im_name
+    return result_mask, result_box
 
+    # start = time.time()
+    # pred_dict = get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
+    # end = time.time()
+    # print 'gpu vis dicttime %f' % (end-start)
+    #
+    # start = time.time()
+    # img_width = im.shape[1]
+    # img_height = im.shape[0]
+    #
+    # inst_img, cls_img = _convert_pred_to_image(img_width, img_height, pred_dict)
+    # color_map = _get_voc_color_map()
+    # target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
+    # cls_out_img = np.zeros((img_height, img_width, 3))
+    # for i in xrange(img_height):
+    #     for j in xrange(img_width):
+    #         cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+    # cv2.imwrite(target_cls_file, cls_out_img)
+    #
+    # end = time.time()
+    #
+    # print 'convert pred to image  %f' % (end-start)
+    #
+    # start = time.time()
+    # background = Image.open(gt_image)
+    # mask = Image.open(target_cls_file)
+    # background = background.convert('RGBA')
+    # mask = mask.convert('RGBA')
+    #
+    # end = time.time()
+    # print 'superimpose 0 time %f' % (end-start)
+    # start = time.time()
+    #
+    # superimpose_image = Image.blend(background, mask, 0.8)
+    # superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
+    # superimpose_image.save(superimpose_name, 'JPEG')
+    # im = cv2.imread(superimpose_name)
+    #
+    # end = time.time()
+    # print 'superimpose 1 time %f' % (end-start)
+    #
+    # return result_mask, result_box, im, im_name, orig_im
 
-    start = time.time()
-    pred_dict = get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
-    end = time.time()
-    print 'gpu vis dicttime %f' % (end-start)
+    ##########################
+    # this next stuff takes forever
 
-    start = time.time()
-    img_width = im.shape[1]
-    img_height = im.shape[0]
-
-    inst_img, cls_img = _convert_pred_to_image(img_width, img_height, pred_dict)
-    color_map = _get_voc_color_map()
-    target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
-    cls_out_img = np.zeros((img_height, img_width, 3))
-    for i in xrange(img_height):
-        for j in xrange(img_width):
-           cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
-    cv2.imwrite(target_cls_file, cls_out_img)
-
-    end = time.time()
-    print 'convert pred to image  %f' % (end-start)
-
-    start = time.time()
-    background = Image.open(gt_image)
-    mask = Image.open(target_cls_file)
-    background = background.convert('RGBA')
-    mask = mask.convert('RGBA')
-
-    end = time.time()
-    print 'superimpose 0 time %f' % (end-start)
-    start = time.time()
-
-    superimpose_image = Image.blend(background, mask, 0.8)
-    superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
-    superimpose_image.save(superimpose_name, 'JPEG')
-    im = cv2.imread(superimpose_name)
-
-    end = time.time()
-    print 'superimpose 1 time %f' % (end-start)
-
-    return result_mask,result_box,im,im_name,orig_im
-
-##########################
-    #this next stuff takes forever
-
-    start = time.time()
-
-    im = im[:, :, (2, 1, 0)]
-    fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal')
-
-    end = time.time()
-    print 'superimpose 1.5 time %f' % (end-start)
-    start = time.time()
-
-    classes = pred_dict['cls_name']
-
-    end = time.time()
-    print 'pred_dict time %f' % (end-start)
-    start = time.time()
-
-    for i in xrange(len(classes)):
-        score = pred_dict['boxes'][i][-1]
-        bbox = pred_dict['boxes'][i][:4]
-        cls_ind = classes[i] - 1
-        ax.text(bbox[0], bbox[1] - 8,
-                '{:s} {:.4f}'.format(
-                    CLASSES[cls_ind], score), bbox=dict(facecolor='blue', alpha=0.5), fontsize=14, color='white')
-    plt.axis('off')
-    plt.tight_layout()
-    plt.draw()
-    fig.savefig(os.path.join(demo_dir, im_name[:-4]+'.png'))
-    os.remove(superimpose_name)
-    os.remove(target_cls_file)
-    end = time.time()
-    print 'text and save time %f' % (end-start)
+    # start = time.time()
+    #
+    # im = im[:, :, (2, 1, 0)]
+    # fig, ax = plt.subplots(figsize=(12, 12))
+    # ax.imshow(im, aspect='equal')
+    #
+    # end = time.time()
+    # print 'superimpose 1.5 time %f' % (end-start)
+    # start = time.time()
+    #
+    # classes = pred_dict['cls_name']
+    #
+    # end = time.time()
+    # print 'pred_dict time %f' % (end-start)
+    # start = time.time()
+    #
+    # for i in xrange(len(classes)):
+    #     score = pred_dict['boxes'][i][-1]
+    #     bbox = pred_dict['boxes'][i][:4]
+    #     cls_ind = classes[i] - 1
+    #     ax.text(bbox[0], bbox[1] - 8,
+    #             '{:s} {:.4f}'.format(
+    #                 CLASSES[cls_ind], score), bbox=dict(facecolor='blue', alpha=0.5), fontsize=14, color='white')
+    # plt.axis('off')
+    # plt.tight_layout()
+    # plt.draw()
+    # fig.savefig(os.path.join(demo_dir, im_name[:-4]+'.png'))
+    # os.remove(superimpose_name)
+    # os.remove(target_cls_file)
+    # end = time.time()
+    # print 'text and save time %f' % (end-start)
     # return fig  # watch out this is returning an Image object not our usual cv2 np array
 
 # load net
