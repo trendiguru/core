@@ -28,7 +28,8 @@ class MNCResource:
 #            mnc_mask, mnc_box = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
-                ret['mnc_output'] = {"mask": mnc_mask, "box": mnc_box}
+                ret['mnc_output'] = {"mask": mnc_mask, "box": mnc_box, "superimposed_image":im,
+                                     "image_name":im_name,"original_image":orig_im}
 
         except Exception:
             ret["error"] = traceback.format_exc()
