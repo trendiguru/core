@@ -1,3 +1,4 @@
+import traceback
 import falcon
 from jaweson import json, msgpack
 from .. import mnc_voc_pixlevel_segmenter as mnc
@@ -20,16 +21,16 @@ class MNCResource:
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
-        except Exception as e:
-            ret["error0"] = str(e)
+        except Exception:
+            ret["error0"] = traceback.format_exc()
         try:
-            mnc_mask,mnc_box,im,im_name,orig_im = mnc.mnc_pixlevel_detect(img)
+            mnc_mask, mnc_box, im, im_name, orig_im = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
                 ret['mnc_output'] = [mnc_mask, mnc_box, im, im_name, orig_im]
 
-        except Exception as e:
-            ret["error1"] = str(e)
+        except Exception:
+            ret["error1"] = traceback.format_exc()
 
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
