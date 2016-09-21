@@ -5,7 +5,7 @@ from jaweson import json, msgpack
 
 from . import test_nmslib
 
-class test_nmslib:
+class test:
     def on_get(self, req, resp):
         """Handles GET requests"""
         quote = {
@@ -30,4 +30,4 @@ class test_nmslib:
 
 
 api = falcon.API()
-api.add_route('/test', test_nmslib())
+api.add_route('/test', test())
