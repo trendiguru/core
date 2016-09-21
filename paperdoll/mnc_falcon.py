@@ -1,8 +1,6 @@
 __author__ = 'liorsabag'
 import falcon
 from jaweson import json, msgpack
-from . import imgtest
-from trendi import imgtest
 from . import mnc_voc_pixlevel_segmenter as mnc
 
 class MNCResource:
