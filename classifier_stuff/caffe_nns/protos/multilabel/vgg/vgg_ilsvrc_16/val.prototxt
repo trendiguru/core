@@ -507,6 +507,14 @@ layer {
 #  }
 }
 
+
+layer {
+  name: "score"
+  bottom: "myfc8"
+  top: "score"
+  type: "Sigmoid"
+}
+
 #layer {
 #  name: "accuracy1"
 #  type: "Accuracy"
