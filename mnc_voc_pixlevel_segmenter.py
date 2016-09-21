@@ -148,7 +148,7 @@ def mnc_pixlevel_detect(url_or_np_array):
         im_name = url_or_np_array.split('/')[-1]
     else:
         im = url_or_np_array
-        im_name=int(time.time())+'.jpg'
+        im_name = str(int(time.time()))+'.jpg'
     #resize to max dim of max_dim
     max_dim = 400
     h,w = im.shape[0:2]
