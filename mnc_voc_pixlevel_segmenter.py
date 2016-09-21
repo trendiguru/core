@@ -161,9 +161,9 @@ def mnc_pixlevel_detect(url_or_np_array):
     actual_new_h, actual_new_w = im.shape[0:2]
     print('old w,h {}x{}, planned {}x{}, actual {}x{}'.format(w, h, new_w, new_h, actual_new_w, actual_new_h))
 
-    # gt_image = os.path.join(demo_dir, im_name)
+    gt_image = os.path.join(demo_dir, im_name)
     # print gt_image
-    # cv2.imwrite(gt_image, im)
+    cv2.imwrite(gt_image, im)
 
     boxes, masks, seg_scores = im_detect(im, net)
     end = time.time()
