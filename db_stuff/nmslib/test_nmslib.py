@@ -56,7 +56,7 @@ def create_index(col_name, category):
     return index, nmslib_vector
 
 
-dress_index, dress_vector = create_index('amazon_US_Female', 'dress')
+dress_index, dress_vector = create_index('ShopStyle_Female', 'dress')
 
 
 # def find_top_knn_nmslib(k, query, category, col_name):
