@@ -157,7 +157,7 @@ def get_mnc_output_using_falcon(url):
         print('did not get nfc mnc result succesfully')
         return
     mnc_output = result_dict['mnc_output']
-    print('mnc output  type {} length {}'.format(type(mnc_falcon_client,len(mnc_output))))
+    print('mnc output  type {} length {}'.format(type(mnc_falcon_client),len(mnc_output)))
     result_mask = mnc_output[0]
     result_box = mnc_output[1]
     superimposed_im = mnc_output[2]
