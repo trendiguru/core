@@ -170,8 +170,8 @@ def get_mnc_output_using_falcon(url):
     scalefactor = mnc_output["scale_factor"]
     center_x = center_x*scalefactor
     center_y = center_y*scalefactor
-    w = center_x*scalefactor
-    h = center_y*scalefactor
+    w = w*scalefactor
+    h = h*scalefactor
     pt1 = (int(center_x - w/2), int(center_y - h/2))
     pt2 = (int(center_x + w/2), int(center_y + h/2))
     cv2.rectangle(orig_im,pt1,pt2,color=[0,255,100],thickness=3)
