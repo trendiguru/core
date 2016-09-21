@@ -13,7 +13,7 @@ def mnc(image_array_or_url,cat_to_look_for='person'):
     if params == {}:
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
-    print('params coming into pd:'+str(params))
+    print('params coming into mnc falcon client:'+str(params))
     data = msgpack.dumps({"image": image_array_or_url})
     resp = requests.post(CLASSIFIER_ADDRESS, data=data, params=params)
     return msgpack.loads(resp.content)
