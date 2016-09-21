@@ -217,7 +217,7 @@ def mnc_pixlevel_detect(url_or_np_array):
 
     return result_mask,result_box,im,im_name,orig_im
 
-########################
+#########################
     #this next stuff takes forever
 
     start = time.time()
