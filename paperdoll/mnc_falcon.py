@@ -1,7 +1,7 @@
-__author__ = 'liorsabag'
 import falcon
 from jaweson import json, msgpack
-from trendi import mnc_voc_pixlevel_segmenter as mnc
+from .. import mnc_voc_pixlevel_segmenter as mnc
+
 
 class MNCResource:
     def on_get(self, req, resp):
@@ -26,7 +26,7 @@ class MNCResource:
             mnc_mask,mnc_box,im,im_name,orig_im = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
-                ret['mnc_output'] = [mnc_mask,mnc_box,im,im_name,orig_im]
+                ret['mnc_output'] = [mnc_mask, mnc_box, im, im_name, orig_im]
 
         except Exception as e:
             ret["error1"] = str(e)

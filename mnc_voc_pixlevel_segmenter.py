@@ -18,17 +18,16 @@ import numpy as np
 from . import mnc_init_path
 import caffe
 from mnc_config import cfg
-#from MNC.mnc_config import cfg
+
 from transform.bbox_transform import clip_boxes
 from utils2.blob import prep_im_for_blob, im_list_to_blob
 from transform.mask_transform import gpu_mask_voting
 from utils2.vis_seg import _convert_pred_to_image, _get_voc_color_map
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import Image
 import urllib
 import time
 
-#print('this has to be run from /root/MNC')
 
 # VOC 20 classes
 CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat',
@@ -40,12 +39,11 @@ CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat',
 mnc_root = '/root/MNC'
 
 
-
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
-    if url.count('jpg') > 1:
-        return None
+    # if url.count('jpg') > 1:
+    #     return None
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     if image.size == 0:
@@ -141,6 +139,7 @@ def get_vis_dict(result_box, result_mask, img_name, cls_names, vis_thresh=0.5):
                 'masks': mask_for_img}
     return res_dict
 
+
 def mnc_pixlevel_detect(url_or_np_array):
     demo_dir = './'
     start = time.time()
@@ -177,7 +176,7 @@ def mnc_pixlevel_detect(url_or_np_array):
 
 
     start = time.time()
-    pred_dict = mnc_voc_pixlevel_segmenter.get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
+    pred_dict = get_vis_dict(result_box, result_mask, 'data/demo/' + im_name, CLASSES)
     end = time.time()
     print 'gpu vis dicttime %f' % (end-start)
 
@@ -185,8 +184,8 @@ def mnc_pixlevel_detect(url_or_np_array):
     img_width = im.shape[1]
     img_height = im.shape[0]
 
-    inst_img, cls_img = mnc_voc_pixlevel_segmenter._convert_pred_to_image(img_width, img_height, pred_dict)
-    color_map = mnc_voc_pixlevel_segmenter._get_voc_color_map()
+    inst_img, cls_img = _convert_pred_to_image(img_width, img_height, pred_dict)
+    color_map = _get_voc_color_map()
     target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
     cls_out_img = np.zeros((img_height, img_width, 3))
     for i in xrange(img_height):
@@ -241,9 +240,8 @@ def mnc_pixlevel_detect(url_or_np_array):
         bbox = pred_dict['boxes'][i][:4]
         cls_ind = classes[i] - 1
         ax.text(bbox[0], bbox[1] - 8,
-           '{:s} {:.4f}'.format(CLASSES[cls_ind], score),
-            bbox=dict(facecolor='blue', alpha=0.5),
-            fontsize=14, color='white')
+                '{:s} {:.4f}'.format(
+                    CLASSES[cls_ind], score), bbox=dict(facecolor='blue', alpha=0.5), fontsize=14, color='white')
     plt.axis('off')
     plt.tight_layout()
     plt.draw()
@@ -252,14 +250,13 @@ def mnc_pixlevel_detect(url_or_np_array):
     os.remove(target_cls_file)
     end = time.time()
     print 'text and save time %f' % (end-start)
-#    return fig  #watch out this is returning an Image object not our usual cv2 np array
+    # return fig  # watch out this is returning an Image object not our usual cv2 np array
 
+# load net
+# args = parse_args()
 
-
-#load net
-#args = parse_args()
-test_prototxt = mnc_root+'/models/VGG16/mnc_5stage/test.prototxt'
-test_model = mnc_root+'/data/mnc_model/mnc_model.caffemodel.h5'
+test_prototxt = mnc_root + '/models/VGG16/mnc_5stage/test.prototxt'
+test_model = mnc_root + '/data/mnc_model/mnc_model.caffemodel.h5'
 print('ok computer 0')
 caffe.set_mode_gpu()
 print('ok computer 1')
