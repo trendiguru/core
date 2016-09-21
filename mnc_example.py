@@ -12,6 +12,26 @@ import cv2
 import matplotlib.pyplot as plt
 from trendi.paperdoll import mnc_falcon_client
 import urllib
+import argparse
+import time
+import cv2
+import numpy as np
+# User-defined module
+# import _init_paths
+from . import mnc_init_path
+import caffe
+
+#imports done in original demo.py - these require MNC to be in pythonpath
+#from mnc_config import cfg
+#from transform.bbox_transform import clip_boxes
+#from utils2.blob import prep_im_for_blob, im_list_to_blob
+#from transform.mask_transform import gpu_mask_voting
+#from utils2.vis_seg import _convert_pred_to_image, _get_voc_color_map
+#import matplotlib.pyplot as plt
+#import Image
+#import urllib
+#import time
+
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -140,8 +160,10 @@ def get_mnc_output_using_nfc(url):
     print('mnc output:'+str(mnc_output))
     result_mask = mnc_output[0]
     result_box = mnc_output[1]
-    im = mnc_output[2]
+    superimposed_im = mnc_output[2]
     im_name = mnc_output[3]
+    orig_im = mnc_output[4]
+    cv2.imshow('superimpose',superimposed_im)
     return mnc_output
 
 def extras():

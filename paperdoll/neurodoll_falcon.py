@@ -1,15 +1,22 @@
 __author__ = 'liorsabag'
 # labels for pixel level parsing (neurodoll) are in constants.ultimate21 (21 labels)
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
+import traceback
 import falcon
 from .. import neurodoll, neurodoll_single_category
 from .. import neurodoll_with_multilabel
 from .. import constants
-#from .darknet.pyDarknet import mydet
+# from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
 
+print "Done with imports"
+
 class PaperResource:
+    def __init__(self):
+        print "Loaded Resource"
+
+
     def on_get(self, req, resp):
         """Handles GET requests"""
         quote = {
@@ -20,6 +27,7 @@ class PaperResource:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
+        print "Reached on_post"
         category_index = req.get_param('categoryIndex')
         category_index = category_index and int(category_index)
 
@@ -41,8 +49,8 @@ class PaperResource:
 #        print('get yolo:'+str(get_yolo_results))
 #        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
 
-
         ret = {"success": False}
+
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
@@ -86,6 +94,7 @@ class PaperResource:
 
         # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:
+                print "No special params, inferring..."
                 ret["mask"] = neurodoll.infer_one(img)
                 if ret["mask"] is not None:
                     ret["success"] = True
@@ -94,7 +103,8 @@ class PaperResource:
 
 
         except Exception as e:
-            ret["error"] = str(e)
+            traceback.print_exc()
+            ret["error"] = traceback.format_exc()
 
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
