@@ -158,12 +158,17 @@ def get_mnc_output_using_falcon(url):
         return
     mnc_output = result_dict['mnc_output']
     print('mnc output  type {} length {}'.format(type(mnc_falcon_client),len(mnc_output)))
-    result_mask = mnc_output[0]
-    result_box = mnc_output[1]
-    superimposed_im = mnc_output[2]
-    im_name = mnc_output[3]
-    orig_im = mnc_output[4]
+
+    result_mask = mnc_output["mask"]
+    result_box = mnc_output["box"]
+    superimposed_im = mnc_output["superimposed_image"]
+    im_name = mnc_output["image_name"]
+    orig_im = mnc_output["original_image"]
+    cv2.imwrite(im_name[:-4]+'super.jpg',superimposed_im)
+    cv2.imwrite(im_name,orig_im)
     cv2.imshow('superimpose',superimposed_im)
+    cv2.imshow('orig',orig_im)
+    cv2.waitKey(0)
     return mnc_output
 
 def extras():

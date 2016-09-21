@@ -49,15 +49,13 @@ def create_index(col_name, category):
     print('createIndex took %s secs' % str(t3 - t2))
 
     nmslib_vector.setQueryTimeParams(index, query_time_param)
-    print "Done initializing!"
 
     nmslib_vector.saveIndex(index, index_name)
 
     return index, nmslib_vector
 
-
-dress_index, dress_vector = create_index('ShopStyle_Female', 'dress')
-
+dress_index, dress_vector = create_index('recruit_Female', 'blouse')
+print "Done initializing!"
 
 # def find_top_knn_nmslib(k, query, category, col_name):
 #     space_type = 'cosinesimil'

@@ -7,6 +7,7 @@ import test_nmslib
 
 class test:
     def on_get(self, req, resp):
+        print("got GET")
         """Handles GET requests"""
         quote = {
             'quote': 'I\'ve always been more interested in the future than in the past.',
@@ -16,11 +17,13 @@ class test:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
+        print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
             fp = data.get("fp")
-            ret["data"] = test_nmslib.find_to_k(fp)
+            k = data.get("k")
+            ret["data"] = test_nmslib.find_to_k(fp, k)
             ret["success"] = True
         except Exception as e:
             ret["error"] = str(e)
