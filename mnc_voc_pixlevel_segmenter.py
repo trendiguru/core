@@ -184,7 +184,7 @@ def mnc_pixlevel_detect(url_or_np_array):
 #                'boxes': box_for_img,
 #                'masks': mask_for_img}
 
-    print('preddict:'+str( pred_dict))
+#    print('preddict:'+str( pred_dict))
     print('boxes:'+str(pred_dict['boxes']))
     start = time.time()
     img_width = im.shape[1]
@@ -221,7 +221,7 @@ def mnc_pixlevel_detect(url_or_np_array):
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
-    return result_mask, result_box, im, im_name, orig_im
+    return result_mask, result_box, im, im_name, orig_im,pred_dict['boxes'], compress_factor
 
     ##########################
     # this next stuff takes forever
