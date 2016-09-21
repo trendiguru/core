@@ -7,6 +7,7 @@ import test_nmslib
 
 class test:
     def on_get(self, req, resp):
+        print("got GET")
         """Handles GET requests"""
         quote = {
             'quote': 'I\'ve always been more interested in the future than in the past.',
@@ -16,6 +17,7 @@ class test:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
+        print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
