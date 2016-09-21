@@ -20,7 +20,8 @@ class test:
         try:
             data = msgpack.loads(req.stream.read())
             fp = data.get("fp")
-            ret["data"] = test_nmslib.find_to_k(fp)
+            k = data.get("k")
+            ret["data"] = test_nmslib.find_to_k(fp, k)
             ret["success"] = True
         except Exception as e:
             ret["error"] = str(e)
