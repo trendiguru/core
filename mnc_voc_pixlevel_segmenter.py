@@ -155,7 +155,7 @@ def mnc_pixlevel_detect(url_or_np_array):
     compress_factor = float(max(h, w))/max_dim
     new_h = int(float(h)/compress_factor)
     new_w = int(float(w)/compress_factor)
-    # orig_im = im
+    orig_im = im
 
     im = cv2.resize(im, (new_w, new_h))
     actual_new_h, actual_new_w = im.shape[0:2]
