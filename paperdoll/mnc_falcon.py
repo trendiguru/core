@@ -26,7 +26,7 @@ class MNCResource:
             mnc_mask,mnc_box,im,im_name,orig_im = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
-                ret['mnc_output'] = [mnc_mask,mnc_box,im,im_name]
+                ret['mnc_output'] = [mnc_mask,mnc_box,im,im_name,orig_im]
 
         except Exception as e:
             ret["error1"] = str(e)
