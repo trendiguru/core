@@ -499,7 +499,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         fwavn = n_sum/float(len(p))
 
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2)))
     #write line with n_positives
         if(positives):
             g.write('<tr>\n')
