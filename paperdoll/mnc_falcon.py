@@ -1,7 +1,7 @@
 __author__ = 'liorsabag'
 import falcon
 from jaweson import json, msgpack
-from .. import mnc_voc_pixlevel_segmenter
+from trendi import mnc_voc_pixlevel_segmenter
 
 class MNCResource:
     def on_get(self, req, resp):
