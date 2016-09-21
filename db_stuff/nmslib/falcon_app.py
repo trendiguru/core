@@ -3,7 +3,7 @@ import numpy as np
 
 from jaweson import json, msgpack
 
-from . import test_nmslib
+import test_nmslib
 
 class test:
     def on_get(self, req, resp):

@@ -1,5 +1,5 @@
 import nmslib_vector
-from core.constants import db
+from trendi.constants import db
 from time import time
 
 scale = 16
