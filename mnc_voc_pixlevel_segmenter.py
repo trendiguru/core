@@ -226,7 +226,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     desired_boxes = []
     for i in range(len(pred_dict['boxes'])):
         current_classno = pred_dict['cls_name'][i]
-        current_classname = CLASSES[current_classno+1]
+        current_classname = CLASSES[current_classno-1]
         print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
         if current_classname in categories:
             print('cat accepted')
@@ -238,6 +238,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
         bbox[3] = int(bbox[3]*compress_factor)
 
     print('boxes:'+str(pred_dict['boxes']))
+    print('accepted boxes:'+str(desired_boxes))
     return result_mask, result_box, im, im_name, orig_im,desired_boxes, compress_factor, superimpose_name
 
     ##########################
