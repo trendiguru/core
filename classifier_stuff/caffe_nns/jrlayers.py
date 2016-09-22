@@ -597,7 +597,7 @@ class JrMultilabel(caffe.Layer):
     def forward(self, bottom, top):
         # assign output
         print('forward start')
-        top[0].data[...] = self.data
+        top[0].data[...] = self.data  #this apparently can take both axbxcxd and bxcxd and turns both to axbxcxd (or 1xbxcxd) (reshape above leaves batchsize1 as axbxc
         top[1].data[...] = self.label
         print('shapes:data {} label{}'.format(top[0].data.shape,top[1].data.shape))
         # pick next input
