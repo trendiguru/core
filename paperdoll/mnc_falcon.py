@@ -19,7 +19,7 @@ class MNCResource:
                     resp.body = f.read()
                     resp.content_type = 'image/jpeg'
 
-            if boxes:
+            else:
                 boxes = [a.tolist() for a in boxes]
                 resp.body = json.dumps(boxes)
                 resp.content_type = 'application/json'
