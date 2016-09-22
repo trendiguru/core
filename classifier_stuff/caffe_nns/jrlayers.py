@@ -599,6 +599,7 @@ class JrMultilabel(caffe.Layer):
         print('forward start')
         top[0].data[...] = self.data
         top[1].data[...] = self.label
+        print('shapes:data {} label{}'.format(top[0].data,top[1].data))
         # pick next input
         self.next_idx()
         #print('forward end')
