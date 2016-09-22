@@ -168,12 +168,13 @@ def get_mnc_output_using_falcon(url):
     first_bb = bboxes[0]
 #    center_x, center_y,w,h,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     print('first bb:'+str(first_bb))
+    print('type:'+str(type(first_bb[0])))
     pt1_x, pt1_y,pt2_x,pt2_y,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     scalefactor = mnc_output["scale_factor"]
 #    pt1 = (int(pt1_x*scalefactor), int(pt1_y*scalefactor))
 #    pt2 = (int(pt2_x*scalefactor), int(pt2_y*scalefactor))
-    pt1 = (pt1_x,pt1_y)
-    pt2 = (pt2_x,pt2_y)
+    pt1 = (int(pt1_x),int(pt1_y))
+    pt2 = (int(pt2_x),int(pt2_y))
     print('bb upper left {} bb lower right {} scalefactor {}'.format(pt1,pt2,scalefactor))
     cv2.rectangle(orig_im,pt1,pt2,color=[0,255,100],thickness=3)
     cv2.putText(orig_im,'human:'+str(round(confidence,3)),org=(pt1[0],pt1[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
