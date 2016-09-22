@@ -259,7 +259,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
 
     for bbox in desired_boxes:
         cv2.rectangle(im,(int(bbox[0]),int(bbox[1])),(int(bbox[2]),int(bbox[3])),color=[0,255,100],thickness=2)
-        cv2.putText(im,'person:'+str(round(confidence,3)),org=(bbox[0],bbox[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
+      #  cv2.putText(im,'person:'+str(round(confidence,3)),org=(bbox[0],bbox[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
 
 
     end = time.time()
