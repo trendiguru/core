@@ -221,7 +221,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
-    print('classes:'+str(pred_dict(pred_dict['cls_name'])))
+    print('classes:'+str(pred_dict['cls_name']))
 # rescale the bbs
     desired_boxes = []
     for i in range(len(pred_dict['boxes'])):
