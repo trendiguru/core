@@ -606,6 +606,21 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
         f.write(str(fn)+'\n')
         f.close()
 
+def get_netname(solverproto):
+    with open(solverproto,'r') as fp:
+        l1 = fp.readline()
+        l2 = fp.readline()
+   # print('line1 '+l1)
+   # print('line2 '+l2)
+    if 'name' in l1:
+        netname = l1[5:]
+        print('netname:'+netname)
+    elif 'name' in l2:
+        netname = l2[5:]
+        print('netname:'+netname)
+    else:
+        netname = None
+    return netname
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
@@ -626,7 +641,20 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
     protoname = solverproto.replace('.prototxt','')
-    dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    netname = get_netname(solverproto)
+    if netname:
+        dir = 'multilabel_results-'+netname+'_'+model_base.replace('.caffemodel','')
+        dir = dir.replace('"','')  #remove quotes
+        dir = dir.replace(' ','')  #remove spaces
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
+    else:
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+        dir = dir.replace('"','')  #remove quotes
+        dir = dir.replace(' ','')  #remove spaces
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
+
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
