@@ -594,7 +594,7 @@ class JrMultilabel(caffe.Layer):
 
     def forward(self, bottom, top):
         # assign output
-        #print('forward start')
+        print('forward start')
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
