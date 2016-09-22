@@ -576,6 +576,7 @@ class JrMultilabel(caffe.Layer):
             self.data = all_data
             self.label = all_labels
             self.images_processed += self.batch_size
+        print('got {} images, idx={}'.format(self.batch_size,self.idx))
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
