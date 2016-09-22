@@ -221,6 +221,13 @@ def mnc_pixlevel_detect(url_or_np_array):
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
+# rescale the bbs
+    for bbox in pred_dict['boxes']:
+        bbox[0] = int(bbox[0]*compress_factor)
+        bbox[1] = int(bbox[1]*compress_factor)
+        bbox[2] = int(bbox[2]*compress_factor)
+        bbox[3] = int(bbox[3]*compress_factor)
+
     return result_mask, result_box, im, im_name, orig_im,pred_dict['boxes'], compress_factor
 
     ##########################
