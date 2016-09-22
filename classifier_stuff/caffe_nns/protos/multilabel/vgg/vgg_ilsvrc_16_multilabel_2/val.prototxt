@@ -501,7 +501,7 @@ layer {
   type: "Sigmoid"
   bottom: "myfc8"
   top: "score"
-  include: {phase: TEST}
+#  include: {phase: TEST}
 }
 
 

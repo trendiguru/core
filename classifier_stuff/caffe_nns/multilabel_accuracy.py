@@ -126,7 +126,10 @@ def hamming_distance(gt, est):
 #    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
     if est.shape != gt.shape:
         print('shapes dont match')
+        print('gt shape {} est shape {}'.format(gt.shape,est.shape))
         return 0
+    else:
+        print('shapes DO match')
     hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
     return hamming_similarity
 
