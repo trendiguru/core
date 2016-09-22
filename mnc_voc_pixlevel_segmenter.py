@@ -236,7 +236,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
         bbox[3] = int(bbox[3]*compress_factor)
 
     print('boxes:'+str(pred_dict['boxes']))
-    return result_mask, result_box, im, im_name, orig_im,desired_boxes, compress_factor
+    return result_mask, result_box, im, im_name, orig_im,desired_boxes, compress_factor, superimpose_name
 
     ##########################
     # this next stuff takes forever
