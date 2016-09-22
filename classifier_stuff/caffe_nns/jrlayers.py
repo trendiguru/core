@@ -559,8 +559,8 @@ class JrMultilabel(caffe.Layer):
         top[1].reshape(self.batch_size, self.n_labels)
 
     def reshape(self, bottom, top):
-        pass
-        #print('start reshape')
+        #pass
+        print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
