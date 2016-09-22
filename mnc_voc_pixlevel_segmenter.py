@@ -228,6 +228,7 @@ def mnc_pixlevel_detect(url_or_np_array):
         bbox[2] = int(bbox[2]*compress_factor)
         bbox[3] = int(bbox[3]*compress_factor)
 
+    print('boxes:'+str(pred_dict['boxes']))
     return result_mask, result_box, im, im_name, orig_im,pred_dict['boxes'], compress_factor
 
     ##########################

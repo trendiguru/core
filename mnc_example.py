@@ -167,6 +167,7 @@ def get_mnc_output_using_falcon(url):
     bboxes = mnc_output["bounding_boxes"]    #these are bb's (upperleft point, lower right point, confidence) scaled down to the small image that was sent to net, to scale up multiply by scale_factor
     first_bb = bboxes[0]
 #    center_x, center_y,w,h,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
+    print('first bb:'+str(first_bb))
     pt1_x, pt1_y,pt2_x,pt2_y,confidence = first_bb[0],first_bb[1],first_bb[2],first_bb[3],first_bb[4]
     scalefactor = mnc_output["scale_factor"]
 #    pt1 = (int(pt1_x*scalefactor), int(pt1_y*scalefactor))
