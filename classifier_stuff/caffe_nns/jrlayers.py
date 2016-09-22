@@ -560,7 +560,7 @@ class JrMultilabel(caffe.Layer):
 
     def reshape(self, bottom, top):
         #pass
-        print('start reshape')
+   #     print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
@@ -576,8 +576,8 @@ class JrMultilabel(caffe.Layer):
             self.data = all_data
             self.label = all_labels
             self.images_processed += self.batch_size
-        print('got {} images, idx={}'.format(self.batch_size,self.idx))
-        print('sizeof first pix: {} label {}'.format(self.data.shape,self.label.shape))
+#        print('got {} images, idx={}'.format(self.batch_size,self.idx))
+#        print('sizeof first pix: {} label {}'.format(self.data.shape,self.label.shape))
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -596,10 +596,10 @@ class JrMultilabel(caffe.Layer):
 
     def forward(self, bottom, top):
         # assign output
-        print('forward start')
+ #       print('forward start')
         top[0].data[...] = self.data  #this apparently can take both axbxcxd and bxcxd and turns both to axbxcxd (or 1xbxcxd) (reshape above leaves batchsize1 as axbxc
         top[1].data[...] = self.label
-        print('shapes:data {} label{}'.format(top[0].data.shape,top[1].data.shape))
+  #      print('shapes:data {} label{}'.format(top[0].data.shape,top[1].data.shape))
         # pick next input
         self.next_idx()
         #print('forward end')

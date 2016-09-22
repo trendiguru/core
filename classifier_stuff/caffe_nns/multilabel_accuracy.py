@@ -126,7 +126,7 @@ def hamming_distance(gt, est):
 #    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
     if est.shape[0] ==1:
         l=est.shape[1]
-        est.reshape(l)
+        est = est.reshape(l)
         print('had to do reshape')
         print('gt shape {} est shape {}'.format(gt.shape,est.shape))
         print('gt {} est {}'.format(gt,est))
