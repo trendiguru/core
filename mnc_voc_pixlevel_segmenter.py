@@ -185,7 +185,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
 #                'masks': mask_for_img}
 
 #    print('preddict:'+str( pred_dict))
-    print('boxes:'+str(pred_dict['boxes']))
+    print('boxes:' + str(pred_dict['boxes']))
     start = time.time()
     img_width = im.shape[1]
     img_height = im.shape[0]
