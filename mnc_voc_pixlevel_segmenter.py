@@ -232,13 +232,6 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     print 'superimpose 0 time %f' % (end-start)
     start = time.time()
 
-    superimpose_image = Image.blend(background, mask, 0.8)
-    superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
-    superimpose_image.save(superimpose_name, 'JPEG')
-    im = cv2.imread(superimpose_name)
-
-    end = time.time()
-    print 'superimpose 1 time %f' % (end-start)
 
 #remove unwanted class boxes
     print('classes:'+str(pred_dict['cls_name']))
@@ -256,6 +249,21 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
         bbox[1] = int(bbox[1]*compress_factor)
         bbox[2] = int(bbox[2]*compress_factor)
         bbox[3] = int(bbox[3]*compress_factor)
+
+
+
+    superimpose_image = Image.blend(background, mask, 0.8)
+    superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
+    superimpose_image.save(superimpose_name, 'JPEG')
+    im = cv2.imread(superimpose_name)
+
+    for bbox in desired_boxes:
+        cv2.rectangle(im,(bbox[0],bbox[1]),([bbox[2],bbox[3]),color=[0,255,100],thickness=2)
+        cv2.putText(im,'person:'+str(round(confidence,3)),org=(bbox[0],bbox[1]-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
+
+
+    end = time.time()
+    print 'superimpose 1 time %f' % (end-start)
 
 
 
