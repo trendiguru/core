@@ -618,7 +618,7 @@ def get_netname(solverproto):
     elif 'name' in l2:
         netname = l2[5:]
         print('netname:'+netname)
-    else
+    else:
         netname = None
     return netname
 
