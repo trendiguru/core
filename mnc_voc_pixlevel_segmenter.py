@@ -150,6 +150,9 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
         im = url_or_np_array
         im_name = str(int(time.time()))+'.jpg'
     # resize to max dim of max_dim
+    if im is None:
+        print('uuhhh got None image')
+        return None
     max_dim = 400
     h, w = im.shape[0:2]
     compress_factor = float(max(h, w))/max_dim
