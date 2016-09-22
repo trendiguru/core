@@ -646,12 +646,15 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         dir = 'multilabel_results-'+netname+'_'+model_base.replace('.caffemodel','')
         dir = dir.replace('"','')  #remove quotes
         dir = dir.replace(' ','')  #remove spaces
-        dir = dir.replace('\n','')  #remove return
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
     else:
         dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
         dir = dir.replace('"','')  #remove quotes
         dir = dir.replace(' ','')  #remove spaces
-        dir = dir.replace('\n','')  #remove return
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
+
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
