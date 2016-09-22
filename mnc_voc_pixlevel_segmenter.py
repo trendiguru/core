@@ -185,6 +185,31 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
 #                'masks': mask_for_img}
 
 #    print('preddict:'+str( pred_dict))
+
+#remove unwanted classes
+    print('classes:'+str(pred_dict['cls_name']))
+# rescale the bbs - jr
+    desired_boxes = []
+    for i in range(len(pred_dict['boxes'])):
+        current_classno = pred_dict['cls_name'][i]
+        current_classname = CLASSES[current_classno-1]
+        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
+        if current_classname in categories:
+            print('cat accepted')
+            desired_boxes.append(pred_dict['boxes'][i])
+    for bbox in desired_boxes:
+        bbox[0] = int(bbox[0]*compress_factor)
+        bbox[1] = int(bbox[1]*compress_factor)
+        bbox[2] = int(bbox[2]*compress_factor)
+        bbox[3] = int(bbox[3]*compress_factor)
+    desired_categories = []
+    for cat in range(categories):
+        catno = CLASSES.index(cat)
+        desired_categories.append(catno)
+    print('desired catnos:'+str(desired_categories))
+#########33end jr
+
+
     print('boxes:' + str(pred_dict['boxes']))
     start = time.time()
     img_width = im.shape[1]
@@ -196,9 +221,14 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     cls_out_img = np.zeros((img_height, img_width, 3))
     for i in xrange(img_height):
         for j in xrange(img_width):
-            cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
-    cv2.imwrite(target_cls_file, cls_out_img)
+#dont color the unwanted classes - jr
+            if cls_img[i][j] in desired_categories:
+                cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
 
+    #        cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+###########end jr (i took out line above too
+
+    cv2.imwrite(target_cls_file, cls_out_img)
     end = time.time()
 
     print 'convert pred to image  %f' % (end-start)
@@ -221,21 +251,6 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
-    print('classes:'+str(pred_dict['cls_name']))
-# rescale the bbs
-    desired_boxes = []
-    for i in range(len(pred_dict['boxes'])):
-        current_classno = pred_dict['cls_name'][i]
-        current_classname = CLASSES[current_classno-1]
-        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
-        if current_classname in categories:
-            print('cat accepted')
-            desired_boxes.append(pred_dict['boxes'][i])
-    for bbox in desired_boxes:
-        bbox[0] = int(bbox[0]*compress_factor)
-        bbox[1] = int(bbox[1]*compress_factor)
-        bbox[2] = int(bbox[2]*compress_factor)
-        bbox[3] = int(bbox[3]*compress_factor)
 
     print('boxes:'+str(pred_dict['boxes']))
     print('accepted boxes:'+str(desired_boxes))
