@@ -10,19 +10,20 @@ class MNCResource:
 
         url = req.get_param('url')
 
-        quote = {
-            'quote': 'Time is a very misleading thing. All there is ever, is the now. ',
-            'author': 'George Harrison'
-        }
+        show = req.get_param('show')
 
         if url:
-            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor = mnc.mnc_pixlevel_detect(url)
+            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor, superimpose_name = mnc.mnc_pixlevel_detect(url)
+            if show:
+                with open(superimpose_name, 'r') as f:
+                    resp.body = f.read()
+                    resp.content_type = 'image/jpeg'
+
             if boxes:
                 boxes = [a.tolist() for a in boxes]
-            quote = boxes or quote
+                resp.body = json.dumps(boxes)
+                resp.content_type = 'application/json'
 
-        resp.body = json.dumps(quote)
-        resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
 
     def on_post(self, req, resp):
@@ -35,7 +36,7 @@ class MNCResource:
         except Exception:
             ret["error"] = traceback.format_exc()
         try:
-            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor = mnc.mnc_pixlevel_detect(img)
+            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor, superimpose_name = mnc.mnc_pixlevel_detect(img)
 #            mnc_mask, mnc_box = mnc.mnc_pixlevel_detect(img)
             if mnc_mask is not None:
                 ret["success"] = True
@@ -53,3 +54,4 @@ class MNCResource:
 
 api = falcon.API()
 api.add_route('/', MNCResource())
+
