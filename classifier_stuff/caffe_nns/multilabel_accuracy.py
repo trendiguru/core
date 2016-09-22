@@ -127,10 +127,11 @@ def hamming_distance(gt, est):
     if est.shape[0] ==1:
         l=est.shape[1]
         est.reshape(l)
-    if est.shape != gt.shape:
-        print('shapes dont match')
+        print('had to do reshape')
         print('gt shape {} est shape {}'.format(gt.shape,est.shape))
         print('gt {} est {}'.format(gt,est))
+    if est.shape != gt.shape:
+        print('shapes dont match')
         return 0
     else:
         print('shapes DO match')
