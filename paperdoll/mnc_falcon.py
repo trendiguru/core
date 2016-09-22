@@ -18,7 +18,7 @@ class MNCResource:
         if url:
             mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor = mnc.mnc_pixlevel_detect(url)
             if boxes:
-                boxes = boxes.tolist()
+                boxes = [a.tolist() for a in boxes]
             quote = boxes or quote
 
         resp.body = json.dumps(quote)
