@@ -140,7 +140,7 @@ def get_vis_dict(result_box, result_mask, img_name, cls_names, vis_thresh=0.5):
     return res_dict
 
 
-def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
+def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     demo_dir = './'
     start = time.time()
     if isinstance(url_or_np_array, basestring):
@@ -225,8 +225,10 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
 # rescale the bbs
     desired_boxes = []
     for i in range(len(pred_dict['boxes'])):
-        print('i {} cat {} box {}'.format(i,pred_dict['cls_name'][i],pred_dict['boxes'][i]))
-        if pred_dict['cls_name'][i] in categories:
+        current_classno = pred_dict['cls_name'][i]
+        current_classname = CLASSES[current_classno+1]
+        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
+        if current_classname in categories:
             print('cat accepted')
             desired_boxes.append(pred_dict['boxes'][i])
     for bbox in desired_boxes:
