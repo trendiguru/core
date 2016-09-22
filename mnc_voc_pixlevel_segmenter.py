@@ -204,6 +204,9 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     color_map = _get_voc_color_map()
     target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
     cls_out_img = np.zeros((img_height, img_width, 3))
+
+
+    #####this loop over x,y is retarded
     for i in xrange(img_height):
         for j in xrange(img_width):
 #dont color the unwanted classes - jr
