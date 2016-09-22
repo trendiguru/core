@@ -140,7 +140,7 @@ def get_vis_dict(result_box, result_mask, img_name, cls_names, vis_thresh=0.5):
     return res_dict
 
 
-def mnc_pixlevel_detect(url_or_np_array):
+def mnc_pixlevel_detect(url_or_np_array,categories=['human']):
     demo_dir = './'
     start = time.time()
     if isinstance(url_or_np_array, basestring):
@@ -221,15 +221,22 @@ def mnc_pixlevel_detect(url_or_np_array):
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
+    print('classes:'+str(pred_dict(pred_dict['cls_name'])))
 # rescale the bbs
-    for bbox in pred_dict['boxes']:
+    desired_boxes = []
+    for i in range(len(pred_dict['boxes'])):
+        print('i {} cat {} box {}'.format(i,pred_dict['cls_name'][i],pred_dict['boxes'][i]))
+        if pred_dict['cls_name'][i] in categories:
+            print('cat accepted')
+            desired_boxes.append(pred_dict['boxes'][i])
+    for bbox in desired_boxes:
         bbox[0] = int(bbox[0]*compress_factor)
         bbox[1] = int(bbox[1]*compress_factor)
         bbox[2] = int(bbox[2]*compress_factor)
         bbox[3] = int(bbox[3]*compress_factor)
 
     print('boxes:'+str(pred_dict['boxes']))
-    return result_mask, result_box, im, im_name, orig_im,pred_dict['boxes'], compress_factor
+    return result_mask, result_box, im, im_name, orig_im,desired_boxes, compress_factor
 
     ##########################
     # this next stuff takes forever

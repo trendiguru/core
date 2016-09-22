@@ -20,7 +20,8 @@ from trendi.utils import imutils
 from trendi import Utils
 
 import math
-
+from trendi.classifier_stuff.caffe_nns import jrinfer
+from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
 def open_html(model_base,solverproto,classes,results_dict,dir=None):
 #results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
@@ -28,6 +29,7 @@ def open_html(model_base,solverproto,classes,results_dict,dir=None):
         dir = 'pixlevel_results-'+model_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
+    netname = multilabel_accuracy.get_netname(solverproto)
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -36,8 +38,9 @@ def open_html(model_base,solverproto,classes,results_dict,dir=None):
         dt=datetime.datetime.today()
         g.write(model_base+' '+dt.isoformat())
         g.write('</title>')
-        g.write('solver:'+solverproto+'\n'+'<br>')
-        g.write('model:'+model_base+'\n'+'<br>')
+        g.write('solver:'+solverproto+'\n<br>')
+        g.write('model:'+model_base+'\n<br>')
+        g.write('netname:'+netname+'\n<br>')
         g.write('</head>')
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
         g.write('<br>\n')
@@ -45,6 +48,7 @@ def open_html(model_base,solverproto,classes,results_dict,dir=None):
         g.write('<br>\n')
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+model_base+'\n'+'<br>')
+        g.write('netname:'+netname+'\n<br>')
         g.write('iter:'+str(results_dict['iter'])+' loss:'+str(results_dict['loss'])+'\n<br>')
         g.write('overall acc:'+str(results_dict['overall_acc'])+' mean acc:'+str(results_dict['mean_acc'])+
                 ' fwavac:'+str(results_dict['fwavacc'])+'\n<br>')
@@ -125,22 +129,7 @@ def write_textfile(threshold,model_base,dir=None,classes=None):
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def get_netname(solverproto):
-    with open(solverproto,'r') as fp:
-        l1 = fp.readline()
-        l2 = fp.readline()
-   # print('line1 '+l1)
-   # print('line2 '+l2)
-    if 'name' in l1:
-        netname = l1[5:]
-        print('netname:'+netname)
-    elif 'name' in l2:
-        netname = l2[5:]
-        print('netname:'+netname)
-    else:
-        netname = None
-    return netname
-
+def do_pixlevel_accuracy(caffemodel,solverproto):
 
 
 if __name__ =="__main__":
@@ -176,9 +165,10 @@ if __name__ =="__main__":
     solver.net.copy_from(args.model)
     val = range(0,n_tests)
         #this just runs the train net i think, doesnt test new images
-    seg_tests(solver, False, val, layer='score')
 
-    seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
+
+    seg_tests(solver, save_format=False, dataset, layer='score', gt='label',outfilename='net_output.txt'):
 
 #    t = 0.5
 #    p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
