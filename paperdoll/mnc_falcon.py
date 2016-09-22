@@ -15,7 +15,7 @@ class MNCResource:
         }
 
         if url:
-            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor = mnc.mnc_pixlevel_detect(img)
+            mnc_mask, mnc_box, im, im_name, orig_im, boxes, scalefactor = mnc.mnc_pixlevel_detect(url)
             quote = boxes or quote
 
         resp.body = json.dumps(quote)
