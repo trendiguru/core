@@ -204,7 +204,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
         bbox[3] = int(bbox[3]*compress_factor)
     desired_categories = []
     for cat in categories:
-        catno = CLASSES.index(cat)
+        catno = CLASSES.index(cat)+1
         desired_categories.append(catno)
     print('desired catnos:'+str(desired_categories))
 #########33end jr
