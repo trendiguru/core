@@ -238,7 +238,6 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
 
 #remove unwanted class boxes
     print('classes:'+str(pred_dict['cls_name']))
-# rescale the bbs - jr
     desired_boxes = []
     for i in range(len(pred_dict['boxes'])):
         current_classno = pred_dict['cls_name'][i]
@@ -247,6 +246,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
         if current_classname in categories:
             print('cat accepted')
             desired_boxes.append(pred_dict['boxes'][i])
+# rescale the bbs - jr
     for bbox in desired_boxes:
         bbox[0] = int(bbox[0]*compress_factor)
         bbox[1] = int(bbox[1]*compress_factor)
