@@ -17,7 +17,7 @@ from .. import simple_pool
 #                                       port=int(os.getenv("MONGO_PORT", "27017")),
 #                                       connect=False).mydb
 
-storm_q = Queue('star_pipeline', connection=constants.redis_conn)
+storm_q = Queue('start_pipeline', connection=constants.redis_conn)
 r = Redis()
 relevancy_q = Queue(connection=r)
 
