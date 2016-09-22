@@ -186,22 +186,7 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
 
 #    print('preddict:'+str( pred_dict))
 
-#remove unwanted classes
-    print('classes:'+str(pred_dict['cls_name']))
-# rescale the bbs - jr
-    desired_boxes = []
-    for i in range(len(pred_dict['boxes'])):
-        current_classno = pred_dict['cls_name'][i]
-        current_classname = CLASSES[current_classno-1]
-        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
-        if current_classname in categories:
-            print('cat accepted')
-            desired_boxes.append(pred_dict['boxes'][i])
-    for bbox in desired_boxes:
-        bbox[0] = int(bbox[0]*compress_factor)
-        bbox[1] = int(bbox[1]*compress_factor)
-        bbox[2] = int(bbox[2]*compress_factor)
-        bbox[3] = int(bbox[3]*compress_factor)
+# find indices of desired cats - jr
     desired_categories = []
     for cat in categories:
         catno = CLASSES.index(cat)+1
@@ -250,6 +235,24 @@ def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
 
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
+
+#remove unwanted class boxes
+    print('classes:'+str(pred_dict['cls_name']))
+# rescale the bbs - jr
+    desired_boxes = []
+    for i in range(len(pred_dict['boxes'])):
+        current_classno = pred_dict['cls_name'][i]
+        current_classname = CLASSES[current_classno-1]
+        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
+        if current_classname in categories:
+            print('cat accepted')
+            desired_boxes.append(pred_dict['boxes'][i])
+    for bbox in desired_boxes:
+        bbox[0] = int(bbox[0]*compress_factor)
+        bbox[1] = int(bbox[1]*compress_factor)
+        bbox[2] = int(bbox[2]*compress_factor)
+        bbox[3] = int(bbox[3]*compress_factor)
+
 
 
     print('boxes:'+str(pred_dict['boxes']))
