@@ -85,7 +85,7 @@ def write_html(htmlname,results_dict):
             for i in range(len(p)):
                 g.write('<td>')
                 class_accuracy = results_dict['class_accuracy'][p]
-                g.write(str(round(class_accuracy,3))
+                g.write(str(round(class_accuracy,3)))
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
@@ -144,7 +144,7 @@ if __name__ =="__main__":
     parser.add_argument('--testproto',  help='test prototxt',default=default_testproto)
     parser.add_argument('--caffemodel', help='caffmodel',default = default_caffemodel)
     parser.add_argument('--gpu', help='gpu #',default=0)
-    parser.add_argument('--output_layer_name', help='output layer name',default='prob')
+    parser.add_argument('--output_layer_name', help='output layer name',default='score')
     parser.add_argument('--n_tests', help='number of examples to test',default=200)
     parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
 
