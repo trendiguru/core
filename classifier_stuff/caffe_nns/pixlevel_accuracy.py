@@ -135,7 +135,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
 
     print('using net defined by {} and {} '.format(solverproto,caffemodel))
 
-
+    val = range(n_tests)
     answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
 #try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
 #without having to get sgdsolver
