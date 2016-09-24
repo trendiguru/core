@@ -124,7 +124,8 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
     dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,dir+'.html')
-    print('saving net of {} {} to dir {}'.format(caffemodel,solverproto,htmlname))
+    detailed_outputname = htmlname[:-5]
+    print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     if args.gpu:
