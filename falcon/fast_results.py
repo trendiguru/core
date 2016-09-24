@@ -47,9 +47,6 @@ def check_if_exists(image_url):
 
 
 def check_if_relevant_and_enqueue(image_url, page_url, start_time):
-    # pid = os.getpid()
-    # start = start_time
-    # print "Thread {1}: before image_DL: {0}".format(time.time()-start, pid)
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return False
