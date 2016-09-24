@@ -175,7 +175,7 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     print('using net defined by {} and {} '.format(args.solverproto,args.caffemodel))
-    do_pixlevel_accuracy(args.caffemodel,args.solverproto,n_tests,args.output_layer_name,classes=constants.ultimate_21):
+    do_pixlevel_accuracy(args.caffemodel,args.solverproto,n_tests,args.output_layer_name,args.classes)
 
 
 
