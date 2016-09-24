@@ -124,7 +124,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
     dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,dir+'.html')
-
+    print('saving net of {} {} to dir {}'.format(caffemodel,solverproto,htmlname))
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
     if args.gpu:
@@ -139,6 +139,16 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
     answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
 #try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
 #without having to get sgdsolver
+  # prototxt  = 'DeconvNet_inference_deploy.prototxt'
+  #   caffemodel = 'snapshot/stage_1_train_iter_6000.caffemodel'
+  #   net = caffe.Net(prototxt,caffemodel)
+  #   in_ = np.array(im, dtype=np.float32)
+  #   net.blobs['data'].reshape(1, *in_.shape)
+  #   net.blobs['data'].data[...] = in_
+  #   # run net and take argmax for prediction
+  #   net.forward()
+  #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
+
 
     open_html(htmlname,caffemodel,solverproto,classes,answer_dict,dir=dir)
     write_html(htmlname,answer_dict)
@@ -165,6 +175,7 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     print('using net defined by {} and {} '.format(args.solverproto,args.caffemodel))
+    do_pixlevel_accuracy(args.caffemodel,args.solverproto,n_tests,args.output_layer_name,classes=constants.ultimate_21):
 
 
 
