@@ -155,7 +155,7 @@ if __name__ =="__main__":
     n_tests = int(args.n_tests)
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    print('using net defined by {} and {} '.format(args.testproto,args.model))
+    print('using net defined by {} and {} '.format(args.testproto,args.caffemodel))
     solver = caffe.SGDSolver(args.testproto)
     solver.net.copy_from(args.model)
     if args.gpu:
