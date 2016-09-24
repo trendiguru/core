@@ -120,16 +120,25 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
 
 def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21):
 
-    print('using net defined by {} and {} '.format(solverproto,caffemodel))
-    solver = caffe.SGDSolver(args.prototxt)
-    solver.net.copy_from(args.model)
-    val = range(n_tests)
-
-    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
-    print('answer dict:'+str(answer_dict))
+#to do accuracy we prob dont need to load solver
     dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,dir+'.html')
+
+    solver = caffe.SGDSolver(solverproto)
+    solver.net.copy_from(caffemodel)
+    if args.gpu:
+        caffe.set_mode_gpu()
+        caffe.set_device(int(args.gpu))
+    else:
+        caffe.set_mode_cpu()
+
+    print('using net defined by {} and {} '.format(solverproto,caffemodel))
+
+
+    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+#try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
+#without having to get sgdsolver
 
     open_html(htmlname,caffemodel,solverproto,classes,answer_dict,dir=dir)
     write_html(htmlname,answer_dict)
@@ -157,16 +166,7 @@ if __name__ =="__main__":
     caffe.set_device(gpu)
     print('using net defined by {} and {} '.format(args.solverproto,args.caffemodel))
 
-#to do accuracy we prob dont need to load solver
-    solver = caffe.SGDSolver(args.solverproto)
-    solver.net.copy_from(args.caffemodel)
-    if args.gpu:
-        caffe.set_mode_gpu()
-        caffe.set_device(int(args.gpu))
-    else:
-        caffe.set_mode_cpu()
 
-    do_pixlevel_accuracy(args.caffemodel, args.solverproto,n_tests,outlayer,args.classes)
 
 
 
