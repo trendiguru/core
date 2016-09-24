@@ -140,7 +140,7 @@ def get_vis_dict(result_box, result_mask, img_name, cls_names, vis_thresh=0.5):
     return res_dict
 
 
-def mnc_pixlevel_detect(url_or_np_array):
+def mnc_pixlevel_detect(url_or_np_array,categories=['person']):
     demo_dir = './'
     start = time.time()
     if isinstance(url_or_np_array, basestring):
@@ -150,6 +150,9 @@ def mnc_pixlevel_detect(url_or_np_array):
         im = url_or_np_array
         im_name = str(int(time.time()))+'.jpg'
     # resize to max dim of max_dim
+    if im is None:
+        print('uuhhh got None image')
+        return None
     max_dim = 400
     h, w = im.shape[0:2]
     compress_factor = float(max(h, w))/max_dim
@@ -179,6 +182,23 @@ def mnc_pixlevel_detect(url_or_np_array):
     end = time.time()
     print 'gpu vis dicttime %f' % (end-start)
 
+#    res_dict = {'image_name': img_name,
+#                'cls_name': cls_for_img,
+#                'boxes': box_for_img,
+#                'masks': mask_for_img}
+
+#    print('preddict:'+str( pred_dict))
+
+# find indices of desired cats - jr
+    desired_categories = []
+    for cat in categories:
+        catno = CLASSES.index(cat)+1
+        desired_categories.append(catno)
+    print('desired catnos:'+str(desired_categories))
+#########33end jr
+
+
+    print('boxes:' + str(pred_dict['boxes']))
     start = time.time()
     img_width = im.shape[1]
     img_height = im.shape[0]
@@ -187,11 +207,20 @@ def mnc_pixlevel_detect(url_or_np_array):
     color_map = _get_voc_color_map()
     target_cls_file = os.path.join(demo_dir, 'cls_' + im_name)
     cls_out_img = np.zeros((img_height, img_width, 3))
+
+    #####this loop over x,y is retarded
     for i in xrange(img_height):
         for j in xrange(img_width):
-            cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
-    cv2.imwrite(target_cls_file, cls_out_img)
+#dont color the unwanted classes - jr
+            if cls_img[i][j] in desired_categories:
+                cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+# nonworking stab at replacement
+#    cls_out_img = cls_img[color_map[cls_img][::-1] for cls_img in desired_categories]
 
+    #        cls_out_img[i][j] = color_map[cls_img[i][j]][::-1]
+###########end jr (i took out line above too
+
+    cv2.imwrite(target_cls_file, cls_out_img)
     end = time.time()
 
     print 'convert pred to image  %f' % (end-start)
@@ -206,15 +235,44 @@ def mnc_pixlevel_detect(url_or_np_array):
     print 'superimpose 0 time %f' % (end-start)
     start = time.time()
 
+
+#remove unwanted class boxes - jr
+    print('classes:'+str(pred_dict['cls_name']))
+    desired_boxes = []
+    for i in range(len(pred_dict['boxes'])):
+        current_classno = pred_dict['cls_name'][i]
+        current_classname = CLASSES[current_classno-1]
+        print('i {} cat {} name {} box {}'.format(i,pred_dict['cls_name'][i],current_classname,pred_dict['boxes'][i]))
+        if current_classname in categories:
+            print('cat accepted')
+            desired_boxes.append(pred_dict['boxes'][i])
+# rescale the bbs - jr
+    for bbox in desired_boxes:
+        bbox[0] = int(bbox[0]*compress_factor)
+        bbox[1] = int(bbox[1]*compress_factor)
+        bbox[2] = int(bbox[2]*compress_factor)
+        bbox[3] = int(bbox[3]*compress_factor)
+
+
+
     superimpose_image = Image.blend(background, mask, 0.8)
     superimpose_name = os.path.join(demo_dir, 'final_' + im_name)
     superimpose_image.save(superimpose_name, 'JPEG')
     im = cv2.imread(superimpose_name)
 
+    for bbox in desired_boxes:
+        cv2.rectangle(im,(int(bbox[0]),int(bbox[1])),(int(bbox[2]),int(bbox[3])),color=[255,255,100],thickness=4)
+        cv2.putText(im,'person:'+str(round(bbox[4],3)),org=(int(bbox[0]),int(bbox[1])-10),fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1,color=[100,100,255])
+
+
     end = time.time()
     print 'superimpose 1 time %f' % (end-start)
 
-    return result_mask, result_box, im, im_name, orig_im
+
+
+    print('boxes:'+str(pred_dict['boxes']))
+    print('accepted boxes:'+str(desired_boxes))
+    return result_mask, result_box, im, im_name, orig_im,desired_boxes, compress_factor, superimpose_name
 
     ##########################
     # this next stuff takes forever

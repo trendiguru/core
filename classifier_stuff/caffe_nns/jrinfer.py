@@ -214,7 +214,8 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
 def seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     print '>>>', datetime.now(), 'Begin seg tests'
     solver.test_nets[0].share_with(solver.net)
-    do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    return results_dict
 
 def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     n_cl = net.blobs[layer].channels
@@ -261,7 +262,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outf
         f.write('fwavacc:'+ str((freq[freq > 0] * iu[freq > 0]).sum())+'\n')
         f.write('<br>\n')
         f.write('<br>\n')
-    return hist
+    return results_dict
 
 
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)

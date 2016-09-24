@@ -42,7 +42,7 @@ def create_index(col_name, category):
         db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
     t2 = time()
     print('addDataPoints took %s secs' % str(t2-t1))
-    index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=4']
+    index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=32']
     query_time_param = ['initSearchAttempts=3']
     nmslib_vector.createIndex(index, index_param)
     t3 = time()
@@ -54,7 +54,7 @@ def create_index(col_name, category):
 
     return index, nmslib_vector
 
-dress_index, dress_vector = create_index('recruit_Female', 'blouse')
+dress_index, dress_vector = create_index('amazon_US_Female', 'dress')
 print "Done initializing!"
 
 # def find_top_knn_nmslib(k, query, category, col_name):
