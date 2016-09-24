@@ -137,11 +137,11 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
 
 if __name__ =="__main__":
 
-    default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    default_solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
 
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
-    parser.add_argument('--solverproto',  help='solver prototxt',default=default_testproto)
+    parser.add_argument('--solverproto',  help='solver prototxt',default=default_solverproto)
     parser.add_argument('--caffemodel', help='caffmodel',default = default_caffemodel)
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='score')
@@ -166,7 +166,7 @@ if __name__ =="__main__":
     else:
         caffe.set_mode_cpu()
 
-    do_pixlevel_accuracy(args.caffemodel, args.testproto,n_tests,outlayer,args.classes)
+    do_pixlevel_accuracy(args.caffemodel, args.solverproto,n_tests,outlayer,args.classes)
 
 
 
