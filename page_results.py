@@ -222,7 +222,6 @@ def check_if_relevant(image_url, page_url, products_collection, method):
                              'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
                  'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
     db.iip.insert_one(image_obj)
-    # db.genderator.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                                 ttl=2000, result_ttl=2000, timeout=2000)
 
