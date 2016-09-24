@@ -120,10 +120,11 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
 
 def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21):
 
-    print('using net defined by {} and {} '.format(args.prototxt,args.model))
+    print('using net defined by {} and {} '.format(solverproto,caffemodel))
     solver = caffe.SGDSolver(args.prototxt)
     solver.net.copy_from(args.model)
     val = range(n_tests)
+
     answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
     print('answer dict:'+str(answer_dict))
     dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
