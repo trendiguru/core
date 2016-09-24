@@ -155,8 +155,8 @@ if __name__ =="__main__":
     n_tests = int(args.n_tests)
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    print('using net defined by {} and {} '.format(args.prototxt,args.model))
-    solver = caffe.SGDSolver(args.prototxt)
+    print('using net defined by {} and {} '.format(args.testproto,args.model))
+    solver = caffe.SGDSolver(args.testproto)
     solver.net.copy_from(args.model)
     if args.gpu:
         caffe.set_mode_gpu()
@@ -164,7 +164,7 @@ if __name__ =="__main__":
     else:
         caffe.set_mode_cpu()
 
-    do_pixlevel_accuracy(args.caffemodel, args.solverproto,n_tests,outlayer,args.classes)
+    do_pixlevel_accuracy(args.caffemodel, args.testproto,n_tests,outlayer,args.classes)
 
 
 
