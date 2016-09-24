@@ -88,7 +88,6 @@ def write_html(htmlname,results_dict):
                 g.write(str(round(class_accuracy,3)))
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
-
         #write class iou
         for i in range(len(p)):
             g.write('<tr>\n')
@@ -101,7 +100,7 @@ def write_html(htmlname,results_dict):
             for i in range(len(p)):
                 g.write('<td>')
                 class_iou = results_dict['class_iou'][p]
-                g.write(str(round(class_iou,3))
+                g.write(str(round(class_iou,3)))
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
