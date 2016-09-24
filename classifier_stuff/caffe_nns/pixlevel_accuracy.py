@@ -156,8 +156,10 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     print('using net defined by {} and {} '.format(args.solverproto,args.caffemodel))
+
+#to do accuracy we prob dont need to load solver
     solver = caffe.SGDSolver(args.solverproto)
-    solver.net.copy_from(args.model)
+    solver.net.copy_from(args.caffemodel)
     if args.gpu:
         caffe.set_mode_gpu()
         caffe.set_device(int(args.gpu))
