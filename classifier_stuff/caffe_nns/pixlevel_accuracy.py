@@ -23,12 +23,7 @@ import math
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
-def open_html(model_base,solverproto,classes,results_dict,dir=None):
-#results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
-    if dir is None:
-        dir = 'pixlevel_results-'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
-    htmlname = os.path.join(dir,model_base+'results.html')
+def open_html(htmlname,model_base,solverproto,classes,results_dict):
     netname = multilabel_accuracy.get_netname(solverproto)
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
@@ -68,15 +63,10 @@ def open_html(model_base,solverproto,classes,results_dict,dir=None):
             g.write('</th>\n')
         g.write('</tr>\n')
 
-def close_html(model_base,solverproto,dir=None):
-    if dir is None:
-        protoname = solverproto.replace('.prototxt','')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
-    htmlname = os.path.join(dir,model_base+'results.html')
+def close_html(htmlname):
     with open(htmlname,'a') as g:
         g.write('</table><br>')
-        plotfilename = 'multilabel_results'+model_base+'.png'
+        plotfilename = 'imagename.png'
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
@@ -116,7 +106,7 @@ def write_html(htmlname,results_dict):
             g.write('</tr>\n<br>\n')
 
 
-def write_textfile(threshold,model_base,dir=None,classes=None):
+def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classes=None):
     if dir is None:
         protoname = solverproto.replace('.prototxt','')
         dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
@@ -129,50 +119,52 @@ def write_textfile(threshold,model_base,dir=None,classes=None):
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,solverproto):
+def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21):
 
+    print('using net defined by {} and {} '.format(args.prototxt,args.model))
+    solver = caffe.SGDSolver(args.prototxt)
+    solver.net.copy_from(args.model)
+    val = range(n_tests)
+    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+    print('answer dict:'+str(answer_dict))
+    dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
+    Utils.ensure_dir(dir)
+    htmlname = os.path.join(dir,dir+'.html')
+
+    open_html(htmlname,caffemodel,solverproto,classes,answer_dict,dir=dir)
+    write_html(htmlname,answer_dict)
+    close_html(htmlname)
 
 if __name__ =="__main__":
+
+    default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
-    parser.add_argument('--testproto',  help='test prototxt')
-    parser.add_argument('--caffemodel', help='caffmodel')
+    parser.add_argument('--testproto',  help='test prototxt',default=default_testproto)
+    parser.add_argument('--caffemodel', help='caffmodel',default = default_caffemodel)
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='prob')
-    parser.add_argument('--n_tests', help='number of examples to test',default=1000)
-
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet50_sgd_iter_120000.caffemodel'
-    solverproto = '/home/jeremy/caffenets/production/ResNet-50-test.prototxt'
-#    caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-#    deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-    solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
-    caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
-#    multilabel_net = caffe.Net(solverproto,caffemodel, caffe.TEST)
+    parser.add_argument('--n_tests', help='number of examples to test',default=200)
+    parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
 
     args = parser.parse_args()
     print(args)
-    if args.testproto is not None:
-        solverproto = args.testproto
-    if args.caffemodel is not None:
-        caffemodel = args.caffemodel
     gpu = int(args.gpu)
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-
     print('using net defined by {} and {} '.format(args.prototxt,args.model))
     solver = caffe.SGDSolver(args.prototxt)
     solver.net.copy_from(args.model)
-    val = range(0,n_tests)
-        #this just runs the train net i think, doesnt test new images
+    if args.gpu:
+        caffe.set_mode_gpu()
+        caffe.set_device(int(args.gpu))
+    else:
+        caffe.set_mode_cpu()
 
-    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
-
-    seg_tests(solver, save_format=False, dataset, layer='score', gt='label',outfilename='net_output.txt'):
-
-#    t = 0.5
-#    p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
-
+    do_pixlevel_accuracy(args.caffemodel, args.solverproto,n_tests,outlayer,args.classes)
 
 
 

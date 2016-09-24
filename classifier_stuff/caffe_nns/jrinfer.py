@@ -292,7 +292,6 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
-
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
@@ -302,7 +301,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
-    parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
+    parser.add_argument('--iou',help='do iou test on pixel level net',default=True)
     args = parser.parse_args()
     print('args:'+str(args))
     print('caffemodel:'+str(args.model))
@@ -310,8 +309,8 @@ if __name__ == "__main__":
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
-    if args.gpu  :
-        caffe.set_mode_gpu();
+    if args.gpu:
+        caffe.set_mode_gpu()
         caffe.set_device(int(args.gpu))
     else:
         caffe.set_mode_cpu()
