@@ -7,6 +7,7 @@ import load_n_search
 
 class Search:
     def __init__(self, collection_name, category_name):
+
         self.collection = collection_name
         self.category = category_name
         index, nmslib_vector = load_n_search.load_index(collection_name, category_name)
@@ -110,6 +111,9 @@ class Search:
 #     return args
 
 def load(col_name, cc, gender, category):
+    def __init__(self):
+        app()
+
     def app():
         api = falcon.API()
         # api.add_route('/', ExampleResource())
