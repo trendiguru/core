@@ -121,9 +121,11 @@ api = falcon.API()
 #     # category = user_input.category
 #     #
 # collection = '%s_%s_%s' % (col_name, cc, gender)
-route = '/'+category
+# route = '/'+category
 print('working')
-api.add_route(route, Search(collection, category))
+api.add_route('/blazer', Search(collection, 'blazer'))
+api.add_route('/coat', Search(collection, 'coat'))
+api.add_route('/pants', Search(collection, 'pants'))
 
 
 
