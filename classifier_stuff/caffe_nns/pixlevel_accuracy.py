@@ -140,7 +140,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
 
     else:  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel)
-        answer_dict = jrinfer.do_seg_tests(net, iter, save_format=False, val, layer=layer, gt='label',outfilename=detailed_outputname)
+        answer_dict = jrinfer.do_seg_tests(net, iter, False, val, layer=layer, gt='label',outfilename=detailed_outputname)
   #   in_ = np.array(im, dtype=np.float32)
   #   net.blobs['data'].reshape(1, *in_.shape)
   #   net.blobs['data'].data[...] = in_
@@ -155,15 +155,18 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
 if __name__ =="__main__":
 
     default_solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
+    default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
 
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
-    parser.add_argument('--solverproto',  help='solver prototxt',default=default_solverproto)
+    parser.add_argument('--solverproto',  help='solver prototxt',default=None)
+    parser.add_argument('--testproto',  help='val prototxt',default=default_solverproto)
     parser.add_argument('--caffemodel', help='caffmodel',default = default_caffemodel)
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='score')
     parser.add_argument('--n_tests', help='number of examples to test',default=200)
     parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
+    parser.add_argument('--iter', help='iter',default=0)
 
     args = parser.parse_args()
     print(args)
@@ -172,8 +175,8 @@ if __name__ =="__main__":
     n_tests = int(args.n_tests)
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    print('using net defined by {} and {} '.format(args.solverproto,args.caffemodel))
-    do_pixlevel_accuracy(args.caffemodel,args.solverproto,n_tests,args.output_layer_name,args.classes)
+    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
+    do_pixlevel_accuracy(args.caffemodel,args.solverproto,n_tests,args.output_layer_name,args.classes,testproto=args.testproto,iter=int(args.iter))
 
 
 
