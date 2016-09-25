@@ -3,7 +3,7 @@ import argparse
 from jaweson import json, msgpack
 from os import environ
 import load_n_search
-
+import re
 
 class Search:
     def __init__(self, collection_name, category_name):
@@ -110,8 +110,8 @@ class Search:
 #
 #     return args
 inputs = environ.get('NMSLIB_INPUTS')
-print(inputs)
-# api_tmp = falcon.API()
+collection, category = re.split(r'/', inputs)
+api = falcon.API()
 #     # api.add_route('/', ExampleResource())
 #
 #     # user_input, config = _get_config()
@@ -121,9 +121,9 @@ print(inputs)
 #     # category = user_input.category
 #     #
 # collection = '%s_%s_%s' % (col_name, cc, gender)
-# route = '/'+category
-# print('working')
-# api_tmp.add_route(route, Search(collection, category))
+route = '/'+category
+print('working')
+api.add_route(route, Search(collection, category))
 
 
 
