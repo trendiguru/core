@@ -110,25 +110,20 @@ class Search:
 #
 #     return args
 
-def load(col_name, cc, gender, category):
-    def __init__(self):
-        app()
+def app(col_name, cc, gender, category):
+    api = falcon.API()
+    # api.add_route('/', ExampleResource())
 
-    def app():
-        api = falcon.API()
-        # api.add_route('/', ExampleResource())
+    # user_input, config = _get_config()
+    # col_name = user_input.col_name
+    # cc = user_input.country_code
+    # gender = user_input.gender
+    # category = user_input.category
+    #
+    collection = '%s_%s_%s' % (col_name, cc, gender)
+    route = '/'+category
+    print('working')
+    api.add_route(route, Search(collection, category))
 
-        # user_input, config = _get_config()
-        # col_name = user_input.col_name
-        # cc = user_input.country_code
-        # gender = user_input.gender
-        # category = user_input.category
-        #
-        collection = '%s_%s_%s' % (col_name, cc, gender)
-        route = '/'+category
-        print('working')
-        api.add_route(route, Search(collection, category))
-
-    return app
 
 
