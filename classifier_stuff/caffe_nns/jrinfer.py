@@ -201,11 +201,10 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
         hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
                                 net.blobs[layer].data[0].argmax(0).flatten(),
                                 n_cl)
-
         if save_dir:
             Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
-            im.save(os.path.join(save_dir, idx + '.png'))
+            im.save(os.path.join(save_dir, str(idx) + '.png'))
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
