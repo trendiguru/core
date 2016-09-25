@@ -3,7 +3,7 @@ from trendi.constants import db
 from time import time
 
 
-def build_and_save(col_name, category):
+def build_n_save(col_name, category):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
