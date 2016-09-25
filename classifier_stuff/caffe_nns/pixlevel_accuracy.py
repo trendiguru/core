@@ -51,7 +51,7 @@ def open_html(htmlname,model_base,solverproto,classes,results_dict):
 
         g.write('<table style=\"width:100%\">\n')
         g.write('<tr>\n')
-        g.write('<th>')
+        g.write('<th align="left">')
         g.write('metric')
         g.write('</th>\n')
         g.write('<th>')
