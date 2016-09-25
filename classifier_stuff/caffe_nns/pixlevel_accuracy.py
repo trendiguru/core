@@ -33,14 +33,14 @@ def open_html(htmlname,model_base,solverproto,classes,results_dict):
         dt=datetime.datetime.today()
         g.write(model_base+' '+dt.isoformat())
         g.write('</title>')
-        g.write('solver:'+solverproto+'\n<br>')
-        g.write('model:'+model_base+'\n<br>')
-        g.write('netname:'+netname+'\n<br>')
+        g.write('hsolver:'+solverproto+'\n<br>')
+        g.write('hmodel:'+model_base+'\n<br>')
+        g.write('hnetname:'+netname+'\n<br>')
         g.write('</head>')
+        g.write('<body>')
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
         g.write('<br>\n')
-        g.write(model_base+' '+dt.isoformat())
-        g.write('<br>\n')
+        g.write('pixlevel results generated on '+ str(dt.isoformat()))
         g.write('solver:'+solverproto+'\n'+'<br>')
         g.write('model:'+model_base+'\n'+'<br>')
         g.write('netname:'+netname+'\n<br>')
@@ -68,6 +68,7 @@ def close_html(htmlname):
         g.write('</table><br>')
         plotfilename = 'imagename.png'
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
+        g.write('</body>')
         g.write('</html>')
 
 def write_html(htmlname,results_dict):
