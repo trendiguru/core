@@ -277,6 +277,7 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
         try:
             item_keys = item.keys()
             if any(x for x in ['ASIN', 'DetailPageURL', 'OfferSummary', 'ItemAttributes', 'ProductGroup'] if x not in item_keys):
+                print ('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                 if print_flag:
                     print_error('%s not in item keys' % x)
                 continue
