@@ -43,7 +43,11 @@ products_per_ip_pid = {'default':
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "6nGzEP7cp5s957P4":
-                                 {'default': 'amazon_DE'}
+                                 {'default': 'amazon_DE'},
+                       "2DqGp6fum7jiv2B6":
+                                 {'default': 'amazon_US'},
+                       "sg3SH5yif242E5jL":
+                                 {'default': 'amazon_US'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
