@@ -124,6 +124,8 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     if savepics:
         picsdir = os.path.join(dir,'pics')
         Utils.ensure_dir(picsdir)
+    else:
+        picsdir = False
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
@@ -139,11 +141,11 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
         solver = caffe.SGDSolver(solverproto)
         solver.net.copy_from(caffemodel)
         print('using net defined by {} and {} '.format(solverproto,caffemodel))
-        answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname,savepics=True)
+        answer_dict = jrinfer.seg_tests(solver, picsdir, val, layer=layer,outfilename=detailed_outputname)
 
     elif(testproto is not None):  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel, caffe.TEST)
-        answer_dict = jrinfer.do_seg_tests(net, iter, False, val, layer=layer, gt='label',outfilename=detailed_outputname,savepics=True)
+        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, val, layer=layer, gt='label',outfilename=detailed_outputname)
 
 
 
