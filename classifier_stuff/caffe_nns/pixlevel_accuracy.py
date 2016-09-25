@@ -52,7 +52,7 @@ def open_html(htmlname,model_base,solverproto,classes,results_dict):
         g.write('<th align="left">')
         g.write('metric')
         g.write('</th>\n')
-        g.write('<th>')
+        g.write('<th align="left">')
         g.write('fw avg.')
         g.write('</th>\n')
         for i in range(len(classes)):
@@ -116,7 +116,7 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21):
+def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21,testproto=None,iter=0):
 #to do accuracy we prob dont need to load solver
     caffemodel_base = os.path.basename(caffemodel)
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
@@ -124,27 +124,34 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
-    solver = caffe.SGDSolver(solverproto)
-    solver.net.copy_from(caffemodel)
-    if args.gpu:
-        caffe.set_mode_gpu()
-        caffe.set_device(int(args.gpu))
-    else:
-        caffe.set_mode_cpu()
-    print('using net defined by {} and {} '.format(solverproto,caffemodel))
+
     val = range(n_tests)
-    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
-#try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
-#without having to get sgdsolver
-  # prototxt  = 'DeconvNet_inference_deploy.prototxt'
-  #   caffemodel = 'snapshot/stage_1_train_iter_6000.caffemodel'
-  #   net = caffe.Net(prototxt,caffemodel)
+
+    if(0): #do this the old way with sgdsolver
+        solver = caffe.SGDSolver(solverproto)
+        solver.net.copy_from(caffemodel)
+        if args.gpu:
+            caffe.set_mode_gpu()
+            caffe.set_device(int(args.gpu))
+        else:
+            caffe.set_mode_cpu()
+        print('using net defined by {} and {} '.format(solverproto,caffemodel))
+        answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+
+    else:  #try using net without sgdsolver
+        net = caffe.Net(testproto,caffemodel)
+        answer_dict = jrinfer.do_seg_tests(net, iter, save_format=False, val, layer=layer, gt='label',outfilename=detailed_outputname)
   #   in_ = np.array(im, dtype=np.float32)
   #   net.blobs['data'].reshape(1, *in_.shape)
   #   net.blobs['data'].data[...] = in_
   #   # run net and take argmax for prediction
   #   net.forward()
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
+
+
+
+
+
     open_html(htmlname,caffemodel,solverproto,classes,answer_dict)
     write_html(htmlname,answer_dict)
     close_html(htmlname)
