@@ -6,11 +6,11 @@ import load_n_search
 import re
 
 class Search:
-    def __init__(self, collection_name, category_name):
-
+    def __init__(self, collection_name, category_name, index_ver):
         self.collection = collection_name
         self.category = category_name
-        index, nmslib_vector = load_n_search.load_index(collection_name, category_name)
+        self.index_version = index_ver
+        index, nmslib_vector = load_n_search.load_index(collection_name, category_name, index_ver)
         self.index = index
         self.nmslib_vector = nmslib_vector
 
@@ -113,7 +113,8 @@ inputs = environ.get('NMSLIB_INPUTS')
 user_inputs = re.split(r'/', inputs)
 
 collection = user_inputs[0]
-categories = user_inputs[1:]
+categories = user_inputs[1]
+index_version = user_inputs[2]
 api = falcon.API()
 #     # api.add_route('/', ExampleResource())
 #
@@ -124,10 +125,10 @@ api = falcon.API()
 #     # category = user_input.category
 #     #
 # collection = '%s_%s_%s' % (col_name, cc, gender)
-for category in categories:
-    print(category)
-    route = '/'+category
-    api.add_route(route, Search(collection, category))
+# for category in categories:
+#     print(category)
+route = '/'+categories
+api.add_route(route, Search(collection, categories))
 
 
 
