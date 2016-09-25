@@ -43,13 +43,13 @@ def fill_lookup_table(collections):
     for collection in collections:
         lookup_table[collection]={}
         if 'recruit' in collection:
-            from ..recruit.recruit_constants import recruit2category_idx
+            from trendi.db_stuff.recruit.recruit_constants import recruit2category_idx
             categories_female = categories_male = list(set(recruit2category_idx.keys()))
         elif 'amaz' in collection:
-            from ..amazon.amazon_constants import amazon_categories_list
+            from trendi.db_stuff.amazon.amazon_constants import amazon_categories_list
             categories_female = categories_male = amazon_categories_list
         else:
-            from ..shopstyle.shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
+            from trendi.db_stuff.shopstyle.shopstyle_constants import shopstyle_paperdoll_female, shopstyle_paperdoll_male
             categories_female = list(set(shopstyle_paperdoll_female.values()))
             categories_male = list(set(shopstyle_paperdoll_male.values()))
         categories_male.sort()
