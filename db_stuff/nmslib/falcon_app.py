@@ -126,7 +126,7 @@ def load(col_name, cc, gender, category):
         #
         collection = '%s_%s_%s' % (col_name, cc, gender)
         route = '/'+category
-
+        print('working')
         api.add_route(route, Search(collection, category))
 
     return app
