@@ -40,7 +40,62 @@ class Search:
         resp.status = falcon.HTTP_200
 
 
-def get_user_input():
+# def get_user_input():
+#     parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
+#     parser.add_argument('-n', '--name', required=True, dest="col_name",
+#                         help='collection name - without gender or countycode')
+#     parser.add_argument('-c', '--code', defualt='US', dest="country_code",
+#                         help='country code - currently doing only US or DE')
+#     parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
+#                         help='specify which gender to index (Female or Male)')
+#     parser.add_argument('-p', '--part', dest="category", required=True,
+#                         help='which category to index')
+#     args = parser.parse_args()
+#     return args
+#
+#
+# user_input = get_user_input()
+# col_name = user_input.col_name
+# cc = user_input.country_code
+# gender = user_input.gender
+# category = user_input.category
+#
+# collection = '%s_%s_%s' % (col_name, cc, gender)
+# route = '/'+category
+#
+# api = falcon.API()
+# api.add_route(route, Search(collection, category))
+
+
+# import argparse
+# import json
+#
+# import falcon
+#
+# from gunicorn.app.base import BaseApplication
+# from gunicorn.six import iteritems
+
+#
+# class StandaloneApplication(BaseApplication):
+#
+#     def __init__(self, app, options=None):
+#         self.options = options or {}
+#         self.application = app
+#         super(StandaloneApplication, self).__init__()
+#
+#     def load_config(self):
+#         config = dict(
+#             [(key, value) for key, value in iteritems(self.options)
+#                 if key in self.cfg.settings and value is not None]
+#         )
+#         for key, value in iteritems(config):
+#             self.cfg.set(key.lower(), value)
+#
+#     def load(self):
+#         return self.application
+
+
+def _get_config():
     parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
     parser.add_argument('-n', '--name', required=True, dest="col_name",
                         help='collection name - without gender or countycode')
@@ -48,20 +103,28 @@ def get_user_input():
                         help='country code - currently doing only US or DE')
     parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
                         help='specify which gender to index (Female or Male)')
-    parser.add_argument('-p', '--part', dest="category", required=True,
+    parser.add_argument('-s', '--select', dest="category", required=True,
                         help='which category to index')
     args = parser.parse_args()
+
     return args
 
 
-user_input = get_user_input()
-col_name = user_input.col_name
-cc = user_input.country_code
-gender = user_input.gender
-category = user_input.category
+def main():
+    api = falcon.API()
+    # api.add_route('/', ExampleResource())
 
-collection = '%s_%s_%s' % (col_name, cc, gender)
-route = '/'+category
+    user_input, config = _get_config()
+    col_name = user_input.col_name
+    cc = user_input.country_code
+    gender = user_input.gender
+    category = user_input.category
 
-api = falcon.API()
-api.add_route(route, Search(collection, category))
+    collection = '%s_%s_%s' % (col_name, cc, gender)
+    route = '/'+category
+
+    api.add_route(route, Search(collection, category)).run()
+
+
+if __name__ == '__main__':
+    main()
