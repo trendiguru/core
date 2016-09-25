@@ -194,8 +194,6 @@ def fast_hist(a, b, n):
 
 def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
     n_cl = net.blobs[layer].channels
-    if save_dir:
-        os.mkdir(save_dir)
     hist = np.zeros((n_cl, n_cl))
     loss = 0
     for idx in dataset:
@@ -205,6 +203,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
                                 n_cl)
 
         if save_dir:
+            Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
             im.save(os.path.join(save_dir, idx + '.png'))
         # compute the loss as well
