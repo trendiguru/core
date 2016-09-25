@@ -58,7 +58,7 @@ def open_html(htmlname,model_base,solverproto,classes,results_dict):
         g.write('fw avg.')
         g.write('</th>\n')
         for i in range(len(classes)):
-            g.write('<th>')
+            g.write('<th align="left">')
             g.write(classes[i])
             g.write('</th>\n')
         g.write('</tr>\n')
@@ -79,7 +79,7 @@ def write_html(htmlname,results_dict):
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write('fw accuracy')
+        g.write(str(round(results_dict['fwavacc'],3)))
         g.write('</td>\n')
         for i in range(len(results_dict['class_accuracy'])):
             g.write('<td>')
@@ -87,13 +87,14 @@ def write_html(htmlname,results_dict):
             g.write(str(round(class_accuracy,3)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
+
         #write class iou
         g.write('<tr>\n')
         g.write('<td>')
         g.write('iou')
         g.write('</td>\n')
         g.write('<td>')
-        g.write('fw iou')
+        g.write(str(round(results_dict['mean_iou'],3)))  #the mean iou might not be same as fwiou which is what should go here
         g.write('</td>\n')
         for i in range(len(results_dict['class_iou'])):
             g.write('<td>')
