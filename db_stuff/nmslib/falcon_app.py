@@ -40,26 +40,27 @@ class Search:
         resp.status = falcon.HTTP_200
 
 
-# def get_user_input(args):
-#     parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
-#     parser.add_argument('name', dest="col_name",
-#                         help='collection name - without gender or countycode')
-#     parser.add_argument('code', default='US', dest="country_code",
-#                         help='country code - currently doing only US or DE')
-#     parser.add_argument('gender', dest="gender", choices=['Female', 'Male'],
-#                         help='specify which gender to index (Female or Male)')
-#     parser.add_argument('category', dest="category",
-#                         help='which category to index')
-#     args = parser.parse_args(args)
-#     return args
+def get_user_input():
+    parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
+    parser.add_argument('-n', '--name', required=True, dest="col_name",
+                        help='collection name - without gender or countycode')
+    parser.add_argument('-c', '--code', defualt='US', dest="country_code",
+                        help='country code - currently doing only US or DE')
+    parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
+                        help='specify which gender to index (Female or Male)')
+    parser.add_argument('-p', '--part', dest="category", required=True,
+                        help='which category to index')
+    args = parser.parse_args()
+    return args
 
 
-def application(col_name, cc, gender, category):
-    # user_input = get_user_input([col_name, cc, gender, category])
-    # col_name = user_input.col_name
-    # cc = user_input.country_code
-    # gender = user_input.gender
-    # category = user_input.category
+if __name__ == '__main__':
+    user_input = get_user_input()
+    col_name = user_input.col_name
+    cc = user_input.country_code
+    gender = user_input.gender
+    category = user_input.category
+
     collection = '%s_%s_%s' % (col_name, cc, gender)
     route = '/'+category
 
