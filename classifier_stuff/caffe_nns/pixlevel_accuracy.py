@@ -126,21 +126,24 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
 
     val = range(n_tests)
+    if args.gpu:
+        caffe.set_mode_gpu()
+        caffe.set_device(int(args.gpu))
+    else:
+        caffe.set_mode_cpu()
 
-    if(1): #do this the old way with sgdsolver
+    if(solverproto is not None): #do this the old way with sgdsolver
         solver = caffe.SGDSolver(solverproto)
         solver.net.copy_from(caffemodel)
-        if args.gpu:
-            caffe.set_mode_gpu()
-            caffe.set_device(int(args.gpu))
-        else:
-            caffe.set_mode_cpu()
         print('using net defined by {} and {} '.format(solverproto,caffemodel))
         answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
 
-    else:  #try using net without sgdsolver
-        net = caffe.Net(testproto,caffemodel)
+    elif(testproto is not None):  #try using net without sgdsolver
+        net = caffe.Net(testproto,caffemodel, caffe.TEST)
         answer_dict = jrinfer.do_seg_tests(net, iter, False, val, layer=layer, gt='label',outfilename=detailed_outputname)
+
+
+
   #   in_ = np.array(im, dtype=np.float32)
   #   net.blobs['data'].reshape(1, *in_.shape)
   #   net.blobs['data'].data[...] = in_
@@ -160,7 +163,7 @@ if __name__ =="__main__":
 
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
     parser.add_argument('--solverproto',  help='solver prototxt',default=None)
-    parser.add_argument('--testproto',  help='val prototxt',default=default_solverproto)
+    parser.add_argument('--testproto',  help='val prototxt',default=None)
     parser.add_argument('--caffemodel', help='caffmodel',default = default_caffemodel)
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='score')
