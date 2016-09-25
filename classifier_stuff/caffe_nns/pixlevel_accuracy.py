@@ -124,7 +124,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,dir+'.html')
-    detailed_outputname = htmlname[:-5]
+    detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
     solver = caffe.SGDSolver(solverproto)
     solver.net.copy_from(caffemodel)
@@ -135,7 +135,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
         caffe.set_mode_cpu()
     print('using net defined by {} and {} '.format(solverproto,caffemodel))
     val = range(n_tests)
-#    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
 #try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
 #without having to get sgdsolver
   # prototxt  = 'DeconvNet_inference_deploy.prototxt'
