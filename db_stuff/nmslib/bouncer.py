@@ -54,9 +54,12 @@ def fill_lookup_table(collections):
             categories_male = list(set(shopstyle_paperdoll_male.values()))
         categories_male.sort()
         if 'Female' in collection:
-            cats = categories_female.sort()
+            cats = categories_female
         elif 'Male' in collection:
-            cats = categories_male.sort()
+            cats = categories_male
+        else:
+            Exception
+        cats.sort()
         for category in cats:
             p = find_free_port()
             process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/1 -w 2 --preload' \
