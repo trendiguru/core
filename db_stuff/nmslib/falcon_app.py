@@ -54,15 +54,14 @@ def get_user_input():
     return args
 
 
-if __name__ == '__main__':
-    user_input = get_user_input()
-    col_name = user_input.col_name
-    cc = user_input.country_code
-    gender = user_input.gender
-    category = user_input.category
+user_input = get_user_input()
+col_name = user_input.col_name
+cc = user_input.country_code
+gender = user_input.gender
+category = user_input.category
 
-    collection = '%s_%s_%s' % (col_name, cc, gender)
-    route = '/'+category
+collection = '%s_%s_%s' % (col_name, cc, gender)
+route = '/'+category
 
-    api = falcon.API()
-    api.add_route(route, Search(collection, category))
+api = falcon.API()
+api.add_route(route, Search(collection, category))
