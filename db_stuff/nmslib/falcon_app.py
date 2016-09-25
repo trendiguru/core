@@ -110,8 +110,8 @@ class Search:
 #
 #     return args
 
-def app(col_name, cc, gender, category):
-    api = falcon.API()
+def application(col_name, cc, gender, category):
+    api_tmp = falcon.API()
     # api.add_route('/', ExampleResource())
 
     # user_input, config = _get_config()
@@ -123,7 +123,7 @@ def app(col_name, cc, gender, category):
     collection = '%s_%s_%s' % (col_name, cc, gender)
     route = '/'+category
     print('working')
-    api.add_route(route, Search(collection, category))
+    api_tmp.add_route(route, Search(collection, category))
 
 
 
