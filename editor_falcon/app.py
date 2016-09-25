@@ -11,7 +11,7 @@ login, auth_middleware = falcon_jwt.get_auth_objects(
     3600, # expiration
     cookie_opts={"name": "my_auth_token",
                  "max_age": 86400,
-                 "path": "/things",
+                 "path": "/",
                  "http_only": True}
 )
 
