@@ -16,7 +16,7 @@ login, auth_middleware = falcon_jwt.get_auth_objects(
 )
 
 
-cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=True)
+cors = CORS(allow_all_headers=True, allow_origins_list=['editor.trendi.guru', 'editor-dot-test-paper-doll.appspot.com'], allow_all_methods=True)
 
 api = falcon.API(middleware=[cors.middleware, auth_middleware])
 
