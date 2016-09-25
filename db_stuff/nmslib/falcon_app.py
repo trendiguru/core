@@ -110,21 +110,18 @@ def _get_config():
     return args
 
 
-def main():
-    api = falcon.API()
-    # api.add_route('/', ExampleResource())
+api = falcon.API()
+# api.add_route('/', ExampleResource())
 
-    user_input, config = _get_config()
-    col_name = user_input.col_name
-    cc = user_input.country_code
-    gender = user_input.gender
-    category = user_input.category
+user_input, config = _get_config()
+col_name = user_input.col_name
+cc = user_input.country_code
+gender = user_input.gender
+category = user_input.category
 
-    collection = '%s_%s_%s' % (col_name, cc, gender)
-    route = '/'+category
+collection = '%s_%s_%s' % (col_name, cc, gender)
+route = '/'+category
 
-    api.add_route(route, Search(collection, category)).run()
+api.add_route(route, Search(collection, category)).run()
 
 
-if __name__ == '__main__':
-    main()
