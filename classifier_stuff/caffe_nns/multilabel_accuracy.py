@@ -614,7 +614,7 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
         f.write(str(fn)+'\n')
         f.close()
 
-def get_netname(solverproto):
+def get_netname(proto):
     print('looking for netname')
     with open(solverproto,'r') as fp:
         l1 = fp.readline()
@@ -624,9 +624,19 @@ def get_netname(solverproto):
     if 'name' in l1:
         netname = l1[5:]
         print('netname:'+netname)
-    elif 'name' in l2:
+        return netname
+    if 'name' in l2:
         netname = l2[5:]
         print('netname:'+netname)
+        return netname
+    if 'test_net' or 'train_net' in l1:
+        fname = l1.split('"')[-2]
+        print('trying to find netname in file1 '+fname)
+        return get_netname(fname)
+    if 'test_net' or 'train_net' in l2:
+        fname = l2.split('"')[-2]
+        print('trying to find netname in file2 '+fname)
+        return get_netname(fname)
     else:
         netname = None
     return netname
