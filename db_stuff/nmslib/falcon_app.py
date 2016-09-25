@@ -110,7 +110,10 @@ class Search:
 #
 #     return args
 inputs = environ.get('NMSLIB_INPUTS')
-collection, category = re.split(r'/', inputs)
+user_inputs = re.split(r'/', inputs)
+
+collection = user_inputs[0]
+categories = user_inputs[1:]
 api = falcon.API()
 #     # api.add_route('/', ExampleResource())
 #
@@ -121,9 +124,10 @@ api = falcon.API()
 #     # category = user_input.category
 #     #
 # collection = '%s_%s_%s' % (col_name, cc, gender)
-route = '/'+category
-print('working')
-api.add_route(route, Search(collection, category))
+for category in categories:
+    print(category)
+    route = '/'+category
+    api.add_route(route, Search(collection, category))
 
 
 
