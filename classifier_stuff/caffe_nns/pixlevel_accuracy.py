@@ -147,7 +147,7 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
   #   # run net and take argmax for prediction
   #   net.forward()
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
-    open_html(htmlname,caffemodel,solverproto,classes,answer_dict,dir=dir)
+    open_html(htmlname,caffemodel,solverproto,classes,answer_dict)
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
