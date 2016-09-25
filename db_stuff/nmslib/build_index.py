@@ -15,7 +15,7 @@ def build_and_save(col_name, category):
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
 
-    all_items_in_category = db[col_name].find_and_update_many({'categories': category}, {'$unset': {'nmslib_index':1}})
+    all_items_in_category = db[col_name].find({'categories': category})
     t1 = time()
     for idx, item in enumerate(all_items_in_category):
         fp = item['fingerprint']
