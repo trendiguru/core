@@ -64,7 +64,7 @@ def fill_lookup_table(collections):
             p = find_free_port()
             process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/1 -w 2 --preload' \
                       % (p, collection, category)
-            pid = subprocess.Popen(process)
+            pid = subprocess.Popen(process, shell=True)
             lookup_table[collection][category] = {'port': p,
                                                   'pid': pid,
                                                   'index_version': 1}
