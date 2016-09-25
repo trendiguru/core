@@ -615,11 +615,12 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
         f.close()
 
 def get_netname(solverproto):
+    print('looking for netname')
     with open(solverproto,'r') as fp:
         l1 = fp.readline()
         l2 = fp.readline()
-   # print('line1 '+l1)
-   # print('line2 '+l2)
+    print('line1 '+l1)
+    print('line2 '+l2)
     if 'name' in l1:
         netname = l1[5:]
         print('netname:'+netname)
