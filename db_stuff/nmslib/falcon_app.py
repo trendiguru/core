@@ -99,7 +99,7 @@ def _get_config():
     parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
     parser.add_argument('-n', '--name', required=True, dest="col_name",
                         help='collection name - without gender or countycode')
-    parser.add_argument('-c', '--code', defualt='US', dest="country_code",
+    parser.add_argument('-c', '--code', default='US', dest="country_code",
                         help='country code - currently doing only US or DE')
     parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
                         help='specify which gender to index (Female or Male)')
