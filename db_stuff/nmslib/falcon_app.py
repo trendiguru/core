@@ -95,33 +95,36 @@ class Search:
 #         return self.application
 
 
-def _get_config():
-    parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
-    parser.add_argument('-n', '--name', required=True, dest="col_name",
-                        help='collection name - without gender or countycode')
-    parser.add_argument('-c', '--code', default='US', dest="country_code",
-                        help='country code - currently doing only US or DE')
-    parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
-                        help='specify which gender to index (Female or Male)')
-    parser.add_argument('-s', '--select', dest="category", required=True,
-                        help='which category to index')
-    args = parser.parse_args()
+# def _get_config():
+#     parser = argparse.ArgumentParser(description='"@@@ nmslib falcon @@@')
+#     parser.add_argument('-n', '--name', required=True, dest="col_name",
+#                         help='collection name - without gender or countycode')
+#     parser.add_argument('-c', '--code', default='US', dest="country_code",
+#                         help='country code - currently doing only US or DE')
+#     parser.add_argument('-g', '--gender', dest="gender", choices=['Female', 'Male'],
+#                         help='specify which gender to index (Female or Male)')
+#     parser.add_argument('-s', '--select', dest="category", required=True,
+#                         help='which category to index')
+#     args = parser.parse_args()
+#
+#     return args
 
-    return args
+def load(col_name, cc, gender, category):
+    def app():
+        api = falcon.API()
+        # api.add_route('/', ExampleResource())
 
+        # user_input, config = _get_config()
+        # col_name = user_input.col_name
+        # cc = user_input.country_code
+        # gender = user_input.gender
+        # category = user_input.category
+        #
+        collection = '%s_%s_%s' % (col_name, cc, gender)
+        route = '/'+category
 
-api = falcon.API()
-# api.add_route('/', ExampleResource())
+        api.add_route(route, Search(collection, category))
 
-user_input, config = _get_config()
-col_name = user_input.col_name
-cc = user_input.country_code
-gender = user_input.gender
-category = user_input.category
-
-collection = '%s_%s_%s' % (col_name, cc, gender)
-route = '/'+category
-
-api.add_route(route, Search(collection, category)).run()
+    return app
 
 
