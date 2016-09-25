@@ -74,35 +74,33 @@ def write_html(htmlname,results_dict):
 #    results_dict = {'iter':iter,'loss':loss,'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
     with open(htmlname,'a') as g:
         #write class accuracies
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('accuracy')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write('fw accuracy')
+        g.write('</td>\n')
         for i in range(len(results_dict['class_accuracy'])):
-            g.write('<tr>\n')
             g.write('<td>')
-            g.write('accuracy')
+            class_accuracy = results_dict['class_accuracy'][i]
+            g.write(str(round(class_accuracy,3)))
             g.write('</td>\n')
-            g.write('<td>')
-            g.write('fw accuracy')
-            g.write('</td>\n')
-            for i in range(len(p)):
-                g.write('<td>')
-                class_accuracy = results_dict['class_accuracy'][i]
-                g.write(str(round(class_accuracy,3)))
-                g.write('</td>\n')
-            g.write('</tr>\n<br>\n')
+        g.write('</tr>\n<br>\n')
         #write class iou
-        for i in range(len(results_dict['class_accuracy'])):
-            g.write('<tr>\n')
+        g.write('<tr>\n')
+        g.write('<td>')
+        g.write('iou')
+        g.write('</td>\n')
+        g.write('<td>')
+        g.write('fw iou')
+        g.write('</td>\n')
+        for i in range(len(results_dict['class_iou'])):
             g.write('<td>')
-            g.write('iou')
+            class_iou = results_dict['class_iou'][i]
+            g.write(str(round(class_iou,3)))
             g.write('</td>\n')
-            g.write('<td>')
-            g.write('fw iou')
-            g.write('</td>\n')
-            for i in range(len(p)):
-                g.write('<td>')
-                class_iou = results_dict['class_iou'][i]
-                g.write(str(round(class_iou,3)))
-                g.write('</td>\n')
-            g.write('</tr>\n<br>\n')
+        g.write('</tr>\n<br>\n')
 
 
 def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classes=None):
