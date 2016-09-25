@@ -1,7 +1,7 @@
 import falcon
 import argparse
 from jaweson import json, msgpack
-
+from os import environ
 import load_n_search
 
 
@@ -109,21 +109,21 @@ class Search:
 #     args = parser.parse_args()
 #
 #     return args
-
-def application(col_name, cc, gender, category):
-    api_tmp = falcon.API()
-    # api.add_route('/', ExampleResource())
-
-    # user_input, config = _get_config()
-    # col_name = user_input.col_name
-    # cc = user_input.country_code
-    # gender = user_input.gender
-    # category = user_input.category
-    #
-    collection = '%s_%s_%s' % (col_name, cc, gender)
-    route = '/'+category
-    print('working')
-    api_tmp.add_route(route, Search(collection, category))
+inputs = environ.get('NMSLIB_INPUTS')
+print(inputs)
+# api_tmp = falcon.API()
+#     # api.add_route('/', ExampleResource())
+#
+#     # user_input, config = _get_config()
+#     # col_name = user_input.col_name
+#     # cc = user_input.country_code
+#     # gender = user_input.gender
+#     # category = user_input.category
+#     #
+# collection = '%s_%s_%s' % (col_name, cc, gender)
+# route = '/'+category
+# print('working')
+# api_tmp.add_route(route, Search(collection, category))
 
 
 
