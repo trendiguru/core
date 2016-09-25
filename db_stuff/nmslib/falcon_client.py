@@ -1,7 +1,7 @@
 from jaweson import msgpack
 import requests
 
-SEARCH_SERVER = "http://extremeli-evolution-dev-2/test" # use the name of the server running the gunicorn
+SEARCH_SERVER = "http://extremeli-evolution-dev-2:8080/test" # use the name of the server running the gunicorn
 
 
 def test_top_nmslib(fp, k):
