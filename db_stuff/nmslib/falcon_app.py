@@ -128,7 +128,7 @@ api = falcon.API()
 # for category in categories:
 #     print(category)
 route = '/'+categories
-api.add_route(route, Search(collection, categories))
+api.add_route(route, Search(collection, categories,index_version))
 
 
 
