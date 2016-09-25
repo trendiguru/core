@@ -116,11 +116,14 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0):
+def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0, savepics=True):
 #to do accuracy we prob dont need to load solver
     caffemodel_base = os.path.basename(caffemodel)
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
+    if savepics:
+        picsdir = os.path.join(dir,'pics')
+        Utils.ensure_dir(picsdir)
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
@@ -136,11 +139,11 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
         solver = caffe.SGDSolver(solverproto)
         solver.net.copy_from(caffemodel)
         print('using net defined by {} and {} '.format(solverproto,caffemodel))
-        answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+        answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname,savepics=True)
 
     elif(testproto is not None):  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel, caffe.TEST)
-        answer_dict = jrinfer.do_seg_tests(net, iter, False, val, layer=layer, gt='label',outfilename=detailed_outputname)
+        answer_dict = jrinfer.do_seg_tests(net, iter, False, val, layer=layer, gt='label',outfilename=detailed_outputname,savepics=True)
 
 
 
@@ -170,6 +173,7 @@ if __name__ =="__main__":
     parser.add_argument('--n_tests', help='number of examples to test',default=200)
     parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
     parser.add_argument('--iter', help='iter',default=0)
+    parser.add_argument('--savepics', help='iter',default=True)
 
     args = parser.parse_args()
     print(args)
@@ -179,7 +183,7 @@ if __name__ =="__main__":
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
-    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter))
+    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
 
 
 
