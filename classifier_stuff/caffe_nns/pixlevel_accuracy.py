@@ -119,9 +119,9 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.close()
 
 def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.ultimate_21):
-
 #to do accuracy we prob dont need to load solver
-    dir = 'pixlevel_results-'+caffemodel.replace('.caffemodel','')
+    caffemodel_base = os.path.basename(caffemodel)
+    dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]
@@ -133,11 +133,9 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
         caffe.set_device(int(args.gpu))
     else:
         caffe.set_mode_cpu()
-
     print('using net defined by {} and {} '.format(solverproto,caffemodel))
-
     val = range(n_tests)
-    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
+#    answer_dict = jrinfer.seg_tests(solver, False, val, layer=layer,outfilename=detailed_outputname)
 #try using  do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt')
 #without having to get sgdsolver
   # prototxt  = 'DeconvNet_inference_deploy.prototxt'
@@ -149,8 +147,6 @@ def do_pixlevel_accuracy(caffemodel,solverproto,n_tests,layer,classes=constants.
   #   # run net and take argmax for prediction
   #   net.forward()
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
-
-
     open_html(htmlname,caffemodel,solverproto,classes,answer_dict,dir=dir)
     write_html(htmlname,answer_dict)
     close_html(htmlname)
