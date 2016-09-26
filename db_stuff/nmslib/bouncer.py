@@ -82,7 +82,9 @@ def rebuild_index(collection_name, category):
     process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/%d -w 2 --preload' \
               % (p, collection_name, category, new_version)
     pid_new = subprocess.Popen(process)
+    print(1)
     pid_old = lookup_table[collection_name][category]['pid']
+    print(2)
     lookup_table[collection_name][category] = {'port': p,
                                                'pid': pid_new,
                                                'index_version': new_version}
