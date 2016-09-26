@@ -192,7 +192,7 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
+def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=constants.ultimate_21):
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
@@ -204,7 +204,13 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
         if save_dir:
             Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
-            im.save(os.path.join(save_dir, str(idx) + '.png'))
+            savename = os.path.join(save_dir, str(idx) + '.png')
+            im.save(savename)
+            orig_image = net.blobs['data'].data[0]
+            print('orig image size:'+str(orig_image.shape))
+            orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
+            orig_image.save(orig_savename)
+            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
