@@ -198,7 +198,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     loss = 0
     for idx in dataset:
         net.forward()
-        print('idx:'+str(idx)+' gt shape:'+str(net.blobs[gt].shape))
+        print('idx:'+str(idx))
         print('gt data shape:'+str(net.blobs[gt].data.shape))
         print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
         hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
