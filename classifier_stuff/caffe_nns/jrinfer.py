@@ -210,8 +210,9 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             orig_image = net.blobs['data'].data[0]
             gt =         net.blobs['label'].data[0]
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
+            gt=np.reshape(gt,[gt.shape[1],gt.shape[2]])
             orig_image = orig_image.transpose((1,2,0))
-            print('orig image size:'+str(orig_image.shape))
+            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image)
             gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
