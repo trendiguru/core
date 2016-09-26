@@ -103,14 +103,19 @@ class Selector:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print('got POST')
         ret = {"success": False}
+        print 0
         try:
             data = msgpack.loads(req.stream.read())
+            print 1
             collection = data.get("collection")
+            print 2
             category = data.get("category")
+            print 3
             fp = data.get("fp")
+            print 4
             port = lookup_table[collection][category]['port']
+            print(port)
             ret = nmslib_find_top_k(fp, 1000, port, category)
         except Exception as e:
             ret["error"] = str(e)
@@ -119,7 +124,6 @@ class Selector:
         resp.status = falcon.HTTP_200
 
     def on_put(self, req, resp):
-        print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
