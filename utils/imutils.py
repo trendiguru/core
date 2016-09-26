@@ -899,6 +899,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
+    if mask2:
+        combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
+        mask2_arr = Utils.get_cv2_img_array(mask2,cv2.IMREAD_GRAYSCALE)
     combined[:,0:w_colorbar]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w]=dest
     if original_image is not None:
@@ -930,6 +933,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 #                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
         #    cv2.imshow('original',orig_arr)
+            elif height != h or width != w:
+                orig_arr = resize_keep_aspect(orig_arr,output_size=(h,w))
+                logging.debug('orig {}x{} mask {}x{}'.format(height,width,h,w))
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
             logging.debug('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
