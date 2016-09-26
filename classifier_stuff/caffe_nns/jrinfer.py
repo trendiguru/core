@@ -208,7 +208,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
 #            print('label size:'+str(im.shape))
             im.save(savename)
             orig_image = net.blobs['data'].data[0]
-            gt =         net.blobs['data'].data[1]
+            gt =         net.blobs['label'].data[0]
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             orig_image = orig_image.transpose((1,2,0))
             print('orig image size:'+str(orig_image.shape))
