@@ -191,8 +191,6 @@ class JrPixlevel(caffe.Layer):
             logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
 
 
-
-
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
@@ -312,6 +310,7 @@ class JrPixlevel(caffe.Layer):
                 break
         im = Image.open(filename)
         if self.new_size:
+            logging.debug('resizing from {} to {}'.format(im.shape,self.new_size))
             im = im.resize(self.new_size,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
@@ -328,15 +327,15 @@ class JrPixlevel(caffe.Layer):
 #        if self.new_size:
 #            im = im.resize(self.new_size,Image.ANTIALIAS)
         label_in_ = np.array(im, dtype=np.uint8)
-        if self.kaggle is not False:
-            print('kagle image, moving 255 -> 1')
-            label_in_[label_in_==255] = 1
+ #       if self.kaggle is not False:
+ #           print('kagle image, moving 255 -> 1')
+ #           label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
+        logging.debug('input img shape {} mask {}'.format(in_.shape,label_in_.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
-
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
@@ -344,7 +343,6 @@ class JrPixlevel(caffe.Layer):
             logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
-
         return out1,out2
 
 
