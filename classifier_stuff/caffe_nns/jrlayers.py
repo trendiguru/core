@@ -338,6 +338,9 @@ class JrPixlevel(caffe.Layer):
         logging.debug('jrlayers: input img shape {} mask {}'.format(in_.shape,label_in_.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+        #out1 -> image, out2->gt (mask)
+        logging.debug('jrlayers: output img shape {} mask {}'.format(out1.shape,out2.shape))
+
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
