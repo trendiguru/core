@@ -333,7 +333,7 @@ class JrPixlevel(caffe.Layer):
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
-        logging.debug('input img shape {} mask {}'.format(in_.shape,label_in_.shape))
+        logging.debug('jrlayers: input img shape {} mask {}'.format(in_.shape,label_in_.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
         out1 = out1[:,:,::-1]   #RGB -> BGR
