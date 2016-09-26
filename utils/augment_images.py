@@ -284,7 +284,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
    # logging.debug('db C')
 
 #    logging.debug('db 1')
-    width=img_arr.shape[1]
 
     angle = 0
     offset_x = 0
