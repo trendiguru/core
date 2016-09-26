@@ -348,6 +348,7 @@ class JrPixlevel(caffe.Layer):
             logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
+        logging.debug('jrlayers: final output img shape {} type {} mask {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
         return out1,out2
 
 
