@@ -310,6 +310,7 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
             else:
                 break
+                ####todo - check that the image is coming in correctly wrt color etc
         im = Image.open(filename)
         if self.new_size:
             im = im.resize(self.new_size,Image.ANTIALIAS)
