@@ -90,7 +90,10 @@ def rebuild_index(collection_name, category):
 
     process_2_terminate = psutil.Process(pid_old)
     process_2_terminate.terminate()
+    index_name = collection_name + '_' + category + str(current_index_version) + '.index'
+    os.remove(index_name)
     print('yufi tufi')
+
 
 class Selector:
     def on_get(self, resp):
