@@ -18,17 +18,15 @@ import requests
 import psutil
 import json
 
-SERVER = "http://0.0.0.0:"  # use the name of the server running the gunicorn
+SERVER = "http://extremeli-evolution-dev-2:"  # use the name of the server running the gunicorn
 lookup_table = {}
 
 
 def nmslib_find_top_k(fp, k, port, category):
     data = msgpack.dumps({"fp": fp,
                           "k": k})
-    print 11
     category_server = SERVER+port+'/'+category
     resp = requests.post(category_server, data=data)
-    print 12
     return msgpack.loads(resp.content)
 
 
@@ -106,16 +104,11 @@ class Selector:
 
     def on_post(self, req, resp):
         ret = {"success": False}
-        print 0
         try:
             data = msgpack.loads(req.stream.read())
-            print 1
             collection = data.get("collection")
-            print 2
             category = data.get("category")
-            print 3
             fp = data.get("fp")
-            print 4
             port = lookup_table[collection][category]['port']
             print(port)
             ret = nmslib_find_top_k(fp, 1000, port, category)
