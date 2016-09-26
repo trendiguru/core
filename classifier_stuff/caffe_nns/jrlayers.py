@@ -172,6 +172,7 @@ class JrPixlevel(caffe.Layer):
         if self.batch_size == 1:
             self.data, self.label = self.load_image_and_mask()
         #add extra batch dimension
+            logging.debug('batchsize 1 datasize {} labelsize {}  before reshape'.format(self.data.shape,self.label.shape))
             top[0].reshape(1, *self.data.shape)
             top[1].reshape(1, *self.label.shape)
             logging.debug('batchsize 1 datasize {} labelsize {} '.format(self.data.shape,self.label.shape))
@@ -186,6 +187,7 @@ class JrPixlevel(caffe.Layer):
             self.data = all_data
             self.label = all_labels
             #no extra dimension needed
+            logging.debug('batchsize {} datasize {} labelsize {} before reshape'.format(self.batch_size,self.data.shape,self.label.shape))
             top[0].reshape(*self.data.shape)
             top[1].reshape(*self.label.shape)
             logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
