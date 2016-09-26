@@ -909,8 +909,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             maxheight=600
             minheight=300
             desired_height=500
-     #       if height>maxheight:  # or height < minheight:
-            if (1):  # or height < minheight:
+            if height>maxheight:  # or height < minheight:
+    #        if (1):  # or height < minheight:
                 logging.debug('(hxw {}x{}) resizing'.format(height,width))
 #                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
                 newheight=desired_height
