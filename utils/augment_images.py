@@ -258,7 +258,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         img_arr = cv2.imread(img_filename_or_nparray)
   #      logging.debug('db B')
     else:
-        img_arr = img_filename_or_nparraymask_filename_or_nparray
+        img_arr = img_filename_or_nparray
     if img_arr is None:
         logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
