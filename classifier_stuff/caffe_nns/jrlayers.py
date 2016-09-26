@@ -310,7 +310,7 @@ class JrPixlevel(caffe.Layer):
                 break
         im = Image.open(filename)
         if self.new_size:
-            logging.debug('resizing from {} to {}'.format(im.size,self.new_size))
+            logging.debug('jrlayers - new size: resizing from {} to {}'.format(im.size,self.new_size))
             im = im.resize(self.new_size,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:

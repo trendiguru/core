@@ -199,7 +199,12 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     for idx in dataset:
         net.forward()
         print('idx:'+str(idx))
-        print('gt data shape:'+str(net.blobs[gt].data.shape))
+        print('gt data type '+str(type(net.blobs[gt].data)))
+        try:
+            print('gt data shape:'+str(net.blobs[gt].data.shape))
+        except:
+            print('unhashable...')
+            continue
         print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
         hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
                                 net.blobs[layer].data[0].argmax(0).flatten(),
