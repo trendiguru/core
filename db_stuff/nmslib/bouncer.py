@@ -78,7 +78,7 @@ def rebuild_index(collection_name, category):
     else:
         new_version = 1
     p = find_free_port()
-    build_index.build_n_save(collection_name,category,new_version)
+    build_index.build_n_save(collection_name,category,str(new_version))
     process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/%d -w 2 --preload' \
               % (p, collection_name, category, new_version)
     pid_new = subprocess.Popen(process)
