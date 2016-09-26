@@ -25,7 +25,7 @@ lookup_table = {}
 def nmslib_find_top_k(fp, k, port, category):
     data = msgpack.dumps({"fp": fp,
                           "k": k})
-    category_server = SERVER+port+'/'+category
+    category_server = SERVER+str(port)+'/'+category
     resp = requests.post(category_server, data=data)
     return msgpack.loads(resp.content)
 
