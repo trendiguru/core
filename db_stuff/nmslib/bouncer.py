@@ -86,10 +86,11 @@ def rebuild_index(collection_name, category):
     lookup_table[collection_name][category] = {'port': p,
                                                'pid': pid_new,
                                                'index_version': new_version}
-
+    print(pid_new)
+    print(pid_old)
     process_2_terminate = psutil.Process(pid_old)
     process_2_terminate.terminate()
-
+    print('yufi tufi')
 
 class Selector:
     def on_get(self, resp):
