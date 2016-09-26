@@ -25,8 +25,10 @@ lookup_table = {}
 def nmslib_find_top_k(fp, k, port, category):
     data = msgpack.dumps({"fp": fp,
                           "k": k})
+    print 11
     category_server = SERVER+port+'/'+category
     resp = requests.post(category_server, data=data)
+    print 12
     return msgpack.loads(resp.content)
 
 
@@ -117,6 +119,7 @@ class Selector:
             port = lookup_table[collection][category]['port']
             print(port)
             ret = nmslib_find_top_k(fp, 1000, port, category)
+            print ('done')
         except Exception as e:
             ret["error"] = str(e)
         resp.data = msgpack.dumps(ret)
