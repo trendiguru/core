@@ -824,7 +824,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -909,9 +909,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             maxheight=600
             minheight=300
             desired_height=500
-            if height>maxheight:  # or height < minheight:
+            if resize:  # or height < minheight:
     #        if (1):  # or height < minheight:
-                logging.debug('(hxw {}x{}) resizing'.format(height,width))
+                desired_height=resize[0]
+                logging.debug('(hxw {}x{}) resizing to {} by '.format(height,width,desired_height))
 #                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
                 newheight=desired_height
                 factor = float(newheight)/height
