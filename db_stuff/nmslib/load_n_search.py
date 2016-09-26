@@ -2,17 +2,17 @@ import nmslib_vector
 from trendi.constants import db
 from time import time
 from os.path import isfile
-from build_index import build_and_save
+from build_index import build_n_save
 
 
-def load_index(col_name, category, reindex=False):
+def load_index(col_name, category, index_version, reindex=False):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
-    index_name = col_name + '_' + category + '.index'
+    index_name = col_name + '_' + category +index_version+ '.index'
     file_exists = isfile(index_name)
     if reindex or not file_exists:
-        build_and_save(col_name, category)
+        build_n_save(col_name, category, index_version)
 
     index = nmslib_vector.init(
         space_type,
@@ -20,8 +20,8 @@ def load_index(col_name, category, reindex=False):
         method_name,
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
-
-    all_items_in_category = db[col_name].find({'categories': category, 'nmslib_index': {'$exists': 1}})
+    nmslib_index = 'nmslib_index'+index_version
+    all_items_in_category = db[col_name].find({'categories': category, nmslib_index: {'$exists': 1}})
     t1 = time()
     for idx, item in enumerate(all_items_in_category):
         fp = item['fingerprint']
@@ -49,7 +49,7 @@ def load_index(col_name, category, reindex=False):
     return index, nmslib_vector
 
 
-def find_to_k(query_fp, k, nmslib_vector, category_index ):
+def find_to_k(query_fp, k, nmslib_vector, category_index):
     t1 = time()
     if type(query_fp) == list:
         color = query_fp

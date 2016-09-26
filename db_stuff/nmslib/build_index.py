@@ -3,11 +3,11 @@ from trendi.constants import db
 from time import time
 
 
-def build_and_save(col_name, category):
+def build_n_save(col_name, category, index_version):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
-    index_name = col_name + '_' + category + '.index'
+    index_name = col_name + '_' + category + index_version+ '.index'
     index = nmslib_vector.init(
         space_type,
         space_param,
@@ -15,6 +15,7 @@ def build_and_save(col_name, category):
         nmslib_vector.DataType.VECTOR,
         nmslib_vector.DistType.FLOAT)
 
+    nmslib_index = 'nmslib_index' + index_version
     all_items_in_category = db[col_name].find({'categories': category})
     t1 = time()
     for idx, item in enumerate(all_items_in_category):
@@ -28,7 +29,7 @@ def build_and_save(col_name, category):
             continue
         nmslib_vector.addDataPoint(index, idx, color)
         item_id = item['_id']
-        db[col_name].update_one({'_id':item_id}, {'$set':{'nmslib_index': idx}})
+        db[col_name].update_one({'_id': item_id}, {'$set': {nmslib_index: idx}})
     t2 = time()
     print('addDataPoints took %s secs' % str(t2-t1))
     index_param = ['NN=17', 'initIndexAttempts=3', 'indexThreadQty=32']
