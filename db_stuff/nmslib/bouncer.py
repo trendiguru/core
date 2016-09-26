@@ -17,6 +17,7 @@ from jaweson import msgpack
 import requests
 import psutil
 import json
+import os
 
 SERVER = "http://extremeli-evolution-dev-2:"  # use the name of the server running the gunicorn
 lookup_table = {}
@@ -64,7 +65,7 @@ def fill_lookup_table(collections):
             p = find_free_port()
             process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/1 -w 2 --preload' \
                       % (p, collection, category)
-            pid = subprocess.Popen(process, shell=True)
+            pid = subprocess.Popen(process, shell=True,preexec_fn=os.setsid).pid
             lookup_table[collection][category] = {'port': p,
                                                   'pid': pid,
                                                   'index_version': 1}
@@ -79,18 +80,14 @@ def rebuild_index(collection_name, category):
         new_version = 1
     p = find_free_port()
     build_index.build_n_save(collection_name,category,str(new_version))
-    print 0
     process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/%d -w 2 --preload' \
               % (p, collection_name, category, new_version)
-    pid_new = subprocess.Popen(process, shell=True)
-    print(1)
+    pid_new = subprocess.Popen(process, shell=True, preexec_fn=os.setsid).pid
     pid_old = lookup_table[collection_name][category]['pid']
-    print(2)
     lookup_table[collection_name][category] = {'port': p,
                                                'pid': pid_new,
                                                'index_version': new_version}
-    print(pid_new)
-    print(pid_old)
+
     process_2_terminate = psutil.Process(pid_old)
     process_2_terminate.terminate()
     print('yufi tufi')
