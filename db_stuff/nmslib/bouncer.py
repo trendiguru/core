@@ -18,7 +18,7 @@ import requests
 import psutil
 import json
 
-SERVER = "http://extremeli-evolution-dev-2:"  # use the name of the server running the gunicorn
+SERVER = "http://0.0.0.0:"  # use the name of the server running the gunicorn
 lookup_table = {}
 
 
@@ -134,7 +134,7 @@ class Selector:
         resp.status = falcon.HTTP_200
 
 
-fill_lookup_table(['amazon_US_Male'])
+fill_lookup_table(['recruit_Male'])
 api = falcon.API()
 api.add_route('/bouncer', Selector())
 
