@@ -952,10 +952,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
             combined_h,combined_w = combined.shape[0:2]
             print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
-            if combined_h<minheight:
-                factor = float(minheight)/combined_h
-                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
-
+#            if combined_h<minheight:
+#                factor = float(minheight)/combined_h
+#                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
         else:
             logging.warning('could not get image '+original_image)
  #   cv2.imshow('map',dest)
