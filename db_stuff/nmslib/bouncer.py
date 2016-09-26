@@ -81,7 +81,7 @@ def rebuild_index(collection_name, category):
     build_index.build_n_save(collection_name,category,str(new_version))
     process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/%d -w 2 --preload' \
               % (p, collection_name, category, new_version)
-    pid_new = subprocess.Popen(process)
+    pid_new = subprocess.Popen(process, shell=True)
     print(1)
     pid_old = lookup_table[collection_name][category]['pid']
     print(2)
