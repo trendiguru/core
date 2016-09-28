@@ -431,7 +431,11 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-    if crop_size and (crop_dx or crop_dy):
+    if crop_size:
+        if crop_dx is None:
+            crop_dx = 0
+        if crop_dy is None:
+            crop_dy = 0
         left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
         right = int(round(left + crop_size[1]))
         top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
