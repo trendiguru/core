@@ -75,7 +75,7 @@ class JrPixlevel(caffe.Layer):
 
 
 #        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-        logging.debug('imgs_and_labelsfile {} labelfile {} imagefile {} labeldir {} imagedir {} '.format(self.images_and_labels_file,self.labelsfile,self.imagesfile,self.labels_dir,self.images_dir))
+        logging.debug('imgs_and_labelsfile {}'.format(self.images_and_labels_file))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
