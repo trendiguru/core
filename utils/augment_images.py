@@ -304,7 +304,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 
 
     if crop_size:
-        logging.debug('crop size {}'.format(crop))
+        logging.debug('crop size {}'.format(crop_size))
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
