@@ -1,8 +1,8 @@
 net: "ResNet-50-train_test.prototxt"
 #train_net: "ResNet-50-train.prototxt"
 #test_net: "ResNet-50-test.prototxt"
-test_iter: 2
-test_interval: 5000 
+test_iter: 500
+test_interval: 2
 display: 20
 average_loss: 20
 weight_decay: 0.0005
