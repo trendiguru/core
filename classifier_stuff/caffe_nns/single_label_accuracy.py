@@ -38,7 +38,7 @@ def test_confmat():
     print('confmat: {}'.format(confmat))
 
 
-def check_accuracy(net,n_tests=200,label_layer='label',estimate_layer='score',n_classes):
+def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
         net.forward()
@@ -58,12 +58,14 @@ def check_accuracy(net,n_tests=200,label_layer='label',estimate_layer='score',n_
             print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_classes=21,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
+    n_classes = len(classlabels)
+    print('nclasses {} labels {}'.format(n_classes,classlabels))
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    net = caffe.Net(testproto,caffemodel, caffe.TEST)
+    net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
     netname = None
@@ -79,7 +81,7 @@ def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_c
     htmlname=dir+'.html'
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    confmat = check_accuracy(net, n_tests=n_tests,outlayer=outlayer,n_classes=n_classes)
+    confmat = check_accuracy(net,n_classes, n_tests=n_tests,outlayer=outlayer,n_classes=n_classes)
     write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
 
 
@@ -238,6 +240,7 @@ if __name__ =="__main__":
     parser.add_argument('--output_layer_name', help='output layer name',default='prob')
     parser.add_argument('--n_tests', help='number of examples to test',default=1000)
     parser.add_argument('--n_classes', help='number of classes',default=21)
+    parser.add_argument('--classlabels', help='class labels')
 
     args = parser.parse_args()
     print(args)
@@ -246,7 +249,15 @@ if __name__ =="__main__":
 #    if args.output_layer_name is not None:
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
-    single_label_acc(args.caffemodel,args.testproto,outlayer=outlayer,n_tests=n_tests,gpu=gpu)
+    n_classes = int(args.n_classes)
+    classlabels = []
+    if args.classlabels == None:
+        for i in range(n_classes):
+            classlabels.append('class '+str(i))
+    else:
+        classlabels = args.classlabels
+    print('classlabels:'+str(classlabels))
+    single_label_acc(args.caffemodel,args.testproto,outlayer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
 
 
 
