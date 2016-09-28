@@ -7,8 +7,8 @@ display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 20
-snapshot: 500
+iter_size: 22
+snapshot: 31
 snapshot_prefix: "snapshot/res101_binary_dress"
 test_initialization: false
 solver_mode : GPU
