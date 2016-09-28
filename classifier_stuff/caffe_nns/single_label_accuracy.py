@@ -58,7 +58,7 @@ def check_accuracy(net,n_tests=200,label_layer='label',estimate_layer='score',n_
             print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_classes=21):
+def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_classes=21,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     caffe.set_mode_gpu()
@@ -66,6 +66,7 @@ def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_c
     net = caffe.Net(testproto,caffemodel, caffe.TEST)
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
+    netname = None
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
         dir = 'single_label_results-'+netname+'_'+model_base.replace('.caffemodel','')
@@ -75,10 +76,11 @@ def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,n_c
     dir = dir.replace(' ','')  #remove spaces
     dir = dir.replace('\n','')  #remove newline
     dir = dir.replace('\r','')  #remove return
+    htmlname=dir+'.html'
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     confmat = check_accuracy(net, n_tests=n_tests,outlayer=outlayer,n_classes=n_classes)
-    write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
+    write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
 
 
 def multilabel_infer_one(url):
