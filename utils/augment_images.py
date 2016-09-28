@@ -277,8 +277,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
 #        logging.debug('mask shape:'+str(mask_arr.shape))
-        if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
-            print('WARNING shape mismatch in augment images, forcing reshape!')
 
 
    # logging.debug('db C')
@@ -305,6 +303,12 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
             x_room = 0
             y_room = 0
+        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
+            print('WARNING shape mismatch with crop in augment images, forcing reshape!')
+
+    #check that mask size and img size are equal
+    elif mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
+        print('WARNING shape mismatch (no crop) in augment images, forcing reshape!')
 
     eps = 0.1
 
