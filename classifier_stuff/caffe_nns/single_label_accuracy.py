@@ -240,7 +240,7 @@ if __name__ =="__main__":
     parser.add_argument('--output_layer_name', help='output layer name',default='prob')
     parser.add_argument('--n_tests', help='number of examples to test',default=1000)
     parser.add_argument('--n_classes', help='number of classes',default=21)
-    parser.add_argument('--classlabels', help='class labels')
+    parser.add_argument('--classlabels', help='class labels (specify a list from trendi.constants)')
 
     args = parser.parse_args()
     print(args)
@@ -255,7 +255,7 @@ if __name__ =="__main__":
         for i in range(n_classes):
             classlabels.append('class '+str(i))
     else:
-        classlabels = args.classlabels
+        classlabels = constants.classlabels
     print('classlabels:'+str(classlabels))
     single_label_acc(args.caffemodel,args.testproto,outlayer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
 
