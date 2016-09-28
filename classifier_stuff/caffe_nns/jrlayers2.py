@@ -303,11 +303,11 @@ class JrPixlevel(caffe.Layer):
                 break
                 ####todo - check that the image is coming in correctly wrt color etc
         im = Image.open(filename)
-        im = im[:,:,::-1]   #RGB -> BGR
 
         if self.resize:
             im = im.resize(self.augment_resize,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
+        in_ = in_[:,:,::-1]   #RGB -> BGR
         if in_ is None:
             logging.warning('could not get image '+filename)
             return None
@@ -353,6 +353,7 @@ class JrPixlevel(caffe.Layer):
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
 
+#        out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
         if len(out2.shape) == 3:
