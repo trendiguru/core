@@ -1,14 +1,14 @@
 net: "ResNet-50-train_test.prototxt"
 #train_net: "ResNet-50-train.prototxt"
 #test_net: "ResNet-50-test.prototxt"
-test_iter: 500
-test_interval: 2
+test_iter: 1000
+test_interval: 1000
 display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
-snapshot: 10000
+snapshot: 1000
 snapshot_prefix: "snapshot/res50_binary_dress"
 test_initialization: false
 solver_mode : GPU
