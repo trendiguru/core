@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import random
+import string
 
 from trendi.utils import augment_images
 
@@ -52,6 +53,7 @@ class JrPixlevel(caffe.Layer):
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
         self.kaggle = params.get('kaggle',False)  #######Not implemented, batchsize = 1
         self.resize = params.get('resize',False)
+        self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',5)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
@@ -68,14 +70,14 @@ class JrPixlevel(caffe.Layer):
 
 
         print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size)))
-        print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
-        print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('imfile {} mean {}  randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        print('seed {} resize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
 
 
 #        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-        logging.debug('imgs_and_labelsfile {} labelfile {} imagefile {} labeldir {} imagedir {} '.format(self.images_and_labels_file,self.labelsfile,self.imagesfile,self.labels_dir,self.images_dir))
+        logging.debug('imgs_and_labelsfile {}'.format(self.images_and_labels_file))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -327,8 +329,26 @@ class JrPixlevel(caffe.Layer):
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
+#        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
 
-        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+        out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
+            gaussian_or_uniform_distributions=self.augment_distribution,
+            max_angle = self.augment_max_angle,
+            max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+            max_scale=self.augment_max_scale,
+            max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+            max_blur=self.augment_max_blur,
+            do_mirror_lr=self.augment_do_mirror_lr,
+            do_mirror_ud=self.augment_do_mirror_ud,
+            crop_size=self.augment_crop_size,
+            show_visual_output=self.augment_show_visual_output)
+
+        if self.save_visual_output:
+            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+            name = "".join(lst)
+            cv2.imwrite(name+'.jpg',out1)
+            maskname = name+'_mask.png'
+            cv2.imwrite(maskname,out2)
 
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
