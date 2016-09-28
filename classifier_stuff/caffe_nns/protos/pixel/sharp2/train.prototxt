@@ -33,8 +33,8 @@ layer {
 layer {
   name: "scale1"
   type: "Scale"
-  bottom: "data"
-  top: "data"
+  bottom: "bn1"
+  top: "bn1"
   scale_param {
     bias_term: true
   }
@@ -42,7 +42,7 @@ layer {
 layer {
   name: "conv1_1"
   type: "Convolution"
-  bottom: "data"
+  bottom: "bn1"
   top: "conv1_1"
   param {
     lr_mult: 1
