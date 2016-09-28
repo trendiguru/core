@@ -371,6 +371,12 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
       #  logging.debug('doing mask augmentation')
         mask_arr =do_xform(mask_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
         mask_arr = multichannel_to_mask(mask_arr)
+        if save_visual_output:
+            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+            name = "".join(lst)
+            cv2.imwrite(name+'.jpg',img_arr)
+            maskname = name+'_mask.jpg'
+            cv2.imwrite(maskname+'.png',mask_arr)
         return img_arr,mask_arr
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
