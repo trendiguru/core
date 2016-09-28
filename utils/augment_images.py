@@ -281,6 +281,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
             print('WARNING shape mismatch (no crop) in augment images, forcing reshape - imgshape {} maskshape {}'.format(img_arr.shape,mask_arr.shape))
 
+        logging.debug('augment input:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
+
 #        logging.debug('mask shape:'+str(mask_arr.shape))
 
 
@@ -384,7 +386,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             cv2.imwrite(name+'.jpg',img_arr)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,mask_arr)
-        logging.debug('augment:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
+        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
