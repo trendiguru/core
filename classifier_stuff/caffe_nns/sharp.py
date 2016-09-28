@@ -1298,7 +1298,7 @@ if __name__ == "__main__":
 
   #  estimate_mem('val.prototxt')
 
-
+    print('starting to generate net')
 #    proto = vgg16('thedb')
 #    proto = unet('thedb')
     proto = sharp2('thedb',stage='train')
