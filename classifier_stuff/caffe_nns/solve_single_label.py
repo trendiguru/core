@@ -76,7 +76,7 @@ for _ in range(100000):
         accuracy_avg[i] = accuracy
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter
-        print('iter '+str(tot_iters)+' loss:'+str(loss)+' acc:'+str(accuracy))
+        print('step '+str(tot_iters)+' loss:'+str(loss)+' acc:'+str(accuracy))
     averaged_loss=sum(loss_avg)/len(loss_avg)
     averaged_acc=sum(accuracy_avg)/len(accuracy_avg)
     print('avg loss over last {} steps is {}, acc {}'.format(n_iter*steps_per_iter,averaged_loss,accuracy_avg))

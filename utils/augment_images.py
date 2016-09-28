@@ -277,12 +277,13 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
 #        logging.debug('mask shape:'+str(mask_arr.shape))
+        if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
+            print('WARNING shape mismatch in augment images, forcing reshape!')
 
 
    # logging.debug('db C')
 
 #    logging.debug('db 1')
-    width=img_arr.shape[1]
 
     angle = 0
     offset_x = 0

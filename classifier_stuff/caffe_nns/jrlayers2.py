@@ -51,6 +51,7 @@ class JrPixlevel(caffe.Layer):
         self.seed = params.get('seed', 1337)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
         self.kaggle = params.get('kaggle',False)  #######Not implemented, batchsize = 1
+        self.resize = params.get('resize',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',5)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
@@ -65,18 +66,6 @@ class JrPixlevel(caffe.Layer):
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
 
-# begin vestigial code
-        self.new_size = params.get('new_size',None)
-        self.images_dir = params.get('images_dir',None)
-        self.labels_dir = params.get('labels_dir',self.images_dir)
-        self.imagesfile = params.get('imagesfile',None)
-        self.labelsfile = params.get('labelsfile',None)
-        #if there is no labelsfile specified then rename imagefiles to make labelfile names
-        self.labelfile_suffix = params.get('labelfile_suffix','.png')
-        self.imagefile_suffix = params.get('labelfile_suffix','.jpg')
-        if self.new_size == None:
-            self.new_size = self.augment_crop_size
-# end vestigial code
 
         print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size)))
         print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
@@ -310,9 +299,10 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
             else:
                 break
+                ####todo - check that the image is coming in correctly wrt color etc
         im = Image.open(filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
+        if self.resize:
+            im = im.resize(self.augment_resize,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
             logging.warning('could not get image '+filename)
@@ -322,12 +312,15 @@ class JrPixlevel(caffe.Layer):
         The leading singleton dimension is required by the loss.
         """
         im = Image.open(label_filename)
+        if self.resize:
+            im = im.resize(self.augment_resize,Image.ANTIALIAS)
         if im is None:
             print(' COULD NOT LOAD FILE '+label_filename)
             logging.warning('couldnt load file '+label_filename)
 #        if self.new_size:
 #            im = im.resize(self.new_size,Image.ANTIALIAS)
         label_in_ = np.array(im, dtype=np.uint8)
+
         if self.kaggle is not False:
             print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
