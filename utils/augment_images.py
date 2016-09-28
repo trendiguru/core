@@ -370,7 +370,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         flip_lr = np.random.randint(2)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
-
+    logging.debug('w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
+        width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
     img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
 #    if show_visual_output:
 #        logging.debug('img_arr shape:'+str(img_arr.shape))
