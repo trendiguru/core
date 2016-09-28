@@ -382,6 +382,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             cv2.imwrite(name+'.jpg',img_arr)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,mask_arr)
+        logging.debug('augment:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
