@@ -52,6 +52,7 @@ class JrPixlevel(caffe.Layer):
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
         self.kaggle = params.get('kaggle',False)  #######Not implemented, batchsize = 1
         self.resize = params.get('resize',False)
+        self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',5)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
@@ -327,8 +328,21 @@ class JrPixlevel(caffe.Layer):
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
+#        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
 
-        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+        out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
+            gaussian_or_uniform_distributions=self.augment_distribution,
+            max_angle = self.augment_max_angle,
+            max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+            max_scale=self.augment_max_scale,
+            max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+            max_blur=self.augment_max_blur,
+            do_mirror_lr=self.augment_do_mirror_lr,
+            do_mirror_ud=self.augment_do_mirror_ud,
+            crop_size=self.augment_crop_size,
+            show_visual_output=self.augment_show_visual_output,
+            save_visual_output=self.augment_save_visual_output)
+
 
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
