@@ -337,8 +337,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if y_room:
             crop_dy = max(-float(y_room)/2,int(np.random.normal(0,float(y_room)/2)))
             crop_dy = min(crop_dy,float(y_room)/2)
-        if max_angle:
-            angle = np.random.uniform(-max_angle,max_angle)
 
     else:  #uniform distributed random numbers
         if max_offset_x:
@@ -356,6 +354,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             crop_dx = int(np.random.uniform(0,float(x_room)/2))
         if y_room:
             crop_dy = int(np.random.uniform(0,float(y_room)/2))
+        if max_angle:
+            angle = np.random.uniform(-max_angle,max_angle)
 
     if len(img_arr.shape) == 3:
         depth = img_arr.shape[2]

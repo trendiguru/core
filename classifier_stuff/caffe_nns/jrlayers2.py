@@ -55,7 +55,7 @@ class JrPixlevel(caffe.Layer):
         self.resize = params.get('resize',False)
         self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
-        self.augment_max_angle = params.get('augment_max_angle',5)
+        self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
         self.augment_max_offset_y = params.get('augment_max_offset_y',10)
         self.augment_max_scale = params.get('augment_max_scale',1.2)
@@ -332,7 +332,7 @@ class JrPixlevel(caffe.Layer):
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 #        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
-        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {}'.format(in_.shape,label_in_.shape,self.augment_crop_size))
+        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
