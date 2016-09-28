@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import random
+import string
 
 from trendi.utils import augment_images
 
@@ -340,9 +341,14 @@ class JrPixlevel(caffe.Layer):
             do_mirror_lr=self.augment_do_mirror_lr,
             do_mirror_ud=self.augment_do_mirror_ud,
             crop_size=self.augment_crop_size,
-            show_visual_output=self.augment_show_visual_output,
-            save_visual_output=self.augment_save_visual_output)
+            show_visual_output=self.augment_show_visual_output)
 
+        if self.save_visual_output:
+            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+            name = "".join(lst)
+            cv2.imwrite(name+'.jpg',out1)
+            maskname = name+'_mask.png'
+            cv2.imwrite(maskname,out2)
 
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
