@@ -1,5 +1,3 @@
-# yo yo
-
 from __future__ import print_function
 
 __author__ = 'jeremy'
@@ -1187,12 +1185,38 @@ def update_non_lengthed_products(coll):
         add_feature.enqueue(parallel_length_and_replace, args=(doc['_id'], coll, doc['images']['XLarge']), timeout=2000)
 
 
-def test_db_vs_docdb(db_obj):
+def test_db_vs_docdb(db_obj, collection):
     db = db_obj
-    time = time.time()
-    report_file = open('db_performence.txt', 'w')
-    # commands to test:
-    # 0. collection = db[collection]
+    coll = db[collection]
+    click = time.time()
+    report_file = open('/home/developer/logs/db_performance.txt', 'w')
+    report_file.write('Running test on {0}, collection {1}\n'.format(db_obj, collection))
+    commands = ['find', 'find_one', 'replace_one', 'find_one_and_replace', 'insert_one', 'update_one', 'delete_one',
+                'delete_many']
+    try:
+        start = click
+        doc = coll.find_one()
+        rt = click-start
+        if not doc:
+            report_file.write("couldn't find_one in collection {0}\n".format(collection))
+        else:
+            report_file.write("find_one took {0} secs\n".format(rt))
+
+        start = click
+        doc = coll.find_one({'clickUrl': doc['clickUrl']})
+        rt = click-start
+        if not doc:
+            report_file.write("couldn't find_one with query in collection {0}\n".format(collection))
+        else:
+            report_file.write("find_one with query took {0} secs\n".format(rt))
+
+        start = click
+        doc = coll.find_one({'clickUrl': doc['clickUrl']}, {'clickUrl': 1, 'images.XLarge': 1})
+        rt = click-start
+        if not doc:
+            report_file.write("couldn't find_one with query & projection in collection {0}\n".format(collection))
+        else:
+            report_file.write("find_one with query & projection took {0} secs\n".format(rt))
 
     # 1. find_one(), find_one(query), find_one(query, projection)
     # 2. find(), find(query), find(query, projection)
@@ -1205,6 +1229,9 @@ def test_db_vs_docdb(db_obj):
     #                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
     #                                  cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('categories', 1)])
     #    for doc in entries: ...
+
+    except Exception as e:
+        report_file.write(str(e) + '\n\n')
     report_file.close()
 
 
