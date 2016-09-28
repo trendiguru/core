@@ -220,31 +220,14 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
         g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
         g.write('</html>')
 
-def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
-    if dir is None:
-        protoname = solverproto.replace('.prototxt','')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
-    fname = os.path.join(dir,model_base+'results.txt')
-    with open(fname,'a') as f:
-        f.write(model_base+' threshold = '+str(threshold)+'\n')
-        f.write('solver:'+solverproto+'\n')
+def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
+   with open(txtname,'a') as f:
+        f.write('solver:'+proto+'\n')
         f.write('model:'+caffemodel+'\n')
-        f.write('categories: '+str(constants.web_tool_categories)+ '\n')
-        f.write('precision\n')
-        f.write(str(p)+'\n')
-        f.write('recall\n')
-        f.write(str(r)+'\n')
-        f.write('accuracy\n')
-        f.write(str(a)+'\n')
-        f.write('true positives\n')
-        f.write(str(tp)+'\n')
-        f.write('true negatives\n')
-        f.write(str(tn)+'\n')
-        f.write('false positives\n')
-        f.write(str(fp)+'\n')
-        f.write('false negatives\n')
-        f.write(str(fn)+'\n')
+        f.write('net:'+netname+'\n')
+        f.write('categories: '+str(classlabels)+ '\n')
+        f.write('confmat:\n')
+        f.write(str(confmat)+'\n')
         f.close()
 
 if __name__ =="__main__":
