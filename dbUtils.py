@@ -1188,31 +1188,31 @@ def update_non_lengthed_products(coll):
 def test_db_vs_docdb(db_obj, collection):
     db = db_obj
     coll = db[collection]
-    click = time.time()
-    report_file = open('/home/developer/logs/db_performance.txt', 'w')
+    click = "time.time()"
+    report_file = open('/home/developer/logs/db_performance.txt', 'a')
     report_file.write('Running test on {0}, collection {1}\n'.format(db_obj, collection))
     commands = ['find', 'find_one', 'replace_one', 'find_one_and_replace', 'insert_one', 'update_one', 'delete_one',
                 'delete_many']
     try:
-        start = click
+        start = eval(click)
         doc = coll.find_one()
-        rt = click-start
+        rt = eval(click)-start
         if not doc:
             report_file.write("couldn't find_one in collection {0}\n".format(collection))
         else:
             report_file.write("find_one took {0} secs\n".format(rt))
 
-        start = click
+        start = eval(click)
         doc = coll.find_one({'clickUrl': doc['clickUrl']})
-        rt = click-start
+        rt = eval(click)-start
         if not doc:
             report_file.write("couldn't find_one with query in collection {0}\n".format(collection))
         else:
             report_file.write("find_one with query took {0} secs\n".format(rt))
 
-        start = click
+        start = eval(click)
         doc = coll.find_one({'clickUrl': doc['clickUrl']}, {'clickUrl': 1, 'images.XLarge': 1})
-        rt = click-start
+        rt = eval(click)-start
         if not doc:
             report_file.write("couldn't find_one with query & projection in collection {0}\n".format(collection))
         else:
