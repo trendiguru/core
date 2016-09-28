@@ -302,15 +302,14 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     y_room = 0
     height,width = img_arr.shape[0:2]
 
-
     if crop_size:
-        logging.debug('crop size {}'.format(crop_size))
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
             print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
             x_room = 0
             y_room = 0
+        logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
 #        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
 ##            print('WARNING shape mismatch with crop in augment images, forcing reshape!')
  #           print('img shape wxh {}x{} cropsize {}x{}'.format(img_arr.shape[0],img_arr.shape[1],crop_size[0],crop_size[1]))
