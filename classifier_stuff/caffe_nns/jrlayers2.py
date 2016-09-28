@@ -332,7 +332,7 @@ class JrPixlevel(caffe.Layer):
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 #        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
-        logging.debug('img/mask sizes in jrlayers2: {} and {}'.format(in_.shape,label_in_.shape))
+        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {}'.format(in_.shape,label_in_.shape,self.augment_crop_size))
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
