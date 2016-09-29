@@ -67,6 +67,12 @@ def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
         net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+    all_params = [k for k in net.params.keys()]
+    print('all params:')
+    print all_params
+    all_blobs = [k for k in net.blobs.keys()]
+    print('all blobs:')
+    print all_blobs
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
