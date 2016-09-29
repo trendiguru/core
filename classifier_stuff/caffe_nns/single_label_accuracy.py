@@ -39,36 +39,51 @@ def test_confmat():
 
 
 def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
+    all_params = [k for k in net.params.keys()]
+    print('all params:')
+    print all_params
+    all_blobs = [k for k in net.blobs.keys()]
+    print('all blobs:')
+    print all_blobs
+    print('looking for label {} and estimate {}'.format(label_layer,estimate_layer))
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
         net.forward()
         gts = net.blobs[label_layer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
-        ests = net.blobs[estimate_layer].data
-        n_classes = len(ests[0])
-        print('gts {} score {} ests {} n_classes'.format(gts,net.blobs['score'], ests,n_classes))
+        ests = net.blobs[estimate_layer].data  #.data gets the loss
+        n_classes = len(ests[0])  #get first batch element
+        print('gts {} ests {} n_classes {}'.format(gts, ests,n_classes))
+        if np.any(np.isnan(ests)):
+            print('got nan in ests, continuing')
+            continue
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
-        print('net output:'+str(net.blobs[estimate_layer].data))
+#        print('net output:'+str(net.blobs[estimate_layer].data))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
-            if est.shape != gt.shape:
-                print('shape mismatch')
-                continue
-            confmat = update_confmat(gt,est,confmat)
-            print('confmat:')
+#            if est.shape != gt.shape:
+#                print('shape mismatch')
+#                continue
+            gt_value = gt[0]
+            max_est = np.argmax(est)
+            print('gt {} gt_val {} est {} maxest {} confmat:'.format(gt,gt_value,est,max_est))
+            confmat = update_confmat(gt_value,max_est,confmat)
             print(confmat)
+    print('final confmat')
+    print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     n_classes = len(classlabels)
     print('nclasses {} labels {}'.format(n_classes,classlabels))
-    caffe.set_mode_gpu()
-    caffe.set_device(gpu)
-    net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+    if net is None:
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
+        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
-    netname = None
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
         dir = 'single_label_results-'+netname+'_'+model_base.replace('.caffemodel','')
@@ -81,7 +96,7 @@ def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,cla
     htmlname=dir+'.html'
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    confmat = check_accuracy(net,n_classes, n_tests=n_tests,outlayer=outlayer,n_classes=n_classes)
+    confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
     write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
 
 
@@ -212,7 +227,7 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
             g.write('<tr>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
-                g.write(confmat[i][j])
+                g.write(str(confmat[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
 

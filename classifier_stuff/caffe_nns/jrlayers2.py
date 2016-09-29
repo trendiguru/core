@@ -55,7 +55,7 @@ class JrPixlevel(caffe.Layer):
         self.resize = params.get('resize',False)
         self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
-        self.augment_max_angle = params.get('augment_max_angle',5)
+        self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',10)
         self.augment_max_offset_y = params.get('augment_max_offset_y',10)
         self.augment_max_scale = params.get('augment_max_scale',1.2)
@@ -303,9 +303,11 @@ class JrPixlevel(caffe.Layer):
                 break
                 ####todo - check that the image is coming in correctly wrt color etc
         im = Image.open(filename)
+
         if self.resize:
             im = im.resize(self.augment_resize,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
+        in_ = in_[:,:,::-1]   #RGB -> BGR
         if in_ is None:
             logging.warning('could not get image '+filename)
             return None
@@ -330,6 +332,7 @@ class JrPixlevel(caffe.Layer):
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 #        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+#        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
@@ -350,7 +353,7 @@ class JrPixlevel(caffe.Layer):
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
 
-        out1 = out1[:,:,::-1]   #RGB -> BGR
+#        out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
         if len(out2.shape) == 3:

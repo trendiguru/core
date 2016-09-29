@@ -2663,7 +2663,18 @@ layer {
 	top: "loss"
 	name: "loss"
 	type: "SoftmaxWithLoss"
+  include {phase: TRAIN}
 }
+
+layer {
+	bottom: "fc2"
+#	bottom: "label"
+	top: "estimate"
+	name: "estimate"
+	type: "Softmax"
+  include {phase: TEST}
+}
+
 
 
 layer {

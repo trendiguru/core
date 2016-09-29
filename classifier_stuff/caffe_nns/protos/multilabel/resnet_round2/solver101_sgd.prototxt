@@ -10,7 +10,7 @@ average_loss: 20
 # no gradient accumulation
 iter_size: 20
 max_iter: 3500000  # train for 350K iterations total
-snapshot: 10000
+snapshot: 3000  #10000 -> 3 days bet. saves
 snapshot_prefix: "snapshot101_sgd/train"
 test_initialization: false
 solver_mode : GPU
