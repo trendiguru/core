@@ -35,12 +35,12 @@ test_net = solver.test_nets[0] # more than one testnet is supported
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-all_params = [k for k in solver.net.params.keys()]
-print('all params:')
-print all_params
-all_blobs = [k for k in solver.net.blobs.keys()]
-print('all blobs:')
-print all_blobs
+#all_params = [k for k in solver.net.params.keys()]
+#print('all params:')
+#print all_params
+#all_blobs = [k for k in solver.net.blobs.keys()]
+#print('all blobs:')
+#print all_blobs
 #surgery.interp(solver.net, interp_layers)
 
 # scoring
@@ -78,7 +78,7 @@ tot_iters = 0
 
 #instead of taking steps its also possible to do
 #solver.solve()
-#acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
+#acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 
 for _ in range(100000):
