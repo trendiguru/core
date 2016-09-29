@@ -39,6 +39,13 @@ def test_confmat():
 
 
 def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
+    all_params = [k for k in net.params.keys()]
+    print('all params:')
+    print all_params
+    all_blobs = [k for k in net.blobs.keys()]
+    print('all blobs:')
+    print all_blobs
+    print('looking for label {} and estimate {}'.format(label_layer,estimate_layer))
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
         net.forward()
@@ -58,7 +65,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
             print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     n_classes = len(classlabels)
@@ -67,12 +74,7 @@ def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
         net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
-    all_params = [k for k in net.params.keys()]
-    print('all params:')
-    print all_params
-    all_blobs = [k for k in net.blobs.keys()]
-    print('all blobs:')
-    print all_blobs
+
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
@@ -87,7 +89,7 @@ def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,
     htmlname=dir+'.html'
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    confmat = check_accuracy(net,n_classes, n_tests=n_tests,estimate_layer=outlayer)
+    confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
     write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
 
 
