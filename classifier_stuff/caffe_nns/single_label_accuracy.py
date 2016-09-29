@@ -51,8 +51,8 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
         net.forward()
         gts = net.blobs[label_layer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
-        ests = net.blobs[estimate_layer].data
-        print('gts {} score {} ests {} '.format(gts,net.blobs[estimate_layer], ests))
+        ests = net.blobs[estimate_layer]  #.data gets the loss
+        print('gts {} scor ests {} '.format(gts, ests))
         n_classes = len(ests[0])
         print('gts {} score {} ests {} n_classes'.format(gts,net.blobs[estimate_layer], ests,n_classes))
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
