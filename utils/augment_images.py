@@ -249,6 +249,9 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :param show_visual_output:
     :param suffix:
     :return:
+    TODO
+    add color shifting
+    fix blur / noise
     ''' #
    # logging.debug('db A')
    # logging.debug('cv2file:'+str(cv2.__file__))
@@ -281,7 +284,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
             print('WARNING shape mismatch (no crop) in augment images, forcing reshape - imgshape {} maskshape {}'.format(img_arr.shape,mask_arr.shape))
 
-        logging.debug('augment input:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
+  #      logging.debug('augment input:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
 
 #        logging.debug('mask shape:'+str(mask_arr.shape))
 
@@ -309,7 +312,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
             x_room = 0
             y_room = 0
-        logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
+ #       logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
 #        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
 ##            print('WARNING shape mismatch with crop in augment images, forcing reshape!')
  #           print('img shape wxh {}x{} cropsize {}x{}'.format(img_arr.shape[0],img_arr.shape[1],crop_size[0],crop_size[1]))
@@ -370,7 +373,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         flip_lr = np.random.randint(2)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
-    logging.debug('w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
+    logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
         width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
     img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
 #    if show_visual_output:
@@ -387,7 +390,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             cv2.imwrite(name+'.jpg',img_arr)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,mask_arr)
-        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
+#        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
