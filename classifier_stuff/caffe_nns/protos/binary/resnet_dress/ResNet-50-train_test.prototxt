@@ -2668,7 +2668,7 @@ layer {
 
 layer {
 	bottom: "fc2"
-	bottom: "label"
+#	bottom: "label"
 	top: "estimate"
 	name: "estimate"
 	type: "Softmax"
