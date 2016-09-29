@@ -81,7 +81,7 @@ def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,
     htmlname=dir+'.html'
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    confmat = check_accuracy(net,n_classes, n_tests=n_tests,outlayer=outlayer,n_classes=n_classes)
+    confmat = check_accuracy(net,n_classes, n_tests=n_tests,estimate_layer=outlayer,n_classes=n_classes)
     write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
 
 
