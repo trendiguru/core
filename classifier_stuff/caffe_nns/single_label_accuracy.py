@@ -58,17 +58,17 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
             print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,outlayer='label',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,net=None,outlayer='label',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     n_classes = len(classlabels)
     print('nclasses {} labels {}'.format(n_classes,classlabels))
-    caffe.set_mode_gpu()
-    caffe.set_device(gpu)
-    net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+    if net is None:
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
+        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
-    netname = None
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
         dir = 'single_label_results-'+netname+'_'+model_base.replace('.caffemodel','')

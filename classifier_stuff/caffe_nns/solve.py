@@ -13,6 +13,7 @@ plt.ioff()
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import jrinfer
+from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
@@ -20,10 +21,16 @@ weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr
 
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
+solverproto = 'solver.prototxt'
+testproto = 'train_test.prototxt'
 
 #solver = caffe.SGDSolver('solver.prototxt')
 #get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
-solver = caffe.get_solver('solver.prototxt')
+solver = caffe.get_solver(solverproto)
+training_net = solver.net
+test_net = solver.test_nets[0] # more than one testnet is supported
+
+
 #solver.net.copy_from(weights)
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
@@ -41,7 +48,7 @@ print all_blobs
 val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
-net_name = 'MYNET'
+net_name = multilabel_accuracy.get_netname(testproto)
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
@@ -71,6 +78,8 @@ tot_iters = 0
 
 #instead of taking steps its also possible to do
 #solver.solve()
+#acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
+
 
 for _ in range(100000):
     for i in range(n_iter):
@@ -89,6 +98,8 @@ for _ in range(100000):
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
         f.close()
     jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
+    #acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
+
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
 #    subprocess.call(copy4cmd,shell=True)
