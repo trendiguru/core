@@ -54,6 +54,9 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
         ests = net.blobs[estimate_layer].data  #.data gets the loss
         n_classes = len(ests[0])  #get first batch element
         print('gts {} ests {} n_classes {}'.format(gts, ests,n_classes))
+        if np.any(np.isnan(ests)):
+            print('got nan in ests, continuing')
+            continue
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
 #        print('net output:'+str(net.blobs[estimate_layer].data))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
