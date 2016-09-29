@@ -53,16 +53,16 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs[estimate_layer].data  #.data gets the loss
         n_classes = len(ests[0])  #get first batch element
-        print('gts {} score {} ests {} n_classes {}'.format(gts,net.blobs[estimate_layer], ests,n_classes))
+        print('gts {} ests {} n_classes {}'.format(gts, ests,n_classes))
   #   out = net.blobs['seg-score'].data[0].argmax(axis=0)
-        print('net output:'+str(net.blobs[estimate_layer].data))
+#        print('net output:'+str(net.blobs[estimate_layer].data))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
 #            if est.shape != gt.shape:
 #                print('shape mismatch')
 #                continue
             max_est = np.argmax(est)
-            confmat = update_confmat(gt,max_est,confmat)
             print('gt {} est {} maxest {} confmat:'.format(gt,est,max_est))
+            confmat = update_confmat(gt,max_est,confmat)
             print(confmat)
     return confmat
 
