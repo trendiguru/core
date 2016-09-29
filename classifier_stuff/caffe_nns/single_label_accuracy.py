@@ -68,6 +68,8 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
             print('gt {} gt_val {} est {} maxest {} confmat:'.format(gt,gt_value,est,max_est))
             confmat = update_confmat(gt_value,max_est,confmat)
             print(confmat)
+    print('final confmat')
+    print(confmat)
     return confmat
 
 def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
