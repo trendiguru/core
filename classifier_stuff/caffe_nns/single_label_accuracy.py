@@ -227,7 +227,7 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
             g.write('<tr>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
-                g.write(confmat[i][j])
+                g.write(str(confmat[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
 
