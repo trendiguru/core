@@ -138,9 +138,15 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         ent = entry['fingerprint']
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
+            t2 = time()
+            tdif = t2 - t1
+            tt += tdif
             continue
         d = distance(category, fp, ent, collection)
         if not d:
+            t2 = time()
+            tdif = t2 - t1
+            tt += tdif
             continue
         if i < number_of_matches:
             nearest_n.append((entry, d))
