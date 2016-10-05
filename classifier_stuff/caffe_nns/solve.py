@@ -15,6 +15,7 @@ from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
+from trendi.classifier_stuff.caffe_nns import progress_plot
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
@@ -133,6 +134,7 @@ for _ in range(1000000):
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+s2)
         f.close()
+    progress_plot.lossplot(loss_outputname)
     if type == 'multilabel':
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
