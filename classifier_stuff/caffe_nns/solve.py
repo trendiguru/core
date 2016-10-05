@@ -54,12 +54,12 @@ Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+net_name+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
-
+weights_base = os.path.basename(weights)
 type='multilabel'
 if net_name:
-    outname = type + prefix + '_' + net_name+'_'+weights.replace('.caffemodel','')
+    outname = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
 else:
-    outname = type + prefix + '_' +testproto+'_'+weights.replace('.caffemodel','')
+    outname = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')
 outname = outname.replace('"','')  #remove quotes
 outname = outname.replace(' ','')  #remove spaces
 outname = outname.replace('\n','')  #remove newline
