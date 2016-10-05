@@ -494,13 +494,14 @@ def summary_html(dir):
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
-    if dir is None:
-        protoname = solverproto.replace('.prototxt','')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
+def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None):
+    model_base = os.path.basename(modelname)
+    if dir is not None:
+        Utils.ensure_dir(dir)
+        htmlname = os.path.join(dir,model_base+'results.html')
+    else:
+        htmlname = os.path.join(model_base,'results.html')
 
-    htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0

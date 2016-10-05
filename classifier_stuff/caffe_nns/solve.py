@@ -134,7 +134,7 @@ for _ in range(1000000):
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
-        multilabel_accuracy.write_html(p,r,a,n_occurences,t,weights,positives=True,dir=outname)
+        multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,t,weights,positives=True,dir=outdir)
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
     elif type == 'single_label':
