@@ -116,12 +116,19 @@ for _ in range(1000000):
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
-    accuracy = solver.net.blobs['accuracy'].data
-    print('avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy))
+    if type='single_label':
+        accuracy = solver.net.blobs['accuracy'].data
+        s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy)
+        print(s)
+        s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,accuracy)
+    else:
+        s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
+        print(s)
+        s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
     #for test net:
 #    solver.test_nets[0].forward()  # test net (there can be more than one)
     with open(loss_outputname,'a+') as f:
-        f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
+        f.write(str(int(time.time()))+'\t'+s2)
         f.close()
     if type == 'multilabel':
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
