@@ -99,6 +99,7 @@ for _ in range(100000):
         f.close()
     jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
     #acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
+    #precision,recall,accuracy,tp,tn,fp,fn = check_acc(test_net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
 
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
