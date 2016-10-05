@@ -53,9 +53,8 @@ def handle_post(image_url, page_url, products_collection, method):
             if 'nd' in methods:
                 image_obj = {'people': [{'person_id': person['_id'], 'face': person['face'],
                              'gender': person['gender']} for person in image_obj['people']],
-                             'image_url': image_url, 'page_url': page_url}
-                db.genderator.insert_one(image_obj)
-                db.iip.insert_one({'image_urls': image_url, 'insert_time': datetime.datetime.utcnow()})
+                             'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
+                db.iip.insert_one(image_obj)
                 start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, 'pd'),
                                             ttl=2000, result_ttl=2000, timeout=2000)
             return True
@@ -221,9 +220,8 @@ def check_if_relevant(image_url, page_url, products_collection, method):
         return image_obj
     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
                              'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
-                 'image_url': image_url, 'page_url': page_url}
-    db.iip.insert_one({'image_urls': image_url, 'insert_time': datetime.datetime.utcnow()})
-    db.genderator.insert_one(image_obj)
+                 'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
+    db.iip.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
                                 ttl=2000, result_ttl=2000, timeout=2000)
 

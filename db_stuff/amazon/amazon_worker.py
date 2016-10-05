@@ -280,7 +280,12 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                 if print_flag:
                     print_error('%s not in item keys' % x)
                 continue
-
+            attributes = item['ItemAttributes']
+            if 'ProductGroup' not in attributes.keys():
+                continue
+            group = attributes['ProductGroup']
+            if group != 'Apparel' and group != 'Sports':
+                continue
             asin = item['ASIN']
             asin_exists = collection.find_one({'id': asin})
             if asin_exists:
@@ -300,7 +305,6 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
 
-            attributes = item['ItemAttributes']
             attr_keys = attributes.keys()
             if 'Brand' in attr_keys:
                 brand = attributes['Brand']

@@ -494,17 +494,25 @@ layer {
   }
 }
 
+#layer {
+#  name: "loss"
+##  type: "EuclideanLoss"
+#  type: "SigmoidCrossEntropyLoss"
+##  type: "Sigmoid"
+#  bottom: "myfc8"
+# bottom: "label"
+#  top: "loss/loss"
+##  loss_param: {
+##    axis:1
+##  }
+#}
+
+
 layer {
-  name: "loss"
-#  type: "EuclideanLoss"
-  type: "SigmoidCrossEntropyLoss"
-#  type: "Sigmoid"
+  name: "score"
   bottom: "myfc8"
-  bottom: "label"
-  top: "loss/loss"
-#  loss_param: {
-#    axis:1
-#  }
+  top: "score"
+  type: "Sigmoid"
 }
 
 #layer {

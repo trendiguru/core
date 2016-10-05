@@ -31,17 +31,17 @@ def make_index(dir):
     sortedfiles=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
     files=[os.path.basename(f) for f in sortedfiles]
-    files.sort() #dont sort by date, it mixes nets up
+#    files.sort() #dont sort by date, it mixes nets up
     print('files in:'+str(files))
 #    print(files)
     #sort by time
     sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
                  key=os.path.getmtime,reverse=True)
-    sorteddirs.sort()  #undo the sort by time
+#    sorteddirs.sort()  #undo the sort by time
     dirs = [os.path.basename(d) for d in sorteddirs ]
     print('dirs in '+str(dir)+':'+str(dirs))
 #    dirs = [f for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ]
-    dirs.sort() #dont sort by date, it mixes nets up
+#    dirs.sort() #dont sort by date, it mixes nets up
     htmlfiles = []
     for file in files:
 #        actual_path =
@@ -57,6 +57,7 @@ def make_index(dir):
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
 #    htmlfiles.sort()
+    htmlfiles.append('')
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
@@ -75,10 +76,13 @@ def write_index_html(dir, files):
     f.write('<HTML><HEAD><TITLE>Results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
     for file in files:
-        fullpath = os.path.join(dir,file)
-        modtime = time.ctime(os.path.getmtime(fullpath))
-        f.write('<br>\n')
-        f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
+        if file == '':
+            f.write('<br>\n')
+        else:
+            fullpath = os.path.join(dir,file)
+            modtime = time.ctime(os.path.getmtime(fullpath))
+            f.write('<br>\n')
+            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
     f.write('</html>\n')
     f.close
@@ -92,8 +96,12 @@ def write_index_html_with_images(dir, files):
     # write html file
     f.write('<HTML><HEAD><TITLE>classifier, fingerprint results</TITLE>\n')
     # <a href="http://www.w3schools.com">Visit W3Schools</a>
+    f.write('nn classifier / fingerprint results \n')
+    f.write('<br>')
     for file in files:
         f.write('<br>\n')
+        if file == '':
+            continue
 
         fullpath = os.path.join(dir,file)
         modtime = time.ctime(os.path.getmtime(fullpath))

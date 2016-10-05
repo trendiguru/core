@@ -21,7 +21,6 @@ from trendi import Utils
 
 import math
 
-
 # matplotlib inline
 def setup():
     lt.rcParams['figure.figsize'] = (6, 6)
@@ -43,7 +42,6 @@ def setup():
     if not os.path.isfile(caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'):
         print("Downloading pre-trained CaffeNet model...")
     #    !../scripts/download_model_binary.py ../models/bvlc_reference_caffenet
-
 
 # helper function for common structures
 def conv_relu(bottom, ks, nout, stride=1, pad=0, group=1):
@@ -126,13 +124,25 @@ def makenet():
 def hamming_distance(gt, est):
     #this is actually hamming similarity not distance
 #    print('calculating hamming for \ngt :'+str(gt)+'\nest:'+str(est))
+    if est.shape[0] ==1:
+        print('have to do reshape')
+        print('gt shape before {} est shape before {}'.format(gt.shape,est.shape))
+        l=est.shape[1]
+        est = est.reshape(l)
+        print('gt shape after {} est shape after {}'.format(gt.shape,est.shape))
+        print('gt {} est {}'.format(gt,est))
     if est.shape != gt.shape:
         print('shapes dont match')
         return 0
+    else:
+        pass
+#        print('shapes DO match')
+
     hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+ #   print('hamming = '+str(hamming_similarity))
     return hamming_similarity
 
-def update_confmat(gt,est,tp,tn,fp,fn):
+def update_confmat_combine_cats(gt,est,tp,tn,fp,fn):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
     pantsindex = constants.web_tool_categories.index('pants')
     jeansindex = constants.web_tool_categories.index('jeans')
@@ -163,6 +173,23 @@ def update_confmat(gt,est,tp,tn,fp,fn):
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
 
+def update_confmat(gt,est,tp,tn,fp,fn,thresh=0.5):
+#    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+    for i in range(len(gt)):
+        #combine jeans and pants, consider also doing cardigan an sweater
+        if gt[i] == 1:
+            if est[i]>thresh: # true positive
+                tp[i] += 1
+            else:   # false negative
+                fn[i] += 1
+        else:
+            if est[i]>thresh: # false positive
+                fp[i] += 1
+            else:   # true negative
+                tn[i] += 1
+#        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    return tp,tn,fp,fn
+
 def test_confmat():
     gt=[True,False,1,0]
     ests=[[True,False,0,0],
@@ -189,7 +216,7 @@ def test_confmat():
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
 
-def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label'):
+def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob'):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     blobs = [ k for k in net.blobs.keys()]
     print('all blobs:'+str(blobs))
@@ -200,14 +227,18 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label')
     n = 0
 
     first_time = True
-    for t in range(num_batches):
+    for t in range(num_samples):
         net.forward()
-        gts = net.blobs[outlayer].data
+        gts = net.blobs[gt_layer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
-        ests = net.blobs['score'].data > threshold
-        print('net output:'+str(net.blobs['score'].data))
-        baseline_est = np.zeros_like(ests)
+        ests = net.blobs[estimate_layer].data > threshold
+        ests = np.array([y*1 for y in ests])
+        print('net estimate_layer output:'+str(net.blobs[estimate_layer].data))
+        print('net score output:'+str(net.blobs['score'].data))
+  #      print('xxx gts shape {} ests shape {} '.format(gts.shape,ests.shape))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
+            baseline_est = np.zeros_like(est)
+  #          print('yyy gts shape {} ests shape {} bl shape {}:'.format(gts.shape,ests.shape,baseline_est.shape))
             if est.shape != gt.shape:
                 print('shape mismatch')
                 continue
@@ -219,17 +250,16 @@ def check_acc(net, num_batches, batch_size = 1,threshold = 0.5,outlayer='label')
                 fn = np.zeros_like(gt)
             tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
             print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
-            print('gt:'+str(gt))
+            print('gt:'+str([int(x) for x in gt]))  #turn to int since print as float takes 2 lines
             print('est:'+str(est))
             h = hamming_distance(gt, est)
-
             baseline_h = hamming_distance(gt,baseline_est)
 #            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
             acc += h
             baseline_acc += baseline_h
             n += 1
-    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
+    print('len(gts) {} len(ests) {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),batch_size,acc/n,baseline_acc/n))
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
@@ -397,14 +427,15 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     max = np.max(out)
     print('out  {}'.format(out))
 
-
-
-def open_html(model_base,dir=None):
-    if dir is None:
-        protoname = solverproto.replace('.prototxt','')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
-    htmlname = os.path.join(dir,model_base+'results.html')
+def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
+    model_base = os.path.basename(modelname)
+    if dir is not None:
+        Utils.ensure_dir(dir)
+        htmlname = os.path.join(dir,model_base+'results.html')
+    else:
+        htmlname = os.path.join(model_base,'results.html')
+    if name is not None:
+        htmlname = name
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -425,12 +456,11 @@ def open_html(model_base,dir=None):
         g.write('<th>')
         g.write('fw avg.')
         g.write('</th>\n')
-        for i in range(len(constants.web_tool_categories)):
+        for i in range(len(classlabels)):
             g.write('<th>')
-            g.write(constants.web_tool_categories[i])
+            g.write(classlabels[i])
             g.write('</th>\n')
         g.write('</tr>\n')
-
 
 #        g.write('</table><br>')
 
@@ -466,13 +496,15 @@ def summary_html(dir):
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
-    if dir is None:
-        protoname = solverproto.replace('.prototxt','')
-        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    Utils.ensure_dir(dir)
-
-    htmlname = os.path.join(dir,model_base+'results.html')
+def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
+    model_base = os.path.basename(modelname)
+    if dir is not None:
+        Utils.ensure_dir(dir)
+        htmlname = os.path.join(dir,model_base+'results.html')
+    else:
+        htmlname = os.path.join(model_base,'results.html')
+    if name is not None:
+        htmlname = name
     with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0
@@ -482,6 +514,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         n_a=0
         fwavn = 0
         n_sum = 0
+        #calculate frequency-weighted averages
         for i in range(len(p)):
             if not np.isnan(p[i]):
                 fwavp = fwavp + p[i]*n[i]
@@ -490,23 +523,25 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 fwavr = fwavr + r[i]*n[i]
                 n_r=n_r+n[i]
             if not np.isnan(a[i]):
-                fwava = fwava + p[i]*n[i]
+                fwava = fwava + a[i]*n[i]
                 n_a=n_a+n[i]
             n_sum=n_sum+n[i]
-            print('n sum'+str(n_sum))
+        print('n sum {} fwavp {} fwavr {} fwava {} before division np {} nr {} na {} '.format(n_sum,fwavp,fwavr,fwava,n_p,n_r,n_a))
         fwavp = fwavp/float(n_p)
-        fwavr = fwavp/float(n_r)
-        fwava = fwavp/float(n_a)
+        fwavr = fwavr/float(n_r)
+        fwava = fwava/float(n_a)
         fwavn = n_sum/float(len(p))
+
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2)))
+    #write line with n_positives
         if(positives):
             g.write('<tr>\n')
             g.write('<td>')
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(str(fwavn))
+            g.write(str(round(fwavn,2)))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -514,6 +549,7 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
                 g.write('</td>\n')
             g.write('</tr>\n<br>\n')
 
+    #write line with threshold
  #       g.write('<table style=\"width:100%\">\n')
         g.write('<b>')
         g.write('<tr>\n')
@@ -530,43 +566,45 @@ def write_html(p,r,a,n,threshold,model_base,positives=False,dir=None):
         g.write('</tr>\n')
         g.write('</b>')
 
-
+    #write row with precision
         g.write('<tr>\n')
         g.write('<td>')
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavp))
+        g.write(str(round(fwavp,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(p[i],3)))
+            g.write(str(round(p[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with recall
         g.write('<tr>\n')
         g.write('<td>')
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwavr))
+        g.write(str(round(fwavr,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(r[i],3)))
+            g.write(str(round(r[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
+    #write row with accuracy
         g.write('<tr>\n')
         g.write('<td>')
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(fwava))
+        g.write(str(round(fwava,2)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(a[i],3)))
+            g.write(str(round(a[i],2)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
@@ -602,6 +640,32 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
         f.write(str(fn)+'\n')
         f.close()
 
+def get_netname(proto):
+#    print('looking for netname')
+    with open(proto,'r') as fp:
+        l1 = fp.readline()
+        l2 = fp.readline()
+#    print('line1 '+l1)
+#    print('line2 '+l2)
+    if 'name' in l1:
+        netname = l1[5:]
+        print('netname:'+netname)
+        return netname
+    if 'name' in l2:
+        netname = l2[5:]
+        print('netname:'+netname)
+        return netname
+    if 'test_net' or 'train_net' in l1: #the file is prob a solverproto and refers to test/val which may have netname
+        fname = l1.split('"')[-2]
+        print('trying to find netname in file1 '+fname)
+        return get_netname(fname)
+    if 'test_net' or 'train_net' in l2:
+        fname = l2.split('"')[-2]
+        print('trying to find netname in file2 '+fname)
+        return get_netname(fname)
+    else:
+        netname = None
+    return netname
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
@@ -622,7 +686,20 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
     thresh = [0.1,0.5,0.6,0.7,0.8,0.9,0.95]
 #    thresh = [0.1,0.5,0.95]
     protoname = solverproto.replace('.prototxt','')
-    dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+    netname = get_netname(solverproto)
+    if netname:
+        dir = 'multilabel_results-'+netname+'_'+model_base.replace('.caffemodel','')
+        dir = dir.replace('"','')  #remove quotes
+        dir = dir.replace(' ','')  #remove spaces
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
+    else:
+        dir = 'multilabel_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+        dir = dir.replace('"','')  #remove quotes
+        dir = dir.replace(' ','')  #remove spaces
+        dir = dir.replace('\n','')  #remove newline
+        dir = dir.replace('\r','')  #remove return
+
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
     open_html(model_base,dir=dir)
@@ -635,7 +712,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base,dir=dir)
-        write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir,tp=tp,tn=tn,fp=fp,fn=fn)
         positives = False
     close_html(model_base,dir=dir)
 

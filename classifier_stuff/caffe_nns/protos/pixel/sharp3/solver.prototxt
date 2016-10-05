@@ -21,7 +21,8 @@ momentum: 0.95
 iter_size: 10
 max_iter: 3000000
 weight_decay: 0.0005
-snapshot: 1000
+snapshot: 2000
+#snapshot: 1000  gives 3 a day
 #snapshot 5000 was leaving 2 days bet snapshots
 snapshot_prefix: "snapshot/sharp3"
 test_initialization: false

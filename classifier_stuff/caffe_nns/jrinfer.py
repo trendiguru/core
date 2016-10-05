@@ -192,21 +192,46 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
+def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=constants.ultimate_21):
     n_cl = net.blobs[layer].channels
-    if save_dir:
-        os.mkdir(save_dir)
     hist = np.zeros((n_cl, n_cl))
     loss = 0
     for idx in dataset:
         net.forward()
-        hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
-                                net.blobs[layer].data[0].argmax(0).flatten(),
-                                n_cl)
+        print('idx:'+str(idx))
+        try:
+            x=net.blobs[gt]
+            print('gt data type '+str(type(net.blobs[gt])))
+            print('gt data type '+str(type(net.blobs[gt].data)))
+            print('gt data shape:'+str(net.blobs[gt].data.shape))
+            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
+        except:
+            print('unhashable...')
+            continue
+        gt_data = net.blobs[gt].data[0, 0]
+        net_data = net.blobs[layer].data[0]
 
+        hist += fast_hist(gt_data.flatten(),
+                                net_data.argmax(0).flatten(),
+                                n_cl)
         if save_dir:
+            Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
-            im.save(os.path.join(save_dir, idx + '.png'))
+            savename = os.path.join(save_dir, str(idx) + '.png')
+#            print('label size:'+str(im.shape))
+            im.save(savename)
+            orig_image = net.blobs['data'].data[0]
+            gt =         net.blobs['label'].data[0]
+            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
+            gt=np.reshape(gt,[gt.shape[1],gt.shape[2]])
+            orig_image = orig_image.transpose((1,2,0))
+            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
+            orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
+            cv2.imwrite(orig_savename,orig_image)
+            gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
+            cv2.imwrite(gt_savename,gt)
+            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
+            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
@@ -214,13 +239,15 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
 def seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     print '>>>', datetime.now(), 'Begin seg tests'
     solver.test_nets[0].share_with(solver.net)
-    do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    return results_dict
 
-def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt'):
     n_cl = net.blobs[layer].channels
-    if save_format:
-        save_format = save_format.format(iter)
-    hist, loss = compute_hist(net, save_format, dataset, layer, gt)
+    if save_dir:
+#        save_format = save_format.format(iter)
+        Utils.ensure_dir(save_dir)
+    hist, loss = compute_hist(net, save_dir, dataset, layer, gt)
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy
@@ -261,7 +288,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label',outf
         f.write('fwavacc:'+ str((freq[freq > 0] * iu[freq > 0]).sum())+'\n')
         f.write('<br>\n')
         f.write('<br>\n')
-    return hist
+    return results_dict
 
 
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
@@ -291,7 +318,6 @@ if __name__ == "__main__":
     caffemodel = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/snapshot/train_iter_120000.caffemodel'
     prototxt = '/home/jeremy/caffenets/pixlevel/voc-fcn8s/voc8.15/deploy.prototxt'
 
-
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
@@ -301,7 +327,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
-    parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
+    parser.add_argument('--iou',help='do iou test on pixel level net',default=True)
     args = parser.parse_args()
     print('args:'+str(args))
     print('caffemodel:'+str(args.model))
@@ -309,8 +335,8 @@ if __name__ == "__main__":
     if args.caffe_variant:
         infer_one_deconvnet(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
 
-    if args.gpu  :
-        caffe.set_mode_gpu();
+    if args.gpu:
+        caffe.set_mode_gpu()
         caffe.set_device(int(args.gpu))
     else:
         caffe.set_mode_cpu()

@@ -1,7 +1,7 @@
 #net: "train_val.prototxt"
 train_net: "ResNet-101-train.prototxt"
 test_net: "ResNet-101-test.prototxt"
-test_iter: 500
+test_iter: 100
 # make test net, but don't invoke it from the solver itself
 test_interval: 5000 
 display: 20
@@ -10,8 +10,9 @@ average_loss: 20
 # no gradient accumulation
 iter_size: 20
 max_iter: 3500000  # train for 350K iterations total
-snapshot: 10000
+snapshot: 3000  #10000 -> 3 days bet. saves
 snapshot_prefix: "snapshot101_sgd/train"
+test_compute_loss: true
 test_initialization: false
 solver_mode : GPU
 
@@ -21,3 +22,5 @@ lr_policy: "step" # learning rate policy: drop the learning rate in "steps"
 gamma: 0.1        # drop the learning rate by a factor of 10
 stepsize: 100000  # drop the learning rate every 100K iterations
 momentum: 0.9
+
+

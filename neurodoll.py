@@ -182,7 +182,7 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 
 
 caffe.set_mode_gpu()
-caffe.set_device(1)
+caffe.set_device(0)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 
 #required_image_size = (256, 256)

@@ -824,7 +824,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None):
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -899,6 +899,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
     combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
+    if mask2:
+        combined = np.zeros([h,w+w_colorbar,3],dtype=np.uint8)
+        mask2_arr = Utils.get_cv2_img_array(mask2,cv2.IMREAD_GRAYSCALE)
     combined[:,0:w_colorbar]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w]=dest
     if original_image is not None:
@@ -909,9 +912,10 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             maxheight=600
             minheight=300
             desired_height=500
-     #       if height>maxheight:  # or height < minheight:
-            if (1):  # or height < minheight:
-                logging.debug('(hxw {}x{}) resizing'.format(height,width))
+            if resize:  # or height < minheight:
+    #        if (1):  # or height < minheight:
+                desired_height=resize[0]
+                logging.debug('(hxw {}x{}) resizing to {} by '.format(height,width,desired_height))
 #                newheight=(height>maxheight)*maxheight   #+(height<minheight)*minheight
                 newheight=desired_height
                 factor = float(newheight)/height
@@ -929,12 +933,15 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 #                print('maskfactor {} newsize {}'.format(factor,dest.shape) )
 
         #    cv2.imshow('original',orig_arr)
+            elif height != h or width != w:
+                orig_arr = resize_keep_aspect(orig_arr,output_size=(h,w))
+                logging.debug('orig {}x{} mask {}x{}'.format(height,width,h,w))
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
-            logging.debug('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
+#            logging.debug('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
-            logging.debug('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
+#            logging.debug('dest w {} h {} shape {}'.format(dest_w,dest_h,dest.shape))
             orig_h,orig_w = orig_arr.shape[0:2]
-            logging.debug('orig w {} h {} shape {}'.format(orig_w,orig_h,orig_arr.shape))
+            logging.debug('orig w {} h {} dest {}x{}'.format(orig_w,orig_h,dest_w,dest_h))
 #            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
             logging.debug('combined shape:'+str(combined.shape))
@@ -945,10 +952,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 
             combined_h,combined_w = combined.shape[0:2]
             print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
-            if combined_h<minheight:
-                factor = float(minheight)/combined_h
-                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
-
+#            if combined_h<minheight:
+#                factor = float(minheight)/combined_h
+#                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
         else:
             logging.warning('could not get image '+original_image)
  #   cv2.imshow('map',dest)

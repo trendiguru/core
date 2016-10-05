@@ -172,6 +172,7 @@ class JrPixlevel(caffe.Layer):
         if self.batch_size == 1:
             self.data, self.label = self.load_image_and_mask()
         #add extra batch dimension
+            logging.debug('batchsize 1 datasize {} labelsize {}  before reshape'.format(self.data.shape,self.label.shape))
             top[0].reshape(1, *self.data.shape)
             top[1].reshape(1, *self.label.shape)
             logging.debug('batchsize 1 datasize {} labelsize {} '.format(self.data.shape,self.label.shape))
@@ -186,11 +187,10 @@ class JrPixlevel(caffe.Layer):
             self.data = all_data
             self.label = all_labels
             #no extra dimension needed
+            logging.debug('batchsize {} datasize {} labelsize {} before reshape'.format(self.batch_size,self.data.shape,self.label.shape))
             top[0].reshape(*self.data.shape)
             top[1].reshape(*self.label.shape)
             logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
-
-
 
 
     def next_idx(self):
@@ -312,6 +312,7 @@ class JrPixlevel(caffe.Layer):
                 break
         im = Image.open(filename)
         if self.new_size:
+            logging.debug('jrlayers - new size: resizing from {} to {}'.format(im.size,self.new_size))
             im = im.resize(self.new_size,Image.ANTIALIAS)
         in_ = np.array(im, dtype=np.float32)
         if in_ is None:
@@ -328,14 +329,17 @@ class JrPixlevel(caffe.Layer):
 #        if self.new_size:
 #            im = im.resize(self.new_size,Image.ANTIALIAS)
         label_in_ = np.array(im, dtype=np.uint8)
-        if self.kaggle is not False:
-            print('kagle image, moving 255 -> 1')
-            label_in_[label_in_==255] = 1
+ #       if self.kaggle is not False:
+ #           print('kagle image, moving 255 -> 1')
+ #           label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
+        logging.debug('jrlayers: input img shape {} mask {}'.format(in_.shape,label_in_.shape))
 
         out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
+        #out1 -> image, out2->gt (mask)
+        logging.debug('jrlayers: output img shape {} mask {}'.format(out1.shape,out2.shape))
 
         out1 = out1[:,:,::-1]   #RGB -> BGR
         out1 -= self.mean  #assumes means are BGR order, not RGB
@@ -344,7 +348,7 @@ class JrPixlevel(caffe.Layer):
             logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
-
+        logging.debug('jrlayers: final output img shape {} type {} mask {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
         return out1,out2
 
 
@@ -559,8 +563,8 @@ class JrMultilabel(caffe.Layer):
         top[1].reshape(self.batch_size, self.n_labels)
 
     def reshape(self, bottom, top):
-        pass
-        #print('start reshape')
+        #pass
+   #     print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
             imgfilename, self.data, self.label = self.load_image_and_label()
@@ -576,6 +580,8 @@ class JrMultilabel(caffe.Layer):
             self.data = all_data
             self.label = all_labels
             self.images_processed += self.batch_size
+#        print('got {} images, idx={}'.format(self.batch_size,self.idx))
+#        print('sizeof first pix: {} label {}'.format(self.data.shape,self.label.shape))
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -594,9 +600,10 @@ class JrMultilabel(caffe.Layer):
 
     def forward(self, bottom, top):
         # assign output
-        #print('forward start')
-        top[0].data[...] = self.data
+ #       print('forward start')
+        top[0].data[...] = self.data  #this apparently can take both axbxcxd and bxcxd and turns both to axbxcxd (or 1xbxcxd) (reshape above leaves batchsize1 as axbxc
         top[1].data[...] = self.label
+  #      print('shapes:data {} label{}'.format(top[0].data.shape,top[1].data.shape))
         # pick next input
         self.next_idx()
         #print('forward end')
