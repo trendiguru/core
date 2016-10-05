@@ -28,10 +28,10 @@ testproto = 'train_test.prototxt'
 #get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
 solver = caffe.get_solver(solverproto)
 training_net = solver.net
+#solver.net.copy_from(weights)
+solver.test_nets[0].share_with(solver.net)
 test_net = solver.test_nets[0] # more than one testnet is supported
 
-
-#solver.net.copy_from(weights)
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
