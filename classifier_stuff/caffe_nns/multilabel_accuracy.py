@@ -427,7 +427,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     max = np.max(out)
     print('out  {}'.format(out))
 
-def open_html(model_base,dir=None,solverproto='',caffemodel=''):
+def open_html(model_base,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories):
     Utils.ensure_dir(dir)
     htmlname = os.path.join(dir,model_base+'results.html')
     with open(htmlname,'a') as g:
@@ -450,9 +450,9 @@ def open_html(model_base,dir=None,solverproto='',caffemodel=''):
         g.write('<th>')
         g.write('fw avg.')
         g.write('</th>\n')
-        for i in range(len(constants.web_tool_categories)):
+        for i in range(len(classlabels)):
             g.write('<th>')
-            g.write(constants.web_tool_categories[i])
+            g.write(classlabels[i])
             g.write('</th>\n')
         g.write('</tr>\n')
 

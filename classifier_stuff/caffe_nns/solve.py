@@ -19,7 +19,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
 solverproto = 'solver.prototxt'
-testproto = 'train_test.prototxt'
+testproto = 'train_test.prototxt'  #maybe take this out in  favor of train proto
 
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
@@ -92,9 +92,9 @@ tot_iters = 0
 #acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 if type == 'multilabel':
-    multilabel_accuracy.open_html(weights, dir=outname,solverproto=solverproto,caffemodel=weights)
+    multilabel_accuracy.open_html(weights, dir=outname,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2)
 
- for _ in range(100000):
+ for _ in range(1000000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data
@@ -118,7 +118,7 @@ if type == 'multilabel':
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
+        acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
 
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
