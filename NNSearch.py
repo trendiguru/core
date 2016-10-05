@@ -125,8 +125,8 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             return []
 
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('categories', 1)]).batch_size(1000)
+                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).hint([('AnnoyIndex', 1)])
+                                      # cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('categories', 1)]).batch_size(1000)
         t2 = time()
         print t2-t1
         # print "query by annoyIndex took {0} secs".format(time()-start)
@@ -136,7 +136,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     i=0
     # for i, entry in enumerate(entries):
     for entry in entries:
-        i +=1
+        i += 1
         t1 = time()
         tt += t1-t2
         ent = entry['fingerprint']
