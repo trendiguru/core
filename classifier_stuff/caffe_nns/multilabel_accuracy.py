@@ -197,7 +197,7 @@ def test_confmat():
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
 
-def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='label',estimate_layer='score'):
+def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob'):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     blobs = [ k for k in net.blobs.keys()]
     print('all blobs:'+str(blobs))
@@ -213,7 +213,9 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='label',
         gts = net.blobs[gt_layer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs[estimate_layer].data > threshold
-        print('net output:'+str(net.blobs['score'].data))
+        print('net losslayer output:'+str(net.blobs[estimate_layer].data))
+        print('net score output:'+str(net.blobs['score'].data))
+        print('gts shape {} ests shape {}:'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             if est.shape != gt.shape:
@@ -237,7 +239,7 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='label',
             acc += h
             baseline_acc += baseline_h
             n += 1
-    print('len(gts) {} len(ests) {} numbatches {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),num_batches,batch_size,acc/n,baseline_acc/n))
+    print('len(gts) {} len(ests) {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),batch_size,acc/n,baseline_acc/n))
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
