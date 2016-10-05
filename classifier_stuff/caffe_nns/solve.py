@@ -14,6 +14,7 @@ plt.ioff()
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
+from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
@@ -74,12 +75,12 @@ outdir = outdir.replace('\n','')  #remove newline
 outdir = outdir.replace('\r','')  #remove return
 outdir = './'+outdir
 if type == 'pixlevel':
-    outname = os.path.join(outdir,'netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
+    outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
 if type == 'multilabel':
-    outname = os.path.join(outdir,'output.html')
+    outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
 if type == 'single_label':
-    outname = os.path.join(outdir,outdir+'output.txt')
-loss_outputname = os.path.join(outdir,'loss.txt')
+    outname = os.path.join(outdir,outdir[2:]+'_slresults.txt')
+loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
 print('outname:{} lossname {} outdir {}'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
 time.sleep(0.1)
@@ -93,8 +94,8 @@ scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results'
 scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
-scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
-print('scp lossplot:'+scplossplotcmd)
+#scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
+#print('scp lossplot:'+scplossplotcmd)
 
 i = 0
 losses = []
@@ -147,12 +148,14 @@ for _ in range(1000000):
         acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
 
     subprocess.call(copycmd,shell=True)
+    subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
 #    subprocess.call(copy4cmd,shell=True)
 
     subprocess.call(scpcmd,shell=True)
+    subprocess.call(scp2cmd,shell=True)
     subprocess.call(scp3cmd,shell=True)
-    subprocess.call(scplossplotcmd,shell=True)
+ #   subprocess.call(scplossplotcmd,shell=True)
 #    subprocess.call(scp4cmd,shell=True)
 
 
