@@ -18,18 +18,17 @@ from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
-
-caffe.set_device(int(sys.argv[1]))
-caffe.set_mode_gpu()
 solverproto = 'solver.prototxt'
 testproto = 'train_test.prototxt'
 
+caffe.set_device(int(sys.argv[1]))
+caffe.set_mode_gpu()
 #solver = caffe.SGDSolver('solver.prototxt')
 #get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
 solver = caffe.get_solver(solverproto)
 training_net = solver.net
-#solver.net.copy_from(weights)
-solver.test_nets[0].share_with(solver.net)
+solver.net.copy_from(weights)
+solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
 test_net = solver.test_nets[0] # more than one testnet is supported
 
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
@@ -54,19 +53,31 @@ host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
 prefix = baremetal_hostname+'.'+net_name+docker_hostname
-detailed_outputname = prefix + '.netoutput.txt'
-detailed_jsonfile = detailed_outputname[:-4]+'.json'
-loss_outputname = prefix + 'loss.txt'
+#detailed_jsonfile = detailed_outputname[:-4]+'.json'
 
-copy2cmd = 'cp '+detailed_outputname + ' ' + host_dirname
+type='multilabel'
+if net_name:
+    outname = type + prefix + '_' + net_name+'_'+weights.replace('.caffemodel','')
+else:
+    outname = type + prefix + '_' +testproto+'_'+weights.replace('.caffemodel','')
+outname = outname.replace('"','')  #remove quotes
+outname = outname.replace(' ','')  #remove spaces
+outname = outname.replace('\n','')  #remove newline
+outname = outname.replace('\r','')  #remove return
+if type == 'pixlevel':
+    outname = outname + '.netoutput.txt'  #TODO fix the shell script to not look for this, then it wont be needed
+
+loss_outputname = os.path.join(outname,'loss.txt')
+
+copy2cmd = 'cp '+outname + ' ' + host_dirname
 copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
-copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
-scp2cmd = 'scp '+detailed_outputname + ' root@104.155.22.95:/var/www/results/progress_plots/'
+#copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
+scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
 Utils.ensure_file(loss_outputname)
-Utils.ensure_file(detailed_outputname)
+Utils.ensure_file(outname)
 
 i = 0
 losses = []
@@ -97,9 +108,15 @@ for _ in range(100000):
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(averaged_loss)+'\t'+str(accuracy)+'\n')
         f.close()
-    jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=detailed_outputname)
-    #acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
-    #precision,recall,accuracy,tp,tn,fp,fn = check_acc(test_net, num_samples=100, threshold=0.5,gt_layer='label',estimate_layer='score')
+    if type == 'multilabel':
+        precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
+        print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
+        n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
+        multilabel_accuracy.write_html(p,r,a,n_occurences,t,weights,positives=True,dir=outname)
+    elif type == 'pixlevel':
+        jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
+    elif type == 'single_label':
+        acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2,'ResNet-50_solver.prototxt')
 
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)

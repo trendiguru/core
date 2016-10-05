@@ -135,10 +135,11 @@ def hamming_distance(gt, est):
         print('shapes dont match')
         return 0
     else:
-        print('shapes DO match')
+        pass
+#        print('shapes DO match')
 
     hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
-    print('hamming = '+str(hamming_similarity))
+ #   print('hamming = '+str(hamming_similarity))
     return hamming_similarity
 
 def update_confmat_combine_cats(gt,est,tp,tn,fp,fn):
@@ -234,10 +235,10 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
         ests = np.array([y*1 for y in ests])
         print('net estimate_layer output:'+str(net.blobs[estimate_layer].data))
         print('net score output:'+str(net.blobs['score'].data))
-        print('xxx gts shape {} ests shape {} '.format(gts.shape,ests.shape))
+  #      print('xxx gts shape {} ests shape {} '.format(gts.shape,ests.shape))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
             baseline_est = np.zeros_like(est)
-            print('yyy gts shape {} ests shape {} bl shape {}:'.format(gts.shape,ests.shape,baseline_est.shape))
+  #          print('yyy gts shape {} ests shape {} bl shape {}:'.format(gts.shape,ests.shape,baseline_est.shape))
             if est.shape != gt.shape:
                 print('shape mismatch')
                 continue
@@ -249,7 +250,7 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
                 fn = np.zeros_like(gt)
             tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
             print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
-            print('gt:'+str(gt))
+            print('gt:'+str([int(x) for x in gt]))  #turn to int since print as float takes 2 lines
             print('est:'+str(est))
             h = hamming_distance(gt, est)
             baseline_h = hamming_distance(gt,baseline_est)
@@ -709,7 +710,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         n_all.append(n_occurences)
         write_textfile(p,r,a,tp,tn,fp,fn,t,model_base,dir=dir)
-        write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir)
+        write_html(p,r,a,n_occurences,t,model_base,positives=positives,dir=dir,tp=tp,tn=tn,fp=fp,fn=fn)
         positives = False
     close_html(model_base,dir=dir)
 
