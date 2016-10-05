@@ -432,7 +432,7 @@ def open_html(model_base,dir=None,solverproto='',caffemodel='',classlabels = con
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
     else:
-        htmlname = os.path.join(model_base+'results.html')
+        htmlname = os.path.join(model_base,'results.html')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')

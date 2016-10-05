@@ -104,7 +104,7 @@ tot_iters = 0
 #acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 if type == 'multilabel':
-    multilabel_accuracy.open_html(weights, dir=outname,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2)
+    multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2)
 
 for _ in range(1000000):
     for i in range(n_iter):
