@@ -57,7 +57,7 @@ docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
-prefix = baremetal_hostname+'.'+net_name+docker_hostname
+prefix = baremetal_hostname+'.'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
@@ -74,6 +74,10 @@ if type == 'pixlevel':
 
 loss_outputname = os.path.join(outname,'loss.txt')
 print('outname:{} lossname {}'.format(outname,loss_outputname))
+Utils.ensure_dir(outname)
+time.sleep(0.1)
+Utils.ensure_file(loss_outputname)
+
 copy2cmd = 'cp '+outname + ' ' + host_dirname
 copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
@@ -81,8 +85,6 @@ scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
-Utils.ensure_dir(outname)
-Utils.ensure_file(loss_outputname)
 
 i = 0
 losses = []
