@@ -146,7 +146,7 @@ for _ in range(1000000):
         jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
-
+#
     subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)
     subprocess.call(copy3cmd,shell=True)
