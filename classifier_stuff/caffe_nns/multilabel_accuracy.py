@@ -213,7 +213,8 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
         gts = net.blobs[gt_layer].data
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs[estimate_layer].data > threshold
-        print('net losslayer output:'+str(net.blobs[estimate_layer].data))
+        ests = [y*1 for y in ests]
+        print('net estimate_layer output:'+str(net.blobs[estimate_layer].data))
         print('net score output:'+str(net.blobs['score'].data))
         print('gts shape {} ests shape {}:'.format(gts.shape,ests.shape))
         baseline_est = np.zeros_like(ests)
