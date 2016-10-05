@@ -133,8 +133,10 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     farthest_nearest = 1
     nearest_n = []
     tt = 0
+
     for i, entry in enumerate(entries):
         t1 = time()
+        tt += t1-t2
         ent = entry['fingerprint']
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
