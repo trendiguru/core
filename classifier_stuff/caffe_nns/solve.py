@@ -57,7 +57,7 @@ docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
 baremetal_hostname = os.environ.get('HOST_HOSTNAME')
-prefix = baremetal_hostname+'.'+net_name+'_'+docker_hostname
+prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
@@ -69,12 +69,13 @@ outdir = outdir.replace('"','')  #remove quotes
 outdir = outdir.replace(' ','')  #remove spaces
 outdir = outdir.replace('\n','')  #remove newline
 outdir = outdir.replace('\r','')  #remove return
+outdir = './'+outdir
 if type == 'pixlevel':
     outname = os.path.join(outdir,'netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
 if type == 'multilabel':
     outname = os.path.join(outdir,'output.html')
 if type == 'single_label':
-    outname=os.path.join(outdir,outdir+'output.txt')
+    outname = os.path.join(outdir,outdir+'output.txt')
 loss_outputname = os.path.join(outdir,'loss.txt')
 print('outname:{} lossname {}'.format(outname,loss_outputname))
 Utils.ensure_dir(outdir)
