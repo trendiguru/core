@@ -78,7 +78,7 @@ if type == 'multilabel':
 if type == 'single_label':
     outname = os.path.join(outdir,outdir+'output.txt')
 loss_outputname = os.path.join(outdir,'loss.txt')
-print('outname:{} lossname {}'.format(outname,loss_outputname))
+print('outname:{} lossname {} outdir {}'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)

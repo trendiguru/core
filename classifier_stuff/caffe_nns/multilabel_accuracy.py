@@ -427,7 +427,8 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     max = np.max(out)
     print('out  {}'.format(out))
 
-def open_html(model_base,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories):
+def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories):
+    model_base = os.path.basename(modelname)
     if dir is not None:
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
