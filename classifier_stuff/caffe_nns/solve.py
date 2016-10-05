@@ -62,19 +62,22 @@ prefix = baremetal_hostname+'.'+net_name+'_'+docker_hostname
 weights_base = os.path.basename(weights)
 type='multilabel'
 if net_name:
-    outname = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
+    outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
 else:
-    outname = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')
-outname = outname.replace('"','')  #remove quotes
-outname = outname.replace(' ','')  #remove spaces
-outname = outname.replace('\n','')  #remove newline
-outname = outname.replace('\r','')  #remove return
+    outdir = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')
+outdir = outdir.replace('"','')  #remove quotes
+outdir = outdir.replace(' ','')  #remove spaces
+outdir = outdir.replace('\n','')  #remove newline
+outdir = outdir.replace('\r','')  #remove return
 if type == 'pixlevel':
-    outname = outname + '.netoutput.txt'  #TODO fix the shell script to not look for this, then it wont be needed
-
-loss_outputname = os.path.join(outname,'loss.txt')
+    outname = os.path.join(outdir,'netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
+if type == 'multilabel':
+    outname = os.path.join(outdir,'output.html')
+if type == 'single_label':
+    outname=os.path.join(outdir,outdir+'output.txt')
+loss_outputname = os.path.join(outdir,'loss.txt')
 print('outname:{} lossname {}'.format(outname,loss_outputname))
-Utils.ensure_dir(outname)
+Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
