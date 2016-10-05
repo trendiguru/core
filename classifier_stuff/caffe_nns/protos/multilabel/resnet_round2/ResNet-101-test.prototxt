@@ -4756,16 +4756,16 @@ layer {
   name: "prob"
   bottom: "mymyfc1000"
   top: "prob"
-#  type: "SigmoidCrossEntropy"   #no such layer - only with loss.
+#  type: "SigmoidCrossEntropy"   #no such layer - only sigmoidcrossentropyloss.
   type: "Sigmoid"
 }
 
-layer {
-  name: "acc"
-  bottom: "mymyfc1000"
-  top: "acc"
-  type: "MultiLabelAccuracy"
-}
+#layer {
+#  name: "acc"
+#  bottom: "mymyfc1000"
+#  top: "acc"
+#  type: "MultiLabelAccuracy"  #apparently not implemented yet in main branch
+#}
 
 
 layer {
