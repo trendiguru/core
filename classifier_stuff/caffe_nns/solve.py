@@ -62,6 +62,7 @@ prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
+threshold = 0.5
 if net_name:
     outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
 else:
@@ -134,7 +135,7 @@ for _ in range(1000000):
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
-        multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,t,weights,positives=True,dir=outdir)
+        multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold=threshold,weights,positives=True,dir=outdir)
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
     elif type == 'single_label':
