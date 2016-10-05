@@ -427,13 +427,15 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     max = np.max(out)
     print('out  {}'.format(out))
 
-def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories):
+def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
     model_base = os.path.basename(modelname)
     if dir is not None:
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
     else:
         htmlname = os.path.join(model_base,'results.html')
+    if name is not None:
+        htmlname = name
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -494,14 +496,15 @@ def summary_html(dir):
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None):
+def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
     model_base = os.path.basename(modelname)
     if dir is not None:
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
     else:
         htmlname = os.path.join(model_base,'results.html')
-
+    if name is not None:
+        htmlname = name
     with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0

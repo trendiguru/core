@@ -110,7 +110,7 @@ tot_iters = 0
 #acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 if type == 'multilabel':
-    multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2)
+    multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2,name=outname)
 
 for _ in range(1000000):
     for i in range(n_iter):
@@ -141,7 +141,7 @@ for _ in range(1000000):
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
-        multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir)
+        multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
     elif type == 'single_label':
