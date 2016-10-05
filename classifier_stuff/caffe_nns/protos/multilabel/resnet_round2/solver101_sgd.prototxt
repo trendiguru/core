@@ -13,7 +13,7 @@ max_iter: 3500000  # train for 350K iterations total
 snapshot: 3000  #10000 -> 3 days bet. saves
 snapshot_prefix: "snapshot101_sgd/train"
 test_compute_loss: true
-test_initialization: true
+#test_initialization: true
 solver_mode : GPU
 
 type: "SGD"
