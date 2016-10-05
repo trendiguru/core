@@ -136,11 +136,12 @@ def hamming_distance(gt, est):
         return 0
     else:
         print('shapes DO match')
-    print('')
+
     hamming_similarity = sum([1 for (g, e) in zip(gt, est) if g == e]) / float(len(gt))
+    print('hamming = '+str(hamming_similarity))
     return hamming_similarity
 
-def update_confmat(gt,est,tp,tn,fp,fn):
+def update_confmat_combine_cats(gt,est,tp,tn,fp,fn):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
     pantsindex = constants.web_tool_categories.index('pants')
     jeansindex = constants.web_tool_categories.index('jeans')
@@ -168,6 +169,23 @@ def update_confmat(gt,est,tp,tn,fp,fn):
                     fp[i] += 1
                 else:   # true negative
                     tn[i] += 1
+#        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    return tp,tn,fp,fn
+
+def update_confmat(gt,est,tp,tn,fp,fn,thresh=0.5):
+#    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
+    for i in range(len(gt)):
+        #combine jeans and pants, consider also doing cardigan an sweater
+        if gt[i] == 1:
+            if est[i]>thresh: # true positive
+                tp[i] += 1
+            else:   # false negative
+                fn[i] += 1
+        else:
+            if est[i]>thresh: # false positive
+                fp[i] += 1
+            else:   # true negative
+                tn[i] += 1
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
 
@@ -216,10 +234,10 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
         ests = np.array([y*1 for y in ests])
         print('net estimate_layer output:'+str(net.blobs[estimate_layer].data))
         print('net score output:'+str(net.blobs['score'].data))
-        print('xxx gts shape {} ests shape {}:'.format(gts.shape,ests.shape))
-        baseline_est = np.zeros_like(ests)
+        print('xxx gts shape {} ests shape {} '.format(gts.shape,ests.shape))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
-            print('yyy gts shape {} ests shape {}:'.format(gt.shape,est.shape))
+            baseline_est = np.zeros_like(est)
+            print('yyy gts shape {} ests shape {} bl shape {}:'.format(gts.shape,ests.shape,baseline_est.shape))
             if est.shape != gt.shape:
                 print('shape mismatch')
                 continue
@@ -234,7 +252,6 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
             print('gt:'+str(gt))
             print('est:'+str(est))
             h = hamming_distance(gt, est)
-
             baseline_h = hamming_distance(gt,baseline_est)
 #            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
