@@ -234,10 +234,10 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
         ests = np.array([y*1 for y in ests])
         print('net estimate_layer output:'+str(net.blobs[estimate_layer].data))
         print('net score output:'+str(net.blobs['score'].data))
-        print('xxx gts shape {} ests shape {}:'.format(gts.shape,ests.shape))
-        baseline_est = np.zeros_like(ests)
+        print('xxx gts shape {} ests shape {} '.format(gts.shape,ests.shape))
         for gt, est in zip(gts, ests): #for each ground truth and estimated label vector
-            print('yyy gts shape {} ests shape {}:'.format(gt.shape,est.shape))
+            baseline_est = np.zeros_like(est)
+            print('yyy gts shape {} ests shape {} bl shape {}:'.format(gts.shape,ests.shape,baseline_est.shape))
             if est.shape != gt.shape:
                 print('shape mismatch')
                 continue
@@ -252,7 +252,6 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
             print('gt:'+str(gt))
             print('est:'+str(est))
             h = hamming_distance(gt, est)
-
             baseline_h = hamming_distance(gt,baseline_est)
 #            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
             sum = np.sum(gt)
