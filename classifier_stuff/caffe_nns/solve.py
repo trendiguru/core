@@ -93,7 +93,8 @@ scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results'
 scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
-
+scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
+print('scp lossplot:'+scplossplotcmd)
 
 i = 0
 losses = []
@@ -134,7 +135,7 @@ for _ in range(1000000):
     with open(loss_outputname,'a+') as f:
         f.write(str(int(time.time()))+'\t'+s2)
         f.close()
-    progress_plot.lossplot(loss_outputname)
+#    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
     if type == 'multilabel':
         precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
@@ -146,11 +147,12 @@ for _ in range(1000000):
         acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
 
     subprocess.call(copycmd,shell=True)
-#    subprocess.call(copy3cmd,shell=True)
+    subprocess.call(copy3cmd,shell=True)
 #    subprocess.call(copy4cmd,shell=True)
 
     subprocess.call(scpcmd,shell=True)
-#    subprocess.call(scp3cmd,shell=True)
+    subprocess.call(scp3cmd,shell=True)
+    subprocess.call(scplossplotcmd,shell=True)
 #    subprocess.call(scp4cmd,shell=True)
 
 
