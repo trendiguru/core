@@ -21,6 +21,11 @@ weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr
 solverproto = 'solver.prototxt'
 testproto = 'train_test.prototxt'  #maybe take this out in  favor of train proto
 
+weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
+solverproto = 'solver101_sgd.prototxt'
+testproto = 'ResNet-101-test.prototxt'  #maybe take this out in  favor of train proto
+
+
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 #solver = caffe.SGDSolver('solver.prototxt')
@@ -68,7 +73,7 @@ if type == 'pixlevel':
     outname = outname + '.netoutput.txt'  #TODO fix the shell script to not look for this, then it wont be needed
 
 loss_outputname = os.path.join(outname,'loss.txt')
-
+print('outname:{} lossname {}'.format(outname,loss_outputname))
 copy2cmd = 'cp '+outname + ' ' + host_dirname
 copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
@@ -76,8 +81,8 @@ scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
+Utils.ensure_dir(outname)
 Utils.ensure_file(loss_outputname)
-Utils.ensure_file(outname)
 
 i = 0
 losses = []
@@ -94,7 +99,7 @@ tot_iters = 0
 if type == 'multilabel':
     multilabel_accuracy.open_html(weights, dir=outname,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2)
 
- for _ in range(1000000):
+for _ in range(1000000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
         loss = solver.net.blobs['loss'].data

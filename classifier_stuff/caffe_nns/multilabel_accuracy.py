@@ -428,8 +428,11 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     print('out  {}'.format(out))
 
 def open_html(model_base,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories):
-    Utils.ensure_dir(dir)
-    htmlname = os.path.join(dir,model_base+'results.html')
+    if dir is not None:
+        Utils.ensure_dir(dir)
+        htmlname = os.path.join(dir,model_base+'results.html')
+    else:
+        htmlname = os.path.join(model_base+'results.html')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
