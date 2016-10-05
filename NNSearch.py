@@ -126,8 +126,9 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         # print "query by annoyIndex took {0} secs".format(time()-start)
     farthest_nearest = 1
     nearest_n = []
-    # start = time()
+    tt = 0
     for i, entry in enumerate(entries):
+        t1 = time()
         ent = entry['fingerprint']
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
@@ -155,6 +156,11 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+        t2 = time()
+        tdif = t2-t1
+        tt+=tdif
+    print tt
+    print tt/1000.0
     # print "sorting entries took {0} secs".format(time()-start)
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
