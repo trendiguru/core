@@ -162,9 +162,12 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     print tt
     print tt/1000.0
     # print "sorting entries took {0} secs".format(time()-start)
+    t3 = time()
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
+    t4 = time()
+    print t4-t3
     return nearest_n
 
 
