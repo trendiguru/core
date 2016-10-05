@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 from trendi import Utils
+from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
