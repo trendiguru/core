@@ -84,9 +84,11 @@ Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
+copycmd = 'cp -r '+outdir + ' ' + host_dirname
 copy2cmd = 'cp '+outname + ' ' + host_dirname
 copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
+scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results'
 scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
@@ -141,12 +143,12 @@ for _ in range(1000000):
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
 
-    subprocess.call(copy2cmd,shell=True)
-    subprocess.call(copy3cmd,shell=True)
+    subprocess.call(copycmd,shell=True)
+#    subprocess.call(copy3cmd,shell=True)
 #    subprocess.call(copy4cmd,shell=True)
 
-    subprocess.call(scp2cmd,shell=True)
-    subprocess.call(scp3cmd,shell=True)
+    subprocess.call(scpcmd,shell=True)
+#    subprocess.call(scp3cmd,shell=True)
 #    subprocess.call(scp4cmd,shell=True)
 
 
