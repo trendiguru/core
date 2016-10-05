@@ -4751,25 +4751,20 @@ layer {
 	}
 }
 
-#layer {#
-#	bottom: "myfc1000"#
-#	top: "prob"
-#	name: "pr#ob"
-#	type: "Softmax"
-#}
 
 layer {
   name: "prob"
   bottom: "mymyfc1000"
   top: "prob"
-  type: "Sigmoid"
+  type: "SigmoidCrossEntropy"
+#  type: "Sigmoid"
 }
 
-#layer {
-#	bottom: "myfc21"
-#	bottom: "labels"
-##	top: "score"
-#	name: "score"
-#	type: "SigmoidCrossEntropyLoss"
-#}
 
+layer {
+	bottom: "mymyfc1000"
+	bottom: "labels"
+	top: "score"
+	name: "score"
+	type: "SigmoidCrossEntropyLoss"
+}
