@@ -249,6 +249,9 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     :param show_visual_output:
     :param suffix:
     :return:
+    TODO
+    add color shifting
+    fix blur / noise
     ''' #
    # logging.debug('db A')
    # logging.debug('cv2file:'+str(cv2.__file__))
@@ -276,13 +279,19 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             return
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
+
+    #check that mask size and img size are equal
+        if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
+            print('WARNING shape mismatch (no crop) in augment images, forcing reshape - imgshape {} maskshape {}'.format(img_arr.shape,mask_arr.shape))
+
+  #      logging.debug('augment input:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
+
 #        logging.debug('mask shape:'+str(mask_arr.shape))
 
 
    # logging.debug('db C')
 
 #    logging.debug('db 1')
-    width=img_arr.shape[1]
 
     angle = 0
     offset_x = 0
@@ -296,7 +305,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     y_room = 0
     height,width = img_arr.shape[0:2]
 
-#    logging.debug('db 2')
     if crop_size:
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
@@ -304,6 +312,11 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
             x_room = 0
             y_room = 0
+ #       logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
+#        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
+##            print('WARNING shape mismatch with crop in augment images, forcing reshape!')
+ #           print('img shape wxh {}x{} cropsize {}x{}'.format(img_arr.shape[0],img_arr.shape[1],crop_size[0],crop_size[1]))
+
 
     eps = 0.1
 
@@ -327,8 +340,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if y_room:
             crop_dy = max(-float(y_room)/2,int(np.random.normal(0,float(y_room)/2)))
             crop_dy = min(crop_dy,float(y_room)/2)
-        if max_angle:
-            angle = np.random.uniform(-max_angle,max_angle)
 
     else:  #uniform distributed random numbers
         if max_offset_x:
@@ -346,6 +357,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             crop_dx = int(np.random.uniform(0,float(x_room)/2))
         if y_room:
             crop_dy = int(np.random.uniform(0,float(y_room)/2))
+        if max_angle:
+            angle = np.random.uniform(-max_angle,max_angle)
 
     if len(img_arr.shape) == 3:
         depth = img_arr.shape[2]
@@ -360,7 +373,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         flip_lr = np.random.randint(2)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
-
+    logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
+        width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
     img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
 #    if show_visual_output:
 #        logging.debug('img_arr shape:'+str(img_arr.shape))
@@ -370,6 +384,13 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
       #  logging.debug('doing mask augmentation')
         mask_arr =do_xform(mask_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
         mask_arr = multichannel_to_mask(mask_arr)
+        if save_visual_output:
+            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+            name = "".join(lst)
+            cv2.imwrite(name+'.jpg',img_arr)
+            maskname = name+'_mask.png'
+            cv2.imwrite(maskname,mask_arr)
+#        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
@@ -413,7 +434,11 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-    if crop_size and (crop_dx or crop_dy):
+    if crop_size:
+        if crop_dx is None:
+            crop_dx = 0
+        if crop_dy is None:
+            crop_dy = 0
         left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
         right = int(round(left + crop_size[1]))
         top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))

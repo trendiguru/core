@@ -198,8 +198,21 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     loss = 0
     for idx in dataset:
         net.forward()
-        hist += fast_hist(net.blobs[gt].data[0, 0].flatten(),
-                                net.blobs[layer].data[0].argmax(0).flatten(),
+        print('idx:'+str(idx))
+        try:
+            x=net.blobs[gt]
+            print('gt data type '+str(type(net.blobs[gt])))
+            print('gt data type '+str(type(net.blobs[gt].data)))
+            print('gt data shape:'+str(net.blobs[gt].data.shape))
+            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
+        except:
+            print('unhashable...')
+            continue
+        gt_data = net.blobs[gt].data[0, 0]
+        net_data = net.blobs[layer].data[0]
+
+        hist += fast_hist(gt_data.flatten(),
+                                net_data.argmax(0).flatten(),
                                 n_cl)
         if save_dir:
             Utils.ensure_dir(save_dir)
@@ -208,12 +221,17 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
 #            print('label size:'+str(im.shape))
             im.save(savename)
             orig_image = net.blobs['data'].data[0]
-            print('orig image size:'+str(orig_image.shape))
+            gt =         net.blobs['label'].data[0]
+            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
+            gt=np.reshape(gt,[gt.shape[1],gt.shape[2]])
             orig_image = orig_image.transpose((1,2,0))
-            print('orig image size:'+str(orig_image.shape))
+            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image)
+            gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
+            cv2.imwrite(gt_savename,gt)
             imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
+            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
