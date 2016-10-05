@@ -116,7 +116,7 @@ for _ in range(1000000):
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter*n_iter
     averaged_loss=sum(loss_avg)/len(loss_avg)
-    if type='single_label':
+    if type == 'single_label':
         accuracy = solver.net.blobs['accuracy'].data
         s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy)
         print(s)
