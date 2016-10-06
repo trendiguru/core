@@ -98,7 +98,7 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
-    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels) #
+    open_html(htmlname,testproto,caffemodel,netname=netname,classlabels=classlabels) #
     for i in range(n_classes):
         p,r,a = precision_recall_accuracy(confmat,i)
         write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
@@ -221,6 +221,8 @@ def get_single_label_output(url_or_np_array,required_image_size=(227,227),output
     max = np.max(out)
     print('out  {}'.format(out))
 
+
+#    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels) #
 def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_tool_categories_v2):
     model_base = caffemodel.replace('.caffemodel','')
     with open(htmlname,'a') as g:
