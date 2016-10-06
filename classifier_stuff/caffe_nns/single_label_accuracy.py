@@ -258,7 +258,7 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
         g.write('</th>\n')
         for i in range(len(classlabels)):
             g.write('<th align="left">')
-            g.write('pred.'+classlabels[i])
+            g.write('pred.'+classlabels[i]+'|')
             g.write('</th>\n')
         g.write('</tr>\n')
         g.write('<tr>\n')
@@ -274,7 +274,7 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
         for i in range(confmat_rows):
             g.write('<tr>\n')
             g.write('<td>')
-            g.write('actual '+str(classlabels[i]))
+            g.write('actual '+str(classlabels[i])+'|')
             g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
