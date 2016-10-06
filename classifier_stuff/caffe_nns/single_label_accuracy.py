@@ -237,6 +237,7 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
             g.write(classlabels[i])
             g.write('</th>\n')
         g.write('</tr>\n')
+        g.close()
 
 
 def write_html(htmlname,confmat,classlabels=constants.web_tool_categories_v2,precision=p,recall=r,accuracy=a,classlabel=classlabels[i]):
@@ -260,9 +261,12 @@ def write_html(htmlname,confmat,classlabels=constants.web_tool_categories_v2,pre
         g.write('recall '+round(recall,3))
         g.write('<br>\n')
         g.write('accuracy '+round(accuracy,3))
+        g.close()
 
-def close_html(htmlname)
+def close_html(htmlname):
+    with open(htmlname,'a') as g:
     g.write('</html>')
+    g.close()
 
 def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
    with open(txtname,'a') as f:
