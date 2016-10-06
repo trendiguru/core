@@ -72,7 +72,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
     print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,savedir=None):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,save_dir=None):
     #TODO dont use solver to get inferences , no need for solver for that
     #DONE
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
@@ -95,9 +95,9 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     name = name.replace('\n','')  #remove newline
     name = name.replace('\r','')  #remove return
     htmlname=name+'.html'
-    if savedir is not None:
-        Utils.ensure_dir(savedir)
-        htmlname = os.path.join(savedir,htmlname)
+    if save_dir is not None:
+        Utils.ensure_dir(save_dir)
+        htmlname = os.path.join(save_dir,htmlname)
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
