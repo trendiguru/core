@@ -108,9 +108,9 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
 def precision_recall_accuracy(confmat,class_to_analyze):
     npconfmat = np.array(confmat)
     tp = npconfmat[class_to_analyze,class_to_analyze]
-    fn = npconfmat[class_to_analyze,:] - tp
-    fp = npconfmat[:,class_to_analyze] - tp
-    tn = npconfmat[:,:] - tp -fn - fp
+    fn = np.sum(npconfmat[class_to_analyze,:]) - tp
+    fp = np.sum(npconfmat[:,class_to_analyze]) - tp
+    tn = np.sum(npconfmat[:,:]) - tp -fn - fp
     print('confmat:'+str(confmat))
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     precision = float(tp)/(tp+fp)
