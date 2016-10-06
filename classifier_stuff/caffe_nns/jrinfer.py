@@ -9,7 +9,8 @@ import cv2
 import argparse
 from datetime import datetime
 import caffe
-import json
+import sys
+#import json
 
 # from trendi import pipeline
 from trendi.utils import imutils
@@ -196,17 +197,22 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
+    print('n channels: '+str(n_cl))
     for idx in dataset:
         net.forward()
         print('idx:'+str(idx))
         try:
             x=net.blobs[gt]
-            print('gt data type '+str(type(net.blobs[gt])))
-            print('gt data type '+str(type(net.blobs[gt].data)))
-            print('gt data shape:'+str(net.blobs[gt].data.shape))
-            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
         except:
-            print('unhashable...')
+            print "error on x= :", sys.exc_info()[0]
+            continue
+        try:
+            print('gt data type '+str(type(net.blobs[gt])))
+#            print('gt data type '+str(type(net.blobs[gt].data)))
+#            print('gt data shape:'+str(net.blobs[gt].data.shape))
+#            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
+        except:
+            print "error on datatype:", sys.exc_info()[0]
             continue
         gt_data = net.blobs[gt].data[0, 0]
         net_data = net.blobs[layer].data[0]
@@ -224,25 +230,30 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             gt =         net.blobs['label'].data[0]
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             gt=np.reshape(gt,[gt.shape[1],gt.shape[2]])
-            orig_image = orig_image.transpose((1,2,0))
+            orig_image = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image)
             gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
             cv2.imwrite(gt_savename,gt)
-            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
-            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
+            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=False) #if these run in docker ontainers then no vis. output :<
+            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=False)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
-def seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+def seg_tests(solver, dataset, layer='score', gt='label',outfilename='net_output.txt',save_dir=None):
     print '>>>', datetime.now(), 'Begin seg tests'
+    if save_dir is not None:
+        print('saving net test output to '+save_dir)
+        Utils.ensure_dir(save_dir)
+    else:
+        save_dir = None
     solver.test_nets[0].share_with(solver.net)
-    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, layer, gt,outfilename=outfilename)
     return results_dict
 
-def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt',save_output=False,savedir='testoutput'):
     n_cl = net.blobs[layer].channels
     if save_dir:
 #        save_format = save_format.format(iter)
