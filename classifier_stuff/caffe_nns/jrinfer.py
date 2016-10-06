@@ -228,9 +228,10 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
    #         print('label size:'+str(im.shape))
             im.save(savename)
             orig_image = net.blobs['data'].data[0]
-            gt =         net.blobs['label'].data[0]
+            gt =         net.blobs['label'].data[0,0]
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
-            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
+#            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
+#            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
 #            orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
 #            print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_reshaped.shape))
 #            orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
