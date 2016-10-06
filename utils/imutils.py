@@ -956,7 +956,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:
                 print('doing overlay')
-                orig_arr = cv2.addWeighted(orig_arr, overlay, mask, 1 - overlay,0)
+                orig_arr = cv2.addWeighted(orig_arr, overlay, img_arr, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
