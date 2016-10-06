@@ -242,6 +242,14 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
         g.write('model:'+caffemodel+'\n<br>')
         if netname is not None:
             g.write('netname:'+netname+'\n<br>')
+        g.close()
+
+
+def write_confmat_to_html(htmlname,confmat,classlabels):
+    with open(htmlname,'a') as g:
+        confmat_rows = confmat.shape[0]
+#        if confmat_rows != len(classlabels):
+#            print('WARNING length of labels is not same as size of confmat')
         g.write('<table><br>')
         g.write('<tr>\n')
         g.write('<th align="left">')
@@ -252,14 +260,6 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
             g.write('pred.'+classlabels[i])
             g.write('</th>\n')
         g.write('</tr>\n')
-        g.close()
-
-
-def write_confmat_to_html(htmlname,confmat,classlabels):
-    with open(htmlname,'a') as g:
-        confmat_rows = confmat.shape[0]
-#        if confmat_rows != len(classlabels):
-#            print('WARNING length of labels is not same as size of confmat')
         for i in range(confmat_rows):
             g.write('<tr>\n')
             g.write('<td>')
@@ -282,7 +282,7 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
             g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
-                g.write(str(ncm[i][j]))
+                g.write(str(round(ncm[i][j],3))
                 g.write('</td>\n')
             g.write('</tr>\n')
 
@@ -292,12 +292,10 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
 def write_pra_to_html(htmlname,precision,recall,accuracy,classindex,classlabel):
     with open(htmlname,'a') as g:
         g.write('<br>\n')
-        g.write('class {} label {}'.format(classindex,classlabel))
+        g.write('class {} label {} '.format(classindex,classlabel))
         g.write('<br>\n')
-        g.write('precision '+str(round(precision,3)))
-        g.write('<br>\n')
-        g.write('recall '+str(round(recall,3)))
-        g.write('<br>\n')
+        g.write('precision '+str(round(precision,3))+' ')
+        g.write('recall '+str(round(recall,3))+' ')
         g.write('accuracy '+str(round(accuracy,3)))
         g.write('<br>\n')
         g.close()
