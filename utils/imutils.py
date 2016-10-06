@@ -824,7 +824,12 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=0.5):
+    '''
+    todo : use overlay cv2.addWeighted(overlay, alpha, output, 1 - alpha,
+		0, output)
+		http://www.pyimagesearch.com/2016/03/07/transparent-overlays-with-opencv/
+    '''
     colormap = cv2.COLORMAP_JET
     img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
     if img_arr is None:
@@ -907,8 +912,8 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     if original_image is not None:
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
-            print('original image:'+str(original_image))
             height, width = orig_arr.shape[:2]
+            print('got original image:'+str(original_image)+' shape:'+orig_arr.shape)
             maxheight=600
             minheight=300
             desired_height=500
@@ -935,7 +940,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         #    cv2.imshow('original',orig_arr)
             elif height != h or width != w:
                 orig_arr = resize_keep_aspect(orig_arr,output_size=(h,w))
-                logging.debug('orig {}x{} mask {}x{}'.format(height,width,h,w))
+                logging.debug('size mismach bet. orig and mask - orig {}x{} mask {}x{}'.format(height,width,h,w))
             colorbar_h,colorbar_w = dest_colorbar.shape[0:2]
 #            logging.debug('dest colorbar w {} h {} shape {}'.format(colorbar_w,colorbar_h,dest_colorbar.shape))
             dest_h,dest_w = dest.shape[0:2]
@@ -947,6 +952,9 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             logging.debug('combined shape:'+str(combined.shape))
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
+            if overlay:
+                print('doing overlay')
+                orig_arr = cv2.addWeighted(orig_arr, overlay, mask, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
