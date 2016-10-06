@@ -72,7 +72,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
     print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,dir=None):
     #TODO dont use solver to get inferences , no need for solver for that
     #DONE
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
@@ -95,6 +95,8 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     dir = dir.replace('\n','')  #remove newline
     dir = dir.replace('\r','')  #remove return
     htmlname=dir+'.html'
+    if dir is not None:
+        htmlname = os.path.join(dir,htlmname)
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
@@ -187,8 +189,6 @@ def multilabel_infer_one(url):
     return out.astype(np.uint8)
 
 def get_single_label_output(url_or_np_array,required_image_size=(227,227),output_layer_name='prob'):
-
-
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
@@ -358,6 +358,7 @@ if __name__ =="__main__":
     single_label_acc(args.caffemodel,args.testproto,label_layer='label', estimate_layer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
 #def single_label_acc(caffemodel,          testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
 
+#python  /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/single_label_accuracy.py --caffemodel snapshot/res101_binary_dress_iter_37000.caffemodel --testproto ResNet-101-train_test.prototxt --output_layer_name estimate --n_classes 2 --n_tests 10
 
 
 
