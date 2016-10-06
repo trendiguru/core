@@ -221,6 +221,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
                                 net_data.argmax(0).flatten(),
                                 n_cl)
         if save_dir:
+            continue
             Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
             savename = os.path.join(save_dir, str(idx) + '.png')
