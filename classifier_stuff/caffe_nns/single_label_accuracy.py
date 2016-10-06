@@ -117,6 +117,7 @@ def precision_recall_accuracy(confmat,class_to_analyze):
     recall = float(tp)/(tp+fn)
     accuracy = float(tp+tn)/(tp+fp+tn+fn)
     print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
+    return precision, recall, accuracy
 
 def normalized_confmat(confmat):
     npconfmat = np.array(confmat)
