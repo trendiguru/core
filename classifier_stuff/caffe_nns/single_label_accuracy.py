@@ -81,8 +81,13 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     if net is None:
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
-        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
-
+#        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        if caffemodel == '':
+            caffemodel = None  #hack to keep things working, ideally change refs to caffemodel s.t. None is ok
+            net = caffe.Net(testproto,caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        else:
+            net = caffe.Net(testproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        #Net('train_val.prototxt', 1, weights='')
     model_base = caffemodel.split('/')[-1]
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
