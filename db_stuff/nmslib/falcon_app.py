@@ -29,7 +29,7 @@ class Search:
         # print('got POST')
         ret = {"success": False}
         try:
-            print(req)
+            print(req.stream)
             data = msgpack.loads(req.stream.read())
             print(1)
             fp = data.get("fp")
