@@ -232,9 +232,9 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
             orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
-            print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_reshaped.shape))
-            orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
-            cv2.imwrite(orig_savename,orig_image_transposed)
+#            print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_reshaped.shape))
+#            orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
+#            cv2.imwrite(orig_savename,orig_image_transposed)
 #            gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
 #            cv2.imwrite(gt_savename,gt_reshaped)
 #            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=False) #if these run in docker ontainers then no vis. output :<
