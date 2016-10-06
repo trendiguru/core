@@ -204,9 +204,9 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
         try:
             x=net.blobs[gt]
             print('gt data type '+str(type(net.blobs[gt])))
-            print('gt data type '+str(type(net.blobs[gt].data)))
-            print('gt data shape:'+str(net.blobs[gt].data.shape))
-            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
+#            print('gt data type '+str(type(net.blobs[gt].data)))
+#            print('gt data shape:'+str(net.blobs[gt].data.shape))
+#            print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
         except:
             print "Unexpected error:", sys.exc_info()[0]
             continue
