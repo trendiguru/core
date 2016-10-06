@@ -29,8 +29,8 @@ class Search:
         # print('got POST')
         ret = {"success": False}
         try:
-            print(req.stream.read())
-            data = msgpack.loads(req.stream.read())
+            # print(req.stream.read())
+            data = msgpack.load(req.stream.read())
             print(1)
             fp = data.get("fp")
             print(2)
