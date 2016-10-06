@@ -252,7 +252,8 @@ if __name__ =="__main__":
     parser.add_argument('--testproto',  help='test prototxt')
     parser.add_argument('--caffemodel', help='caffemodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
-    parser.add_argument('--output_layer_name', help='output layer name',default='prob')
+    parser.add_argument('--output_layer_name', help='output layer name',default='estimate')
+    parser.add_argument('--label_layer_name', help='label layer name',default='label')
     parser.add_argument('--n_tests', help='number of examples to test',default=1000)
     parser.add_argument('--n_classes', help='number of classes',default=21)
     parser.add_argument('--classlabels', help='class labels (specify a list from trendi.constants)')
@@ -272,7 +273,8 @@ if __name__ =="__main__":
     else:
         classlabels = constants.classlabels
     print('classlabels:'+str(classlabels))
-    single_label_acc(args.caffemodel,args.testproto,outlayer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
+    single_label_acc(args.caffemodel,args.testproto,label_layer='label', estimate_layer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
+#def single_label_acc(caffemodel,          testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
 
 
 
