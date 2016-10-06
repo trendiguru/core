@@ -143,7 +143,7 @@ for _ in range(1000000):
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
     elif type == 'pixlevel':
-        jrinfer.seg_tests(solver, False, val, layer='conv_final',outfilename=outname)
+        jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=detailed_outputname,save_dir='testoutput')
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
 #

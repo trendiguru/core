@@ -224,7 +224,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             gt =         net.blobs['label'].data[0]
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             gt=np.reshape(gt,[gt.shape[1],gt.shape[2]])
-            orig_image = orig_image.transpose((1,2,0))
+            orig_image = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image)
@@ -236,13 +236,18 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
-def seg_tests(solver, save_format, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+def seg_tests(solver, dataset, layer='score', gt='label',outfilename='net_output.txt',save_dir=None):
     print '>>>', datetime.now(), 'Begin seg tests'
+    if save_dir is not None
+        print('saving net test output to '+save_dir)
+        Utils.ensure_dir(save_dir)
+    else:
+        save_dir = None
     solver.test_nets[0].share_with(solver.net)
-    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_format, dataset, layer, gt,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, layer, gt,outfilename=outfilename)
     return results_dict
 
-def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt'):
+def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt',save_output=False,savedir='testoutput'):
     n_cl = net.blobs[layer].channels
     if save_dir:
 #        save_format = save_format.format(iter)
