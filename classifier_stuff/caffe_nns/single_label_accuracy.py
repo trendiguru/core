@@ -99,9 +99,9 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
     open_html(htmlname,testproto,caffemodel,netname=netname,classlabels=classlabels) #
+    write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
     for i in range(n_classes):
         p,r,a = precision_recall_accuracy(confmat,i)
-        write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
         write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
     close_html(htmlname)
 
@@ -237,7 +237,7 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
         g.write('</head>')
         g.write('<body>')
         g.write('<br>\n')
-        g.write('single-label results generated on '+ str(dt.isoformat())+'/n<br>/n')
+        g.write('single-label results generated on '+ str(dt.isoformat())+'<br>')
         g.write('proto:'+proto+'\n<br>')
         g.write('model:'+caffemodel+'\n<br>')
         if netname is not None:
@@ -282,7 +282,7 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
             g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
-                g.write(str(confmat[i][j]))
+                g.write(str(ncm[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
 
@@ -299,6 +299,7 @@ def write_pra_to_html(htmlname,precision,recall,accuracy,classindex,classlabel):
         g.write('recall '+str(round(recall,3)))
         g.write('<br>\n')
         g.write('accuracy '+str(round(accuracy,3)))
+        g.write('<br>\n')
         g.close()
 
 def close_html(htmlname):
