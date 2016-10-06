@@ -14,8 +14,7 @@ class Search:
         self.index = index
         self.nmslib_vector = nmslib_vector
 
-
-    def on_get(self, resp):
+    def on_get(self,req, resp):
         print("got GET")
         """Handles GET requests"""
         quote = {
@@ -132,7 +131,7 @@ api = falcon.API()
 # collection = '%s_%s_%s' % (col_name, cc, gender)
 # for category in categories:
 #     print(category)
-route = ''
+route = '/'
 api.add_route(route, Search(collection, categories,index_version))
 
 
