@@ -88,7 +88,10 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
         else:
             net = caffe.Net(testproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
         #Net('train_val.prototxt', 1, weights='')
-    model_base = caffemodel.split('/')[-1]
+    if caffemodel is not '' and caffemodel is not None:
+        model_base = caffemodel.split('/')[-1]
+    else:
+        model_base = 'scratch'
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
