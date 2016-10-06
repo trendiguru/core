@@ -81,7 +81,7 @@ if type == 'multilabel':
 if type == 'single_label':
     outname = os.path.join(outdir,outdir[2:]+'_slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
-print('outname:{} lossname {} outdir {}'.format(outname,loss_outputname,outdir))
+print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
@@ -115,8 +115,8 @@ if type == 'multilabel':
 for _ in range(1000000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
-        loss = solver.net.blobs['score'].data
-#        loss = solver.net.blobs['loss'].data
+#        loss = solver.net.blobs['score'].data
+        loss = solver.net.blobs['loss'].data
         print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)
