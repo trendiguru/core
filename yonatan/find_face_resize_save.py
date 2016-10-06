@@ -122,7 +122,7 @@ for set in sets:
         for file in files:
             # if file.endswith(".jpg"):
             image_array = cv2.imread(file)
-            face_answer = find_that_face(file, 1)
+            face_answer = find_that_face(image_array, 1)
 
             if face_answer['are_faces'] > 0:
                 x, y, w, h = face_answer['faces'][0]
