@@ -295,11 +295,11 @@ def write_pra_to_html(htmlname,precision,recall,accuracy,classindex,classlabel):
         g.write('<br>\n')
         g.write('class {} label {}'.format(classindex,classlabel))
         g.write('<br>\n')
-        g.write('precision '+round(precision,3))
+        g.write('precision '+str(round(precision,3)))
         g.write('<br>\n')
-        g.write('recall '+round(recall,3))
+        g.write('recall '+str(round(recall,3)))
         g.write('<br>\n')
-        g.write('accuracy '+round(accuracy,3))
+        g.write('accuracy '+str(round(accuracy,3)))
         g.close()
 
 def close_html(htmlname):
