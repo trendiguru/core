@@ -654,7 +654,11 @@ class JrMultilabel(caffe.Layer):
             in_ = np.array(im, dtype=np.float32)
             if in_ is None:
                 logging.warning('could not get image '+filename)
-                return None
+                continue
+            logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
+            if in_.shape[2] != 3:
+                logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                continue
             in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
 
 #############end added code to avoid cv2.imread############
@@ -703,7 +707,7 @@ class JrMultilabel(caffe.Layer):
         out_ = np.array(out_, dtype=np.float32)
 
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
-
+        #todo maybe also normalize to -1:1
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
