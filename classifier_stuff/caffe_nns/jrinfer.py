@@ -195,7 +195,7 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=constants.ultimate_21):
+def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120)):
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
@@ -237,6 +237,8 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
             orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
+            orig_image_transposed += np.array(mean)
+            orig_image_transposed = orig_image_transposed.astype(np.uint8)
             print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_image.shape))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image_transposed)
