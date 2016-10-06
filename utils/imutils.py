@@ -899,7 +899,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             logging.warning('pixel value '+str(unique)+' out of label range (2)')
             continue
         pixelcount = len(img_arr[img_arr==unique])
-        print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+ #       print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
         frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
         cv2.putText(dest_colorbar,labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         i=i+1 #
