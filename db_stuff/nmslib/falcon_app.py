@@ -26,16 +26,21 @@ class Search:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print('got POST')
+        # print('got POST')
         ret = {"success": False}
         try:
+            print(req)
             data = msgpack.loads(req.stream.read())
+            print(1)
             fp = data.get("fp")
+            print(2)
             k = data.get("k")
+            print(3)
             ret["data"] = load_n_search.find_to_k(fp, k, self.nmslib_vector, self.index)
             ret["success"] = True
         except Exception as e:
             ret["error"] = str(e)
+        print(ret['success'])
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
