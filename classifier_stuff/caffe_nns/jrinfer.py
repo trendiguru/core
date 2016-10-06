@@ -9,7 +9,8 @@ import cv2
 import argparse
 from datetime import datetime
 import caffe
-import json
+import sys
+#import json
 
 # from trendi import pipeline
 from trendi.utils import imutils
@@ -196,6 +197,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
+    print('n channels: '+str(n_cl))
     for idx in dataset:
         net.forward()
         print('idx:'+str(idx))
@@ -206,7 +208,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             print('gt data shape:'+str(net.blobs[gt].data.shape))
             print('gt data [0,0]shape:'+str(net.blobs[gt].data[0,0].shape))
         except:
-            print('unhashable...')
+            print "Unexpected error:", sys.exc_info()[0]
             continue
         gt_data = net.blobs[gt].data[0, 0]
         net_data = net.blobs[layer].data[0]
