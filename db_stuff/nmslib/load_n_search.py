@@ -9,7 +9,7 @@ def load_index(col_name, category, index_version, reindex=False):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
-    index_name = col_name + '_' + category +index_version+ '.index'
+    index_name = '/usr/bash/indexes/'+col_name + '_' + category +index_version+ '.index'
     file_exists = isfile(index_name)
     if reindex or not file_exists:
         build_n_save(col_name, category, index_version)
