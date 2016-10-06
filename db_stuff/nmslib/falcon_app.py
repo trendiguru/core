@@ -14,8 +14,7 @@ class Search:
         self.index = index
         self.nmslib_vector = nmslib_vector
 
-
-    def on_get(self, resp):
+    def on_get(self,req, resp):
         print("got GET")
         """Handles GET requests"""
         quote = {
@@ -26,17 +25,22 @@ class Search:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print('got POST')
+        # print('got POST')
         ret = {"success": False}
         try:
+            # print(req.stream.read())
             data = msgpack.loads(req.stream.read())
+            print(1)
             fp = data.get("fp")
+            print(2)
             k = data.get("k")
+            print(3)
             ret["data"] = load_n_search.find_to_k(fp, k, self.nmslib_vector, self.index)
             ret["success"] = True
         except Exception as e:
             ret["error"] = str(e)
-        resp.data = msgpack.dumps(ret)
+        print(ret['success'])
+        # resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
@@ -127,7 +131,7 @@ api = falcon.API()
 # collection = '%s_%s_%s' % (col_name, cc, gender)
 # for category in categories:
 #     print(category)
-route = '/'+categories
+route = '/'+ categories
 api.add_route(route, Search(collection, categories,index_version))
 
 
