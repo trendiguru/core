@@ -101,7 +101,8 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
     for i in range(n_classes):
         p,r,a = precision_recall_accuracy(confmat,i)
-        write_html(htmlname,confmat,netname,classlabels=classlabels,precision=p,recall=r,accuracy=a,classlabel=classlabels[i])
+        write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
+        write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
     close_html(htmlname)
 
 def precision_recall_accuracy(confmat,class_to_analyze):
@@ -117,6 +118,14 @@ def precision_recall_accuracy(confmat,class_to_analyze):
     accuracy = float(tp+tn)/(tp+fp+tn+fn)
     print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
 
+def normalized_confmat(confmat):
+    npconfmat = np.array(confmat)
+    normalized_cm = np.zeros_like(npconfmat)
+    for i in range(npconfmat.shape[0]):
+        n = float(np.sum(npconfmat[i,:]))
+        normalized_cm[i,:] = npconfmat[i,:]/n
+    print('normalized confmat {}'.format(normalized_cm))
+    return normalized_cm
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
@@ -232,29 +241,56 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
             g.write('netname:'+netname+'\n<br>')
         g.write('<table><br>')
         g.write('<tr>\n')
+        g.write('<th align="left">')
+        g.write('confmat')
+        g.write('</th>\n')
         for i in range(len(classlabels)):
             g.write('<th align="left">')
-            g.write(classlabels[i])
+            g.write('pred.'+classlabels[i])
             g.write('</th>\n')
         g.write('</tr>\n')
         g.close()
 
 
-def write_html(htmlname,confmat,classlabels=constants.web_tool_categories_v2,precision=p,recall=r,accuracy=a,classlabel=classlabels[i]):
+def write_confmat_to_html(htmlname,confmat,classlabels):
     with open(htmlname,'a') as g:
         confmat_rows = confmat.shape[0]
-        if confmat_rows != len(classlabels):
-            print('WARNING length of labels is not same as size of confmat')
+#        if confmat_rows != len(classlabels):
+#            print('WARNING length of labels is not same as size of confmat')
+        g.write('<table><br>')
         for i in range(confmat_rows):
             g.write('<tr>\n')
+            g.write('<td>')
+            g.write(str(classlabels[i])
+            g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
                 g.write(str(confmat[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
         g.write('</table><br>')
+
+        ncm = normalized_confmat(confmat)
+        g.write('normalized')
+        g.write('<table><br>')
+        for i in range(confmat_rows):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write(str(classlabels[i])
+            g.write('</td>\n')
+            for j in range(confmat_rows):
+                g.write('<td>')
+                g.write(str(confmat[i][j]))
+                g.write('</td>\n')
+            g.write('</tr>\n')
+
+        g.write('</table><br>')
+        g.close()
+
+def write_pra_to_html(htmlname,precision,recall,accuracy,classindex,classlabel):
+    with open(htmlname,'a') as g:
         g.write('<br>\n')
-        g.write('class '+classlabel)
+        g.write('class {} label {}'.format(classindex,classlabel))
         g.write('<br>\n')
         g.write('precision '+round(precision,3))
         g.write('<br>\n')
