@@ -282,7 +282,7 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
             g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
-                g.write(str(round(ncm[i][j],3))
+                g.write(str(round(ncm[i][j],3)))
                 g.write('</td>\n')
             g.write('</tr>\n')
 
