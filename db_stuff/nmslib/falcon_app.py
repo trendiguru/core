@@ -131,7 +131,7 @@ api = falcon.API()
 # collection = '%s_%s_%s' % (col_name, cc, gender)
 # for category in categories:
 #     print(category)
-route = '/'
+route = '/'+ categories
 api.add_route(route, Search(collection, categories,index_version))
 
 
