@@ -497,10 +497,19 @@ layer {
   bottom: "myfc8"
   bottom: "label"
   top: "loss"
+  include: { phase: TRAIN }
 }
 
 layer {
-  name: "acc"
+  name: "estimate"
+  type: "Softmax"
+  bottom: "myfc8"
+  top: "estimate"
+  include: { phase: TEST }
+}
+
+layer {
+  name: "accuracy"
   type: "Accuracy"
   bottom: "myfc8"
   bottom: "label"

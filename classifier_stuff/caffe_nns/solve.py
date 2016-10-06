@@ -20,9 +20,6 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
-weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
-solverproto = 'solver.prototxt'
-testproto = 'train_test.prototxt'  #maybe take this out in  favor of train proto
 
 weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
 solverproto = 'solver101_sgd.prototxt'
@@ -35,7 +32,8 @@ caffe.set_mode_gpu()
 #get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
 solver = caffe.get_solver(solverproto)
 training_net = solver.net
-solver.net.copy_from(weights)
+if weights is not None:
+    solver.net.copy_from(weights)
 solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
 test_net = solver.test_nets[0] # more than one testnet is supported
 
