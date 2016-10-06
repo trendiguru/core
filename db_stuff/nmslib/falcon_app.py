@@ -40,7 +40,7 @@ class Search:
         except Exception as e:
             ret["error"] = str(e)
         print(ret['success'])
-        resp.data = msgpack.dumps(ret)
+        # resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
