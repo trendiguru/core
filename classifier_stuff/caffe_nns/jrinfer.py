@@ -227,7 +227,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             savename = os.path.join(save_dir, str(idx) + '.png')
    #         print('label size:'+str(im.shape))
             im.save(savename)
-#            orig_image = net.blobs['data'].data[0]
+            orig_image = net.blobs['data'].data[0]
 #            gt =         net.blobs['label'].data[0,0]
 #            print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt.shape))
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
