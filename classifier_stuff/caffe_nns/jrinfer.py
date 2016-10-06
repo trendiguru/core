@@ -238,7 +238,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
 
 def seg_tests(solver, dataset, layer='score', gt='label',outfilename='net_output.txt',save_dir=None):
     print '>>>', datetime.now(), 'Begin seg tests'
-    if save_dir is not None
+    if save_dir is not None:
         print('saving net test output to '+save_dir)
         Utils.ensure_dir(save_dir)
     else:
