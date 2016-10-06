@@ -121,25 +121,25 @@ for set in sets:
     for root, dirs, files in os.walk(path):
         for file in files:
             # if file.endswith(".jpg"):
-            image_array = cv2.imread(file)
+            image_array = cv2.imread(os.path.join(root, file))
             print file
             print image_array
             print type(image_array)
-            face_answer = find_that_face(image_array, 1)
-
-            if face_answer['are_faces'] > 0:
-                x, y, w, h = face_answer['faces'][0]
-
-                face_image = image_array[y:(y + h), x:(x + w)]
-
-                resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
-
-                image_file_name = 'face-' + str(counter) + '.jpg'
-
-                cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-
-                counter += 1
-                print counter
-            else:
-                print "Can't detect face"
-            os.remove(os.path.join(root, file))
+            # face_answer = find_that_face(image_array, 1)
+            #
+            # if face_answer['are_faces'] > 0:
+            #     x, y, w, h = face_answer['faces'][0]
+            #
+            #     face_image = image_array[y:(y + h), x:(x + w)]
+            #
+            #     resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+            #
+            #     image_file_name = 'face-' + str(counter) + '.jpg'
+            #
+            #     cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+            #
+            #     counter += 1
+            #     print counter
+            # else:
+            #     print "Can't detect face"
+            # os.remove(os.path.join(root, file))
