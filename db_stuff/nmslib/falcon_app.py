@@ -26,7 +26,7 @@ class Search:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print('got POST')
+        # print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
@@ -36,6 +36,7 @@ class Search:
             ret["success"] = True
         except Exception as e:
             ret["error"] = str(e)
+        print(ret['success'])
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
