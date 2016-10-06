@@ -265,8 +265,8 @@ def write_html(htmlname,confmat,classlabels=constants.web_tool_categories_v2,pre
 
 def close_html(htmlname):
     with open(htmlname,'a') as g:
-    g.write('</html>')
-    g.close()
+        g.write('</html>')
+        g.close()
 
 def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
    with open(txtname,'a') as f:
