@@ -30,8 +30,11 @@ class Search:
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
+            print(1)
             fp = data.get("fp")
+            print(2)
             k = data.get("k")
+            print(3)
             ret["data"] = load_n_search.find_to_k(fp, k, self.nmslib_vector, self.index)
             ret["success"] = True
         except Exception as e:
