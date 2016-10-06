@@ -121,8 +121,9 @@ for set in sets:
     for root, dirs, files in os.walk(path):
         for file in files:
             # if file.endswith(".jpg"):
-            image_array = cv2.imread(file)
-            face_answer = find_that_face(file, 1)
+            image_array = cv2.imread(os.path.join(root, file))
+
+            face_answer = find_that_face(image_array, 1)
 
             if face_answer['are_faces'] > 0:
                 x, y, w, h = face_answer['faces'][0]
