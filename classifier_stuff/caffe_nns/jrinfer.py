@@ -230,8 +230,8 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             cv2.imwrite(orig_savename,orig_image)
             gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
             cv2.imwrite(gt_savename,gt)
-            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
-            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=True)
+            imutils.show_mask_with_labels(savename,labels,original_image=orig_savename,save_images=True,visual_output=False) #if these run in docker ontainers then no vis. output :<
+            imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=False)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
