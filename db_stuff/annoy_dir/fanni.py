@@ -116,7 +116,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     print("got it in %s secs!"% total_duration)
     msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s), results count: %d' \
           % (col_name, category, total_duration, load_duration, search_duration, len(result))
-    if int(total_duration)>1:
+    if float(total_duration)>1.0:
         db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
 
