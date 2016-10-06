@@ -7,7 +7,7 @@ def build_n_save(col_name, category, index_version):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
-    index_name = col_name + '_' + category + index_version+ '.index'
+    index_name = 'indexes/'+col_name + '_' + category + index_version+ '.index'
     index = nmslib_vector.init(
         space_type,
         space_param,
