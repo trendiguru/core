@@ -96,7 +96,7 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     dir = dir.replace('\r','')  #remove return
     htmlname=dir+'.html'
     if dir is not None:
-        htmlname = os.path.join(dir,htlmname)
+        htmlname = os.path.join(dir,htmlname)
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
