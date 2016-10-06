@@ -28,7 +28,7 @@ class Search:
         # print('got POST')
         ret = {"success": False}
         try:
-            print(req.stream.read())
+            # print(req.stream.read())
             data = msgpack.loads(req.stream.read())
             print(1)
             fp = data.get("fp")
@@ -40,7 +40,7 @@ class Search:
         except Exception as e:
             ret["error"] = str(e)
         print(ret['success'])
-        resp.data = msgpack.dumps(ret)
+        # resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
