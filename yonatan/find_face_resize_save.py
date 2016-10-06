@@ -117,7 +117,7 @@ sets = {'male', 'female'}
 
 for set in sets:
     counter = 0
-    path = "/home/yonatan/" ------------- need to complete
+    path = "/home/yonatan/faces_stuff/test_dir"
     for root, dirs, files in os.walk(path):
         for file in files:
             # if file.endswith(".jpg"):
@@ -125,7 +125,7 @@ for set in sets:
             face_answer = find_that_face(image_array, 1)
 
             if face_answer['are_faces'] > 0:
-                x, y, w, h = face_answer['faces']
+                x, y, w, h = face_answer['faces'][0]
 
                 face_image = image_array[y:(y + h), x:(x + w)]
 
@@ -139,4 +139,4 @@ for set in sets:
                 print counter
             else:
                 print "Can't detect face"
-
+            os.remove(os.path.join(root, file))
