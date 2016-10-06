@@ -122,7 +122,7 @@ for set in sets:
         for file in files:
             if file.endswith(".jpg"):
                 image_array = cv2.imread(file)
-                image_array = image_array.astype(np.uint8)
+                # image_array = image_array.astype(np.uint8)
                 face_answer = find_that_face(image_array, 1)
 
                 if face_answer['are_faces'] > 0:
