@@ -122,6 +122,7 @@ for set in sets:
         for file in files:
             # if file.endswith(".jpg"):
             image_array = cv2.imread(file)
+            print file
             print image_array
             print type(image_array)
             face_answer = find_that_face(image_array, 1)
