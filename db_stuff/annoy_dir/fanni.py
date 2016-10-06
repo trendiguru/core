@@ -1,6 +1,6 @@
 import os
 from time import time
-import datetime
+import datetime import datetime
 import annoy
 from ...constants import db
 from ..general import db_utils
