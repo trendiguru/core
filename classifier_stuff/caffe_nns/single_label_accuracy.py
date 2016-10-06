@@ -72,7 +72,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
     print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,dir=None):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,savedir=None):
     #TODO dont use solver to get inferences , no need for solver for that
     #DONE
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
@@ -87,16 +87,17 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
-        dir = 'single_label_'+netname+'_'+model_base.replace('.caffemodel','')
+        name = 'single_label_'+netname+'_'+model_base.replace('.caffemodel','')
     else:
-        dir = 'single_label_'+protoname+'_'+model_base.replace('.caffemodel','')
-    dir = dir.replace('"','')  #remove quotes
-    dir = dir.replace(' ','')  #remove spaces
-    dir = dir.replace('\n','')  #remove newline
-    dir = dir.replace('\r','')  #remove return
-    htmlname=dir+'.html'
-    if dir is not None:
-        htmlname = os.path.join(dir,htmlname)
+        name = 'single_label_'+protoname+'_'+model_base.replace('.caffemodel','')
+    name = name.replace('"','')  #remove quotes
+    name = name.replace(' ','')  #remove spaces
+    name = name.replace('\n','')  #remove newline
+    name = name.replace('\r','')  #remove return
+    htmlname=name+'.html'
+    if savedir is not None:
+        Utils.ensure_dir(savedir)
+        htmlname = os.path.join(savedir,htmlname)
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
