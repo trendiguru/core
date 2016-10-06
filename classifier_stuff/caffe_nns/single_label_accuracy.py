@@ -98,7 +98,7 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
-    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
+    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels) #
     for i in range(n_classes):
         p,r,a = precision_recall_accuracy(confmat,i)
         write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
