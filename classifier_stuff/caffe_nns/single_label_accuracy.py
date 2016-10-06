@@ -74,6 +74,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
 
 def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
     #TODO dont use solver to get inferences , no need for solver for that
+    #DONE
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     n_classes = len(classlabels)
     print('nclasses {} labels {}'.format(n_classes,classlabels))
@@ -86,18 +87,35 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
-        dir = 'single_label_results-'+netname+'_'+model_base.replace('.caffemodel','')
+        dir = 'single_label_'+netname+'_'+model_base.replace('.caffemodel','')
     else:
-        dir = 'single_label_results-'+protoname+'_'+model_base.replace('.caffemodel','')
+        dir = 'single_label_'+protoname+'_'+model_base.replace('.caffemodel','')
     dir = dir.replace('"','')  #remove quotes
     dir = dir.replace(' ','')  #remove spaces
     dir = dir.replace('\n','')  #remove newline
     dir = dir.replace('\r','')  #remove return
     htmlname=dir+'.html'
-    print('dir to save stuff in : '+str(dir))
-    Utils.ensure_dir(dir)
+    print('htmlname : '+str(htmlname))
+#    Utils.ensure_dir(dir)
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
-    write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
+    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
+    for i in range(n_classes):
+        p,r,a = precision_recall_accuracy(confmat,i)
+        write_html(htmlname,confmat,netname,classlabels=classlabels,precision=p,recall=r,accuracy=a,classlabel=classlabels[i])
+    close_html(htmlname)
+
+def precision_recall_accuracy(confmat,class_to_analyze):
+    npconfmat = np.array(confmat)
+    tp = npconfmat[class_to_analyze,class_to_analyze]
+    fn = npconfmat[class_to_analyze,:] - tp
+    fp = npconfmat[:,class_to_analyze] - tp
+    tn = npconfmat[:,:] - tp -fn - fp
+    print('confmat:'+str(confmat))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    precision = float(tp)/(tp+fp)
+    recall = float(tp)/(tp+fn)
+    accuracy = float(tp+tn)/(tp+fp+tn+fn)
+    print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
 
 
 def multilabel_infer_one(url):
@@ -194,7 +212,7 @@ def get_single_label_output(url_or_np_array,required_image_size=(227,227),output
     max = np.max(out)
     print('out  {}'.format(out))
 
-def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
+def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_tool_categories_v2):
     model_base = caffemodel.replace('.caffemodel','')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
@@ -220,6 +238,9 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
             g.write('</th>\n')
         g.write('</tr>\n')
 
+
+def write_html(htmlname,confmat,classlabels=constants.web_tool_categories_v2,precision=p,recall=r,accuracy=a,classlabel=classlabels[i]):
+    with open(htmlname,'a') as g:
         confmat_rows = confmat.shape[0]
         if confmat_rows != len(classlabels):
             print('WARNING length of labels is not same as size of confmat')
@@ -230,12 +251,18 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
                 g.write(str(confmat[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
-
         g.write('</table><br>')
-        plotfilename = 'multilabel_results'+model_base+'.png'
+        g.write('<br>\n')
+        g.write('class '+classlabel)
+        g.write('<br>\n')
+        g.write('precision '+round(precision,3))
+        g.write('<br>\n')
+        g.write('recall '+round(recall,3))
+        g.write('<br>\n')
+        g.write('accuracy '+round(accuracy,3))
 
-        g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
-        g.write('</html>')
+def close_html(htmlname)
+    g.write('</html>')
 
 def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
    with open(txtname,'a') as f:
