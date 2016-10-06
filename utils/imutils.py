@@ -826,6 +826,8 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 
 def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=0.5):
     '''
+    split this into one function that takes mask and gives img with labels possibly with overlay, returns arr
+    and another func that takes 2 images and puts side by side
     todo : use overlay cv2.addWeighted(overlay, alpha, output, 1 - alpha,
 		0, output)
 		http://www.pyimagesearch.com/2016/03/07/transparent-overlays-with-opencv/
