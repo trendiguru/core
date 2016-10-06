@@ -252,12 +252,23 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
 #            print('WARNING length of labels is not same as size of confmat')
         g.write('<table><br>')
         g.write('<tr>\n')
+#write confmat headings
         g.write('<th align="left">')
         g.write('confmat')
         g.write('</th>\n')
         for i in range(len(classlabels)):
             g.write('<th align="left">')
             g.write('pred.'+classlabels[i])
+            g.write('</th>\n')
+        g.write('</tr>\n')
+        g.write('<tr>\n')
+        g.write('<th align="left">')
+        g.write('____')
+        g.write('</th>\n')
+#write confmat
+        for i in range(len(classlabels)):
+            g.write('<th align="left">')
+            g.write('____')
             g.write('</th>\n')
         g.write('</tr>\n')
         for i in range(confmat_rows):
@@ -271,9 +282,12 @@ def write_confmat_to_html(htmlname,confmat,classlabels):
                 g.write('</td>\n')
             g.write('</tr>\n')
 
+#write normalized confmat
         ncm = normalized_confmat(confmat)
         g.write('<tr>\n')
+        g.write('<th align="left">')
         g.write('normalized')
+        g.write('</th>\n')
         g.write('</tr>\n')
         for i in range(confmat_rows):
             g.write('<tr>\n')
