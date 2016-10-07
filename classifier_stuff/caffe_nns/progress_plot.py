@@ -352,13 +352,13 @@ def lossplot(input_filename,netinfo=''):
     n_iters.append(n_iter)
     times.append(time)
     losses.append(loss)
-    if len(thesplit)>2:
+    if len(thesplit)>3:
       acc = thesplit[3]
       accuracy.append(acc)
-    if len(thesplit)>3:
+    if len(thesplit)>4:
       prec = thesplit[4]
       precision.append(prec)
-    if len(thesplit)>4:
+    if len(thesplit)>5:
       rec = thesplit[5]
       recall.append(rec)
   if len(n_iters)<2:
