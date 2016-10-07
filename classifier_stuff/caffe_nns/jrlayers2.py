@@ -617,7 +617,7 @@ class JrMultilabel(caffe.Layer):
         self.next_idx()
         #print('forward end')
         self.counter += 1
-        print('data shape {} labelshape {}'.format(self.data.shape,self.label.shape))
+        print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
         print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
 
     def backward(self, top, propagate_down, bottom):
