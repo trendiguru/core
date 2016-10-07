@@ -375,14 +375,14 @@ def lossplot(input_filename,netinfo=''):
   fig, ax1 = plt.subplots()
   ax2 = ax1.twinx()
 
-  ax1.plot(n_iters, losses,'r,', label="loss")
+  ax1.plot(n_iters, losses,'r.', label="loss")
   ax1.set_xlabel(xtitle)
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
   print('lengths: iter {} time {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
   if len(accuracy)>2 and len(accuracy) == len(n_iters):
-    ax2.plot(n_iters, accuracy,'gx', label="accuracy")
+    ax2.plot(n_iters, accuracy,'go', label="accuracy")
     ax2.set_ylabel("accuracy")
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="precision")
@@ -390,6 +390,7 @@ def lossplot(input_filename,netinfo=''):
   if len(recall)>2 and len(recall) == len(n_iters):
     plt.plot(n_iters, recall,'r4', label="recall")
     ax2.set_ylabel("recall")
+  plt.legend()
   output_filename = input_filename[:-4] + '.png'
   print('saving plot of loss from file '+input_filename+' to file '+output_filename)
   plt.savefig(output_filename)
