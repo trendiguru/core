@@ -5,6 +5,21 @@ import time
 
 from trendi import Utils
 
+def make_indices_recursive(dir):
+    #do current direcotry
+
+    print('indexing directory '+str(dir))
+    make_index(dir)
+    #do subdirectories
+    dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
+    dirs=sorted(dirs,key=os.path.getmtime,reverse=True)  #sort by date
+#    dirs.sort()
+
+    print('top dirs in '+dir+':'+str(dirs))
+    for d in dirs:
+        print('onedeep now making index.html for '+str(d))
+        make_index(d)
+
 def make_indices_onedeep(dir):
     #do current direcotry
 
