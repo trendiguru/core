@@ -393,6 +393,8 @@ class JrPixlevel(caffe.Layer):
 
 
 
+
+
 ######################################################################################3
 # MULTILABEL
 #######################################################################################
@@ -649,16 +651,20 @@ class JrMultilabel(caffe.Layer):
 
 #############start added code to avoid cv2.imread############
             im = Image.open(filename)
-            if self.new_size:
-                im = im.resize(self.new_size,Image.ANTIALIAS)
-            in_ = np.array(im, dtype=np.float32)
-            if in_ is None:
-                logging.warning('could not get image '+filename)
-                continue
-            logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
-            if in_.shape[2] != 3:
-                logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
-                continue
+            try:
+                if self.new_size:
+                    im = im.resize(self.new_size,Image.ANTIALIAS)
+                in_ = np.array(im, dtype=np.float32)
+                if in_ is None:
+                    logging.warning('could not get image '+filename)
+                    continue
+                logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
+                if in_.shape[2] != 3:
+                    logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                    continue
+            except:
+                e = sys.exc_info()[0]
+                logging.debug( "Error: %s" % e )
             in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
 
 #############end added code to avoid cv2.imread############
