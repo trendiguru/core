@@ -143,7 +143,7 @@ for _ in range(1000000):
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=detailed_outputname,save_dir='testoutput')
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,label_layer='label',estimate_layer='fc2',n_tests=10,gpu=2,classlabels=constants.web_tool_categories_v2,save_dir=outdir)
+        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=10,gpu=2,classlabels=constants.web_tool_categories_v2,save_dir=outdir)
 #
     subprocess.call(copycmd,shell=True)
     subprocess.call(copy2cmd,shell=True)

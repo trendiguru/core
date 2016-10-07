@@ -108,6 +108,8 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
         htmlname = os.path.join(save_dir,htmlname)
     print('htmlname : '+str(htmlname))
 #    Utils.ensure_dir(dir)
+
+
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
     open_html(htmlname,testproto,caffemodel,netname=netname,classlabels=classlabels) #
     write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
