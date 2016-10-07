@@ -188,8 +188,8 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 
 if __name__ == "__main__":
     print('start')
-#    make_index('classifier_results')
-    make_indices_recursive('/var/www/results')
+    make_index('classifier_results')
+#    make_indices_recursive('/var/www/results')
 
     if(0):
         origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
