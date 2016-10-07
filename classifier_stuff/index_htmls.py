@@ -62,7 +62,6 @@ def make_index(dir):
 #    dirs.sort() #dont sort by date, it mixes nets up
     htmlfiles = []
     for file in files:
-#        actual_path =
         if file=='index.html':
             continue
         htmlfiles.append(file)
@@ -71,7 +70,8 @@ def make_index(dir):
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
         if file.endswith('loss.txt'):
-            progress_plot.lossplot(file)
+            actual_path = os.path.join(dir,file)
+            progress_plot.lossplot(actual_path)
 
 #   sort by mod time
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))

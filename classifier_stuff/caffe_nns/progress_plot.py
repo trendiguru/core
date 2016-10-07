@@ -384,7 +384,7 @@ def lossplot(input_filename,netinfo=''):
     plt.plot(n_iters, recall,'r4', label="recall")
     ax2.set_ylabel("recall")
   output_filename = input_filename[:-4] + '.png'
-  print('saving plot of loss from file '+input_filename)
+  print('saving plot of loss from file '+input_filename+' to file '+output_filename)
   plt.savefig(output_filename)
 
 
