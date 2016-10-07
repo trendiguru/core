@@ -9,6 +9,7 @@ def make_indices_recursive(dir):
     #do current direcotry
 
     print('indexing directory '+str(dir))
+    raw_input('ret to cont')
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
@@ -17,7 +18,8 @@ def make_indices_recursive(dir):
 
     print('top dirs in '+dir+':'+str(dirs))
     for d in dirs:
-        print('recursive now making index.html for '+str(d))
+        print('recursively now making index.html for '+str(d))
+
         make_indices_recursive(d)
 
 def make_indices_onedeep(dir):
