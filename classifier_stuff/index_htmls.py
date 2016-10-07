@@ -9,7 +9,7 @@ def make_indices_recursive(dir):
     #do current direcotry
 
     print('indexing directory '+str(dir))
-    raw_input('ret to cont')
+ #   raw_input('ret to cont')
     make_index(dir)
     #do subdirectories
     dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
@@ -74,7 +74,7 @@ def make_index(dir):
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
 #    htmlfiles.sort()
-    htmlfiles.append('')
+    htmlfiles.append('')  #make a space bet. files and dirs
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
@@ -190,8 +190,8 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 
 if __name__ == "__main__":
     print('start')
-    make_index('classifier_results')
-#    make_indices_recursive('/var/www/results')
+#    make_index('classifier_results')
+    make_indices_recursive('/var/www/results')
 
     if(0):
         origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'
