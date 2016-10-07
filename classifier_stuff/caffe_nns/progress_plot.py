@@ -363,7 +363,7 @@ def lossplot(input_filename,netinfo=''):
         rec = float(thesplit[5])
         recall.append(rec)
     except :
-      print('exception parsing lossfile:'+ sys.exc_info()[0])
+      print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
       continue
   if len(n_iters)<2:
     return
