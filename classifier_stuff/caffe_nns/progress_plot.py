@@ -347,21 +347,25 @@ def lossplot(input_filename,netinfo=''):
     time = thesplit[0]
     n_iter = thesplit[1]
     loss = thesplit[2]
-    if not(n_iter.isdigit()):
+    if not(n_iter.isdigit() and time.isdigit() ):
       continue
-    n_iters.append(int(n_iter))
-    times.append(int(time))
-    losses.append(float(loss))
-    if len(thesplit)>3:
-      acc = float(thesplit[3])
-      accuracy.append(acc)
-    if len(thesplit)>4:
-      prec = float(thesplit[4])
-      precision.append(prec)
-    if len(thesplit)>5:
-      rec = float(thesplit[5])
-      recall.append(rec)
-  if len(n_iters)<2:
+    try:
+      n_iters.append(int(n_iter))
+      times.append(int(time))
+      losses.append(float(loss))
+      if len(thesplit)>3:
+        acc = float(thesplit[3])
+        accuracy.append(acc)
+      if len(thesplit)>4:
+        prec = float(thesplit[4])
+        precision.append(prec)
+      if len(thesplit)>5:
+        rec = float(thesplit[5])
+        recall.append(rec)
+    except :
+      print('exception parsing lossfile:'+ sys.exc_info()[0])
+      continue
+    if len(n_iters)<2:
     return
 
   xtitle = 'iteration'
