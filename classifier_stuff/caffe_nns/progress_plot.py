@@ -365,7 +365,7 @@ def lossplot(input_filename,netinfo=''):
     except :
       print('exception parsing lossfile:'+ sys.exc_info()[0])
       continue
-    if len(n_iters)<2:
+  if len(n_iters)<2:
     return
 
   xtitle = 'iteration'
