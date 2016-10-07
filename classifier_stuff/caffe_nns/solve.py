@@ -85,12 +85,12 @@ time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
 copycmd = 'cp -r '+outdir + ' ' + host_dirname
-copy2cmd = 'cp '+outname + ' ' + host_dirname
-copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
+#copy2cmd = 'cp '+outname + ' ' + host_dirname
+#copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
-scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results'
-scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
-scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
+#scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
+#scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 #scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
 #print('scp lossplot:'+scplossplotcmd)
