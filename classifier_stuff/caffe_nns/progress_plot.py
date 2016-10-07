@@ -376,13 +376,14 @@ def lossplot(input_filename,netinfo=''):
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
-  if len(accuracy)>2:
+  print('lengths: iter {} time {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
+  if len(accuracy)>2 and len(accuracy) == len(n_iters):
     ax2.plot(n_iters, accuracy,'gx', label="accuracy")
     ax2.set_ylabel("accuracy")
-  if len(precision)>2:
+  if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="precision")
     ax2.set_ylabel("precision")
-  if len(accuracy)>2:
+  if len(recall)>2 and len(recall) == len(n_iters):
     plt.plot(n_iters, recall,'r4', label="recall")
     ax2.set_ylabel("recall")
   output_filename = input_filename[:-4] + '.png'
