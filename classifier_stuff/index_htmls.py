@@ -17,7 +17,7 @@ def make_indices_recursive(dir):
 
     print('top dirs in '+dir+':'+str(dirs))
     for d in dirs:
-        print('onedeep now making index.html for '+str(d))
+        print('recursive now making index.html for '+str(d))
         make_indices_recursive(d)
 
 def make_indices_onedeep(dir):
