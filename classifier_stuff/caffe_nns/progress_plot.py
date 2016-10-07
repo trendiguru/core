@@ -25,6 +25,12 @@ import socket
 #then throw the jpgs onto a results website
 
 def parse_logfile(output_filename,logy):
+  '''
+  parses caffe-generated logfile
+  :param output_filename:
+  :param logy:
+  :return:
+  '''
   print('parsing logfile')
   f = open(output_filename, 'r')
   training_iterations = []
@@ -315,7 +321,9 @@ def fit_log(x, k,a, b, x0):
     #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
-def lossplot(input_filename):
+def lossplot(input_filename,netinfo=''):
+  '''plot from file with loss, iter, time etc generated from solve.py
+  '''
   print('parsing solve.py (jrinference) output file '+input_filename)
   try:
     f = open(input_filename, 'r')
@@ -325,20 +333,56 @@ def lossplot(input_filename):
   times = []
   losses = []
   n_iters = []
+  accuracy = []
+  precision = []
+  recall = []
+  firstline = True
+# read files if format of
+  #n_iter time loss [accuracy] [precision] [recall]
   for line in f:
 #    print('checking line:'+line)
-      print line
-      thesplit = line.split()
-      n_iter = thesplit[0]
-      time = thesplit[1]
-      loss = thesplit[2]
-      n_iters.append(n_iter)
-      times.append(time)
-      losses.append(loss)
-  plt.plot(n_iters, losses,'ro:', label="loss")
-  plt.xlabel("iter")
-  plt.ylabel("loss")
+#    print line
+
+    thesplit = line.split()
+    time = thesplit[0]
+    n_iter = thesplit[1]
+    loss = thesplit[2]
+    if not(n_iter.isdigit()):
+      continue
+    n_iters.append(n_iter)
+    times.append(time)
+    losses.append(loss)
+    if len(thesplit)>2:
+      acc = thesplit[3]
+      accuracy.append(acc)
+    if len(thesplit)>3:
+      prec = thesplit[4]
+      precision.append(prec)
+    if len(thesplit)>4:
+      rec = thesplit[5]
+      recall.append(rec)
+  if len(n_iters)<2:
+    return
+
+  n_iters = [i/1000 for i in n_iters ]
+
+  fig, ax1 = plt.subplots()
+  ax2 = ax1.twinx()
+
+  ax1.plot(n_iters, losses,'r,', label="loss")
+  ax1.set_xlabel("iter/1000")
+  ax1.set_ylabel("loss")
   plt.title(input_filename)
+  plt.suptitle(netinfo)
+  if len(accuracy)>2:
+    ax2.plot(n_iters, accuracy,'gx', label="accuracy")
+    ax2.set_ylabel("accuracy")
+  if len(precision)>2:
+    ax2.plot(n_iters, precision,'b3', label="precision")
+    ax2.set_ylabel("precision")
+  if len(accuracy)>2:
+    plt.plot(n_iters, recall,'r4', label="recall")
+    ax2.set_ylabel("recall")
   output_filename = input_filename[:-4] + '.png'
   plt.savefig(output_filename)
 

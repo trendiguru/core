@@ -4,6 +4,7 @@ import os
 import time
 
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns import progress_plot
 
 def make_indices_recursive(dir):
     #do current direcotry
@@ -69,6 +70,8 @@ def make_index(dir):
 #            htmlfiles.append(file)
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
+        if file.endswith('loss.txt'):
+            progress_plot.lossplot(file)
 
 #   sort by mod time
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
@@ -82,6 +85,8 @@ def make_index(dir):
     write_index_html_with_images(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
  #   print(htmlfiles)
+
+
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
