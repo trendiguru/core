@@ -693,7 +693,6 @@ class JrMultilabel(caffe.Layer):
 #            out_ = augment_images.generate_image_onthefly(in_)
 
             #print('returned from augment_images')
-
             #im = Image.open(filename)
             #if im is None:
             #    logging.warning('could not get image '+filename)
