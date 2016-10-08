@@ -446,9 +446,9 @@ layer {
   }
 }
 layer {
-  name: "fc8"
+  name: "myfc8"
   bottom: "fc7"
-  top: "fc8"
+  top: "myfc8"
   type: "InnerProduct"
   inner_product_param {
     num_output: 2
@@ -457,15 +457,15 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "fc8"
+  bottom: "myfc8"
   bottom: "label"
-  top: "loss/loss"
+  top: "loss"
   include: { phase: TRAIN }
 }
 layer {
   name: "estimate"
   type: "Softmax"
-  bottom: "fc8"
+  bottom: "myfc8"
 #  bottom: "label"
   top: "estimate"
   include: { phase: TEST }
@@ -473,7 +473,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc8"
+  bottom: "myfc8"
   bottom: "label"
   top: "accuracy"
   include: { phase: TEST }
