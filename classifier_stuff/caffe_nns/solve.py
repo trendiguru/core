@@ -55,6 +55,8 @@ prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
+type='pixlevel'
+type='single_label'
 threshold = 0.5
 if net_name:
     outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
