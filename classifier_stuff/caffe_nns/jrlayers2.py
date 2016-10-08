@@ -287,8 +287,6 @@ class JrPixlevel(caffe.Layer):
         - transpose to channel x height x width order
         """
         while(1):
-
-            print('a')
             filename = self.imagefiles[self.idx]
             label_filename=self.labelfiles[self.idx]
             print('imagefile:'+filename+'\nlabelfile:'+label_filename+' index:'+str(self.idx))
@@ -297,20 +295,17 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
                 ####todo - check that the image is coming in correctly wrt color etc
-            print('b')
             im = Image.open(filename)
             if im is None:
                 logging.warning('could not get image1 '+filename)
                 self.next_idx()
                 continue
-            print('c')
 
             if self.resize:
                 im = im.resize(self.augment_resize,Image.ANTIALIAS)
                 print('resizing image')
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]   #RGB -> BGR
-            print('d')
             if in_ is None:
                 logging.warning('could not get image2 '+filename)
                 self.next_idx()
@@ -320,12 +315,10 @@ class JrPixlevel(caffe.Layer):
             The leading singleton dimension is required by the loss.
             """
             im = Image.open(label_filename)
-            print('e')
             if im is None:
                 logging.warning('could not get label1 '+filename)
                 self.next_idx()
                 continue
-            print('f')
             if self.resize:
                 im = im.resize(self.augment_resize,Image.ANTIALIAS)
                 print('resizing mask')
@@ -340,7 +333,7 @@ class JrPixlevel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-
+            break  #we finally made it past all the checks
         if self.kaggle is not False:
             print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
@@ -663,7 +656,6 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()   #bad file, goto next
                 continue
             #print('calling augment_images with file '+filename)
-            print('a')
 #############start added code to avoid cv2.imread############
             im = Image.open(filename)
             try:
@@ -688,7 +680,6 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error in jrlayers2 checking image: %s" % e )
                 self.next_idx()
                 continue
-            print('b')
             try:
                 in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
             except:
@@ -696,7 +687,6 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
                 self.next_idx()
                 continue
-            print('c')
 
 #############end added code to avoid cv2.imread############
 
@@ -711,7 +701,6 @@ class JrMultilabel(caffe.Layer):
                 crop_size=self.augment_crop_size,
                 show_visual_output=self.augment_show_visual_output,
                                 save_visual_output=self.augment_save_visual_output)
-            print('d')
 
 #            out_,unused = augment_images.generate_image_onthefly(in_,mask_filename_or_nparray=in_)
 #            out_ = augment_images.generate_image_onthefly(in_)
@@ -729,7 +718,6 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-            print('e')
             if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
                 print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
