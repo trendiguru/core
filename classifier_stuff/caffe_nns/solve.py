@@ -133,7 +133,7 @@ for _ in range(1000000):
     elif type == 'pixlevel':
                 # number of tests for pixlevel
         val = range(0,200) #
-        jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=outname,save_dir=outdir)
+        jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
 
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_item','item'],save_dir=outdir)
