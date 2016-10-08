@@ -709,6 +709,7 @@ class JrMultilabel(caffe.Layer):
                 continue
             if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
                 print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
+                print('weird file:'+filename)
                 self.next_idx()  #goto next
                 idx = self.idx
                 continue
