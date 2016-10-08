@@ -287,6 +287,8 @@ class JrPixlevel(caffe.Layer):
         - transpose to channel x height x width order
         """
         while(1):
+
+            print('a')
             filename = self.imagefiles[self.idx]
             label_filename=self.labelfiles[self.idx]
             print('imagefile:'+filename+'\nlabelfile:'+label_filename+' index:'+str(self.idx))
@@ -295,15 +297,22 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
                 ####todo - check that the image is coming in correctly wrt color etc
+            print('b')
             im = Image.open(filename)
+            if im is None:
+                logging.warning('could not get image1 '+filename)
+                self.next_idx()
+                continue
+            print('c')
 
             if self.resize:
                 im = im.resize(self.augment_resize,Image.ANTIALIAS)
                 print('resizing image')
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]   #RGB -> BGR
+            print('d')
             if in_ is None:
-                logging.warning('could not get image '+filename)
+                logging.warning('could not get image2 '+filename)
                 self.next_idx()
                 continue
             """
@@ -311,16 +320,26 @@ class JrPixlevel(caffe.Layer):
             The leading singleton dimension is required by the loss.
             """
             im = Image.open(label_filename)
+            print('e')
+            if im is None:
+                logging.warning('could not get label1 '+filename)
+                self.next_idx()
+                continue
+            print('f')
             if self.resize:
                 im = im.resize(self.augment_resize,Image.ANTIALIAS)
                 print('resizing mask')
             if im is None:
-                logging.warning('couldnt load file '+label_filename)
+                logging.warning('couldnt load label '+label_filename)
                 self.next_idx()
                 continue
     #        if self.new_size:
     #            im = im.resize(self.new_size,Image.ANTIALIAS)
             label_in_ = np.array(im, dtype=np.uint8)
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                continue
 
         if self.kaggle is not False:
             print('kagle image, moving 255 -> 1')
