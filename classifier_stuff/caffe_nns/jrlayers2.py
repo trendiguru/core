@@ -642,16 +642,15 @@ class JrMultilabel(caffe.Layer):
             if not(os.path.isfile(filename)):
                 logging.debug('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
-
                 continue
             #print('calling augment_images with file '+filename)
-
+            print('a')
 #############start added code to avoid cv2.imread############
             im = Image.open(filename)
             try:
                 if im is None:
                     logging.warning('jrlayers2 could not get im '+filename)
-                    idx = self.idx
+                    self.next_idx()
                     continue
                 if self.new_size:
                     im = im.resize(self.new_size,Image.ANTIALIAS)
@@ -670,6 +669,7 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error in jrlayers2 checking image: %s" % e )
                 self.next_idx()
                 continue
+            print('b')
             try:
                 in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
             except:
@@ -677,6 +677,7 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
                 self.next_idx()
                 continue
+            print('c')
 
 #############end added code to avoid cv2.imread############
 
@@ -691,6 +692,7 @@ class JrMultilabel(caffe.Layer):
                 crop_size=self.augment_crop_size,
                 show_visual_output=self.augment_show_visual_output,
                                 save_visual_output=self.augment_save_visual_output)
+            print('d')
 
 #            out_,unused = augment_images.generate_image_onthefly(in_,mask_filename_or_nparray=in_)
 #            out_ = augment_images.generate_image_onthefly(in_)
@@ -708,6 +710,7 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
+            print('e')
             if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
                 print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
