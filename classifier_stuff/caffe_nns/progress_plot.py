@@ -376,6 +376,7 @@ def lossplot(input_filename,netinfo=''):
   ax2 = ax1.twinx()
 
   ax1.plot(n_iters, losses,'r.', label="loss")
+  ax1.plot(0,0,'r.',label='loss')
   ax1.set_xlabel(xtitle)
   ax1.set_ylabel("loss")
   plt.title(input_filename)
@@ -391,6 +392,7 @@ def lossplot(input_filename,netinfo=''):
     plt.plot(n_iters, recall,'r4', label="recall")
     ax2.set_ylabel("recall")
   plt.legend()
+
   output_filename = input_filename[:-4] + '.png'
   print('saving plot of loss from file '+input_filename+' to file '+output_filename)
   plt.savefig(output_filename)
