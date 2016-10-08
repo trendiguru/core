@@ -463,7 +463,7 @@ layer {
   include: { phase: TRAIN }
 }
 layer {
-  name: "estimate
+  name: "estimate"
   type: "Softmax"
   bottom: "fc8"
 #  bottom: "label"
