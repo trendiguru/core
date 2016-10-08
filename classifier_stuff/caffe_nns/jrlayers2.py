@@ -299,31 +299,34 @@ class JrPixlevel(caffe.Layer):
             if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
                 print('ONE OF THESE IS NOT ACCESSIBLE:'+str(label_filename)+','+str(filename))
                 self.next_idx()
-            else:
-                break
+                continue
                 ####todo - check that the image is coming in correctly wrt color etc
-        im = Image.open(filename)
+            im = Image.open(filename)
 
-        if self.resize:
-            im = im.resize(self.augment_resize,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        in_ = in_[:,:,::-1]   #RGB -> BGR
-        if in_ is None:
-            logging.warning('could not get image '+filename)
-            return None
-        """
-        Load label image as 1 x height x width integer array of label indices.
-        The leading singleton dimension is required by the loss.
-        """
-        im = Image.open(label_filename)
-        if self.resize:
-            im = im.resize(self.augment_resize,Image.ANTIALIAS)
-        if im is None:
-            print(' COULD NOT LOAD FILE '+label_filename)
-            logging.warning('couldnt load file '+label_filename)
-#        if self.new_size:
-#            im = im.resize(self.new_size,Image.ANTIALIAS)
-        label_in_ = np.array(im, dtype=np.uint8)
+            if self.resize:
+                im = im.resize(self.augment_resize,Image.ANTIALIAS)
+                print('resizing image')
+            in_ = np.array(im, dtype=np.float32)
+            in_ = in_[:,:,::-1]   #RGB -> BGR
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                continue
+            """
+            Load label image as 1 x height x width integer array of label indices.
+            The leading singleton dimension is required by the loss.
+            """
+            im = Image.open(label_filename)
+            if self.resize:
+                im = im.resize(self.augment_resize,Image.ANTIALIAS)
+                print('resizing mask')
+            if im is None:
+                logging.warning('couldnt load file '+label_filename)
+                self.next_idx()
+                continue
+    #        if self.new_size:
+    #            im = im.resize(self.new_size,Image.ANTIALIAS)
+            label_in_ = np.array(im, dtype=np.uint8)
 
         if self.kaggle is not False:
             print('kagle image, moving 255 -> 1')
