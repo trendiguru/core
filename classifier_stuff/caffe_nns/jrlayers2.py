@@ -604,6 +604,7 @@ class JrMultilabel(caffe.Layer):
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
+            print('idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
@@ -619,7 +620,7 @@ class JrMultilabel(caffe.Layer):
         self.next_idx()
         #print('forward end')
         self.counter += 1
-        print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
+   #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
         print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
 
     def backward(self, top, propagate_down, bottom):
