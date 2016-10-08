@@ -321,7 +321,7 @@ def fit_log(x, k,a, b, x0):
     #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
-def lossplot(input_filename,netinfo=''):
+def lossplot(input_filename,netinfo='',logy=True):
   '''plot from file with loss, iter, time etc generated from solve.py
   '''
   print('parsing solve.py (jrinference) output file '+input_filename)
@@ -375,8 +375,12 @@ def lossplot(input_filename,netinfo=''):
   fig, ax1 = plt.subplots()
   ax2 = ax1.twinx()
 
-  ax1.plot(n_iters, losses,'r.', label="loss")
-  ax1.plot(0,0,'r.',label='loss')
+  if logy:
+    ax1.semilogy(n_iters, losses,'r.', label="loss")
+    ax1.semilogy(0,0,'r.',label='loss')
+  else:
+    ax1.plot(n_iters, losses,'r.', label="loss")
+    ax1.plot(0,0,'r.',label='loss')
   ax1.set_xlabel(xtitle)
   ax1.set_ylabel("loss")
   plt.title(input_filename)

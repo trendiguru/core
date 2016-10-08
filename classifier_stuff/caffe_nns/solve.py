@@ -7,10 +7,7 @@ import setproctitle
 import subprocess
 import socket
 import matplotlib
-matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
-plt.ioff()
-
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -18,13 +15,13 @@ from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
+matplotlib.use('Agg') #allow plot generation on X-less systems
+plt.ioff()
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
-
 
 weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
 solverproto = 'solver101_sgd.prototxt'
 testproto = 'ResNet-101-test.prototxt'  #maybe take this out in  favor of train proto
-
 
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
@@ -40,16 +37,12 @@ test_net = solver.test_nets[0] # more than one testnet is supported
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-#all_params = [k for k in solver.net.params.keys()]
-#print('all params:')
-#print all_params
-#all_blobs = [k for k in solver.net.blobs.keys()]
-#print('all blobs:')
-#print all_blobs
 #surgery.interp(solver.net, interp_layers)
 
-# scoring
-#val = np.loadtxt('../data/segvalid11.txt', dtype=str)
+#all_params = [k for k in solver.net.params.keys()]
+#all_blobs = [k for k in solver.net.blobs.keys()]
+
+# number of tests for pixlevel
 val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
@@ -92,8 +85,6 @@ scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
 #scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
-#scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
-#print('scp lossplot:'+scplossplotcmd)
 
 i = 0
 losses = []
@@ -105,7 +96,6 @@ tot_iters = 0
 
 #instead of taking steps its also possible to do
 #solver.solve()
-#acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 if type == 'multilabel':
     multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2,name=outname)
@@ -143,18 +133,10 @@ for _ in range(1000000):
     elif type == 'pixlevel':
         jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=detailed_outputname,save_dir='testoutput')
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=10,gpu=2,classlabels=constants.web_tool_categories_v2,save_dir=outdir)
+        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_item','item'],save_dir=outdir)
 #
     subprocess.call(copycmd,shell=True)
-    subprocess.call(copy2cmd,shell=True)
-    subprocess.call(copy3cmd,shell=True)
-#    subprocess.call(copy4cmd,shell=True)
-
     subprocess.call(scpcmd,shell=True)
-    subprocess.call(scp2cmd,shell=True)
-    subprocess.call(scp3cmd,shell=True)
- #   subprocess.call(scplossplotcmd,shell=True)
-#    subprocess.call(scp4cmd,shell=True)
 
 
 
