@@ -50,7 +50,7 @@ net_name = multilabel_accuracy.get_netname(testproto)
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
-baremetal_hostname = os.environ.get('HOST_HOSTNAME')
+baremetal_hostname = 'braini'
 prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)

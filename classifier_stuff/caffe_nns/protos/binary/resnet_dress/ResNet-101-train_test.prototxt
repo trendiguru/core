@@ -4781,9 +4781,9 @@ layer {
 }
 
 layer {
-  name: "acc"
+  name: "accuracy"
   type: "Accuracy"
   bottom: "fc2"
   bottom: "label"
-  top: "acc"
+  top: "accuracy"
 }
