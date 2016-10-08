@@ -302,7 +302,7 @@ class JrPixlevel(caffe.Layer):
                 continue
 
             if self.resize:
-                im = im.resize(self.augment_resize,Image.ANTIALIAS)
+                im = im.resize(self.resize,Image.ANTIALIAS)
                 print('resizing image')
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]   #RGB -> BGR
@@ -320,7 +320,7 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             if self.resize:
-                im = im.resize(self.augment_resize,Image.ANTIALIAS)
+                im = im.resize(self.resize,Image.ANTIALIAS)
                 print('resizing mask')
             if im is None:
                 logging.warning('couldnt load label '+label_filename)
