@@ -197,14 +197,8 @@ class JrPixlevel(caffe.Layer):
         # assign output
         top[0].data[...] = self.data
         top[1].data[...] = self.label
-
         # pick next input
-        if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
-        else:
-            self.idx += 1
-            if self.idx == len(self.imagefiles):
-                self.idx = 0
+        self.next_idx()
 
 
     def backward(self, top, propagate_down, bottom):
@@ -639,18 +633,16 @@ class JrMultilabel(caffe.Layer):
         - transpose to channel x height x width order
         """
         #print('load_image_and_label start')
-        if idx is None:
-            idx = self.idx
         while(1):
-            filename = self.imagefiles[idx]
-            label_vec = self.label_vecs[idx]
+            filename = self.imagefiles[self.idx]
+            label_vec = self.label_vecs[self.idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
-                print('NOT A FILE:'+str(filename))
+                logging.debug('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
-                idx = self.idx
+
                 continue
             #print('calling augment_images with file '+filename)
 
@@ -659,25 +651,32 @@ class JrMultilabel(caffe.Layer):
             try:
                 if im is None:
                     logging.warning('jrlayers2 could not get im '+filename)
+                    idx = self.idx
                     continue
                 if self.new_size:
                     im = im.resize(self.new_size,Image.ANTIALIAS)
                 in_ = np.array(im, dtype=np.float32)
                 if in_ is None:
                     logging.warning('jrlayers2 could not get in_ '+filename)
+                    self.next_idx()
                     continue
                 logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
                 if in_.shape[2] != 3:
                     logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                    self.next_idx()
                     continue
             except:
                 e = sys.exc_info()[0]
                 logging.debug( "Error in jrlayers2 checking image: %s" % e )
+                self.next_idx()
+                continue
             try:
                 in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
             except:
                 e = sys.exc_info()[0]
                 logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
+                self.next_idx()
+                continue
 
 #############end added code to avoid cv2.imread############
 
@@ -708,15 +707,13 @@ class JrMultilabel(caffe.Layer):
             if out_ is None:
                 logging.warning('could not get image '+filename)
                 self.next_idx()
-                idx = self.idx
                 continue
             if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
                 print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
-                idx = self.idx
                 continue
-            break #got good img, get out of while
+            break #got good img after all that , get out of while
 
         if self.augment_save_visual_output:
             name = str(self.idx)+str(label_vec)+'.jpg'
