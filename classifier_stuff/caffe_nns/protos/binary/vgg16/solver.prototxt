@@ -6,7 +6,7 @@ average_loss: 30
 weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
-snapshot: 5000
+snapshot: 2000
 snapshot_prefix: "snapshot/vgg16_binary_dress"
 test_initialization: false
 solver_mode : GPU
