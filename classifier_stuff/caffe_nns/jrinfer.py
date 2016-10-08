@@ -250,7 +250,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
-def seg_tests(solver, dataset, layer='score', gt='label',outfilename='net_output.txt',save_dir=None):
+def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None):
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
         print('saving net test output to '+save_dir)
@@ -258,15 +258,15 @@ def seg_tests(solver, dataset, layer='score', gt='label',outfilename='net_output
     else:
         save_dir = None
     solver.test_nets[0].share_with(solver.net)
-    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, layer, gt,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, output_layer, gt_layer,outfilename=outfilename)
     return results_dict
 
-def do_seg_tests(net, iter, save_dir, dataset, layer='score', gt='label',outfilename='net_output.txt',save_output=False,savedir='testoutput'):
-    n_cl = net.blobs[layer].channels
+def do_seg_tests(net, iter, save_dir, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_output=False,savedir='testoutput'):
+    n_cl = net.blobs[output_layer].channels
     if save_dir:
 #        save_format = save_format.format(iter)
         Utils.ensure_dir(save_dir)
-    hist, loss = compute_hist(net, save_dir, dataset, layer, gt)
+    hist, loss = compute_hist(net, save_dir, dataset, output_layer, gt_layer)
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy

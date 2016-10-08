@@ -42,8 +42,6 @@ test_net = solver.test_nets[0] # more than one testnet is supported
 #all_params = [k for k in solver.net.params.keys()]
 #all_blobs = [k for k in solver.net.blobs.keys()]
 
-# number of tests for pixlevel
-val = range(0,200) #
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 net_name = multilabel_accuracy.get_netname(testproto)
@@ -133,7 +131,10 @@ for _ in range(1000000):
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
     elif type == 'pixlevel':
-        jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=detailed_outputname,save_dir='testoutput')
+                # number of tests for pixlevel
+        val = range(0,200) #
+        jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=outname,save_dir=outdir)
+
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_item','item'],save_dir=outdir)
 #
