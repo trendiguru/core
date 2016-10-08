@@ -1,4 +1,4 @@
-net: "train_val.prototxt"
+net: "vgg19_train_val.prototxt"
 test_iter: 2000
 test_interval: 5000
 # lr for fine-tuning should be lower than when starting from scratch
