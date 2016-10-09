@@ -313,6 +313,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     :param fraction: not implemented, intended to allow for eg 60% neg and 40% pos
     :return:
     '''
+    print('balancing '+filenam+' with fraction '+str(fraction)+', '+str(n_cats)+' categories')
     n_instances = [0]*n_cats
     instances = []  #*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
     for i in range(n_cats):
