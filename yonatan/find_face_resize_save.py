@@ -122,7 +122,7 @@ for set in sets:
     path = "/home/yonatan/faces_stuff/uniq_faces/" + set
     for root, dirs, files in os.walk(path):
         for file in files:
-            if not file.startswith("face-"):
+            if not file.startswith("face-") and not file.startswith("._"):
                 # if file.endswith(".jpg"):
                 image_array = cv2.imread(os.path.join(root, file))
 
