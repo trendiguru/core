@@ -90,9 +90,6 @@ def create_txt_files(argv):
                 counter += 1
                 print counter
 
-# if __name__ == '__main__':
-#     create_txt_files(sys.argv)
-
 
 def create_txt_files_no_mongo():
 
@@ -131,5 +128,54 @@ def create_txt_files_no_mongo():
                 print counter
 
 
+def create_txt_files_by_adding_from_different_directories():
+
+    train_text_file = open("/home/yonatan/faces_stuff/55k_face_train_list.txt", "a")
+    cv_text_file = open("/home/yonatan/faces_stuff/55k_face_cv_list.txt", "a")
+    test_text_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "a")
+
+    counter = 0
+
+    # man: 1, woman: 0
+    genders = {'man', 'woman'}
+    for gender in genders:
+
+        if gender == 'man':
+            label = "1"
+        else:
+            label = "0"
+
+        dir_path = '/home/yonatan/faces_stuff/uniq_faces/' + gender
+        for root, dirs, files in os.walk(dir_path):
+            file_count = len(files)
+
+            counter = 0
+
+            print file_count
+
+            counter_train = file_count * 0.9
+            counter_cv = file_count * 0.05
+            counter_test = file_count * 0.05
+
+            for file in files:
+
+                counter += 1
+                print counter
+
+                if counter < counter_train:
+                    train_text_file.write(root + "/" + file + " " + label + "\n")
+                elif counter >= counter_train and counter < counter_train + counter_cv:
+                    cv_text_file.write(root + "/" + file + " " + label + "\n")
+                elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+                    test_text_file.write(root + "/" + file + " " + label + "\n")
+                else:
+                    print "DONE"
+                    break
+
+            print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv,
+                                                                                                    counter_test, counter)
+
 if __name__ == '__main__':
-    create_txt_files(sys.argv)
+    # create_txt_files(sys.argv)
+    # create_txt_files_no_mongo()
+    create_txt_files_by_adding_from_different_directories()
