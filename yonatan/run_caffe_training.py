@@ -3,7 +3,7 @@ import os
 import sys
 import caffe
 
-weights = 'ResNet-50-model.caffemodel'  #in brainia container jr2
+weights = '/home/yonatan/prepared_caffemodels/ResNet-50-model.caffemodel'  #in brainia container jr2
 
 # init
 caffe.set_device(int(sys.argv[1]))
