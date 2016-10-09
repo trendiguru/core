@@ -110,10 +110,10 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
         return annoy_job.result
 
 
-def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000, dibi=db):
+def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
     # t1 = time()
-    entries = dibi[collection].find({'categories': category},
-                                    {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+    entries = db[collection].find({'categories': category},
+                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     # t2 = time()
     # print t2 - t1
     # t1 = time()
@@ -124,9 +124,9 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         if not len(annoy_top_results):
             return []
 
-        entries = dibi[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                        {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                        cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
+        entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
         # t2 = time()
         # print t2-t1
         # print "query by annoyIndex took {0} secs".format(time()-start)
