@@ -102,7 +102,7 @@ def distance(category, main_fp, candidate_fp, coll):
 def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
     annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, color_fingerprint, 'angular', num_of_results))
     while not annoy_job.is_finished and not annoy_job.is_failed:
-        sleep(0.1)
+        sleep(0.01)
 
     if annoy_job.is_failed:
         return []
