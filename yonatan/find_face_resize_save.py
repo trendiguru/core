@@ -113,14 +113,15 @@ def find_that_face(image, max_num_of_faces=10):
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
-sets = {'male', 'female'}
+sets = {'man', 'woman'}
+man_count = 0
+woman_count = 0
 
 for set in sets:
     counter = 0
-    path = "/home/yonatan/faces_stuff/test_dir"
+    path = "/home/yonatan/faces_stuff/test_dir/" + set
     for root, dirs, files in os.walk(path):
         for file in files:
-
             if not file.startswith("face-"):
                 # if file.endswith(".jpg"):
                 image_array = cv2.imread(os.path.join(root, file))
@@ -134,7 +135,7 @@ for set in sets:
 
                     resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
-                    image_file_name = 'face-' + str(counter) + '.jpg'
+                    image_file_name = 'face-' + set + str(counter) + '.jpg'
 
                     cv2.imwrite(os.path.join(root, image_file_name), resized_image)
 
@@ -143,3 +144,10 @@ for set in sets:
                 else:
                     print "Can't detect face"
                 os.remove(os.path.join(root, file))
+    if set == 'man':
+        man_count = counter
+    else:
+        woman_count = counter
+
+print "man count: {0}, woman count: {1}".format(man_count, woman_count)
+
