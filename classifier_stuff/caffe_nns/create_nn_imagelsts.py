@@ -11,6 +11,7 @@ from PIL import Image
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
+import sys
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
