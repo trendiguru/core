@@ -15,7 +15,7 @@ def check_db_speed(url, products_collection, category, thresh):
         print "Couldn't download image.."
         return
     mask = np.random.rand(image.shape[0], image.shape[1])
-    mask = np.where(mask < thresh, 255, 0)
+    mask = np.where(mask < thresh, 255, 0).astype(np.uint8)
     start = time.time()
     find_similar_mongo.find_top_n_results(image=image, mask=mask, number_of_results=100, category_id=category,
                                           collection=products_collection, dibi=db)
