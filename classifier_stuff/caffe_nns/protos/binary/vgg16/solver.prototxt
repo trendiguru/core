@@ -5,15 +5,15 @@ display: 20
 average_loss: 30
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 20
-snapshot: 2000
+iter_size: 10
+snapshot: 1000
 snapshot_prefix: "snapshot/vgg16_binary_dress"
 test_initialization: false
 solver_mode : GPU
 
 #type: "SGD"
 type: "Adam"
-base_lr: 1e-4
+base_lr: 1e-2
 #lr_policy: "step"
 lr_policy: "fixed"
 gamma: 0.1

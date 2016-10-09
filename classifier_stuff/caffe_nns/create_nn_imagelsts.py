@@ -108,6 +108,8 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
+#binary lists generated so far (9.10.16)
+#dress
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
     '''
     read multilabel db.
