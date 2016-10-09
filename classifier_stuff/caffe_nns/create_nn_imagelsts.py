@@ -323,7 +323,13 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
         for line in lines:
             path = line.split()[0]
             cat = int(line.split()[1])
-            n_instances[cat]+=1
+            try:
+                n_instances[cat]+=1
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print('trying to parse line:')
+                print(line)
+                print('cat = '+str(cat))
             instances[cat].append(line)
 #        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
