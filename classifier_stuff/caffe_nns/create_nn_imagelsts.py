@@ -428,6 +428,8 @@ if __name__ == "__main__": #
     for f in x:
         balance_cats(f)
 
+## change from photos to photos_250x250:
+#sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
 
     if(0):
         dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
