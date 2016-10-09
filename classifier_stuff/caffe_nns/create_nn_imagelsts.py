@@ -303,7 +303,7 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced.txt'):
+def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
@@ -322,14 +322,17 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
             cat = int(line.split()[1])
             n_instances[cat]+=1
             instances[cat].append(line)
-            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
+#        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
+        print('n_instances {}'.format(n_instances))
     min_instances = min(n_instances)
 
     #kill the initial Nones
     for i in range(n_cats):
         del(instances[i][0])
 #  a shuffle cant hurt here
+    if outfilename is None:
+        outfilename = filename.replace('.txt','')+'_balanced.txt'
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
             for j in range(min_instances):
