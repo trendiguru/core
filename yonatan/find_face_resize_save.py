@@ -119,7 +119,7 @@ woman_count = 0
 
 for set in sets:
     counter = 0
-    path = "/home/yonatan/faces_stuff/test_dir/" + set
+    path = "/home/yonatan/faces_stuff/uniq_faces/" + set
     for root, dirs, files in os.walk(path):
         for file in files:
             if not file.startswith("face-"):
@@ -135,7 +135,7 @@ for set in sets:
 
                     resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
-                    image_file_name = 'face-' + set + str(counter) + '.jpg'
+                    image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
 
                     cv2.imwrite(os.path.join(root, image_file_name), resized_image)
 
