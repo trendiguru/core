@@ -24,8 +24,7 @@ def check_db_speed(url, products_collection, category, annoy_list):
     # entries = db[products_collection].find({'categories': category},
     #                                        {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     entries = db[products_collection].find({"AnnoyIndex": {"$in": annoy_list}, 'categories': category},
-                                           {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                           cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
+                                           {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},).hint([('AnnoyIndex', 1)])
     farthest_nearest = 1
     nearest_n = []
     # tt = 0
