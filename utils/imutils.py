@@ -873,6 +873,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     i = 0
     print('len labels:'+str(len(labels)))
     for unique in uniques:
+        print('unique label val:'+str(unique))
         if unique > len(labels):
             logging.warning('pixel value '+str(unique)+' out of label range (1)')
             continue
@@ -977,6 +978,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         outname=relative_name[:-4]  #strip '.png' or 'bmp' from name
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
+#        full_outname=outname
         print(full_outname)
         cv2.imwrite(full_outname,combined)
 
