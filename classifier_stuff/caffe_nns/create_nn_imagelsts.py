@@ -306,15 +306,18 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
 def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
-    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
+    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
     to outfilename
-    there is a theorectical question here of whether this is desireable or not
+    there is a theorectical question here of whether this is desireable or not (maybe unbalanced is good if wild is unbalanced)
     :param filename: input file with lines of the form '/path/to/file  class_number'
-    :param fraction:
+    :param fraction: not implemented, intended to allow for eg 60% neg and 40% pos
     :return:
     '''
+    print('balancing '+filename+' with fraction '+str(fraction)+', '+str(n_cats)+' categories')
     n_instances = [0]*n_cats
-    instances = None*n_cats #iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    instances = []  #*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    for i in range(n_cats):
+        instances.append([])
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -328,8 +331,8 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     min_instances = min(n_instances)
 
     #kill the initial Nones
-    for i in range(n_cats):
-        del(instances[i][0])
+#    for i in range(n_cats):
+#        del(instances[i][0])
 #  a shuffle cant hurt here
     if outfilename is None:
         outfilename = filename.replace('.txt','')+'_balanced.txt'
@@ -389,11 +392,47 @@ if __name__ == "__main__": #
 
 #test_u21_256x256_no_aug
 
-    dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
-    textfile_for_pixlevel(imagesdir=dir+'images/train_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_train.txt')
-#    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
-#    inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
+    x = ['bag_filipino_labels.txt',
+         'belt_filipino_labels.txt',
+         'bracelet_filipino_labels.txt',
+         'cardigan_filipino_labels.txt',
+         'coat_filipino_labels.txt',
+         'dress_filipino_labels.txt',
+         'dress_filipino_labels_250x250.txt',
+         'dress_filipino_labels_250x250_test.txt',
+         'dress_filipino_labels_250x250_train.txt',
+         'dress_filipino_labels_test.txt',
+         'dress_filipino_labels_train.txt',
+         'earrings_filipino_labels.txt',
+         'eyewear_filipino_labels.txt',
+         'footwear_filipino_labels.txt',
+         'hat_filipino_labels.txt',
+         'jacket_filipino_labels.txt',
+         'jeans_filipino_labels.txt',
+         'necklace_filipino_labels.txt',
+         'overalls_filipino_labels.txt',
+         'pants_filipino_labels.txt',
+         'scarf_filipino_labels.txt',
+         'shorts_filipino_labels.txt',
+         'skirt_filipino_labels.txt',
+         'stocking_filipino_labels.txt',
+         'suit_filipino_labels.txt',
+         'sweater_filipino_labels.txt',
+         'sweatshirt_filipino_labels.txt',
+         'top_filipino_labels.txt',
+         'watch_filipino_labels.txt',
+         'womens_swimwear_bikini_filipino_labels.txt',
+         'womens_swimwear_nonbikini_filipino_labels.txt']
+    for f in x:
+        balance_cats(f)
 
-    textfile_for_pixlevel(imagesdir=dir+'images/test_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_test.txt')
-#    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
-    inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
+
+    if(0):
+        dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
+        textfile_for_pixlevel(imagesdir=dir+'images/train_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_train.txt')
+    #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+    #    inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
+
+        textfile_for_pixlevel(imagesdir=dir+'images/test_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_test.txt')
+    #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+        inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
