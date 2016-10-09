@@ -314,7 +314,9 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     :return:
     '''
     n_instances = [0]*n_cats
-    instances = None*n_cats #iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    instances = []#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    for i in range(n_cats):
+        instances.append([])
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
