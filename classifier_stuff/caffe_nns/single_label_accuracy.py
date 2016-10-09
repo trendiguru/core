@@ -72,33 +72,74 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
     print(confmat)
     return confmat
 
-def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2,save_dir=None):
     #TODO dont use solver to get inferences , no need for solver for that
+    #DONE
     print('checking accuracy of net {} using proto {}'.format(caffemodel,testproto))
     n_classes = len(classlabels)
     print('nclasses {} labels {}'.format(n_classes,classlabels))
     if net is None:
         caffe.set_mode_gpu()
         caffe.set_device(gpu)
-        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
-
-    model_base = caffemodel.split('/')[-1]
+#        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        if caffemodel == '':
+            caffemodel = None  #hack to keep things working, ideally change refs to caffemodel s.t. None is ok
+            net = caffe.Net(testproto,caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        else:
+            net = caffe.Net(testproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+        #Net('train_val.prototxt', 1, weights='')
+    if caffemodel is not '' and caffemodel is not None:
+        model_base = caffemodel.split('/')[-1]
+    else:
+        model_base = 'scratch'
     protoname = testproto.replace('.prototxt','')
     netname = multilabel_accuracy.get_netname(testproto)
     if netname:
-        dir = 'single_label_results-'+netname+'_'+model_base.replace('.caffemodel','')
+        name = 'single_label_'+netname+'_'+model_base.replace('.caffemodel','')
     else:
-        dir = 'single_label_results-'+protoname+'_'+model_base.replace('.caffemodel','')
-    dir = dir.replace('"','')  #remove quotes
-    dir = dir.replace(' ','')  #remove spaces
-    dir = dir.replace('\n','')  #remove newline
-    dir = dir.replace('\r','')  #remove return
-    htmlname=dir+'.html'
-    print('dir to save stuff in : '+str(dir))
-    Utils.ensure_dir(dir)
-    confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
-    write_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels)
+        name = 'single_label_'+protoname+'_'+model_base.replace('.caffemodel','')
+    name = name.replace('"','')  #remove quotes
+    name = name.replace(' ','')  #remove spaces
+    name = name.replace('\n','')  #remove newline
+    name = name.replace('\r','')  #remove return
+    htmlname=name+'.html'
+    if save_dir is not None:
+        Utils.ensure_dir(save_dir)
+        htmlname = os.path.join(save_dir,htmlname)
+    print('htmlname : '+str(htmlname))
+#    Utils.ensure_dir(dir)
 
+
+    confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
+    open_html(htmlname,testproto,caffemodel,netname=netname,classlabels=classlabels) #
+    write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
+    for i in range(n_classes):
+        p,r,a = precision_recall_accuracy(confmat,i)
+        write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
+    close_html(htmlname)
+
+def precision_recall_accuracy(confmat,class_to_analyze):
+    npconfmat = np.array(confmat)
+    tp = npconfmat[class_to_analyze,class_to_analyze]
+    fn = np.sum(npconfmat[class_to_analyze,:]) - tp
+    fp = np.sum(npconfmat[:,class_to_analyze]) - tp
+    tn = np.sum(npconfmat[:,:]) - tp -fn - fp
+    print('confmat:'+str(confmat))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    precision = float(tp)/(tp+fp)
+    recall = float(tp)/(tp+fn)
+    accuracy = float(tp+tn)/(tp+fp+tn+fn)
+    print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
+    return precision, recall, accuracy
+
+def normalized_confmat(confmat):
+    npconfmat = np.array(confmat)
+    normalized_cm = np.zeros_like(npconfmat)
+    for i in range(npconfmat.shape[0]):
+        n = float(np.sum(npconfmat[i,:]))
+        normalized_cm[i,:] = npconfmat[i,:]/n
+    print('normalized confmat {}'.format(normalized_cm))
+    return normalized_cm
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
@@ -159,8 +200,6 @@ def multilabel_infer_one(url):
     return out.astype(np.uint8)
 
 def get_single_label_output(url_or_np_array,required_image_size=(227,227),output_layer_name='prob'):
-
-
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
@@ -194,7 +233,8 @@ def get_single_label_output(url_or_np_array,required_image_size=(227,227),output
     max = np.max(out)
     print('out  {}'.format(out))
 
-def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
+#    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels) #
+def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_tool_categories_v2):
     model_base = caffemodel.replace('.caffemodel','')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
@@ -207,35 +247,87 @@ def write_html(htmlname,proto,caffemodel,confmat,netname=None,classlabels=consta
         g.write('</head>')
         g.write('<body>')
         g.write('<br>\n')
-        g.write('single-label results generated on '+ str(dt.isoformat())+'/n<br>/n')
+        g.write('single-label results generated on '+ str(dt.isoformat())+'<br>')
         g.write('proto:'+proto+'\n<br>')
         g.write('model:'+caffemodel+'\n<br>')
         if netname is not None:
             g.write('netname:'+netname+'\n<br>')
+        g.close()
+
+
+def write_confmat_to_html(htmlname,confmat,classlabels):
+    with open(htmlname,'a') as g:
+        confmat_rows = confmat.shape[0]
+#        if confmat_rows != len(classlabels):
+#            print('WARNING length of labels is not same as size of confmat')
         g.write('<table><br>')
         g.write('<tr>\n')
+#write confmat headings
+        g.write('<th align="left">')
+        g.write('confmat')
+        g.write('</th>\n')
         for i in range(len(classlabels)):
             g.write('<th align="left">')
-            g.write(classlabels[i])
+            g.write('pred.'+classlabels[i]+'|')
             g.write('</th>\n')
         g.write('</tr>\n')
-
-        confmat_rows = confmat.shape[0]
-        if confmat_rows != len(classlabels):
-            print('WARNING length of labels is not same as size of confmat')
+        g.write('<tr>\n')
+        g.write('<th align="left">')
+        g.write('____')
+        g.write('</th>\n')
+#write confmat
+        for i in range(len(classlabels)):
+            g.write('<th align="left">')
+            g.write('____')
+            g.write('</th>\n')
+        g.write('</tr>\n')
         for i in range(confmat_rows):
             g.write('<tr>\n')
+            g.write('<td>')
+            g.write('actual '+str(classlabels[i])+'|')
+            g.write('</td>\n')
             for j in range(confmat_rows):
                 g.write('<td>')
                 g.write(str(confmat[i][j]))
                 g.write('</td>\n')
             g.write('</tr>\n')
 
-        g.write('</table><br>')
-        plotfilename = 'multilabel_results'+model_base+'.png'
+#write normalized confmat
+        ncm = normalized_confmat(confmat)
+        g.write('<tr>\n')
+        g.write('<th align="left">')
+        g.write('normalized')
+        g.write('</th>\n')
+        g.write('</tr>\n')
+        for i in range(confmat_rows):
+            g.write('<tr>\n')
+            g.write('<td>')
+            g.write('actual '+str(classlabels[i]))
+            g.write('</td>\n')
+            for j in range(confmat_rows):
+                g.write('<td>')
+                g.write(str(round(ncm[i][j],3)))
+                g.write('</td>\n')
+            g.write('</tr>\n')
 
-        g.write('<a href=\"'+plotfilename+'\">plot<img src = \"'+plotfilename+'\" style=\"width:300px\"></a>')
+        g.write('</table><br>')
+        g.close()
+
+def write_pra_to_html(htmlname,precision,recall,accuracy,classindex,classlabel):
+    with open(htmlname,'a') as g:
+        g.write('<br>\n')
+        g.write('class {} label {} '.format(classindex,classlabel))
+        g.write('<br>\n')
+        g.write('precision '+str(round(precision,3))+' ')
+        g.write('recall '+str(round(recall,3))+' ')
+        g.write('accuracy '+str(round(accuracy,3)))
+        g.write('<br>\n')
+        g.close()
+
+def close_html(htmlname):
+    with open(htmlname,'a') as g:
         g.write('</html>')
+        g.close()
 
 def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=constants.web_tool_categories_v2):
    with open(txtname,'a') as f:
@@ -276,6 +368,7 @@ if __name__ =="__main__":
     single_label_acc(args.caffemodel,args.testproto,label_layer='label', estimate_layer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
 #def single_label_acc(caffemodel,          testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
 
+#python  /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/single_label_accuracy.py --caffemodel snapshot/res101_binary_dress_iter_37000.caffemodel --testproto ResNet-101-train_test.prototxt --output_layer_name estimate --n_classes 2 --n_tests 10
 
 
 

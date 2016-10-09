@@ -7,10 +7,7 @@ import setproctitle
 import subprocess
 import socket
 import matplotlib
-matplotlib.use('Agg') #allow plot generation on X-less systems
 import matplotlib.pyplot as plt
-plt.ioff()
-
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -18,16 +15,13 @@ from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
+matplotlib.use('Agg') #allow plot generation on X-less systems
+plt.ioff()
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
-
-weights = 'snapshot/train_0816__iter_25000.caffemodel'  #in brainia container jr2
-solverproto = 'solver.prototxt'
-testproto = 'train_test.prototxt'  #maybe take this out in  favor of train proto
 
 weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
 solverproto = 'solver101_sgd.prototxt'
 testproto = 'ResNet-101-test.prototxt'  #maybe take this out in  favor of train proto
-
 
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
@@ -35,35 +29,32 @@ caffe.set_mode_gpu()
 #get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
 solver = caffe.get_solver(solverproto)
 training_net = solver.net
-solver.net.copy_from(weights)
+if weights is not None:
+    solver.net.copy_from(weights)
 solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
 test_net = solver.test_nets[0] # more than one testnet is supported
 
 #solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-#all_params = [k for k in solver.net.params.keys()]
-#print('all params:')
-#print all_params
-#all_blobs = [k for k in solver.net.blobs.keys()]
-#print('all blobs:')
-#print all_blobs
 #surgery.interp(solver.net, interp_layers)
 
-# scoring
-#val = np.loadtxt('../data/segvalid11.txt', dtype=str)
-val = range(0,200) #
+#all_params = [k for k in solver.net.params.keys()]
+#all_blobs = [k for k in solver.net.blobs.keys()]
+
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 net_name = multilabel_accuracy.get_netname(testproto)
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
-baremetal_hostname = os.environ.get('HOST_HOSTNAME')
+baremetal_hostname = 'braini'
 prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
+type='pixlevel'
+type='single_label'
 threshold = 0.5
 if net_name:
     outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
@@ -81,21 +72,19 @@ if type == 'multilabel':
 if type == 'single_label':
     outname = os.path.join(outdir,outdir[2:]+'_slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
-print('outname:{} lossname {} outdir {}'.format(outname,loss_outputname,outdir))
+print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
 copycmd = 'cp -r '+outdir + ' ' + host_dirname
-copy2cmd = 'cp '+outname + ' ' + host_dirname
-copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
+#copy2cmd = 'cp '+outname + ' ' + host_dirname
+#copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
-scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results'
-scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
-scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
+scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
+#scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
+#scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
 #scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
-#scplossplotcmd = 'scp '+host_dirname+'/'+loss_outputname+' root@104.155.22.95:/var/www/results/'+outdir
-#print('scp lossplot:'+scplossplotcmd)
 
 i = 0
 losses = []
@@ -107,7 +96,6 @@ tot_iters = 0
 
 #instead of taking steps its also possible to do
 #solver.solve()
-#acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='loss',,n_tests=10,gpu=2,classlabels=['nond$
 
 if type == 'multilabel':
     multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2,name=outname)
@@ -115,8 +103,8 @@ if type == 'multilabel':
 for _ in range(1000000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
-        loss = solver.net.blobs['score'].data
-#        loss = solver.net.blobs['loss'].data
+#        loss = solver.net.blobs['score'].data
+        loss = solver.net.blobs['loss'].data
         print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)
@@ -143,20 +131,15 @@ for _ in range(1000000):
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
     elif type == 'pixlevel':
-        jrinfer.seg_tests(solver,  val, layer='conv_final',outfilename=detailed_outputname,save_dir='testoutput')
+                # number of tests for pixlevel
+        val = range(0,200) #
+        jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,outlayer='fc2',n_tests=10,gpu=2)
+        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_item','item'],save_dir=outdir)
 #
     subprocess.call(copycmd,shell=True)
-    subprocess.call(copy2cmd,shell=True)
-    subprocess.call(copy3cmd,shell=True)
-#    subprocess.call(copy4cmd,shell=True)
-
     subprocess.call(scpcmd,shell=True)
-    subprocess.call(scp2cmd,shell=True)
-    subprocess.call(scp3cmd,shell=True)
- #   subprocess.call(scplossplotcmd,shell=True)
-#    subprocess.call(scp4cmd,shell=True)
 
 
 

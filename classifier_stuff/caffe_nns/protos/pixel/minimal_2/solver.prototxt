@@ -12,10 +12,10 @@ stepsize: 5000
 # lr for unnormalized softmax
 #lr_policy: "fixed"
 
-base_lr: 1e-3
+base_lr: 5e-3
 #base_lr: 5e-6
 # high momentum
-momentum: 0.95
+momentum: 0.90
 #momentum: 0.99
 # no gradient accumulation
 iter_size: 2
