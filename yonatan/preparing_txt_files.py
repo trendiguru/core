@@ -169,7 +169,7 @@ def create_txt_files_by_adding_from_different_directories():
                 elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
                     test_text_file.write(root + "/" + file + " " + label + "\n")
                 else:
-                    print counter
+                    print "DONE"
                     break
 
             print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv,
