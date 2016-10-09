@@ -11,6 +11,7 @@ layer {
       param_str: "{\'images_and_labels_file\': \'/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_train.txt\', \'mean\': (120, 120, 120),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\': 15  }"
       }
 }
+#1476052829.297634
 
 #layer {
 #  name: "data"
