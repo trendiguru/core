@@ -126,7 +126,7 @@ for set in sets:
                 # if file.endswith(".jpg"):
                 image_array = cv2.imread(os.path.join(root, file))
 
-                print file
+                print os.path.join(root, file)
                 face_answer = find_that_face(image_array, 1)
 
                 if face_answer['are_faces'] > 0:
