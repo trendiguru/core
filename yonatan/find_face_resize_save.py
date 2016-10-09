@@ -117,7 +117,7 @@ sets = {'man', 'woman'}
 man_count = 0
 woman_count = 0
 
-text_file = open("home/yonatan/faces_stuff/uniq_faces/data_txt.txt", "w")
+text_file = open("/home/yonatan/faces_stuff/uniq_faces/data_txt.txt", "w")
 
 for set in sets:
     counter = 0
