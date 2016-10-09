@@ -331,6 +331,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
                 print('trying to parse line:')
                 print(line)
                 print('cat = '+str(cat))
+                continue
             instances[cat].append(line)
 #        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
