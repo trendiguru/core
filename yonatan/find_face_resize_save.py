@@ -117,10 +117,13 @@ sets = {'man', 'woman'}
 man_count = 0
 woman_count = 0
 
+text_file = open("home/yonatan/faces_stuff/uniq_faces/data_txt.txt", "w")
+
 for set in sets:
     counter = 0
     path = "/home/yonatan/faces_stuff/uniq_faces/" + set
     for root, dirs, files in os.walk(path):
+        file_counter = 0
         for file in files:
             if not file.startswith("face-") and not file.startswith("."):
                 # if file.endswith(".jpg"):
@@ -134,17 +137,21 @@ for set in sets:
 
                     face_image = image_array[y:(y + h), x:(x + w)]
 
-                    resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+                    # resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+                    #
+                    # image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
+                    #
+                    # cv2.imwrite(os.path.join(root, image_file_name), resized_image)
 
-                    image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
-
-                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-
+                    file_counter += 1
                     counter += 1
                     print counter
                 else:
                     print "Can't detect face"
-                os.remove(os.path.join(root, file))
+                # os.remove(os.path.join(root, file))
+
+        text_file.write(root + ": " + str(file_counter) + "\n")
+
     if set == 'man':
         man_count = counter
     else:
