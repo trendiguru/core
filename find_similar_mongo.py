@@ -52,13 +52,12 @@ def mask2svg(mask, filename, save_in_folder):
     return filename + '.svg'
 
 
-def find_top_n_results(image=None, mask=None, number_of_results=100, category_id=None, collection=None, fingerprint=None,
-                       dibi=db):
+def find_top_n_results(image=None, mask=None, number_of_results=100, category_id=None, collection=None, fingerprint=None):
 
     print "category: {0}".format(category_id)
     if not fingerprint:
         fingerprint = fp.dict_fp(image, mask, category_id)
-    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results, dibi=db)
+    closest_matches = NNSearch.find_n_nearest_neighbors(fingerprint, collection, category_id, number_of_results)
     print "done with find_n_nearest.. num of closest_matches: {0}".format(len(closest_matches))
     return fingerprint, closest_matches
 
