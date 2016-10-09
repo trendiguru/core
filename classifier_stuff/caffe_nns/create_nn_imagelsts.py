@@ -391,7 +391,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
-
+#
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
 #    split_to_trainfile_and_testfile()
