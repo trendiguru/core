@@ -113,33 +113,49 @@ def find_that_face(image, max_num_of_faces=10):
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
-sets = {'male', 'female'}
+sets = {'man', 'woman'}
+man_count = 0
+woman_count = 0
+
+text_file = open("/home/yonatan/faces_stuff/uniq_faces/data_txt.txt", "w")
 
 for set in sets:
     counter = 0
-    path = "/home/yonatan/faces_stuff/test_dir"
+    path = "/home/yonatan/faces_stuff/uniq_faces/" + set
     for root, dirs, files in os.walk(path):
+        file_counter = 0
         for file in files:
-
-            if not file.startswith("face-"):
+            if file.startswith("face-") and not file.startswith("."):
                 # if file.endswith(".jpg"):
-                image_array = cv2.imread(os.path.join(root, file))
+                # image_array = cv2.imread(os.path.join(root, file))
+                #
+                # print os.path.join(root, file)
+                # face_answer = find_that_face(image_array, 1)
+                #
+                # if face_answer['are_faces'] > 0:
+                #     x, y, w, h = face_answer['faces'][0]
+                #
+                #     face_image = image_array[y:(y + h), x:(x + w)]
+                #
+                #     resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+                #
+                #     image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
+                #
+                #     cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+                #
+                file_counter += 1
+                counter += 1
+                print counter
+                # else:
+                #     print "Can't detect face"
+                # os.remove(os.path.join(root, file))
 
-                face_answer = find_that_face(image_array, 1)
+        text_file.write(root + ": " + str(file_counter) + "\n")
 
-                if face_answer['are_faces'] > 0:
-                    x, y, w, h = face_answer['faces'][0]
+    if set == 'man':
+        man_count = counter
+    else:
+        woman_count = counter
 
-                    face_image = image_array[y:(y + h), x:(x + w)]
+print "man count: {0}, woman count: {1}".format(man_count, woman_count)
 
-                    resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
-
-                    image_file_name = 'face-' + str(counter) + '.jpg'
-
-                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-
-                    counter += 1
-                    print counter
-                else:
-                    print "Can't detect face"
-                os.remove(os.path.join(root, file))

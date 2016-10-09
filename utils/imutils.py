@@ -346,6 +346,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
+    if inheight == 0 or inwidth == 0:
+        logging.warning('got a bad image')
+        return
     out_ar = float(outheight)/outwidth
     in_ar = float(inheight)/inwidth
     if len(input_file_or_np_arr.shape) == 3:
