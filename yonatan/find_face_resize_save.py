@@ -125,29 +125,29 @@ for set in sets:
     for root, dirs, files in os.walk(path):
         file_counter = 0
         for file in files:
-            if not file.startswith("face-") and not file.startswith("."):
+            if file.startswith("face-") and not file.startswith("."):
                 # if file.endswith(".jpg"):
-                image_array = cv2.imread(os.path.join(root, file))
-
-                print os.path.join(root, file)
-                face_answer = find_that_face(image_array, 1)
-
-                if face_answer['are_faces'] > 0:
-                    x, y, w, h = face_answer['faces'][0]
-
-                    face_image = image_array[y:(y + h), x:(x + w)]
-
-                    # resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
-                    #
-                    # image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
-                    #
-                    # cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-
-                    file_counter += 1
-                    counter += 1
-                    print counter
-                else:
-                    print "Can't detect face"
+                # image_array = cv2.imread(os.path.join(root, file))
+                #
+                # print os.path.join(root, file)
+                # face_answer = find_that_face(image_array, 1)
+                #
+                # if face_answer['are_faces'] > 0:
+                #     x, y, w, h = face_answer['faces'][0]
+                #
+                #     face_image = image_array[y:(y + h), x:(x + w)]
+                #
+                #     resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+                #
+                #     image_file_name = 'face-' + set + '_' + str(counter) + '.jpg'
+                #
+                #     cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+                #
+                file_counter += 1
+                counter += 1
+                print counter
+                # else:
+                #     print "Can't detect face"
                 # os.remove(os.path.join(root, file))
 
         text_file.write(root + ": " + str(file_counter) + "\n")
