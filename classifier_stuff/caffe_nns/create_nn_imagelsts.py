@@ -175,7 +175,6 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-
 def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     '''
     take a dir and add the files therein to a text file with lines like:
@@ -304,7 +303,7 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None):
+def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None,shuffle=True):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
@@ -347,9 +346,9 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
             for j in range(min_instances):
-                fp.write(instances[cat][j])
+                fp.write(instances[i][j])
+            print('wrote '+str(min_instances)+' lines for category '+str(i))
     fp.close()
-
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
     if labelsdir == None:
