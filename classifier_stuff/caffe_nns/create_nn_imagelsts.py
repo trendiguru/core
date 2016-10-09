@@ -306,15 +306,17 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
 def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
-    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
+    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
     to outfilename
-    there is a theorectical question here of whether this is desireable or not
+    there is a theorectical question here of whether this is desireable or not (maybe unbalanced is good if wild is unbalanced)
     :param filename: input file with lines of the form '/path/to/file  class_number'
-    :param fraction:
+    :param fraction: not implemented, intended to allow for eg 60% neg and 40% pos
     :return:
     '''
     n_instances = [0]*n_cats
-    instances = [[]]*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    instances = []  #*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    for i in range(n_cats):
+        instances.append([])
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -328,8 +330,8 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     min_instances = min(n_instances)
 
     #kill the initial Nones
-    for i in range(n_cats):
-        del(instances[i][0])
+#    for i in range(n_cats):
+#        del(instances[i][0])
 #  a shuffle cant hurt here
     if outfilename is None:
         outfilename = filename.replace('.txt','')+'_balanced.txt'
