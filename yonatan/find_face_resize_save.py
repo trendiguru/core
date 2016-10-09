@@ -120,24 +120,26 @@ for set in sets:
     path = "/home/yonatan/faces_stuff/test_dir"
     for root, dirs, files in os.walk(path):
         for file in files:
-            # if file.endswith(".jpg"):
-            image_array = cv2.imread(os.path.join(root, file))
 
-            face_answer = find_that_face(image_array, 1)
+            if not file.startswith("face-"):
+                # if file.endswith(".jpg"):
+                image_array = cv2.imread(os.path.join(root, file))
 
-            if face_answer['are_faces'] > 0:
-                x, y, w, h = face_answer['faces'][0]
+                face_answer = find_that_face(image_array, 1)
 
-                face_image = image_array[y:(y + h), x:(x + w)]
+                if face_answer['are_faces'] > 0:
+                    x, y, w, h = face_answer['faces'][0]
 
-                resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+                    face_image = image_array[y:(y + h), x:(x + w)]
 
-                image_file_name = 'face-' + str(counter) + '.jpg'
+                    resized_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
-                cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+                    image_file_name = 'face-' + str(counter) + '.jpg'
 
-                counter += 1
-                print counter
-            else:
-                print "Can't detect face"
-            os.remove(os.path.join(root, file))
+                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+
+                    counter += 1
+                    print counter
+                else:
+                    print "Can't detect face"
+                os.remove(os.path.join(root, file))
