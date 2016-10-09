@@ -18,6 +18,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         if type(fp) != dict:
             fp = {'color': fp}
             idx = item['_id']
+            # TODO - POSSIBLE BUG @ YONTI ('_d')
             db[col_name].update_one({'_d': idx}, {'$set': {'fingerprint': fp}})
         v = fp['color']
         forest.add_item(x, v)
