@@ -177,9 +177,9 @@ def create_txt_files_by_adding_from_different_directories():
 
 
 def edit_existing_gender_txt_files():
-    train_txt_file = open("55k_face_train_list.txt", "r+")
-    cv_txt_file = open("55k_face_cv_list.txt", "r+")
-    test_txt_file = open("55k_face_test_list.txt", "r+")
+    train_txt_file = open("/home/yonatan/faces_stuff/55k_face_train_list.txt", "r+")
+    cv_txt_file = open("/home/yonatan/faces_stuff/55k_face_cv_list.txt", "r+")
+    test_txt_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "r+")
 
     copy_train_file = train_txt_file.readlines()
     copy_cv_file = cv_txt_file.readlines()
@@ -228,9 +228,9 @@ def edit_existing_gender_txt_files():
 
 
 def shuffle_all_lines():
-    train_lines = open('55k_face_train_list.txt').readlines()
-    cv_lines = open('55k_face_cv_list.txt').readlines()
-    test_lines = open('55k_face_test_list.txt').readlines()
+    train_lines = open('/home/yonatan/faces_stuff/55k_face_train_list.txt').readlines()
+    cv_lines = open('/home/yonatan/faces_stuff/55k_face_cv_list.txt').readlines()
+    test_lines = open('/home/yonatan/faces_stuff/55k_face_test_list.txt').readlines()
 
     random.shuffle(train_lines)
     random.shuffle(cv_lines)
