@@ -159,6 +159,9 @@ def create_txt_files_by_adding_from_different_directories():
 
             for file in files:
 
+                if "._" not in file:
+                    continue
+
                 counter += 1
                 print counter
 
@@ -244,5 +247,5 @@ if __name__ == '__main__':
     # create_txt_files(sys.argv)
     # create_txt_files_no_mongo()
     edit_existing_gender_txt_files()
-    # create_txt_files_by_adding_from_different_directories()
+    create_txt_files_by_adding_from_different_directories()
     shuffle_all_lines()
