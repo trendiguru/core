@@ -8,6 +8,7 @@ import subprocess
 import socket
 import matplotlib
 import matplotlib.pyplot as plt
+import datetime
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -88,14 +89,14 @@ if type == 'pixlevel':
 if type == 'multilabel':
     outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
 if type == 'single_label':
-    outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_'+slresults.txt')
+    outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
 print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
 time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
-copycmd = 'cp -r '+outdir + ' ' + host_dirname
+#copycmd = 'cp -r '+outdir + ' ' + host_dirname
 #copy2cmd = 'cp '+outname + ' ' + host_dirname
 #copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
 #copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
@@ -156,7 +157,7 @@ for _ in range(1000000):
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_'+cat,cat],save_dir=outdir)
 #
-    subprocess.call(copycmd,shell=True)
+#   subprocess.call(copycmd,shell=True)
     subprocess.call(scpcmd,shell=True)
 
 
