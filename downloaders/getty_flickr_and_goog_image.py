@@ -414,7 +414,7 @@ if __name__=="__main__":
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
-        pool = multiprocessing.Pool(processes=10)
+        pool = multiprocessing.Pool(processes=n_proc)
 #        pool.map(getty_dl, items)
         pool.map(flickr_dl, items)
 
