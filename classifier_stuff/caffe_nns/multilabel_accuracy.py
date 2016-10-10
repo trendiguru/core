@@ -670,48 +670,29 @@ def get_netname(proto):
 def get_traintest_from_proto(proto):
 #    print('looking for netname')
     with open(proto,'r') as fp:
-        line = fp.readline().replace(' ','')  #line with spaces removed
-        if 'train_net:' in line and line[0] is not '#':
-            train = line.replace('train_net:','').replace('"','')
-            print('train:'+train)
-        if 'test_net:' in line and line[0] is not '#':
-            test = line.replace('test_net:','').replace('"','')
-            print('test:'+test)
-        if line[0:3] == 'net:'  and line[0] is not '#':
-            traintest = line.replace('net:','').replace('"','')
-            print('traintest:'+traintest)
+        for line in fp:
+            line = line.replace(' ','')  #line with spaces removed
+            if 'train_net:' in line and line[0] is not '#':
+                train = line.replace('train_net:','').replace('"','')
+                print('train:'+train)
+            if 'test_net:' in line and line[0] is not '#':
+                test = line.replace('test_net:','').replace('"','')
+                print('test:'+test)
+            if line[0:3] == 'net:'  and line[0] is not '#':
+                traintest = line.replace('net:','').replace('"','')
+                print('traintest:'+traintest)
         if train and test:
             return((train,test))
-        if train:
+        elif train:
             print('got only train not test')
             return((train))
-        if test:
+        elif test:
             print('got only test not train')
             return((test))
-        if traintest:
+        elif traintest:
             return((traintest))
-
-#    print('line1 '+l1)
-#    print('line2 '+l2)
-    if 'name' in l1:
-        netname = l1[5:]
-        print('netname:'+netname)
-        return netname
-    if 'name' in l2:
-        netname = l2[5:]
-        print('netname:'+netname)
-        return netname
-    if 'test_net' or 'train_net' in l1: #the file is prob a solverproto and refers to test/val which may have netname
-        fname = l1.split('"')[-2]
-        print('trying to find netname in file1 '+fname)
-        return get_netname(fname)
-    if 'test_net' or 'train_net' in l2:
-        fname = l2.split('"')[-2]
-        print('trying to find netname in file2 '+fname)
-        return get_netname(fname)
-    else:
-        netname = None
-    return netname
+        else:
+            return None
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
