@@ -45,11 +45,16 @@ test_net = solver.test_nets[0] # more than one testnet is supported
 
 #jrinfer.seg_tests(solver, False, val, layer='score')
 net_name = multilabel_accuracy.get_netname(testproto)
+tt = multilabel_accuracy.get_traintest_from_proto(solverproto)
+
 docker_hostname = socket.gethostname()
 host_dirname = '/home/jeremy/caffenets/production'
 Utils.ensure_dir(host_dirname)
 baremetal_hostname = 'braini'
-prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname
+
+datestamp = datetime.datetime.strftime(datetime.datetime.now(), 'time%H.%M_%d-%m-%Y')
+prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
+
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
 type='multilabel'
@@ -65,6 +70,18 @@ outdir = outdir.replace(' ','')  #remove spaces
 outdir = outdir.replace('\n','')  #remove newline
 outdir = outdir.replace('\r','')  #remove return
 outdir = './'+outdir
+
+if tt is not None:
+    if len(tt) == 1:  #copy single traintest file to dir of info
+        copycmd = 'cp '+tt[0] + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+    else:  #copy separate train and test files to dir of info
+        copycmd = 'cp '+tt[0] + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+        copycmd = 'cp '+tt[1] + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+
+
 if type == 'pixlevel':
     outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
 if type == 'multilabel':
