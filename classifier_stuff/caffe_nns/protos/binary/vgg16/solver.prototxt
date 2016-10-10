@@ -1,25 +1,23 @@
-net: "train_val.prototxt"
-test_iter: 1000
+net: "vgg19_train_val.prototxt"
+test_iter: 2000
 test_interval: 5000
 display: 20
-average_loss: 30
+average_loss: 20
 weight_decay: 0.0005
-# no gradient accumulation
 iter_size: 10
-snapshot: 1000
-snapshot_prefix: "snapshot/vgg16_binary_dress"
-test_initialization: false
-solver_mode : GPU
 
-#type: "SGD"
-type: "Adam"
-base_lr: 1e-4
-#lr_policy: "step"
-lr_policy: "fixed"
+snapshot: 5000
+snapshot_prefix: "snapshot/binary_vgg16_dress"
+solver_mode: GPU
+
+# lr for fine-tuning should be lower than when starting from scratch
+type: "SGD"
+base_lr: 0.001
+lr_policy: "step"
 gamma: 0.1
-stepsize: 10000
-max_iter: 3000000
-momentum: 0.9
-momentum2: 0.999
+# decrease lr each 20000 iterations
+stepsize: 20000
 
+max_iter: 6000000
+momentum: 0.9
 
