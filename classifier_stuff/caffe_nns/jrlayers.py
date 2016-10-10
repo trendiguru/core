@@ -490,7 +490,7 @@ class JrMultilabel(caffe.Layer):
         ## and ge t
         good_img_files = []
         good_label_vecs = []
-        check_files = False
+        check_files = True
         if check_files:
             print('checking image files')
             for line in self.images_and_labels_list:

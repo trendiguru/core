@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 5000
-snapshot_prefix: "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face"
+snapshot_prefix: "/home/yonatan/faces_stuff/resnet_genderator_models_09_10_16/caffe_resnet50_snapshot_sgd_gender_by_face"
 test_initialization: true
 solver_mode : GPU
 
