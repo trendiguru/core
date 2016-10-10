@@ -51,7 +51,7 @@ def get_single_label_output(url_or_np_array,required_image_size=(224,224)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    print('multilabel working on image of shape:'+str(image.shape))
+    print('single_label working on image of shape:'+str(image.shape))
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -78,7 +78,7 @@ def get_single_label_output(url_or_np_array,required_image_size=(224,224)):
     out = single_label_net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
     min = np.min(out)
     max = np.max(out)
-    print('multilabel:  {}'.format(out))
+    print('label:  {}'.format(out))
     return out
 
 if __name__ == "__main__":
