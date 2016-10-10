@@ -430,7 +430,7 @@ if __name__ == "__main__": #
     for f in x:
         balance_cats(f)
         outfilename = f.replace('.txt','')+'_balanced.txt'
-        split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+        split_to_trainfile_and_testfile(outfilename)
 
 ## change from photos to photos_250x250:
 #sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
