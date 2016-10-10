@@ -677,7 +677,7 @@ class JrMultilabel(caffe.Layer):
                     continue
             except:
                 e = sys.exc_info()[0]
-                logging.debug( "Error in jrlayers2 checking image: %s" % e )
+                logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
                 self.next_idx()
                 continue
             try:
