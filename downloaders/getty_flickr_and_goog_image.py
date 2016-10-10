@@ -405,6 +405,7 @@ if __name__=="__main__":
 #    p.map(getty_dl, items)
 #    items = ['top','sweatshirt','sweater','suit','stocking','skirt','shorts','scarf']
    # items[18] = 'bikini'
+    items = ['hat','jacket','jeans','necklace','overalls','scarve','suit','sweatert','sweatshirt','wristwatch','bikini','swimwear -bikini']
     parallel = True
     if(parallel == False):
         for i in range(len(items)):
