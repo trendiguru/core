@@ -1,4 +1,4 @@
-net: "vgg19_train_val.prototxt"
+net: "vgg16_train_val.prototxt"
 test_iter: 2000
 test_interval: 5000
 display: 20
