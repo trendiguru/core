@@ -425,8 +425,13 @@ if __name__ == "__main__": #
          'watch_filipino_labels.txt',
          'womens_swimwear_bikini_filipino_labels.txt',
          'womens_swimwear_nonbikini_filipino_labels.txt']
+    dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/todo/'
+    x = [os.path.join(dir,f) for f in os.listdir(dir) if '.txt' in f]
+    x.sort()
     for f in x:
         balance_cats(f)
+        outfilename = f.replace('.txt','')+'_balanced.txt'
+        split_to_trainfile_and_testfile(outfilename)
 
 ## change from photos to photos_250x250:
 #sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
@@ -440,3 +445,14 @@ if __name__ == "__main__": #
         textfile_for_pixlevel(imagesdir=dir+'images/test_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_test.txt')
     #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
         inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
+
+
+        #useful script - change all photos to photos_250x250
+#!/usr/bin/env bash
+#echo $1
+#name=$(echo $1|sed 's/.txt/_250x250.txt/')
+#echo $name
+#sed 's/photos/photos_250x250/' $1 > $name
+
+#use with
+#    for f in *.txt; do ./doit.sh $f; done
