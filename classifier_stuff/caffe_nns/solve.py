@@ -60,6 +60,7 @@ weights_base = os.path.basename(weights)
 type='multilabel'
 type='pixlevel'
 type='single_label'
+cat = 'belt'
 threshold = 0.5
 if net_name:
     outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
@@ -87,7 +88,7 @@ if type == 'pixlevel':
 if type == 'multilabel':
     outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
 if type == 'single_label':
-    outname = os.path.join(outdir,outdir[2:]+'_slresults.txt')
+    outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_'+slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
 print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
 Utils.ensure_dir(outdir)
@@ -153,7 +154,7 @@ for _ in range(1000000):
         jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
 
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_item','item'],save_dir=outdir)
+        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_'+cat,cat],save_dir=outdir)
 #
     subprocess.call(copycmd,shell=True)
     subprocess.call(scpcmd,shell=True)
