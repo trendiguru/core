@@ -670,6 +670,9 @@ def get_netname(proto):
 def get_traintest_from_proto(proto):
 #    print('looking for netname')
     with open(proto,'r') as fp:
+        train = None
+        test = None
+        traintest = None
         for line in fp:
             line = line.replace(' ','')  #line with spaces removed
             if 'train_net:' in line and line[0] is not '#':
