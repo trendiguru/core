@@ -159,7 +159,7 @@ def create_txt_files_by_adding_from_different_directories():
 
             for file in files:
 
-                if "._" not in file:
+                if "._" in file:
                     continue
 
                 counter += 1
