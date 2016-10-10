@@ -293,7 +293,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
     n_dates = n_pages/max_pages_returned
     for dateloop in range(n_dates):
         time.sleep(1)
-
+#
         maxtime = flickr_get_dates(tag,mintime,savedir=savedir,n_pages=max_pages_returned)
         print('mintime '+str(mintime)+' maxtime:'+str(maxtime))
 
@@ -396,6 +396,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
 if __name__=="__main__":
     items = constants.binary_cats
     items = items[27:]
+    items = ['hat','jacket','jeans','necklace','overalls','scarve','suit','sweatert','sweatshirt','wristwatch','bikini','swimwear -bikini']
     print items
     raw_input('ret to cont')
 #    items = [1,2,3]
@@ -413,7 +414,7 @@ if __name__=="__main__":
     else:
         n_proc = multiprocessing.cpu_count()
         print('nprocessors:'+str(n_proc))
-        pool = multiprocessing.Pool(processes=10)
+        pool = multiprocessing.Pool(processes=n_proc)
 #        pool.map(getty_dl, items)
         pool.map(flickr_dl, items)
 
