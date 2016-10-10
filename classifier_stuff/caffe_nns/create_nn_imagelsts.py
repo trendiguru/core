@@ -11,6 +11,7 @@ from PIL import Image
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
+import sys
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
@@ -174,7 +175,6 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-
 def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     '''
     take a dir and add the files therein to a text file with lines like:
@@ -303,7 +303,7 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None):
+def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None,shuffle=True):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
@@ -323,7 +323,14 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
         for line in lines:
             path = line.split()[0]
             cat = int(line.split()[1])
-            n_instances[cat]+=1
+            try:
+                n_instances[cat]+=1
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print('trying to parse line:')
+                print(line)
+                print('cat = '+str(cat))
+                continue
             instances[cat].append(line)
 #        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
@@ -339,9 +346,9 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
             for j in range(min_instances):
-                fp.write(instances[cat][j])
+                fp.write(instances[i][j])
+            print('wrote '+str(min_instances)+' lines for category '+str(i))
     fp.close()
-
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
     if labelsdir == None:
@@ -384,7 +391,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
-
+#
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
 #    split_to_trainfile_and_testfile()
@@ -398,11 +405,6 @@ if __name__ == "__main__": #
          'cardigan_filipino_labels.txt',
          'coat_filipino_labels.txt',
          'dress_filipino_labels.txt',
-         'dress_filipino_labels_250x250.txt',
-         'dress_filipino_labels_250x250_test.txt',
-         'dress_filipino_labels_250x250_train.txt',
-         'dress_filipino_labels_test.txt',
-         'dress_filipino_labels_train.txt',
          'earrings_filipino_labels.txt',
          'eyewear_filipino_labels.txt',
          'footwear_filipino_labels.txt',
@@ -426,6 +428,8 @@ if __name__ == "__main__": #
     for f in x:
         balance_cats(f)
 
+## change from photos to photos_250x250:
+#sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
 
     if(0):
         dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
