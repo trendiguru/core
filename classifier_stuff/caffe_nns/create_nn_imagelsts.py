@@ -427,6 +427,7 @@ if __name__ == "__main__": #
          'womens_swimwear_nonbikini_filipino_labels.txt']
     dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/todo/'
     x = [os.path.join(dir,f) for f in os.listdir(dir) if '.txt' in f]
+    x.sort()
     for f in x:
         balance_cats(f)
         outfilename = f.replace('.txt','')+'_balanced.txt'
