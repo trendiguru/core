@@ -684,7 +684,32 @@ def get_traintest_from_proto(proto):
             if line[0:3] == 'net:'  and line[0] is not '#':
                 traintest = line.replace('net:','').replace('"','')
                 print('traintest:'+traintest)
-        if train and test:
+        if train and test:net: "vgg19_train_val.prototxt"
+test_iter: 2000
+test_interval: 5000
+display: 20
+average_loss: 20
+weight_decay: 0.0005
+iter_size: 1
+
+snapshot: 5000
+snapshot_prefix: "snapshot/binary_VGG19_dress"
+solver_mode: GPU
+
+# lr for fine-tuning should be lower than when starting from scratch
+type: "SGD"
+base_lr: 1e-4
+lr_policy: "step"
+gamma: 0.1
+# decrease lr each 20000 iterations
+stepsize: 20000
+
+max_iter: 6000000
+momentum: 0.9
+
+
+
+
             return((train,test))
         elif train:
             print('got only train not test')

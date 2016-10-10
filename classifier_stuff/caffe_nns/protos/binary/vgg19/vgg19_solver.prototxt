@@ -20,6 +20,3 @@ stepsize: 20000
 
 max_iter: 6000000
 momentum: 0.9
-
-
-
