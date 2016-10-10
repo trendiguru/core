@@ -2,9 +2,9 @@ net: "vgg19_train_val.prototxt"
 test_iter: 2000
 test_interval: 5000
 display: 20
-average_loss: 20
+average_loss: 1
 weight_decay: 0.0005
-iter_size: 10
+iter_size: 1
 
 snapshot: 5000
 snapshot_prefix: "snapshot/binary_VGG19_dress"
