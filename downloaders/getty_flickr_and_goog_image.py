@@ -396,7 +396,7 @@ def flickr_dl(tag,avoid_these_terms=None,n_pages = 20000,start_page=1,savedir=No
 if __name__=="__main__":
     items = constants.binary_cats
     items = items[27:]
-    items = ['hat','jacket','jeans','necklace','overalls','scarve','suit','sweatert','sweatshirt','wristwatch','bikini','swimwear -bikini']
+    items = ['hat','jacket','jeans','necklace','overalls','scarve','suit','sweater','sweatshirt','wristwatch','bikini','swimwear -bikini']
     print items
     raw_input('ret to cont')
 #    items = [1,2,3]
