@@ -16,9 +16,9 @@ from trendi import constants
 
 print('starting jrinfer_single_label.py')
 protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
-modelpath = '/home/jeremy/caffenets/binary/resnet_dress/res50_test/'
-solverproto = os.path.join(modelpath,'ResNet-50_solver.prototxt')
-deployproto = os.path.join(modelpath,'ResNet-50-deploy.prototxt')
+modelpath = '/home/jeremy/caffenets/binary/resnet_dress/res101_test/'
+solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
+deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
 caffemodel = os.path.join(modelpath,'snapshot/res50_binary_dress_iter_1000.caffemodel')
 print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
 print('set_mode_gpu()')
