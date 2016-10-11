@@ -62,9 +62,9 @@ prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 weights_base = os.path.basename(weights)
 threshold = 0.5
 if net_name:
-    outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
+    outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')+'_'+cat
 else:
-    outdir = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')
+    outdir = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')+'_'+cat
 outdir = outdir.replace('"','')  #remove quotes
 outdir = outdir.replace(' ','')  #remove spaces
 outdir = outdir.replace('\n','')  #remove newline
