@@ -20,9 +20,9 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 #vars to change
 ###############
 
-weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
-solverproto = 'solver101_sgd.prototxt'
-testproto = 'ResNet-101-test.prototxt'  #maybe take this out in  favor of train proto
+weights = '../ResNet-101-model.caffemodel'  #in brainia container jr2
+solverproto = 'ResNet-101_solver.prototxt'
+testproto = 'ResNet-101-train_test.prototxt'  #maybe take this out in  favor of train proto
 type='single_label'
 #type='multilabel'
 #type='pixlevel'
