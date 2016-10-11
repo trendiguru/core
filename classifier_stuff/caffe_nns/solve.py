@@ -62,9 +62,9 @@ prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 weights_base = os.path.basename(weights)
 threshold = 0.5
 if net_name:
-    outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')+'_'+cat
+    outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
 else:
-    outdir = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')+'_'+cat
+    outdir = type + '_' + prefix + '_' +testproto+'_'+weights_base.replace('.caffemodel','')
 outdir = outdir.replace('"','')  #remove quotes
 outdir = outdir.replace(' ','')  #remove spaces
 outdir = outdir.replace('\n','')  #remove newline
@@ -88,6 +88,7 @@ if type == 'pixlevel':
 if type == 'multilabel':
     outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
 if type == 'single_label':
+    outdir = outdir + '_' + cat
     outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
 print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
