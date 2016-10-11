@@ -150,6 +150,10 @@ for _ in range(1000000):
 
     elif type == 'single_label':
         acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
+        with open(loss_outputname,'a+') as f:
+            f.write('test\t'+str(int(time.time()))+'\t'+str(acc))
+            f.close()
+
 #
 #   subprocess.call(copycmd,shell=True)
     subprocess.call(scpcmd,shell=True)
