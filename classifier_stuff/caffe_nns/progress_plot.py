@@ -332,8 +332,10 @@ def lossplot(input_filename,netinfo='',logy=True):
     return
   times = []
   losses = []
+  testlosses = []
   n_iters = []
   accuracy = []
+  testaccuracies = []
   precision = []
   recall = []
   firstline = True
@@ -344,6 +346,14 @@ def lossplot(input_filename,netinfo='',logy=True):
 #    print line
 
     thesplit = line.split()
+    if thesplit[0] == 'test': #got testing line
+      time = thesplit[1]
+      n_iter = thesplit[2]
+      testloss = thesplit[3]
+      testacc = float(thesplit[4])
+      testlosses.append(testloss)
+      testaccuracies.append(testacc)
+      continue
     time = thesplit[0]
     n_iter = thesplit[1]
     loss = thesplit[2]
@@ -391,10 +401,12 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.set_ylabel("accuracy")
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="precision")
-    ax2.set_ylabel("precision")
   if len(recall)>2 and len(recall) == len(n_iters):
-    plt.plot(n_iters, recall,'r4', label="recall")
-    ax2.set_ylabel("recall")
+    ax2.plot(n_iters, recall,'r4', label="recall")
+  if len(testaccuracies)>2:
+    ax2.plot(n_iters, testaccuracies,'k5', label="testacc")
+  if len(testlosses)>2):
+    ax1.plot(n_iters, testlosses,'y6', label="testloss")
   plt.legend()
 
   output_filename = input_filename[:-4] + '.png'
