@@ -405,7 +405,7 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.plot(n_iters, recall,'r4', label="recall")
   if len(testaccuracies)>2:
     ax2.plot(n_iters, testaccuracies,'k5', label="testacc")
-  if len(testlosses)>2):
+  if len(testlosses)>2:
     ax1.plot(n_iters, testlosses,'y6', label="testloss")
   plt.legend()
 
