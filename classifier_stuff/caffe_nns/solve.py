@@ -155,7 +155,7 @@ for _ in range(1000000):
 #        testloss = test_net.blobs['loss'].data
         testloss = 0
         with open(loss_outputname,'a+') as f:
-            f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc))
+            f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
             f.close()
 #
 #   subprocess.call(copycmd,shell=True)
