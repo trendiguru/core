@@ -586,6 +586,8 @@ class JrMultilabel(caffe.Layer):
         logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
 
+
+
     def reshape(self, bottom, top):
         pass
         #print('start reshape')

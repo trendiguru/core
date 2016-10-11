@@ -16,18 +16,32 @@ from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
+###############
+#vars to change
+###############
+
+weights = '../ResNet-101-model.caffemodel'  #in brainia container jr2
+solverproto = 'ResNet-101_solver.prototxt'
+testproto = 'ResNet-101-train_test.prototxt'  #maybe take this out in  favor of train proto
+type='single_label'
+#type='multilabel'
+#type='pixlevel'
+steps_per_iter = 1
+n_iter = 20
+cat = 'belt'
+classlabels=['not_'+cat,cat]
+n_tests = 1000
+baremetal_hostname = 'braini'
+
+####################
+
+
 matplotlib.use('Agg') #allow plot generation on X-less systems
 plt.ioff()
 setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
-weights = 'snapshot101_sgd/train_iter_70000.caffemodel'  #in brainia container jr2
-solverproto = 'solver101_sgd.prototxt'
-testproto = 'ResNet-101-test.prototxt'  #maybe take this out in  favor of train proto
-
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
-#solver = caffe.SGDSolver('solver.prototxt')
-#get_solver is more general, SGDSolver forces sgd even if something else is specified in prototxt
 solver = caffe.get_solver(solverproto)
 training_net = solver.net
 if weights is not None:
@@ -35,33 +49,17 @@ if weights is not None:
 solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
 test_net = solver.test_nets[0] # more than one testnet is supported
 
-#solver.net.forward()  # train net  #doesnt do fwd and backwd passes apparently
-# surgeries
-#interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
-#surgery.interp(solver.net, interp_layers)
-
-#all_params = [k for k in solver.net.params.keys()]
-#all_blobs = [k for k in solver.net.blobs.keys()]
-
-
-#jrinfer.seg_tests(solver, False, val, layer='score')
 net_name = multilabel_accuracy.get_netname(testproto)
 tt = multilabel_accuracy.get_traintest_from_proto(solverproto)
+print('netname {} train/test {}'.format(net_name,tt))
 
 docker_hostname = socket.gethostname()
-host_dirname = '/home/jeremy/caffenets/production'
-Utils.ensure_dir(host_dirname)
-baremetal_hostname = 'braini'
 
 datestamp = datetime.datetime.strftime(datetime.datetime.now(), 'time%H.%M_%d-%m-%Y')
 prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 
 #detailed_jsonfile = detailed_outputname[:-4]+'.json'
 weights_base = os.path.basename(weights)
-type='multilabel'
-type='pixlevel'
-type='single_label'
-cat = 'belt'
 threshold = 0.5
 if net_name:
     outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
@@ -73,6 +71,7 @@ outdir = outdir.replace('\n','')  #remove newline
 outdir = outdir.replace('\r','')  #remove return
 outdir = './'+outdir
 
+#copy training and test files to outdir
 if tt is not None:
     if len(tt) == 1:  #copy single traintest file to dir of info
         copycmd = 'cp '+tt[0] + ' ' + outdir
@@ -83,12 +82,13 @@ if tt is not None:
         copycmd = 'cp '+tt[1] + ' ' + outdir
         subprocess.call(copycmd,shell=True)
 
-
+#generate report filename
 if type == 'pixlevel':
     outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
 if type == 'multilabel':
     outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
 if type == 'single_label':
+    outdir = outdir + '_' + cat
     outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
 loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
 print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
@@ -97,20 +97,13 @@ time.sleep(0.1)
 Utils.ensure_file(loss_outputname)
 
 #copycmd = 'cp -r '+outdir + ' ' + host_dirname
-#copy2cmd = 'cp '+outname + ' ' + host_dirname
-#copy3cmd = 'cp '+loss_outputname + ' ' + host_dirname
-#copy4cmd = 'cp '+detailed_jsonfile + ' ' + host_dirname
 scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
-#scp2cmd = 'scp '+outname + ' root@104.155.22.95:/var/www/results/progress_plots/'
-#scp3cmd = 'scp '+loss_outputname+' root@104.155.22.95:/var/www/results/progress_plots/'
-#scp4cmd = 'scp '+detailed_jsonfile + ' root@104.155.22.95:/var/www/results/progress_plots/'
 
 i = 0
 losses = []
 iters = []
-steps_per_iter = 1
-n_iter = 20
 loss_avg = [0]*n_iter
+accuracy_avg = [0]*n_iter
 tot_iters = 0
 
 #instead of taking steps its also possible to do
@@ -128,12 +121,14 @@ for _ in range(1000000):
         loss_avg[i] = loss
         losses.append(loss)
         tot_iters = tot_iters + steps_per_iter*n_iter
+        if type == 'single_label':
+            accuracy_avg[i] = solver.net.blobs['accuracy'].data
     averaged_loss=sum(loss_avg)/len(loss_avg)
     if type == 'single_label':
-        accuracy = solver.net.blobs['accuracy'].data
-        s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,accuracy)
+        averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
+        s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
         print(s)
-        s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,accuracy)
+        s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
     else:
         s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
         print(s)
@@ -145,17 +140,23 @@ for _ in range(1000000):
         f.close()
 #    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
     if type == 'multilabel':
-        precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=100, threshold=0.5, gt_layer='labels',estimate_layer='prob')
+        precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=n_tests, threshold=0.5, gt_layer='labels',estimate_layer='prob')
         print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
         n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
         multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
     elif type == 'pixlevel':
                 # number of tests for pixlevel
-        val = range(0,200) #
+        val = range(0,n_tests) #
         jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
 
     elif type == 'single_label':
-        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=1000,classlabels=['not_'+cat,cat],save_dir=outdir)
+        acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
+ #       test_net = solver.test_nets[0] # more than one testnet is supported
+#        testloss = test_net.blobs['loss'].data
+        testloss = 0
+        with open(loss_outputname,'a+') as f:
+            f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
+            f.close()
 #
 #   subprocess.call(copycmd,shell=True)
     subprocess.call(scpcmd,shell=True)
