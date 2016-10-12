@@ -155,21 +155,25 @@ def vary_trainsize():
     #change number of trainingfiles
     orig_trainfile = 'dress_filipino_labels_balanced_train_250x250.txt'
     truncated_trainfile = 'dress_filipino_labels_balanced_train_250x250_truncated.txt'
-    n=100
-    with open(orig_trainfile,'r') as fp:
-        lines = fp.readlines()
-        first_n = lines[0:n]
-        fp.close()
-    with open(truncated_trainfile,'w') as fp2:
-        fp2.write(first_n)
-        fp2.close
-
+    for n in [100,200,500,1000,2000,5000,10000,20000,50000]
+        n=100
+        with open(orig_trainfile,'r') as fp:
+            lines = fp.readlines()
+            first_n = lines[0:n]
+            fp.close()
+        with open(truncated_trainfile,'w') as fp2:
+            fp2.write(first_n)
+            fp2.close
+        print('n {}'.format(n))
+        raw_input()
 #    solve('../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
 ##      testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='belt',
  #     steps_per_iter=1,n_iter=20,n_loops=100,n_tests=1000,baremetal_hostname='brainik80',classlabels=None)
 
 
 if __name__ == "__main__":
-    solve('../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
-          testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='belt',
-          steps_per_iter=1,n_iter=20,n_loops=100,n_tests=1000,baremetal_hostname='brainik80',classlabels=None)
+    vary_trainsize()
+
+#    solve('../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
+#          testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='belt',
+#          steps_per_iter=1,n_iter=20,n_loops=100,n_tests=1000,baremetal_hostname='brainik80',classlabels=None)
