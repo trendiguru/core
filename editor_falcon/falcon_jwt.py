@@ -81,6 +81,8 @@ class AuthMiddleware(object):
 
         challenges = ['Hello="World"']  # I think this is very irrelevant
 
+        logging.debug("name: {0}".format(self.cookie_opts.get("name")))
+        logging.debug(req.cookies)
         token = req.cookies.get(self.cookie_opts.get("name"))
         if token is None:
             logging.debug("token is None")
