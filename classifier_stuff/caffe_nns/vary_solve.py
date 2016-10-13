@@ -172,7 +172,7 @@ def vary_trainsize():
      #   raw_input()
         solve('../../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
           testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='dress_n='+str(n),
-          steps_per_iter=1,n_iter=200,n_loops=20,n_tests=1000,baremetal_hostname='brainim60',classlabels=None)
+          steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,baremetal_hostname='brainim60',classlabels=None)
 #n_iter here 20->200 and in solverproto from 10->1 to increase precision of accuracy vals
 
 if __name__ == "__main__":
