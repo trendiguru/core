@@ -40,12 +40,12 @@ def test_confmat():
 
 def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
     all_params = [k for k in net.params.keys()]
-    print('all params:')
-    print all_params
-    all_blobs = [k for k in net.blobs.keys()]
-    print('all blobs:')
-    print all_blobs
-    print('looking for label {} and estimate {}'.format(label_layer,estimate_layer))
+#    print('all params:')
+#    print all_params
+#    all_blobs = [k for k in net.blobs.keys()]
+#    print('all blobs:')
+#    print all_blobs
+    print('looking for label {} and estimate {}, n_classes {}'.format(label_layer,estimate_layer,n_classes))
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
         net.forward()
@@ -53,7 +53,7 @@ def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer=
 #        ests = net.blobs['score'].data > 0  ##why 0????  this was previously not after a sigmoid apparently
         ests = net.blobs[estimate_layer].data  #.data gets the loss
         n_classes = len(ests[0])  #get first batch element
-        print('gts {} ests {} n_classes {}'.format(gts, ests,n_classes))
+        print('test {}/{}: gts {} ests {} '.format(t,n_tests,gts, ests))
         if np.any(np.isnan(ests)):
             print('got nan in ests, continuing')
             continue
