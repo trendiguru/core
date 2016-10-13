@@ -20,6 +20,7 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 #vars to change
 ###############
 
+solverstate = None
 weights = '../ResNet-101-model.caffemodel'  #in brainia container jr2
 solverproto = 'ResNet-101_solver.prototxt'
 testproto = 'ResNet-101-train_test.prototxt'  #maybe take this out in  favor of train proto
@@ -43,9 +44,12 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 caffe.set_device(int(sys.argv[1]))
 caffe.set_mode_gpu()
 solver = caffe.get_solver(solverproto)
-training_net = solver.net
 if weights is not None:
     solver.net.copy_from(weights)
+if solverstate is not None:
+    solver.restore('***.solverstate').   #see https://github.com/BVLC/caffe/issues/3651
+    #No need to use solver.net.copy_from().
+training_net = solver.net
 solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
 test_net = solver.test_nets[0] # more than one testnet is supported
 
