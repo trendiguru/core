@@ -21,8 +21,8 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 ###############
 
 weights = '/home/yonatan/faces_stuff/resnet_genderator_models_09_10_16/caffe_resnet50_snapshot_sgd_gender_by_face_iter_30000.solverstate'  #in brainia container jr2
-solverproto = '/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/solver50_sgd.prototxt'
-testproto = '/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/ResNet-50-test.prototxt'  #maybe take this out in  favor of train proto
+solverproto = '/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/solver50_sgd.prototxt'
+testproto = '/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-test.prototxt'  #maybe take this out in  favor of train proto
 type='single_label'
 #type='multilabel'
 #type='pixlevel'
