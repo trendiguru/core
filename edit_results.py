@@ -87,9 +87,11 @@ def change_gender_and_rebuild_person(image_id, person_id, new_gender):
 
 
 def add_people_to_image(image_url, page_url, faces, products_collection='ShopStyle', method='pd'):
+    # MAKE SURE ALL FACES ARE LISTS
     for index, face in enumerate(faces):
         if not isinstance(face, list):
             faces[index] = face.tolist()
+    # DOWNLOAD IMAGE AND VERIFY
     image_obj = db.images.find_one({'image_urls': image_url})
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
@@ -179,12 +181,14 @@ def shrink_image_object(image_obj):
 
 
 def build_new_person(image, face, products_collection, method):
+        # INITIALIZE PERSON STRUCTURE
         x, y, w, h = face
         person_bb = [int(round(max(0, x - 1.5 * w))), str(y), int(round(min(image.shape[1], x + 2.5 * w))),
                      min(image.shape[0], 8 * h)]
         person = {'face': face, 'person_bb': person_bb, 'gender': genderize(image, face)['gender'],
                   'products_collection': products_collection, 'segmentation_method': method, 'items': [],
                   '_id': str(bson.ObjectId())}
+        # SEGMENTATION
         try:
             if person['segmentation_method'] == 'pd':
                 seg_res = pd_falcon_client.pd(image)
@@ -193,15 +197,18 @@ def build_new_person(image, face, products_collection, method):
         except Exception as e:
             print e
             return
+        # CATEGORIES CONCLUSIONS
         if 'success' in seg_res and seg_res['success']:
             mask = seg_res['mask']
             if person['segmentation_method'] == 'pd':
                 labels = seg_res['label_dict']
+                final_mask = pipeline.after_pd_conclusions(mask, labels, person['face'])
             else:
                 labels = constants.ultimate_21_dict
+                final_mask = pipeline.after_nn_conclusions(mask, labels, person['face'])
         else:
             return
-        final_mask = pipeline.after_pd_conclusions(mask, labels, person['face'])
+        # BUILD ITEMS IN THE PERSON
         for num in np.unique(final_mask):
             pd_category = list(labels.keys())[list(labels.values()).index(num)]
             if pd_category in constants.paperdoll_relevant_categories:
@@ -210,13 +217,12 @@ def build_new_person(image, face, products_collection, method):
                     category = constants.paperdoll_paperdoll_men[pd_category]
                 else:
                     category = pd_category
-            person['items'].append(bulid_new_item(category, item_mask, products_collection, image, person['gender']))
+                person['items'].append(bulid_new_item(category, item_mask, products_collection, image, person['gender']))
         return person
 
 
 def bulid_new_item(category, item_mask, collection, image, gender):
     prod = collection + '_' + gender
-    item = {'similar_results': {}, 'category': category}
-    item['fp'], item['similar_results'][collection] = find_similar_mongo.find_top_n_results(image, item_mask, 100,
-                                                                                            category, prod)
+    fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod)
+    item = {'similar_results': {collection: results}, 'category': category, 'fp': fp}
     return item

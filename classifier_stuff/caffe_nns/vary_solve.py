@@ -105,12 +105,15 @@ def solve(weightsfile='../ResNet-101-model.caffemodel',solverproto = 'ResNet-101
             solver.step(steps_per_iter)
     #        loss = solver.net.blobs['score'].data
             loss = solver.net.blobs['loss'].data
-            print('outerloop:'+str(outer)+' iter '+str(i*steps_per_iter)+' loss:'+str(loss))
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter*n_iter
             if type == 'single_label':
-                accuracy_avg[i] = solver.net.blobs['accuracy'].data
+                accuracy = solver.net.blobs['accuracy'].data
+                accuracy_avg[i] = accuracy
+                print('iter '+str(i*steps_per_iter)+' loss:'+str(loss)+' acc:'+str(accuracy))
+            else:
+                print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         averaged_loss=sum(loss_avg)/len(loss_avg)
         if type == 'single_label':
             averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
