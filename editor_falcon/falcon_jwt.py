@@ -80,7 +80,7 @@ class AuthMiddleware(object):
             return
 
         logging.debug(req.method)
-        if req.method is "OPTIONS":
+        if "OPTIONS" in req.method:
             logging.debug("OPTIONS, DON'T NEED TOKEN")
             return
 
