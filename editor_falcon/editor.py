@@ -3,10 +3,23 @@ from jaweson import json, msgpack
 from .. import edit_results
 from bson import json_util
 
+# Logging
+import logging
+import sys
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+root.addHandler(ch)
+
 
 class Editor(object):
 
     def on_get(self, req, resp, **path_args):
+        logging.debug("ON_GET {0}".format(str(path_args)))
         ret = {'ok': False, 'data': {}}
         params = req.params
         try:
@@ -27,7 +40,7 @@ class Editor(object):
         resp.body = json_util.dumps(ret)
 
     def on_delete(self, req, resp, **path_args):
-        print "ON_DELETE " + str(path_args)
+        logging.debug("ON_DELETE {0}".format(str(path_args)))
         ret = {'ok': False, 'data': {}}
         try:
             if "result_id" in path_args:
