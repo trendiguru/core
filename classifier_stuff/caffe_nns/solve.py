@@ -47,7 +47,7 @@ solver = caffe.get_solver(solverproto)
 if weights is not None:
     solver.net.copy_from(weights)
 if solverstate is not None:
-    solver.restore('***.solverstate').   #see https://github.com/BVLC/caffe/issues/3651
+    solver.restore('***.solverstate')   #see https://github.com/BVLC/caffe/issues/3651
     #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector. Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k iterations to recover. At test time you only need .caffemodel.
 training_net = solver.net
 solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
