@@ -12,6 +12,7 @@ import random
 import string
 
 from trendi.utils import augment_images
+from trendi.utils import imutils
 
 class JrPixlevel(caffe.Layer):
     """
@@ -576,7 +577,7 @@ class JrMultilabel(caffe.Layer):
 
             if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
                 print('uh i got no size so using 224x224')
-                self.new_size = (224,224)
+#                self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
         else:
             self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
@@ -596,7 +597,11 @@ class JrMultilabel(caffe.Layer):
             imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            if self.new_size == None:
+                size_for_shaping=(224,224)
+            else:
+                size_for_shaping=self.new_size
+            all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 imgfilename, data, label = self.load_image_and_label()
@@ -667,6 +672,7 @@ class JrMultilabel(caffe.Layer):
                     continue
                 if self.new_size:
                     im = im.resize(self.new_size,Image.ANTIALIAS)
+                    im = imutils.resize_keep_aspect(im,output_size=self.new_size)
                 in_ = np.array(im, dtype=np.float32)
                 if in_ is None:
                     logging.warning('jrlayers2 could not get in_ '+filename)
