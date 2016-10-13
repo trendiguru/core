@@ -15,7 +15,7 @@ push_connection(constants.redis_conn)
 start_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 
 
-def check_if_exists(image_url):
+def check_if_exists(image_url, products):
 
     # Temporarily remove whitelist for Recruit Test -- LS 22/06/2016.
     # domain = tldextract.extract(page_url).registered_domain
@@ -36,7 +36,7 @@ def check_if_exists(image_url):
         else:
             return False
 
-    greens = {collection: Greenlet.spawn(check_db, collection) for collection in ['images', 'irrelevant_images', 'iip']}
+    greens = {collection: Greenlet.spawn(check_db, collection, products) for collection in ['images', 'irrelevant_images', 'iip']}
     gevent.joinall(greens.values())
     if greens['images'].value or greens['iip'].value:
         return True
