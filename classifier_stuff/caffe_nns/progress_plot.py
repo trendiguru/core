@@ -15,7 +15,6 @@ import re
 from pylab import figure, show, legend, ylabel
 
 from mpl_toolkits.axes_grid1 import host_subplot
-import datetime
 import time
 import datetime
 from scipy.optimize import curve_fit
@@ -332,10 +331,13 @@ def lossplot(input_filename,netinfo='',logy=True):
     return
   times = []
   losses = []
+  testlosses = []
   n_iters = []
   accuracy = []
+  testaccuracies = []
   precision = []
   recall = []
+  n_loss_iter=[]
   firstline = True
 # read files if format of
   #n_iter time loss [accuracy] [precision] [recall]
@@ -344,29 +346,38 @@ def lossplot(input_filename,netinfo='',logy=True):
 #    print line
 
     thesplit = line.split()
-    time = thesplit[0]
-    n_iter = thesplit[1]
-    loss = thesplit[2]
-    if not(n_iter.isdigit() and time.isdigit() ):
-      continue
-    try:
-      n_iters.append(int(n_iter))
-      times.append(int(time))
-      losses.append(float(loss))
-      if len(thesplit)>3:
-        acc = float(thesplit[3])
-        accuracy.append(acc)
-      if len(thesplit)>4:
-        prec = float(thesplit[4])
-        precision.append(prec)
-      if len(thesplit)>5:
-        rec = float(thesplit[5])
-        recall.append(rec)
-    except :
-      print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
-      continue
-  if len(n_iters)<2:
-    return
+    if thesplit[0] == 'test': #got testing line
+      time = thesplit[1]
+      loss_iter = thesplit[2]
+      testloss = thesplit[3]
+      testacc = float(thesplit[4])
+      testlosses.append(testloss)
+      testaccuracies.append(testacc)
+      n_loss_iter.append(loss_iter)
+    else:
+      time = thesplit[0]
+      n_iter = thesplit[1]
+      loss = thesplit[2]
+      if not(n_iter.isdigit() and time.isdigit() ):
+        continue
+      try:
+        n_iters.append(int(n_iter))
+        times.append(int(time))
+        losses.append(float(loss))
+        if len(thesplit)>3:
+          acc = float(thesplit[3])
+          accuracy.append(acc)
+        if len(thesplit)>4:
+          prec = float(thesplit[4])
+          precision.append(prec)
+        if len(thesplit)>5:
+          rec = float(thesplit[5])
+          recall.append(rec)
+      except :
+        print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
+        continue
+    if len(n_iters)<2:
+      return
 
   xtitle = 'iteration'
   if n_iters[1]>1000:
@@ -391,10 +402,13 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.set_ylabel("accuracy")
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="precision")
-    ax2.set_ylabel("precision")
   if len(recall)>2 and len(recall) == len(n_iters):
-    plt.plot(n_iters, recall,'r4', label="recall")
-    ax2.set_ylabel("recall")
+    ax2.plot(n_iters, recall,'r4', label="recall")
+#plot training data
+  if len(testaccuracies)>2:
+    ax2.plot(n_loss_iter, testaccuracies,'k5', label="testacc")
+  if len(testlosses)>2:
+    ax1.plot(n_loss_iter, testlosses,'y6', label="testloss")
   plt.legend()
 
   output_filename = input_filename[:-4] + '.png'

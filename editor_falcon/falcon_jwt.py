@@ -8,7 +8,17 @@ import falcon
 import jwt
 from passlib.hash import sha256_crypt
 
-DEFAULT_COOKIE_OPTS = {"name": "auth_token", "place":"holder"}
+# Logging
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+root.addHandler(ch)
+
+
+DEFAULT_COOKIE_OPTS = {"name": "auth_token", "place": "holder"}
 
 
 class LoginResource(object):

@@ -38,7 +38,7 @@ def fullContactCollect(email):
 my_access_token = 'EAACEdEose0cBAB3PI5trgsPD59BbayD8gdbCDjaTzBE2f6vEcw3TAq97X21zOcnK8ZBb6XzLNk6S19JfNCyZCw4j1aJbpGX8vG5TirwPlBtXsRCYw95GVMAdHtIR1VR2tEK3LhOfKTI9XXsWgneq2uZA5q5Tk9n5iE1Qly9iwZDZD'
 michal_access_token = 'EAACEdEose0cBAAOu0VAmvxRKMedjuAKV8ZAkaX4PByAZA2D327qjpKj8XsILkYRKdiiWqWg2HkPZB4JvqR8jiyGtprH4Bs6IdHLzC5bSotydXJnNBnJr42MaW95vDdaORW8b3jx7WNeoEImyNBjd71VINNUQUI9UE5z23cWugZDZD'
 Hilush_access_token = 'EAACEdEose0cBAMFjZCQ2dg2p7KiZA7K6NYhBQQ6DSIK4k0sFBHGJTZBeC6V0OZA61KuUKCOGsBmIcZCfsiGVvJ1b8Y47uNbZCtZAUQTygw7JitGyhPZBZCiOWxkXjzijlyRxJRwRCX1HohX2cGL2RpxN4KOdqvpEhaDIDWHfvud6AQgZDZD'
-technoart_org_token = 'EAACEdEose0cBAIZCrayMUqx9zT7KlcsYxO9jNZA8eNzftiagwdSKfLtEWmuQa6lRZAeRZA7mursHGHdCkcqrwt6JhtJ5oujv0dLRTZBVZAUhpj9QEwT0BGYHSm54c8g3tO69YmQzqzVMcAZCZCILFVIo1jorAidyIPZCCattVLkH4KV6tJHbsMCCu8B6KUrDeGeV946QBhSLpBQZDZD'
+technoart_org_token = 'EAACEdEose0cBAOr1SsAZCBRBGcZAp3yST7ZAhE9FaJzEvNSfZAR45vDapHTdTtZBd1ivDZCNLrqUesTuZCEuURwORZCDJC1ZAEfi4ZANu9apoBRFZBuOekoRb3r191fA4xxy68gH6OCBJ5K0fhwiHNKYzWcPB3N46eiUIvGeBfZCqmOsycPZBVK8GEK6xLVRgZAN4a7ulRK7hEhZBwo8wZDZD'
 
 my_fb_user_id = '693821542'
 michal_fb_page_id = '423546661173003'
@@ -54,11 +54,20 @@ def get_fb_page_like_count(my_fb_user_id):
     graph = facebook.GraphAPI(access_token=technoart_org_token)
     # args = {'fields': 'photos'}
     # page = graph.get_object(id=my_fb_user_id, **args)
-
     # facebook_user = facebook.GraphAPI(my_access_token).get_object('me')
     # page = graph.get_object(paris_album_id)
     # post = graph.get_object(id=my_fb_user_id)
-    friends = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_fans_gender_age')
+# page insights of people who liked the page #
+    page_fans_gender_age = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_fans_gender_age')
+    page_fans_country = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_fans_country')
+    page_fans_city = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_fans_city')
+    page_fans_locale = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_fans_locale')
+
+# page insights of people who saw the page #
+    page_impressions_by_age_gender_unique = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_impressions_by_age_gender_unique/days_28')
+    page_impressions_by_country_unique = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_impressions_by_country_unique/days_28')
+    page_impressions_by_locale_unique = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_impressions_by_locale_unique/days_28')
+    page_impressions_by_city_unique = graph.get_connections(id=my_fb_user_id, connection_name='insights/page_impressions_by_city_unique/days_28')
     # friends = graph.get_connections(id=my_fb_user_id)
 
     tyota = graph.get_connections(id=my_fb_user_id, connection_name='insights')
@@ -68,12 +77,40 @@ def get_fb_page_like_count(my_fb_user_id):
 
 
     sum = 0
-    print friends['data'][0]['description']
-    for key, value in friends['data'][0]['values'][2]['value'].iteritems():
+    print page_fans_country['data'][0]['description']
+    for key, value in page_fans_country['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key, value)
+
+    print page_fans_city['data'][0]['description']
+    for key, value in page_fans_city['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key.encode('ascii','ignore'), value)
+
+    print page_fans_locale['data'][0]['description']
+    for key, value in page_fans_locale['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key, value)
+
+    print page_fans_gender_age['data'][0]['description']
+    for key, value in page_fans_gender_age['data'][0]['values'][2]['value'].iteritems():
         print "{0} : {1}".format(key, value)
         sum += value
-    print "sum : {0}".format(sum)
+    print "sum : {0}\n\n".format(sum)
 
+
+    print page_impressions_by_country_unique['data'][0]['description']
+    for key, value in page_impressions_by_country_unique['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key, value)
+
+    print page_impressions_by_city_unique['data'][0]['description']
+    for key, value in page_impressions_by_city_unique['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key.encode('ascii','ignore'), value)
+
+    print page_impressions_by_locale_unique['data'][0]['description']
+    for key, value in page_impressions_by_locale_unique['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key, value)
+
+    print page_impressions_by_age_gender_unique['data'][0]['description']
+    for key, value in page_impressions_by_age_gender_unique['data'][0]['values'][2]['value'].iteritems():
+        print "{0} : {1}".format(key, value)
 
     # print page['comments']
     # return page.get

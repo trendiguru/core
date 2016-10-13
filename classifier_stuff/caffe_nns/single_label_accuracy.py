@@ -117,6 +117,7 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
         p,r,a = precision_recall_accuracy(confmat,i)
         write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
     close_html(htmlname)
+    return a
 
 def precision_recall_accuracy(confmat,class_to_analyze):
     npconfmat = np.array(confmat)

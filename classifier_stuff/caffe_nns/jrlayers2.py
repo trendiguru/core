@@ -586,6 +586,8 @@ class JrMultilabel(caffe.Layer):
         logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
 
+
+
     def reshape(self, bottom, top):
         pass
         #print('start reshape')
@@ -657,8 +659,8 @@ class JrMultilabel(caffe.Layer):
                 continue
             #print('calling augment_images with file '+filename)
 #############start added code to avoid cv2.imread############
-            im = Image.open(filename)
             try:
+                im = Image.open(filename)
                 if im is None:
                     logging.warning('jrlayers2 could not get im '+filename)
                     self.next_idx()
@@ -677,7 +679,7 @@ class JrMultilabel(caffe.Layer):
                     continue
             except:
                 e = sys.exc_info()[0]
-                logging.debug( "Error in jrlayers2 checking image: %s" % e )
+                logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
                 self.next_idx()
                 continue
             try:
