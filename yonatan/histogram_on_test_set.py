@@ -49,6 +49,8 @@ failure_counter = 0
 guessed_f_instead_m = 0
 guessed_m_instead_f = 0
 
+error_counter = 0
+
 for line in text_file:
     counter += 1
 
@@ -60,7 +62,12 @@ for line in text_file:
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
-    inputs = [caffe.io.load_image(input_file)]
+    try:
+        inputs = [caffe.io.load_image(input_file)]
+    except IOError:
+        print "cannot identify image file"
+        error_counter += 1
+        continue
     #inputs = [Utils.get_cv2_img_array(input_file)]
 
     print("Classifying %d inputs." % len(inputs))
@@ -104,6 +111,7 @@ if success == 0 or failure == 0:
 else:
     print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
 
+print "error_counter: {0}".format(error_counter)
 
 histogram=plt.figure(1)
 
