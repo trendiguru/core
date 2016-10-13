@@ -105,12 +105,15 @@ def solve(weightsfile='../ResNet-101-model.caffemodel',solverproto = 'ResNet-101
             solver.step(steps_per_iter)
     #        loss = solver.net.blobs['score'].data
             loss = solver.net.blobs['loss'].data
-            print('outerloop:'+str(outer)+' iter '+str(i*steps_per_iter)+' loss:'+str(loss))
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter*n_iter
             if type == 'single_label':
-                accuracy_avg[i] = solver.net.blobs['accuracy'].data
+                accuracy = solver.net.blobs['accuracy'].data
+                accuracy_avg[i] = accuracy
+                print('iter '+str(i*steps_per_iter)+' loss:'+str(loss)+' acc:'+str(accuracy))
+            else:
+                print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         averaged_loss=sum(loss_avg)/len(loss_avg)
         if type == 'single_label':
             averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
@@ -155,7 +158,7 @@ def vary_trainsize():
     #change number of trainingfiles
     orig_trainfile = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250.txt'
     truncated_trainfile = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250_truncated.txt'
-    for n in [200,500,1000,2000,5000,10000,20000,50000]:
+    for n in [500,1000,2000,5000,10000,20000,50000]:
         with open(orig_trainfile,'r') as fp:
             lines = fp.readlines()
             first_n = lines[0:n]
@@ -168,9 +171,9 @@ def vary_trainsize():
         print('n {}'.format(n))
      #   raw_input()
         solve('../../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
-          testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='dress_n=200',
-          steps_per_iter=1,n_iter=20,n_loops=20,n_tests=1000,baremetal_hostname='brainim60',classlabels=None)
-
+          testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='dress_n='+str(n),
+          steps_per_iter=1,n_iter=200,n_loops=20,n_tests=1000,baremetal_hostname='brainim60',classlabels=None)
+#n_iter here 20->200 and in solverproto from 10->1 to increase precision of accuracy vals
 
 if __name__ == "__main__":
     vary_trainsize()
