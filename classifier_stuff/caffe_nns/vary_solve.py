@@ -166,7 +166,7 @@ def vary_trainsize():
                 fp2.write(line)
             fp2.close
         print('n {}'.format(n))
-        raw_input()
+     #   raw_input()
     solve('../../ResNet-101-model.caffemodel',solverproto = 'ResNet-101_solver.prototxt',
       testproto='ResNet-101-train_test.prototxt' ,type='single_label',cat='dress',
       steps_per_iter=1,n_iter=1,n_loops=1,n_tests=10,baremetal_hostname='brainik80',classlabels=None)
