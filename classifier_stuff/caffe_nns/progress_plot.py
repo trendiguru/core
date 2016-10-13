@@ -405,7 +405,7 @@ def lossplot(input_filename,netinfo='',logy=True):
   plt.suptitle(netinfo)
   print('lengths: iter {} thetime {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
   if len(accuracy)>2 and len(accuracy) == len(n_iters):
-    ax2.plot(n_iters, accuracy,'o', label="accuracy", markeredgecolor=‘g’,markerfacecolor='None’)
+    ax2.plot(n_iters, accuracy,'o', label='accuracy', markeredgecolor='g',markerfacecolor='None')
     ax2.set_ylabel("accuracy")
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="precision")
@@ -413,7 +413,7 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.plot(n_iters, recall,'r4', label="recall")
 #plot training data
   if len(testaccuracies)>2:
-    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor=‘g’,markerfacecolor='None’)
+    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='None')
   if len(testlosses)>2:
     ax1.plot(n_loss_iter, testlosses,'y.', label="testloss")
   plt.legend()
