@@ -25,7 +25,7 @@ array_failure = np.array([])
 text_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "r")
 
 counter = 0
-test_flag = 1
+test_flag = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 PRETRAINED = "/home/yonatan/faces_stuff/resnet_genderator_models_09_10_16/caffe_resnet50_snapshot_sgd_gender_by_face_iter_30000.caffemodel"
