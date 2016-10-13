@@ -22,6 +22,7 @@ import socket
 
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
+#DONE
 
 def parse_logfile(output_filename,logy):
   '''
