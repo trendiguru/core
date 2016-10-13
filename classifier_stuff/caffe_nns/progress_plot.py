@@ -347,7 +347,7 @@ def lossplot(input_filename,netinfo='',logy=True):
 
     thesplit = line.split()
     if thesplit[0] == 'test': #got testing line
-      time = thesplit[1]
+      thetime = thesplit[1]
       loss_iter = thesplit[2]
       testloss = thesplit[3]
       testacc = float(thesplit[4])
@@ -355,29 +355,36 @@ def lossplot(input_filename,netinfo='',logy=True):
       testaccuracies.append(testacc)
       n_loss_iter.append(loss_iter)
     else:
-      time = thesplit[0]
+      print('line:'+str(line))
+      thetime = thesplit[0]
       n_iter = thesplit[1]
       loss = thesplit[2]
-      if not(n_iter.isdigit() and time.isdigit() ):
+      if not(n_iter.isdigit() and thetime.isdigit() ):
+        print('got bad iter or thetime ')
         continue
       try:
         n_iters.append(int(n_iter))
-        times.append(int(time))
+        times.append(int(thetime))
         losses.append(float(loss))
+        s = 'n_iter {} thetime {} loss {}'.format(n_iter,thetime,loss)
         if len(thesplit)>3:
           acc = float(thesplit[3])
           accuracy.append(acc)
+          s = s + ' acc {}'.format(acc)
         if len(thesplit)>4:
           prec = float(thesplit[4])
           precision.append(prec)
+          s = s + ' prec {}'.format(prec)
         if len(thesplit)>5:
           rec = float(thesplit[5])
           recall.append(rec)
+          s = s + ' rec {}'.format(rec)
       except :
         print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
         continue
-    if len(n_iters)<2:
-      return
+      print(s)
+  if len(n_iters)<2:
+    return
 
   xtitle = 'iteration'
   if n_iters[1]>1000:
@@ -396,7 +403,7 @@ def lossplot(input_filename,netinfo='',logy=True):
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
-  print('lengths: iter {} time {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
+  print('lengths: iter {} thetime {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
   if len(accuracy)>2 and len(accuracy) == len(n_iters):
     ax2.plot(n_iters, accuracy,'go', label="accuracy")
     ax2.set_ylabel("accuracy")
