@@ -161,8 +161,10 @@ def vary_trainsize():
             lines = fp.readlines()
             first_n = lines[0:n]
             fp.close()
+#        Utils.ensure_file(truncated_trainfile)
         with open(truncated_trainfile,'w') as fp2:
-            fp2.write(first_n)
+            for line in first_n:
+                fp2.write(line)
             fp2.close
         print('n {}'.format(n))
         raw_input()
