@@ -416,9 +416,9 @@ def lossplot(input_filename,netinfo='',logy=True):
 
 #plot test data
   if len(testaccuracies)>2:
-    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g')
+    ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g')
   if len(testlosses)>2:
-    ax1.plot(n_loss_iter, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
+    ax1.plot(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
   plt.legend()
 
   output_filename = input_filename[:-4] + '.png'
