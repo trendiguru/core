@@ -443,7 +443,7 @@ class JrMultilabel(caffe.Layer):
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
-        self.new_size = params.get('new_size',None)
+        self.new_size = params.get('resize',None)
         self.batch_size = params.get('batch_size',1)
         self.regression = params.get('regression',False)
         self.augment_images = params.get('augment',False)
