@@ -338,7 +338,7 @@ def lossplot(input_filename,netinfo='',logy=True):
   testaccuracies = []
   precision = []
   recall = []
-  n_loss_iter=[]
+  test_iters=[]
   firstline = True
 # read files if format of
   #n_iter time loss [accuracy] [precision] [recall]
@@ -354,7 +354,7 @@ def lossplot(input_filename,netinfo='',logy=True):
       testacc = float(thesplit[4])
       testlosses.append(testloss)
       testaccuracies.append(testacc)
-      n_loss_iter.append(loss_iter)
+      test_iters.append(loss_iter)
     else:
       print('line:'+str(line))
       thetime = thesplit[0]
@@ -394,8 +394,9 @@ def lossplot(input_filename,netinfo='',logy=True):
   fig, ax1 = plt.subplots()
   ax2 = ax1.twinx()
 
+#plot train data
   if logy:
-    ax1.semilogy(n_iters, losses,'r.', label="loss")
+    ax1.semilogy(n_iters, losses,'s', label="loss", markeredgecolor='r',markerfacecolor='None')
     ax1.semilogy(0,0,'r.',label='loss')
   else:
     ax1.plot(n_iters, losses,'r.', label="loss")
@@ -412,11 +413,12 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.plot(n_iters, precision,'b3', label="precision")
   if len(recall)>2 and len(recall) == len(n_iters):
     ax2.plot(n_iters, recall,'r4', label="recall")
-#plot training data
+
+#plot test data
   if len(testaccuracies)>2:
-    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='None')
+    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g')
   if len(testlosses)>2:
-    ax1.plot(n_loss_iter, testlosses,'y.', label="testloss")
+    ax1.plot(n_loss_iter, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
   plt.legend()
 
   output_filename = input_filename[:-4] + '.png'
