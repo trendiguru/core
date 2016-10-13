@@ -64,7 +64,8 @@ for line in text_file:
     input_file = os.path.expanduser(path[0])
     try:
         inputs = [caffe.io.load_image(input_file)]
-    except:
+    except IOError:
+        print "cannot identify image file"
         error_counter += 1
         continue
     #inputs = [Utils.get_cv2_img_array(input_file)]
