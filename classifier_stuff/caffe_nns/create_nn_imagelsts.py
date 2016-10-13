@@ -192,6 +192,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
     print('adding {} files to {} with class {}'.format(len(files),outfile,class_number))
+    print('using {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
     with open(outfile,'a') as fp:
         for f in files:
             line = f + ' '+str(class_number)
