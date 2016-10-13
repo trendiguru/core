@@ -175,7 +175,7 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
+def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
     '''
     take a dir and add the files therein to a text file with lines like:
     /path/to/file class_number
@@ -189,6 +189,9 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     else:
         files=[os.path.join(dir,f) for f in os.listdir(dir)]
     i = 0
+    if outfile == None:
+        outfile = os.path.join(dir,'labelfile.txt')
+    print('adding {} files to {} with class {}'.format(len(files),outfile,class_number))
     with open(outfile,'a') as fp:
         for f in files:
             line = f + ' '+str(class_number)
@@ -396,22 +399,6 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
-def dir_to_file_singlelabel(dir,classindex,labelfile,outfile=None,filter='.jpg'):
-    '''
-    This takes a dir of images all of the same class and appends them to a labelfile, with given class index
-    :param dir:
-    :param classindex:
-    :param labelfile:  lines like   /path/to/file.jpg  23
-    :param filter:
-    :return:
-    '''
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-    if outfile is not None:
-        labelfile=outfile
-    print('adding {} files to {} with class {}'.format(len(files),labelfile,classindex))
-    with open(labelfile, 'a') as fp:
-        for f in files:
-            fp.write(f+' '+str(classindex))
 
 #
 if __name__ == "__main__": #
