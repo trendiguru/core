@@ -138,7 +138,7 @@ def solve(weightsfile='../ResNet-101-model.caffemodel',solverproto = 'ResNet-101
             jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
 
         elif type == 'single_label':
-            acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
+            acc = single_label_accuracy.single_label_acc(weightsfile,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
      #       test_net = solver.test_nets[0] # more than one testnet is supported
     #        testloss = test_net.blobs['loss'].data
             testloss = 0
