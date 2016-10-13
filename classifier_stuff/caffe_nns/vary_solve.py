@@ -153,8 +153,8 @@ def solve(weightsfile='../ResNet-101-model.caffemodel',solverproto = 'ResNet-101
 
 def vary_trainsize():
     #change number of trainingfiles
-    orig_trainfile = 'dress_filipino_labels_balanced_train_250x250.txt'
-    truncated_trainfile = 'dress_filipino_labels_balanced_train_250x250_truncated.txt'
+    orig_trainfile = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250.txt'
+    truncated_trainfile = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250_truncated.txt'
     for n in [100,200,500,1000,2000,5000,10000,20000,50000]:
         n=100
         with open(orig_trainfile,'r') as fp:
