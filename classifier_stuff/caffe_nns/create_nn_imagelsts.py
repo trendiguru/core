@@ -191,8 +191,6 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
-    print('adding {} files to {} with class {}'.format(len(files),outfile,class_number))
-    print('using {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
     with open(outfile,'a') as fp:
         for f in files:
             line = f + ' '+str(class_number)
@@ -200,6 +198,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
             fp.write(line+'\n')
             i+=1
         fp.close()
+    print('added {} files to {} with class {}'.format(len(files),outfile,class_number))
+    print('used {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
@@ -344,7 +344,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
     n_pos = n_instances[1]
     min_instances = min(n_instances)
     desired_negs = (n_pos*ratio_neg_pos)
-    negs_to_use = min(desired_negs,n_negs)
+    negs_to_use = int(min(desired_negs,n_negs))
     #kill the initial Nones
 #    for i in range(n_cats):
 #        del(instances[i][0])
@@ -354,9 +354,14 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
     print('writing {} positives and {} negatives to {}'.format(n_pos,negs_to_use,outfilename))
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
-            for j in range(min_instances):
+            if i==1:
+                jrange=min_instances
+            else:
+                jrange=negs_to_use
+            for j in range(jrange):
                 fp.write(instances[i][j])
-            print('wrote '+str(min_instances)+' lines for category '+str(i))
+            print('wrote '+str(jrange)+' lines for category '+str(i))
+
     fp.close()
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
