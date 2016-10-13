@@ -79,6 +79,10 @@ class AuthMiddleware(object):
             logging.debug("LOGIN, DON'T NEED TOKEN")
             return
 
+        if req.method is "OPTIONS":
+            logging.debug("OPTIONS, DON'T NEED TOKEN")
+            return
+
         challenges = ['Hello="World"']  # I think this is very irrelevant
 
         logging.debug("name: {0}".format(self.cookie_opts.get("name")))
