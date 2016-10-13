@@ -1,5 +1,16 @@
 #!/usr/bin/env python
+"""
+- 100 hand picked - i got 170 (the rest isn't good enough), it's not 'n' from each category.
+i got 2 files: with and without label (didn't know if you want to give them the answer or not):
+"hand_picked_file.txt"   and  "hand_picked_labeled_file.txt"
 
+- 3000 labeled - same: with and without label:
+"labeled_images_file.txt"   and   "labeled_images_with_label_file.txt"
+
+- 10,000 from not catalog images - so i took only images with one person (and of course with a dress), so there's only 4555 that's qualified.
+i also saw sometimes there's more than one link to an image, but (from what i checked) it's the same image in all of them, so i only took the first link.
+"not_catalog_images_file.txt"
+"""
 import numpy as np
 import skimage.io
 import os
@@ -15,6 +26,7 @@ import urllib
 import pymongo
 import argparse
 import yonatan_constants
+
 
 # if i run this function on braini2:
 # db = constants.db
@@ -104,15 +116,3 @@ def not_catalog_images():
         print counter
 
 # not_catalog_images()
-
-
-# - 100 hand picked - i got 170 (the rest isn't good enough), it's not 'n' from each category.
-# i got 2 files: with and without label (didn't know if you want to give them the answer or not):
-# "hand_picked_file.txt"   and  "hand_picked_labeled_file.txt"
-#
-# - 3000 labeled - same: with and without label:
-# "labeled_images_file.txt"   and   "labeled_images_with_label_file.txt"
-#
-# - 10,000 from not catalog images - so i took only images with one person (and of course with a dress), so there's only 4555 that's qualified.
-# i also saw sometimes there's more than one link to an image, but (from what i checked) it's the same image in all of them, so i only took the first link.
-# "not_catalog_images_file.txt"

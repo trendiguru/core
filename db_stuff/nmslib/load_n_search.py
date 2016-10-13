@@ -9,7 +9,7 @@ def load_index(col_name, category, index_version, reindex=False):
     space_type = 'jsdivslow'
     space_param = []
     method_name = 'small_world_rand'
-    index_name = col_name + '_' + category +index_version+ '.index'
+    index_name = 'indexes/'+col_name + '_' + category +index_version+ '.index'
     file_exists = isfile(index_name)
     if reindex or not file_exists:
         build_n_save(col_name, category, index_version)
@@ -49,7 +49,7 @@ def load_index(col_name, category, index_version, reindex=False):
     return index, nmslib_vector
 
 
-def find_to_k(query_fp, k, nmslib_vector, category_index ):
+def find_to_k(query_fp, k, nmslib_vector, category_index):
     t1 = time()
     if type(query_fp) == list:
         color = query_fp

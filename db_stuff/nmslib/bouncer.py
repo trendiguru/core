@@ -17,6 +17,7 @@ from jaweson import msgpack
 import requests
 import psutil
 import json
+import os
 
 SERVER = "http://extremeli-evolution-dev-2:"  # use the name of the server running the gunicorn
 lookup_table = {}
@@ -25,7 +26,7 @@ lookup_table = {}
 def nmslib_find_top_k(fp, k, port, category):
     data = msgpack.dumps({"fp": fp,
                           "k": k})
-    category_server = SERVER+port+'/'+category
+    category_server = SERVER+str(port)+'/'+category
     resp = requests.post(category_server, data=data)
     return msgpack.loads(resp.content)
 
@@ -64,7 +65,7 @@ def fill_lookup_table(collections):
             p = find_free_port()
             process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/1 -w 2 --preload' \
                       % (p, collection, category)
-            pid = subprocess.Popen(process, shell=True)
+            pid = subprocess.Popen(process, shell=True,preexec_fn=os.setsid).pid
             lookup_table[collection][category] = {'port': p,
                                                   'pid': pid,
                                                   'index_version': 1}
@@ -78,10 +79,10 @@ def rebuild_index(collection_name, category):
     else:
         new_version = 1
     p = find_free_port()
-    build_index.build_n_save(collection_name,category)
+    build_index.build_n_save(collection_name,category,str(new_version))
     process = 'gunicorn -b :%s falcon_app:api --env NMSLIB_INPUTS=%s/%s/%d -w 2 --preload' \
               % (p, collection_name, category, new_version)
-    pid_new = subprocess.Popen(process)
+    pid_new = subprocess.Popen(process, shell=True, preexec_fn=os.setsid).pid
     pid_old = lookup_table[collection_name][category]['pid']
     lookup_table[collection_name][category] = {'port': p,
                                                'pid': pid_new,
@@ -89,6 +90,9 @@ def rebuild_index(collection_name, category):
 
     process_2_terminate = psutil.Process(pid_old)
     process_2_terminate.terminate()
+    index_name = collection_name + '_' + category + str(current_index_version) + '.index'
+    os.remove(index_name)
+    print('yufi tufi')
 
 
 class Selector:
@@ -103,7 +107,6 @@ class Selector:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
@@ -111,7 +114,9 @@ class Selector:
             category = data.get("category")
             fp = data.get("fp")
             port = lookup_table[collection][category]['port']
+            print(port)
             ret = nmslib_find_top_k(fp, 1000, port, category)
+            print ('done')
         except Exception as e:
             ret["error"] = str(e)
         resp.data = msgpack.dumps(ret)
@@ -119,7 +124,6 @@ class Selector:
         resp.status = falcon.HTTP_200
 
     def on_put(self, req, resp):
-        print('got POST')
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
@@ -134,7 +138,7 @@ class Selector:
         resp.status = falcon.HTTP_200
 
 
-fill_lookup_table(['amazon_US_Male'])
+fill_lookup_table(['recruit_Male'])
 api = falcon.API()
 api.add_route('/bouncer', Selector())
 

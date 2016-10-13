@@ -50,7 +50,7 @@ products_per_ip_pid = {'default':
                                  {'default': 'amazon_US'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
-                     'plus-model-mag.com': 'Fat_Beauty', 'recruit-lifestyle.co.jp': 'recruit'}
+                     'stylebook.de': 'amazon_DE', 'recruit-lifestyle.co.jp': 'recruit'}
 
 # fingerprint related consts
 

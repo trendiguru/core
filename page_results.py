@@ -212,9 +212,13 @@ def check_if_relevant(image_url, page_url, products_collection, method):
 
     if not relevance.is_relevant:
         hashed = get_hash(image)
+        try:
+            label = labelize(image).replace('.', '')
+        except:
+            label = None
         image_obj = {'image_hash': hashed, 'image_urls': [image_url], 'page_urls': [page_url], 'people': [],
                      'relevant': False, 'saved_date': str(datetime.datetime.utcnow()), 'views': 1,
-                     'labels': labelize(image)}
+                     'labels': label}
         db.irrelevant_images.insert_one(image_obj)
         db.labeled_irrelevant.insert_one(image_obj)
         return image_obj

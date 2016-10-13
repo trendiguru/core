@@ -1,4 +1,4 @@
-net: "train_val.prototxt"
+net: "vgg19_train_val.prototxt"
 test_iter: 2000
 test_interval: 5000
 display: 20
@@ -7,7 +7,7 @@ weight_decay: 0.0005
 iter_size: 1
 
 snapshot: 5000
-snapshot_prefix: "snapshot/binary_vgg16_dress"
+snapshot_prefix: "snapshot/binary_VGG19_dress"
 solver_mode: GPU
 
 # lr for fine-tuning should be lower than when starting from scratch
@@ -20,4 +20,3 @@ stepsize: 20000
 
 max_iter: 6000000
 momentum: 0.9
-

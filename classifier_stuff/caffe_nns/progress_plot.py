@@ -15,7 +15,6 @@ import re
 from pylab import figure, show, legend, ylabel
 
 from mpl_toolkits.axes_grid1 import host_subplot
-import datetime
 import time
 import datetime
 from scipy.optimize import curve_fit
@@ -25,6 +24,12 @@ import socket
 #then throw the jpgs onto a results website
 
 def parse_logfile(output_filename,logy):
+  '''
+  parses caffe-generated logfile
+  :param output_filename:
+  :param logy:
+  :return:
+  '''
   print('parsing logfile')
   f = open(output_filename, 'r')
   training_iterations = []
@@ -315,7 +320,9 @@ def fit_log(x, k,a, b, x0):
     #if (np.multiply(a,x-x0)+eps)
     return k*np.log(np.multiply(a,x-x0)+eps) + b
 
-def lossplot(input_filename):
+def lossplot(input_filename,netinfo='',logy=True):
+  '''plot from file with loss, iter, time etc generated from solve.py
+  '''
   print('parsing solve.py (jrinference) output file '+input_filename)
   try:
     f = open(input_filename, 'r')
@@ -324,22 +331,88 @@ def lossplot(input_filename):
     return
   times = []
   losses = []
+  testlosses = []
   n_iters = []
+  accuracy = []
+  testaccuracies = []
+  precision = []
+  recall = []
+  n_loss_iter=[]
+  firstline = True
+# read files if format of
+  #n_iter time loss [accuracy] [precision] [recall]
   for line in f:
 #    print('checking line:'+line)
-      print line
-      thesplit = line.split()
-      n_iter = thesplit[0]
+#    print line
+
+    thesplit = line.split()
+    if thesplit[0] == 'test': #got testing line
       time = thesplit[1]
+      loss_iter = thesplit[2]
+      testloss = thesplit[3]
+      testacc = float(thesplit[4])
+      testlosses.append(testloss)
+      testaccuracies.append(testacc)
+      n_loss_iter.append(loss_iter)
+    else:
+      time = thesplit[0]
+      n_iter = thesplit[1]
       loss = thesplit[2]
-      n_iters.append(n_iter)
-      times.append(time)
-      losses.append(loss)
-  plt.plot(n_iters, losses,'ro:', label="loss")
-  plt.xlabel("iter")
-  plt.ylabel("loss")
+      if not(n_iter.isdigit() and time.isdigit() ):
+        continue
+      try:
+        n_iters.append(int(n_iter))
+        times.append(int(time))
+        losses.append(float(loss))
+        if len(thesplit)>3:
+          acc = float(thesplit[3])
+          accuracy.append(acc)
+        if len(thesplit)>4:
+          prec = float(thesplit[4])
+          precision.append(prec)
+        if len(thesplit)>5:
+          rec = float(thesplit[5])
+          recall.append(rec)
+      except :
+        print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
+        continue
+    if len(n_iters)<2:
+      return
+
+  xtitle = 'iteration'
+  if n_iters[1]>1000:
+    n_iters = [i/1000 for i in n_iters ]
+    xtitle=xtitle+'/1000'
+  fig, ax1 = plt.subplots()
+  ax2 = ax1.twinx()
+
+  if logy:
+    ax1.semilogy(n_iters, losses,'r.', label="loss")
+    ax1.semilogy(0,0,'r.',label='loss')
+  else:
+    ax1.plot(n_iters, losses,'r.', label="loss")
+    ax1.plot(0,0,'r.',label='loss')
+  ax1.set_xlabel(xtitle)
+  ax1.set_ylabel("loss")
   plt.title(input_filename)
+  plt.suptitle(netinfo)
+  print('lengths: iter {} time {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
+  if len(accuracy)>2 and len(accuracy) == len(n_iters):
+    ax2.plot(n_iters, accuracy,'go', label="accuracy")
+    ax2.set_ylabel("accuracy")
+  if len(precision)>2 and len(precision) == len(n_iters):
+    ax2.plot(n_iters, precision,'b3', label="precision")
+  if len(recall)>2 and len(recall) == len(n_iters):
+    ax2.plot(n_iters, recall,'r4', label="recall")
+#plot training data
+  if len(testaccuracies)>2:
+    ax2.plot(n_loss_iter, testaccuracies,'k5', label="testacc")
+  if len(testlosses)>2:
+    ax1.plot(n_loss_iter, testlosses,'y6', label="testloss")
+  plt.legend()
+
   output_filename = input_filename[:-4] + '.png'
+  print('saving plot of loss from file '+input_filename+' to file '+output_filename)
   plt.savefig(output_filename)
 
 

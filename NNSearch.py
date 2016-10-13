@@ -102,7 +102,7 @@ def distance(category, main_fp, candidate_fp, coll):
 def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
     annoy_job = q.enqueue(fanni.lumberjack, args=(collection, category, color_fingerprint, 'angular', num_of_results))
     while not annoy_job.is_finished and not annoy_job.is_failed:
-        sleep(0.1)
+        sleep(0.01)
 
     if annoy_job.is_failed:
         return []
@@ -111,29 +111,46 @@ def annoy_search(collection, category, color_fingerprint, num_of_results=1000):
 
 
 def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_top=1000):
+    # t1 = time()
     entries = db[collection].find({'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+    # t2 = time()
+    # print t2 - t1
+    # t1 = time()
     if entries.count() > 2000 and 'amazon_DE' not in collection:
-        # start = time()
+
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         # print "annoy_search took {0} secs".format(time()-start)
         if not len(annoy_top_results):
             return []
-        # start = time()
+
         entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('categories', 1)])
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
+        # t2 = time()
+        # print t2-t1
         # print "query by annoyIndex took {0} secs".format(time()-start)
     farthest_nearest = 1
     nearest_n = []
-    # start = time()
-    for i, entry in enumerate(entries):
+    # tt = 0
+    i = 0
+    # for i, entry in enumerate(entries):
+    for entry in entries:
+        i += 1
+        # t1 = time()
+        # tt += t1-t2
         ent = entry['fingerprint']
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
+            # t2 = time()
+            # tdif = t2 - t1
+            # tt += tdif
             continue
         d = distance(category, fp, ent, collection)
         if not d:
+            # t2 = time()
+            # tdif = t2 - t1
+            # tt += tdif
             continue
         if i < number_of_matches:
             nearest_n.append((entry, d))
@@ -155,10 +172,18 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
                 nearest_n.insert(insert_at + 1, (entry, d))
                 nearest_n.pop()
                 farthest_nearest = nearest_n[-1][1]
+        # t2 = time()
+        # tdif = t2-t1
+        # tt+=tdif
+    # print tt
+
     # print "sorting entries took {0} secs".format(time()-start)
+    # t3 = time()
     [result[0].pop('fingerprint') for result in nearest_n]
     [result[0].pop('_id') for result in nearest_n]
     nearest_n = [result[0] for result in nearest_n]
+    # t4 = time()
+    # print t4-t3
     return nearest_n
 
 

@@ -1,9 +1,10 @@
 import os
 from time import time
-
+from datetime import datetime
 import annoy
 from ...constants import db
 from ..general import db_utils
+
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
@@ -17,6 +18,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         if type(fp) != dict:
             fp = {'color': fp}
             idx = item['_id']
+            # TODO - POSSIBLE BUG @ YONTI ('_d')
             db[col_name].update_one({'_d': idx}, {'$set': {'fingerprint': fp}})
         v = fp['color']
         forest.add_item(x, v)
@@ -114,9 +116,12 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     forest.unload()
     del forest
     print("got it in %s secs!"% total_duration)
-    msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s), results count: %d' \
-          % (col_name, category, total_duration, load_duration, search_duration, len(result))
-    db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
+
+    if float(total_duration)>1.0:
+        today_date = str(datetime.date(datetime.now()))
+        msg = 'collection: %s, category: %s, duration: %s (load : %s, search: %s), results count: %d date: %s' \
+              % (col_name, category, total_duration, load_duration, search_duration, len(result), today_date)
+        db_utils.log2file(mode='a', log_filename=log_name, message=msg, print_flag=True)
     return result
 
 
