@@ -303,17 +303,18 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename=None,shuffle=True):
+def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2,outfilename=None,shuffle=True):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
     to outfilename
     there is a theorectical question here of whether this is desireable or not (maybe unbalanced is good if wild is unbalanced)
+    this works only for 2 cats (todo - make it work for n cats).  also , assumes there are more negs than pos
     :param filename: input file with lines of the form '/path/to/file  class_number'
     :param fraction: not implemented, intended to allow for eg 60% neg and 40% pos
     :return:
     '''
-    print('balancing '+filename+' with fraction '+str(fraction)+', '+str(n_cats)+' categories')
+    print('balancing '+filename+' with ratio '+str(ratio_neg_pos)+', '+str(n_cats)+' categories')
     n_instances = [0]*n_cats
     instances = []  #*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
     for i in range(n_cats):
@@ -335,14 +336,18 @@ def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outf
 #        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
         print('n_instances {}'.format(n_instances))
+    n_negs = n_instances[0]
+    n_pos = n_instances[1]
     min_instances = min(n_instances)
-
+    desired_negs = (n_pos*ratio_neg_pos)
+    negs_to_use = min(desired_negs,n_negs)
     #kill the initial Nones
 #    for i in range(n_cats):
 #        del(instances[i][0])
 #  a shuffle cant hurt here
     if outfilename is None:
         outfilename = filename.replace('.txt','')+'_balanced.txt'
+    print('writing {} positives and {} negatives to {}'.format(n_pos,negs_to_use,outfilename))
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
             for j in range(min_instances):
@@ -391,6 +396,23 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
+def dir_to_file_singlelabel(dir,classindex,labelfile,outfile=None,filter='.jpg'):
+    '''
+    This takes a dir of images all of the same class and appends them to a labelfile, with given class index
+    :param dir:
+    :param classindex:
+    :param labelfile:  lines like   /path/to/file.jpg  23
+    :param filter:
+    :return:
+    '''
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    if outfile is not None:
+        labelfile=outfile
+    print('adding {} files to {} with class {}'.format(len(files),labelfile,classindex))
+    with open(labelfile, 'a') as fp:
+        for f in files:
+            fp.write(f+' '+str(classindex))
+
 #
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
@@ -398,8 +420,13 @@ if __name__ == "__main__": #
 #    inspect_textfile()
 
 #test_u21_256x256_no_aug
+#    dir_to_file_singlelabel(dir,classindex,labelfile,outfile=None,filter='.jpg'):
+#    balance_cats(f)
+#    outfilename = f.replace('.txt','')+'_balanced.txt'
+#    split_to_trainfile_and_testfile(outfilename)
 
-    x = ['bag_filipino_labels.txt',
+
+    '''x = ['bag_filipino_labels.txt',
          'belt_filipino_labels.txt',
          'bracelet_filipino_labels.txt',
          'cardigan_filipino_labels.txt',
@@ -432,7 +459,7 @@ if __name__ == "__main__": #
         balance_cats(f)
         outfilename = f.replace('.txt','')+'_balanced.txt'
         split_to_trainfile_and_testfile(outfilename)
-
+'''
 ## change from photos to photos_250x250:
 #sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
 
