@@ -84,8 +84,10 @@ def make_index(dir):
 #            htmlfiles.append(file)
         if file.endswith('loss.txt'):
             actual_path = os.path.join(dir,file)
-            progress_plot.parse_solveoutput(actual_path)
+            progress_plot.lossplot(actual_path)
         if file.endswith('netoutput.txt'):
+#                        progress_plot.parse_solveoutput(actual_path)
+
             pass
             #TODO DO0 DO0 THE RIGHT THING HERE namely make graph from netoutput
 #   sort by mod time
