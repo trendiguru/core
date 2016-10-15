@@ -443,7 +443,8 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
         right = int(round(left + crop_size[1]))
         top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
         bottom = int(round(top + crop_size[0]))
-#        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
+        logging.debug('incoming wxh {}x{} cropsize {}'.format(width,height,crop_size))
+ #       print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
             img_array = img_array[top:bottom,left:right,:]
             #print img_arr.shape

@@ -576,15 +576,15 @@ class JrMultilabel(caffe.Layer):
         if self.augment_images == False:
 
             if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-                print('uh i got no size so using 224x224')
+                print(' got no size for self.newsize')
 #                self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
         else:
             self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
-        logging.debug('new img size:'+str(self.new_size))
-        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
+#        logging.debug('doing reshape of top[0] to img size:'+str(self.new_size))
+#        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
 
 
