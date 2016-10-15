@@ -161,7 +161,11 @@ for _ in range(1000000):
         acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
  #       test_net = solver.test_nets[0] # more than one testnet is supported
 #        testloss = test_net.blobs['loss'].data
-        testloss = 0
+        try:
+            testloss =     test_net.blobs['loss'].data
+        except:
+            print('n o testloss available')
+            testloss=0
         with open(loss_outputname,'a+') as f:
             f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
             f.close()

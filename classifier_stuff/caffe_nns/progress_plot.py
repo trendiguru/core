@@ -352,7 +352,8 @@ def lossplot(input_filename,netinfo='',logy=True):
       loss_iter = thesplit[2]
       testloss = thesplit[3]
       testacc = float(thesplit[4])
-      testlosses.append(testloss)
+      if testloss !=0 :
+        testlosses.append(testloss)
       testaccuracies.append(testacc)
       test_iters.append(int(loss_iter))
     else:
@@ -432,8 +433,8 @@ def lossplot(input_filename,netinfo='',logy=True):
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
-  ax1.legend(loc=2)
-  ax2.legend(loc=1)
+  ax1.legend(loc='lower left')
+  ax2.legend(loc='lower right')
 
   output_filename = input_filename[:-4] + '.png'
   print('saving plot of loss from file '+input_filename+' to file '+output_filename)
