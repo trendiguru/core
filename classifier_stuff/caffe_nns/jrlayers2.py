@@ -736,7 +736,7 @@ class JrMultilabel(caffe.Layer):
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
                 continue
-            if self.new_size and out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]:
+            if self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
                 print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
