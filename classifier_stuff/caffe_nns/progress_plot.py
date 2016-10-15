@@ -24,7 +24,7 @@ import socket
 #then throw the jpgs onto a results website
 #DONE
 
-def parse_logfile(output_filename,logy):
+def parse_logfile(output_filename,logy=True):
   '''
   parses caffe-generated logfile
   :param output_filename:
