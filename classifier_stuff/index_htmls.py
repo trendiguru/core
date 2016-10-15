@@ -6,6 +6,15 @@ import time
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import progress_plot
 
+def latest_mtime_in_dir(dir):
+    files_and_dir= [os.path.join(dir,f) for f in os.listdir(dir)]
+    mtimes = [os.path.getmtime(f) for f in files_and_dir]
+    mtimes.sort()
+    latest_epochtime = mtimes[-1]
+#    latest_date = time.ctime(latest_epochtime)
+    return latest_epochtime
+
+
 def make_indices_recursive(dir):
     #do current direcotry
 
@@ -104,7 +113,7 @@ def write_index_html(dir, files):
             f.write('<br>\n')
         else:
             fullpath = os.path.join(dir,file)
-            modtime = time.ctime(os.path.getmtime(fullpath))
+            modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
             f.write('<br>\n')
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
@@ -128,8 +137,7 @@ def write_index_html_with_images(dir, files):
             continue
 
         fullpath = os.path.join(dir,file)
-        modtime = time.ctime(os.path.getmtime(fullpath))
-
+        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         print('writing line for file:'+file)
         if file[-4:] == '.jpg' or file[-4:] == '.png':
