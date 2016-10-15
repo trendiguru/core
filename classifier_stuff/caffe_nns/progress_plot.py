@@ -250,7 +250,7 @@ def parse_logfile(output_filename,logy=True):
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+train_net+test_net+'\n'
+    subtitle = train_net+test_net+'\n'
     if type is not '':
       subtitle = subtitle+'type:'+type
     if base_lr is not '':
