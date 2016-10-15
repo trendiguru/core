@@ -569,7 +569,7 @@ class JrMultilabel(caffe.Layer):
         assert(len(self.imagefiles) == len(self.label_vecs))
         #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        print(str(self.n_files)+' good files found ')
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
