@@ -5,13 +5,15 @@ import time
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import progress_plot
+import glob
 
 def latest_mtime_in_dir(dir):
-    files_and_dirs= [os.path.join(dir,f) for f in os.listdir(dir)]
+#    files_and_dirs= [os.path.join(dir,f) for f in os.listdir(dir)]
+    files_and_dirs= [os.path.join(dir,f) for f in glob.glob(dir)]   #glob doesn't include .x files , listdir does. one of the .x files seems to always be recently modified
     mtimes = [os.path.getmtime(f) for f in files_and_dirs]
-    mtimes.sort()
     print files_and_dirs
     print mtimes
+    mtimes.sort()
     latest_epochtime = mtimes[-1]
 #    latest_date = time.ctime(latest_epochtime)
     return latest_epochtime
