@@ -22,12 +22,11 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 
-def solve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=20,n_outerloop=200,n_tests=1000,
+def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=20,n_outerloop=200,n_tests=1000,
           cat='belt',classlabels=None,baremetal_hostname='brainiK80X'
 
-
-
-
+    if classlabels is None:
+        classlabels=['not_'+cat,cat]
     caffe.set_device(int(sys.argv[1]))
     caffe.set_mode_gpu()
     solver = caffe.get_solver(solverproto)
@@ -182,7 +181,7 @@ if __name__ == "__main__":
     baremetal_hostname = 'M60'
 ####################
 
-    solve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_outerloop=n_outerloop,n_tests=1000,
+    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_outerloop=n_outerloop,n_tests=1000,
           cat='belt',classlabels=classlabels,baremetal_hostname=baremetal_hostname)
 
 
