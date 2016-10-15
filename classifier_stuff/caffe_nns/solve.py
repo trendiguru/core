@@ -15,6 +15,7 @@ from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
+from trendi.classifier_stuff.caffe_nns import get_net_info
 
 matplotlib.use('Agg') #allow plot generation on X-less systems
 plt.ioff()
@@ -40,7 +41,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     test_net = solver.test_nets[0] # more than one testnet is supported
 
     net_name = multilabel_accuracy.get_netname(testproto)
-    tt = multilabel_accuracy.get_traintest_from_proto(solverproto)
     print('netname {} train/test {}'.format(net_name,tt))
 
     docker_hostname = socket.gethostname()
@@ -62,6 +62,14 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     outdir = './'+outdir
 
     #copy training and test files to outdir
+    if solverproto is not None:
+        copycmd = 'cp '+solverproto + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+    if testproto is not None:
+        copycmd = 'cp '+testproto + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+
+    tt = get_net_info.get_traintest_from_proto(solverproto)
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
             copycmd = 'cp '+tt[0] + ' ' + outdir
