@@ -570,7 +570,7 @@ class JrMultilabel(caffe.Layer):
         assert(len(self.imagefiles) == len(self.label_vecs))
         #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files found ')
+        print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
@@ -731,7 +731,12 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-            if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]:
+            if len(out_.shape) != 3 :
+                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is hxwxc (3 dimensions)')
+                print('weird file:'+filename)
+                self.next_idx()  #goto next
+                continue
+            if self.new_size and out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]:
                 print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
