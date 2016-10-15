@@ -22,7 +22,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 
-def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=20,n_outerloop=200,n_tests=1000,
+def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
           cat='belt',classlabels=None,baremetal_hostname='brainiK80X'):
 
     if classlabels is None:
@@ -102,7 +102,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     if type == 'multilabel':
         multilabel_accuracy.open_html(weights, dir=outdir,solverproto=solverproto,caffemodel=weights,classlabels = constants.web_tool_categories_v2,name=outname)
 
-    for _ in range(1000000):
+    for _ in range(n_loops):
         for i in range(n_iter):
             solver.step(steps_per_iter)
     #        loss = solver.net.blobs['score'].data
