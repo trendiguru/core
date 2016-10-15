@@ -668,13 +668,14 @@ def get_netname(proto):
     return netname
 
 def get_traintest_from_proto(proto):
-#    print('looking for netname')
+    print('looking for netname in '+proto)
     with open(proto,'r') as fp:
         train = None
         test = None
         traintest = None
         for line in fp:
             line = line.replace(' ','')  #line with spaces removed
+            print('looking at line:'+line)
             if 'train_net:' in line and line[0] is not '#':
                 train = line.replace('train_net:','').replace('"','')
                 print('train:'+train)
