@@ -580,9 +580,9 @@ class JrMultilabel(caffe.Layer):
                 print(' got no size for self.newsize')
 #                self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        else:
-            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
-            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        else:  #only resize if specified in the param line in prototxt /resize:(h,w)
+#            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[0])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
 #        logging.debug('doing reshape of top[0] to img size:'+str(self.new_size))
 #        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
