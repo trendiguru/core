@@ -163,12 +163,9 @@ def solve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_i
 
 
 if __name__ == "__main__":
-
-
 ###############
 #vars to change
 ###############
-
     solverstate = None
     weights = '../ResNet-101-model.caffemodel'  #in brainia container jr2
     solverproto = 'ResNet-101_solver.prototxt'
@@ -183,8 +180,9 @@ if __name__ == "__main__":
     n_tests = 1000
     n_outerloop = 200
     baremetal_hostname = 'M60'
+####################
+
     solve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_outerloop=n_outerloop,n_tests=1000,
           cat='belt',classlabels=classlabels,baremetal_hostname=baremetal_hostname)
 
 
-####################
