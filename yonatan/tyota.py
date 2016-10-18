@@ -18,10 +18,10 @@ import argparse
 
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/Alexnet_deploy.prototxt"
-PRETRAINED = "/home/yonatan/alexnet_imdb_first_try/caffe_alexnet_train_faces_iter_10000.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/home/yonatan/genderator_caffemodels/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel"
 caffe.set_mode_gpu()
-image_dims = [115, 115]
+image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
@@ -106,7 +106,7 @@ def theDetector(path):
             print predictions[i][0]
             print 'Female'
 
-if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # args = parser.parse_args()
-    theDetector(sys.argv[1])
+# if __name__ == '__main__':
+#     # parser = argparse.ArgumentParser()
+#     # args = parser.parse_args()
+#     theDetector(sys.argv[1])
