@@ -13,9 +13,13 @@ from trendi import background_removal, Utils, constants
 import cv2
 import urllib
 import skimage
+import requests
+import dlib
+from ..utils import imutils
 import yonatan_classifier
-import argparse
 
+
+detector = dlib.get_frontal_face_detector()
 
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
@@ -34,79 +38,68 @@ classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
 
 print "Done initializing!"
 
+
+def find_that_face(image, max_num_of_faces=10):
+    faces = detector(image, 1)
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    return {'are_faces': len(faces) > 0, 'faces': faces}
+
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-
-    if url.count('jpg') > 1:
-        return None
-
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    if image.size == 0:
-        return None
-    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-    # return the image
-    return new_image
-
-#def theDetector(image):
-def theDetector(path):
-
-    print path
-    print type(path)
-
-    first_start = time.time()
+def theDetector(url_or_np_array, face_coordinates):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
-    #if isinstance(argv, basestring):
-    #    full_image = url_to_image(argv)
-    #elif type(argv) == np.ndarray:
-    #    full_image = argv
-    if os.path.isdir(path):
-        print("Loading folder: %s" % path)
-        full_image = [caffe.io.load_image(im_f)
-                  for im_f in glob.glob(path + '/*.jpg')]
+    if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
     else:
-        print("Loading file")
-        full_image = caffe.io.load_image(path)
+        return None
 
     #checks if the face coordinates are inside the image
-    #height, width, channels = full_image.shape
+    if full_image is None:
+        print "not a good image"
+        return None
 
-    #x, y, w, h = face_coordinates
+    face_answer = find_that_face(full_image, 1)
 
-    #if x > width or x + w > width or y > height or y + h > height:
-    #    return None
+    if face_answer['are_faces'] > 0:
+        x, y, w, h = face_answer['faces'][0]
 
+        height, width, channels = full_image.shape
 
-    # face_image = full_image[y: y + h, x: x + w]
+        x, y, w, h = face_coordinates
 
-    #face_for_caffe = [cv2_image_to_caffe(full_image)]
-    #face_for_caffe = [caffe.io.load_image(face_image)]
+        if x > width or x + w > width or y > height or y + h > height:
+            return None
 
-    #if face_for_caffe is None:
-    #    return None
+        face_image = full_image[y: y + h, x: x + w]
 
-    # Classify.
-    start = time.time()
-    predictions = classifier.predict(full_image)
-    print("Done in %.2f s." % (time.time() - start))
+        face_for_caffe = [cv2_image_to_caffe(face_image)]
+        #face_for_caffe = [caffe.io.load_image(face_image)]
 
-    for i in range(1, len(predictions[:])):
-        if predictions[i][1] > 0.7:
-            print predictions[i][1]
-            print 'Male'
+        if face_for_caffe is None:
+            return None
+
+        # Classify.
+        start = time.time()
+        predictions = classifier.predict(face_for_caffe)
+        print("Done in %.2f s." % (time.time() - start))
+
+        if predictions[0][1] > 0.7:
+            print predictions[0][1]
+            return 'Male'
         else:
-            print predictions[i][0]
-            print 'Female'
+            print predictions[0][0]
+            return 'Female'
 
-# if __name__ == '__main__':
-#     # parser = argparse.ArgumentParser()
-#     # args = parser.parse_args()
-#     theDetector(sys.argv[1])
+    else:
+        print "Can't detect face"
