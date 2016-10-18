@@ -598,9 +598,9 @@ class JrMultilabel(caffe.Layer):
             imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            if self.new_size == None:
-                size_for_shaping=(224,224)
-            else:
+            if self.augment_images is True and self.augment_crop_size is not None:
+                size_for_shaping=self.augment_crop_size
+            elif self.new_size is not None:
                 size_for_shaping=self.new_size
             all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
