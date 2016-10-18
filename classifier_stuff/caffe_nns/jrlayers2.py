@@ -683,7 +683,7 @@ class JrMultilabel(caffe.Layer):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
-                    print('new shape '+str(in_.shape))
+##                     print('new shape '+str(in_.shape))
 
                 if in_ is None:
                     logging.warning('jrlayers2 could not get in_ '+filename)
