@@ -31,7 +31,7 @@ channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
 # Make classifier.
-classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
+classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
                               image_dims=image_dims, mean=mean,
                               input_scale=input_scale, raw_scale=raw_scale,
                               channel_swap=channel_swap)
