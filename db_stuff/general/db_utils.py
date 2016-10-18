@@ -69,6 +69,7 @@ def print_error(title, message=''):
 
 
 def log2file(mode, log_filename, message='', print_flag=True):
+    print_error(message)
     return None,None
     # logger = logging.getLogger(__name__)
     # logger.setLevel(logging.INFO)
