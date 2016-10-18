@@ -185,11 +185,11 @@ if __name__ == "__main__":
     cat = 'belt'
     classlabels=['not_'+cat,cat]
     n_tests = 1000
-    n_outerloop = 200
+    n_loops = 200
     baremetal_hostname = 'M60'
 ####################
 
-    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_outerloop=n_outerloop,n_tests=1000,
-          cat='belt',classlabels=classlabels,baremetal_hostname=baremetal_hostname)
+    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
 
 

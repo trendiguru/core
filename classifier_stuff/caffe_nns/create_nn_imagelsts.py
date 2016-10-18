@@ -315,7 +315,9 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
     there is a theorectical question here of whether this is desireable or not (maybe unbalanced is good if wild is unbalanced)
     this works only for 2 cats (todo - make it work for n cats).  also , assumes there are more negs than pos
     :param filename: input file with lines of the form '/path/to/file  class_number'
-    :param fraction: not implemented, intended to allow for eg 60% neg and 40% pos
+    :param ratio_neg_pos: number of negs vs. positives to include , n_neg = n_pos*ratio_neg_pos
+    :param outfilename file to write to, if not given writes to original path of catsfile.txt but with filename catsfile.balanced.txt
+    :param n_cats not implemented , assumes n_cats=2
     :return:
     '''
     print('balancing '+filename+' with ratio '+str(ratio_neg_pos)+', '+str(n_cats)+' categories')
