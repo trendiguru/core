@@ -41,7 +41,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     test_net = solver.test_nets[0] # more than one testnet is supported
 
     net_name = multilabel_accuracy.get_netname(testproto)
-    print('netname {} train/test {}'.format(net_name,tt))
 
     docker_hostname = socket.gethostname()
 
@@ -70,6 +69,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         subprocess.call(copycmd,shell=True)
 
     tt = get_net_info.get_traintest_from_proto(solverproto)
+    print('netname {} train/test {}'.format(net_name,tt))
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
             copycmd = 'cp '+tt[0] + ' ' + outdir
@@ -185,11 +185,11 @@ if __name__ == "__main__":
     cat = 'belt'
     classlabels=['not_'+cat,cat]
     n_tests = 1000
-    n_outerloop = 200
+    n_loops = 200
     baremetal_hostname = 'M60'
 ####################
 
-    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_outerloop=n_outerloop,n_tests=1000,
-          cat='belt',classlabels=classlabels,baremetal_hostname=baremetal_hostname)
+    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
 
 
