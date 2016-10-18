@@ -474,7 +474,7 @@ class JrMultilabel(caffe.Layer):
 
         self.idx = 0
         self.images_processed = 0
-        self.analysis_time = 0
+        self.analysis_time = time.time()
         self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
