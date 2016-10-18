@@ -51,7 +51,7 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def theDetector(url_or_np_array, face_coordinates):
+def theDetector(url_or_np_array):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
@@ -75,8 +75,6 @@ def theDetector(url_or_np_array, face_coordinates):
         x, y, w, h = face_answer['faces'][0]
 
         height, width, channels = full_image.shape
-
-        x, y, w, h = face_coordinates
 
         if x > width or x + w > width or y > height or y + h > height:
             return None
