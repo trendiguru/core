@@ -978,7 +978,10 @@ def clean_duplicates(collection, field):
             print("deleted {0} docs after running on {1}".format(deleted, i))
         if doc['image_urls'][0] != current_url:
             current_url = doc['image_urls'][0]
-            deleted += collection.delete_many({'$and': [{'image_urls': doc['image_urls'][0]}, {'_id': {'$ne': doc['_id']}}]}).deleted_count
+            deletion = collection.delete_many({'$and': [{'image_urls': doc['image_urls'][0]}, {'_id': {'$ne': doc['_id']}}]}).deleted_count
+            if deletion:
+                deleted += deletion
+                print("found duplicates to {0}".format(doc['image_urls'][0]))
 
     print("total {0} docs were deleted".format(deleted))
 

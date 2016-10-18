@@ -5,6 +5,19 @@ import time
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import progress_plot
+import glob
+
+def latest_mtime_in_dir(dir):
+#    files_and_dirs= [os.path.join(dir,f) for f in os.listdir(dir)]
+    files_and_dirs= [os.path.join(dir,f) for f in glob.glob(dir)]   #glob doesn't include .x files , listdir does. one of the .x files seems to always be recently modified
+    mtimes = [os.path.getmtime(f) for f in files_and_dirs]
+    print files_and_dirs
+    print mtimes
+    mtimes.sort()
+    latest_epochtime = mtimes[-1]
+#    latest_date = time.ctime(latest_epochtime)
+    return latest_epochtime
+
 
 def make_indices_recursive(dir):
     #do current direcotry
@@ -73,6 +86,8 @@ def make_index(dir):
             actual_path = os.path.join(dir,file)
             progress_plot.lossplot(actual_path)
         if file.endswith('netoutput.txt'):
+#                        progress_plot.parse_solveoutput(actual_path)
+
             pass
             #TODO DO0 DO0 THE RIGHT THING HERE namely make graph from netoutput
 #   sort by mod time
@@ -104,7 +119,7 @@ def write_index_html(dir, files):
             f.write('<br>\n')
         else:
             fullpath = os.path.join(dir,file)
-            modtime = time.ctime(os.path.getmtime(fullpath))
+            modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
             f.write('<br>\n')
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
@@ -128,8 +143,7 @@ def write_index_html_with_images(dir, files):
             continue
 
         fullpath = os.path.join(dir,file)
-        modtime = time.ctime(os.path.getmtime(fullpath))
-
+        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         print('writing line for file:'+file)
         if file[-4:] == '.jpg' or file[-4:] == '.png':
