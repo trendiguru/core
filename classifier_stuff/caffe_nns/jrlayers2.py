@@ -10,6 +10,7 @@ from PIL import Image
 import cv2
 import random
 import string
+import time
 
 from trendi.utils import augment_images
 from trendi.utils import imutils
@@ -473,6 +474,7 @@ class JrMultilabel(caffe.Layer):
 
         self.idx = 0
         self.images_processed = 0
+        self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -611,6 +613,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
+            self.previous_images_processed = self.images_processed
             self.images_processed += self.batch_size
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
@@ -639,7 +642,10 @@ class JrMultilabel(caffe.Layer):
         #print('forward end')
         self.counter += 1
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
-        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
+        dt = time.time() - self.analysis_time
+        dN = self.images_processed - self.previous_images_processed
+        print(str(self.counter)+' images'+str(self.images_processed)+' images processed, dN/dt='+str(float(dN)/dt))
+        self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
         pass
