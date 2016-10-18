@@ -346,6 +346,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
+    if inheight == 0 or inwidth == 0:
+        logging.warning('got a bad image')
+        return
     out_ar = float(outheight)/outwidth
     in_ar = float(inheight)/inwidth
     if len(input_file_or_np_arr.shape) == 3:
@@ -354,14 +357,14 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     else:
         indepth = 1
         output_img = np.ones([outheight,outwidth],dtype=np.uint8)
-    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
+#    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
     actual_outheight, actual_outwidth = output_img.shape[0:2]
-    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
+#    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
     if out_ar < in_ar:  #resize height to output height and fill left/right
         factor = float(inheight)/outheight
         new_width = int(float(inwidth) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
-        print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
+ #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
@@ -824,7 +827,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=0.5):
+def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
     '''
     split this into one function that takes mask and gives img with labels possibly with overlay, returns arr
     and another func that takes 2 images and puts side by side
@@ -873,6 +876,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     i = 0
     print('len labels:'+str(len(labels)))
     for unique in uniques:
+        print('unique label val:'+str(unique))
         if unique > len(labels):
             logging.warning('pixel value '+str(unique)+' out of label range (1)')
             continue
@@ -956,7 +960,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:
                 print('doing overlay')
-                orig_arr = cv2.addWeighted(orig_arr, overlay, mask, 1 - overlay,0)
+                orig_arr = cv2.addWeighted(orig_arr, overlay, img_arr, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
@@ -977,6 +981,7 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
         outname=relative_name[:-4]  #strip '.png' or 'bmp' from name
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
+#        full_outname=outname
         print(full_outname)
         cv2.imwrite(full_outname,combined)
 

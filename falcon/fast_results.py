@@ -15,7 +15,7 @@ push_connection(constants.redis_conn)
 start_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
 
 
-def check_if_exists(image_url):
+def check_if_exists(image_url, products):
 
     # Temporarily remove whitelist for Recruit Test -- LS 22/06/2016.
     # domain = tldextract.extract(page_url).registered_domain
@@ -35,15 +35,22 @@ def check_if_exists(image_url):
                 return False
         else:
             return False
-
-    greens = {collection: Greenlet.spawn(check_db, collection) for collection in ['images', 'irrelevant_images', 'iip']}
-    gevent.joinall(greens.values())
-    if greens['images'].value or greens['iip'].value:
+    if check_db('images', products):
         return True
-    elif greens['irrelevant_images'].value:
+    elif db.iip.find_one({'image_urls': image_url}):
+        return True
+    elif db.irrelevant_images.find_one({'image_urls': image_url}):
         return False
+    else:
+        return None
+    # greens = {collection: Greenlet.spawn(check_db, collection, products) for collection in ['images', 'irrelevant_images', 'iip']}
+    # gevent.joinall(greens.values())
+    # if greens['images'].value or greens['iip'].value:
+    #     return True
+    # elif greens['irrelevant_images'].value:
+    #     return False
     # print "after db checks: {0}".format(time.time()-start)
-    return None
+    # return None
 
 
 def check_if_relevant_and_enqueue(image_url, page_url, products):

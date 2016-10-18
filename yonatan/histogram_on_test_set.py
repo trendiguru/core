@@ -22,13 +22,13 @@ array_success = np.array([])
 array_failure = np.array([])
 
 #text_file = open("55k_face_test_list.txt", "r")
-text_file = open("55k_face_test_list.txt", "r")
+text_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "r")
 
 counter = 0
-test_flag = 1
+test_flag = 0
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_20000.caffemodel"
+PRETRAINED = "/home/yonatan/faces_stuff/resnet_genderator_models_09_10_16/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -49,6 +49,8 @@ failure_counter = 0
 guessed_f_instead_m = 0
 guessed_m_instead_f = 0
 
+error_counter = 0
+
 for line in text_file:
     counter += 1
 
@@ -60,7 +62,12 @@ for line in text_file:
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     input_file = os.path.expanduser(path[0])
-    inputs = [caffe.io.load_image(input_file)]
+    try:
+        inputs = [caffe.io.load_image(input_file)]
+    except IOError:
+        print "cannot identify image file"
+        error_counter += 1
+        continue
     #inputs = [Utils.get_cv2_img_array(input_file)]
 
     print("Classifying %d inputs." % len(inputs))
@@ -104,6 +111,7 @@ if success == 0 or failure == 0:
 else:
     print '\naccuracy percent: {0}'.format(float(success) / (success + failure))
 
+print "error_counter: {0}".format(error_counter)
 
 histogram=plt.figure(1)
 

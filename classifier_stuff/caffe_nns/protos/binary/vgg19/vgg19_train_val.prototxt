@@ -1,5 +1,4 @@
-name: "VGG_ILSVRC_16_layers_binary_dress"
-
+name: "binary_vgg19_dress"
 layer {
       name: "data"
       type: "Python"
@@ -8,7 +7,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':40 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':30 }"
       }
   include {phase: TRAIN}
 }
@@ -25,10 +24,9 @@ layer {
    include {phase: TEST}
 }
 
-
 #layer {
 #  name: "data"
-#  type: DATA
+#  type: "ImageData"
 #  include {
 #    phase: TRAIN
 #  }
@@ -38,16 +36,40 @@ layer {
 #    mean_value: 117
 #    mean_value: 123
 #    mirror: true
+ #}
+# image_data_param {
+#    source: "foodCAT/train.txt"
+#    batch_size: 16
+#    new_height: 256
+#    new_width: 256
+#   shuffle:true
 # }
-# data_param {
-#    source: "data/ilsvrc12/ilsvrc12_train_lmdb"
-#    batch_size: 1
-#    backend: LMDB
+# top: "data"
+#  top: "label"
+#}
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  include {
+#    phase: TEST
+#  }
+# transform_param {
+#    crop_size: 224
+#    mean_value: 104
+#    mean_value: 117
+#    mean_value: 123
+#    mirror: false
+# }
+# image_data_param {
+#    source: "foodCAT/val.txt"
+#    batch_size: 16
+#    new_height: 256
+#    new_width: 256
+#    shuffle:true
 #  }
 #  top: "data"
 #  top: "label"
 #}
-
 layer {
   bottom: "data"
   top: "conv1_1"
@@ -58,20 +80,13 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv1_1"
   top: "conv1_1"
-  name: "relu1_1"
+  name: "ReLU1_1"
   type: "ReLU"
 }
-
 layer {
   bottom: "conv1_1"
   top: "conv1_2"
@@ -82,20 +97,13 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv1_2"
   top: "conv1_2"
-  name: "relu1_2"
+  name: "ReLU1_2"
   type: "ReLU"
 }
-
 layer {
   bottom: "conv1_2"
   top: "pool1"
@@ -117,17 +125,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv2_1"
   top: "conv2_1"
-  name: "relu2_1"
+  name: "ReLU2_1"
   type: "ReLU"
 }
 layer {
@@ -140,17 +142,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv2_2"
   top: "conv2_2"
-  name: "relu2_2"
+  name: "ReLU2_2"
   type: "ReLU"
 }
 layer {
@@ -174,17 +170,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv3_1"
   top: "conv3_1"
-  name: "relu3_1"
+  name: "ReLU3_1"
   type: "ReLU"
 }
 layer {
@@ -197,17 +187,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv3_2"
   top: "conv3_2"
-  name: "relu3_2"
+  name: "ReLU3_2"
   type: "ReLU"
 }
 layer {
@@ -220,21 +204,32 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv3_3"
   top: "conv3_3"
-  name: "relu3_3"
+  name: "ReLU3_3"
   type: "ReLU"
 }
 layer {
   bottom: "conv3_3"
+  top: "conv3_4"
+  name: "conv3_4"
+  type: "Convolution"
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  bottom: "conv3_4"
+  top: "conv3_4"
+  name: "ReLU3_4"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv3_4"
   top: "pool3"
   name: "pool3"
   type: "Pooling"
@@ -254,17 +249,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv4_1"
   top: "conv4_1"
-  name: "relu4_1"
+  name: "ReLU4_1"
   type: "ReLU"
 }
 layer {
@@ -277,17 +266,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv4_2"
   top: "conv4_2"
-  name: "relu4_2"
+  name: "ReLU4_2"
   type: "ReLU"
 }
 layer {
@@ -300,21 +283,32 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv4_3"
   top: "conv4_3"
-  name: "relu4_3"
+  name: "ReLU4_3"
   type: "ReLU"
 }
 layer {
   bottom: "conv4_3"
+  top: "conv4_4"
+  name: "conv4_4"
+  type: "Convolution"
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  bottom: "conv4_4"
+  top: "conv4_4"
+  name: "ReLU4_4"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv4_4"
   top: "pool4"
   name: "pool4"
   type: "Pooling"
@@ -334,17 +328,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv5_1"
   top: "conv5_1"
-  name: "relu5_1"
+  name: "ReLU5_1"
   type: "ReLU"
 }
 layer {
@@ -357,18 +345,11 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
-
 layer {
   bottom: "conv5_2"
   top: "conv5_2"
-  name: "relu5_2"
+  name: "ReLU5_2"
   type: "ReLU"
 }
 layer {
@@ -381,21 +362,32 @@ layer {
     pad: 1
     kernel_size: 3
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
 layer {
   bottom: "conv5_3"
   top: "conv5_3"
-  name: "relu5_3"
+  name: "ReLU5_3"
   type: "ReLU"
 }
 layer {
   bottom: "conv5_3"
+  top: "conv5_4"
+  name: "conv5_4"
+  type: "Convolution"
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  bottom: "conv5_4"
+  top: "conv5_4"
+  name: "ReLU5_4"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv5_4"
   top: "pool5"
   name: "pool5"
   type: "Pooling"
@@ -405,33 +397,24 @@ layer {
     stride: 2
   }
 }
-####NEW LAYERS FROM HERE
-#not anymore
-#actually yes due to shape mismatch
 layer {
-  name: "myfc6"
   bottom: "pool5"
-  top: "myfc6"
+  top: "fc6"
+  name: "fc6"
   type: "InnerProduct"
   inner_product_param {
     num_output: 4096
   }
-  param{
-    lr_mult: 10
-    decay_mult: 10 }
-  param{
-    lr_mult: 20
-    decay_mult: 0 }
 }
 layer {
-  bottom: "myfc6"
-  top: "myfc6"
-  name: "relu6"
+  bottom: "fc6"
+  top: "fc6"
+  name: "ReLU6"
   type: "ReLU"
 }
 layer {
-  bottom: "myfc6"
-  top: "myfc6"
+  bottom: "fc6"
+  top: "fc6"
   name: "drop6"
   type: "Dropout"
   dropout_param {
@@ -439,24 +422,18 @@ layer {
   }
 }
 layer {
-  name: "fc7"
-  bottom: "myfc6"
+  bottom: "fc6"
   top: "fc7"
+  name: "fc7"
   type: "InnerProduct"
   inner_product_param {
     num_output: 4096
-   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
+  }
 }
 layer {
   bottom: "fc7"
   top: "fc7"
-  name: "relu7"
+  name: "ReLU7"
   type: "ReLU"
 }
 layer {
@@ -475,22 +452,8 @@ layer {
   type: "InnerProduct"
   inner_product_param {
     num_output: 2
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
-  param{
-    lr_mult: 1
-    decay_mult: 1 }
-  param{
-    lr_mult: 2
-    decay_mult: 0 }
 }
-
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
@@ -499,15 +462,14 @@ layer {
   top: "loss"
   include: { phase: TRAIN }
 }
-
 layer {
   name: "estimate"
   type: "Softmax"
   bottom: "myfc8"
+#  bottom: "label"
   top: "estimate"
   include: { phase: TEST }
 }
-
 layer {
   name: "accuracy"
   type: "Accuracy"
@@ -519,12 +481,11 @@ layer {
 #    top_k: 1
 #  }
 }
-
 #layer {
 #  name: "accuracy/top5"
-#  type: ACCURACY
-# bottom: "fc8"
-# bottom: "label"
+#  type: "Accuracy"
+ # bottom: "fc8_foodCAT"
+ #bottom: "label"
 #  top: "accuracy@5"
 #  include: { phase: TEST }
 #  accuracy_param {

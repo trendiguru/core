@@ -213,10 +213,10 @@ def mask_to_multichannel(mask_arr,n_channels):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
         pixel_count = np.count_nonzero(channel)
-#        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
+        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
         pixel_count = np.count_nonzero(output_arr)
-#        print('cumulative pixcount {}'.format(pixel_count))
+        print('cumulative pixcount {}'.format(pixel_count))
     return output_arr
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
@@ -373,8 +373,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         flip_lr = np.random.randint(2)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
-    logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
-        width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
+#    logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
+#        width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
     img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
 #    if show_visual_output:
 #        logging.debug('img_arr shape:'+str(img_arr.shape))
@@ -443,7 +443,8 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
         right = int(round(left + crop_size[1]))
         top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
         bottom = int(round(top + crop_size[0]))
-#        print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
+        logging.debug('incoming wxh {}x{} cropsize {}'.format(width,height,crop_size))
+ #       print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
         if depth!=1:
             img_array = img_array[top:bottom,left:right,:]
             #print img_arr.shape

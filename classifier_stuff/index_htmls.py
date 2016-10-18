@@ -4,6 +4,37 @@ import os
 import time
 
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns import progress_plot
+import glob
+
+def latest_mtime_in_dir(dir):
+#    files_and_dirs= [os.path.join(dir,f) for f in os.listdir(dir)]
+    files_and_dirs= [os.path.join(dir,f) for f in glob.glob(dir)]   #glob doesn't include .x files , listdir does. one of the .x files seems to always be recently modified
+    mtimes = [os.path.getmtime(f) for f in files_and_dirs]
+    print files_and_dirs
+    print mtimes
+    mtimes.sort()
+    latest_epochtime = mtimes[-1]
+#    latest_date = time.ctime(latest_epochtime)
+    return latest_epochtime
+
+
+def make_indices_recursive(dir):
+    #do current direcotry
+
+    print('indexing directory '+str(dir))
+ #   raw_input('ret to cont')
+    make_index(dir)
+    #do subdirectories
+    dirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d))]
+    dirs=sorted(dirs,key=os.path.getmtime,reverse=True)  #sort by date
+#    dirs.sort()
+
+    print('top dirs in '+dir+':'+str(dirs))
+    for d in dirs:
+        print('recursively now making index.html for '+str(d))
+
+        make_indices_recursive(d)
 
 def make_indices_onedeep(dir):
     #do current direcotry
@@ -32,7 +63,7 @@ def make_index(dir):
                  key=os.path.getmtime,reverse=True)
     files=[os.path.basename(f) for f in sortedfiles]
 #    files.sort() #dont sort by date, it mixes nets up
-    print('files in:'+str(files))
+    print('files in'+str(dir)+':'+str(files))
 #    print(files)
     #sort by time
     sorteddirs=sorted([os.path.join(dir,f) for f in os.listdir(dir) if os.path.isdir(os.path.join(dir,f)) ],
@@ -44,7 +75,6 @@ def make_index(dir):
 #    dirs.sort() #dont sort by date, it mixes nets up
     htmlfiles = []
     for file in files:
-#        actual_path =
         if file=='index.html':
             continue
         htmlfiles.append(file)
@@ -52,12 +82,19 @@ def make_index(dir):
 #            htmlfiles.append(file)
 #        if os.path.isdir(file):
 #            htmlfiles.append(file)
+        if file.endswith('loss.txt'):
+            actual_path = os.path.join(dir,file)
+            progress_plot.lossplot(actual_path)
+        if file.endswith('netoutput.txt'):
+#                        progress_plot.parse_solveoutput(actual_path)
 
+            pass
+            #TODO DO0 DO0 THE RIGHT THING HERE namely make graph from netoutput
 #   sort by mod time
 #    htmlfiles.sort(key=lambda x: os.path.getmtime(os.path.join(dir,x)))
     #sort alphabetically
 #    htmlfiles.sort()
-    htmlfiles.append('')
+    htmlfiles.append('')  #make a space bet. files and dirs
     for d in dirs:
         htmlfiles.append(d)
     print('files+dirs in:'+str(dir))
@@ -65,6 +102,8 @@ def make_index(dir):
     write_index_html_with_images(dir, htmlfiles)
     print('wrote index.html for files in dir:' +str(dir))
  #   print(htmlfiles)
+
+
 
 def write_index_html(dir, files):
     '''makes a page with links to all files in dir
@@ -80,7 +119,7 @@ def write_index_html(dir, files):
             f.write('<br>\n')
         else:
             fullpath = os.path.join(dir,file)
-            modtime = time.ctime(os.path.getmtime(fullpath))
+            modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
             f.write('<br>\n')
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
 
@@ -104,8 +143,7 @@ def write_index_html_with_images(dir, files):
             continue
 
         fullpath = os.path.join(dir,file)
-        modtime = time.ctime(os.path.getmtime(fullpath))
-
+        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         print('writing line for file:'+file)
         if file[-4:] == '.jpg' or file[-4:] == '.png':
@@ -174,7 +212,7 @@ def generate_html_allresults(orig,gt,nnbefore,nnafter,pdbefore,pdafter):
 if __name__ == "__main__":
     print('start')
 #    make_index('classifier_results')
-    make_indices_onedeep('/var/www/results')
+    make_indices_recursive('/var/www/results')
 
     if(0):
         origdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/test/'

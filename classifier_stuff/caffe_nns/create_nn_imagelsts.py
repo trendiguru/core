@@ -11,6 +11,7 @@ from PIL import Image
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
+import sys
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
@@ -108,6 +109,8 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
+#binary lists generated so far (9.10.16)
+#dress
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
     '''
     read multilabel db.
@@ -172,8 +175,7 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-
-def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
+def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
     '''
     take a dir and add the files therein to a text file with lines like:
     /path/to/file class_number
@@ -187,6 +189,8 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
     else:
         files=[os.path.join(dir,f) for f in os.listdir(dir)]
     i = 0
+    if outfile == None:
+        outfile = os.path.join(dir,'labelfile.txt')
     with open(outfile,'a') as fp:
         for f in files:
             line = f + ' '+str(class_number)
@@ -194,6 +198,8 @@ def dir_to_labelfile(dir,class_number,outfile='labels.txt',filter='.jpg'):
             fp.write(line+'\n')
             i+=1
         fp.close()
+    print('added {} files to {} with class {}'.format(len(files),outfile,class_number))
+    print('used {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
@@ -284,6 +290,12 @@ def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt'):
             imutils.show_mask_with_labels(path2,labels=constants.ultimate_21,visual_output=True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
+    '''
+    writes (destructively) files with _train.txt and _test.txt based on filename, with sizes determined by fraction
+    :param filename: input catsfile
+    :param fraction: ratio test:train
+    :return:
+    '''
     with open(filename,'r') as fp:
         lines = fp.readlines()
         print('file {} has lines like {}'.format(filename,lines[0]))
@@ -301,39 +313,66 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', fraction=0.5,n_cats=2,outfilename='tb_cats_balanced.txt'):
+def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2,outfilename=None,shuffle=True):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
-    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take examples of each class and write
+    ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
     to outfilename
-    there is a theorectical question here of whether this is desireable or not
+    there is a theorectical question here of whether this is desireable or not (maybe unbalanced is good if wild is unbalanced)
+    this works only for 2 cats (todo - make it work for n cats).  also , assumes there are more negs than pos
     :param filename: input file with lines of the form '/path/to/file  class_number'
-    :param fraction:
+    :param ratio_neg_pos: number of negs vs. positives to include , n_neg = n_pos*ratio_neg_pos
+    :param outfilename file to write to, if not given writes to original path of catsfile.txt but with filename catsfile.balanced.txt
+    :param n_cats not implemented , assumes n_cats=2
+    :param shuffle not implemented
     :return:
     '''
+    print('balancing '+filename+' with ratio '+str(ratio_neg_pos)+', '+str(n_cats)+' categories')
     n_instances = [0]*n_cats
-    instances = None*n_cats #iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    instances = []  #*n_cats#iniitialize in Nones . there seems to be no oneliner like instances = [] * n_cats
+    for i in range(n_cats):
+        instances.append([])
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
             path = line.split()[0]
             cat = int(line.split()[1])
-            n_instances[cat]+=1
+            try:
+                n_instances[cat]+=1
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print('trying to parse line:')
+                print(line)
+                print('cat = '+str(cat))
+                continue
             instances[cat].append(line)
-            print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
+#        print('path {} cat {} n_instances {}'.format(path,cat,n_instances,instances))
         fp.close()
+        print('n_instances {}'.format(n_instances))
+    n_negs = n_instances[0]
+    n_pos = n_instances[1]
     min_instances = min(n_instances)
-
+    desired_negs = (n_pos*ratio_neg_pos)
+    negs_to_use = int(min(desired_negs,n_negs))
     #kill the initial Nones
-    for i in range(n_cats):
-        del(instances[i][0])
+#    for i in range(n_cats):
+#        del(instances[i][0])
 #  a shuffle cant hurt here
+    if outfilename is None:
+        outfilename = filename.replace('.txt','')+'_balanced.txt'
+    print('writing {} positives and {} negatives to {}'.format(n_pos,negs_to_use,outfilename))
+#    if(shuffle):
+#        instances
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
-            for j in range(min_instances):
-                fp.write(instances[cat][j])
+            if i==1:
+                jrange=min_instances
+            else:
+                jrange=negs_to_use
+            for j in range(jrange):
+                fp.write(instances[i][j])
+            print('wrote '+str(jrange)+' lines for category '+str(i))
     fp.close()
-
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):
     if labelsdir == None:
@@ -377,18 +416,73 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             fp.write(line+'\n')
 
 
+#
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
 #    split_to_trainfile_and_testfile()
 #    inspect_textfile()
 
 #test_u21_256x256_no_aug
+#    dir_to_file_singlelabel(dir,classindex,labelfile,outfile=None,filter='.jpg'):
+#    balance_cats(f)
+#    outfilename = f.replace('.txt','')+'_balanced.txt'
+#    split_to_trainfile_and_testfile(outfilename)
 
-    dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
-    textfile_for_pixlevel(imagesdir=dir+'images/train_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_train.txt')
-#    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
-#    inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
 
-    textfile_for_pixlevel(imagesdir=dir+'images/test_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_test.txt')
-#    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
-    inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
+    '''x = ['bag_filipino_labels.txt',
+         'belt_filipino_labels.txt',
+         'bracelet_filipino_labels.txt',
+         'cardigan_filipino_labels.txt',
+         'coat_filipino_labels.txt',
+         'dress_filipino_labels.txt',
+         'earrings_filipino_labels.txt',
+         'eyewear_filipino_labels.txt',
+         'footwear_filipino_labels.txt',
+         'hat_filipino_labels.txt',
+         'jacket_filipino_labels.txt',
+         'jeans_filipino_labels.txt',
+         'necklace_filipino_labels.txt',
+         'overalls_filipino_labels.txt',
+         'pants_filipino_labels.txt',
+         'scarf_filipino_labels.txt',
+         'shorts_filipino_labels.txt',
+         'skirt_filipino_labels.txt',
+         'stocking_filipino_labels.txt',
+         'suit_filipino_labels.txt',
+         'sweater_filipino_labels.txt',
+         'sweatshirt_filipino_labels.txt',
+         'top_filipino_labels.txt',
+         'watch_filipino_labels.txt',
+         'womens_swimwear_bikini_filipino_labels.txt',
+         'womens_swimwear_nonbikini_filipino_labels.txt']
+    dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/todo/'
+    x = [os.path.join(dir,f) for f in os.listdir(dir) if '.txt' in f]
+    x.sort()
+    for f in x:
+        balance_cats(f)
+        outfilename = f.replace('.txt','')+'_balanced.txt'
+        split_to_trainfile_and_testfile(outfilename)
+'''
+## change from photos to photos_250x250:
+#sed s'/photos/photos_250x250/' bag_filipino_labels_balanced.txt > bag_filipino_labels_250x250.txt
+
+    if(0):
+        dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/'
+        textfile_for_pixlevel(imagesdir=dir+'images/train_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_train.txt')
+    #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+    #    inspect_pixlevel_textfile(dir+'images_and_labelsfile_train.txt')
+
+        textfile_for_pixlevel(imagesdir=dir+'images/test_u21_256x256_no_aug',labelsdir=dir+'labels_256x256',outfilename=dir+'images_and_labelsfile_test.txt')
+    #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
+        inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
+
+
+        #useful script - change all photos to photos_250x250
+#!/usr/bin/env bash
+#echo $1
+#name=$(echo $1|sed 's/.txt/_250x250.txt/')
+#echo $name
+#sed 's/photos/photos_250x250/' $1 > $name
+
+#use with
+#    for f in *.txt; do ./doit.sh $f; done

@@ -10,8 +10,10 @@ from PIL import Image
 import cv2
 import random
 import string
+import time
 
 from trendi.utils import augment_images
+from trendi.utils import imutils
 
 class JrPixlevel(caffe.Layer):
     """
@@ -197,14 +199,8 @@ class JrPixlevel(caffe.Layer):
         # assign output
         top[0].data[...] = self.data
         top[1].data[...] = self.label
-
         # pick next input
-        if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
-        else:
-            self.idx += 1
-            if self.idx == len(self.imagefiles):
-                self.idx = 0
+        self.next_idx()
 
 
     def backward(self, top, propagate_down, bottom):
@@ -299,32 +295,47 @@ class JrPixlevel(caffe.Layer):
             if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
                 print('ONE OF THESE IS NOT ACCESSIBLE:'+str(label_filename)+','+str(filename))
                 self.next_idx()
-            else:
-                break
+                continue
                 ####todo - check that the image is coming in correctly wrt color etc
-        im = Image.open(filename)
+            im = Image.open(filename)
+            if im is None:
+                logging.warning('could not get image1 '+filename)
+                self.next_idx()
+                continue
 
-        if self.resize:
-            im = im.resize(self.augment_resize,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        in_ = in_[:,:,::-1]   #RGB -> BGR
-        if in_ is None:
-            logging.warning('could not get image '+filename)
-            return None
-        """
-        Load label image as 1 x height x width integer array of label indices.
-        The leading singleton dimension is required by the loss.
-        """
-        im = Image.open(label_filename)
-        if self.resize:
-            im = im.resize(self.augment_resize,Image.ANTIALIAS)
-        if im is None:
-            print(' COULD NOT LOAD FILE '+label_filename)
-            logging.warning('couldnt load file '+label_filename)
-#        if self.new_size:
-#            im = im.resize(self.new_size,Image.ANTIALIAS)
-        label_in_ = np.array(im, dtype=np.uint8)
-
+            if self.resize:
+                im = im.resize(self.resize,Image.ANTIALIAS)
+                print('resizing image')
+            in_ = np.array(im, dtype=np.float32)
+            in_ = in_[:,:,::-1]   #RGB -> BGR
+            if in_ is None:
+                logging.warning('could not get image2 '+filename)
+                self.next_idx()
+                continue
+            """
+            Load label image as 1 x height x width integer array of label indices.
+            The leading singleton dimension is required by the loss.
+            """
+            im = Image.open(label_filename)
+            if im is None:
+                logging.warning('could not get label1 '+filename)
+                self.next_idx()
+                continue
+            if self.resize:
+                im = im.resize(self.resize,Image.ANTIALIAS)
+                print('resizing mask')
+            if im is None:
+                logging.warning('couldnt load label '+label_filename)
+                self.next_idx()
+                continue
+    #        if self.new_size:
+    #            im = im.resize(self.new_size,Image.ANTIALIAS)
+            label_in_ = np.array(im, dtype=np.uint8)
+            if in_ is None:
+                logging.warning('could not get image '+filename)
+                self.next_idx()
+                continue
+            break  #we finally made it past all the checks
         if self.kaggle is not False:
             print('kagle image, moving 255 -> 1')
             label_in_[label_in_==255] = 1
@@ -332,7 +343,8 @@ class JrPixlevel(caffe.Layer):
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
 #        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
-#        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
+        logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
+        print('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
@@ -362,6 +374,8 @@ class JrPixlevel(caffe.Layer):
         out2 = copy.copy(out2[np.newaxis, ...])
 
         return out1,out2
+
+
 
 
 
@@ -430,7 +444,7 @@ class JrMultilabel(caffe.Layer):
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
-        self.new_size = params.get('new_size',None)
+        self.new_size = params.get('resize',None)
         self.batch_size = params.get('batch_size',1)
         self.regression = params.get('regression',False)
         self.augment_images = params.get('augment',False)
@@ -451,14 +465,17 @@ class JrMultilabel(caffe.Layer):
 
         #on the way out
         self.images_dir = params.get('images_dir',None)
-
-        # print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
-        # print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
-        # print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
-        # print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('############net params for jrlayers2#########')
+        print('im/label file {} mean {}  randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        print('seed {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('############end of net params for jrlayers2#########')
 
         self.idx = 0
         self.images_processed = 0
+        self.analysis_time = time.time()
+        self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -556,23 +573,25 @@ class JrMultilabel(caffe.Layer):
         assert(len(self.imagefiles) == len(self.label_vecs))
         #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
         if self.augment_images == False:
 
             if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-                print('uh i got no size so using 224x224')
-                self.new_size = (224,224)
+                print(' got no size for self.newsize')
+#                self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        else:
-            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
-            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        else:  #only resize if specified in the param line in prototxt /resize:(h,w)
+#            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[0])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
-        logging.debug('new img size:'+str(self.new_size))
-        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
+#        logging.debug('doing reshape of top[0] to img size:'+str(self.new_size))
+#        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
+
+
 
     def reshape(self, bottom, top):
         pass
@@ -582,7 +601,11 @@ class JrMultilabel(caffe.Layer):
             imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            if self.augment_images is True and self.augment_crop_size is not None:
+                size_for_shaping=self.augment_crop_size
+            elif self.new_size is not None:
+                size_for_shaping=self.new_size
+            all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 imgfilename, data, label = self.load_image_and_label()
@@ -591,6 +614,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
+            self.previous_images_processed = self.images_processed
             self.images_processed += self.batch_size
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
@@ -602,6 +626,7 @@ class JrMultilabel(caffe.Layer):
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
+            print('idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
@@ -617,8 +642,11 @@ class JrMultilabel(caffe.Layer):
         self.next_idx()
         #print('forward end')
         self.counter += 1
-        print('data shape {} labelshape {}'.format(self.data.shape,self.label.shape))
-        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
+   #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
+        dt = time.time() - self.analysis_time
+        dN = self.images_processed - self.previous_images_processed
+        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
+        self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -632,34 +660,53 @@ class JrMultilabel(caffe.Layer):
         - transpose to channel x height x width order
         """
         #print('load_image_and_label start')
-        if idx is None:
-            idx = self.idx
         while(1):
-            filename = self.imagefiles[idx]
-            label_vec = self.label_vecs[idx]
+            filename = self.imagefiles[self.idx]
+            label_vec = self.label_vecs[self.idx]
             if self.images_dir:
                 filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
-                print('NOT A FILE:'+str(filename))
+                logging.debug('NOT A FILE:'+str(filename))
                 self.next_idx()   #bad file, goto next
-                idx = self.idx
                 continue
             #print('calling augment_images with file '+filename)
-
 #############start added code to avoid cv2.imread############
-            im = Image.open(filename)
-            if self.new_size:
-                im = im.resize(self.new_size,Image.ANTIALIAS)
-            in_ = np.array(im, dtype=np.float32)
-            if in_ is None:
-                logging.warning('could not get image '+filename)
+            try:
+                im = Image.open(filename)
+                if im is None:
+                    logging.warning('jrlayers2 could not get im '+filename)
+                    self.next_idx()
+                    continue
+
+                in_ = np.array(im, dtype=np.float32)
+                if self.new_size is not None:
+           #         im = im.resize(self.new_size,Image.ANTIALIAS)
+                    print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
+                    in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
+##                     print('new shape '+str(in_.shape))
+
+                if in_ is None:
+                    logging.warning('jrlayers2 could not get in_ '+filename)
+                    self.next_idx()
+                    continue
+                logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
+                if in_.shape[2] != 3:
+                    logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                    self.next_idx()
+                    continue
+            except:
+                e = sys.exc_info()[0]
+                logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
+                self.next_idx()
                 continue
-            logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
-            if in_.shape[2] != 3:
-                logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+            try:
+                in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
+            except:
+                e = sys.exc_info()[0]
+                logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
+                self.next_idx()
                 continue
-            in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
 
 #############end added code to avoid cv2.imread############
 
@@ -679,7 +726,6 @@ class JrMultilabel(caffe.Layer):
 #            out_ = augment_images.generate_image_onthefly(in_)
 
             #print('returned from augment_images')
-
             #im = Image.open(filename)
             #if im is None:
             #    logging.warning('could not get image '+filename)
@@ -691,14 +737,31 @@ class JrMultilabel(caffe.Layer):
             if out_ is None:
                 logging.warning('could not get image '+filename)
                 self.next_idx()
-                idx = self.idx
                 continue
-            if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
-                print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
+            if len(out_.shape) != 3 :
+                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
+                print('weird file:'+filename)
                 self.next_idx()  #goto next
-                idx = self.idx
                 continue
-            break #got good img, get out of while
+
+    #if there's a crop then check resultsize=cropsize. If there's no crop check resultsize=resize_size
+            if self.augment_crop_size is not None and (out_.shape[0] != self.augment_crop_size[0] or out_.shape[1] != self.augment_crop_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected cropped hxw is '+str(self.augment_crop_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+            if self.augment_crop_size is None and self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected resized hxw is '+str(self.new_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+
+            if out_.shape[2] !=3 :
+                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
+                print('weird file:'+filename)
+                self.next_idx()  #goto next
+                continue
+            break #got good img after all that , get out of while
 
         if self.augment_save_visual_output:
             name = str(self.idx)+str(label_vec)+'.jpg'

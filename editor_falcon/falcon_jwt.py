@@ -8,7 +8,17 @@ import falcon
 import jwt
 from passlib.hash import sha256_crypt
 
-DEFAULT_COOKIE_OPTS = {"name": "auth_token", "place":"holder"}
+# Logging
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+root.addHandler(ch)
+
+
+DEFAULT_COOKIE_OPTS = {"name": "auth_token", "place": "holder"}
 
 
 class LoginResource(object):
@@ -69,10 +79,18 @@ class AuthMiddleware(object):
             logging.debug("LOGIN, DON'T NEED TOKEN")
             return
 
+        logging.debug(req.method)
+        if "OPTIONS" in req.method:
+            logging.debug("OPTIONS, DON'T NEED TOKEN")
+            return
+
         challenges = ['Hello="World"']  # I think this is very irrelevant
 
+        logging.debug("name: {0}".format(self.cookie_opts.get("name")))
+        logging.debug(req.cookies)
         token = req.cookies.get(self.cookie_opts.get("name"))
         if token is None:
+            logging.debug("token is None")
             description = ('Please provide an auth token '
                            'as part of the request.')
 
@@ -82,6 +100,7 @@ class AuthMiddleware(object):
                                           href='http://docs.example.com/auth')
 
         if not self._token_is_valid(token):
+            logging.debug("token is not valid")
             description = ('The provided auth token is not valid. '
                            'Please request a new token and try again.')
 

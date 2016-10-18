@@ -667,6 +667,37 @@ def get_netname(proto):
         netname = None
     return netname
 
+def get_traintest_from_proto(proto):
+    print('looking for netname in '+proto)
+    with open(proto,'r') as fp:
+        train = None
+        test = None
+        traintest = None
+        for line in fp:
+            line = line.replace(' ','')  #line with spaces removed
+            print('looking at line:'+line)
+            if 'train_net:' in line and line[0] is not '#':
+                train = line.replace('train_net:','').replace('"','')
+                print('train:'+train)
+            if 'test_net:' in line and line[0] is not '#':
+                test = line.replace('test_net:','').replace('"','')
+                print('test:'+test)
+            if line[0:3] == 'net:'  and line[0] is not '#':
+                traintest = line.replace('net:','').replace('"','')
+                print('traintest:'+traintest)
+        if train and test:
+            return((train,test))
+        elif train:
+            print('got only train not test')
+            return((train))
+        elif test:
+            print('got only test not train')
+            return((test))
+        elif traintest:
+            return((traintest))
+        else:
+            return None
+
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
 
@@ -832,7 +863,6 @@ if __name__ =="__main__":
 
 #    t = 0.5
 #    p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
-
 
 
 
