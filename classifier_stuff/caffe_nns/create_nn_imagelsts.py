@@ -290,6 +290,12 @@ def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt'):
             imutils.show_mask_with_labels(path2,labels=constants.ultimate_21,visual_output=True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
+    '''
+    writes (destructively) files with _train.txt and _test.txt based on filename, with sizes determined by fraction
+    :param filename: input catsfile
+    :param fraction: ratio test:train
+    :return:
+    '''
     with open(filename,'r') as fp:
         lines = fp.readlines()
         print('file {} has lines like {}'.format(filename,lines[0]))
@@ -318,6 +324,7 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
     :param ratio_neg_pos: number of negs vs. positives to include , n_neg = n_pos*ratio_neg_pos
     :param outfilename file to write to, if not given writes to original path of catsfile.txt but with filename catsfile.balanced.txt
     :param n_cats not implemented , assumes n_cats=2
+    :param shuffle not implemented
     :return:
     '''
     print('balancing '+filename+' with ratio '+str(ratio_neg_pos)+', '+str(n_cats)+' categories')
@@ -354,6 +361,8 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
     if outfilename is None:
         outfilename = filename.replace('.txt','')+'_balanced.txt'
     print('writing {} positives and {} negatives to {}'.format(n_pos,negs_to_use,outfilename))
+#    if(shuffle):
+#        instances
     with open(outfilename,'w') as fp:
         for i in range(n_cats):
             if i==1:
@@ -363,7 +372,6 @@ def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2
             for j in range(jrange):
                 fp.write(instances[i][j])
             print('wrote '+str(jrange)+' lines for category '+str(i))
-
     fp.close()
 
 def textfile_for_pixlevel(imagesdir,labelsdir=None,imagefilter='.jpg',labelsuffix='.png', outfilename = None):

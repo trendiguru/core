@@ -675,7 +675,7 @@ class JrMultilabel(caffe.Layer):
                 in_ = np.array(im, dtype=np.float32)
                 if self.new_size is not None:
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
-                    print('resizing from {} to {}'.format(in_.shape,self.new_size))
+                    print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
                     print('new shape '+str(in_.shape))
 
@@ -732,17 +732,25 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
                 continue
             if len(out_.shape) != 3 :
-                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is hxwxc (3 dimensions)')
+                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
                 continue
-            if self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
-                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
-                continue
+
+    #if there's a crop then check resultsize=cropsize. If there's no crop check resultsize=resize_size
+            if self.augment_crop_size is not None and (out_.shape[0] != self.augment_crop_size[0] or out_.shape[1] != self.augment_crop_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected cropped hxw is '+str(self.augment_crop_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+            if self.augment_crop_size is None and self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected resized hxw is '+str(self.new_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+
             if out_.shape[2] !=3 :
-                print('got non-3-chan img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
+                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
                 continue
