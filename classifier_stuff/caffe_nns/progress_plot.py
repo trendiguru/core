@@ -24,7 +24,7 @@ import socket
 #then throw the jpgs onto a results website
 #DONE
 
-def parse_logfile(output_filename,logy):
+def parse_logfile(output_filename,logy=True):
   '''
   parses caffe-generated logfile
   :param output_filename:
@@ -250,7 +250,7 @@ def parse_logfile(output_filename,logy):
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
     plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = args.output_file+train_net+test_net+'\n'
+    subtitle = train_net+test_net+'\n'
     if type is not '':
       subtitle = subtitle+'type:'+type
     if base_lr is not '':
@@ -338,7 +338,7 @@ def lossplot(input_filename,netinfo='',logy=True):
   testaccuracies = []
   precision = []
   recall = []
-  n_loss_iter=[]
+  test_iters=[]
   firstline = True
 # read files if format of
   #n_iter time loss [accuracy] [precision] [recall]
@@ -352,9 +352,10 @@ def lossplot(input_filename,netinfo='',logy=True):
       loss_iter = thesplit[2]
       testloss = thesplit[3]
       testacc = float(thesplit[4])
-      testlosses.append(testloss)
+      if testloss !=0 :
+        testlosses.append(testloss)
       testaccuracies.append(testacc)
-      n_loss_iter.append(loss_iter)
+      test_iters.append(int(loss_iter))
     else:
       print('line:'+str(line))
       thetime = thesplit[0]
@@ -383,46 +384,62 @@ def lossplot(input_filename,netinfo='',logy=True):
       except :
         print('exception parsing lossfile:'+ str( sys.exc_info()[0]))
         continue
-#      print(s)
+      print(s)
   if len(n_iters)<2:
     return
 
   xtitle = 'iteration'
   if n_iters[1]>1000:
     n_iters = [i/1000 for i in n_iters ]
+    test_iters = [i/1000 for i in test_iters ]
     xtitle=xtitle+'/1000'
   fig, ax1 = plt.subplots()
   ax2 = ax1.twinx()
 
+  print('niters '+str(n_iters))
+  print('testiter '+str(test_iters))
+  print('losses '+str(losses))
+  print('losses '+str(testlosses))
+  print('acc '+str(accuracy))
+  print('testacc '+str(testaccuracies))
+
+  print('trainlengths: iter {} thetime {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
+  print('testlengths: iter {} loss {} acc {}'.format(len(test_iters),len(testlosses),len(testaccuracies)))
+
+#plot loss
   if logy:
-    ax1.semilogy(n_iters, losses,'r.', label="loss")
-    ax1.semilogy(0,0,'r.',label='loss')
+    ax1.semilogy(n_iters, losses,'s', label="tr.loss", markeredgecolor='r',markerfacecolor='None')
+    if len(testlosses)>2:
+      ax1.semilogy(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
   else:
-    ax1.plot(n_iters, losses,'r.', label="loss")
-    ax1.plot(0,0,'r.',label='loss')
+    ax1.plot(n_iters, losses,'r.', label="tr.loss",markeredgecolor='r',markerfacecolor='None')
+    if len(testlosses)>2:
+      ax1.plot(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
+#    ax1.plot(0,0,'r.',label='loss')
+
+  if len(accuracy)>2 and len(accuracy) == len(n_iters):
+    ax2.plot(n_iters, accuracy,'o', label='tr.accuracy', markeredgecolor='g',markerfacecolor='None')
+    ax2.set_ylabel("accuracy")
+  if len(testaccuracies)>2:
+    ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g')
+  if len(precision)>2 and len(precision) == len(n_iters):
+    ax2.plot(n_iters, precision,'b3', label="tr.precision")
+  if len(recall)>2 and len(recall) == len(n_iters):
+    ax2.plot(n_iters, recall,'r4', label="tr.recall")
+
+#plot test data
+
   ax1.set_xlabel(xtitle)
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
-  print('lengths: iter {} thetime {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
-  if len(accuracy)>2 and len(accuracy) == len(n_iters):
-    ax2.plot(n_iters, accuracy,'o', label='accuracy', markeredgecolor='g',markerfacecolor='None')
-    ax2.set_ylabel("accuracy")
-  if len(precision)>2 and len(precision) == len(n_iters):
-    ax2.plot(n_iters, precision,'b3', label="precision")
-  if len(recall)>2 and len(recall) == len(n_iters):
-    ax2.plot(n_iters, recall,'r4', label="recall")
-#plot training data
-  if len(testaccuracies)>2:
-    ax2.plot(n_loss_iter, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='None')
-  if len(testlosses)>2:
-    ax1.plot(n_loss_iter, testlosses,'y.', label="testloss")
-  plt.legend()
+  ax1.legend(loc='lower left')
+  ax2.legend(loc='lower right')
 
   output_filename = input_filename[:-4] + '.png'
   print('saving plot of loss from file '+input_filename+' to file '+output_filename)
   plt.savefig(output_filename)
-
+  return n_iters,losses
 
 def parse_solveoutput(output_filename):
   '''

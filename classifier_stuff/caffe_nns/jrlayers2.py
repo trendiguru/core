@@ -12,6 +12,7 @@ import random
 import string
 
 from trendi.utils import augment_images
+from trendi.utils import imutils
 
 class JrPixlevel(caffe.Layer):
     """
@@ -442,7 +443,7 @@ class JrMultilabel(caffe.Layer):
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
-        self.new_size = params.get('new_size',None)
+        self.new_size = params.get('resize',None)
         self.batch_size = params.get('batch_size',1)
         self.regression = params.get('regression',False)
         self.augment_images = params.get('augment',False)
@@ -463,11 +464,12 @@ class JrMultilabel(caffe.Layer):
 
         #on the way out
         self.images_dir = params.get('images_dir',None)
-
-        # print('imfile {} mean {} imagesdir {} randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.images_dir,self.random_init, self.random_pick))
-        # print('see {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
-        # print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
-        # print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('############net params for jrlayers2#########')
+        print('im/label file {} mean {}  randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        print('seed {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('############end of net params for jrlayers2#########')
 
         self.idx = 0
         self.images_processed = 0
@@ -568,22 +570,22 @@ class JrMultilabel(caffe.Layer):
         assert(len(self.imagefiles) == len(self.label_vecs))
         #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+        print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
         if self.augment_images == False:
 
             if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-                print('uh i got no size so using 224x224')
-                self.new_size = (224,224)
+                print(' got no size for self.newsize')
+#                self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        else:
-            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
-            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+        else:  #only resize if specified in the param line in prototxt /resize:(h,w)
+#            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[0])
 #            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
-        logging.debug('new img size:'+str(self.new_size))
-        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
+#        logging.debug('doing reshape of top[0] to img size:'+str(self.new_size))
+#        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
         top[1].reshape(self.batch_size, self.n_labels)
 
 
@@ -596,7 +598,11 @@ class JrMultilabel(caffe.Layer):
             imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            all_data = np.zeros((self.batch_size,3,self.new_size[0],self.new_size[1]))
+            if self.new_size == None:
+                size_for_shaping=(224,224)
+            else:
+                size_for_shaping=self.new_size
+            all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 imgfilename, data, label = self.load_image_and_label()
@@ -665,9 +671,14 @@ class JrMultilabel(caffe.Layer):
                     logging.warning('jrlayers2 could not get im '+filename)
                     self.next_idx()
                     continue
-                if self.new_size:
-                    im = im.resize(self.new_size,Image.ANTIALIAS)
+
                 in_ = np.array(im, dtype=np.float32)
+                if self.new_size is not None:
+           #         im = im.resize(self.new_size,Image.ANTIALIAS)
+                    print('resizing from {} to {}'.format(in_.shape,self.new_size))
+                    in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
+                    print('new shape '+str(in_.shape))
+
                 if in_ is None:
                     logging.warning('jrlayers2 could not get in_ '+filename)
                     self.next_idx()
@@ -720,7 +731,12 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-            if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]:
+            if len(out_.shape) != 3 :
+                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is hxwxc (3 dimensions)')
+                print('weird file:'+filename)
+                self.next_idx()  #goto next
+                continue
+            if self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
                 print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
