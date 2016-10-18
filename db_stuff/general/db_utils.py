@@ -69,24 +69,25 @@ def print_error(title, message=''):
 
 
 def log2file(mode, log_filename, message='', print_flag=True):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
-    handler = logging.FileHandler(log_filename, mode=mode)
-    handler.setLevel(logging.INFO)
-    logger.addHandler(handler)
-    if type(message) == unicode:
-        message = unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
-    if type(message) != str:
-        message = str(message)
-    if len(message):
-        logger.info(message)
-        logger.removeHandler(handler)
-        del logger, handler
-        if print_flag:
-            print_error(message)
-    else:
-        return logger, handler
+    return None,None
+    # logger = logging.getLogger(__name__)
+    # logger.setLevel(logging.INFO)
+    # logger.propagate = False
+    # handler = logging.FileHandler(log_filename, mode=mode)
+    # handler.setLevel(logging.INFO)
+    # logger.addHandler(handler)
+    # if type(message) == unicode:
+    #     message = unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
+    # if type(message) != str:
+    #     message = str(message)
+    # if len(message):
+    #     logger.info(message)
+    #     logger.removeHandler(handler)
+    #     del logger, handler
+    #     if print_flag:
+    #         print_error(message)
+    # else:
+    #     return logger, handler
 
 
 def binary_array_to_hex(arr):
