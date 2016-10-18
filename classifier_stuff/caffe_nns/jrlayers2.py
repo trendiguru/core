@@ -644,7 +644,7 @@ class JrMultilabel(caffe.Layer):
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
         dt = time.time() - self.analysis_time
         dN = self.images_processed - self.previous_images_processed
-        print(str(self.counter)+' images'+str(self.images_processed)+' images processed, dN/dt='+str(float(dN)/dt))
+        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed, dN/dt='+str(float(dN)/dt))
         self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
