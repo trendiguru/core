@@ -1240,6 +1240,7 @@ def test_db_vs_docdb(db_obj, collection):
 
 if __name__ == '__main__':
     print('starting')
-    id = generate_id()
-    print('id:' + str(id))
-    step_thru_db(use_visual_output=True, collection='products')
+    # id = generate_id()
+    # print('id:' + str(id))
+    # step_thru_db(use_visual_output=True, collection='products')
+    clean_duplicates('images', 'image_urls')
