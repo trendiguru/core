@@ -3,9 +3,9 @@ __author__ = 'Nadav Paz'
 import urllib
 import os
 import pymongo
-import Utils
-import background_removal
-from find_similar_mongo import get_all_subcategories
+from . import Utils
+from . import background_removal
+from .find_similar_mongo import get_all_subcategories
 from .constants import db
 
 
