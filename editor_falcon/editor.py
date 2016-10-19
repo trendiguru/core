@@ -14,6 +14,7 @@ ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
+USER_FILTER = 'stylebook'
 
 
 class Editor(object):
@@ -32,7 +33,8 @@ class Editor(object):
                 ret['ok'] = True
             elif 'last' in params:
                 amount = int(params['last'])
-                ret['data'] = edit_results.get_latest_images(amount)
+                # user_filter = req.USER
+                ret['data'] = edit_results.get_latest_images(amount, user_filter=USER_FILTER)
                 ret['ok'] = True
         except Exception as e:
             ret['error'] = str(e)

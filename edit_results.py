@@ -48,8 +48,12 @@ def cancel_image(image_id):
     return True
 
 
-def get_latest_images(num=10):
-    curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+def get_latest_images(num=10, user_filter=None):
+    # user filter - string that contained in page_url
+    if user_filter:
+        curs = db.images.find({'page_urls': {'$regex': user_filter}}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+    else:
+        curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
     return list(curs)
 
 
