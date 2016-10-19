@@ -76,7 +76,7 @@ class Editor(object):
                                                          path_args["person_id"],
                                                          path_args["item_category"],
                                                          path_args["results_collection"],
-                                                         data[path_args["results_collection"]])
+                                                         data)
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200
