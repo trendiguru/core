@@ -10,6 +10,7 @@ from PIL import Image
 import cv2
 import random
 import string
+import time
 
 from trendi.utils import augment_images
 from trendi.utils import imutils
@@ -473,6 +474,8 @@ class JrMultilabel(caffe.Layer):
 
         self.idx = 0
         self.images_processed = 0
+        self.analysis_time = time.time()
+        self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -598,9 +601,9 @@ class JrMultilabel(caffe.Layer):
             imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            if self.new_size == None:
-                size_for_shaping=(224,224)
-            else:
+            if self.augment_images is True and self.augment_crop_size is not None:
+                size_for_shaping=self.augment_crop_size
+            elif self.new_size is not None:
                 size_for_shaping=self.new_size
             all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
@@ -611,6 +614,7 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
             self.data = all_data
             self.label = all_labels
+            self.previous_images_processed = self.images_processed
             self.images_processed += self.batch_size
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
@@ -639,7 +643,10 @@ class JrMultilabel(caffe.Layer):
         #print('forward end')
         self.counter += 1
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
-        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed')
+        dt = time.time() - self.analysis_time
+        dN = self.images_processed - self.previous_images_processed
+        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
+        self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -675,9 +682,9 @@ class JrMultilabel(caffe.Layer):
                 in_ = np.array(im, dtype=np.float32)
                 if self.new_size is not None:
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
-                    print('resizing from {} to {}'.format(in_.shape,self.new_size))
+                    print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
-                    print('new shape '+str(in_.shape))
+##                     print('new shape '+str(in_.shape))
 
                 if in_ is None:
                     logging.warning('jrlayers2 could not get in_ '+filename)
@@ -732,17 +739,25 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
                 continue
             if len(out_.shape) != 3 :
-                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is hxwxc (3 dimensions)')
+                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
                 continue
-            if self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
-                print('got strange-sized img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
-                continue
+
+    #if there's a crop then check resultsize=cropsize. If there's no crop check resultsize=resize_size
+            if self.augment_crop_size is not None and (out_.shape[0] != self.augment_crop_size[0] or out_.shape[1] != self.augment_crop_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected cropped hxw is '+str(self.augment_crop_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+            if self.augment_crop_size is None and self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected resized hxw is '+str(self.new_size))
+                    print('weird file:'+filename)
+                    self.next_idx()  #goto next
+                    continue
+
             if out_.shape[2] !=3 :
-                print('got non-3-chan img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
+                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
                 print('weird file:'+filename)
                 self.next_idx()  #goto next
                 continue

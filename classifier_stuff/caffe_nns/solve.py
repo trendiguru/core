@@ -41,12 +41,15 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     test_net = solver.test_nets[0] # more than one testnet is supported
 
     net_name = multilabel_accuracy.get_netname(testproto)
-    print('netname {} train/test {}'.format(net_name,tt))
 
     docker_hostname = socket.gethostname()
 
     datestamp = datetime.datetime.strftime(datetime.datetime.now(), 'time%H.%M_%d-%m-%Y')
     prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
+
+    #get netname, copy train/test to outdir
+    tt = get_net_info.get_traintest_from_proto(solverproto)
+    print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
     weights_base = os.path.basename(weights)
@@ -62,14 +65,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     outdir = './'+outdir
 
     #copy training and test files to outdir
-    if solverproto is not None:
-        copycmd = 'cp '+solverproto + ' ' + outdir
-        subprocess.call(copycmd,shell=True)
-    if testproto is not None:
-        copycmd = 'cp '+testproto + ' ' + outdir
-        subprocess.call(copycmd,shell=True)
-
-    tt = get_net_info.get_traintest_from_proto(solverproto)
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
             copycmd = 'cp '+tt[0] + ' ' + outdir
@@ -80,7 +75,15 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             copycmd = 'cp '+tt[1] + ' ' + outdir
             subprocess.call(copycmd,shell=True)
 
-    #generate report filename
+    if solverproto is not None:
+        copycmd = 'cp '+solverproto + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+    if testproto is not None:
+        copycmd = 'cp '+testproto + ' ' + outdir
+        subprocess.call(copycmd,shell=True)
+
+
+    #generate report filename, outdir to save everything (loss, html etc)
     if type == 'pixlevel':
         outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
     if type == 'multilabel':
@@ -93,6 +96,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     Utils.ensure_dir(outdir)
     time.sleep(0.1)
     Utils.ensure_file(loss_outputname)
+
 
     #copycmd = 'cp -r '+outdir + ' ' + host_dirname
     scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
