@@ -34,7 +34,8 @@ def check_if_exists(image_url, products):
                 return True
             else:
                 add_results.enqueue_call(func=page_results.add_results_from_collection,
-                                         args=(image_obj, products_collection), ttl=2000, result_ttl=2000, timeout=2000)
+                                         args=(image_obj['_id'], products_collection),
+                                         ttl=2000, result_ttl=2000, timeout=2000)
                 return False
         else:
             return False
