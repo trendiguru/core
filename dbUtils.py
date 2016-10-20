@@ -965,27 +965,6 @@ def generate_id():
     return id
 
 
-def clean_duplicates(collection, field):
-    collection = db[collection]
-    before = collection.count()
-    sorted = collection.find().sort(field, pymongo.ASCENDING)
-    print('starting, total {0} docs'.format(before))
-    current_url = ""
-    i = deleted = 0
-    for doc in sorted:
-        i += 1
-        if i % 1000 == 0:
-            print("deleted {0} docs after running on {1}".format(deleted, i))
-        if doc['image_urls'][0] != current_url:
-            current_url = doc['image_urls'][0]
-            deletion = collection.delete_many({'$and': [{'image_urls': doc['image_urls'][0]}, {'_id': {'$ne': doc['_id']}}]}).deleted_count
-            if deletion:
-                deleted += deletion
-                print("found duplicates to {0}".format(doc['image_urls'][0]))
-
-    print("total {0} docs were deleted".format(deleted))
-
-
 def hash_all_products():
 
     for gender in ['Female', 'Male']:
