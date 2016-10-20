@@ -69,7 +69,12 @@ def print_error(title, message=''):
 
 
 def log2file(mode, log_filename, message='', print_flag=True):
-    print_error(message)
+    if type(message) == unicode:
+        message = unicodedata.normalize('NFKD', message).encode('ascii', 'ignore')
+    if type(message) != str:
+        message = str(message)
+    if len(message):
+        print_error(message)
     return None,None
     # logger = logging.getLogger(__name__)
     # logger.setLevel(logging.INFO)
