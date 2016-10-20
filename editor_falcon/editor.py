@@ -89,9 +89,10 @@ class Editor(object):
             data = json_util.loads(body)['data']
         try:
             if "person_id" in path_args:
+                gender = data['gender'] if 'gender' in data.keys() else data
                 ret["ok"] = edit_results.change_gender_and_rebuild_person(path_args["image_id"],
                                                                           path_args["person_id"],
-                                                                          data["gender"])
+                                                                          gender)
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200
