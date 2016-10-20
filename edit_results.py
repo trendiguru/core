@@ -26,13 +26,13 @@ EDITOR_PROJECTION = {'image_id': 1,
 def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
-    for person in sparse['people']:
-        for item in person['items']:
-            for prod_coll in item['similar_results'].keys():
-                for result in item['similar_results'][prod_coll]:
-                    product = db[prod_coll+'_'+person['gender']].find_one({'id': result['id']})
-                    result['price'] = product['price']
-                    result['brand'] = product['brand']
+    # for person in sparse['people']:
+    #     for item in person['items']:
+    #         for prod_coll in item['similar_results'].keys():
+    #             for result in item['similar_results'][prod_coll]:
+    #                 product = db[prod_coll+'_'+person['gender']].find_one({'id': result['id']})
+    #                 result['price'] = product['price']
+    #                 result['brand'] = product['brand']
     return sparse
 
 
