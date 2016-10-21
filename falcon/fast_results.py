@@ -10,9 +10,11 @@ from rq import push_connection, Queue
 from .. import Utils
 from .. import constants
 from .. import background_removal
+from .. import page_results
 db = constants.db
 push_connection(constants.redis_conn)
 start_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
+add_results = Queue('add_results', connection=constants.redis_conn)
 
 
 def check_if_exists(image_url, products):
@@ -31,7 +33,9 @@ def check_if_exists(image_url, products):
             if products_collection in image_obj['people'][0]['items'][0]['similar_results'].keys():
                 return True
             else:
-                # TODO - enqueue to add results from collection
+                add_results.enqueue_call(func=page_results.add_results_from_collection,
+                                         args=(image_obj['_id'], products_collection),
+                                         ttl=2000, result_ttl=2000, timeout=2000)
                 return False
         else:
             return False

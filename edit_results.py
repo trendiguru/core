@@ -26,6 +26,13 @@ EDITOR_PROJECTION = {'image_id': 1,
 def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
+    # for person in sparse['people']:
+    #     for item in person['items']:
+    #         for prod_coll in item['similar_results'].keys():
+    #             for result in item['similar_results'][prod_coll]:
+    #                 product = db[prod_coll+'_'+person['gender']].find_one({'id': result['id']})
+    #                 result['price'] = product['price']
+    #                 result['brand'] = product['brand']
     return sparse
 
 
@@ -48,8 +55,12 @@ def cancel_image(image_id):
     return True
 
 
-def get_latest_images(num=10):
-    curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+def get_latest_images(num=10, user_filter=None):
+    # user filter - string that contained in page_url
+    if user_filter:
+        curs = db.images.find({'page_urls': {'$regex': user_filter}}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
+    else:
+        curs = db.images.find({}, {'_id': 0, 'image_id': 1, 'image_urls': 1}).sort('_id', pymongo.DESCENDING).limit(int(num))
     return list(curs)
 
 
@@ -59,8 +70,16 @@ def cancel_person(image_id, person_id):
     image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return False
-    res = db.images.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    return bool(res.modified_count)
+    # res = db.images.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    for person in image_obj['people']:
+        if person['_id'] == person_id:
+            image_obj['people'].remove(person)
+            if not len(image_obj['people']):
+                cancel_image(image_id)
+                res = 1
+            else:
+                res = db.images.replace_one({'image_id': image_id}, image_obj).modified_count
+    return bool(res)
 
 
 def change_gender_and_rebuild_person(image_id, person_id, new_gender):
@@ -149,8 +168,12 @@ def cancel_item(image_id, person_id, item_category):
             for item in person['items']:
                 if item['category'] == item_category:
                     person['items'].remove(item)
-    res = db.images.replace_one({'image_id': image_id}, image_obj)
-    return bool(res.modified_count)
+                    if not len(person['items']):
+                        cancel_person(image_id, person_id)
+                        res = 1
+                    else:
+                        res = db.images.replace_one({'image_id': image_id}, image_obj).modified_count
+    return bool(res)
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):

@@ -14,6 +14,7 @@ ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
+USER_FILTER = 'stylebook'
 
 
 class Editor(object):
@@ -32,7 +33,8 @@ class Editor(object):
                 ret['ok'] = True
             elif 'last' in params:
                 amount = int(params['last'])
-                ret['data'] = edit_results.get_latest_images(amount)
+                # user_filter = req.USER
+                ret['data'] = edit_results.get_latest_images(amount, user_filter=USER_FILTER)
                 ret['ok'] = True
         except Exception as e:
             ret['error'] = str(e)
@@ -74,7 +76,7 @@ class Editor(object):
                                                          path_args["person_id"],
                                                          path_args["item_category"],
                                                          path_args["results_collection"],
-                                                         data[path_args["results_collection"]])
+                                                         data)
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200
@@ -84,12 +86,13 @@ class Editor(object):
         ret = {'ok': False, 'data': {}}
         body = req.stream.read()
         if body:
-            data = json_util.loads(body)['data']
+            data = json_util.loads(body)
         try:
             if "person_id" in path_args:
+                gender = data['gender'] if 'gender' in data.keys() else data['data']
                 ret["ok"] = edit_results.change_gender_and_rebuild_person(path_args["image_id"],
                                                                           path_args["person_id"],
-                                                                          data["gender"])
+                                                                          gender)
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200
