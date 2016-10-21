@@ -27,7 +27,7 @@ for log in $logfiles;
    python $log_command --log True $log;
 done
 
-#send any .jpg  updated in last 100 minutes
+#send any .jpg  updated in last 100 minutes#
 echo "act 2"
 host=$(hostname)
 jpgfiles="$(find /tmp caffe* -mmin -100|grep jpg)"
