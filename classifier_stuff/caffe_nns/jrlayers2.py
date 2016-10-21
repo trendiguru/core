@@ -460,7 +460,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
-#        self.n_labels = params.get('n_labels',21)  #this is obvious from the image/label file
+        self.n_labels = params.get('n_labels',0)  #this will obvious from the image/label file. in case of multilabel this is number of classes, i n case of single label this is 1
         self.counter = 0
 
         #on the way out
@@ -530,10 +530,9 @@ class JrMultilabel(caffe.Layer):
                 if img_arr is not None:
                     vals = line.split()[1:]
                     label_vec = [int(i) for i in vals]
-                    self.n_labels = len(vals)
                     label_vec = np.array(label_vec)
-                    self.n_labels = len(label_vec)
-                    if self.n_labels == 1:
+                    self.n_labels = len(label_vec)   #the length of the label vector for multiclass data
+                    if self.n_labels == 1:  #for the case of single_class data
                         label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
