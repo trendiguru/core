@@ -6,7 +6,16 @@
 #0,10,20,30,40,50 * * * * /usr/lib/python2.7/dist-packages/trendi/calssifier_stuff/auto_progress_plots.sh
 #meaning every 10 minutes, for every hr/day/etc run this script
 
+#get nvidia data
+nvidname=$(hostname)_nvidia_output.txt
+nvidia-smi > $nvidname
+scp $nvidname root@104.155.22.95:/var/www/results/gpu_statii/$nvidname;
+
+
 #produce the plots from any logfile updated in last 100 minutes
+oldstyle=0
+if [ $oldstyle -eq 1 ];
+then
 counter=0
 echo "act 1"
 #find caffe logfiles from last 100 minutes
@@ -73,6 +82,4 @@ for img in $imgfiles;
 #   rsync jpg root@37.58.64.220:/var/www/results/progress_plots;
 done
 
-nvidname=$(hostname)_nvidia_output.txt
-nvidia-smi > $nvidname
-scp $nvidname root@104.155.22.95:/var/www/results/progress_plots/$nvidname;
+fi
