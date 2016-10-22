@@ -666,7 +666,7 @@ class JrMultilabel(caffe.Layer):
                 filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
-                print('NOT A FILE:'+str(filename))
+                print('NOT A FILE:'+str(filename)+' ; trying next')
                 self.next_idx()   #bad file, goto next
                 continue
             #print('calling augment_images with file '+filename)
