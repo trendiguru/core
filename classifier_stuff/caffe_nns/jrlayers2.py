@@ -105,7 +105,7 @@ class JrPixlevel(caffe.Layer):
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
-                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+                logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
@@ -492,7 +492,7 @@ class JrMultilabel(caffe.Layer):
                 if self.images_dir is not None:
                     self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
-                print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
             self.n_files = len(self.images_and_labels_list)
@@ -625,7 +625,7 @@ class JrMultilabel(caffe.Layer):
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
-            print('idx='+str(self.idx))
+            print('next idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
