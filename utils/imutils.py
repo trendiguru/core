@@ -381,7 +381,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         output_img[0:height_offset,:] = resized_img[0,:]
         output_img[height_offset+new_height:,:] = resized_img[-1,:]
 #        print('resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
-        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
+#        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
     if careful_with_the_labels:
         #kill any extranneous labels that have popped up
