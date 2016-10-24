@@ -189,7 +189,7 @@ if __name__ == "__main__":
     cat = 'belt'
     classlabels=['not_'+cat,cat]
     n_tests = 1000
-    n_loops = 200
+    n_loops = 2000000
     baremetal_hostname = 'M60'
 ####################
 
