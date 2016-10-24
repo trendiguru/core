@@ -497,10 +497,11 @@ class JrMultilabel(caffe.Layer):
                 logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
-            print('imgs:'+str(self.images_and_labels_list))
+   #         print('imgs:'+str(self.images_and_labels_list))
             time.sleep(10)
             if self.images_and_labels_list is None or len(self.images_and_labels_list)==0:
-                logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                print('COULD NOT FIND ANYTHING IN  IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                logging.debug('COULD NOT FIND ANYTHING IN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
 
             self.n_files = len(self.images_and_labels_list)
