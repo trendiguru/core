@@ -248,18 +248,17 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
     n = 0
     n_encountered = [0]*n_cats
     if visual_output:
-        with open(filename,'r') as fp:
-            for line in fp:
-                n = n + 1
-                print line
-                path = line.split()[0]
-                cat = int(line.split()[1])
-                n_encountered[cat]+=1
-                print(str(n)+' images seen, totals:'+str(n_encountered))
-    #            im = Image.open(path)
-    #            im.show()
-                img_arr = cv2.imread(path)
-                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+        for line in lines:
+            n = n + 1
+            print line
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            n_encountered[cat]+=1
+            print(str(n)+' images seen, totals:'+str(n_encountered))
+#            im = Image.open(path)
+#            im.show()
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
