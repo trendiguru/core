@@ -244,7 +244,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
 
     print('n_instances {}'.format(n_instances))
     if randomize:
-        lines = random.shuffle(lines)
+        random.shuffle(lines)
     n = 0
     n_encountered = [0]*n_cats
     if visual_output:
