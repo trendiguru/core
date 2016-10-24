@@ -488,6 +488,7 @@ class JrMultilabel(caffe.Layer):
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
+            print('using images/labels file '+self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
                 if self.images_dir is not None:
                     self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
@@ -495,6 +496,10 @@ class JrMultilabel(caffe.Layer):
                 logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
+            if self.images_and_labels_list is None or len(self.images_and_labels_list)==0:
+                logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                return
+
             self.n_files = len(self.images_and_labels_list)
             logging.debug('images and labels file: {} n: {}'.format(self.images_and_labels_file,self.n_files))
     #        self.indices = open(split_f, 'r').read().splitlines()
