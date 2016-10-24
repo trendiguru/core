@@ -225,7 +225,7 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         for line in negs:
             fp.write(line)
 
-def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False,randomize=False):
     '''
     file lines are of the form /path/to/file class_number
     :param filename:
@@ -243,6 +243,8 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
         fp.close()
 
     print('n_instances {}'.format(n_instances))
+    if randomize:
+        lines = random.shuffle(lines)
     n = 0
     n_encountered = [0]*n_cats
     if visual_output:
