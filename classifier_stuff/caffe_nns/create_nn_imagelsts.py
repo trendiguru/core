@@ -225,7 +225,7 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         for line in negs:
             fp.write(line)
 
-def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False):
     '''
     file lines are of the form /path/to/file class_number
     :param filename:
@@ -243,14 +243,17 @@ def inspect_category_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,
         fp.close()
 
     print('n_instances {}'.format(n_instances))
-
+    n = 0
+    n_encountered = [0]*n_cats
     if visual_output:
         with open(filename,'r') as fp:
             for line in fp:
+                n = n + 1
                 print line
                 path = line.split()[0]
                 cat = int(line.split()[1])
-                print(cat)
+                n_encountered[cat]+=1
+                print(str(n)+' images seen, totals:'+str(n_encountered))
     #            im = Image.open(path)
     #            im.show()
                 img_arr = cv2.imread(path)
