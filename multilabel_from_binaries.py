@@ -170,7 +170,7 @@ if __name__ == "__main__":
     start_time=time.time()
     for url in urls:
 #        output = get_single_label_output(url,binary_nets[0])
-        output = get_multiple_single_label_outputs
+        output = get_multiple_single_label_outputs(url,binary_nets)
         print('output for {} : cat {}'.format(url,output))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
