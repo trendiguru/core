@@ -49,13 +49,12 @@ caffemodels = [
 modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
-print('set_mode_gpu()')
-print('device '+str(gpu))
 binary_nets=[]
 for i in range(26):
     caffe.set_mode_gpu()
     gpu = i/7
     caffe.set_device(gpu)
+    print('device '+str(gpu))
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
     caffemodel = os.path.join(modelpath,caffemodels[i])
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
