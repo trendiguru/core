@@ -101,7 +101,9 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-
+    if image is None:
+        print('ug didnt manage to get an image...'+str(url_or_np_array))
+        return
     print('multilabel working on image of shape:'+str(image.shape))
 
 #  save image to make sure no rgb/bgr funny business
