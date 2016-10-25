@@ -53,9 +53,9 @@ binary_nets=[]
 #for i in range(len(constants.binary_classifier_categories)):
 caffe.set_mode_gpu()
 
-caffemodel = os.path.join(modelpath,caffemodels[i])
-print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
-binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
+#caffemodel = os.path.join(modelpath,caffemodels[i])
+#print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
+#binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
 for i in range(8):
