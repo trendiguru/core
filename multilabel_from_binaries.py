@@ -137,7 +137,7 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
     out = net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
-    the_chosen_one = out.argmax
+    the_chosen_one = out.argmax()
     min = np.min(out)
     max = np.max(out)
     print('multilabel:  {}  answer:class {}'.format(out,the_chosen_one))
