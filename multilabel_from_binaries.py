@@ -48,9 +48,6 @@ caffemodels = [
 modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
-deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
-caffemodel = os.path.join(modelpath,caffemodels[0])
-print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
 print('set_mode_gpu()')
 caffe.set_mode_gpu()
 gpu = 0
@@ -58,6 +55,9 @@ print('device '+str(gpu))
 caffe.set_device(gpu)
 binary_nets=[]
 for i in range(2):
+    deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
+    caffemodel = os.path.join(modelpath,caffemodels[i])
+    print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
     binary_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
     binary_nets.append(binary_net)
 #
@@ -156,7 +156,7 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     the_chosen_one = out.argmax()
     min = np.min(out)
     max = np.max(out)
-    print('multilabel:  {}  answer:class {}'.format(out,the_chosen_one))
+    print('net output:  {}  answer:class {}'.format(out,the_chosen_one))
     return the_chosen_one
 #   possible return out which has more info (namel the actual values which somehow relate to confidence in the answer)
 
