@@ -42,7 +42,7 @@ caffemodels = [
 'res101_binary_sweatshirt_r1_iter_29000.caffemodel',
 'res101_binary_swimwear_mens_iter_39000.caffemodel',
 'res101_binary_top_iter_31000.caffemodel',
-'res101_binary_watch_iter_64000.caffemodel',
+#'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
 ]
 
@@ -50,6 +50,8 @@ modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
 binary_nets=[]
+print('caffeTEST '+str(caffe.TEST))
+raw_input('ret to cont')
 for i in range(26):
     caffe.set_mode_gpu()
     gpu = i/7
@@ -58,10 +60,8 @@ for i in range(26):
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
     caffemodel = os.path.join(modelpath,caffemodels[i])
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
-    binary_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
     binary_nets.append(binary_net)
-
-
 #
 
 def url_to_image(url):
