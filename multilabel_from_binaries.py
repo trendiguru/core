@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 import urllib
 import time
+import hashlib
 
 from trendi.utils import imutils
 from trendi import constants
@@ -96,6 +97,14 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
     print('multilabel working on image of shape:'+str(image.shape))
+
+
+    hash = hashlib.sha1()
+    hash.update(str(time.time()))
+#    print hash.hexdigest()
+    name=hash.hexdigest()[:10]+'.jpg'
+    print('saving '+name)
+    cv2.imwrite(name)
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
