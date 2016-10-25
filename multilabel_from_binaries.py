@@ -56,9 +56,10 @@ caffe.set_mode_gpu()
 gpu = 0
 print('device '+str(gpu))
 caffe.set_device(gpu)
-binary_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 binary_nets=[]
-binary_nets.append(binary_net)
+for i in range(2):
+    binary_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    binary_nets.append(binary_net)
 #
 
 def url_to_image(url):
@@ -80,8 +81,11 @@ def get_multiple_single_label_outputs(url_or_np_array,binary_nets):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    all_outs = []
     for i in range(len(binary_nets)):
-        get_binary_output(image,binary_nets[i])
+        out = get_single_label_output(image,binary_nets[i])
+        all_outs.append(out)
+    return all_outs
 
 def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),resize=(250,250)):
     '''
@@ -92,19 +96,22 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     :param resize: resize img to this dimension. if this is > required_image_size then take center crop.  pls dont make this < required_image_size
     :return:
     '''
+    #the below could be replaced by a call to     Utils.get_cv2_img_array
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+
     print('multilabel working on image of shape:'+str(image.shape))
 
-
-    hash = hashlib.sha1()
-    hash.update(str(time.time()))
+#  save image to make sure no rgb/bgr funny business
+#    hash = hashlib.sha1()
+#    hash.update(str(time.time()))
 #    print hash.hexdigest()
-    name=hash.hexdigest()[:10]+'.jpg'
-    print('saving '+name)
-    cv2.imwrite(name,image)
+#    name=hash.hexdigest()[:10]+'.jpg'
+#    print('saving '+name)
+#    cv2.imwrite(name,image)
+
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -162,7 +169,8 @@ if __name__ == "__main__":
 
     start_time=time.time()
     for url in urls:
-        output = get_single_label_output(url,binary_nets[0])
+#        output = get_single_label_output(url,binary_nets[0])
+        output = get_multiple_single_label_outputs
         print('output for {} : cat {}'.format(url,output))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
