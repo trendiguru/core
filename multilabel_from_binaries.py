@@ -156,7 +156,7 @@ if __name__ == "__main__":
         output = get_single_label_output(url,binary_nets[0])
         print('output for {} : cat {}'.format(url,output))
     elapsed_time = time.time()-start_time
-    print('time per image:{}, {} elapsed for {} images'+.format(elapsed_time/len(urls),elapsed_time,len(urls)))
+    print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
 #    cv2.imshow('output',output)
 #    cv2.waitKey(0)
 #    for i in range(len(output)):
