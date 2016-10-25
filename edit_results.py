@@ -70,8 +70,16 @@ def cancel_person(image_id, person_id):
     image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return False
-    res = db.images.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
-    return bool(res.modified_count)
+    # res = db.images.update_one({'image_id': image_id}, {'$pull': {'people': {'_id': person_id}}})
+    for person in image_obj['people']:
+        if person['_id'] == person_id:
+            image_obj['people'].remove(person)
+            if not len(image_obj['people']):
+                cancel_image(image_id)
+                res = 1
+            else:
+                res = db.images.replace_one({'image_id': image_id}, image_obj).modified_count
+    return bool(res)
 
 
 def change_gender_and_rebuild_person(image_id, person_id, new_gender):
@@ -160,8 +168,12 @@ def cancel_item(image_id, person_id, item_category):
             for item in person['items']:
                 if item['category'] == item_category:
                     person['items'].remove(item)
-    res = db.images.replace_one({'image_id': image_id}, image_obj)
-    return bool(res.modified_count)
+                    if not len(person['items']):
+                        cancel_person(image_id, person_id)
+                        res = 1
+                    else:
+                        res = db.images.replace_one({'image_id': image_id}, image_obj).modified_count
+    return bool(res)
 
 
 def reorder_results(image_id, person_id, item_category, collection, new_results):

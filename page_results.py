@@ -62,7 +62,7 @@ def handle_post(image_url, page_url, products_collection, method):
             return True
         else:
             # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
-            add_results.enqueue_call(func=add_results_from_collection, args=(image_obj, products_collection),
+            add_results.enqueue_call(func=add_results_from_collection, args=(image_obj['_id'], products_collection),
                                      ttl=2000, result_ttl=2000, timeout=2000)
             return False
 
@@ -191,7 +191,8 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
 
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
-def add_results_from_collection(image_obj, collection):
+def add_results_from_collection(image_id, collection):
+    image_obj = db.images.find_one({'_id': image_id})
     for person in image_obj['people']:
         for item in person['items']:
             prod = collection + '_' + person['gender']
