@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import numpy as np
 import urllib
+import time
 
 from trendi.utils import imutils
 from trendi import constants
@@ -142,14 +143,20 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     print('multilabel:  {}  answer:class {}'.format(out,the_chosen_one))
     return the_chosen_one
 #   possible return out which has more info (namel the actual values which somehow relate to confidence in the answer)
-
+https://s-media-cache-ak0.pinimg.com/564x/9a/9d/f7/9a9df7455232035c6284ad1961816fd8.jpg
 if __name__ == "__main__":
     urls = ['http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg']
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
+            'https://s-media-cache-ak0.pinimg.com/564x/9a/9d/f7/9a9df7455232035c6284ad1961816fd8.jpg',
+            'http://2.bp.blogspot.com/-VmiQlqdliyE/U9nyto2L1II/AAAAAAAADZ8/g30i4j_YZeI/s1600/310714+awayfromblue+kameleon+shades+chambray+shift+dress+converse+louis+vuitton+neverfull+mbmj+scarf.png',
+            'https://s-media-cache-ak0.pinimg.com/236x/1b/31/fd/1b31fd2182f0243ebc97ca115f04f131.jpg']
 
+    start_time=time.time()
     for url in urls:
         output = get_single_label_output(url,binary_nets[0])
-        print('output for {} : cat {}'+str(output))
+        print('output for {} : cat {}'.format(url,output))
+    elapsed_time = time.time()-start_time
+    print('time per image:'+str(elapsed_time/len(urls)))
 #    cv2.imshow('output',output)
 #    cv2.waitKey(0)
 #    for i in range(len(output)):
