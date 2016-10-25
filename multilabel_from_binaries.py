@@ -50,7 +50,7 @@ modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
 binary_nets=[]
-for i in range(len(constants.binary_classifier_categories)):
+#for i in range(len(constants.binary_classifier_categories)):
 for i in range(24)):
     caffe.set_mode_gpu()
     gpu = i/6
