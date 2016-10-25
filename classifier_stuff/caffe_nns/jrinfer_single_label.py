@@ -32,6 +32,18 @@ print('net size:'+str(netsize))
 required_image_size = (224,224)
 #
 
+#example from https://github.com/BVLC/caffe/wiki/Using-a-Trained-Network:-Deploy :
+#model = 'deploy.prototxt';
+#weights = 'net_4800.caffemodel';
+#caffe.set_mode_gpu();
+#caffe.set_device(0);
+#net = caffe.Net(model, weights, 'test');
+#Now we have our network, we can give it a run, by providing it an image.
+#image = imread('example_4.png');
+#res = net.forward({image});
+#prob = res{1};
+
+
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
