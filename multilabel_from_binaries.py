@@ -143,7 +143,7 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     print('multilabel:  {}  answer:class {}'.format(out,the_chosen_one))
     return the_chosen_one
 #   possible return out which has more info (namel the actual values which somehow relate to confidence in the answer)
-https://s-media-cache-ak0.pinimg.com/564x/9a/9d/f7/9a9df7455232035c6284ad1961816fd8.jpg
+
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
