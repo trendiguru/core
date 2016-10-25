@@ -13,6 +13,7 @@ import hashlib
 
 from trendi.utils import imutils
 from trendi import constants
+from trendi import Utils
 
 print('starting multilabel_from_binaries.py')
 caffemodels = [
@@ -96,11 +97,12 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     :param resize: resize img to this dimension. if this is > required_image_size then take center crop.  pls dont make this < required_image_size
     :return:
     '''
-    #the below could be replaced by a call to     Utils.get_cv2_img_array
+    #the below could be replaced by a call to
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    image = Utils.get_cv2_img_array(url_or_np_array)
     if image is None:
         print('ug didnt manage to get an image...'+str(url_or_np_array))
         return
