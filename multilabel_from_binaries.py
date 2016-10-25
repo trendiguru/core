@@ -52,9 +52,9 @@ modelpath = '/home/jeremy/caffenets/binary/all'
 binary_nets=[]
 print('caffeTEST '+str(caffe.TEST))
 raw_input('ret to cont')
-for i in range(26):
+for i in range(len(constants.binary_classifier_categories)):
     caffe.set_mode_gpu()
-    gpu = i/7
+    gpu = i/14
     caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
