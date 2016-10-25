@@ -56,3 +56,31 @@ def get_traintest_from_proto(proto):
             return((traintest))
         else:
             return None
+
+def get_labelfile_from_traintest(tfile,train_test='both'):
+    print('looking for '+train_test+' in '+tfile)
+    with open(tfile,'r') as fp:
+        for line in fp:
+            line = line.replace(' ','')  #line with spaces removed
+            print('looking at line:'+line)
+            if 'images_and_labels_file:' in line and line[0] is not '#':
+                train = line.replace('train_net:','').replace('"','')
+                print('train:'+train)
+            if 'test_net:' in line and line[0] is not '#':
+                test = line.replace('test_net:','').replace('"','')
+                print('test:'+test)
+            if 'net:' in line and not 'test' in line and not 'train' in line and line[0] is not '#':
+                traintest = line.replace('net:','').replace('"','')
+                print('traintest:'+traintest)
+        if train and test:
+            return((train,test))
+        elif train:
+            print('got only train not test')
+            return((train))
+        elif test:
+            print('got only test not train')
+            return((test))
+        elif traintest:
+            return((traintest))
+        else:
+            return None

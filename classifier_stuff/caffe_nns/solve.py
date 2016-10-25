@@ -64,6 +64,22 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     outdir = outdir.replace('\r','')  #remove return
     outdir = './'+outdir
 
+
+
+    #generate report filename, outdir to save everything (loss, html etc)
+    if type == 'pixlevel':
+        outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
+    if type == 'multilabel':
+        outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
+    if type == 'single_label':
+        outdir = outdir + '_' + cat
+        outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
+    loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
+    print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
+    Utils.ensure_dir(outdir)
+    time.sleep(0.1)
+    Utils.ensure_file(loss_outputname)
+
     #copy training and test files to outdir
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
@@ -81,21 +97,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     if testproto is not None:
         copycmd = 'cp '+testproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
-
-
-    #generate report filename, outdir to save everything (loss, html etc)
-    if type == 'pixlevel':
-        outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
-    if type == 'multilabel':
-        outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
-    if type == 'single_label':
-        outdir = outdir + '_' + cat
-        outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
-    loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
-    print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
-    Utils.ensure_dir(outdir)
-    time.sleep(0.1)
-    Utils.ensure_file(loss_outputname)
 
 
     #copycmd = 'cp -r '+outdir + ' ' + host_dirname
@@ -189,7 +190,7 @@ if __name__ == "__main__":
     cat = 'belt'
     classlabels=['not_'+cat,cat]
     n_tests = 1000
-    n_loops = 200
+    n_loops = 2000000
     baremetal_hostname = 'M60'
 ####################
 

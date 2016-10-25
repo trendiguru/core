@@ -105,7 +105,7 @@ class JrPixlevel(caffe.Layer):
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
-                print('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
+                logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
             self.n_files = len(self.imagefiles)
     #        self.indices = open(split_f, 'r').read().splitlines()
@@ -460,7 +460,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
-#        self.n_labels = params.get('n_labels',21)  #this is obvious from the image/label file
+        self.n_labels = params.get('n_labels',0)  #this will obvious from the image/label file. in case of multilabel this is number of classes, i n case of single label this is 1
         self.counter = 0
 
         #on the way out
@@ -488,13 +488,22 @@ class JrMultilabel(caffe.Layer):
         # load indices for images and labels
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
+            print('using images/labels file '+self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
                 if self.images_dir is not None:
                     self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
+   #         print('imgs:'+str(self.images_and_labels_list))
+            time.sleep(10)
+            if self.images_and_labels_list is None or len(self.images_and_labels_list)==0:
+                print('COULD NOT FIND ANYTHING IN  IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                logging.debug('COULD NOT FIND ANYTHING IN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
+                return
+
             self.n_files = len(self.images_and_labels_list)
             logging.debug('images and labels file: {} n: {}'.format(self.images_and_labels_file,self.n_files))
     #        self.indices = open(split_f, 'r').read().splitlines()
@@ -530,10 +539,9 @@ class JrMultilabel(caffe.Layer):
                 if img_arr is not None:
                     vals = line.split()[1:]
                     label_vec = [int(i) for i in vals]
-                    self.n_labels = len(vals)
                     label_vec = np.array(label_vec)
-                    self.n_labels = len(label_vec)
-                    if self.n_labels == 1:
+                    self.n_labels = len(label_vec)   #the length of the label vector for multiclass data
+                    if self.n_labels == 1:  #for the case of single_class data
                         label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
     #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
@@ -574,6 +582,7 @@ class JrMultilabel(caffe.Layer):
         #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
         self.n_files = len(self.imagefiles)
         print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
+        time.sleep(1)
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
@@ -626,7 +635,7 @@ class JrMultilabel(caffe.Layer):
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
-            print('idx='+str(self.idx))
+            print('next idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
@@ -667,7 +676,7 @@ class JrMultilabel(caffe.Layer):
                 filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
-                logging.debug('NOT A FILE:'+str(filename))
+                print('NOT A FILE:'+str(filename)+' ; trying next')
                 self.next_idx()   #bad file, goto next
                 continue
             #print('calling augment_images with file '+filename)
