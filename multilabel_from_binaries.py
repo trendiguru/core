@@ -101,7 +101,7 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 #    in_ = in_.astype(float)
     if resize:
-        in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+        in_ = imutils.resize_keep_aspect(image,output_size=resize,output_file=None)
         print('original resized to '+str(in_.shape))
     height,width,channels = in_.shape
     crop_dx = width - required_image_size[0]
