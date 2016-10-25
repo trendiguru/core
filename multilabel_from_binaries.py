@@ -104,44 +104,44 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
 #    print hash.hexdigest()
     name=hash.hexdigest()[:10]+'.jpg'
     print('saving '+name)
-    cv2.imwrite(name)
+    cv2.imwrite(name,image)
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
 #    in_ = in_.astype(float)
     if resize:
-        in_ = imutils.resize_keep_aspect(image,output_size=resize,output_file=None)
-        print('original resized to '+str(in_.shape))
-    height,width,channels = in_.shape
+        image = imutils.resize_keep_aspect(image,output_size=resize,output_file=None)
+        print('original resized to '+str(image.shape))
+    height,width,channels = image.shape
     crop_dx = width - required_image_size[0]
     crop_dy = height - required_image_size[1]
     if crop_dx != 0:
         remove_x_left = crop_dx/2
         remove_x_right = crop_dx - remove_x_left
-        in_ = in_[:,remove_x_left:width-remove_x_right,:]  #crop center x
-        print('removing {} from left and {} from right leaving {}'.format(remove_x_left,remove_x_right,in_.shape))
+        image = image[:,remove_x_left:width-remove_x_right,:]  #crop center x
+        print('removing {} from left and {} from right leaving {}'.format(remove_x_left,remove_x_right,image.shape))
     if crop_dy !=0:
         remove_y_top = crop_dy/2
         remove_y_bottom = crop_dy - remove_y_top
-        in_ = in_[remove_y_top:width-remove_y_bottom,:,:]  #crop center y
-        print('removing {} from top and {} from bottom leaving {}'.format(remove_x_left,remove_x_right,in_.shape))
+        image = image[remove_y_top:width-remove_y_bottom,:,:]  #crop center y
+        print('removing {} from top and {} from bottom leaving {}'.format(remove_x_left,remove_x_right,image.shape))
 
 
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
+    image = np.array(image, dtype=np.float32)   #.astype(float)
+    if len(image.shape) != 3:  #h x w x channels, will be 2 if only h x w
         print('got 1-chan image, turning into 3 channel')
         #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        image = np.array([image,image,image])
+    elif image.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
+        print('got n-chan image, skipping - shape:'+str(image.shape))
         return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104.0,116.0,122.0))
-    in_ = in_.transpose((2,0,1))
+#    image = image[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
+#    cv2.imshow('test',image)
+    image -= np.array((104.0,116.0,122.0))
+    image = image.transpose((2,0,1))
     # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
+    net.blobs['data'].reshape(1, *image.shape)
+    net.blobs['data'].data[...] = image
     # run net and take argmax for prediction
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
