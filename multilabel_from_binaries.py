@@ -50,17 +50,19 @@ modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
 print('set_mode_gpu()')
-caffe.set_mode_gpu()
-gpu = 0
 print('device '+str(gpu))
-caffe.set_device(gpu)
 binary_nets=[]
-for i in range(2):
+for i in range(26):
+    caffe.set_mode_gpu()
+    gpu = i/7
+    caffe.set_device(gpu)
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
     caffemodel = os.path.join(modelpath,caffemodels[i])
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
     binary_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
     binary_nets.append(binary_net)
+
+
 #
 
 def url_to_image(url):
@@ -122,7 +124,7 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
 #    in_ = in_.astype(float)
     if resize:
         image = imutils.resize_keep_aspect(image,output_size=resize,output_file=None)
-        print('original resized to '+str(image.shape))
+        #print('original resized to '+str(image.shape))
     height,width,channels = image.shape
     crop_dx = width - required_image_size[0]
     crop_dy = height - required_image_size[1]
@@ -130,12 +132,12 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
         remove_x_left = crop_dx/2
         remove_x_right = crop_dx - remove_x_left
         image = image[:,remove_x_left:width-remove_x_right,:]  #crop center x
-        print('removing {} from left and {} from right leaving {}'.format(remove_x_left,remove_x_right,image.shape))
+        #print('removing {} from left and {} from right leaving {}'.format(remove_x_left,remove_x_right,image.shape))
     if crop_dy !=0:
         remove_y_top = crop_dy/2
         remove_y_bottom = crop_dy - remove_y_top
         image = image[remove_y_top:width-remove_y_bottom,:,:]  #crop center y
-        print('removing {} from top and {} from bottom leaving {}'.format(remove_x_left,remove_x_right,image.shape))
+        #print('removing {} from top and {} from bottom leaving {}'.format(remove_x_left,remove_x_right,image.shape))
 
 
     image = np.array(image, dtype=np.float32)   #.astype(float)
@@ -173,7 +175,6 @@ if __name__ == "__main__":
             'http://healthsupporters.com/wp-content/uploads/2013/10/belt_2689094b.jpg' ,
             'http://static1.businessinsider.com/image/53c96c90ecad04602086591e-480/man-fashion-jacket-fall-layers-belt.jpg', #belts
             'http://gunbelts.com/media/wysiwyg/best-gun-belt-width.jpg',
-            'https://cache.sythe.org/SMc+P6SzFjhSjX6Ut2WoYmh0dHA6Ly93d3cuYmxvZ3RvLmNvbS91cGxvYWQvMjAxMC8wNC8yMDEwMDMzMC1zdHJlZXRzdHlsZTFfSksuanBn',
             'https://i.ytimg.com/vi/5-jWNWUQdFQ/maxresdefault.jpg'
             ]
 
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     for url in urls:
 #        output = get_single_label_output(url,binary_nets[0])
         output = get_multiple_single_label_outputs(url,binary_nets)
-        print('output for {} : cat {}'.format(url,output))
+        print('final output for {} : cat {}'.format(url,output))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
 #    cv2.imshow('output',output)
