@@ -4,7 +4,7 @@ import time
 from trendi import multilabel_from_binaries
 from trendi import multilabel_from_binaries2
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
             'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
             'https://s-media-cache-ak0.pinimg.com/564x/9a/9d/f7/9a9df7455232035c6284ad1961816fd8.jpg',
