@@ -58,7 +58,7 @@ caffe.set_mode_gpu()
 #binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
-for i in range(10,20):
+for i in range(20,len(binary_nets)):
     gpu = i/10
     caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
