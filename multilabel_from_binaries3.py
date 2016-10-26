@@ -61,9 +61,12 @@ caffe.set_mode_gpu()
 
 print('db1')
 print('len nets: '+str(len(binary_nets)))
-for i in range(20,len(caffemodels)):
+
+this_is_instance = 3
+nets_per_gpu = 9
+for i in range(nets_per_gpu*(this_is_instance-1),len(caffemodels)):
     print('db2.'+str(i))
-    gpu = i/10
+    gpu = i/nets_per_gpu
     print('device '+str(gpu)+' net # '+str(i))
     caffe.set_device(gpu)
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
