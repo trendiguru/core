@@ -46,11 +46,13 @@ caffemodels = [
 'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
 ]
 
+print('db0')
 modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
 binary_nets=[]
 #for i in range(len(constants.binary_classifier_categories)):
+print('db0.5')
 caffe.set_mode_gpu()
 
 #caffemodel = os.path.join(modelpath,caffemodels[i])
