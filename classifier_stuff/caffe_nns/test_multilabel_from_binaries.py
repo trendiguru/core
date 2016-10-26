@@ -33,8 +33,8 @@ if __name__ == "__main__":
     start_time=time.time()
     for url in urls:
         image = Utils.get_cv2_img_array(url)
-        output = get_mlb_output(image)
-#        output = get_mlb_output(url)
+#        output = get_mlb_output(image)
+        output = get_mlb_output(url)
 #        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url)
 #        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url)
         print('final output for {} : cat {} '.format(url,output))
