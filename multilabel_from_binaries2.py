@@ -83,7 +83,7 @@ def url_to_image(url):
     return new_image
 
 
-def get_multiple_single_label_outputs(url_or_np_array,binary_nets):
+def get_multiple_single_label_outputs(url_or_np_array):
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:

@@ -19,8 +19,8 @@ if __name__ == "__main__":
     start_time=time.time()
     for url in urls:
 #        output = get_single_label_output(url,binary_nets[0])
-        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url,binary_nets)
-        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url,binary_nets)
+        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url)
+        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url)
         print('final output for {} : cat {} {}'.format(url,output1,output2))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
