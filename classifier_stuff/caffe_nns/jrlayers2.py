@@ -753,12 +753,13 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()  #goto next
                 continue
 
-    #if there's a crop then check resultsize=cropsize. If there's no crop check resultsize=resize_size
+    #if there's a crop then check resultsize=cropsize.
             if self.augment_crop_size is not None and (out_.shape[0] != self.augment_crop_size[0] or out_.shape[1] != self.augment_crop_size[1]):
                     print('got strange-sized img of size '+str(out_.shape) + ' when expected cropped hxw is '+str(self.augment_crop_size))
                     print('weird file:'+filename)
                     self.next_idx()  #goto next
                     continue
+    #If there's no crop but there is a resize, check resultsize=resize_size
             if self.augment_crop_size is None and self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
                     print('got strange-sized img of size '+str(out_.shape) + ' when expected resized hxw is '+str(self.new_size))
                     print('weird file:'+filename)

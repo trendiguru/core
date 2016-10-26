@@ -1,10 +1,14 @@
 import os
 import cv2
 import pymongo
-from redis import Redis
+from redis import Redis, StrictRedis
 from rq import Queue
 
-redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
+env_variables = os.environ
+if 'REDIS_URL' in env_variables:
+    redis_conn = StrictRedis(host="tg.redis.cache.windows.net", port=6380, password="OUKfVbB+mXmHZ7sepr2twq0mJiIkYfuRzEkCL11jAbo=", ssl=True)
+else:
+    redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
 
 features_per_category = {'dress': ['color', 'sleeve_length', 'length'],
                          'top': ['color', 'sleeve_length'],
@@ -268,6 +272,11 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
                      'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+
+    # binary_classifier_categories is the same as web_tool_categories_v2 but with addition of mens_swimwear
+binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                             'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
