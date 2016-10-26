@@ -15,7 +15,7 @@ from trendi.utils import imutils
 from trendi import constants
 from trendi import Utils
 
-print('starting multilabel_from_binaries.py')
+print('starting multilabel_from_binaries3.py')
 caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
 'res101_binary_belt_iter_71000.caffemodel',

@@ -9,7 +9,7 @@ from .. import constants
 
 from jaweson import json, msgpack
 
-print "Done with imports"
+print "Done with imports (3)"
 
 class PaperResource:
     def __init__(self):
