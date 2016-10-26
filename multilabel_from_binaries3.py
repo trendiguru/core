@@ -63,8 +63,8 @@ print('db1')
 for i in range(20,len(binary_nets)):
     print('db2.'+str(i))
     gpu = i/10
-    caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
+    caffe.set_device(gpu)
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
     caffemodel = os.path.join(modelpath,caffemodels[i])
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
