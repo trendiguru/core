@@ -63,11 +63,6 @@ def url_to_image(url):
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
     if multilabel_from_binaries:
-
-
-
-def get_mlb_output(url_or_np_array):
-    if multilabel_from_binaries:
         dic1 = bmfc.mlb(url_or_np_array)
         if not dic1['success']:
             logging.debug('nfc mlb not a success')

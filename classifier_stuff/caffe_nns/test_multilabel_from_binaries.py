@@ -34,7 +34,7 @@ def get_mlb_output(url_or_np_array):
     return output
 
 def test_combine_neurodoll_and_multilabel(url_or_np_array):
-    multilabel_dict = nfc.pd(url, get_multilabel_results=True)
+    multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
     print('dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
