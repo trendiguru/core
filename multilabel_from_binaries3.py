@@ -15,7 +15,7 @@ from trendi.utils import imutils
 from trendi import constants
 from trendi import Utils
 
-print('starting multilabel_from_binaries2.py')
+print('starting multilabel_from_binaries3.py')
 caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
 'res101_binary_belt_iter_71000.caffemodel',
@@ -46,24 +46,29 @@ caffemodels = [
 'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
 ]
 
+print('db0')
 modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
 #trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
 binary_nets=[]
 #for i in range(len(constants.binary_classifier_categories)):
+print('db0.5')
 caffe.set_mode_gpu()
 
 #caffemodel = os.path.join(modelpath,caffemodels[i])
 #print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
 #binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
+print('db1')
+print('len nets: '+str(len(binary_nets)))
 
-this_is_instance = 2
+this_is_instance = 3
 nets_per_gpu = 9
-for i in range(nets_per_gpu*(this_is_instance-1),nets_per_gpu*(this_is_instance)):
+for i in range(nets_per_gpu*(this_is_instance-1),len(caffemodels)):
+    print('db2.'+str(i))
     gpu = i/nets_per_gpu
-    caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
+    caffe.set_device(gpu)
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
     caffemodel = os.path.join(modelpath,caffemodels[i])
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))

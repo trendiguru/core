@@ -2,7 +2,7 @@ from jaweson import msgpack
 import requests
 
 #
-CLASSIFIER_ADDRESS = "http://169.45.147.210:8080/mlb"
+CLASSIFIER_ADDRESS = "http://169.45.147.210:8081/mlb2"
 #thats brainim60
 
 def mlb(image_array_or_url, gpu=0):

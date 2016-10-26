@@ -4,18 +4,32 @@ import time
 #from trendi import multilabel_from_binaries
 #from trendi import multilabel_from_binaries2
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
+from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
+from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi import Utils
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def get_mlb_output(url_or_np_array):
-    dic = bmfc.mlb(url_or_np_array)
-    if not dic['success']:
-        logging.debug('nfc pd not a success')
+
+    dic1 = bmfc.mlb(url_or_np_array)
+    if not dic1['success']:
+        logging.debug('nfc mlb not a success')
         return False
-    neuro_mask = dic['mask']
-    return neuro_mask
+    output1 = dic1['output']
+    dic2 = bmfc2.mlb(url_or_np_array)
+    if not dic2['success']:
+        logging.debug('nfc mlb2 not a success')
+        return False
+    output2 = dic2['output']
+    dic3 = bmfc3.mlb(url_or_np_array)
+    if not dic3['success']:
+        logging.debug('nfc mlb3 not a success')
+        return False
+    output3 = dic3['output']
+    output = output1+output2+output3
+    return output
 
 
 if __name__ == "__main__":
