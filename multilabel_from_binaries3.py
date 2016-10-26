@@ -20,14 +20,17 @@ caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
 'res101_binary_belt_iter_71000.caffemodel',
 'res101_binary_bikini_iter_60000.caffemodel',
-'res101_binary_bracelet_iter_586000.caffemodel',
+#'res101_binary_bracelet_iter_586000.caffemodel',
+'res101_binary_bracelet_iter_38000.caffemodel'
 'res101_binary_cardigan_iter_402000.caffemodel',
-'res101_binary_coat_iter_665000.caffemodel',
+#'res101_binary_coat_iter_665000.caffemodel',
+'res101_binary_coat_iter_3000.caffemodel',
 'res101_binary_dress_iter_39000.caffemodel',
 'res101_binary_earrings_r1_iter_9000.caffemodel',
 'res101_binary_eyewear_iter_74000.caffemodel',
 'res101_binary_footwear_iter_53000.caffemodel',
-'res101_binary_hat_r1_iter_16000.caffemodel',
+#'res101_binary_hat_r1_iter_16000.caffemodel',
+'res101_binary_hat_r1_iter_6000.caffemodel'
 'res101_binary_jacket_r1_iter_25000.caffemodel',
 'res101_binary_jeans_iter_15000.caffemodel',
 'res101_binary_necklace_r1_iter_20000.caffemodel',
@@ -45,7 +48,6 @@ caffemodels = [
 'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
 ]
-
 print('db0')
 modelpath = '/home/jeremy/caffenets/binary/all'
 #solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
