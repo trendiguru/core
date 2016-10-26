@@ -30,7 +30,7 @@ caffemodels = [
 'res101_binary_dress_iter_39000.caffemodel',
 'res101_binary_eyewear_iter_74000.caffemodel',
 'res101_binary_footwear_iter_53000.caffemodel',
-'res101_binary_hat_r1_iter_6000.caffemodel'
+'res101_binary_hat_r1_iter_6000.caffemodel',
 'res101_binary_jacket_r1_iter_25000.caffemodel',
 'res101_binary_jeans_iter_15000.caffemodel',
 'res101_binary_pants_iter_50000.caffemodel',
@@ -45,11 +45,11 @@ caffemodels = [
 'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
 'res101_binary_overalls_iter_69000.caffemodel',
 'res101_binary_sweatshirt_r1_iter_29000.caffemodel',
-'res101_binary_bracelet_iter_38000.caffemodel'
+'res101_binary_bracelet_iter_38000.caffemodel',
 'res101_binary_necklace_r1_iter_20000.caffemodel',
 'res101_binary_earrings_r1_iter_9000.caffemodel',
 'res101_binary_watch_iter_64000.caffemodel',
-'res101_binary_swimwear_mens_iter_39000.caffemodel',
+'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
 modelpath = '/home/jeremy/caffenets/binary/all'
