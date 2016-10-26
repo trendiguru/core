@@ -83,7 +83,7 @@ def url_to_image(url):
     return new_image
 
 
-def get_multiple_single_label_outputs(url_or_np_array,binary_nets):
+def get_multiple_single_label_outputs(url_or_np_array):
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     start_time=time.time()
     for url in urls:
 #        output = get_single_label_output(url,binary_nets[0])
-        output = get_multiple_single_label_outputs(url,binary_nets)
+        output = get_multiple_single_label_outputs(url)
         print('final output for {} : cat {}'.format(url,output))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
