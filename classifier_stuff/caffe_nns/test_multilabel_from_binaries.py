@@ -1,8 +1,20 @@
 __author__ = 'jeremy'
 
 import time
-from trendi import multilabel_from_binaries
-from trendi import multilabel_from_binaries2
+#from trendi import multilabel_from_binaries
+#from trendi import multilabel_from_binaries2
+from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+def get_mlb_output(url_or_np_array):
+    dic = bmfc.mlb(url_or_np_array)
+    if not dic['success']:
+        logging.debug('nfc pd not a success')
+        return False
+    neuro_mask = dic['mask']
+    return neuro_mask
+
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
@@ -18,10 +30,12 @@ if __name__ == "__main__":
 
     start_time=time.time()
     for url in urls:
-#        output = get_single_label_output(url,binary_nets[0])
-        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url)
-        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url)
-        print('final output for {} : cat {} {}'.format(url,output1,output2))
+        output = get_mlb_output(url)
+#        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url)
+#        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url)
+        print('final output for {} : cat {} '.format(url,output))
+#        print('final output for {} : cat {} {}'.format(url,output1,output2))
     elapsed_time = time.time()-start_time
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
 #    cv2.imshow('output',output)
+
