@@ -59,7 +59,7 @@ caffe.set_mode_gpu()
 
 
 for i in range(4):
-    gpu = 1
+    gpu = i/2
     caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
