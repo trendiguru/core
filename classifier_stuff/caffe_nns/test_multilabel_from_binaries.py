@@ -6,6 +6,8 @@ import time
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
+from trendi.paperdoll import neurodoll_falcon_client as nfc
+
 from trendi import Utils
 
 import logging
@@ -31,6 +33,15 @@ def get_mlb_output(url_or_np_array):
     output = output1+output2+output3
     return output
 
+def test_combine_neurodoll_and_multilabel(url_or_np_array):
+    multilabel_dict = nfc.pd(url, get_multilabel_results=True)
+    print('dict from falcon dict:'+str(multilabel_dict))
+    if not multilabel_dict['success']:
+        print('did not get nfc pd result succesfully')
+        return
+    multilabel_output = multilabel_dict['multilabel_output']
+    print('multilabel output:'+str(multilabel_output))
+    return multilabel_output #
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
@@ -57,3 +68,5 @@ if __name__ == "__main__":
     print('time per image:{}, {} elapsed for {} images'.format(elapsed_time/len(urls),elapsed_time,len(urls)))
 #    cv2.imshow('output',output)
 
+    raw_input('ret to cont')
+    test_combine_neurodoll_and_multilabel(url)
