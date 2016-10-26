@@ -4,6 +4,8 @@ import time
 #from trendi import multilabel_from_binaries
 #from trendi import multilabel_from_binaries2
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
+from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
+from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi import Utils
 
 import logging
@@ -16,12 +18,12 @@ def get_mlb_output(url_or_np_array):
         logging.debug('nfc mlb not a success')
         return False
     output1 = dic1['output']
-    dic2 = bmfc.mlb2(url_or_np_array)
+    dic2 = bmfc2.mlb(url_or_np_array)
     if not dic2['success']:
         logging.debug('nfc mlb2 not a success')
         return False
     output2 = dic2['output']
-    dic3 = bmfc.mlb3(url_or_np_array)
+    dic3 = bmfc3.mlb(url_or_np_array)
     if not dic3['success']:
         logging.debug('nfc mlb3 not a success')
         return False
