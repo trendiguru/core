@@ -4,6 +4,8 @@ import time
 #from trendi import multilabel_from_binaries
 #from trendi import multilabel_from_binaries2
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
+from trendi import Utils
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,7 +32,8 @@ if __name__ == "__main__":
 
     start_time=time.time()
     for url in urls:
-        output = get_mlb_output(url)
+        image = Utils.get_cv2_img_array(url)
+        output = get_mlb_output(image)
 #        output1 = multilabel_from_binaries.get_multiple_single_label_outputs(url)
 #        output2 = multilabel_from_binaries2.get_multiple_single_label_outputs(url)
         print('final output for {} : cat {} '.format(url,output))
