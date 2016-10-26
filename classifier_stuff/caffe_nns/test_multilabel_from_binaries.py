@@ -14,8 +14,8 @@ def get_mlb_output(url_or_np_array):
     if not dic['success']:
         logging.debug('nfc pd not a success')
         return False
-    neuro_mask = dic['mask']
-    return neuro_mask
+    output = dic['output']
+    return output
 
 
 if __name__ == "__main__":
