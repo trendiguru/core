@@ -33,7 +33,7 @@ class PaperResource:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
 
-            output = multilabel_from_binaries.get_multiple_single_label_outputs(img)
+            output = multilabel_from_binaries3.get_multiple_single_label_outputs(img)
             ret["output"] = output
             if ret["output"] is not None:
                 ret["success"] = True
