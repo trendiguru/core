@@ -201,7 +201,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     if multilabel is None:
         logging.debug('None result from multilabel')
         return None
-    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
+    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
 #    print('orig label:'+str(multilabel))
     print('combining multilabel w. neurodoll, watch out')
     print('incoming label:'+str(multilabel))
