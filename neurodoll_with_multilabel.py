@@ -81,7 +81,6 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         output = output1+output2+output3
         return output
 
-
     else:
         if isinstance(url_or_np_array, basestring):
             image = url_to_image(url_or_np_array)

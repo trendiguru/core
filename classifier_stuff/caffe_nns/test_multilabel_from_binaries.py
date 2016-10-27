@@ -7,7 +7,7 @@ from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
+from trendi import neurodoll_with_multilabel
 from trendi import Utils
 
 import logging
@@ -34,6 +34,16 @@ def get_mlb_output(url_or_np_array):
     return output
 
 def test_combine_neurodoll_and_multilabel(url_or_np_array):
+    multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
+    print('dict from falcon dict:'+str(multilabel_dict))
+    if not multilabel_dict['success']:
+        print('did not get nfc pd result succesfully')
+        return
+    multilabel_output = multilabel_dict['multilabel_output']
+    print('multilabel output:'+str(multilabel_output))
+    return multilabel_output #
+
+def test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url_or_np_array):
     multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
     print('dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
