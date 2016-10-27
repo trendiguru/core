@@ -252,10 +252,11 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
 ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
     'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
 
+#the idea is web_tool_categories[i]=ultimate_21[web_tool_categories_v1_to_ultimate_21[i]]
+#todo - what is paperdoll's idea of 'blazer', is that a top for a suit or a winter thing
 web_tool_categories_v1_to_ultimate_21 = [1, 2, 3, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None]
-web_tool_categories_v2_to_ultimate_21 = [1, 2, 3, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None]
-
-
+web_tool_categories_v2_to_ultimate_21 = [1, 2, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None, None, None, None, None, None, None]
+binary_classifier_categories_to_ultimate_21 = [1, 2, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None, None, None, None, None, None, None, None]
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',
                                    'top','skin','BAG????','tights','shorts','blouse','bra','vest','suit','jeans',
                                    'necklace','sweatshirt','tie']
@@ -263,18 +264,19 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
                           'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
+#removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
+#25 cats
+web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+
+
 #these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
 #results of filipino categorization efforts
 #20 cats
 web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                        'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
                        'womens_swimwear_nonbikini']
-
-#removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
-#25 cats
-web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
-                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
     # binary_classifier_categories is the same as web_tool_categories_v2 but with addition of mens_swimwear
 binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',

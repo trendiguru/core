@@ -99,6 +99,7 @@ def get_multiple_single_label_outputs(url_or_np_array):
     for i in range(len(binary_nets)):
         out = get_single_label_output(image,binary_nets[i])
         all_outs.append(out)
+    print('output from get_multiple_single_label_outputs(2):'+str(all_outs))
     return all_outs
 
 def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),resize=(250,250),analog_output=True,from_binary_net=True):
