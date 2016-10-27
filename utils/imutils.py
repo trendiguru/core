@@ -827,7 +827,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
 
-def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
+def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
     '''
     split this into one function that takes mask and gives img with labels possibly with overlay, returns arr
     and another func that takes 2 images and puts side by side
@@ -836,11 +836,17 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
 		http://www.pyimagesearch.com/2016/03/07/transparent-overlays-with-opencv/
     '''
     colormap = cv2.COLORMAP_JET
-    img_arr = Utils.get_cv2_img_array(mask_filename,cv2.IMREAD_GRAYSCALE)
-    if img_arr is None:
-        logging.warning('trouble with file '+mask_filename)
+    if isinstance(mask_filename_or_img_array, basestring):
+        img_arr = Utils.get_cv2_img_array(mask_filename_or_img_array,cv2.IMREAD_GRAYSCALE)
+    elif type(mask_filename_or_img_array) == np.ndarray:
+        img_arr = mask_filename_or_img_array
+    else:
+        logging.warning('got something other than a filename (string) or img array')
         return
-    print('file:'+mask_filename+',size'+str(img_arr.shape))
+    if img_arr is None:
+        logging.warning('img_arr is None')
+        return
+    print('img size:'+str(img_arr.shape))
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
@@ -1017,47 +1023,6 @@ def show_mask_with_labels(mask_filename,labels,original_image=None,cut_the_crap=
     return combined,frac
 #        return dest
 
-def show_mask_with_labels_from_img_arr(mask,labels):
-    colormap = cv2.COLORMAP_JET
-    img_arr = mask
-    s = img_arr.shape
-    print(s)
-    if len(s) != 2:
-        logging.warning('got a multichannel image, using chan 0')
-        img_arr = img_arr[:,:,0]
-    h,w = img_arr.shape[0:2]
-    uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques)))
-    if len(uniques)>len(labels):
-        logging.warning('number of unique mask values > number of labels!!!')
-        return
-    if img_arr is not None:
-        # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
-        maxVal = len(labels)
-        scaled = np.uint8(np.multiply(img_arr, 255.0 / maxVal))
-        dest = cv2.applyColorMap(scaled,colormap)
-        bar_height = int(float(h)/len(uniques))
-        bar_width = 100
-        colorbar = np.zeros([bar_height*len(uniques),bar_width])
-        i = 0
-   #     print('len labels:'+str(len(labels)))
-        for unique in uniques:
-            if unique > len(labels):
-                logging.warning('pixel value out of label range')
-                continue
-            print('unique:'+str(unique)+':'+labels[unique])
-            colorbar[i*bar_height:i*bar_height+bar_height,:] = unique
-
-#        cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[i*255/len(uniques),i*255/len(uniques),100],thickness=2)
-            cv2.putText(colorbar,labels[unique],(5,i*bar_height+bar_height/2-10),cv2.FONT_HERSHEY_PLAIN,1,[100,100,100],thickness=2)
-            i=i+1
-
-        scaled_colorbar = np.uint8(np.multiply(colorbar, 255.0 / maxVal))
-        dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
-        cv2.imshow('map',dest)
-        cv2.imshow('colorbar',dest_colorbar)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
 
 
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):

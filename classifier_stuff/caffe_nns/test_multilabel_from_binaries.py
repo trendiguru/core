@@ -3,12 +3,14 @@ __author__ = 'jeremy'
 import time
 #from trendi import multilabel_from_binaries
 #from trendi import multilabel_from_binaries2
+from trendi import constants
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi import neurodoll_with_multilabel
 from trendi import Utils
+from trendi.utils import imutils
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -34,7 +36,8 @@ def get_mlb_output(url_or_np_array):
     return output
 
 def test_combine_neurodoll_and_multilabel(url_or_np_array):
-    multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
+    print('testing falcon call of neurodoll w. multilabel')
+    multilabel_dict = nfc.pd(url_or_np_array, get_multilabel_results=True,get_combined_results=True)
     print('dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
@@ -44,13 +47,10 @@ def test_combine_neurodoll_and_multilabel(url_or_np_array):
     return multilabel_output #
 
 def test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url_or_np_array):
-    multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
-    print('dict from falcon dict:'+str(multilabel_dict))
-    if not multilabel_dict['success']:
-        print('did not get nfc pd result succesfully')
-        return
-    multilabel_output = multilabel_dict['multilabel_output']
-    print('multilabel output:'+str(multilabel_output))
+    print('testing nonfalcon call of neurodoll w. multilabel')
+    mask = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(url_or_np_array)
+    print('mask from nd:'+str(mask))
+    imutils.show_mask_with_labels(mask,labels=constants.fashionista_categories_augmented_zero_based
     return multilabel_output #
 
 if __name__ == "__main__":

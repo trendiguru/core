@@ -180,8 +180,9 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
 
 #this is confusing : this is how you would call falcon which calls get_multilabel_output (above...)
 def get_multilabel_output_using_nfc(url_or_np_array):
+    print('starting get_multilabel_output_using_nfc')
     multilabel_dict = nfc.pd(url, get_multilabel_results=True)
-    print('dict from falcon dict:'+str(multilabel_dict))
+    print('gmoun:dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
         return
