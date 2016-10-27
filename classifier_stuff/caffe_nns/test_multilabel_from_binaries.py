@@ -48,7 +48,7 @@ def test_combine_neurodoll_and_multilabel(url_or_np_array):
 
 def test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url_or_np_array):
     print('testing nonfalcon call of neurodoll w. multilabel')
-    mask = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(url_or_np_array)
+    mask = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(url_or_np_array,multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories)
     print('mask from nd:'+str(mask))
     imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,visual_output=True)
     return mask #

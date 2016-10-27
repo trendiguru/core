@@ -253,6 +253,7 @@ ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dre
     'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
 
 web_tool_categories_v1_to_ultimate_21 = [1, 2, 3, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None]
+web_tool_categories_v2_to_ultimate_21 = [1, 2, 3, 19, 4, 5, 6, 13, 9, 4, 10, 12, 14, 16, 17, 18,19, 20, None, None, None]
 
 
 tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwear','hat','legging','outerwear','pants','skirts',

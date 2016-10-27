@@ -30,7 +30,7 @@ from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
 #best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
-print('starting nd w multilabel.py')
+print('starting (importing) nd w multilabel.py')
 multilabel_from_binaries = True
 
 if not multilabel_from_binaries: #dont need this if answers are coming from multilabel_from_binaries
@@ -190,7 +190,7 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21,multilabel_labels=constants.web_tool_categories):
     '''
     try product of multilabel and nd output and taking argmax
     '''
@@ -203,9 +203,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel]
 #    print('orig label:'+str(multilabel))
+    print('combining multilabel w. neurodoll, watch out')
+    print('incoming label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
+    print('multilabel to u21 conversion:'str(multilabel_to_ultimate21_conversion))
+    print('multilabel labels:'str(multilabel_labels))
 
-    if   np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
+    if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
         return #
 
@@ -218,9 +222,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
-            neurodoll_index = constants.web_tool_categories_v1_to_ultimate_21[i]
+            neurodoll_index = multilabel_to_ultimate21_conversion[i]
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
-                i,constants.web_tool_categories[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
+                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
             item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             if  item_mask is None:
                 continue
