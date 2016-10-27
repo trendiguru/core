@@ -206,8 +206,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('combining multilabel w. neurodoll, watch out')
     print('incoming label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
-    print('multilabel to u21 conversion:'str(multilabel_to_ultimate21_conversion))
-    print('multilabel labels:'str(multilabel_labels))
+    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('multilabel labels:'+str(multilabel_labels))
 
     if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
