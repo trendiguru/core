@@ -40,6 +40,8 @@ for i in range(1, casual_male_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
+    print i
+
 for i in range(1, casual_female_num):
     link_to_image = casual_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
@@ -56,6 +58,8 @@ for i in range(1, casual_female_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
+    print i
+
 #
 # ##---- Prom & Homecoming: 1 ----##
 # regx_prom = re.compile("/*Prom & Homecoming", re.IGNORECASE)
@@ -65,6 +69,23 @@ for i in range(1, casual_female_num):
 #
 # prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 #
+# for i in range(1, prom_female_num):
+#     link_to_image = prom_female[i]['images']['XLarge']
+#     response = requests.get(link_to_image)  # download
+#     if not response:
+#         print 'Fail'
+#         continue
+#     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+#     if image is None:
+#         print "not a good image"
+#         continue
+#
+#     image_file_name = 'prom_female_' + str(i) + '.jpg'
+#     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), image)
+#
+#     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 0" + "\n")
+#
+#     print i
 #
 # ##---- Tuxedos & Suits: 2 ----##
 # regx_tux = re.compile("/*Tuxedos", re.IGNORECASE)
