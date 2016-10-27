@@ -17,15 +17,15 @@ db = pymongo.MongoClient().mydb
 
 ##---- Casual: 0 ----##
 regx_casual = re.compile("/*Casual", re.IGNORECASE)
-casual_male_num = db.amazon_US_Male.count({'tree': regx_casual})  # = 117405
-casual_female_num = db.amazon_US_Female.count({'tree': regx_casual})  # = 205237
+# casual_male_num = db.amazon_US_Male.count({'tree': regx_casual})  # = 117405
+# casual_female_num = db.amazon_US_Female.count({'tree': regx_casual})  # = 205237
 
 casual_male = db.amazon_US_Male.find({'tree': regx_casual})
 casual_female = db.amazon_US_Female.find({'tree': regx_casual})
 
 casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
 
-sorted_list = range(1, casual_male_num)
+sorted_list = range(1, db.amazon_US_Male.count({'tree': regx_casual}))
 list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
@@ -53,7 +53,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-sorted_list = range(1, casual_female_num)
+sorted_list = range(1, db.amazon_US_Female.count({'tree': regx_casual}))
 list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
