@@ -50,8 +50,8 @@ def test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url_or_np_array):
     print('testing nonfalcon call of neurodoll w. multilabel')
     mask = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(url_or_np_array)
     print('mask from nd:'+str(mask))
-    imutils.show_mask_with_labels(mask,labels=constants.fashionista_categories_augmented_zero_based
-    return multilabel_output #
+    imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,visual_output=True)
+    return mask #
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
@@ -80,3 +80,5 @@ if __name__ == "__main__":
 
     raw_input('ret to cont')
     test_combine_neurodoll_and_multilabel(url)
+    raw_input('ret to cont')
+    test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url)
