@@ -99,15 +99,18 @@ def get_multiple_single_label_outputs(url_or_np_array):
     for i in range(len(binary_nets)):
         out = get_single_label_output(image,binary_nets[i])
         all_outs.append(out)
+    print('output from get_multiple_single_label_outputs(2):'+str(all_outs))
     return all_outs
 
-def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),resize=(250,250)):
+def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),resize=(250,250),analog_output=True,from_binary_net=True):
     '''
     gets the output of a single-label classifier.
     :param url_or_np_array:
     :param net:
     :param required_image_size: the size of the image the net wants (has been trained on), (WxH)
     :param resize: resize img to this dimension. if this is > required_image_size then take center crop.  pls dont make this < required_image_size
+    :param analog_output: get the actual class activations not just the max
+    :param binary_net: get the 2nd neuron output if this is a binary net (forget abt the first one since the neurons would be 'not item/item'
     :return:
     '''
     #the below could be replaced by a call to
@@ -174,8 +177,13 @@ def get_single_label_output(url_or_np_array,net, required_image_size=(224,224),r
     min = np.min(out)
     max = np.max(out)
     print('net output:  {}  answer:class {}'.format(out,the_chosen_one))
+    if analog_output:
+        if from_binary_net:
+            second_neuron_output = out[1]
+            print('binary output:'+str(out[1]))
+            return second_neuron_output
+        return out
     return the_chosen_one
-#   possible return out which has more info (namel the actual values which somehow relate to confidence in the answer)
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags

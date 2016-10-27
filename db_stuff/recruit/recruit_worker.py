@@ -12,7 +12,7 @@ import requests
 from rq import Queue
 
 from ...Utils import get_cv2_img_array
-from ...constants import db, fingerprint_version, redis_conn
+from ...constants import db, fingerprint_version, redis_conn, redis_limit
 from ..general.db_utils import get_p_hash
 from ...fingerprint_core import generate_mask_and_insert
 from .recruit_constants import recruitID2generalCategory, api_stock, recruit2category_idx
@@ -170,7 +170,7 @@ def process_items(item_list, gender,category):
                    "img_hash": img_hash,
                    "p_hash": p_hash}
 
-        while fp_q.count > 5000:
+        while fp_q.count > redis_limit:
             sleep(30)
 
         fp_q.enqueue(generate_mask_and_insert, doc=generic, image_url=img_url,
