@@ -7,7 +7,7 @@ import tldextract
 import bson
 from jaweson import msgpack
 import requests
-from rq import push_connection
+from rq import push_connection, Queue
 # ours
 import Utils
 import constants
@@ -18,6 +18,9 @@ db = constants.db
 start_pipeline = constants.q1
 relevancy = constants.q2
 manual_gender = constants.q3
+push_connection(constants.redis_conn)
+add_results = Queue('add_results')
+
 lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
@@ -26,7 +29,6 @@ GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
 geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
-push_connection(constants.redis_conn)
 
 # -------------------------------------- *** ASYNC-MODE *** ----------------------------------------------
 
@@ -60,7 +62,8 @@ def handle_post(image_url, page_url, products_collection, method):
             return True
         else:
             # ADD RESULTS FROM THIS PRODUCTS-COLLECTION
-            add_results_from_collection(image_obj, products_collection)
+            add_results.enqueue_call(func=add_results_from_collection, args=(image_obj['_id'], products_collection),
+                                     ttl=2000, result_ttl=2000, timeout=2000)
             return False
 
     else:
@@ -188,7 +191,8 @@ def get_collection_from_ip_and_pid(ip, pid='default'):
 
 # ---------------------------------------- PROCESS-FUNCTIONS ---------------------------------------------
 
-def add_results_from_collection(image_obj, collection):
+def add_results_from_collection(image_id, collection):
+    image_obj = db.images.find_one({'_id': image_id})
     for person in image_obj['people']:
         for item in person['items']:
             prod = collection + '_' + person['gender']

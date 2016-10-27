@@ -15,12 +15,15 @@ import cv2
 import caffe
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
 import numpy as np
 import os
 import time
 import urllib
 
+from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
+from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
+from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
+from trendi import Utils
 from trendi import background_removal, Utils, constants
 from trendi.utils import imutils
 from trendi.paperdoll import neurodoll_falcon_client as nfc
@@ -28,20 +31,21 @@ from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 #best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
 print('starting nd w multilabel.py')
-protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
-modelpath = '/home/jeremy/caffenets/production'
-solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
-deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
-#caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
-caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_200000.caffemodel')  #10Aug2016
+multilabel_from_binaries = True
 
-
-print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
-print('set_mode_gpu()')
-caffe.set_mode_gpu()
-print('device 0')
-caffe.set_device(0)
-multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+if not multilabel_from_binaries: #dont need this if answers are coming from multilabel_from_binaries
+    protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+    modelpath = '/home/jeremy/caffenets/production'
+    solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
+    deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
+    #caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_120000.caffemodel')
+    caffemodel = os.path.join(modelpath,'multilabel_resnet101_sgd_iter_200000.caffemodel')  #10Aug2016
+    print('solver proto {} deployproto {} caffemodel {}'.format(solverproto,deployproto,caffemodel))
+    print('set_mode_gpu()')
+    caffe.set_mode_gpu()
+    print('device 0')
+    caffe.set_device(0)
+    multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
 multilabel_required_image_size = (224,224)
 
 def url_to_image(url):
@@ -57,43 +61,61 @@ def url_to_image(url):
     # return the image
     return new_image
 
-
-
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
-    if isinstance(url_or_np_array, basestring):
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-    if image is None:
-        logging.debug('got None image')
-        return None
-    print('multilabel working on image of shape:'+str(image.shape))
-# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-#    im = Image.open(imagename)
-#    im = im.resize(required_imagesize,Image.ANTIALIAS)
-#    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
-    # shape for input (data blob is N x C x H x W), set data
-    multilabel_net.blobs['data'].reshape(1, *in_.shape)
-    multilabel_net.blobs['data'].data[...] = in_
-    # run net and take argmax for prediction
-    multilabel_net.forward()
-#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = multilabel_net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
-    print('multilabel:  {}'.format(out))
-    return out
+    if multilabel_from_binaries:
+        dic1 = bmfc.mlb(url_or_np_array)
+        if not dic1['success']:
+            logging.debug('nfc mlb not a success')
+            return False
+        output1 = dic1['output']
+        dic2 = bmfc2.mlb(url_or_np_array)
+        if not dic2['success']:
+            logging.debug('nfc mlb2 not a success')
+            return False
+        output2 = dic2['output']
+        dic3 = bmfc3.mlb(url_or_np_array)
+        if not dic3['success']:
+            logging.debug('nfc mlb3 not a success')
+            return False
+        output3 = dic3['output']
+        output = output1+output2+output3
+        return output
+
+    else:
+        if isinstance(url_or_np_array, basestring):
+            image = url_to_image(url_or_np_array)
+        elif type(url_or_np_array) == np.ndarray:
+            image = url_or_np_array
+        if image is None:
+            logging.debug('got None image')
+            return None
+        print('multilabel working on image of shape:'+str(image.shape))
+    # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+    #    im = Image.open(imagename)
+    #    im = im.resize(required_imagesize,Image.ANTIALIAS)
+    #    in_ = in_.astype(float)
+        in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+        in_ = np.array(in_, dtype=np.float32)   #.astype(float)
+        if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
+            print('got 1-chan image, turning into 3 channel')
+            #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
+            in_ = np.array([in_,in_,in_])
+        elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            return
+    #    in_ = in_[:,:,::-1]  for doing RGB -> BGR : since this is loaded nby cv2 its unecessary
+    #    cv2.imshow('test',in_)
+        in_ -= np.array((104,116,122.0))
+        in_ = in_.transpose((2,0,1))
+        # shape for input (data blob is N x C x H x W), set data
+        multilabel_net.blobs['data'].reshape(1, *in_.shape)
+        multilabel_net.blobs['data'].data[...] = in_
+        # run net and take argmax for prediction
+        multilabel_net.forward()
+    #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
+        out = multilabel_net.blobs['prob'].data[0] #for the nth class layer #siggy is after sigmoid
+        print('multilabel:  {}'.format(out))
+        return out
 
 def get_neurodoll_output(url_or_np_array):
     if isinstance(url_or_np_array, basestring):
@@ -156,9 +178,11 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
+#this is confusing : this is how you would call falcon which calls get_multilabel_output (above...)
 def get_multilabel_output_using_nfc(url_or_np_array):
+    print('starting get_multilabel_output_using_nfc')
     multilabel_dict = nfc.pd(url, get_multilabel_results=True)
-    print('dict from falcon dict:'+str(multilabel_dict))
+    print('gmoun:dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
         return
