@@ -4,12 +4,14 @@ import pymongo
 from redis import Redis, StrictRedis
 from rq import Queue
 
-env_variables = os.environ
-if 'REDIS_URL' in env_variables:
-    redis_conn = StrictRedis(host="tg.redis.cache.windows.net", port=6380, password="OUKfVbB+mXmHZ7sepr2twq0mJiIkYfuRzEkCL11jAbo=", ssl=True)
+
+redis_url = os.environ.get("REDIS_URL", None)
+if redis_url:
+    redis_conn = StrictRedis.from_url(redis_url)
+    redis_limit = 50000
 else:
     redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
-
+    redis_limit = 5000
 features_per_category = {'dress': ['color', 'sleeve_length', 'length'],
                          'top': ['color', 'sleeve_length'],
                          'shirt': ['color', 'sleeve_length'],
