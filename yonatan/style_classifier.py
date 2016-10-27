@@ -26,7 +26,8 @@ casual_female = db.amazon_US_Female.find({'tree': regx_casual})
 casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
 
 sorted_list = range(1, casual_male_num)
-print sorted_list
+for x in sorted_list:
+    print x
 list_to_iter = random.shuffle(sorted_list)
 print list_to_iter
 counter = 0
