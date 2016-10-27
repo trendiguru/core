@@ -3,8 +3,10 @@ import subprocess
 import time
 import datetime
 import csv
+import tldextract
 from . import constants
 db = constants.db
+log_blacklist = ['googleapis.com', 'youtube.com']
 
 
 def download_last_x_logs(x):
@@ -61,3 +63,9 @@ def save_log_to_mongo(log_file, delete_after=True):
     csv_file.close()
     if delete_after:
         os.remove(log_file)
+
+
+def get_domain(url):
+    if not isinstance(url, str):
+        url = str(url)
+    return tldextract.extract(url).registered_domain

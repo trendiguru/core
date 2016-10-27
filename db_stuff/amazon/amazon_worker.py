@@ -7,7 +7,7 @@ from time import sleep
 from rq import Queue
 
 from ...Utils import get_cv2_img_array
-from ...constants import db, redis_conn, fingerprint_version
+from ...constants import db, redis_conn, fingerprint_version, redis_limit
 from ..general.db_utils import print_error, get_hash, get_p_hash
 from ...fingerprint_core import generate_mask_and_insert
 
@@ -418,7 +418,7 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                                           'fp_version': fingerprint_version},
                         }
 
-            while q.count > 5000:
+            while q.count > redis_limit:
                 sleep(30)
 
             q.enqueue(generate_mask_and_insert, args=(new_item, image_url, today_date, collection_name, image, False),
