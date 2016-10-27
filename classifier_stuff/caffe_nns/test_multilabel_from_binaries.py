@@ -3,12 +3,14 @@ __author__ = 'jeremy'
 import time
 #from trendi import multilabel_from_binaries
 #from trendi import multilabel_from_binaries2
+from trendi import constants
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
+from trendi import neurodoll_with_multilabel
 from trendi import Utils
+from trendi.utils import imutils
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -34,7 +36,8 @@ def get_mlb_output(url_or_np_array):
     return output
 
 def test_combine_neurodoll_and_multilabel(url_or_np_array):
-    multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
+    print('testing falcon call of neurodoll w. multilabel')
+    multilabel_dict = nfc.pd(url_or_np_array, get_multilabel_results=True,get_combined_results=True)
     print('dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
         print('did not get nfc pd result succesfully')
@@ -42,6 +45,13 @@ def test_combine_neurodoll_and_multilabel(url_or_np_array):
     multilabel_output = multilabel_dict['multilabel_output']
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
+
+def test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url_or_np_array):
+    print('testing nonfalcon call of neurodoll w. multilabel')
+    mask = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(url_or_np_array,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories)
+    print('mask from nd:'+str(mask))
+    imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,visual_output=True)
+    return mask #
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
@@ -70,3 +80,5 @@ if __name__ == "__main__":
 
     raw_input('ret to cont')
     test_combine_neurodoll_and_multilabel(url)
+    raw_input('ret to cont')
+    test_combine_neurodoll_nonfalcon_and_multilabel_falcon(url)
