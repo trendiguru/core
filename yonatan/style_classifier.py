@@ -25,7 +25,8 @@ casual_female = db.amazon_US_Female.find({'tree': regx_casual})
 
 casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, casual_male_num)
+sorted_list = range(1, casual_male_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -52,7 +53,8 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-list_to_iter = random.shuffle(1, casual_female_num)
+sorted_list = range(1, casual_female_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -86,7 +88,8 @@ prom_female = db.amazon_US_Female.find({'tree': regx_prom})
 
 prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, prom_female_num)
+sorted_list = range(1, prom_female_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -124,7 +127,8 @@ suit_male = db.amazon_US_Male.find({"tree": regx_suit})  # = 6202
 tuxedos_txt_file = open("/home/yonatan/style_classifier/tuxedos_txt_file.txt", "w")
 suits_txt_file = open("/home/yonatan/style_classifier/suits_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, tux_male_num)
+sorted_list = range(1, tux_male_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -150,7 +154,8 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-list_to_iter = random.shuffle(1, suit_male_num)
+sorted_list = range(1, suit_male_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -185,7 +190,8 @@ bride_female = db.amazon_US_Female.find({"tree": regx_bride})  # = 16174
 
 bride_dress_txt_file = open("/home/yonatan/style_classifier/bride_dress_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, bride_female_num)
+sorted_list = range(1, bride_female_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -225,7 +231,8 @@ active_female = db.amazon_US_Female.find({"tree": regx_active})
 
 active_txt_file = open("/home/yonatan/style_classifier/active_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, active_male_num)
+sorted_list = range(1, active_male_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -251,7 +258,8 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-list_to_iter = random.shuffle(1, active_female_num)
+sorted_list = range(1, active_female_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -287,7 +295,8 @@ swim_female = db.amazon_US_Female.find({'tree': regx_swim})
 
 swim_txt_file = open("/home/yonatan/style_classifier/swim_txt_file.txt", "w")
 
-list_to_iter = random.shuffle(1, swim_male_num)
+sorted_list = range(1, swim_male_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
@@ -313,7 +322,8 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-list_to_iter = random.shuffle(1, swim_female_num)
+sorted_list = range(1, swim_female_num)
+list_to_iter = random.shuffle(sorted_list)
 counter = 0
 
 for i in list_to_iter:
