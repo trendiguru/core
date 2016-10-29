@@ -336,7 +336,8 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                         if print_flag:
                             print_error('parent_asin + color + size already exists ----- %s->%s' %
                                         (color, clothing_size))
-                        update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
+                        print ('parent_asin already exists')
+                        # update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
                     continue
 
             else:
@@ -344,7 +345,8 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                 sizes = []
                 parent_asin_exists = collection.find_one({'parent_asin': parent_asin})
                 if parent_asin_exists:
-                    update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
+                    print ('parent_asin already exists')
+                    # update_dl_version(parent_asin_exists['download_data']['dl_version'], asin, collection_name)
                     continue
 
             if 'LargeImage' in item_keys:
@@ -361,7 +363,7 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
             img_url_exists = collection.find_one({'images.XLarge': image_url})
             if img_url_exists:
                 print ('img url already exists')
-                update_dl_version(img_url_exists['download_data']['dl_version'], asin, collection_name)
+                # update_dl_version(img_url_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             image = get_cv2_img_array(image_url)
@@ -374,14 +376,14 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
             hash_exists = collection.find_one({'img_hash': img_hash})
             if hash_exists:
                 print ('hash already exists')
-                update_dl_version(hash_exists['download_data']['dl_version'], asin, collection_name)
+                # update_dl_version(hash_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             p_hash = get_p_hash(image)
             p_hash_exists = collection.find_one({'p_hash': p_hash})
             if p_hash_exists:
                 print ('p_hash already exists')
-                update_dl_version(p_hash_exists['download_data']['dl_version'], asin, collection_name)
+                # update_dl_version(p_hash_exists['download_data']['dl_version'], asin, collection_name)
                 continue
 
             short_d = attributes['Title']
