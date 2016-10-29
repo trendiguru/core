@@ -6,6 +6,7 @@ import cv2
 import requests
 import numpy as np
 import os
+import random
 
 db = pymongo.MongoClient().mydb
 
@@ -24,7 +25,15 @@ casual_female = db.amazon_US_Female.find({'tree': regx_casual})
 
 casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
 
-for i in range(1, casual_male_num):
+list_to_iter = range(1, casual_male_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = casual_male[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -40,9 +49,19 @@ for i in range(1, casual_male_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
-for i in range(1, casual_female_num):
+
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = casual_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -58,7 +77,8 @@ for i in range(1, casual_female_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Prom & Homecoming: 1 ----##
@@ -69,7 +89,15 @@ prom_female = db.amazon_US_Female.find({'tree': regx_prom})
 
 prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 
-for i in range(1, prom_female_num):
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = prom_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -85,7 +113,8 @@ for i in range(1, prom_female_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Tuxedos & Suits: 2 ----##
@@ -100,7 +129,15 @@ suit_male = db.amazon_US_Male.find({"tree": regx_suit})  # = 6202
 tuxedos_txt_file = open("/home/yonatan/style_classifier/tuxedos_txt_file.txt", "w")
 suits_txt_file = open("/home/yonatan/style_classifier/suits_txt_file.txt", "w")
 
-for i in range(1, tux_male_num):
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = tux_male[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -116,9 +153,19 @@ for i in range(1, tux_male_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
-for i in range(1, suit_male_num):
+
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = suit_male[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -135,7 +182,9 @@ for i in range(1, suit_male_num):
     casual_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
+
 
 ##---- Bride: 3 ----##
 regx_bride = re.compile("/*Departments->Women->Clothing->Dresses->Wedding Party->Wedding Dresses", re.IGNORECASE)
@@ -145,7 +194,15 @@ bride_female = db.amazon_US_Female.find({"tree": regx_bride})  # = 16174
 
 bride_dress_txt_file = open("/home/yonatan/style_classifier/bride_dress_txt_file.txt", "w")
 
-for i in range(1, bride_female_num):
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = bride_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -162,7 +219,8 @@ for i in range(1, bride_female_num):
     casual_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Sport: 4 ----##
@@ -178,7 +236,15 @@ active_female = db.amazon_US_Female.find({"tree": regx_active})
 
 active_txt_file = open("/home/yonatan/style_classifier/active_txt_file.txt", "w")
 
-for i in range(1, active_male_num):
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = active_male[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -194,9 +260,19 @@ for i in range(1, active_male_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
-for i in range(1, active_female_num):
+
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = active_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -212,7 +288,8 @@ for i in range(1, active_female_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Swim: 5 ----##
@@ -225,7 +302,15 @@ swim_female = db.amazon_US_Female.find({'tree': regx_swim})
 
 swim_txt_file = open("/home/yonatan/style_classifier/swim_txt_file.txt", "w")
 
-for i in range(1, swim_male_num):
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = swim_male[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -241,9 +326,19 @@ for i in range(1, swim_male_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
 
-for i in range(1, swim_female_num):
+
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 0
+
+for i in list_to_iter:
+
+    if counter > 40000:
+        break
+
     link_to_image = swim_female[i]['images']['XLarge']
     response = requests.get(link_to_image)  # download
     if not response:
@@ -259,5 +354,8 @@ for i in range(1, swim_female_num):
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
-    print i
+    counter += 1
+    print "counter: {0}, i = {1}".format(counter, i)
+
+
 
