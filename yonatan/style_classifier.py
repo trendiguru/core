@@ -7,12 +7,16 @@ import requests
 import numpy as np
 import os
 import random
+from ..utils import imutils
+
 
 db = pymongo.MongoClient().mydb
 
 ## regex:
 # startswith - ^
 # is there - .
+
+limit = 100
 
 
 ##---- Casual: 0 ----##
@@ -31,7 +35,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = casual_male[i]['images']['XLarge']
@@ -44,8 +48,10 @@ for i in list_to_iter:
         print "not a good image"
         continue
 
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+
     image_file_name = 'casual_male_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
@@ -59,7 +65,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = casual_female[i]['images']['XLarge']
@@ -71,9 +77,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'casual_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
@@ -95,7 +103,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = prom_female[i]['images']['XLarge']
@@ -107,9 +115,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'prom_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
 
@@ -135,7 +145,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = tux_male[i]['images']['XLarge']
@@ -147,9 +157,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'tux_male_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
@@ -163,7 +175,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = suit_male[i]['images']['XLarge']
@@ -176,8 +188,10 @@ for i in list_to_iter:
         print "not a good image"
         continue
 
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+
     image_file_name = 'suit_male_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), resized_image)
 
     casual_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
@@ -200,7 +214,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = bride_female[i]['images']['XLarge']
@@ -213,8 +227,10 @@ for i in list_to_iter:
         print "not a good image"
         continue
 
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+
     image_file_name = 'bride_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name), resized_image)
 
     casual_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
@@ -223,7 +239,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}".format(counter, i)
 
 
-##---- Sport: 4 ----##
+##---- Active: 4 ----##
 regx_active = re.compile("/*active", re.IGNORECASE)
 # regx3 = re.compile("/*sport", re.IGNORECASE)
 # db.amazon_US_Male.count({"tree": {'$in': [regx2, regx3]}})
@@ -242,7 +258,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = active_male[i]['images']['XLarge']
@@ -254,9 +270,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'active_male_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
@@ -270,7 +288,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = active_female[i]['images']['XLarge']
@@ -282,9 +300,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'active_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
@@ -308,7 +328,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = swim_male[i]['images']['XLarge']
@@ -320,9 +340,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
-    image_file_name = 'active_male_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), image)
+    image_file_name = 'swim_male_' + str(i) + '.jpg'
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
@@ -336,7 +358,7 @@ counter = 0
 
 for i in list_to_iter:
 
-    if counter > 40000:
+    if counter > limit:
         break
 
     link_to_image = swim_female[i]['images']['XLarge']
@@ -348,9 +370,11 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
+        
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'swim_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), image)
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), resized_image)
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
