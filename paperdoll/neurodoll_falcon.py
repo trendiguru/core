@@ -68,7 +68,6 @@ class PaperResource:
         #all graylevel outputs
             if get_all_graylevels:
                 all_graylevel_output = neurodoll_single_category.get_all_category_graylevels(img)
- #               output='NOT CURRENTLY SUPPORTED'
                 ret['all_graylevel_output'] = all_graylevel_output
                 if all_graylevel_output is not None:
                     print('all graylevel output shape:'+str(all_graylevel_output.shape))
@@ -77,7 +76,6 @@ class PaperResource:
         # multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
-                # output='NOT CURRENTLY SUPPORTED'
                 ret['multilabel_output'] = multilabel_output
                 print('multilabel output:'+str(multilabel_output))
                 if multilabel_output is not None:
@@ -87,7 +85,6 @@ class PaperResource:
         # combined multilabel and nd
             if get_combined_results:
                 combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
- #               output='NOT CURRENTLY SUPPORTED'
                 ret['combined_output'] = combined_output
                 if combined_output is not None:
                     ret["success"] = True
