@@ -31,7 +31,7 @@ casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w"
 
 list_to_iter = range(1, casual_male_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -121,7 +121,7 @@ for i in list_to_iter:
     image_file_name = 'prom_female_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
+    prom_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
@@ -163,7 +163,7 @@ for i in list_to_iter:
     image_file_name = 'tux_male_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
+    tuxedos_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
@@ -193,7 +193,7 @@ for i in list_to_iter:
     image_file_name = 'suit_male_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), resized_image)
 
-    casual_txt_file.write(
+    suits_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
     counter += 1
@@ -232,7 +232,7 @@ for i in list_to_iter:
     image_file_name = 'bride_female_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name), resized_image)
 
-    casual_txt_file.write(
+    bride_dress_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
 
     counter += 1
@@ -276,7 +276,7 @@ for i in list_to_iter:
     image_file_name = 'active_male_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
+    active_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
@@ -306,7 +306,7 @@ for i in list_to_iter:
     image_file_name = 'active_female_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/active", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
+    active_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
@@ -346,7 +346,7 @@ for i in list_to_iter:
     image_file_name = 'swim_male_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
+    swim_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
@@ -376,7 +376,7 @@ for i in list_to_iter:
     image_file_name = 'swim_female_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/swim", image_file_name), resized_image)
 
-    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
+    swim_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
     counter += 1
     print "counter: {0}, i = {1}".format(counter, i)
