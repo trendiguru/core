@@ -34,6 +34,7 @@ class PaperResource:
         get_multilabel_results = req.get_param('getMultilabelResults')
         print('get multi:'+str(get_multilabel_results))
         get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
         get_combined_results = req.get_param('getCombinedResults')
         print('get combined:'+str(get_combined_results))
@@ -44,6 +45,10 @@ class PaperResource:
         if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
             get_layer_output = 'myfc7'
 
+        get_all_graylevels = req.get_param('getAllGrayLevels')
+        print('get all graylevels:'+str(get_all_graylevels))
+        if get_all_graylevels == "true" or get_all_graylevels == "True" or get_all_graylevels == True:
+            get_all_graylevels = True
 
 #        get_yolo_results = req.get_param('getYolo')
 #        print('get yolo:'+str(get_yolo_results))
@@ -60,19 +65,26 @@ class PaperResource:
 #                ret['yolo_output'] = yolo_output
 #                print('yolo output:'+str(yolo_output))
 
-        #multilabel alone
+        #all graylevel outputs
+            if get_all_graylevels:
+                all_graylevel_output = neurodoll_single_category.get_all_category_graylevels(img)
+                ret['all_graylevel_output'] = all_graylevel_output
+                if all_graylevel_output is not None:
+                    print('all graylevel output shape:'+str(all_graylevel_output.shape))
+                    ret["success"] = True
+
+        # multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
- #               output='NOT CURRENTLY SUPPORTED'
                 ret['multilabel_output'] = multilabel_output
                 print('multilabel output:'+str(multilabel_output))
                 if multilabel_output is not None:
                     ret["success"] = True
+                # ret["success"] = bool(multilabel_output)
 
-        #combined multilabel and nd
+        # combined multilabel and nd
             if get_combined_results:
                 combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
- #               output='NOT CURRENTLY SUPPORTED'
                 ret['combined_output'] = combined_output
                 if combined_output is not None:
                     ret["success"] = True

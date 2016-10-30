@@ -1,5 +1,7 @@
 __author__ = 'jeremy'
 
+__author__ = 'jeremy'
+
 
 
 import unittest
@@ -121,3 +123,4 @@ class OutcomesTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
