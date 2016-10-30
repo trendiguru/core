@@ -19,7 +19,7 @@ class OutcomesTest(unittest.TestCase):
 
 
 
-    def test_nd_multilabel_combined(self):
+    def test_nd_alone(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing nd on:'+url)
         start_time=time.time()
@@ -31,7 +31,7 @@ class OutcomesTest(unittest.TestCase):
         print('unique mask values:'+str(np.unique(mask)))
         print('elapsed:'+str(time.time()-start_time))
 
-    def test_nd_multilabel_combined(self):
+    def test_nd_get_multilabel(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing nd w get_multilabel_results:'+url)
         start_time=time.time()
@@ -49,7 +49,7 @@ class OutcomesTest(unittest.TestCase):
         print('combined dict:'+str(multilabel_dict))
         print('elapsed:'+str(time.time()-start_time))
 
-    def test_nd_multilabel_combined(self):
+    def test_nd_get_all_graylevels(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing nd w get all graylevels:'+url)
         start_time=time.time()
