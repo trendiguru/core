@@ -40,7 +40,6 @@ class OutcomesTest(unittest.TestCase):
         print('multilabel dict:'+multilabel_dict)
         print('elapsed:'+str(time.time()-start_time))
 
-
         print('testing nd w multilabel combined results:'+url)
         start_time=time.time()
         multilabel_dict = nfc.pd(url, get_combined_results=True)
@@ -48,14 +47,12 @@ class OutcomesTest(unittest.TestCase):
         print('combined dict:'+multilabel_dict)
         print('elapsed:'+str(time.time()-start_time))
 
-
         print('testing nd w get all graylevels:'+url)
         start_time=time.time()
         multilabel_dict = nfc.pd(url, get_all_graylevels=True)
         assert(multilabel_dict is not None)
         print('get_all_graylevels dict:'+multilabel_dict)
         print('elapsed:'+str(time.time()-start_time))
-
 
     #run a timing test
 
