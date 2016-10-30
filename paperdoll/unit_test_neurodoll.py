@@ -25,8 +25,10 @@ class OutcomesTest(unittest.TestCase):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
         print('testing nd on:'+url)
         start_time=time.time()
-        mask = nfc.pd(url)
-        assert(mask is not None)
+        results_dict = nfc.pd(url)
+        assert(results_dict is not None)
+        assert('mask' in results_dict)
+        mask = results_dict['mask']
         print('mask shape:'+mask.shape)
         print('unique mask values:'+np.unique(mask))
         print('elapsed:'+str(time.time()-start_time))
