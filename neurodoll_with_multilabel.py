@@ -392,6 +392,7 @@ if __name__ == "__main__":
     for url in urls:
         nd_out = get_neurodoll_output(url)
         orig_filename = '/home/jeremy/'+url.split('/')[-1]
+        urllib.urlretrieve(url, orig_filename)
         name = orig_filename[:-4]+'_nd_output.png'
         cv2.imwrite(name,nd_out)
         nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
@@ -400,7 +401,7 @@ if __name__ == "__main__":
     for median_factor in [1.1,1.2,1.4,1.6,2.0]:
         for url in urls:
             out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
-
+            print('combined output:'+str(out))
     #LOAD NEURODOLL
 ''' #
 MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
