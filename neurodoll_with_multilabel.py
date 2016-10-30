@@ -321,7 +321,7 @@ def test_conversions():
         if neurodoll_index is None:
             print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
             continue
-        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
             multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
 
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v2_to_ultimate_21
@@ -334,7 +334,7 @@ def test_conversions():
         if neurodoll_index is None:
             print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
             continue
-        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
             multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
 
 
