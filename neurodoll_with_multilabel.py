@@ -299,8 +299,9 @@ def get_multilabel_output_using_nfc(url_or_np_array):
 def test_conversions():
     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
     multilabel_labels=constants.binary_classifier_categories
-
     print('testing binary classifier to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
     for i in range(len(multilabel_labels)):
         neurodoll_index = multilabel_to_ultimate21_conversion[i]
         if neurodoll_index is None:
@@ -312,6 +313,8 @@ def test_conversions():
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21
     multilabel_labels=constants.web_tool_categories
     print('testing webtool v2 to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
     for i in range(len(multilabel_labels)):
         neurodoll_index = multilabel_to_ultimate21_conversion[i]
         if neurodoll_index is None:
@@ -323,6 +326,8 @@ def test_conversions():
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v2_to_ultimate_21
     multilabel_labels=constants.web_tool_categories_v2
     print('testing webtool v1 to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
     for i in range(len(multilabel_labels)):
         neurodoll_index = multilabel_to_ultimate21_conversion[i]
         if neurodoll_index is None:
