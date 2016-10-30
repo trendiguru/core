@@ -65,6 +65,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
+
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
@@ -100,6 +101,8 @@ for i in list_to_iter:
 
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
+
+casual_txt_file.close()
 
 
 ##---- Prom & Homecoming: 1 ----##
@@ -145,6 +148,8 @@ for i in list_to_iter:
 
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
+
+prom_txt_file.close()
 
 ##---- Tuxedos & Suits: 2 ----##
 regx_tux = re.compile("/*Tuxedos", re.IGNORECASE)
@@ -194,6 +199,9 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
+tuxedos_txt_file.close()
+
+
 list_to_iter = range(1, suit_male_num)
 random.shuffle(list_to_iter)
 counter = 1
@@ -225,11 +233,12 @@ for i in list_to_iter:
     image_file_name = 'suit_male_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name), resized_image)
 
-    suits_txt_file.write(
-        os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
+    suits_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
+
+suits_txt_file.close()
 
 
 ##---- Bride: 3 ----##
@@ -271,11 +280,12 @@ for i in list_to_iter:
     image_file_name = 'bride_female_' + str(i) + '.jpg'
     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name), resized_image)
 
-    bride_dress_txt_file.write(
-        os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
+    bride_dress_txt_file.write(os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
 
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
+
+bride_dress_txt_file.close()
 
 
 ##---- Active: 4 ----##
@@ -363,6 +373,8 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
+active_txt_file.close()
+
 
 ##---- Swim: 5 ----##
 regx_swim = re.compile("/*swim", re.IGNORECASE)
@@ -445,6 +457,9 @@ for i in list_to_iter:
 
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
+
+swim_txt_file.close()
+
 
 
 
