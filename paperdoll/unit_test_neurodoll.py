@@ -1,5 +1,7 @@
 __author__ = 'jeremy'
 
+__author__ = 'jeremy'
+
 
 
 import unittest
@@ -9,8 +11,8 @@ from rq import Queue
 import paperdoll_parse_enqueue
 import paperdolls
 import redis_conn
-import neurodoll_falcon_client as nfc
-import numpy as np
+
+
 
 class OutcomesTest(unittest.TestCase):
     # examples of things to return
@@ -22,22 +24,63 @@ class OutcomesTest(unittest.TestCase):
     #        raise RuntimeError('Test error!')
     #run a timing test
 
+    def test_callback(self):
+        url = 'http://i.imgur.com/ahFOgkm.jpg'
+        print('testing callback async')
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=True,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
+        print('retval:'+str(retval))
+
+        print('testing callback sync')
+        img,labels,pose = paperdoll_parse_enqueue.paperdoll_enqueue(url,async=False,use_tg_worker=False,callback_function=paperdolls.callback_example,args=(100,101),kwargs={'a':3,'b':4})
+        print('labels:'+str(labels))
 
 
-    def test_nd_multilabel_combined(self):
+    def test_bad_url(self):
+        url = 'http://notanimage.jpg'
+        queue = Queue('paperdoll', connection=redis_conn)
+
+        print('testing bad url (async False, tg_worker true):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url:(async true, tg_worker true)'+url)
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('retval:'+str(retval))
+        print('')
+
+        print('testing bad url (async False, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
+
+        print('testing bad url:(async true, tg_worker False)'+url)
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
+        print('retval:'+str(retval))
+        print('')
+
+    def test_tg_and_regular_worker(self):
 
         url = 'http://i.imgur.com/ahFOgkm.jpg'
-        print('testing nd on:'+url)
-        mask = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
-        assert(mask is not None)
-        print('mask shape:'+mask.shape)
-        print('unique mask values:'+np.unique(mask))
+        print('testing tg worker on (async False, tg_worker True):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=True)
+        print('labels:'+str(labels))
+        print('')
 
-        print('testing nd w multilabel:'+url)
-        multilabel_dict = nfc.pd(url, get_multilabel_results=True,get_combined_results=True)
-        assert(multilabel_dict is not None)
-        print('multilabel dict:'+multilabel_dict)
+        print('testing regular redis worker (async False, tg_worker False):'+url)
+        img, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = False,use_tg_worker=False)
+        print('labels:'+str(labels))
+        print('')
 
+        print('testing tg worker (async True, tg_worker True)'+url)
+        retval=paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=True)
+        print('retval:'+str(retval))
+        print('')
+
+        print('testing regular redis worker  (async True, tg_worker False):'+url)
+        retval = paperdoll_parse_enqueue.paperdoll_enqueue(url, async = True,use_tg_worker=False)
+        print('retval:'+str(retval))
+        print('')
 
     #run a timing test
     def test_time(self):
@@ -80,3 +123,4 @@ class OutcomesTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
