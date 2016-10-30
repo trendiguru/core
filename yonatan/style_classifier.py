@@ -62,9 +62,8 @@ for i in list_to_iter:
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
-    counter += 1
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
-
+    counter += 1
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
@@ -75,14 +74,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-    
+
     try:
         link_to_image = casual_female[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
-        continue    
-    
+        continue
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -91,7 +90,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'casual_female_' + str(i) + '.jpg'
@@ -99,8 +98,8 @@ for i in list_to_iter:
 
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
-    counter += 1
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
+    counter += 1
 
 
 ##---- Prom & Homecoming: 1 ----##
@@ -111,7 +110,7 @@ prom_female = db.amazon_US_Female.find({'tree': regx_prom})
 
 prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, prom_female_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -120,14 +119,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
- 
+
     try:
         link_to_image = prom_female[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
- 
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -136,7 +135,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'prom_female_' + str(i) + '.jpg'
@@ -159,7 +158,7 @@ suit_male = db.amazon_US_Male.find({"tree": regx_suit})  # = 6202
 tuxedos_txt_file = open("/home/yonatan/style_classifier/tuxedos_txt_file.txt", "w")
 suits_txt_file = open("/home/yonatan/style_classifier/suits_txt_file.txt", "w")
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, tux_male_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -168,14 +167,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-    
+
     try:
         link_to_image = tux_male[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-    
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -184,7 +183,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'tux_male_' + str(i) + '.jpg'
@@ -195,7 +194,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, suit_male_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -204,14 +203,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-    
+
     try:
         link_to_image = suit_male[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-    
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -241,7 +240,7 @@ bride_female = db.amazon_US_Female.find({"tree": regx_bride})  # = 16174
 
 bride_dress_txt_file = open("/home/yonatan/style_classifier/bride_dress_txt_file.txt", "w")
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, bride_female_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -250,14 +249,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-   
+
     try:
         link_to_image = bride_female[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-   
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -292,7 +291,7 @@ active_female = db.amazon_US_Female.find({"tree": regx_active})
 
 active_txt_file = open("/home/yonatan/style_classifier/active_txt_file.txt", "w")
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, active_male_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -301,14 +300,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
- 
+
     try:
         link_to_image = active_male[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
- 
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -317,7 +316,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'active_male_' + str(i) + '.jpg'
@@ -328,7 +327,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, active_female_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -337,14 +336,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-  
+
     try:
         link_to_image = active_female[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-  
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -353,7 +352,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'active_female_' + str(i) + '.jpg'
@@ -375,7 +374,7 @@ swim_female = db.amazon_US_Female.find({'tree': regx_swim})
 
 swim_txt_file = open("/home/yonatan/style_classifier/swim_txt_file.txt", "w")
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, swim_male_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -384,14 +383,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-   
+
     try:
         link_to_image = swim_male[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-   
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -400,7 +399,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'swim_male_' + str(i) + '.jpg'
@@ -411,7 +410,7 @@ for i in list_to_iter:
     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
 
-list_to_iter = range(1, casual_female_num)
+list_to_iter = range(1, swim_female_num)
 random.shuffle(list_to_iter)
 counter = 1
 error_counter = 0
@@ -420,14 +419,14 @@ for i in list_to_iter:
 
     if counter > limit:
         break
-   
+
     try:
         link_to_image = swim_female[i]['images']['XLarge']
     except:
         print "link ain't good"
         error_counter += 1
         continue
-   
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -436,7 +435,7 @@ for i in list_to_iter:
     if image is None:
         print "not a good image"
         continue
-        
+
     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
 
     image_file_name = 'swim_female_' + str(i) + '.jpg'
