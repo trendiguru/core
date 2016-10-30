@@ -296,6 +296,43 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
+def test_conversions():
+    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
+    multilabel_labels=constants.binary_classifier_categories
+
+    print('testing binary classifier to u21 cats')
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21
+    multilabel_labels=constants.web_tool_categories
+    print('testing webtool v2 to u21 cats')
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v2_to_ultimate_21
+    multilabel_labels=constants.web_tool_categories_v2
+    print('testing webtool v1 to u21 cats')
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+
+
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
     '''
     try product of multilabel and nd output and taking argmax
@@ -391,7 +428,7 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ]
-
+    test_conversions()
 #    get_nd_and_multilabel_output_using_nfc(url_or_np_array)
 #    out = get_multilabel_output(url)
 #    print('ml output:'+str(out))
