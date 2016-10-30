@@ -34,6 +34,7 @@ class PaperResource:
         get_multilabel_results = req.get_param('getMultilabelResults')
         print('get multi:'+str(get_multilabel_results))
         get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
         get_combined_results = req.get_param('getCombinedResults')
         print('get combined:'+str(get_combined_results))
@@ -73,16 +74,17 @@ class PaperResource:
                     print('all graylevel output shape:'+str(all_graylevel_output.shape))
                     ret["success"] = True
 
-        #multilabel alone
+        # multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
- #               output='NOT CURRENTLY SUPPORTED'
+                # output='NOT CURRENTLY SUPPORTED'
                 ret['multilabel_output'] = multilabel_output
                 print('multilabel output:'+str(multilabel_output))
                 if multilabel_output is not None:
                     ret["success"] = True
+                # ret["success"] = bool(multilabel_output)
 
-        #combined multilabel and nd
+        # combined multilabel and nd
             if get_combined_results:
                 combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
  #               output='NOT CURRENTLY SUPPORTED'

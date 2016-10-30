@@ -286,7 +286,7 @@ class ShopStyleDownloader:
         :param prod: dictionary of shopstyle product
         :return: Nothing, void function
         """
-        while q.count > 5000:
+        while q.count > constants.redis_limit:
             print ("Q full - stolling")
             time.sleep(600)
 
