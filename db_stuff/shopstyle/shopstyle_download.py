@@ -352,7 +352,7 @@ class ShopStyleDownloader:
                 self.collection.update_one({'id': prod["id"]},
                                            {'$set': {'status.days_out': 0,
                                                     'status.instock': True}},
-                                            upsert = False, multi = True)
+                                            upsert=False, multi=True)
             else:
                 pass
 
