@@ -61,7 +61,7 @@ for i in list_to_iter:
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -99,7 +99,7 @@ prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -141,7 +141,7 @@ suits_txt_file = open("/home/yonatan/style_classifier/suits_txt_file.txt", "w")
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -171,7 +171,7 @@ for i in list_to_iter:
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -210,7 +210,7 @@ bride_dress_txt_file = open("/home/yonatan/style_classifier/bride_dress_txt_file
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -254,7 +254,7 @@ active_txt_file = open("/home/yonatan/style_classifier/active_txt_file.txt", "w"
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -284,7 +284,7 @@ for i in list_to_iter:
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -324,7 +324,7 @@ swim_txt_file = open("/home/yonatan/style_classifier/swim_txt_file.txt", "w")
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
@@ -354,7 +354,7 @@ for i in list_to_iter:
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
-counter = 0
+counter = 1
 
 for i in list_to_iter:
 
