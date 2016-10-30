@@ -30,10 +30,11 @@ from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
 #best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
-print('starting (importing) nd w multilabel.py')
+print('starting  nd w multilabel.py')
 multilabel_from_binaries = True
 
 if not multilabel_from_binaries: #dont need this if answers are coming from multilabel_from_binaries. otherwise get the multilabel net
+    print('importing multilabel net')
     protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
     modelpath = '/home/jeremy/caffenets/production'
     solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
@@ -295,9 +296,15 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21,multilabel_labels=constants.web_tool_categories):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
     '''
     try product of multilabel and nd output and taking argmax
+    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
+    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
+
+    multilabel_labels=constants.web_tool_categories    , or
+    multilabel_labels=constants.binary_classifier_categories
+
     '''
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
