@@ -346,20 +346,20 @@ class ShopStyleDownloader:
             if status_new is False and status_old is False:
                 self.collection.update_one({'id': prod["id"]},
                                            {'$inc': {'status.days_out': 1}},
-                                           False, True)
+                                           True, False)
                 prod["status"]["days_out"] = prod_in_coll["status"]["days"] + 1
             elif status_new is True and status_old is False:
                 self.collection.update_one({'id': prod["id"]},
                                            {'$set': {'status.days_out': 0,
                                                     'status.instock': True}},
-                                            False, True)
+                                            True, False)
             else:
                 pass
 
             if prod_in_coll["download_data"]["fp_version"] == fp_version:
                 self.collection.update_one({'id': prod["id"]},
                                            {'$set': {'download_data.dl_version': self.current_dl_date}},
-                                           False, True)
+                                           True, False)
 
             else:
                 self.collection.delete_one({'id': prod['id']})
