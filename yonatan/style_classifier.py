@@ -32,13 +32,20 @@ casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w"
 list_to_iter = range(1, casual_male_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
 
-    link_to_image = casual_male[i]['images']['XLarge']
+    try:
+        link_to_image = casual_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -56,19 +63,26 @@ for i in list_to_iter:
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
 
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = casual_female[i]['images']['XLarge']
+    
+    try:
+        link_to_image = casual_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue    
+    
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -86,7 +100,7 @@ for i in list_to_iter:
     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
 
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
 
 
 ##---- Prom & Homecoming: 1 ----##
@@ -100,13 +114,20 @@ prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = prom_female[i]['images']['XLarge']
+ 
+    try:
+        link_to_image = prom_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+ 
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -123,9 +144,8 @@ for i in list_to_iter:
 
     prom_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
-
 
 ##---- Tuxedos & Suits: 2 ----##
 regx_tux = re.compile("/*Tuxedos", re.IGNORECASE)
@@ -142,13 +162,20 @@ suits_txt_file = open("/home/yonatan/style_classifier/suits_txt_file.txt", "w")
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = tux_male[i]['images']['XLarge']
+    
+    try:
+        link_to_image = tux_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+    
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -165,20 +192,26 @@ for i in list_to_iter:
 
     tuxedos_txt_file.write(os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
-
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = suit_male[i]['images']['XLarge']
+    
+    try:
+        link_to_image = suit_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+    
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -196,8 +229,8 @@ for i in list_to_iter:
     suits_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/tuxedos_and_suits", image_file_name) + " 2" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Bride: 3 ----##
@@ -211,13 +244,20 @@ bride_dress_txt_file = open("/home/yonatan/style_classifier/bride_dress_txt_file
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = bride_female[i]['images']['XLarge']
+   
+    try:
+        link_to_image = bride_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+   
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -235,8 +275,8 @@ for i in list_to_iter:
     bride_dress_txt_file.write(
         os.path.join("/home/yonatan/style_classifier/bride_dress", image_file_name) + " 3" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Active: 4 ----##
@@ -255,13 +295,20 @@ active_txt_file = open("/home/yonatan/style_classifier/active_txt_file.txt", "w"
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = active_male[i]['images']['XLarge']
+ 
+    try:
+        link_to_image = active_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+ 
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -278,20 +325,26 @@ for i in list_to_iter:
 
     active_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
-
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = active_female[i]['images']['XLarge']
+  
+    try:
+        link_to_image = active_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+  
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -308,8 +361,8 @@ for i in list_to_iter:
 
     active_txt_file.write(os.path.join("/home/yonatan/style_classifier/active", image_file_name) + " 4" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
 
 
 ##---- Swim: 5 ----##
@@ -325,13 +378,20 @@ swim_txt_file = open("/home/yonatan/style_classifier/swim_txt_file.txt", "w")
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = swim_male[i]['images']['XLarge']
+   
+    try:
+        link_to_image = swim_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+   
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -348,20 +408,26 @@ for i in list_to_iter:
 
     swim_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
-
 
 list_to_iter = range(1, casual_female_num)
 random.shuffle(list_to_iter)
 counter = 1
+error_counter = 0
 
 for i in list_to_iter:
 
     if counter > limit:
         break
-
-    link_to_image = swim_female[i]['images']['XLarge']
+   
+    try:
+        link_to_image = swim_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+   
     response = requests.get(link_to_image)  # download
     if not response:
         print 'Fail'
@@ -378,8 +444,8 @@ for i in list_to_iter:
 
     swim_txt_file.write(os.path.join("/home/yonatan/style_classifier/swim", image_file_name) + " 5" + "\n")
 
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
     counter += 1
-    print "counter: {0}, i = {1}".format(counter, i)
 
 
 
