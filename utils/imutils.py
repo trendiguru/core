@@ -838,8 +838,10 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     colormap = cv2.COLORMAP_JET
     if isinstance(mask_filename_or_img_array, basestring):
         img_arr = Utils.get_cv2_img_array(mask_filename_or_img_array,cv2.IMREAD_GRAYSCALE)
+        mask_filename=mask_filename_or_img_array
     elif type(mask_filename_or_img_array) == np.ndarray:
         img_arr = mask_filename_or_img_array
+        mask_filename='./mask.png'
     else:
         logging.warning('got something other than a filename (string) or img array')
         return
