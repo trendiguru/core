@@ -29,29 +29,29 @@ class OutcomesTest(unittest.TestCase):
         assert(results_dict is not None)
         assert('mask' in results_dict)
         mask = results_dict['mask']
-        print('mask shape:'+mask.shape)
-        print('unique mask values:'+np.unique(mask))
+        print('mask shape:'+str(mask.shape))
+        print('unique mask values:'+str(np.unique(mask)))
         print('elapsed:'+str(time.time()-start_time))
 
         print('testing nd w get_multilabel_results:'+url)
         start_time=time.time()
         multilabel_dict = nfc.pd(url, get_multilabel_results=True)
         assert(multilabel_dict is not None)
-        print('multilabel dict:'+multilabel_dict)
+        print('multilabel dict:'+str(multilabel_dict))
         print('elapsed:'+str(time.time()-start_time))
 
         print('testing nd w multilabel combined results:'+url)
         start_time=time.time()
         multilabel_dict = nfc.pd(url, get_combined_results=True)
         assert(multilabel_dict is not None)
-        print('combined dict:'+multilabel_dict)
+        print('combined dict:'+str(multilabel_dict))
         print('elapsed:'+str(time.time()-start_time))
 
         print('testing nd w get all graylevels:'+url)
         start_time=time.time()
         multilabel_dict = nfc.pd(url, get_all_graylevels=True)
         assert(multilabel_dict is not None)
-        print('get_all_graylevels dict:'+multilabel_dict)
+        print('get_all_graylevels dict:'+str(multilabel_dict))
         print('elapsed:'+str(time.time()-start_time))
 
     #run a timing test
