@@ -16,7 +16,7 @@ db = pymongo.MongoClient().mydb
 # startswith - ^
 # is there - .
 
-limit = 30000
+limit = 7500
 
 
 ##---- Casual: 0 ----##
