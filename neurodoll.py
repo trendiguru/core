@@ -216,7 +216,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
             pixelcount = len(out[out==unique])
-            ratio = float(pixelcount)/image_size
 #            logging.debug('new ratio '+str(ratio))
 
 
@@ -356,7 +355,7 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
 
-    print('blobs:'+str(net.blobs))
+ #   print('blobs:'+str(net.blobs))
 
 
 #    out = net.blobs['score'].data[0] #for layer score, all outputs, no softmax#
