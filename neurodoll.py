@@ -254,7 +254,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
                 fp.write(url)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
-    count_values(out)
+    count_values(out,labels=constants.ultimate_21)
     return out
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
@@ -636,14 +636,17 @@ def test_conversions():
         print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
             multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
 
-def count_values(mask):
+def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]
     uniques = np.unique(mask)
     pixelcounts = {}
     for unique in uniques:
         pixelcount = len(mask[mask==unique])
         ratio = float(pixelcount)/image_size
-        print('class {} count {} ratio {}'.format(unique,pixelcount,ratio))
+        if labels is not None:
+            print('class {} {} count {} ratio {}'.format(unique,labels[unique],pixelcount,ratio))
+        else:
+            print('class {} count {} ratio {}'.format(unique,pixelcount,ratio))
         pixelcounts[unique]=pixelcount
     return pixelcounts
 
@@ -749,7 +752,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
     uniques = np.unique(pixlevel_categorical_output)
     print('uniques:'+str(uniques))
-    count_values(pixlevel_categorical_output)
+    count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
 #    item_masks =  nfc.pd(image, get_all_graylevels=True)
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
