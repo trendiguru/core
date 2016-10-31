@@ -18,6 +18,7 @@ import urllib
 
 from trendi import constants
 from trendi.utils import imutils
+from trendi import Utils
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
@@ -239,7 +240,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     if save_results:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
+        Utils.ensure_dir('./images')
         name_base = hash.hexdigest()[:10]
+        name_base = os.path.join('./images',name_base)
         print('saving mask/img/url to '+name_base)
         cv2.imwrite(filename=name_base+'.png',img=out)
         cv2.imwrite(filename=name_base+'.jpg',img=image)
