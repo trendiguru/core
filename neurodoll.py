@@ -734,6 +734,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         return #
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
+    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
 
 #    item_masks =  nfc.pd(image, get_all_graylevels=True)
 # hack to combine pants and jeans for better recall
@@ -749,6 +750,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             if neurodoll_index is None:
                 print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
                 continue
+            n_nd_pixels =         pixelcount = len(img_arr[img_arr==unique])
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml value {})'.format(
                 i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i]))
             gray_layer = graylevel_nd_output[neurodoll_index]
