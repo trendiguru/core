@@ -720,7 +720,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
 
 #    item_masks =  nfc.pd(image, get_all_graylevels=True)
 # hack to combine pants and jeans for better recall
