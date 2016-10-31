@@ -300,7 +300,10 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
                 parent_asin = item['ParentASIN']
 
             click_url = item['DetailPageURL']
-            offer = item['OfferSummary']['LowestNewPrice']
+            offer_summary = item['OfferSummary']
+            if 'LowestNewPrice' not in offer_summary.keys():
+                print offer_summary.keys()
+            offer = offer_summary['LowestNewPrice']
             price = {'price': float(offer['Amount']) / 100,
                      'currency': offer['CurrencyCode'],
                      'priceLabel': offer['FormattedPrice']}
