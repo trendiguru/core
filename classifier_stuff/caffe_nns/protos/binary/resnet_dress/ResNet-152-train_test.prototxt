@@ -7122,7 +7122,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "fc2"
+  bottom: "myfc2"
   bottom: "label"
   top: "accuracy"
 }
