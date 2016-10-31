@@ -302,7 +302,7 @@ def insert_items(collection_name, cc, item_list, items_in_page, print_flag, fami
             click_url = item['DetailPageURL']
             offer_summary = item['OfferSummary']
             if 'LowestNewPrice' not in offer_summary.keys():
-                print offer_summary.keys()
+                print offer_summary['TotalNew']
             offer = offer_summary['LowestNewPrice']
             price = {'price': float(offer['Amount']) / 100,
                      'currency': offer['CurrencyCode'],
