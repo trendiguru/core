@@ -244,8 +244,11 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         name_base = hash.hexdigest()[:10]
         name_base = os.path.join('./images',name_base)
         print('saving mask/img/url to '+name_base)
-        cv2.imwrite(filename=name_base+'.png',img=out)
-        cv2.imwrite(filename=name_base+'.jpg',img=image)
+        pngname = name_base+'.png'
+        cv2.imwrite(filename=pngname,img=out)
+        origname = name_base+'.jpg'
+        cv2.imwrite(filename=origname,img=image)
+        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=origname)
         if url is not None:
             with open(name_base+'.url','a') as fp:
                 fp.write(url)
@@ -797,14 +800,9 @@ if __name__ == "__main__":
     test_nd_alone = True
     if test_nd_alone:
         for url in urls:
+            #infer-one saves results depending on switch at end
             result = infer_one(url,required_image_size=(256,256),threshold=0.01)
-            timestamp = int(10*time.time())
-            name = str(timestamp)+'.png'
-            cv2.imwrite(name,result)
-            labels=constants.ultimate_21
-            orig_img = url_to_image(url)
-            cv2.imwrite('orig.jpg',orig_img)
-            imutils.show_mask_with_labels(name,labels,visual_output=False,save_images=True,original_image='orig.jpg')
+
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
 #   labels=constants.ultimate_21
