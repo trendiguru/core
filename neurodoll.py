@@ -406,8 +406,10 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
     net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     net.forward()
+    out = net.blobs['score'].data[0] #for all output layers
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['siggy'].data[0] #for layer siggy, all outputs
+#    out = net.blobs['siggy'].data[0] #for layer siggy, all outputs
+
     min = np.min(out)
     max = np.max(out)
     print('get_all_category_graylevels output shape {} min {} max {}'.format(out.shape,min,max))
