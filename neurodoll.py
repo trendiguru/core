@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 import os
 import time
+import hashlib
 import urllib
 
 from trendi import constants
@@ -149,6 +150,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
+        url = url_or_np_array
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
@@ -233,6 +235,17 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
  #   cv2.waitKey(0)
 #    return out.astype(np.uint8)
     out = np.array(out,dtype=np.uint8)
+    save_results = True
+    if save_results:
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name_base = hash.hexdigest()[:10]
+        print('saving mask/img/url to '+name_base)
+        cv2.imwrite(filename=name_base+'.png',img=out)
+        cv2.imwrite(filename=name_base+'.jpg',img=image)
+        if url is not None:
+            with open(name_base+'.url','a') as fp:
+                fp.write(url)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     return out
@@ -778,7 +791,7 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ]
-    test_nfc_nd_alone = False
+    test_nd_alone = True
     if test_nd_alone:
         for url in urls:
             result = infer_one(url,required_image_size=(256,256),threshold=0.01)
