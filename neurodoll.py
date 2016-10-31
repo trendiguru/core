@@ -679,8 +679,8 @@ def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_thresho
             if neurodoll_index is None:
                 print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
                 continue
-            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {}'.format(
-                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold))
+            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml {})'.format(
+                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,ml[i]))
             item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             if  item_mask is None:
                 continue
