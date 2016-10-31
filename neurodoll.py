@@ -359,7 +359,8 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
     print('blobs:'+str(net.blobs))
 
 
-    out = net.blobs['score'].data[0] #for layer score, all outputs. check out what is 'siggy'
+#    out = net.blobs['score'].data[0] #for layer score, all outputs, no softmax
+    out = net.blobs['siggy'].data[0] #for layer score, all outputs after softmax
     min = np.min(out)
     max = np.max(out)
     print('get_all_category_graylevels output shape {} min {} max {}'.format(out.shape,min,max))
