@@ -254,6 +254,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
                 fp.write(url)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
+    count_values(out)
     return out
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
@@ -635,6 +636,17 @@ def test_conversions():
         print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
             multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
 
+def count_values(mask):
+    image_size = mask.shape[0]*mask.shape[1]
+    uniques = np.unique(out)
+    pixelcounts = {}
+    for unique in uniques:
+        pixelcount = len(out[out==unique])
+        ratio = float(pixelcount)/image_size
+        print('class {} count {} ratio {}'.format(unique,pixelcount,ratio))
+        pixelcounts[unique]=pixelcount
+    return pixelcounts
+
 def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
     '''
     try product of multilabel and nd output and taking argmax
@@ -735,7 +747,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
-
+    uniques = np.unique(pixlevel_categorical_output)
+    print('uniques:'+str(uniques))
+    count_values(pixlevel_categorical_output)
 #    item_masks =  nfc.pd(image, get_all_graylevels=True)
 # hack to combine pants and jeans for better recall
 #    pantsindex = constants.web_tool_categories.index('pants')
@@ -750,9 +764,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             if neurodoll_index is None:
                 print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
                 continue
-            n_nd_pixels =         pixelcount = len(img_arr[img_arr==unique])
-            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml value {})'.format(
-                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i]))
+            nd_pixels = len(pixlevel_categorical_output[pixlevel_categorical_output==neurodoll_index])
+            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml value {}) nd_pixels {}'.format(
+                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i],nd_pixels))
             gray_layer = graylevel_nd_output[neurodoll_index]
 #            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)

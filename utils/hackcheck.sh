@@ -6,6 +6,8 @@
 #hackcheck
 #which will complain on seeing problems, or,
 #hackcheck --verbose
+#make sure this file is executable by means of
+#sudo chmod +x hackcheck.sh
 
 usage()
 {
