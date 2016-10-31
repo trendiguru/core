@@ -638,10 +638,10 @@ def test_conversions():
 
 def count_values(mask):
     image_size = mask.shape[0]*mask.shape[1]
-    uniques = np.unique(out)
+    uniques = np.unique(mask)
     pixelcounts = {}
     for unique in uniques:
-        pixelcount = len(out[out==unique])
+        pixelcount = len(mask[mask==unique])
         ratio = float(pixelcount)/image_size
         print('class {} count {} ratio {}'.format(unique,pixelcount,ratio))
         pixelcounts[unique]=pixelcount
