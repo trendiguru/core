@@ -825,7 +825,7 @@ if __name__ == "__main__":
     test_combine = True
     if test_combine:
         for url in urls:
-            out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+            out = combine_neurodoll_and_multilabel(url)
             print('combined output:'+str(out))
 
 
