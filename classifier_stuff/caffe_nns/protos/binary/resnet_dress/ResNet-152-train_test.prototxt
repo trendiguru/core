@@ -7088,9 +7088,9 @@ layer {
 }
 
 layer {
-	name: "myfc2"
+	name: "fc2"
 	bottom: "pool5"
-	top: "myfc2"
+	top: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 2
@@ -7112,7 +7112,7 @@ layer {
 }
 
 layer {
-	bottom: "myfc2"
+	bottom: "fc2"
 	bottom: "label"
 	top: "loss"
 	name: "loss"
@@ -7122,7 +7122,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "myfc2"
+  bottom: "fc2"
   bottom: "label"
   top: "accuracy"
 }
