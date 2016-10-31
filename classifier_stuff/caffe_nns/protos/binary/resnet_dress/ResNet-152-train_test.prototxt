@@ -7088,7 +7088,7 @@ layer {
 }
 
 layer {
-	name: "fc2"
+	name: "myfc2"
 	bottom: "pool5"
 	top: "myfc2"
 	type: "InnerProduct"
@@ -7112,7 +7112,7 @@ layer {
 }
 
 layer {
-	bottom: "fc2"
+	bottom: "myfc2"
 	bottom: "label"
 	top: "loss"
 	name: "loss"
