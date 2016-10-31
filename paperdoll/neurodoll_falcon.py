@@ -41,9 +41,9 @@ class PaperResource:
         get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
         get_layer_output = req.get_param('getLayerOutput')
-        print('get layer output:'+str(get_combined_results))
-        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
-            get_layer_output = 'myfc7'
+        print('get layer output:'+str(get_layer_output))
+#        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
+#            get_layer_output = 'myfc7'
 
         get_all_graylevels = req.get_param('getAllGrayLevels')
         print('get all graylevels:'+str(get_all_graylevels))
