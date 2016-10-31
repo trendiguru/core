@@ -1,4 +1,4 @@
-name: "ResNet-152_binary"
+name: "ResNet-152_binary_dress"
 
 layer {
       name: "data"
