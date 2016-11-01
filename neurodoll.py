@@ -765,6 +765,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         image = url_or_np_array
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
+    print('writing orig to '+orig_filename)
     cv2.imwrite(orig_filename,image)
 
     multilabel = get_multilabel_output(url_or_np_array)
@@ -829,15 +830,14 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
 
     #write file (for debugging)
-    thedir = '/home/jeremy/'
     name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
-    print('orig filename:'+str(orig_filename))
-    print('name:'+name)
+    print('combined png name:'+name)
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
 
-    graymask_filename = name.strip('_combinedoutput.png')+'graymask.png'
+    #save graymask, this should be identical to nd except no threshold on low amt of pixels
+    graymask_filename = orig_filename[:-4]+'graymask.png'
     print('graymask file:'+graymask_filename)
     cv2.imwrite(graymask_filename,pixlevel_categorical_output)
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
