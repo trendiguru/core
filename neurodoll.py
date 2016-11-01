@@ -876,7 +876,7 @@ if __name__ == "__main__":
         for url in urls:
             #infer-one saves results depending on switch at end
             print('testing nd alone')
-            result = infer_one(url,required_image_size=(256,256),threshold=0.01)
+            result = infer_one(url,required_image_size=(256,256))
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
