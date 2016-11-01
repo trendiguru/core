@@ -249,7 +249,7 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'top']
 
 #neurodoll will not return items with areas less than these (numbers are fraction of total img. area)
-ultimate_21_pixel_area_thresholds = [0.01,0.001,0.001,0.01,0.01,0.01,0.01,0.01,0.01,0.01,
+ultimate_21_area_thresholds = [0.01,0.001,0.001,0.01,0.01,0.01,0.01,0.01,0.01,0.01,
                                      0.01,0.01,0.01,0.001,0.01,0.01,0.01,0.01,0.01,0.01,
                                      0.01]
 

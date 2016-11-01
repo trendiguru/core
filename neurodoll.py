@@ -153,7 +153,7 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(256,256),thresholds = constants.ultimate_21_pixel_area_thresholds):
+def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds = constants.ultimate_21_area_thresholds):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
@@ -230,7 +230,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),thresholds = constan
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
 #        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
-        threshold = thresholds[unique]
+        threshold = item_area_thresholds[unique]
         print('current thresold:'+str(threshold))
         if ratio < threshold:
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
