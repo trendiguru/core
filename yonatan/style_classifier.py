@@ -151,6 +151,7 @@ casual_txt_file.close()
 #
 # prom_txt_file.close()
 
+
 ##---- Tuxedos & Suits: 2 ----##
 regx_tux = re.compile("/*Tuxedos", re.IGNORECASE)
 regx_suit = re.compile("/*Departments->Men->Clothing->Suits & Sport Coats->Suits", re.IGNORECASE)
