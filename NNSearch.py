@@ -126,12 +126,12 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
         try:
             # entries = db[collection].find({'categories': category, "AnnoyIndex": {"$in": annoy_top_results}},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-            # entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-            #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-            #                               cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
             entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                           {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                          cursor_type=pymongo.cursor.CursorType.EXHAUST)
+                                          cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
+            # entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+            #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+            #                               cursor_type=pymongo.cursor.CursorType.EXHAUST)
             # entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).hint([('AnnoyIndex', 1)])
         except Exception as e:
