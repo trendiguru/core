@@ -217,7 +217,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
         logging.debug('out image is None')
 
     if required_image_size is not None:
-        logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
+        logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         out = cv2.resize(out,(original_w,original_h))
 #        out = out[:,:,0]
