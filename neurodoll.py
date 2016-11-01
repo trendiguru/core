@@ -512,7 +512,6 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
     dic = nfc.pd(image, category_index=category_index)
@@ -520,6 +519,8 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
         logging.debug('nfc pd not a success')
         return False, []
     neuro_mask = dic['mask']
+
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
 
     nm_size = neuro_mask.shape[0:2]
     image_size = image.shape[0:2]
@@ -561,7 +562,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    print('grabcut working on image of shape:'+str(image.shape))
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
 
         #def neurodoll(image, category_idx):
 #    neuro_mask = dic['mask']
@@ -756,7 +757,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         return #
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
-    pixlevel_categorical_output = infer_one(url_or_np_array)
+    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
+
+
     uniques = np.unique(pixlevel_categorical_output)
     print('uniques:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
@@ -779,7 +782,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i],nd_pixels))
             gray_layer = graylevel_nd_output[neurodoll_index]
 #            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
-            item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
+            if nd_pixels>0:  #possibly put a threshold here, too few pixels and forget about it
+                item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
+            else:
+                print('no pixels in mask, skipping')
             if  item_mask is None:
                 continue
             item_mask = np.multiply(item_mask,neurodoll_index)
@@ -803,6 +809,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('orig filename:'+str(orig_filename))
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
+
+    mask_filename = name.strip('_output.png')
+    cv2.imwrite(filename,pixlevel_categorical_output)
+    nice_output = imutils.show_mask_with_labels(filename,constants.ultimate_21,save_images=True,visual_output=test_on)
+
 
     return final_mask
 
