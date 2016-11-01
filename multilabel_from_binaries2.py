@@ -22,51 +22,15 @@ print('starting multilabel_from_binaries2.py')
 #  'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
 #  'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
-caffemodels = [
-'res101_binary_bag_iter_56000.caffemodel',
-'res101_binary_belt_iter_71000.caffemodel',
-'res101_binary_cardigan_iter_402000.caffemodel',
-'res101_binary_coat_iter_3000.caffemodel',
-'res101_binary_dress_iter_39000.caffemodel',
-'res101_binary_eyewear_iter_74000.caffemodel',
-'res101_binary_footwear_iter_53000.caffemodel',
-'res101_binary_hat_r1_iter_6000.caffemodel',
-'res101_binary_jacket_r1_iter_25000.caffemodel',
-'res101_binary_jeans_iter_15000.caffemodel',
-'res101_binary_pants_iter_50000.caffemodel',
-'res101_binary_shorts_iter_65000.caffemodel',
-'res101_binary_skirt_iter_89000.caffemodel',
-'res101_binary_stocking_iter_44000.caffemodel',
-'res101_binary_suit_r1_iter_22000.caffemodel',
-'res101_binary_sweater_r1_iter_17000.caffemodel',
-'res101_binary_top_iter_31000.caffemodel',
-'res101_binary_scarf_iter_58000.caffemodel',
-'res101_binary_bikini_iter_60000.caffemodel',
-'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
-'res101_binary_overalls_iter_69000.caffemodel',
-'res101_binary_sweatshirt_r1_iter_29000.caffemodel',
-'res101_binary_bracelet_iter_38000.caffemodel',
-'res101_binary_necklace_r1_iter_20000.caffemodel',
-'res101_binary_earrings_r1_iter_9000.caffemodel',
-'res101_binary_watch_iter_64000.caffemodel',
-'res101_binary_swimwear_mens_iter_39000.caffemodel'
-]
-modelpath = '/home/jeremy/caffenets/binary/all'
-#solverproto = os.path.join(modelpath,'ResNet-101_solver.prototxt')
-#trainproto = os.path.join(modelpath,'ResNet-101-train_test.prototxt')
-binary_nets=[]
-#for i in range(len(constants.binary_classifier_categories)):
-caffe.set_mode_gpu()
-
-#caffemodel = os.path.join(modelpath,caffemodels[i])
-#print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
-#binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
-
-
 this_is_instance = 2
+
+gpu = this_is_instance-1
+caffemodels = constants.binary_caffemodels
+modelpath = '/home/jeremy/caffenets/binary/all'
+binary_nets=[]
+caffe.set_mode_gpu()
 nets_per_gpu = 9
-for i in range(nets_per_gpu*(this_is_instance-1),nets_per_gpu*(this_is_instance)):
-    gpu = i/nets_per_gpu
+for i in range(nets_per_gpu*(this_is_instance-1),min(nets_per_gpu*(this_is_instance),len(caffemodels))):
     caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
@@ -74,7 +38,6 @@ for i in range(nets_per_gpu*(this_is_instance-1),nets_per_gpu*(this_is_instance)
     print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
     binary_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
     binary_nets.append(binary_net)
-#
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read

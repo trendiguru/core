@@ -283,6 +283,37 @@ binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewe
                              'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
+binary_caffemodels = [
+'res101_binary_bag_iter_56000.caffemodel',
+'res101_binary_belt_iter_71000.caffemodel',
+'res101_binary_cardigan_iter_402000.caffemodel',
+'res101_binary_coat_iter_3000.caffemodel',
+'res101_binary_dress_iter_30000.caffemodel',
+'res101_binary_eyewear_iter_74000.caffemodel',
+'res101_binary_footwear_iter_53000.caffemodel',
+'res101_binary_hat_r1_iter_6000.caffemodel',
+'res101_binary_jacket_r1_iter_25000.caffemodel',
+'res101_binary_jeans_iter_15000.caffemodel',
+'res101_binary_pants_iter_50000.caffemodel',
+'res101_binary_shorts_iter_65000.caffemodel',
+'res101_binary_skirt_iter_89000.caffemodel',
+'res101_binary_stocking_iter_44000.caffemodel',
+'res101_binary_suit_r1_iter_22000.caffemodel',
+'res101_binary_sweater_r1_iter_17000.caffemodel',
+'res101_binary_top_iter_31000.caffemodel',
+'res101_binary_scarf_iter_58000.caffemodel',
+'res101_binary_bikini_iter_60000.caffemodel',
+'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
+'res101_binary_overalls_iter_69000.caffemodel',
+'res101_binary_sweatshirt_r1_iter_29000.caffemodel',
+'res101_binary_bracelet_iter_38000.caffemodel',
+'res101_binary_necklace_r1_iter_20000.caffemodel',
+'res101_binary_earrings_r1_iter_9000.caffemodel',
+'res101_binary_watch_iter_64000.caffemodel',
+'res101_binary_swimwear_mens_iter_39000.caffemodel'
+]
+
+
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
                                 'hat':'hat','legging':'stocking','outerwear':'coat','pants':'pants','skirts':'skirt','top':'top'}

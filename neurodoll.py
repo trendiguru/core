@@ -78,6 +78,12 @@ if not multilabel_from_binaries: #dont need this if answers are coming from mult
     print('device 0')
     caffe.set_device(gpu)
     multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    ###########OLD MULTILABELLER
+    #caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+    #deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    #multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    #multilabel_required_image_size = (227,227)
+
 else:
     print('using multilabel from binaries (thru falcon) ')
 multilabel_required_image_size = (224,224)
@@ -207,6 +213,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
+
 
     for unique in uniques:
         pixelcount = len(out[out==unique])
@@ -748,8 +755,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
+    pixlevel_categorical_output = infer_one(url_or_np_array)
     uniques = np.unique(pixlevel_categorical_output)
     print('uniques:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
@@ -823,6 +830,7 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ]
+    urls = [urls[0]]
     test_nd_alone = True
     if test_nd_alone:
         for url in urls:
@@ -853,31 +861,3 @@ if __name__ == "__main__":
         for url in urls:
             out = combine_neurodoll_and_multilabel(url)
             print('combined output:'+str(out))
-
-
-''' #
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
-PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
-caffe.set_mode_gpu()
-caffe.set_device(1)
-print('loading caffemodel for neurodoll (single class layers)')
-neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
-neurodoll_required_image_size = (256, 256)
-image_mean = np.array([107.0,117.0,123.0])
-input_scale = None
-channel_swap = [2, 1, 0]
-raw_scale = 255.0
-
-###########LOAD MULTILABELLER
-caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-caffe.set_mode_gpu()
-caffe.set_device(0)
-multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
-multilabel_required_image_size = (227,227)
-'''
-
-
-
-
