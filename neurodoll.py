@@ -214,6 +214,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
 
+
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
@@ -754,8 +755,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
+    pixlevel_categorical_output = infer_one(url_or_np_array)
     uniques = np.unique(pixlevel_categorical_output)
     print('uniques:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
