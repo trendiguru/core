@@ -346,6 +346,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
+    print('doing resize , input hxw  {} {} output hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
     if inheight == 0 or inwidth == 0:
         logging.warning('got a bad image')
         return
@@ -366,6 +367,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
  #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
+        print('output ar<  input ar , width padding '+str(width_offset)+ ' to '+str(width_offset+new_width))
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
@@ -377,10 +379,87 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
         height_offset = (outheight - new_height) / 2
+        print('output ar >=  input ar , height padding '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
         output_img[height_offset+new_height:,:] = resized_img[-1,:]
 #        print('resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
+#        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
+
+    if careful_with_the_labels:
+        #kill any extranneous labels that have popped up
+#        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        for u in np.unique(output_img):
+            if not u in input_file_or_np_arr: #
+#                print('found new val in target:'+str(u))
+                output_img[output_img==u] = 0
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        # assert((np.unique(output_img)==np.unique(input_file_or_np_arr)).all())   this fails , bool attr has no all()
+    if use_visual_output is True:
+        cv2.imshow('output', output_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+#        cv2.imshow('res',resized_img)
+        cv2.waitKey(0)
+    if output_file is not None:
+        cv2.imwrite(output_file, output_img)
+    return output_img
+#dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
+
+def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
+    '''
+    Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
+    :param input_file_or_np_arr:
+    :param output_file:name for output
+    :param output_size:size of output image (height,width)
+    :param use_visual_output:
+    :return:
+    '''
+
+    if isinstance(input_file_or_np_arr,basestring):
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+
+    if input_file_or_np_arr is None:
+        logging.warning('got a bad image')
+        return
+    #the shoe is on the other foot.
+    inheight, inwidth = output_size[:]
+    outheight, outwidth = input_file_or_np_arr.shape[0:2]
+    print('undoing resize , original hxw  {} {} resized hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
+    if (inheight == 0) or (inwidth == 0):
+        logging.warning('got a bad image')
+        return
+    original_ar = float(inheight)/inwidth
+    resized_ar = float(outheight)/outwidth
+    if len(input_file_or_np_arr.shape) == 3:
+        indepth = input_file_or_np_arr.shape[2]
+        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+    else:
+        indepth = 1
+        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+#    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
+    actual_outheight, actual_outwidth = output_img.shape[0:2]
+#    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
+    if original_ar > resized_ar:  #unfil left/right and resize height to output height
+        factor = float(inheight)/outheight
+        new_width = int(float(inwidth) / factor)
+        width_offset = (outwidth - new_width ) / 2
+        remainder = outwidth - width_offset
+        print('orig ar>  resized ar , width padding '+str(width_offset)+', taking from padding to '+str(remainder))
+        output_img = input_file_or_np_arr[:,width_offset:remainder]
+#        output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
+        output_img = cv2.resize(output_img, output_size)
+        print('>resize size:'+str(output_img.shape))
+    else:   #resize width to output width and fill top/bottom
+        factor = float(inwidth)/outwidth
+        new_height = int(float(inheight) / factor)
+        height_offset = (outheight - new_height) / 2
+        remainder = outheight - height_offset
+        print('orig ar <=  resized ar , height padding '+str(height_offset)+ ',filling to '+str(remainder)+' outsize:'+str(output_size))
+        output_img = input_file_or_np_arr[height_offset:remainder,:]
+        print('intermediate outputsize:'+str(output_img.shape))
+        output_img = cv2.resize(output_img, output_size)
+        print('resize size:'+str(output_img.shape))
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
     if careful_with_the_labels:
@@ -1160,8 +1239,28 @@ if __name__ == "__main__":
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
  #   kill_the_missing(sourcedir, targetdir)
-    resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
 
+    output_file = 'resized.jpg'
+    img_arr = cv2.imread(infile)
+    orig_h,orig_w = img_arr.shape[0:2]
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,400),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,399),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,600),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,601),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,599),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
 
 
 #nonlinear xforms , stolen from:
