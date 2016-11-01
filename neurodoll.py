@@ -155,12 +155,23 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
 
 def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     start_time = time.time()
+    thedir = './images'
+    Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
-        url = url_or_np_array
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]+'.jpg')
     elif type(url_or_np_array) == np.ndarray:
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
+        orig_filename = os.path.join(thedir,name_base)
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+    print('writing orig to '+orig_filename)
+    cv2.imwrite(orig_filename,image)
+
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -245,20 +256,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     out = np.array(out,dtype=np.uint8)
     save_results = True
     if save_results:
-        hash = hashlib.sha1()
-        hash.update(str(time.time()))
-        Utils.ensure_dir('./images')
-        name_base = 'ndout.'+hash.hexdigest()[:10]
-        name_base = os.path.join('./images',name_base)
-        print('saving mask/img/url to '+name_base)
-        pngname = name_base+'.png'
+        pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
-        origname = name_base+'.jpg'
-        cv2.imwrite(filename=origname,img=image)
-        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=origname)
-        if url is not None:
-            with open(name_base+'.url','a') as fp:
-                fp.write(url)
+        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=True,save_images=True,original_image=orig_filename)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
@@ -759,7 +759,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     elif type(url_or_np_array) == np.ndarray:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        Utils.ensure_dir('./images')
         name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
         orig_filename = os.path.join(thedir,name_base)
         image = url_or_np_array
@@ -816,7 +815,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
             else:
                 print('no pixels in mask, skipping')
-            if  item_mask is None:
+            if item_mask is None:
                 continue
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
@@ -871,6 +870,7 @@ if __name__ == "__main__":
     urls = [urls[0]]
     test_nd_alone = True
     if test_nd_alone:
+        raw_input('start test_nd_alone')
         for url in urls:
             #infer-one saves results depending on switch at end
             print('testing nd alone')
@@ -886,6 +886,7 @@ if __name__ == "__main__":
 
     test_nfc_nd = False
     if test_nfc_nd:
+        raw_input('start test_nfc_nd_alone')
         for url in urls:
             print('testing nfc_nd')
             nd_out = get_neurodoll_output(url)
@@ -898,6 +899,7 @@ if __name__ == "__main__":
     #get output of combine_nd_and_ml
     test_combine = True
     if test_combine:
+        raw_input('start test_combined_nd')
         for url in urls:
             print('testing combined ml nd')
             out = combine_neurodoll_and_multilabel(url)
