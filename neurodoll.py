@@ -248,7 +248,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         hash = hashlib.sha1()
         hash.update(str(time.time()))
         Utils.ensure_dir('./images')
-        name_base = hash.hexdigest()[:10]
+        name_base = 'ndout.'+hash.hexdigest()[:10]
         name_base = os.path.join('./images',name_base)
         print('saving mask/img/url to '+name_base)
         pngname = name_base+'.png'
@@ -389,6 +389,9 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
 
+
+
+
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
@@ -442,6 +445,7 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
+
     return out.astype(np.uint8)
 
 def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
@@ -586,8 +590,10 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     mask = np.zeros(image.shape[:2], np.uint8)
     #TODO - maybe find something better than median as the threshold
     med = np.median(neuro_mask)*median_factor
-    mask[neuro_mask > med] = 3
-    mask[neuro_mask < med] = 2
+    mask[neuro_mask > med] = cv2.GC_PR_FGD  #(=3, prob foreground)
+    mask[neuro_mask < med] = cv2.GC_PR_BGD #(=2, prob. background)
+    print('gc pr fg {} pr bgnd {} '.format(cv2.GC_PR_FGD,cv2.GC_PR_BGD))
+
     try:
         #TODO - try more than 1 grabcut call in itr
         itr = 1
@@ -807,20 +813,19 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
 
     #write file (for debugging)
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_output.png'
+    thedir = '/home/jeremy/'
+    orig_filename = thedir+url_or_np_array.split('/')[-1]
+    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
+    print('orig filename:'+str(orig_filename))
     print('name:'+name)
     cv2.imwrite(name,final_mask)
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    print('orig filename:'+str(orig_filename))
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
 
-    mask_filename = name.strip('_output.png')
-    cv2.imwrite(filename,pixlevel_categorical_output)
-    nice_output = imutils.show_mask_with_labels(filename,constants.ultimate_21,save_images=True,visual_output=test_on)
-
+    graymask_filename = name.strip('_combinedoutput.png')+'graymask.png'
+    print('graymask file:'+graymask_filename)
+    cv2.imwrite(graymask_filename,pixlevel_categorical_output)
+    nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
     return final_mask
 
@@ -853,6 +858,7 @@ if __name__ == "__main__":
     if test_nd_alone:
         for url in urls:
             #infer-one saves results depending on switch at end
+            print('testing nd alone')
             result = infer_one(url,required_image_size=(256,256),threshold=0.01)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
@@ -866,6 +872,7 @@ if __name__ == "__main__":
     test_nfc_nd = False
     if test_nfc_nd:
         for url in urls:
+            print('testing nfc_nd')
             nd_out = get_neurodoll_output(url)
             orig_filename = '/home/jeremy/'+url.split('/')[-1]
             urllib.urlretrieve(url, orig_filename)
@@ -877,5 +884,6 @@ if __name__ == "__main__":
     test_combine = True
     if test_combine:
         for url in urls:
+            print('testing combined ml nd')
             out = combine_neurodoll_and_multilabel(url)
             print('combined output:'+str(out))
