@@ -341,7 +341,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
             for item in person["items"]:
                 # similar_results = []
                 ids = [result['id'] for result in item["similar_results"][product_collection_name]]
-                similar_results = list(collection.find({"id": {"$in": ids}}, projection_dict))
+                similar_results = [collection.find({"id": id}, projection_dict) for id in ids]
                 for full_result in similar_results:
                     full_result['redirection_path'] = '/' + product_collection_name + '_' +\
                                                      person['gender'] + '/' + str(full_result['_id'])
