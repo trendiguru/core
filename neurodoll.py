@@ -219,8 +219,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
-        out = cv2.resize(out,(original_w,original_h))
-        out = imutils.resize_keep_aspect(out,output_size=required_image_size,output_file=None)
+        #out = cv2.resize(out,(original_w,original_h))
+        out = imutils.resize_keep_aspect(out,output_size=(original_w,original_h),output_file=None)
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
