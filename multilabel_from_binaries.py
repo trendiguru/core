@@ -30,7 +30,7 @@ modelpath = '/home/jeremy/caffenets/binary/all'
 binary_nets=[]
 caffe.set_mode_gpu()
 nets_per_gpu = 9
-for i in range(nets_per_gpu*(this_is_instance-1),min(nets_per_gpu*(this_is_instance),len(caffemodels)):
+for i in range(nets_per_gpu*(this_is_instance-1),min(nets_per_gpu*(this_is_instance),len(caffemodels))):
     caffe.set_device(gpu)
     print('device '+str(gpu)+' net # '+str(i))
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
