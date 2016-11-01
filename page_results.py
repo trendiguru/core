@@ -163,7 +163,7 @@ def get_collection_from_ip_and_domain(ip, domain):
 
 
 def get_collection_from_ip_and_pid(ip, pid='default'):
-    country = get_country_from_ip(ip)
+    country = 'default' if not ip else get_country_from_ip(ip)
     default_map = constants.products_per_ip_pid['default']
     if pid in constants.products_per_ip_pid.keys():
         pid_map = constants.products_per_ip_pid[pid]

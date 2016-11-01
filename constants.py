@@ -31,9 +31,9 @@ weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 
 products_per_ip_pid = {'default':
                                  {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
                        'fashionseoul':
-                                 {'KR': 'GangnamStyle'},
+                                 {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
-                                 {'KR': 'GangnamStyle'},
+                                 {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
                        'recruit-pilot':
