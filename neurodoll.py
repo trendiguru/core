@@ -751,6 +751,22 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     multilabel_labels=constants.binary_classifier_categories
 
     '''
+    thedir = './images'
+    Utils.ensure_dir(thedir)
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]+'.jpg')
+    elif type(url_or_np_array) == np.ndarray:
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        Utils.ensure_dir('./images')
+        name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
+        orig_filename = os.path.join(thedir,name_base)
+        image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+    cv2.imwrite(orig_filename,image)
+
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -814,7 +830,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     #write file (for debugging)
     thedir = '/home/jeremy/'
-    orig_filename = thedir+url_or_np_array.split('/')[-1]
     name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
     print('orig filename:'+str(orig_filename))
     print('name:'+name)
