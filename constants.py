@@ -248,6 +248,11 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
 
+#neurodoll will not return items with areas less than these (numbers are fraction of total img. area)
+ultimate_21_area_thresholds = [0.01,0.001,0.001,0.01,0.01,0.01,0.01,0.01,0.01,0.01,
+                                     0.01,0.01,0.01,0.001,0.01,0.01,0.01,0.01,0.01,0.01,
+                                     0.01]
+
 #used for pixel level output of neurodoll as of 260716
 ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
     'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
