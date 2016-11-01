@@ -18,91 +18,91 @@ db = pymongo.MongoClient().mydb
 
 limit = 7500
 
-#
-# ##---- Casual: 0 ----##
-# regx_casual = re.compile("/*Casual", re.IGNORECASE)
-# casual_male_num = db.amazon_US_Male.count({'tree': regx_casual})  # = 117405
-# casual_female_num = db.amazon_US_Female.count({'tree': regx_casual})  # = 205237
-#
-# casual_male = db.amazon_US_Male.find({'tree': regx_casual})
-# casual_female = db.amazon_US_Female.find({'tree': regx_casual})
-#
-# casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
-#
-# list_to_iter = range(1, casual_male_num)
-# random.shuffle(list_to_iter)
-# counter = 1
-# error_counter = 0
-#
-# for i in list_to_iter:
-#
-#     if counter > limit:
-#         break
-#
-#     try:
-#         link_to_image = casual_male[i]['images']['XLarge']
-#     except:
-#         print "link ain't good"
-#         error_counter += 1
-#         continue
-#
-#     response = requests.get(link_to_image)  # download
-#     if not response:
-#         print 'Fail'
-#         continue
-#     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-#     if image is None:
-#         print "not a good image"
-#         continue
-#
-#     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
-#
-#     image_file_name = 'casual_male_' + str(i) + '.jpg'
-#     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
-#
-#     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
-#
-#     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
-#     counter += 1
-#
-#
-# list_to_iter = range(1, casual_female_num)
-# random.shuffle(list_to_iter)
-# counter = 1
-# error_counter = 0
-#
-# for i in list_to_iter:
-#
-#     if counter > limit:
-#         break
-#
-#     try:
-#         link_to_image = casual_female[i]['images']['XLarge']
-#     except:
-#         print "link ain't good"
-#         error_counter += 1
-#         continue
-#
-#     response = requests.get(link_to_image)  # download
-#     if not response:
-#         print 'Fail'
-#         continue
-#     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-#     if image is None:
-#         print "not a good image"
-#         continue
-#
-#     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
-#
-#     image_file_name = 'casual_female_' + str(i) + '.jpg'
-#     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
-#
-#     casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
-#
-#     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
-#     counter += 1
-#
-# casual_txt_file.close()
+
+##---- Casual: 0 ----##
+regx_casual = re.compile("/*Casual", re.IGNORECASE)
+casual_male_num = db.amazon_US_Male.count({'tree': regx_casual})  # = 117405
+casual_female_num = db.amazon_US_Female.count({'tree': regx_casual})  # = 205237
+
+casual_male = db.amazon_US_Male.find({'tree': regx_casual})
+casual_female = db.amazon_US_Female.find({'tree': regx_casual})
+
+casual_txt_file = open("/home/yonatan/style_classifier/casual_txt_file.txt", "w")
+
+list_to_iter = range(1, casual_male_num)
+random.shuffle(list_to_iter)
+counter = 1
+error_counter = 0
+
+for i in list_to_iter:
+
+    if counter > limit:
+        break
+
+    try:
+        link_to_image = casual_male[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+
+    response = requests.get(link_to_image)  # download
+    if not response:
+        print 'Fail'
+        continue
+    image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    if image is None:
+        print "not a good image"
+        continue
+
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+
+    image_file_name = 'casual_male_' + str(i) + '.jpg'
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
+
+    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
+
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
+    counter += 1
+
+
+list_to_iter = range(1, casual_female_num)
+random.shuffle(list_to_iter)
+counter = 1
+error_counter = 0
+
+for i in list_to_iter:
+
+    if counter > limit:
+        break
+
+    try:
+        link_to_image = casual_female[i]['images']['XLarge']
+    except:
+        print "link ain't good"
+        error_counter += 1
+        continue
+
+    response = requests.get(link_to_image)  # download
+    if not response:
+        print 'Fail'
+        continue
+    image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    if image is None:
+        print "not a good image"
+        continue
+
+    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+
+    image_file_name = 'casual_female_' + str(i) + '.jpg'
+    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/casual", image_file_name), resized_image)
+
+    casual_txt_file.write(os.path.join("/home/yonatan/style_classifier/casual", image_file_name) + " 0" + "\n")
+
+    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
+    counter += 1
+
+casual_txt_file.close()
 #
 #
 # ##---- Prom & Homecoming: 1 ----##
