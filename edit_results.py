@@ -26,6 +26,9 @@ EDITOR_PROJECTION = {'image_id': 1,
 def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
+    # TODO - what happen if the image is in db.irrelevant
+    # if not sparse:
+
     # for person in sparse['people']:
     #     for item in person['items']:
     #         for prod_coll in item['similar_results'].keys():
@@ -106,37 +109,37 @@ def change_gender_and_rebuild_person(image_id, person_id, new_gender):
     return bool(res1.modified_count*res2.modified_count)
 
 
-def add_people_to_image(image_url, page_url, faces, products_collection='ShopStyle', method='pd'):
+def add_people_to_image(image_id, faces, products_collection='amazon_US', method='pd'):
+    image_obj = db.images.find_one({'image_id': image_id})
     # MAKE SURE ALL FACES ARE LISTS
     for index, face in enumerate(faces):
         if not isinstance(face, list):
             faces[index] = face.tolist()
     # DOWNLOAD IMAGE AND VERIFY
-    image_obj = db.images.find_one({'image_urls': image_url})
+    # page_url = image_obj['page_urls'][0]
+    image_url = image_obj['image_urls'][0]
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return False
-    if not image_obj:
-        # BUILD A NEW IMAGE WITH THE GIVEN FACES
-        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face,
-                                 'gender': genderize(image, face)['gender']} for face in faces],
-                     'image_url': image_url,
-                     'page_url': page_url}
-        db.iip.insert_one({'image_url': image_url, 'insert_time': datetime.datetime.utcnow()})
-        db.genderator.insert_one(image_obj)
-        db.irrelevant_images.delete_one({'image_urls': image_url})
-        q1.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
-                        ttl=2000, result_ttl=2000, timeout=2000)
+    # if not image_obj:
+    #     # BUILD A NEW IMAGE WITH THE GIVEN FACES
+    #     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
+    #                              'gender': genderize(image, face.tolist())['gender']} for face in faces],
+    #                  'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
+    #     db.iip.insert_one(image_obj)
+    #     q1.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
+    #                     ttl=2000, result_ttl=2000, timeout=2000)
+    #     db.irrelevant_images.delete_one({'image_urls': image_url})
+    #     return True
+    # else:
+    # ADD PEOPLE TO AN EXISTING IMAGE
+    people_to_add = [build_new_person(image, face, products_collection, method) for face in faces]
+    if len(people_to_add):
+        db.images.update_one({'_id': image_obj['_id']}, {'$push': {'image_urls': {'$each': people_to_add}},
+                                                         '$set': {'num_of_people': len(people_to_add)}})
         return True
     else:
-        # ADD PEOPLE TO AN EXISTING IMAGE
-        people_to_add = [build_new_person(image, face, products_collection, method) for face in faces]
-        if len(people_to_add):
-            db.images.update_one({'_id': image_obj['_id']}, {'$push': {'image_urls': {'$each': people_to_add}},
-                                                             '$set': {'num_of_people': len(people_to_add)}})
-            return True
-        else:
-            return False
+        return False
 
 
 # ------------------------------------------------ ITEM-LEVEL ----------------------------------------------------------
