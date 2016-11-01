@@ -153,14 +153,14 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
+def infer_one(url_or_np_array,required_image_size=(256,256),thresholds = constants.ultimate_21_pixel_area_thresholds):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
-        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]+'.jpg')
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1])
     elif type(url_or_np_array) == np.ndarray:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
@@ -216,7 +216,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     if out is None:
         logging.debug('out image is None')
 
-#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
     if required_image_size is not None:
         logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
@@ -226,10 +225,13 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     uniques = np.unique(out)
 
 
+#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
 #        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        threshold = thresholds[unique]
+        print('current thresold:'+str(threshold))
         if ratio < threshold:
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
