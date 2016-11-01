@@ -336,7 +336,7 @@ def get_neurodoll_output(url_or_np_array):
     neuro_mask = dic['mask']
     return neuro_mask
 
-def get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
+def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('get_all_category_graylevels working on url:'+url_or_np_array)
@@ -546,7 +546,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
-def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6):
+def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6,required_image_size=(256,256)):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -562,8 +562,15 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
+    if required_image_size is not None:
+        original_h,original_w = image.shape[0:2]
+        logging.debug('resizing gc input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
+      #  image,r = background_removal.standard_resize(image,max_side = 256)
+        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
 
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
+    if image.shape != neuro_mask.shape():
+        logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
         #def neurodoll(image, category_idx):
 #    neuro_mask = dic['mask']
 
