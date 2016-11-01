@@ -388,7 +388,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
 #        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
 #        print('uniques in dest:'+str(np.unique(output_img)))
         for u in np.unique(output_img):
-            if not u in input_file_or_np_arr:
+            if not u in input_file_or_np_arr: #
 #                print('found new val in target:'+str(u))
                 output_img[output_img==u] = 0
 #        print('uniques in dest:'+str(np.unique(output_img)))
