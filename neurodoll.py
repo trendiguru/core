@@ -183,8 +183,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
         original_h,original_w = image.shape[0:2]
         logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
       #  image,r = background_removal.standard_resize(image,max_side = 256)
-#        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-        image = cv2.resize(image,dsize=(required_image_size[1],required_image_size[0]))
+        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+#        image = cv2.resize(image,dsize=(required_image_size[1],required_image_size[0]))
 
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
     if in_ is None:
@@ -881,7 +881,7 @@ if __name__ == "__main__":
         for url in urls:
             #infer-one saves results depending on switch at end
             print('testing nd alone')
-            result = infer_one(url,required_image_size=(256,256))
+            result = infer_one(url,required_image_size=None)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
