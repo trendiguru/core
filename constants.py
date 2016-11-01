@@ -288,7 +288,7 @@ binary_caffemodels = [
 'res101_binary_belt_iter_71000.caffemodel',
 'res101_binary_cardigan_iter_402000.caffemodel',
 'res101_binary_coat_iter_3000.caffemodel',
-'res101_binary_dress_iter_30000.caffemodel'
+'res101_binary_dress_iter_30000.caffemodel',
 'res101_binary_eyewear_iter_74000.caffemodel',
 'res101_binary_footwear_iter_53000.caffemodel',
 'res101_binary_hat_r1_iter_6000.caffemodel',
