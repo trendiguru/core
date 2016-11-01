@@ -205,7 +205,7 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
                 if item['category'] == item_category:
                     ret = 'found_item'
                     for result in item['similar_results'][results_collection]:
-                        if result['id'] == int(result_id):
+                        if result['id'] == result_id:
                             item['similar_results'][results_collection].remove(result)
                             ret = True
     db.images.replace_one({'image_id': image_id}, image_obj)
