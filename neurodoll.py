@@ -183,7 +183,6 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
         original_h,original_w = image.shape[0:2]
         logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
       #  image,r = background_removal.standard_resize(image,max_side = 256)
-
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
 
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
@@ -216,10 +215,12 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
     if out is None:
         logging.debug('out image is None')
 
+    #since original image may have been resized, reshape the output back to orig size
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         out = cv2.resize(out,(original_w,original_h))
+        out = imutils.resize_keep_aspect(out,output_size=required_image_size,output_file=None)
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
@@ -231,7 +232,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
         ratio = float(pixelcount)/image_size
 #        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
         threshold = item_area_thresholds[unique]
-        print('current thresold:'+str(threshold))
+        print('index {}  ratio {} threshold {}'.format(unique,ratio,threshold))
         if ratio < threshold:
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
