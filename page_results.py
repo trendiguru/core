@@ -163,7 +163,7 @@ def get_collection_from_ip_and_domain(ip, domain):
 
 
 def get_collection_from_ip_and_pid(ip, pid='default'):
-    country = get_country_from_ip(ip)
+    country = 'default' if not ip else get_country_from_ip(ip)
     default_map = constants.products_per_ip_pid['default']
     if pid in constants.products_per_ip_pid.keys():
         pid_map = constants.products_per_ip_pid[pid]
@@ -282,7 +282,7 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
         # 'people.items.item_id': 1,
         # 'people.items.item_idx': 1,
         'people.items.similar_results.{0}'.format(products_collection): {'$slice': max_results},
-        # 'people.items.similar_results.{0}._id'.format(products_collection): 1,
+        'people.items.similar_results.{0}._id'.format(products_collection): 1,
         'people.items.similar_results.{0}.id'.format(products_collection): 1,
         # 'people.items.svg_url': 1,
         'relevant': 1}
@@ -342,6 +342,7 @@ def load_similar_results(sparse, projection_dict, product_collection_name):
                 # similar_results = []
                 ids = [result['id'] for result in item["similar_results"][product_collection_name]]
                 similar_results = list(collection.find({"id": {"$in": ids}}, projection_dict))
+                similar_results.sort(key=lambda x: ids.index(x['id']))
                 for full_result in similar_results:
                     full_result['redirection_path'] = '/' + product_collection_name + '_' +\
                                                      person['gender'] + '/' + str(full_result['_id'])

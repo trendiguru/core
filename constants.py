@@ -31,9 +31,9 @@ weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 
 products_per_ip_pid = {'default':
                                  {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
                        'fashionseoul':
-                                 {'KR': 'GangnamStyle'},
+                                 {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
-                                 {'KR': 'GangnamStyle'},
+                                 {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        'RecruitPilot':
                                  {'default': 'recruit'},
                        'recruit-pilot':
@@ -248,6 +248,11 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
                'top']
 
+#neurodoll will not return items with areas less than these (numbers are fraction of total img. area)
+ultimate_21_area_thresholds = [0.01,0.001,0.001,0.01,0.01,0.01,0.01,0.01,0.01,0.01,
+                                     0.01,0.01,0.01,0.001,0.01,0.01,0.01,0.01,0.01,0.01,
+                                     0.01]
+
 #used for pixel level output of neurodoll as of 260716
 ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
     'jeans': 10, 'legging': 11, 'pants': 12, 'shoe': 13, 'shorts': 14, 'skin': 15,  'skirt': 16, 'stocking': 17, 'suit': 18, 'sweater': 19, 'top': 20}
@@ -282,6 +287,37 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
                              'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
+
+binary_caffemodels = [
+'res101_binary_bag_iter_56000.caffemodel',
+'res101_binary_belt_iter_71000.caffemodel',
+'res101_binary_cardigan_iter_402000.caffemodel',
+'res101_binary_coat_iter_3000.caffemodel',
+'res101_binary_dress_iter_30000.caffemodel',
+'res101_binary_eyewear_iter_74000.caffemodel',
+'res101_binary_footwear_iter_53000.caffemodel',
+'res101_binary_hat_r1_iter_6000.caffemodel',
+'res101_binary_jacket_r1_iter_25000.caffemodel',
+'res101_binary_jeans_iter_15000.caffemodel',
+'res101_binary_pants_iter_50000.caffemodel',
+'res101_binary_shorts_iter_65000.caffemodel',
+'res101_binary_skirt_iter_89000.caffemodel',
+'res101_binary_stocking_iter_44000.caffemodel',
+'res101_binary_suit_r1_iter_22000.caffemodel',
+'res101_binary_sweater_r1_iter_17000.caffemodel',
+'res101_binary_top_iter_31000.caffemodel',
+'res101_binary_scarf_iter_58000.caffemodel',
+'res101_binary_bikini_iter_60000.caffemodel',
+'res101_binary_womens_swimwear_nonbikini_iter_35000.caffemodel',
+'res101_binary_overalls_iter_69000.caffemodel',
+'res101_binary_sweatshirt_r1_iter_29000.caffemodel',
+'res101_binary_bracelet_iter_38000.caffemodel',
+'res101_binary_necklace_r1_iter_20000.caffemodel',
+'res101_binary_earrings_r1_iter_9000.caffemodel',
+'res101_binary_watch_iter_64000.caffemodel',
+'res101_binary_swimwear_mens_iter_39000.caffemodel'
+]
+
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',

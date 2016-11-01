@@ -7,7 +7,7 @@ display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 20
+iter_size: 10
 snapshot: 10000
 snapshot_prefix: "snapshot/res152_binary_dress"
 test_initialization: false

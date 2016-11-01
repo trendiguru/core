@@ -1,6 +1,6 @@
 import falcon
 from jaweson import json, msgpack
-from .. import edit_results
+from .. import edit_results, page_results, constants
 from bson import json_util
 
 # Logging
@@ -15,6 +15,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 root.addHandler(ch)
 USER_FILTER = 'stylebook'
+db = constants.db
 
 
 class Editor(object):
@@ -93,6 +94,29 @@ class Editor(object):
                 ret["ok"] = edit_results.change_gender_and_rebuild_person(path_args["image_id"],
                                                                           path_args["person_id"],
                                                                           gender)
+        except Exception as e:
+            ret['error'] = str(e)
+        resp.status = falcon.HTTP_200
+        resp.body = json_util.dumps(ret)
+
+    def on_post(self, req, resp, **path_args):
+        ret = {'ok': False, 'data': {}}
+        body = req.stream.read()
+        data = body['data'] if 'data' in body else None
+        user_email = req.context["user_identifier"]
+        pid = db.users.find_one({'email': user_email})['pid']
+        products_collection = page_results.get_collection_from_ip_and_pid(None, pid)
+        try:
+            if "item_category" in path_args:
+                ret['ok'] = edit_results.add_item(path_args["image_id"],
+                                                  path_args["person_id"],
+                                                  data['category'],
+                                                  products_collection)
+            elif "image_id" in path_args:
+                ret['ok'] = edit_results.add_people_to_image(path_args['image_id'],
+                                                             data['faces'],
+                                                             products_collection,
+                                                             'pd')
         except Exception as e:
             ret['error'] = str(e)
         resp.status = falcon.HTTP_200

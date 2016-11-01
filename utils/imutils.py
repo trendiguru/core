@@ -388,7 +388,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
 #        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
 #        print('uniques in dest:'+str(np.unique(output_img)))
         for u in np.unique(output_img):
-            if not u in input_file_or_np_arr:
+            if not u in input_file_or_np_arr: #
 #                print('found new val in target:'+str(u))
                 output_img[output_img==u] = 0
 #        print('uniques in dest:'+str(np.unique(output_img)))
@@ -859,7 +859,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     n_tot = h*w
     frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
+    print('show_mask_with_labels:number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
@@ -927,7 +927,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
-            print('got original image:'+str(original_image)+' shape:'+str(orig_arr.shape))
+            print('show_mask_with_labels:got original image:'+str(original_image)+' shape:'+str(orig_arr.shape))
             maxheight=600
             minheight=300
             desired_height=500
@@ -963,7 +963,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             logging.debug('orig w {} h {} dest {}x{}'.format(orig_w,orig_h,dest_w,dest_h))
 #            print('colobar size {} masksize {} imsize {}'.format(dest_colorbar.shape,dest.shape,orig_arr.shape))
             combined = np.zeros([dest_h,dest_w+orig_w+colorbar_w,3],dtype=np.uint8)
-            logging.debug('combined shape:'+str(combined.shape))
+            logging.debug('show_mask_with_labels:combined shape:'+str(combined.shape))
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:

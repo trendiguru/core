@@ -78,6 +78,12 @@ if not multilabel_from_binaries: #dont need this if answers are coming from mult
     print('device 0')
     caffe.set_device(gpu)
     multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    ###########OLD MULTILABELLER
+    #caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
+    #deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
+    #multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
+    #multilabel_required_image_size = (227,227)
+
 else:
     print('using multilabel from binaries (thru falcon) ')
 multilabel_required_image_size = (224,224)
@@ -147,14 +153,25 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
+def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds = constants.ultimate_21_area_thresholds):
     start_time = time.time()
+    thedir = './images'
+    Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
-        url = url_or_np_array
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1])
     elif type(url_or_np_array) == np.ndarray:
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
+        orig_filename = os.path.join(thedir,name_base)
         image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+    print('writing orig to '+orig_filename)
+    cv2.imwrite(orig_filename,image)
+
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
 #    im = im.resize(required_imagesize,Image.ANTIALIAS)
@@ -166,8 +183,8 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
         original_h,original_w = image.shape[0:2]
         logging.debug('resizing nd input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
       #  image,r = background_removal.standard_resize(image,max_side = 256)
-
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+#        image = cv2.resize(image,dsize=(required_image_size[1],required_image_size[0]))
 
     in_ = np.array(image, dtype=np.float32)   #.astype(float)
     if in_ is None:
@@ -199,19 +216,27 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     if out is None:
         logging.debug('out image is None')
 
-#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
+    #since original image may have been resized, reshape the output back to orig size
     if required_image_size is not None:
-        logging.debug('resizing nd input to '+str(original_h)+'x'+str(original_w))
+        logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
+        #cv2 resize uses wxh
         out = cv2.resize(out,(original_w,original_h))
+
+        #my resize uses hxw (thats actually more consistent w. cv2 and numpy )
+#        out = imutils.resize_keep_aspect(out,output_size=(original_h,original_w),output_file=None)
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
 
+
+#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
     for unique in uniques:
         pixelcount = len(out[out==unique])
         ratio = float(pixelcount)/image_size
 #        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        threshold = item_area_thresholds[unique]
+        print('index {}  ratio {} threshold {}'.format(unique,ratio,threshold))
         if ratio < threshold:
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
@@ -238,20 +263,9 @@ def infer_one(url_or_np_array,required_image_size=(256,256),threshold = 0.01):
     out = np.array(out,dtype=np.uint8)
     save_results = True
     if save_results:
-        hash = hashlib.sha1()
-        hash.update(str(time.time()))
-        Utils.ensure_dir('./images')
-        name_base = hash.hexdigest()[:10]
-        name_base = os.path.join('./images',name_base)
-        print('saving mask/img/url to '+name_base)
-        pngname = name_base+'.png'
+        pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
-        origname = name_base+'.jpg'
-        cv2.imwrite(filename=origname,img=image)
-        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=origname)
-        if url is not None:
-            with open(name_base+'.url','a') as fp:
-                fp.write(url)
+        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=True,save_images=True,original_image=orig_filename)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
@@ -329,7 +343,7 @@ def get_neurodoll_output(url_or_np_array):
     neuro_mask = dic['mask']
     return neuro_mask
 
-def get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
+def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('get_all_category_graylevels working on url:'+url_or_np_array)
@@ -381,6 +395,9 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(250,250)):
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
+
+
+
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
@@ -435,6 +452,7 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
+
     return out.astype(np.uint8)
 
 def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
@@ -505,7 +523,6 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    print('grabcut working on image of shape:'+str(image.shape))
 
         #def neurodoll(image, category_idx):
     dic = nfc.pd(image, category_index=category_index)
@@ -513,6 +530,8 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
         logging.debug('nfc pd not a success')
         return False, []
     neuro_mask = dic['mask']
+
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
 
     nm_size = neuro_mask.shape[0:2]
     image_size = image.shape[0:2]
@@ -538,7 +557,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
-def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6):
+def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6,required_image_size=(256,256)):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -554,8 +573,15 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    print('grabcut working on image of shape:'+str(image.shape))
+    if required_image_size is not None:
+        original_h,original_w = image.shape[0:2]
+        logging.debug('resizing gc input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
+      #  image,r = background_removal.standard_resize(image,max_side = 256)
+        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
 
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
+    if image.shape != neuro_mask.shape():
+        logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
         #def neurodoll(image, category_idx):
 #    neuro_mask = dic['mask']
 
@@ -571,8 +597,10 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     mask = np.zeros(image.shape[:2], np.uint8)
     #TODO - maybe find something better than median as the threshold
     med = np.median(neuro_mask)*median_factor
-    mask[neuro_mask > med] = 3
-    mask[neuro_mask < med] = 2
+    mask[neuro_mask > med] = cv2.GC_PR_FGD  #(=3, prob foreground)
+    mask[neuro_mask < med] = cv2.GC_PR_BGD #(=2, prob. background)
+    print('gc pr fg {} pr bgnd {} '.format(cv2.GC_PR_FGD,cv2.GC_PR_BGD))
+
     try:
         #TODO - try more than 1 grabcut call in itr
         itr = 1
@@ -730,6 +758,22 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     multilabel_labels=constants.binary_classifier_categories
 
     '''
+    thedir = './images'
+    Utils.ensure_dir(thedir)
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]+'.jpg')
+    elif type(url_or_np_array) == np.ndarray:
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
+        orig_filename = os.path.join(thedir,name_base)
+        image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+    print('writing orig to '+orig_filename)
+    cv2.imwrite(orig_filename,image)
+
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -748,8 +792,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,required_image_size=(250,250))
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
+
+
     uniques = np.unique(pixlevel_categorical_output)
     print('uniques:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
@@ -772,8 +818,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i],nd_pixels))
             gray_layer = graylevel_nd_output[neurodoll_index]
 #            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
-            item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
-            if  item_mask is None:
+            if nd_pixels>0:  #possibly put a threshold here, too few pixels and forget about it
+                item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
+            else:
+                print('no pixels in mask, skipping')
+            if item_mask is None:
                 continue
             item_mask = np.multiply(item_mask,neurodoll_index)
             if first_time_thru:
@@ -787,15 +836,17 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
 
     #write file (for debugging)
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_output.png'
-    print('name:'+name)
+    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
+    print('combined png name:'+name)
     cv2.imwrite(name,final_mask)
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    print('orig filename:'+str(orig_filename))
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
+
+    #save graymask, this should be identical to nd except no threshold on low amt of pixels
+    graymask_filename = orig_filename[:-4]+'graymask.png'
+    print('graymask file:'+graymask_filename)
+    cv2.imwrite(graymask_filename,pixlevel_categorical_output)
+    nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
     return final_mask
 
@@ -823,11 +874,14 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ]
+    urls = [urls[0]]
     test_nd_alone = True
     if test_nd_alone:
+        raw_input('start test_nd_alone')
         for url in urls:
             #infer-one saves results depending on switch at end
-            result = infer_one(url,required_image_size=(256,256),threshold=0.01)
+            print('testing nd alone')
+            result = infer_one(url)
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
@@ -839,7 +893,9 @@ if __name__ == "__main__":
 
     test_nfc_nd = False
     if test_nfc_nd:
+        raw_input('start test_nfc_nd_alone')
         for url in urls:
+            print('testing nfc_nd')
             nd_out = get_neurodoll_output(url)
             orig_filename = '/home/jeremy/'+url.split('/')[-1]
             urllib.urlretrieve(url, orig_filename)
@@ -850,34 +906,8 @@ if __name__ == "__main__":
     #get output of combine_nd_and_ml
     test_combine = True
     if test_combine:
+        raw_input('start test_combined_nd')
         for url in urls:
+            print('testing combined ml nd')
             out = combine_neurodoll_and_multilabel(url)
             print('combined output:'+str(out))
-
-
-''' #
-MODEL_FILE = "/home/jeremy/voc8_15_pixlevel_deploy.prototxt"
-SINGLE_CLASS_LAYER_DEPLOY = "/home/jeremy/voc8_15_pixlevel_deploy_with_sigmoid.prototxt"
-PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
-caffe.set_mode_gpu()
-caffe.set_device(1)
-print('loading caffemodel for neurodoll (single class layers)')
-neurodoll_per_class_net = caffe.Net(SINGLE_CLASS_LAYER_DEPLOY,PRETRAINED, caffe.TEST)
-neurodoll_required_image_size = (256, 256)
-image_mean = np.array([107.0,117.0,123.0])
-input_scale = None
-channel_swap = [2, 1, 0]
-raw_scale = 255.0
-
-###########LOAD MULTILABELLER
-caffemodel =  '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/snapshot/train_iter_340000.caffemodel'
-deployproto = '/home/jeremy/caffenets/multilabel/vgg_ilsvrc_16_multilabel_2/deploy.prototxt'
-caffe.set_mode_gpu()
-caffe.set_device(0)
-multilabel_net = caffe.Net(deployproto,caffemodel, caffe.TEST)
-multilabel_required_image_size = (227,227)
-'''
-
-
-
-
