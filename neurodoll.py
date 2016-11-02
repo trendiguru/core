@@ -812,8 +812,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     #namely : for top , decide if its a top or dress or jacket
     # for bottom, decide if dress/pants/skirt
     #decide on one bottom
-    for i in range(len(thresholded_multilabel)):
-        if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
+ #   for i in range(len(thresholded_multilabel)):
+ #       if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
     bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','shorts','pants','skirt','suit','overalls']
     print('bottoms indices:'+str(bottom_indexlist))
     bottom_ml_values = [multilabel[i] for i in  bottom_indexlist]
