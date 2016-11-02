@@ -52,7 +52,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
-    weights_base = os.path.basename(weights)
+    if weights:
+        weights_base = os.path.basename(weights)
+    else:
+        weights_base = '_noweights_'
     threshold = 0.5
     if net_name:
         outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
