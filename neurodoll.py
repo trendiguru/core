@@ -802,7 +802,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         return #
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=0)
+    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
 
 
     uniques = np.unique(pixlevel_categorical_output)
