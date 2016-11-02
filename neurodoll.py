@@ -750,7 +750,7 @@ def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_thresho
 
     return final_mask
 
-def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
+def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -909,6 +909,7 @@ if __name__ == "__main__":
     if test_combine:
         raw_input('start test_combined_nd')
         for url in urls:
-            print('testing combined ml nd')
-            out = combine_neurodoll_and_multilabel(url)
-            print('combined output:'+str(out))
+            for median_factor in [0.5,0.0.75,1,1.25,1.5]
+                print('testing combined ml nd, median factor:'+str(median_factor))
+                out = combine_neurodoll_and_multilabel(url,median_factor=1.0)
+                print('combined output:'+str(out))
