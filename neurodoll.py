@@ -566,7 +566,7 @@ def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
-def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6,required_image_size=(256,256)):
+def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6):
     '''
     takes an image (or url) and category.
     gets the neurodoll mask for that category.
@@ -582,15 +582,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
         return
-    if required_image_size is not None:
-        original_h,original_w = image.shape[0:2]
-        logging.debug('resizing gc input to '+str(required_image_size)+' from '+str(original_h)+'x'+str(original_w))
-      #  image,r = background_removal.standard_resize(image,max_side = 256)
-        image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-
     print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
-    if image.shape[0] != neuro_mask.shape[0] or image.shape[1]!=neuro_mask.shape[1]:
-        logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
         #def neurodoll(image, category_idx):
 #    neuro_mask = dic['mask']
 
@@ -598,6 +590,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     image_size = image.shape[0:2]
     if image_size != nm_size:
 #        logging.debug('size mismatch')
+        logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
         image = cv2.resize(image,(nm_size[1],nm_size[0]))
     # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
@@ -797,26 +790,23 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('thresholded label:'+str(thresholded_multilabel))
 #    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
 #    print('multilabel labels:'+str(multilabel_labels))
+
+    #todo - this may be wrong later if we start taking both nd and multilabel into acct. Maybe ml thinks theres nothing there but nd thinks there is...
     if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
         return #
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+#    item_masks =  nfc.pd(image, get_all_graylevels=True)
     print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
 
-
-    uniques = np.unique(pixlevel_categorical_output)
-    print('uniques from graylevel argmax:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
-#    item_masks =  nfc.pd(image, get_all_graylevels=True)
-# hack to combine pants and jeans for better recall
-#    pantsindex = constants.web_tool_categories.index('pants')
-#    jeansindex = constants.web_tool_categories.index('jeans')
-#   if i == pantsindex or i == jeansindex: #
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
-    final_mask = np.zeros([224,224])
 
+    final_mask = np.zeros([224,224])
+    final_mask = np.zeros(pixlevel_categorical_output[:])
+    print('final_mask shape '+str(final_mask.shape))
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = multilabel_to_ultimate21_conversion[i]
@@ -826,7 +816,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             nd_pixels = len(pixlevel_categorical_output[pixlevel_categorical_output==neurodoll_index])
             print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml value {}) nd_pixels {}'.format(
                 i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i],nd_pixels))
-            gray_layer = graylevel_nd_output[neurodoll_index]
+            gray_layer = graylevel_nd_output[:,:,neurodoll_index]
+            print('gray layer size:'+str(gray_layer.shape))
 #            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             if nd_pixels>0:  #possibly put a threshold here, too few pixels and forget about it
                 item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
