@@ -157,7 +157,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
     except:
         # db.download_data.find_one_and_update({"criteria": collection},
         #                                      {'$inc': {"errors": 1}})
-        print "error inserting"
+        print "error inserting ..."
 
     return fingerprint['color']
 
