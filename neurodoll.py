@@ -839,6 +839,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
             #namely : for top , decide if its a top or dress or jacket
             # for bottom, decide if dress/pants/skirt
+                pass
             else:
                 print('no pixels in mask, skipping')
             if item_mask is None:
