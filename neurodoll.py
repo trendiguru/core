@@ -396,7 +396,8 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
  #   cv2.waitKey(0)
     out = np.array(out,dtype=np.uint8)
     print('get_all_categorygraylevels:outshape '+str(out.shape))
-    out = out.transpose((2,0,1))  #change row,col,chan to chan,row,col as caffe wants
+#    out = out.transpose((2,0,1))  #change row,col,chan to chan,row,col as caffe wants
+    out = out.transpose((1,2,0))  #change chan,row,col to row,col,chan  as the rest of world wants
     print('get_all_categorygraylevels:outshape '+str(out.shape))
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
