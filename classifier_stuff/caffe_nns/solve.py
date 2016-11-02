@@ -90,13 +90,17 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             subprocess.call(copycmd,shell=True)
             copycmd = 'cp '+tt[1] + ' ' + outdir
             subprocess.call(copycmd,shell=True)
-
+    #cpoy solverproto to results dir
     if solverproto is not None:
         copycmd = 'cp '+solverproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
+    #copy test proto to results dir
     if testproto is not None:
         copycmd = 'cp '+testproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
+    #copy this file too
+    copycmd = 'cp solve.py '  + outdir
+    subprocess.call(copycmd,shell=True)
 
 
     #copycmd = 'cp -r '+outdir + ' ' + host_dirname

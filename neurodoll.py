@@ -814,13 +814,39 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     #decide on one bottom
  #   for i in range(len(thresholded_multilabel)):
  #       if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
+
+
+##################################
+#Make some conclusions nadav style
+##################################
+    #1. decide on whole body item (dress, suit, overall) vs. non-whole body items.
+    #2. if whole body, donate non-whole-body pixels to whole body
+    #3. else, take max one upper cover , donate losers to winner
+    #4. take at least one upper under, donate losers to winner
+    #5. take at least one lower cover, donate losers to winner
+    #6. take max one lower under
+    #upper_cover: jacket, coat, blazer etc
+    #upper under: shirt, top, blouse etc
+    #lower cover: skirt, pants, shorts
+    #lower under: tights, leggings
+
+    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']]
+    print('wholebody indices:'+str(bottom_indexlist))
+    bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
+    print('bottom ml_values:'+str(bottom_ml_values))
+    thewinner = bottom_ml_values.argmax()
+    thewinner_value=bottom_ml_values[thewinner]
+    thewinner_index=bottom_indexlist[thewinner]
+    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
+
     bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','pants','shorts','skirt','suit','overalls']]
     print('bottoms indices:'+str(bottom_indexlist))
     bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
     print('bottom ml_values:'+str(bottom_ml_values))
     thewinner = bottom_ml_values.argmax()
-    thewinner_mlindex=bottom_ml_values[thewinner]
-    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_mlindex))
+    thewinner_value=bottom_ml_values[thewinner]
+    thewinner_index=bottom_indexlist[thewinner]
+    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
 
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
