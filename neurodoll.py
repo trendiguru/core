@@ -830,23 +830,53 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     #lower cover: skirt, pants, shorts
     #lower under: tights, leggings
 
-    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']]
-    print('wholebody indices:'+str(bottom_indexlist))
-    bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
-    print('bottom ml_values:'+str(bottom_ml_values))
-    thewinner = bottom_ml_values.argmax()
-    thewinner_value=bottom_ml_values[thewinner]
-    thewinner_index=bottom_indexlist[thewinner]
-    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
+    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']] #swimsuits could be added here
+    upper_cover_indexlist = [multilabel_labels.index(s) for s in  ['cardigan', 'coat','jacket','sweater','sweatshirt']]
+    upper_under_indexlist = [multilabel_labels.index(s) for s in  ['top']]
+    lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
+    lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
-    bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','pants','shorts','skirt','suit','overalls']]
-    print('bottoms indices:'+str(bottom_indexlist))
-    bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
-    print('bottom ml_values:'+str(bottom_ml_values))
-    thewinner = bottom_ml_values.argmax()
-    thewinner_value=bottom_ml_values[thewinner]
-    thewinner_index=bottom_indexlist[thewinner]
-    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
+    print('wholebody indices:'+str(whole_body_indexlist))
+    whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
+    print('wholebody ml_values:'+str(whole_body_indexlist))
+    thewinner = whole_body_ml_values.argmax()
+    whole_body_winner_value=whole_body_ml_values[thewinner]
+    whole_body_winner_index=whole_body_indexlist[thewinner]
+    print('winning wholebody:'+str(thewinner)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
+    if whole_body_winner_value < multilabel_threshold:
+        print('winning wholebody is under threshold')
+
+    print('uppercover indices:'+str(upper_cover_indexlist))
+    upper_cover_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
+    print('upper_cover ml_values:'+str(upper_cover_ml_values))
+    upper_cover_winner = upper_cover_ml_values.argmax()
+    upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
+    upper_cover_winner_index=upper_cover_indexlist[upper_cover_winner]
+    print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
+
+    print('upperunder indices:'+str(upper_under_indexlist))
+    upper_under_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
+    print('upper_under ml_values:'+str(upper_under_ml_values))
+    upper_under_winner = upper_under_ml_values.argmax()
+    upper_under_winner_value=upper_under_ml_values[upper_under_winner]
+    upper_under_winner_index=upper_under_indexlist[upper_under_winner]
+    print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
+
+    print('lowercover indices:'+str(lower_cover_indexlist))
+    lower_cover_ml_values = np.array([multilabel[i] for i in lower_cover_indexlist])
+    print('lower_cover ml_values:'+str(lower_cover_ml_values))
+    lower_cover_winner = lower_cover_ml_values.argmax()
+    lower_cover_winner_value=lower_cover_ml_values[lower_cover_winner]
+    lower_cover_winner_index=lower_cover_indexlist[lower_cover_winner]
+    print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
+
+    print('upperunder indices:'+str(upper_under_indexlist))
+    upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
+    print('upper_under ml_values:'+str(upper_under_ml_values))
+    upper_under_winner = upper_under_ml_values.argmax()
+    upper_under_winner_value=upper_under_ml_values[upper_under_winner]
+    upper_under_winner_index=upper_under_indexlist[upper_under_winner]
+    print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
 
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
