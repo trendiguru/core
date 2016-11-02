@@ -817,7 +817,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','shorts','pants','skirt','suit','overalls']]
     print('bottoms indices:'+str(bottom_indexlist))
     bottom_ml_values = [multilabel[i] for i in  bottom_indexlist]
-    print('bottom ml_values:'str(bottom_ml_values))
+    print('bottom ml_values:'+str(bottom_ml_values))
     thewinner = bottom_ml_values.argmax()
     thewinner_mlindex=bottom_ml_values[thewinner]
     print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_mlindex))
