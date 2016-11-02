@@ -15,6 +15,7 @@ import os
 import time
 import hashlib
 import urllib
+import sys
 
 from trendi import constants
 from trendi.utils import imutils
@@ -48,7 +49,7 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 
 test_on = True #
 if test_on:
-    gpu = 1
+    gpu = int(sys.argv[1])
 else:
     gpu = 0
 caffe.set_mode_gpu()
