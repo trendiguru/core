@@ -805,7 +805,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
 
     final_mask = np.zeros([224,224])
-    final_mask = np.zeros(pixlevel_categorical_output[:])
+    final_mask = np.zeros(pixlevel_categorical_output.shape[:])
     print('final_mask shape '+str(final_mask.shape))
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
