@@ -807,6 +807,21 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     final_mask = np.zeros([224,224])
     final_mask = np.zeros(pixlevel_categorical_output.shape[:])
     print('final_mask shape '+str(final_mask.shape))
+
+    #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
+    #namely : for top , decide if its a top or dress or jacket
+    # for bottom, decide if dress/pants/skirt
+    #decide on one bottom
+    for i in range(len(thresholded_multilabel)):
+        if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
+    bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','shorts','pants','skirt','suit','overalls']
+    print('bottoms indices:'+str(bottom_indexlist))
+    bottom_ml_values = [multilabel[i] for i in  bottom_indexlist]
+    print('bottom ml_values:'str(bottom_ml_values))
+    thewinner = bottom_ml_values.argmax()
+    thewinner_mlindex=bottom_ml_values[thewinner]
+    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_mlindex))
+
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = multilabel_to_ultimate21_conversion[i]
@@ -820,7 +835,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             print('gray layer size:'+str(gray_layer.shape))
 #            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
             if nd_pixels>0:  #possibly put a threshold here, too few pixels and forget about it
-                item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
+#                item_mask = grabcut_using_neurodoll_graylevel(url_or_np_array,gray_layer,median_factor=median_factor)
+                #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
+            #namely : for top , decide if its a top or dress or jacket
+            # for bottom, decide if dress/pants/skirt
             else:
                 print('no pixels in mask, skipping')
             if item_mask is None:
