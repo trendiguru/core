@@ -1048,18 +1048,18 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:
-                print('doing overlay')
+                print('show_mask_with_labels:doing overlay')
                 orig_arr = cv2.addWeighted(orig_arr, overlay, img_arr, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
             combined_h,combined_w = combined.shape[0:2]
-            print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
+            print('show_mask_with_labels:comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
 #            if combined_h<minheight:
 #                factor = float(minheight)/combined_h
 #                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
         else:
-            logging.warning('could not get image '+original_image)
+            logging.warning('show_mask_with_labels could not get image '+original_image)
  #   cv2.imshow('map',dest)
  #   cv2.imshow('colorbar',dest_colorbar)
     relative_name = os.path.basename(mask_filename)
@@ -1071,9 +1071,10 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
 #        full_outname=outname
-        print(full_outname)
+        print('show_mask_with_labels is saving labelled img to '+full_outname)
         cv2.imwrite(full_outname,combined)
 
+    #todo move this to a separate function i dont think theres any reason its here
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
         print('(d)elete (c)lose anything else keeps')
         indir = os.path.dirname(mask_filename)

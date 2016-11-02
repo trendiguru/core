@@ -350,7 +350,9 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
+    if required_image_size is not None:
+        original_h, original_w = image.shape[0:2]
+        in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
         print('got 1-chan image, turning into 3 channel')
@@ -369,7 +371,6 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     # run net and take argmax for prediction
     net.forward()
 #    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-
  #   print('blobs:'+str(net.blobs))
 
 
@@ -391,10 +392,14 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
 #    result.save(outname)
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
-    return out.astype(np.uint8)
+    out = np.array(out,dtype=np.uint8)
+    if required_image_size is not None:
+        logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
+        out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
+    print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
+    return out
 
 
 
@@ -449,7 +454,7 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
 #    result.save(outname)
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
+    print('get all category graylevels ineff elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
 
@@ -580,7 +585,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
         image = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
 
     print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
-    if image.shape != neuro_mask.shape():
+    if image.shape[0] != neuro_mask.shape[0] or image.shape[1]!=neuro_mask.shape[1]:
         logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
         #def neurodoll(image, category_idx):
 #    neuro_mask = dic['mask']
@@ -698,10 +703,10 @@ def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_thresho
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
 #    print('orig label:'+str(multilabel))
     print('combining multilabel w. neurodoll, watch out')
-    print('incoming label:'+str(multilabel))
-    print('thresholded label:'+str(thresholded_multilabel))
-    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-    print('multilabel labels:'+str(multilabel_labels))
+#    print('incoming label:'+str(multilabel))
+#    print('thresholded label:'+str(thresholded_multilabel))
+#    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+#    print('multilabel labels:'+str(multilabel_labels))
 
     if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
@@ -784,10 +789,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
 #    print('orig label:'+str(multilabel))
     print('combining multilabel w. neurodoll, watch out')
-    print('incoming label:'+str(multilabel))
+#    print('incoming label:'+str(multilabel))
     print('thresholded label:'+str(thresholded_multilabel))
-    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-    print('multilabel labels:'+str(multilabel_labels))
+#    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+#    print('multilabel labels:'+str(multilabel_labels))
     if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
         logging.debug('no items found')
         return #
@@ -797,7 +802,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
 
     uniques = np.unique(pixlevel_categorical_output)
-    print('uniques:'+str(uniques))
+    print('uniques from graylevel argmax:'+str(uniques))
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
 #    item_masks =  nfc.pd(image, get_all_graylevels=True)
 # hack to combine pants and jeans for better recall
