@@ -857,7 +857,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
 
     print('upperunder indices:'+str(upper_under_indexlist))
-    upper_under_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
+    upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
     print('upper_under ml_values:'+str(upper_under_ml_values))
     upper_under_winner = upper_under_ml_values.argmax()
     upper_under_winner_value=upper_under_ml_values[upper_under_winner]
