@@ -463,6 +463,8 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
     if careful_with_the_labels:
+        #todo - the real way to do this is break into n channels and resize each individually
+        #this may possibly be done by putting a loop over channels and calling this function recursively n_chan times
         #kill any extranneous labels that have popped up
 #        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
 #        print('uniques in dest:'+str(np.unique(output_img)))
@@ -1245,22 +1247,22 @@ if __name__ == "__main__":
     orig_h,orig_w = img_arr.shape[0:2]
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (600,400),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (600,399),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (400,600),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (400,601),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
     resize_keep_aspect(infile, output_file=output_file, output_size = (400,599),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
 
 #nonlinear xforms , stolen from:

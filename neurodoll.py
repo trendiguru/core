@@ -225,6 +225,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
 
         #my resize uses hxw (thats actually more consistent w. cv2 and numpy )
 #        out = imutils.resize_keep_aspect(out,output_size=(original_h,original_w),output_file=None)
+        out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
 #        out = out[:,:,0]
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
