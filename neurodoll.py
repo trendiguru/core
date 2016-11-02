@@ -872,13 +872,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     lower_cover_winner_index=lower_cover_indexlist[lower_cover_winner]
     print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
 
-    print('upperunder indices:'+str(upper_under_indexlist))
-    upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
-    print('upper_under ml_values:'+str(upper_under_ml_values))
-    upper_under_winner = upper_under_ml_values.argmax()
-    upper_under_winner_value=upper_under_ml_values[upper_under_winner]
-    upper_under_winner_index=upper_under_indexlist[upper_under_winner]
-    print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
+    print('lowerunder indices:'+str(lower_under_indexlist))
+    lower_under_ml_values = np.array([multilabel[i] for i in  lower_under_indexlist])
+    print('lower_under ml_values:'+str(lower_under_ml_values))
+    lower_under_winner = lower_under_ml_values.argmax()
+    lower_under_winner_value=lower_under_ml_values[lower_under_winner]
+    lower_under_winner_index=lower_under_indexlist[lower_under_winner]
+    print('winning lower_under:'+str(lower_under_winner)+' mlindex:'+str(lower_under_winner_index)+' value:'+str(lower_under_winner_value))
 
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
