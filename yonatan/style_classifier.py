@@ -16,7 +16,7 @@ db = pymongo.MongoClient().mydb
 # startswith - ^
 # is there - .
 
-limit = 30000
+limit = 7500
 
 
 ##---- Casual: 0 ----##
@@ -103,53 +103,54 @@ for i in list_to_iter:
     counter += 1
 
 casual_txt_file.close()
+#
+#
+# ##---- Prom & Homecoming: 1 ----##
+# regx_prom = re.compile("/*Prom & Homecoming", re.IGNORECASE)
+# prom_female_num = db.amazon_US_Female.count({'tree': regx_prom})  # = 48754
+#
+# prom_female = db.amazon_US_Female.find({'tree': regx_prom})
+#
+# prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
+#
+# list_to_iter = range(1, prom_female_num)
+# random.shuffle(list_to_iter)
+# counter = 1
+# error_counter = 0
+#
+# for i in list_to_iter:
+#
+#     if counter > limit:
+#         break
+#
+#     try:
+#         link_to_image = prom_female[i]['images']['XLarge']
+#     except:
+#         print "link ain't good"
+#         error_counter += 1
+#         continue
+#
+#     response = requests.get(link_to_image)  # download
+#     if not response:
+#         print 'Fail'
+#         continue
+#     image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+#     if image is None:
+#         print "not a good image"
+#         continue
+#
+#     resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
+#
+#     image_file_name = 'prom_female_' + str(i) + '.jpg'
+#     cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), resized_image)
+#
+#     prom_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
+#
+#     print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
+#     counter += 1
+#
+# prom_txt_file.close()
 
-
-##---- Prom & Homecoming: 1 ----##
-regx_prom = re.compile("/*Prom & Homecoming", re.IGNORECASE)
-prom_female_num = db.amazon_US_Female.count({'tree': regx_prom})  # = 48754
-
-prom_female = db.amazon_US_Female.find({'tree': regx_prom})
-
-prom_txt_file = open("/home/yonatan/style_classifier/prom_txt_file.txt", "w")
-
-list_to_iter = range(1, prom_female_num)
-random.shuffle(list_to_iter)
-counter = 1
-error_counter = 0
-
-for i in list_to_iter:
-
-    if counter > limit:
-        break
-
-    try:
-        link_to_image = prom_female[i]['images']['XLarge']
-    except:
-        print "link ain't good"
-        error_counter += 1
-        continue
-
-    response = requests.get(link_to_image)  # download
-    if not response:
-        print 'Fail'
-        continue
-    image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    if image is None:
-        print "not a good image"
-        continue
-
-    resized_image = imutils.resize_keep_aspect(image, output_size=(224, 224))
-
-    image_file_name = 'prom_female_' + str(i) + '.jpg'
-    cv2.imwrite(os.path.join("/home/yonatan/style_classifier/prom", image_file_name), resized_image)
-
-    prom_txt_file.write(os.path.join("/home/yonatan/style_classifier/prom", image_file_name) + " 1" + "\n")
-
-    print "counter: {0}, i = {1}, error_counter = {2}".format(counter, i, error_counter)
-    counter += 1
-
-prom_txt_file.close()
 
 ##---- Tuxedos & Suits: 2 ----##
 regx_tux = re.compile("/*Tuxedos", re.IGNORECASE)

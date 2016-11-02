@@ -7,14 +7,14 @@ display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 20
+iter_size: 10
 snapshot: 10000
 snapshot_prefix: "snapshot/res152_binary_dress"
 test_initialization: false
 solver_mode : GPU
 
 type: "SGD"
-base_lr: 1e-2
+base_lr: 1e-3
 lr_policy: "step"
 #lr_policy: "fixed"
 gamma: 0.1

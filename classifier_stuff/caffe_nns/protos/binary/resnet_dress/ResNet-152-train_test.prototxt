@@ -1,4 +1,4 @@
-name: "ResNet-152_binary"
+name: "ResNet-152_binary_dress"
 
 layer {
       name: "data"
@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
       }
   include {phase: TRAIN}
 }
@@ -20,7 +20,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':2 }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_test_250x250.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
       }
     include {phase: TEST}
 }
@@ -7090,7 +7090,7 @@ layer {
 layer {
 	name: "fc2"
 	bottom: "pool5"
-	top: "myfc2"
+	top: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 2

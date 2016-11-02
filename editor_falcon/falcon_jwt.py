@@ -99,7 +99,8 @@ class AuthMiddleware(object):
                                           challenges,
                                           href='http://docs.example.com/auth')
 
-        if not self._token_is_valid(token):
+        decoded_token = self._decode_token(token)
+        if not decoded_token:
             logging.debug("token is not valid")
             description = ('The provided auth token is not valid. '
                            'Please request a new token and try again.')
@@ -108,11 +109,20 @@ class AuthMiddleware(object):
                                           description,
                                           challenges,
                                           href='http://docs.example.com/auth')
+        else:
+            user_identifier = decoded_token.get("user_identifier")
+            if not user_identifier:
+                raise falcon.HTTPUnauthorized('Authentication required -- no user',
+                                          description,
+                                          challenges,
+                                          href='http://docs.example.com/auth')
+            else:
+                req.context["user_identifier"] = user_identifier
 
-    def _token_is_valid(self, token):
+    def _decode_token(self, token):
         try:
-            jwt.decode(token, self.secret, algorithm='HS256')
-            return True
+            decoded_token = jwt.decode(token, self.secret, algorithm='HS256')
+            return decoded_token or False
         except:
             return False
 
