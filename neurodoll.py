@@ -221,8 +221,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
     #    out = [out,out,out]
         #cv2 resize uses wxh
-        out = cv2.resize(out,(original_w,original_h))
-
+#        out = cv2.resize(out,(original_w,original_h))
         #my resize uses hxw (thats actually more consistent w. cv2 and numpy )
 #        out = imutils.resize_keep_aspect(out,output_size=(original_h,original_w),output_file=None)
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
