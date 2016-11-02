@@ -50,6 +50,7 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 test_on = True #
 if test_on:
     gpu = int(sys.argv[1])
+    print('using gpu '+str(gpu))
 else:
     gpu = 0
 caffe.set_mode_gpu()
