@@ -911,5 +911,5 @@ if __name__ == "__main__":
         for url in urls:
             for median_factor in [0.5,0.75,1,1.25,1.5]:
                 print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=1.0)
+                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
                 print('combined output:'+str(out))
