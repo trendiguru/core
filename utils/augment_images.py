@@ -216,7 +216,7 @@ def mask_to_multichannel(mask_arr,n_channels):
         print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
         pixel_count = np.count_nonzero(output_arr)
-        print('cumulative pixcount {}'.format(pixel_count))
+   #     print('cumulative pixcount {}'.format(pixel_count))
     return output_arr
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
