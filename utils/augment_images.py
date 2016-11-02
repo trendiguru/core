@@ -213,7 +213,7 @@ def mask_to_multichannel(mask_arr,n_channels):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
         pixel_count = np.count_nonzero(channel)
-        print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
+ #       print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
         pixel_count = np.count_nonzero(output_arr)
    #     print('cumulative pixcount {}'.format(pixel_count))
