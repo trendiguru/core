@@ -765,7 +765,6 @@ def kill_the_missing(sourcedir, targetdir):
     files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
     print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
 
-
 def find_the_common(sourcedir, targetdir):
     '''
     this removes anything not in the source , from the target
@@ -836,7 +835,6 @@ def concatenate_labels(mask,kplist):
         matches = np.add(matches,nv)
     return matches
 
-
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
     print('doing resize/crop in dir '+dir)
@@ -906,7 +904,6 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     plt.legend()
     plt.savefig('outhist.jpg')
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
-
 
 def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
     '''
@@ -1106,9 +1103,6 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
 
     return combined,frac
 #        return dest
-
-
-
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
     imfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) and filter in f]
     for f in imfiles:
@@ -1125,7 +1119,6 @@ def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
         cv2.imwrite(outfile,output_arr)
         print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh))
         print('infile {} outfile {}'.format(infile,outfile))
-
 
 def nms_detections(dets, overlap=0.3):
     """
