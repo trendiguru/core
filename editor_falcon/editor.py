@@ -107,7 +107,13 @@ class Editor(object):
         pid = db.users.find_one({'email': user_email})['pid']
         products_collection = page_results.get_collection_from_ip_and_pid(None, pid)
         try:
-            if "item_category" in path_args:
+            if "results_collection" in path_args:
+                ret['ok'] = edit_results.add_result(path_args['image_id'],
+                                                    path_args["person_id"],
+                                                    path_args["item_category"],
+                                                    products_collection,
+                                                    data)
+            elif "person_id" in path_args:
                 ret['ok'] = edit_results.add_item(path_args["image_id"],
                                                   path_args["person_id"],
                                                   data['category'],

@@ -15,6 +15,7 @@ import os
 import time
 import hashlib
 import urllib
+import sys
 
 from trendi import constants
 from trendi.utils import imutils
@@ -48,7 +49,8 @@ PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caff
 
 test_on = True #
 if test_on:
-    gpu = 1
+    gpu = int(sys.argv[1])
+    print('using gpu '+str(gpu))
 else:
     gpu = 0
 caffe.set_mode_gpu()
@@ -94,7 +96,6 @@ multilabel_required_image_size = (224,224)
 #                              image_dims=image_dims, mean=mean,
 ##                              input_scale=input_scale, raw_scale=raw_scale,
  #                             channel_swap=channel_swap)
-
 
 
 def url_to_image(url):
@@ -402,11 +403,75 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
+        print('get_all_categorygraylevels after reshape: '+str(out.shape))
     print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
+def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
+    if isinstance(url_or_np_array, basestring):
+        print('analyze_graylevels working on url:'+url_or_np_array)
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        print('starting to analyze graylevel on img')
+        image = url_or_np_array
 
+    gl = get_all_category_graylevels(url_or_np_array)
+    mask = gl.argmax(axis=2)
+    background = np.array((mask==0)*1)
+    foreground = np.array((mask>0)*1)
+    print('masktype: '+str(type(background))+' shape:'+str(foreground.shape))
+    h,w = gl.shape[0:2]
+    window_size = 1700
+    n_rows=5
+    compress_factor = max(float(h*n_rows)/window_size,float(w*n_rows)/window_size)
+    compressed_h = int(h/compress_factor)
+    compressed_w = int(w/compress_factor)
+    compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
+    compressed_foreground = cv2.resize(foreground,(compressed_w,compressed_h))
+    print('compressed hw {} {}'.format(compressed_h,compressed_w))
+    compressed_image = cv2.resize(image,(compressed_w,compressed_h))
+    big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
+    print('bigsize:'+str(big_out.shape))
 
+    for i in range(5):
+        for j in range(5):
+            n = i*n_rows+j
+            print('n:'+str(n))
+            if n>=gl.shape[2]:
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,0]
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_image[:,:,1]
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_image[:,:,2]
+
+                break
+#            print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
+            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_gl[:,:,n]
+            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_gl[:,:,n]
+            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_gl[:,:,n]
+            cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
+            cv2.imwrite('bigout.jpg',big_out)
+#            cv2.imshow('bigout',big_out)
+
+    big_out2 = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
+    print('bigsize:'+str(big_out.shape))
+
+    for thresh in [0.5,0.7,0.9,0.95,0.98]:
+
+        for i in range(5):
+            for j in range(5):
+                n = i*n_rows+j
+                print('n:'+str(n))
+                if n>=gl.shape[2]:
+                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
+
+                    break
+                print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+
+                print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
+                cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
+                cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
@@ -465,56 +530,33 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
     return out.astype(np.uint8)
 
 def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
-    start_time = time.time()
-    if isinstance(url_or_np_array, basestring):
-        print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
-    elif type(url_or_np_array) == np.ndarray:
-        image = url_or_np_array
-# load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-#    im = Image.open(imagename)
-#    im = im.resize(required_imagesize,Image.ANTIALIAS)
-#    in_ = in_.astype(float)
-    in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
-    in_ = np.array(in_, dtype=np.float32)   #.astype(float)
-    if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
-        print('got 1-chan image, turning into 3 channel')
-        #DEBUG THIS , ORDER MAY BE WRONG [what order? what was i thinking???]
-        in_ = np.array([in_,in_,in_])
-    elif in_.shape[2] != 3:  #for rgb/bgr, some imgages have 4 chan for alpha i guess
-        print('got n-chan image, skipping - shape:'+str(in_.shape))
-        return
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
-#    cv2.imshow('test',in_)
-    in_ -= np.array((104,116,122.0))
-    in_ = in_.transpose((2,0,1))
-    # shape for input (data blob is N x C x H x W), set data
-    net.blobs['data'].reshape(1, *in_.shape)
-    net.blobs['data'].data[...] = in_
-    # run net and take argmax for prediction
-    net.forward()
-#    out = net.blobs['score'].data[0].argmax(axis=0) #for a parse with per-pixel max
-    out = net.blobs['siggy'].data[0][category_index] #for the nth class layer #siggy is after sigmoid
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out shape {}'.format(min,max,out.shape))
-    out = out*255
-    min = np.min(out)
-    max = np.max(out)
-    print('min {} max {} out after scaling  {}'.format(min,max,out.shape))
-    result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-#    outname = os.path.basename(imagename)
-#    outname = outname.split('.jpg')[0]+'.bmp'
-#    outname = os.path.join(out_dir,outname)
-#    print('outname:'+outname)
-#    result.save(outname)
-    #        fullout = net.blobs['score'].data[0]
-    elapsed_time=time.time()-start_time
-    print('infer_one elapsed time:'+str(elapsed_time))
- #   cv2.imshow('out',out.astype(np.uint8))
- #   cv2.waitKey(0)
-    return out.astype(np.uint8)
+    all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
+    requested_layer = all_layers[:,:,category_index]
+    return requested_layer
+
+def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
+    '''
+    This takes a given layer, thresholds it, but keeps original backgound strictly
+    :param url_or_np_array:
+    :param category_index:
+    :param required_image_size:
+    :param threshold:
+    :return:
+    '''
+    all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
+    requested_layer = all_layers[:,:,category_index]
+    mask = all_layers.argmax(axis=2)
+    basename = 'getgl_'+str(category_index)
+    cv2.imwrite(basename+'mask.jpg',mask)
+    background = mask==0
+    cv2.imwrite(basename+'bgnd.jpg',background*255)
+    foreground = mask>0
+    cv2.imwrite(basename+'fgnd.jpg',foreground*255)
+    thresholded_layer = requested_layer>threshold*255
+    cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
+    new_mask = foreground * thresholded_layer
+    cv2.imwrite(basename+'out.jpg',new_mask*255)
+    return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
     '''
@@ -798,7 +840,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-#    item_masks =  nfc.pd(image, get_all_graylevels=True)
+    foreground = pixlevel_categorical_output>0
+    background = pixlevel_categorical_output==0
+    #    item_masks =  nfc.pd(image, get_all_graylevels=True)
     print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
 
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
@@ -830,23 +874,53 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     #lower cover: skirt, pants, shorts
     #lower under: tights, leggings
 
-    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']]
-    print('wholebody indices:'+str(bottom_indexlist))
-    bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
-    print('bottom ml_values:'+str(bottom_ml_values))
-    thewinner = bottom_ml_values.argmax()
-    thewinner_value=bottom_ml_values[thewinner]
-    thewinner_index=bottom_indexlist[thewinner]
-    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
+    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']] #swimsuits could be added here
+    upper_cover_indexlist = [multilabel_labels.index(s) for s in  ['cardigan', 'coat','jacket','sweater','sweatshirt']]
+    upper_under_indexlist = [multilabel_labels.index(s) for s in  ['top']]
+    lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
+    lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
-    bottom_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'jeans','pants','shorts','skirt','suit','overalls']]
-    print('bottoms indices:'+str(bottom_indexlist))
-    bottom_ml_values = np.array([multilabel[i] for i in  bottom_indexlist])
-    print('bottom ml_values:'+str(bottom_ml_values))
-    thewinner = bottom_ml_values.argmax()
-    thewinner_value=bottom_ml_values[thewinner]
-    thewinner_index=bottom_indexlist[thewinner]
-    print('winning bottom:'+str(thewinner)+' mlindex:'+str(thewinner_index)+' value:'+str(thewinner_value))
+    print('wholebody indices:'+str(whole_body_indexlist))
+    whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
+    print('wholebody ml_values:'+str(whole_body_indexlist))
+    thewinner = whole_body_ml_values.argmax()
+    whole_body_winner_value=whole_body_ml_values[thewinner]
+    whole_body_winner_index=whole_body_indexlist[thewinner]
+    print('winning wholebody:'+str(thewinner)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
+    if whole_body_winner_value < multilabel_threshold:
+        print('winning wholebody is under threshold')
+
+    print('uppercover indices:'+str(upper_cover_indexlist))
+    upper_cover_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
+    print('upper_cover ml_values:'+str(upper_cover_ml_values))
+    upper_cover_winner = upper_cover_ml_values.argmax()
+    upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
+    upper_cover_winner_index=upper_cover_indexlist[upper_cover_winner]
+    print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
+
+    print('upperunder indices:'+str(upper_under_indexlist))
+    upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
+    print('upper_under ml_values:'+str(upper_under_ml_values))
+    upper_under_winner = upper_under_ml_values.argmax()
+    upper_under_winner_value=upper_under_ml_values[upper_under_winner]
+    upper_under_winner_index=upper_under_indexlist[upper_under_winner]
+    print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
+
+    print('lowercover indices:'+str(lower_cover_indexlist))
+    lower_cover_ml_values = np.array([multilabel[i] for i in lower_cover_indexlist])
+    print('lower_cover ml_values:'+str(lower_cover_ml_values))
+    lower_cover_winner = lower_cover_ml_values.argmax()
+    lower_cover_winner_value=lower_cover_ml_values[lower_cover_winner]
+    lower_cover_winner_index=lower_cover_indexlist[lower_cover_winner]
+    print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
+
+    print('lowerunder indices:'+str(lower_under_indexlist))
+    lower_under_ml_values = np.array([multilabel[i] for i in  lower_under_indexlist])
+    print('lower_under ml_values:'+str(lower_under_ml_values))
+    lower_under_winner = lower_under_ml_values.argmax()
+    lower_under_winner_value=lower_under_ml_values[lower_under_winner]
+    lower_under_winner_index=lower_under_indexlist[lower_under_winner]
+    print('winning lower_under:'+str(lower_under_winner)+' mlindex:'+str(lower_under_winner_index)+' value:'+str(lower_under_winner_value))
 
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
@@ -896,6 +970,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     return final_mask
 
+
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
 #                              image_dims=image_dims, mean=mean,
@@ -906,7 +981,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
-    urls = [url,
+    urls = ['http://healthyceleb.com/wp-content/uploads/2014/03/Nargis-Fakhri-Main-Tera-Hero-Trailer-Launch.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
             'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
@@ -919,8 +995,7 @@ if __name__ == "__main__":
             'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
-    ]
-    urls = [urls[0]]
+    ] #
     test_nd_alone = False
     if test_nd_alone:
         raw_input('start test_nd_alone')
@@ -949,12 +1024,23 @@ if __name__ == "__main__":
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
+    get_category_graylevel(urls[0],category_index = 3)
+
+    test_graylevels = False
+    if test_graylevels:
+        for i in range(21):
+            get_category_graylevel(url,category_index = i)
+
+  #  analyze_graylevels(urls[0])
+    get_category_graylevel(urls[0],4)
+
     #get output of combine_nd_and_ml
-    test_combine = True
+    test_combine = False
     if test_combine:
-        raw_input('start test_combined_nd')
+        print('start test_combined_nd')
         for url in urls:
-            for median_factor in [0.5,0.75,1,1.25,1.5]:
-                print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
-                print('combined output:'+str(out))
+            analyze_graylevels(url)
+#            for median_factor in [0.5,0.75,1,1.25,1.5]:
+#                print('testing combined ml nd, median factor:'+str(median_factor))
+#                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+#                print('combined output:'+str(out))

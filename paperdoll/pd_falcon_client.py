@@ -1,6 +1,6 @@
 __author__ = 'liorsabag'
 
-from jaweson import msgpack
+from jaweson import json as msgpack
 import requests
 
 #
