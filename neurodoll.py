@@ -404,6 +404,7 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
+        print('get_all_categorygraylevels after reshape: '+str(out.shape))
     print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
