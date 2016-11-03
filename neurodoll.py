@@ -811,7 +811,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-#    item_masks =  nfc.pd(image, get_all_graylevels=True)
+    foreground = pixlevel_categorical_output[pixlevel_categorical_output==]
+    #    item_masks =  nfc.pd(image, get_all_graylevels=True)
     print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
 
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
@@ -949,7 +950,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
-    urls = [url,
+    urls = ['http://healthyceleb.com/wp-content/uploads/2014/03/Nargis-Fakhri-Main-Tera-Hero-Trailer-Launch.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
             'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
