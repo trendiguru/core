@@ -287,8 +287,8 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 
     # binary_classifier_categories is the same as web_tool_categories_v2 but with addition of mens_swimwear
 binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
-                             'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',

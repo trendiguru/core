@@ -2555,3 +2555,9 @@ layer {
   top: "loss"
 }
 
+layer {
+  name: "mypixlevel_output"
+  type: "Softmax"
+  bottom: "conv_final"
+  top: "mypixlevel_output"
+}
