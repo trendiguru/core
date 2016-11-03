@@ -413,7 +413,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     window_size = 1500
     n_rows=5
     compress_factor = max(float(h*n_rows)/window_size,float(w*n_rows)/window_size)
-    compressed_gl = cv2.resize(gl,(w/compress_factor,h/compress_factor))
+    compressed_gl = cv2.resize(gl,(int(w/compress_factor),int(h/compress_factor)))
     big_out = np.zeros([h*n_rows,w*n_rows])
     print('bigsize:'+str(big_out.shape))
     for i in range(5):
