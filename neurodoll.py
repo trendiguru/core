@@ -427,7 +427,8 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 break
             print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w] = compressed_gl[:,:,n]
-            cv2.imshow('bigout',big_out)
+            cv2.imwrite('bigout.jpg',big_out)
+#            cv2.imshow('bigout',big_out)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
