@@ -540,15 +540,16 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
-    cv2.imwrite('testmask.jpg',mask)
+    basename = 'getgl_'+str(category_index)
+    cv2.imwrite(basename+'mask.jpg',mask)
     background = mask>0
-    cv2.imwrite('testbgnd.jpg',background*255)
+    cv2.imwrite(basename+'bgnd.jpg',background*255)
     foreground = mask==0
-    cv2.imwrite('testfgnd.jpg',foreground*255)
+    cv2.imwrite(basename+'fgnd.jpg',foreground*255)
     thresholded_layer = requested_layer>threshold*255
-    cv2.imwrite('testthresh.jpg',thresholded_layer*255)
+    cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
     new_mask = foreground * thresholded_layer
-    cv2.imwrite('testout.jpg',new_mask*255)
+    cv2.imwrite(basename+'out.jpg',new_mask*255)
     return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
@@ -1018,8 +1019,12 @@ if __name__ == "__main__":
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
+    test_graylevels = True
+    for i in range(21):
+        get_category_graylevel(url,category_index = i)
+
     #get output of combine_nd_and_ml
-    test_combine = True
+    test_combine = False
     if test_combine:
         print('start test_combined_nd')
         for url in urls:
