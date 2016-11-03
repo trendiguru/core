@@ -417,8 +417,8 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
     gl = get_all_category_graylevels(url_or_np_array)
     mask = gl.argmax(axis=2)
-    background = (mask==0)*1
-    foreground = (mask>0)*1
+    background = np.array((mask==0)*1)
+    foreground = np.array((mask>0)*1)
     h,w = gl.shape[0:2]
     window_size = 1700
     n_rows=5
