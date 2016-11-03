@@ -450,7 +450,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_image[:,:,2]
 
                 j = j+1
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,:] = foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = foreground
 
 
                 break
@@ -466,7 +466,6 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     print('bigsize:'+str(big_out.shape))
 
     for thresh in [0.5,0.7,0.9,0.95,0.98]:
-
         for i in range(5):
             for j in range(5):
                 n = i*n_rows+j
@@ -474,7 +473,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 if n>=gl.shape[2]:
                     big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
                     j = j+1
-                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,:] = foreground
+                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = foreground
 
                     break
          #       print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
