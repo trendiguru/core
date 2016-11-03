@@ -454,8 +454,6 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     big_out2 = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
     print('bigsize:'+str(big_out.shape))
 
-
-
     for thresh in [0.5,0.7,0.9,0.95,0.98]:
 
         for i in range(5):
@@ -531,12 +529,12 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
 
     return out.astype(np.uint8)
 
-def get_category_graylevel_raw(url_or_np_array,category_index,required_image_size=(256,256)):
+def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
 
-def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
+def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
     '''
     This takes a given layer, thresholds it, but keeps original backgound strictly
     :param url_or_np_array:
@@ -1025,6 +1023,8 @@ if __name__ == "__main__":
             name = orig_filename[:-4]+'_nd_output.png'
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
+
+    get_category_graylevel(urls[0],category_index = 3)
 
     test_graylevels = False
     if test_graylevels:
