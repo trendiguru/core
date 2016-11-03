@@ -148,7 +148,7 @@ def add_item(image_id, person_id, category, collection):
     # GET IMAGE
     image_obj = db.images.find_one({'image_id': image_id})
     image = Utils.get_cv2_img_array(image_obj['image_urls'][0])
-    if not image:
+    if image is None:
         return False
     # NEURODOLL WITH CATEGORY
     success, mask = fp.neurodoll(image, category)
