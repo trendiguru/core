@@ -409,6 +409,12 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     return out
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
+    if isinstance(url_or_np_array, basestring):
+        print('get_all_category_graylevels working on url:'+url_or_np_array)
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+
     gl = get_all_category_graylevels(url_or_np_array)
     h,w = gl.shape[0:2]
     window_size = 1500
@@ -417,7 +423,8 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compressed_h = int(h/compress_factor)
     compressed_w = int(w/compress_factor)
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
-    big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows])
+    compressed_image = cv2.resize(image,(compressed_w,compressed_h))
+    big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,:])
     print('bigsize:'+str(big_out.shape))
 
     for i in range(5):
@@ -425,9 +432,12 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
             n = i*n_rows+j
             print('n:'+str(n))
             if n>=gl.shape[2]:
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
+
                 break
             print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w] = compressed_gl[:,:,n]
+            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = [compressed_gl[:,:,n],compressed_gl[:,:,n],compressed_gl[:,:,n]]
+            print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
             cv2.putText(big_out,labels[n],(int((j+0.5)*w),int((i+1)*h-10)),cv2.FONT_HERSHEY_PLAIN,1,128)
             cv2.imwrite('bigout.jpg',big_out)
 #            cv2.imshow('bigout',big_out)
