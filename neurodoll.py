@@ -464,10 +464,10 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
                     break
                 print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255
-                big_out = big_out*foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255 * foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255 * foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255 * foreground
+
                 print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
                 cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
@@ -1028,8 +1028,9 @@ if __name__ == "__main__":
     for i in range(21):
         get_category_graylevel(url,category_index = i)
 
+    analyze_graylevels(url[0])
     #get output of combine_nd_and_ml
-    test_combine = True
+    test_combine = False
     if test_combine:
         print('start test_combined_nd')
         for url in urls:
