@@ -29,29 +29,30 @@ class PaperResource:
     def on_post(self, req, resp):
         print "Reached on_post"
         category_index = req.get_param('categoryIndex')
+        print('got req for category index '+str(category_index))
         category_index = category_index and int(category_index)
 
         get_multilabel_results = req.get_param('getMultilabelResults')
-        print('get multi:'+str(get_multilabel_results))
+        print('got req for multi:'+str(get_multilabel_results))
         get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
         # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
         get_combined_results = req.get_param('getCombinedResults')
-        print('get combined:'+str(get_combined_results))
+        print('got req for  combined:'+str(get_combined_results))
         get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
         get_layer_output = req.get_param('getLayerOutput')
-        print('get layer output:'+str(get_layer_output))
+        print('got req for layer output:'+str(get_layer_output))
 #        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
 #            get_layer_output = 'myfc7'
 
         get_all_graylevels = req.get_param('getAllGrayLevels')
-        print('get all graylevels:'+str(get_all_graylevels))
+        print('got req for all graylevels:'+str(get_all_graylevels))
         if get_all_graylevels == "true" or get_all_graylevels == "True" or get_all_graylevels == True:
             get_all_graylevels = True
 
         get_category_graylevel = req.get_param('getCategoryGraylevel')
-        print('get graylevel:'+str(get_category_graylevel))
+        print('got req for graylevel:'+str(get_category_graylevel))
         #get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
         # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
