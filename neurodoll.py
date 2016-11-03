@@ -426,12 +426,15 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compress_factor = max(float(h*n_rows)/window_size,float(w*n_rows)/window_size)
     compressed_h = int(h/compress_factor)
     compressed_w = int(w/compress_factor)
+    print('gl shape {} type {}'.format(gl.shape,type(gl)))
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
+    print('fg shape {} type {}'.format(foreground.shape,type(foreground)))
     compressed_foreground = cv2.resize(foreground,(compressed_w,compressed_h))
     print('compressed hw {} {}'.format(compressed_h,compressed_w))
     compressed_image = cv2.resize(image,(compressed_w,compressed_h))
     big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
     print('bigsize:'+str(big_out.shape))
+
 
     for i in range(5):
         for j in range(5):
