@@ -47,7 +47,7 @@ MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.protot
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
 PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 
-test_on = False #
+test_on = True #
 if test_on:
     gpu = int(sys.argv[1])
     print('using gpu '+str(gpu))
@@ -96,7 +96,6 @@ multilabel_required_image_size = (224,224)
 #                              image_dims=image_dims, mean=mean,
 ##                              input_scale=input_scale, raw_scale=raw_scale,
  #                             channel_swap=channel_swap)
-
 
 
 def url_to_image(url):
@@ -524,10 +523,33 @@ def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,2
 
     return out.astype(np.uint8)
 
-def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
+def get_category_graylevel_raw(url_or_np_array,category_index,required_image_size=(256,256)):
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
+
+def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
+    '''
+    This takes a given layer, thresholds it, but keeps original backgound strictly
+    :param url_or_np_array:
+    :param category_index:
+    :param required_image_size:
+    :param threshold:
+    :return:
+    '''
+    all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
+    requested_layer = all_layers[:,:,category_index]
+    mask = all_layers.argmax(axis=2)
+    cv2.imwrite('testmask.jpg',mask)
+    background = mask>0
+    cv2.imwrite('testbgnd.jpg',background*255)
+    foreground = mask==0
+    cv2.imwrite('testfgnd.jpg',foreground*255)
+    thresholded_layer = requested_layer>threshold*255
+    cv2.imwrite('testthresh.jpg',thresholded_layer*255)
+    new_mask = foreground * thresholded_layer
+    cv2.imwrite('testout.jpg',new_mask*255)
+    return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
     '''
@@ -939,6 +961,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
     return final_mask
+
 
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
