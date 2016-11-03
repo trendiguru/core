@@ -155,7 +155,7 @@ def add_item(image_id, person_id, category, collection):
     seg_res = nd.pd(image, labels[category])
     if not seg_res['success']:
         return False
-    item_mask = 255 * np.array(seg_res['mask'] == labels[category], dtype=np.uint8)
+    item_mask = 255 * np.array(seg_res['mask'] > np.median(seg_res['mask']), dtype=np.uint8)
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
     new_item = bulid_new_item(category, item_mask, collection, image, person['gender'])
@@ -197,6 +197,23 @@ def reorder_results(image_id, person_id, item_category, collection, new_results)
 
 
 # ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
+
+def add_result(image_id, person_id, item_category, results_collection, new_result):
+    image_obj = db.images.find_one({'image_id': image_id})
+    if not image_obj:
+        return False
+    try:
+        person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
+        item = [item for item in person['items'] if item['category'] == item_category][0]
+        results = item['similar_results'][results_collection]
+        new_result['id'] = db[results_collection+'_'+person['gender']].find_one({'images.XLarge': new_result['images']['XLarge']})['id']
+        results.insert(0, new_result)
+        db.images.replace_one({'image_id': image_id}, image_obj)
+        return True
+    except Exception as e:
+        print e
+        return False
+
 
 def cancel_result(image_id, person_id, item_category, results_collection, result_id):
     image_obj = db.images.find_one({'image_id': image_id})
