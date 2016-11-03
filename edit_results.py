@@ -6,7 +6,7 @@ from . import Utils, pipeline, constants, find_similar_mongo
 from .page_results import genderize
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
-from . import fingerprint_core as fp
+from .paperdoll import neurodoll_falcon_client as nd
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'image_urls': 1,
@@ -151,12 +151,12 @@ def add_item(image_id, person_id, category, collection):
     if image is None:
         return False
     # NEURODOLL WITH CATEGORY
-    success, mask = fp.neurodoll(image, category)
-    if not success:
+    seg_res = nd.pd(image, category)
+    if not seg_res['success']:
         return False
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
-    new_item = bulid_new_item(category, mask, collection, image, person['gender'])
+    new_item = bulid_new_item(category, seg_res['mask'], collection, image, person['gender'])
     # UPDATE THE DB DOCUMENT
     res = db.images.update_one({'people._id': person_id}, {'$push': {'people.$.items': new_item}})
     return bool(res.modified_count)
