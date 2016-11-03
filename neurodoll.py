@@ -994,7 +994,7 @@ if __name__ == "__main__":
             'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
-    ]
+    ] #
     urls = [urls[0]]
     test_nd_alone = False
     if test_nd_alone:
