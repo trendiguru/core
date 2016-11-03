@@ -407,8 +407,20 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
-
-
+def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
+    gl = get_all_category_graylevels(url_or_np_array)
+    h,w = gl.shape[0:2]
+    window_size = 1500
+    n_rows=5
+    compress_factor = max(float(h*n_rows)/window_size,float(w*n_rows)/window_size)
+    compressed_gl = cv2.resize(gl,(w/compress_factor,h/compress_factor))
+    big_out = np.zeros([h*n_rows,w*n_rows])
+    print('bigsize:'+str(big_out.shape))
+    for i in range(5):
+        for j in range(5):
+            print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
+            big_out[i*h:(i+1)*h,j*w:(j+1)*w] = compressed_gl
+    cv2.imshow('bigout',big_out)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
@@ -986,7 +998,8 @@ if __name__ == "__main__":
     if test_combine:
         raw_input('start test_combined_nd')
         for url in urls:
-            for median_factor in [0.5,0.75,1,1.25,1.5]:
-                print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
-                print('combined output:'+str(out))
+            analyze_graylevels(url)
+#            for median_factor in [0.5,0.75,1,1.25,1.5]:
+#                print('testing combined ml nd, median factor:'+str(median_factor))
+#                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+#                print('combined output:'+str(out))
