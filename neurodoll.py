@@ -428,7 +428,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 break
             print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w] = compressed_gl[:,:,n]
-            cv2.putText(big_out,labels[n],((j+0.5)*w),(i+1)*h-10,fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=1,color=128)
+            cv2.putText(big_out,labels[n],((j+0.5)*w),(i+1)*h-10,cv2.FONT_HERSHEY_PLAIN,1,128)
             cv2.imwrite('bigout.jpg',big_out)
 #            cv2.imshow('bigout',big_out)
 
