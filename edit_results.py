@@ -151,10 +151,10 @@ def add_item(image_id, person_id, category, collection):
     if image is None:
         return False
     # NEURODOLL WITH CATEGORY
-    seg_res = nd.pd(image, category)
+    labels = constants.ultimate_21_dict
+    seg_res = nd.pd(image, labels[category])
     if not seg_res['success']:
         return False
-    labels = constants.ultimate_21_dict
     item_mask = 255 * np.array(seg_res['mask'] == labels[category], dtype=np.uint8)
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
