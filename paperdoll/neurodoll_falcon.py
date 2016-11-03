@@ -97,6 +97,7 @@ class PaperResource:
 
         # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
+
             if category_index:
                 ret["mask"] = neurodoll.get_category_graylevel(img, category_index)
                 if ret["mask"] is not None:
