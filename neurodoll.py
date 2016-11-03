@@ -1031,7 +1031,9 @@ if __name__ == "__main__":
         for i in range(21):
             get_category_graylevel(url,category_index = i)
 
-    analyze_graylevels(urls[0])
+  #  analyze_graylevels(urls[0])
+    get_category_graylevel(urls[0],4)
+
     #get output of combine_nd_and_ml
     test_combine = False
     if test_combine:
