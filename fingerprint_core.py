@@ -24,9 +24,9 @@ def neurodoll(image, category_idx):
     if not dic['success']:
         return False, []
     neuro_mask = dic['mask']
-    #img = cv2.resize(image,(256,256))
+    img = cv2.resize(image,(256,256))
     # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
-    img = image
+    neuro_mask = cv2.resize(neuro_mask, (256,256))
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
 
