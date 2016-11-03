@@ -1024,12 +1024,12 @@ if __name__ == "__main__":
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
-    test_graylevels = True
+    test_graylevels = False
     for i in range(21):
         get_category_graylevel(url,category_index = i)
 
     #get output of combine_nd_and_ml
-    test_combine = False
+    test_combine = True
     if test_combine:
         print('start test_combined_nd')
         for url in urls:
