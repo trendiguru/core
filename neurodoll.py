@@ -471,12 +471,12 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                     big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
 
                     break
-                print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
+         #       print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
 
-                print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
+          #      print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
                 cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
 
