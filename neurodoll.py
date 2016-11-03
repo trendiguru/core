@@ -409,9 +409,10 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
-        print('get_all_category_graylevels working on url:'+url_or_np_array)
+        print('analyze_graylevels working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
+        print('starting to analyze graylevel on img')
         image = url_or_np_array
 
     gl = get_all_category_graylevels(url_or_np_array)
@@ -995,7 +996,6 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ] #
-    urls = [urls[0]]
     test_nd_alone = False
     if test_nd_alone:
         raw_input('start test_nd_alone')
@@ -1028,7 +1028,7 @@ if __name__ == "__main__":
     for i in range(21):
         get_category_graylevel(url,category_index = i)
 
-    analyze_graylevels(url[0])
+    analyze_graylevels(urls[0])
     #get output of combine_nd_and_ml
     test_combine = False
     if test_combine:
