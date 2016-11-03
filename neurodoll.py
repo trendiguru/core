@@ -445,7 +445,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     for i in range(5):
         for j in range(5):
             n = i*n_rows+j
-            #print('n:'+str(n))
+            print('n {} i{} j {}:'.format(n,i,j))
             if n>=gl.shape[2]:
                 print('finished blocks i {} j {} n {}'.format(i,j,n))
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,0]
