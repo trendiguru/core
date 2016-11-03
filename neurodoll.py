@@ -421,8 +421,10 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     print('bigsize:'+str(big_out.shape))
     for i in range(5):
         for j in range(5):
+            if n>gl.shape[2]:
+                break
             print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-            big_out[i*h:(i+1)*h,j*w:(j+1)*w] = compressed_gl
+            big_out[i*h:(i+1)*h,j*w:(j+1)*w] = compressed_gl[:,:,i*n_rows+j]
     cv2.imshow('bigout',big_out)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
