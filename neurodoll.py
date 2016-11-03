@@ -423,6 +423,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compressed_h = int(h/compress_factor)
     compressed_w = int(w/compress_factor)
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
+    print('compressed hw {} {}'.format(compressed_h,compressed_w))
     compressed_image = cv2.resize(image,(compressed_w,compressed_h))
     big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
     print('bigsize:'+str(big_out.shape))
