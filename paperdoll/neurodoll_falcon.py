@@ -50,6 +50,11 @@ class PaperResource:
         if get_all_graylevels == "true" or get_all_graylevels == "True" or get_all_graylevels == True:
             get_all_graylevels = True
 
+        get_category_graylevel = req.get_param('getCategoryGraylevel')
+        print('get graylevel:'+str(get_category_graylevel))
+        #get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
+
 #        get_yolo_results = req.get_param('getYolo')
 #        print('get yolo:'+str(get_yolo_results))
 #        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
