@@ -426,7 +426,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
             if n>gl.shape[2]:
                 break
             print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-            big_out[i*h:(i+1)*h,j*w:(j+1)*w] = compressed_gl[:,:,n]
+            big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w] = compressed_gl[:,:,n]
             cv2.imshow('bigout',big_out)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
@@ -1003,7 +1003,7 @@ if __name__ == "__main__":
     #get output of combine_nd_and_ml
     test_combine = True
     if test_combine:
-        raw_input('start test_combined_nd')
+        print('start test_combined_nd')
         for url in urls:
             analyze_graylevels(url)
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
