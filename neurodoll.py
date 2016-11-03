@@ -47,7 +47,7 @@ MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.protot
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
 PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 
-test_on = True #
+test_on = False #
 if test_on:
     gpu = int(sys.argv[1])
     print('using gpu '+str(gpu))
@@ -451,6 +451,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     print('bigsize:'+str(big_out.shape))
 
     for thresh in [0.2,0.35,0.5,0.65,0.8]:
+
         for i in range(5):
             for j in range(5):
                 n = i*n_rows+j
@@ -460,9 +461,9 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
                     break
                 print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh)*255
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh)*255
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh)*255
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255
                 print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
                 cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
