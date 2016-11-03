@@ -419,6 +419,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
+    cv2.imwrite('fg.jpg',foreground)
     tmin = np.min(foreground)
     tmax = np.max(foreground)
 #    astype(np.uint8))
@@ -434,6 +435,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
     print('fg shape {} type {}'.format(foreground.shape,type(foreground)))
     compressed_foreground = cv2.resize(foreground,(compressed_w,compressed_h))
+    cv2.imwrite('fg_comp.jpg',compressed_foreground)
     print('compressed hw {} {}'.format(compressed_h,compressed_w))
     compressed_image = cv2.resize(image,(compressed_w,compressed_h))
     big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
@@ -460,12 +462,13 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_gl[:,:,n]
-            cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
+            cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
             cv2.imwrite('bigout.jpg',big_out)
+    time.sleep(0.1)
 #            cv2.imshow('bigout',big_out)
 
     big_out2 = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
-    print('bigsize:'+str(big_out.shape))
+    print('bigsize:'+str(big_out2.shape))
 
     for thresh in [0.5,0.7,0.9,0.95,0.98]:
         for i in range(5):
@@ -473,21 +476,21 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 n = i*n_rows+j
                # print('n:'+str(n))
                 if n>=gl.shape[2]:
-                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
                     j = j+1
-                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground
-                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground
-                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground
 
                     break
          #       print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+                big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+                big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
+                big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255 * compressed_foreground
 
           #      print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
-                cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
-                cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
+                cv2.putText(big_out2,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
+                cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out2)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
