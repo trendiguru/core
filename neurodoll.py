@@ -415,6 +415,9 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
         image = url_or_np_array
 
     gl = get_all_category_graylevels(url_or_np_array)
+    mask = gl.argmax(axis=2)
+    background = mask==0
+    foreground = mask>0
     h,w = gl.shape[0:2]
     window_size = 1700
     n_rows=5
@@ -437,11 +440,10 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_image[:,:,2]
 
                 break
-            print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
+#            print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_gl[:,:,n]
-            print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
             cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
             cv2.imwrite('bigout.jpg',big_out)
 #            cv2.imshow('bigout',big_out)
@@ -449,7 +451,9 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     big_out2 = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
     print('bigsize:'+str(big_out.shape))
 
-    for thresh in [0.2,0.35,0.5,0.65,0.8]:
+
+
+    for thresh in [0.5,0.7,0.9,0.95,0.98]:
 
         for i in range(5):
             for j in range(5):
@@ -463,6 +467,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = (compressed_gl[:,:,n] > thresh*255)*255
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = (compressed_gl[:,:,n] > thresh*255)*255
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = (compressed_gl[:,:,n] > thresh*255)*255
+                big_out = big_out*foreground
                 print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(150,100,255),thickness=2)
                 cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out)
@@ -542,9 +547,9 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     mask = all_layers.argmax(axis=2)
     basename = 'getgl_'+str(category_index)
     cv2.imwrite(basename+'mask.jpg',mask)
-    background = mask>0
+    background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
-    foreground = mask==0
+    foreground = mask>0
     cv2.imwrite(basename+'fgnd.jpg',foreground*255)
     thresholded_layer = requested_layer>threshold*255
     cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
