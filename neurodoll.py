@@ -419,7 +419,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
-    cv2.imwrite('fg.jpg',foreground)
+    cv2.imwrite('fg.jpg',foreground*255)
     tmin = np.min(foreground)
     tmax = np.max(foreground)
 #    astype(np.uint8))
@@ -443,18 +443,20 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
 
     for i in range(5):
+        if n>=gl.shape[2]:
         for j in range(5):
             n = i*n_rows+j
             #print('n:'+str(n))
             if n>=gl.shape[2]:
+                print('finished blocks')
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,0]
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_image[:,:,1]
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_image[:,:,2]
 
                 j = j+1
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground
-                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground*255
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground*255
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground*255
 
 
                 break
@@ -476,11 +478,12 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 n = i*n_rows+j
                # print('n:'+str(n))
                 if n>=gl.shape[2]:
+                    print('finished blocks')
                     big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
                     j = j+1
-                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground
-                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground
-                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_foreground*255
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_foreground*255
+                    big_out2[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_foreground*255
 
                     break
          #       print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
