@@ -154,9 +154,11 @@ def add_item(image_id, person_id, category, collection):
     seg_res = nd.pd(image, category)
     if not seg_res['success']:
         return False
+    labels = constants.ultimate_21_dict
+    item_mask = 255 * np.array(seg_res['mask'] == labels[category], dtype=np.uint8)
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
-    new_item = bulid_new_item(category, seg_res['mask'], collection, image, person['gender'])
+    new_item = bulid_new_item(category, item_mask, collection, image, person['gender'])
     # UPDATE THE DB DOCUMENT
     res = db.images.update_one({'people._id': person_id}, {'$push': {'people.$.items': new_item}})
     return bool(res.modified_count)
