@@ -419,9 +419,11 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
+    tmin = np.min(foreground)
+    tmax = np.max(foreground)
 #    astype(np.uint8))
 
-    print('masktype: '+str(type(background))+' shape:'+str(foreground.shape))
+    print('masktype: '+str(type(background))+' shape:'+str(foreground.shape)+' min '+str(tmin)+' max '+str(tmax))
     h,w = gl.shape[0:2]
     window_size = 1700
     n_rows=5
