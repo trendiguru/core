@@ -443,11 +443,15 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     for i in range(5):
         for j in range(5):
             n = i*n_rows+j
-            print('n:'+str(n))
+            #print('n:'+str(n))
             if n>=gl.shape[2]:
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,0]
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_image[:,:,1]
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_image[:,:,2]
+
+                j = j+1
+                big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,:] = foreground
+
 
                 break
 #            print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
@@ -466,9 +470,11 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
         for i in range(5):
             for j in range(5):
                 n = i*n_rows+j
-                print('n:'+str(n))
+               # print('n:'+str(n))
                 if n>=gl.shape[2]:
                     big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,:] = compressed_image
+                    j = j+1
+                    big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,:] = foreground
 
                     break
          #       print('y0 {} y1 {} x0 {} x1 {}'.format(i*h,(i+1)*h,j*w,(j+1)*w))
