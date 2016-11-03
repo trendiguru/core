@@ -1025,8 +1025,9 @@ if __name__ == "__main__":
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
     test_graylevels = False
-    for i in range(21):
-        get_category_graylevel(url,category_index = i)
+    if test_graylevels:
+        for i in range(21):
+            get_category_graylevel(url,category_index = i)
 
     analyze_graylevels(urls[0])
     #get output of combine_nd_and_ml
