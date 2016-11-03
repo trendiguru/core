@@ -444,6 +444,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
     for i in range(5):
         if n>=gl.shape[2]:
+            break
         for j in range(5):
             n = i*n_rows+j
             #print('n:'+str(n))
