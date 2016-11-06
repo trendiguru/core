@@ -412,7 +412,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
         print('analyze_graylevels working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
-        name = x.replace('/','').replace(':','').replace('.jpg','').replace('.','')
+        name = url_or_np_array.replace('/','').replace(':','').replace('.jpg','').replace('.','')
     elif type(url_or_np_array) == np.ndarray:
         print('starting to analyze graylevel on img')
         image = url_or_np_array
