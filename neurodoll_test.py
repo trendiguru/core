@@ -580,10 +580,20 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     :param threshold:
     :return:
     '''
+    if isinstance(url_or_np_array, basestring):
+        name = url_or_np_array.replace('/','').replace('.jpg','').replace('.','').replace('http:','')
+    else :
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name = hash.hexdigest()[:10]
+
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
+    if not all_layers:
+        logging.debug('got nothing back from get_all_category_graylevels in get_category_graylevel_masked_thresholded, returning')
+        return
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
-    basename = 'get_gl_threhsolded_'+str(category_index)
+    basename = 'get_gl_thresh_'+str(name)+str(category_index)
     cv2.imwrite(basename+'mask.jpg',mask*255/21)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
