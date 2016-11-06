@@ -344,12 +344,12 @@ class ShopStyleDownloader:
             status_new = prod["inStock"]
             status_old = prod_in_coll["status"]["instock"]
             if status_new is False and status_old is False:
-                self.collection.update_one({'_id': prod["_id"]},
+                self.collection.update_one({'_id': prod_in_coll["_id"]},
                                            {'$inc': {'status.days_out': 1}},
                                            )
                 prod["status"]["days_out"] = prod_in_coll["status"]["days"] + 1
             elif status_new is True and status_old is False:
-                self.collection.update_one({'_id': prod["_id"]},
+                self.collection.update_one({'_id': prod_in_coll["_id"]},
                                            {'$set': {'status.days_out': 0,
                                                     'status.instock': True}},
                                             )
@@ -357,12 +357,12 @@ class ShopStyleDownloader:
                 pass
 
             if prod_in_coll["download_data"]["fp_version"] == fp_version:
-                self.collection.update_one({'_id': prod["_id"]},
+                self.collection.update_one({'_id': prod_in_coll["_id"]},
                                            {'$set': {'download_data.dl_version': self.current_dl_date}},
                                            )
 
             else:
-                self.collection.delete_one({'_id': prod['_id']})
+                self.collection.delete_one({'_id': prod_in_coll['_id']})
                 prod = convert2generic(prod, self.gender)
                 self.insert_and_fingerprint(prod)
 
