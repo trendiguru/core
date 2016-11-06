@@ -355,6 +355,10 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     else:
         logging.debug('got something other than string and np array in get_all_categry_graylevels, returning')
         return
+    if image is None:
+        logging.debug('got None for image in get_all_categry_graylevels, returning')
+        return
+
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
@@ -415,7 +419,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
         print('analyze_graylevels working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
-        name = url_or_np_array.replace('/','').replace(':','').replace('.jpg','').replace('.','')
+        name = url_or_np_array.replace('/','').replace('.jpg','').replace('.','').replace('http:','')
     elif type(url_or_np_array) == np.ndarray:
         print('starting to analyze graylevel on img')
         image = url_or_np_array
@@ -424,6 +428,9 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
         name = hash.hexdigest()[:10]
 
     gl = get_all_category_graylevels(url_or_np_array)
+    if gl is None:
+        logging.debug('got none from get_all_cateogry_graylevels, returning')
+        return
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
@@ -1012,7 +1019,7 @@ if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
     urls = ['http://healthyceleb.com/wp-content/uploads/2014/03/Nargis-Fakhri-Main-Tera-Hero-Trailer-Launch.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
             'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
