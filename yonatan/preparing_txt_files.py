@@ -242,7 +242,7 @@ def create_txt_files_from_different_directories():
 
     print error_counter
 
-    train_lines = open(train_text_file).readlines()
+    train_lines = train_text_file.readlines()
     cv_lines = open(cv_text_file).readlines()
     test_lines = open(test_text_file).readlines()
     random.shuffle(train_lines)
