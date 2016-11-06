@@ -571,7 +571,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
 
-def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
+def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.95):
     '''
     This takes a given layer, thresholds it, but keeps original backgound strictly
     :param url_or_np_array:
@@ -583,7 +583,7 @@ def get_category_graylevel_thresholded(url_or_np_array,category_index,required_i
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
-    basename = 'getgl_'+str(category_index)
+    basename = 'get_gl_threhsolded_'+str(category_index)
     cv2.imwrite(basename+'mask.jpg',mask)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
@@ -1072,13 +1072,24 @@ if __name__ == "__main__":
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
-    test_combine = True
+    test_combine = False
     if test_combine:
         print('start test_combined_nd')
         for url in urls:
             print('doing url:'+url)
+
             analyze_graylevels(url)
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
 #                print('testing combined ml nd, median factor:'+str(median_factor))
 #                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
 #                print('combined output:'+str(out))
+
+
+    test_gcgl = True
+    if test_gcgl:
+        print('start test_combined_nd')
+        for url in urls:
+            print('doing url:'+url)
+            analyze_graylevels(url)
+            for i in range(len(constants.ultimate_21)):
+                get_category_graylevel_thresholded(url,i)
