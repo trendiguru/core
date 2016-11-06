@@ -188,9 +188,11 @@ def create_txt_files_from_different_directories():
     cv_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_cv_list.txt", "w")
     test_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_test_list.txt", "w")
 
+    error_counter = 0
+
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
-        label = value
+        label = str(value)
 
         if os.path.isdir(source_dir):
             if not os.listdir(source_dir):
@@ -219,18 +221,26 @@ def create_txt_files_from_different_directories():
                 counter += 1
                 print counter
 
-                if counter < counter_train:
-                    train_text_file.write(root + "/" + file + " " + label + "\n")
-                elif counter >= counter_train and counter < counter_train + counter_cv:
-                    cv_text_file.write(root + "/" + file + " " + label + "\n")
-                elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
-                    test_text_file.write(root + "/" + file + " " + label + "\n")
-                else:
-                    print "DONE" + value
-                    break
+                try:
+                    if counter < counter_train:
+                        train_text_file.write(root + "/" + file + " " + label + "\n")
+                    elif counter >= counter_train and counter < counter_train + counter_cv:
+                        cv_text_file.write(root + "/" + file + " " + label + "\n")
+                    elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+                        test_text_file.write(root + "/" + file + " " + label + "\n")
+                    else:
+                        print "DONE" + value
+                        break
+
+                except:
+                    print "something ain't good"
+                    error_counter += 1
+                    continue
 
             print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}, key = {4}'.format(counter_train, counter_cv,
                                                                                                     counter_test, counter, key)
+
+    print error_counter
 
     train_text_file.close()
     cv_text_file.close()
