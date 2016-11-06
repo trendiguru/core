@@ -601,7 +601,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     cv2.imwrite(basename+'fgnd.jpg',foreground*255)
     thresholded_layer = requested_layer>threshold*255
     cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
-    new_mask = foreground * thresholded_layer
+    new_mask = foreground * thresholded_layer * 1
     cv2.imwrite(basename+'out.jpg',new_mask*255)
     return new_mask
 
