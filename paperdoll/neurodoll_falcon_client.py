@@ -5,7 +5,7 @@ import requests
 CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/nd"
 
 
-def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None,get_layer_output=None,get_all_graylevels=None,threshold=0.95):
+def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None,get_layer_output=None,get_all_graylevels=None,threshold=None):
     params = {}
     if category_index:
         params['categoryIndex'] = category_index
