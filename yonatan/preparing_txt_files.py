@@ -303,3 +303,4 @@ if __name__ == '__main__':
     edit_existing_gender_txt_files()
     create_txt_files_by_adding_from_different_directories()
     shuffle_all_lines()
+    create_txt_files_from_different_directories()
