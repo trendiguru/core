@@ -1076,7 +1076,7 @@ if __name__ == "__main__":
     if test_combine:
         print('start test_combined_nd')
         for url in urls: #
-            print('doing url:'+url)
+            print('doing url:'+url) #
 
             analyze_graylevels(url)
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
