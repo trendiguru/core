@@ -355,6 +355,10 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     else:
         logging.debug('got something other than string and np array in get_all_categry_graylevels, returning')
         return
+    if image is None:
+        logging.debug('got None for image in get_all_categry_graylevels, returning')
+        return
+
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
