@@ -194,10 +194,10 @@ def create_txt_files_from_different_directories():
 
         if os.path.isdir(source_dir):
             if not os.listdir(source_dir):
-                print '\nfolder is empty'
+                print '\nfolder is empty' + key
                 break
         else:
-            print '\nfolder doesn\'t exist'
+            print '\nfolder doesn\'t exist' + key
             break
 
         for root, dirs, files in os.walk(source_dir):
