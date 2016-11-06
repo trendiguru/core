@@ -267,7 +267,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
     if save_results:
         pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
-        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=True,save_images=True,original_image=orig_filename)
+        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=orig_filename)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
@@ -601,7 +601,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     cv2.imwrite(basename+'fgnd.jpg',foreground*255)
     thresholded_layer = requested_layer>threshold*255
     cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
-    new_mask = foreground * thresholded_layer
+    new_mask = foreground * thresholded_layer * 1
     cv2.imwrite(basename+'out.jpg',new_mask*255)
     return new_mask
 
