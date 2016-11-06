@@ -1088,7 +1088,7 @@ if __name__ == "__main__":
             get_category_graylevel_masked_thresholded(url,i)
             i = 16 #skirt
             get_category_graylevel_masked_thresholded(url,i)
-
+#
 #    analyze_graylevels(urls[0])
 #    get_category_graylevel(urls[0],4)
 
