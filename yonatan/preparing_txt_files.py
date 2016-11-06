@@ -190,7 +190,7 @@ def create_txt_files_from_different_directories():
 
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
-        label = value
+        label = str(value)
 
         if os.path.isdir(source_dir):
             if not os.listdir(source_dir):
