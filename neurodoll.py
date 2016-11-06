@@ -580,6 +580,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     :param threshold:
     :return:
     '''
+    print('get_category_gl_masked_thresholded is working on {} trehshold {}'.format(url_or_np_array,threshold))
     if isinstance(url_or_np_array, basestring):
         name = url_or_np_array.replace('/','').replace('.jpg','').replace('.','').replace('http:','')
     else :
