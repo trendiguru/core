@@ -12,10 +12,11 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 import os
-import time
-import hashlib
 import urllib
 import sys
+import hashlib
+import time
+
 
 from trendi import constants
 from trendi.utils import imutils
@@ -411,16 +412,20 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
         print('analyze_graylevels working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
+        name = x.replace('/','').replace(':','').replace('.jpg','').replace('.','')
     elif type(url_or_np_array) == np.ndarray:
         print('starting to analyze graylevel on img')
         image = url_or_np_array
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name = hash.hexdigest()[:10]
 
     gl = get_all_category_graylevels(url_or_np_array)
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
-    cv2.imwrite('bg.jpg',background*255)
-    cv2.imwrite('fg.jpg',foreground*255)
+    cv2.imwrite(name+'bg.jpg',background*255)
+    cv2.imwrite(name+'fg.jpg',foreground*255)
     tmin = np.min(foreground)
     tmax = np.max(foreground)
 #    astype(np.uint8))
@@ -436,7 +441,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
     print('fg shape {} type {}'.format(foreground.shape,type(foreground)))
     compressed_foreground = cv2.resize(foreground,(compressed_w,compressed_h))
-    cv2.imwrite('fg_comp.jpg',compressed_foreground*255)
+    cv2.imwrite(name+'fg_comp.jpg',compressed_foreground*255)
     print('compressed hw {} {}'.format(compressed_h,compressed_w))
     compressed_image = cv2.resize(image,(compressed_w,compressed_h))
     big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
@@ -465,7 +470,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_gl[:,:,n]
             cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
-            cv2.imwrite('bigout.jpg',big_out)
+            cv2.imwrite(name+'bigout.jpg',big_out)
     time.sleep(0.1)
 #            cv2.imshow('bigout',big_out)
 
@@ -493,7 +498,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
           #      print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out2,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
-                cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out2)
+                cv2.imwrite(name+'bigout_thresh'+str(thresh)+'.jpg',big_out2)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
@@ -1053,11 +1058,11 @@ if __name__ == "__main__":
         for i in range(21):
             get_category_graylevel(url,category_index = i)
 
-    analyze_graylevels(urls[0])
+#    analyze_graylevels(urls[0])
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
-    test_combine = False
+    test_combine = True
     if test_combine:
         print('start test_combined_nd')
         for url in urls:
