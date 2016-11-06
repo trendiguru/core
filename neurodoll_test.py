@@ -584,7 +584,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
     basename = 'get_gl_threhsolded_'+str(category_index)
-    cv2.imwrite(basename+'mask.jpg',mask)
+    cv2.imwrite(basename+'mask.jpg',mask*255/21)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
     foreground = mask>0
