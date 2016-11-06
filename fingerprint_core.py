@@ -133,6 +133,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         logging.warning("small_image is Bad. {img}".format(img=small_image))
         return
     category = doc['categories']
+    print category
     if neuro:
         category_idx = recruit2category_idx[category]
         success, neuro_mask = neurodoll(image, category_idx)
@@ -145,19 +146,20 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         small_mask = background_removal.get_fg_mask(small_image)
 
     fingerprint = dict_fp(small_image, small_mask, category)
-
+    print 'fingerprint done'
     doc["fingerprint"] = fingerprint
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
     doc["download_data"]["fp_version"] = constants.fingerprint_version
+    print "prod insert ..."
     try:
         db[collection].insert_one(doc)
-        print "prod inserted successfully"
+        print "successfull"
         # db.fp_in_process.delete_one({"id": doc["id"]})
     except:
         # db.download_data.find_one_and_update({"criteria": collection},
         #                                      {'$inc': {"errors": 1}})
-        print "error inserting ..."
+        print "failed"
 
     return fingerprint['color']
 
