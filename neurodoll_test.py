@@ -571,7 +571,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
 
-def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.95):
+def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.95):
     '''
     This takes a given layer, thresholds it, but keeps original backgound strictly
     :param url_or_np_array:
@@ -1061,12 +1061,21 @@ if __name__ == "__main__":
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
-    get_category_graylevel(urls[0],category_index = 3)
 
+    get_category_graylevel(urls[0],category_index = 3)
     test_graylevels = False
     if test_graylevels:
         for i in range(21):
             get_category_graylevel(url,category_index = i)
+
+    test_gcgl = True
+    if test_gcgl:
+        print('start test_combined_nd')
+        for url in urls:
+            print('doing url:'+url)
+            analyze_graylevels(url)
+            for i in range(len(constants.ultimate_21)):
+                get_category_graylevel_masked_thresholded(url,i)
 
 #    analyze_graylevels(urls[0])
 #    get_category_graylevel(urls[0],4)
@@ -1085,11 +1094,3 @@ if __name__ == "__main__":
 #                print('combined output:'+str(out))
 
 
-    test_gcgl = True
-    if test_gcgl:
-        print('start test_combined_nd')
-        for url in urls:
-            print('doing url:'+url)
-            analyze_graylevels(url)
-            for i in range(len(constants.ultimate_21)):
-                get_category_graylevel_thresholded(url,i)
