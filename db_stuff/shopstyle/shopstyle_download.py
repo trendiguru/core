@@ -106,9 +106,9 @@ class ShopStyleDownloader:
             y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
             days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
             if days_out < 7:
-                self.collection_archive.update_one({'id': item['id']}, {"$set": {"status.days_out": days_out}})
+                self.collection_archive.update_one({'_id': item['_id']}, {"$set": {"status.days_out": days_out}})
             else:
-                self.collection_archive.delete_one({'id': item['id']})
+                self.collection_archive.delete_one({'_id': item['_id']})
 
         # add to the archive items which were not downloaded today but were instock yesterday
         notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
@@ -344,12 +344,12 @@ class ShopStyleDownloader:
             status_new = prod["inStock"]
             status_old = prod_in_coll["status"]["instock"]
             if status_new is False and status_old is False:
-                self.collection.update_one({'id': prod["id"]},
+                self.collection.update_one({'_id': prod["_id"]},
                                            {'$inc': {'status.days_out': 1}},
                                            )
                 prod["status"]["days_out"] = prod_in_coll["status"]["days"] + 1
             elif status_new is True and status_old is False:
-                self.collection.update_one({'id': prod["id"]},
+                self.collection.update_one({'_id': prod["_id"]},
                                            {'$set': {'status.days_out': 0,
                                                     'status.instock': True}},
                                             )
@@ -357,12 +357,12 @@ class ShopStyleDownloader:
                 pass
 
             if prod_in_coll["download_data"]["fp_version"] == fp_version:
-                self.collection.update_one({'id': prod["id"]},
+                self.collection.update_one({'_id': prod["_id"]},
                                            {'$set': {'download_data.dl_version': self.current_dl_date}},
                                            )
 
             else:
-                self.collection.delete_one({'id': prod['id']})
+                self.collection.delete_one({'_id': prod['_id']})
                 prod = convert2generic(prod, self.gender)
                 self.insert_and_fingerprint(prod)
 
