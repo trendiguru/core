@@ -133,6 +133,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         logging.warning("small_image is Bad. {img}".format(img=small_image))
         return
     category = doc['categories']
+    print category
     if neuro:
         category_idx = recruit2category_idx[category]
         success, neuro_mask = neurodoll(image, category_idx)
@@ -145,7 +146,7 @@ def generate_mask_and_insert(doc, image_url=None, fp_date=None, coll="products",
         small_mask = background_removal.get_fg_mask(small_image)
 
     fingerprint = dict_fp(small_image, small_mask, category)
-
+    print 'fingerprint done'
     doc["fingerprint"] = fingerprint
     doc["download_data"]["first_dl"] = fp_date
     doc["download_data"]["dl_version"] = fp_date
