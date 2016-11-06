@@ -232,6 +232,10 @@ def create_txt_files_from_different_directories():
             print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv,
                                                                                                     counter_test, counter)
 
+    train_text_file.close()
+    cv_text_file.close()
+    test_text_file.close()
+
 
 def edit_existing_gender_txt_files():
     train_txt_file = open("/home/yonatan/faces_stuff/55k_face_train_list.txt", "r+")
