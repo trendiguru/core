@@ -598,9 +598,10 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     cv2.imwrite(basename+'mask.jpg',mask*255/21)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
-    foreground = mask>0
+    foreground = np.array((mask>0)*1)  #*1 turns T/F into 1/0
     cv2.imwrite(basename+'fgnd.jpg',foreground*255)
-    thresholded_layer = requested_layer>threshold*255
+    thresholded_layer = np.array((requested_layer>(threshold*255))*1)
+    print('size of thresh layer '+str(thresholded_layer.shape))
     cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
     new_mask = foreground * thresholded_layer #  * 1  multiplying by one turns True/False into 1/0 but seems to mess something?
     cv2.imwrite(basename+'out.jpg',new_mask*255)
