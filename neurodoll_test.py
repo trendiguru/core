@@ -1073,8 +1073,8 @@ if __name__ == "__main__":
         print('start test_combined_nd')
         for url in urls:
             print('doing url:'+url)
-            analyze_graylevels(url)
-            for i in range(len(constants.ultimate_21)):
+#            for i in range(len(constants.ultimate_21)):
+            i = 5
                 get_category_graylevel_masked_thresholded(url,i)
 
 #    analyze_graylevels(urls[0])
