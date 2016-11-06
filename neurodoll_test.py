@@ -419,6 +419,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
+    cv2.imwrite('bg.jpg',background*255)
     cv2.imwrite('fg.jpg',foreground*255)
     tmin = np.min(foreground)
     tmax = np.max(foreground)
