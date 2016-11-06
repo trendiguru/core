@@ -588,7 +588,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
         name = hash.hexdigest()[:10]
 
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
-    if not all_layers:
+    if all_layers is None:
         logging.debug('got nothing back from get_all_category_graylevels in get_category_graylevel_masked_thresholded, returning')
         return
     requested_layer = all_layers[:,:,category_index]
