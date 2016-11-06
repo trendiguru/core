@@ -182,7 +182,7 @@ def create_txt_files_by_adding_from_different_directories():
 
 def create_txt_files_from_different_directories():
 
-    dictionary = yonatan_constants.women_shirt_sleeve_dict
+    dictionary = yonatan_constants.collar_basic_dict
 
     train_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_train_list.txt", "w")
     cv_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_cv_list.txt", "w")
@@ -194,10 +194,10 @@ def create_txt_files_from_different_directories():
 
         if os.path.isdir(source_dir):
             if not os.listdir(source_dir):
-                print '\nfolder is empty' + key
+                print '\nfolder is empty ' + key
                 break
         else:
-            print '\nfolder doesn\'t exist' + key
+            print '\nfolder doesn\'t exist ' + key
             break
 
         for root, dirs, files in os.walk(source_dir):
