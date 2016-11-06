@@ -48,7 +48,7 @@ MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.protot
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
 PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 
-test_on = False #
+test_on = True #
 if test_on:
     gpu = int(sys.argv[1])
     print('using gpu '+str(gpu))

@@ -8,7 +8,7 @@ import cv2
 import hashlib
 import shutil
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing
@@ -346,6 +346,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
+    logging.info('doing resize , input hxw  {} {} output hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
     if inheight == 0 or inwidth == 0:
         logging.warning('got a bad image')
         return
@@ -366,6 +367,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
  #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
+        logging.debug('output ar<  input ar , width padding around '+str(width_offset)+ ' to '+str(width_offset+new_width))
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
@@ -377,6 +379,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
         height_offset = (outheight - new_height) / 2
+        logging.debug('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
         output_img[height_offset+new_height:,:] = resized_img[-1,:]
@@ -384,6 +387,84 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
     if careful_with_the_labels:
+        #kill any extranneous labels that have popped up
+#        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        for u in np.unique(output_img):
+            if not u in input_file_or_np_arr: #
+#                print('found new val in target:'+str(u))
+                output_img[output_img==u] = 0
+#        print('uniques in dest:'+str(np.unique(output_img)))
+        # assert((np.unique(output_img)==np.unique(input_file_or_np_arr)).all())   this fails , bool attr has no all()
+    if use_visual_output is True:
+        cv2.imshow('output', output_img)
+        cv2.imshow('orig',input_file_or_np_arr)
+#        cv2.imshow('res',resized_img)
+        cv2.waitKey(0)
+    if output_file is not None:
+        cv2.imwrite(output_file, output_img)
+    return output_img
+#dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
+
+def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
+    '''
+    Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
+    :param input_file_or_np_arr:
+    :param output_file:name for output
+    :param output_size:size of output image (height,width)
+    :param use_visual_output:
+    :return:
+    '''
+
+    if isinstance(input_file_or_np_arr,basestring):
+        input_file_or_np_arr = cv2.imread(input_file_or_np_arr)
+
+    if input_file_or_np_arr is None:
+        logging.warning('got a bad image')
+        return
+    #the shoe is on the other foot.
+    inheight, inwidth = output_size[:]
+    outheight, outwidth = input_file_or_np_arr.shape[0:2]
+    logging.info('undoing resize , original hxw  {} {} resized hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
+    if (inheight == 0) or (inwidth == 0):
+        logging.warning('got a bad image')
+        return
+    original_ar = float(inheight)/inwidth
+    resized_ar = float(outheight)/outwidth
+    if len(input_file_or_np_arr.shape) == 3:
+        indepth = input_file_or_np_arr.shape[2]
+        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+    else:
+        indepth = 1
+        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+#    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
+    actual_outheight, actual_outwidth = output_img.shape[0:2]
+#    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
+    if original_ar > resized_ar:  #unfil left/right and resize height to output height
+        factor = float(inheight)/outheight
+        new_width = int(float(inwidth) / factor)
+        width_offset = (outwidth - new_width ) / 2
+        remainder = outwidth - width_offset
+        logging.debug('orig ar>  resized ar , width padding '+str(width_offset)+', taking from padding to '+str(remainder))
+        output_img = input_file_or_np_arr[:,width_offset:remainder]
+#        output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
+        output_img = cv2.resize(output_img, (output_size[1],output_size[0]))  #cv2 does wxh not hxw
+        #print('>resize size:'+str(output_img.shape))
+    else:   #resize width to output width and fill top/bottom
+        factor = float(inwidth)/outwidth
+        new_height = int(float(inheight) / factor)
+        height_offset = (outheight - new_height) / 2
+        remainder = outheight - height_offset
+        logging.debug('orig ar <=  resized ar , height padding '+str(height_offset)+ ',filling to '+str(remainder)+' outsize:'+str(output_size))
+        output_img = input_file_or_np_arr[height_offset:remainder,:]
+        #print('intermediate outputsize:'+str(output_img.shape))
+        output_img = cv2.resize(output_img, (output_size[1],output_size[0])) #cv2 does wxh not hxw
+        logging.debug('resize size:'+str(output_img.shape))
+#        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
+
+    if careful_with_the_labels:
+        #todo - the real way to do this is break into n channels and resize each individually
+        #this may possibly be done by putting a loop over channels and calling this function recursively n_chan times
         #kill any extranneous labels that have popped up
 #        print('uniques in source:'+str(np.unique(input_file_or_np_arr)))
 #        print('uniques in dest:'+str(np.unique(output_img)))
@@ -684,7 +765,6 @@ def kill_the_missing(sourcedir, targetdir):
     files_in_target = [f for f in os.listdir(targetdir) if os.path.isfile(os.path.join(targetdir,f))]
     print('{} files in {}, {} files in {}'.format(len(files_in_source),sourcedir,len(files_in_target),targetdir))
 
-
 def find_the_common(sourcedir, targetdir):
     '''
     this removes anything not in the source , from the target
@@ -755,7 +835,6 @@ def concatenate_labels(mask,kplist):
         matches = np.add(matches,nv)
     return matches
 
-
 def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 200,use_visual_output=True):
     only_files = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f))]
     print('doing resize/crop in dir '+dir)
@@ -825,7 +904,6 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     plt.legend()
     plt.savefig('outhist.jpg')
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
-
 
 def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
     '''
@@ -967,18 +1045,18 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:
-                print('doing overlay')
+                print('show_mask_with_labels:doing overlay')
                 orig_arr = cv2.addWeighted(orig_arr, overlay, img_arr, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
             combined_h,combined_w = combined.shape[0:2]
-            print('comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
+            print('show_mask_with_labels:comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
 #            if combined_h<minheight:
 #                factor = float(minheight)/combined_h
 #                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
         else:
-            logging.warning('could not get image '+original_image)
+            logging.warning('show_mask_with_labels could not get image '+original_image)
  #   cv2.imshow('map',dest)
  #   cv2.imshow('colorbar',dest_colorbar)
     relative_name = os.path.basename(mask_filename)
@@ -990,9 +1068,10 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
 #        full_outname=outname
-        print(full_outname)
+        print('show_mask_with_labels is saving labelled img to '+full_outname)
         cv2.imwrite(full_outname,combined)
 
+    #todo move this to a separate function i dont think theres any reason its here
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
         print('(d)elete (c)lose anything else keeps')
         indir = os.path.dirname(mask_filename)
@@ -1024,9 +1103,6 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
 
     return combined,frac
 #        return dest
-
-
-
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
     imfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir,f)) and filter in f]
     for f in imfiles:
@@ -1043,7 +1119,6 @@ def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
         cv2.imwrite(outfile,output_arr)
         print('orig w,h {},{} new {},{} '.format(w,h,actualw,actualh))
         print('infile {} outfile {}'.format(infile,outfile))
-
 
 def nms_detections(dets, overlap=0.3):
     """
@@ -1160,8 +1235,28 @@ if __name__ == "__main__":
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
  #   kill_the_missing(sourcedir, targetdir)
-    resize_keep_aspect(infile, output_file=None, output_size = (300,200),use_visual_output=True)
 
+    output_file = 'resized.jpg'
+    img_arr = cv2.imread(infile)
+    orig_h,orig_w = img_arr.shape[0:2]
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,400),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (600,399),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,600),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,601),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+
+    resize_keep_aspect(infile, output_file=output_file, output_size = (400,599),use_visual_output=True)
+    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
 
 #nonlinear xforms , stolen from:

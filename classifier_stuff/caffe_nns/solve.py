@@ -52,7 +52,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
-    weights_base = os.path.basename(weights)
+    if weights:
+        weights_base = os.path.basename(weights)
+    else:
+        weights_base = '_noweights_'
     threshold = 0.5
     if net_name:
         outdir = type + '_' + prefix + '_' + weights_base.replace('.caffemodel','')
@@ -90,13 +93,17 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             subprocess.call(copycmd,shell=True)
             copycmd = 'cp '+tt[1] + ' ' + outdir
             subprocess.call(copycmd,shell=True)
-
+    #cpoy solverproto to results dir
     if solverproto is not None:
         copycmd = 'cp '+solverproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
+    #copy test proto to results dir
     if testproto is not None:
         copycmd = 'cp '+testproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
+    #copy this file too
+    copycmd = 'cp solve.py '  + outdir
+    subprocess.call(copycmd,shell=True)
 
 
     #copycmd = 'cp -r '+outdir + ' ' + host_dirname

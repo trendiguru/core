@@ -29,26 +29,41 @@ class PaperResource:
     def on_post(self, req, resp):
         print "Reached on_post"
         category_index = req.get_param('categoryIndex')
-        category_index = category_index and int(category_index)
+        if category_index:
+            print('got req for category index '+str(category_index))
+            category_index = category_index and int(category_index)
+
+        threshold = req.get_param('threshold')
+        if threshold:
+            print('got threshold '+str(threshold))
 
         get_multilabel_results = req.get_param('getMultilabelResults')
-        print('get multi:'+str(get_multilabel_results))
-        get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+        if get_multilabel_results:
+            print('got req for multi:'+str(get_multilabel_results))
+            get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
         # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
         get_combined_results = req.get_param('getCombinedResults')
-        print('get combined:'+str(get_combined_results))
-        get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
+        if get_combined_results:
+            print('got req for  combined:'+str(get_combined_results))
+            get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
 
         get_layer_output = req.get_param('getLayerOutput')
-        print('get layer output:'+str(get_layer_output))
+        if get_layer_output:
+            print('got req for layer output:'+str(get_layer_output))
 #        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
 #            get_layer_output = 'myfc7'
 
         get_all_graylevels = req.get_param('getAllGrayLevels')
-        print('get all graylevels:'+str(get_all_graylevels))
         if get_all_graylevels == "true" or get_all_graylevels == "True" or get_all_graylevels == True:
+            print('got req for all graylevels:'+str(get_all_graylevels))
             get_all_graylevels = True
+
+        get_category_graylevel = req.get_param('getCategoryGraylevel')
+        if get_category_graylevel:
+            print('got req for graylevel:'+str(get_category_graylevel))
+        #get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
+        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
 #        get_yolo_results = req.get_param('getYolo')
 #        print('get yolo:'+str(get_yolo_results))
@@ -67,15 +82,16 @@ class PaperResource:
 
         #all graylevel outputs
             if get_all_graylevels:
-                all_graylevel_output = neurodoll_single_category.get_all_category_graylevels(img)
+                all_graylevel_output = neurodoll.get_all_category_graylevels(img)
                 ret['all_graylevel_output'] = all_graylevel_output
                 if all_graylevel_output is not None:
                     print('all graylevel output shape:'+str(all_graylevel_output.shape))
                     ret["success"] = True
 
+
         # multilabel alone
             if get_multilabel_results:
-                multilabel_output = neurodoll_with_multilabel.get_multilabel_output(img)
+                multilabel_output = neurodoll.get_multilabel_output(img)
                 ret['multilabel_output'] = multilabel_output
                 print('multilabel output:'+str(multilabel_output))
                 if multilabel_output is not None:
@@ -84,15 +100,19 @@ class PaperResource:
 
         # combined multilabel and nd
             if get_combined_results:
-                combined_output = neurodoll_with_multilabel.combine_neurodoll_and_multilabel(img)
+                combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
                 ret['combined_output'] = combined_output
                 if combined_output is not None:
                     ret["success"] = True
 
         # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
+
             if category_index:
-                ret["mask"] = neurodoll_single_category.get_category_graylevel(img, category_index)
+                if threshold:
+                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index,threshold=threshold)
+                else:
+                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index)
                 if ret["mask"] is not None:
                     ret["success"] = True
 
