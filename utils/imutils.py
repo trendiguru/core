@@ -8,7 +8,7 @@ import cv2
 import hashlib
 import shutil
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing
@@ -346,7 +346,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
-    print('doing resize , input hxw  {} {} output hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
+    logging.info('doing resize , input hxw  {} {} output hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
     if inheight == 0 or inwidth == 0:
         logging.warning('got a bad image')
         return
@@ -367,7 +367,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
  #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
-        print('output ar<  input ar , width padding around '+str(width_offset)+ ' to '+str(width_offset+new_width))
+        logging.debug('output ar<  input ar , width padding around '+str(width_offset)+ ' to '+str(width_offset+new_width))
         output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
@@ -379,7 +379,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         new_height = int(float(inheight) / factor)
         resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
         height_offset = (outheight - new_height) / 2
-        print('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
+        logging.debug('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
         output_img[0:height_offset,:] = resized_img[0,:]
         output_img[height_offset+new_height:,:] = resized_img[-1,:]
@@ -425,7 +425,7 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
     #the shoe is on the other foot.
     inheight, inwidth = output_size[:]
     outheight, outwidth = input_file_or_np_arr.shape[0:2]
-    print('undoing resize , original hxw  {} {} resized hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
+    logging.info('undoing resize , original hxw  {} {} resized hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
     if (inheight == 0) or (inwidth == 0):
         logging.warning('got a bad image')
         return
@@ -445,21 +445,21 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
         new_width = int(float(inwidth) / factor)
         width_offset = (outwidth - new_width ) / 2
         remainder = outwidth - width_offset
-        print('orig ar>  resized ar , width padding '+str(width_offset)+', taking from padding to '+str(remainder))
+        logging.debug('orig ar>  resized ar , width padding '+str(width_offset)+', taking from padding to '+str(remainder))
         output_img = input_file_or_np_arr[:,width_offset:remainder]
 #        output_img[:,width_offset:width_offset+new_width] = resized_img[:,:]
         output_img = cv2.resize(output_img, (output_size[1],output_size[0]))  #cv2 does wxh not hxw
-        print('>resize size:'+str(output_img.shape))
+        #print('>resize size:'+str(output_img.shape))
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
         height_offset = (outheight - new_height) / 2
         remainder = outheight - height_offset
-        print('orig ar <=  resized ar , height padding '+str(height_offset)+ ',filling to '+str(remainder)+' outsize:'+str(output_size))
+        logging.debug('orig ar <=  resized ar , height padding '+str(height_offset)+ ',filling to '+str(remainder)+' outsize:'+str(output_size))
         output_img = input_file_or_np_arr[height_offset:remainder,:]
-        print('intermediate outputsize:'+str(output_img.shape))
+        #print('intermediate outputsize:'+str(output_img.shape))
         output_img = cv2.resize(output_img, (output_size[1],output_size[0])) #cv2 does wxh not hxw
-        print('resize size:'+str(output_img.shape))
+        logging.debug('resize size:'+str(output_img.shape))
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
     if careful_with_the_labels:
