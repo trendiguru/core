@@ -187,11 +187,11 @@ if __name__ == "__main__":
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    cat = 'belt'
-    classlabels=['not_'+cat,cat]
+    # cat = 'belt'
+    classlabels=[''] -?????????????????????
     n_tests = 1000
     n_loops = 2000000
-    baremetal_hostname = 'M60'
+    baremetal_hostname = 'k80a'
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,

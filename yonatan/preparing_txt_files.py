@@ -11,6 +11,7 @@ from .. import background_removal, utils, constants
 import sys
 import random
 
+
 def create_txt_files(argv):
 
     parser = argparse.ArgumentParser()
@@ -147,6 +148,59 @@ def create_txt_files_by_adding_from_different_directories():
 
         dir_path = '/home/yonatan/faces_stuff/uniq_faces/' + gender
         for root, dirs, files in os.walk(dir_path):
+            file_count = len(files)
+
+            counter = 0
+
+            print file_count
+
+            counter_train = file_count * 0.9
+            counter_cv = file_count * 0.05
+            counter_test = file_count * 0.05
+
+            for file in files:
+
+                if "._" in file:
+                    continue
+
+                counter += 1
+                print counter
+
+                if counter < counter_train:
+                    train_text_file.write(root + "/" + file + " " + label + "\n")
+                elif counter >= counter_train and counter < counter_train + counter_cv:
+                    cv_text_file.write(root + "/" + file + " " + label + "\n")
+                elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+                    test_text_file.write(root + "/" + file + " " + label + "\n")
+                else:
+                    print "DONE"
+                    break
+
+            print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}'.format(counter_train, counter_cv,
+                                                                                                    counter_test, counter)
+
+
+def create_txt_files_from_different_directories():
+
+    dictionary = yonatan_constants.women_shirt_sleeve_dict
+
+    train_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_train_list.txt", "w")
+    cv_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_cv_list.txt", "w")
+    test_text_file = open("/home/yonatan/collar_classifier/collar_images/collar_test_list.txt", "w")
+
+    for key, value in dictionary.iteritems():
+        source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
+        label = value
+
+        if os.path.isdir(source_dir):
+            if not os.listdir(source_dir):
+                print '\nfolder is empty'
+                break
+        else:
+            print '\nfolder doesn\'t exist'
+            break
+
+        for root, dirs, files in os.walk(source_dir):
             file_count = len(files)
 
             counter = 0

@@ -108,3 +108,16 @@ women_shirt_sleeve_dict = {
     # 'asymmetry': [db.yonatan_women_shirts.find(
     #    {'shirt_sleeve_length': ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true']}), 8]
 }
+
+# collar basic #
+collar_basic_dict = {
+    'crew_neck': 0,
+    'scoop_neck': 1,
+    'v_neck': 2,
+    'deep_v_neck': 3,
+    'Henley_t_shirts': 4,
+    'polo_collar': 5,
+    'tie_neck': 6,
+    'turtleneck': 7,
+    'Hooded_T_Shirt': 8
+}
