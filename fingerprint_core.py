@@ -42,6 +42,7 @@ def neurodoll(image, category_idx):
 
 
 def dict_fp(image, mask, category):
+    print 'dict fp'
     if category in constants.features_per_category:
         fp_features = constants.features_per_category[category]
     else:
@@ -53,10 +54,13 @@ def dict_fp(image, mask, category):
 
 def get_feature_fp(image, mask, feature):
     if feature == 'color':
+        print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
     elif feature == 'sleeve_length':
+        print 'sleeve_length'
         return sleeve_client.get_sleeve(image)['data']
     elif feature == 'length':
+        print 'length'
         return length_client.get_length(image)['data']
     else:
         return []
