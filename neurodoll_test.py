@@ -593,7 +593,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
         return
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
-    basename = 'get_gl_thresh_'+str(name)+str(category_index)
+    basename = 'get_gl_thresh_'+str(name)+'_'+str(category_index)+'_'
     cv2.imwrite(basename+'mask.jpg',mask*255/21)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)

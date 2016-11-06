@@ -12,10 +12,11 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 import os
-import time
-import hashlib
 import urllib
 import sys
+import hashlib
+import time
+
 
 from trendi import constants
 from trendi.utils import imutils
@@ -351,6 +352,13 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
+    else:
+        logging.debug('got something other than string and np array in get_all_categry_graylevels, returning')
+        return
+    if image is None:
+        logging.debug('got None for image in get_all_categry_graylevels, returning')
+        return
+
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
@@ -411,15 +419,23 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
         print('analyze_graylevels working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
+        name = url_or_np_array.replace('/','').replace('.jpg','').replace('.','').replace('http:','')
     elif type(url_or_np_array) == np.ndarray:
         print('starting to analyze graylevel on img')
         image = url_or_np_array
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name = hash.hexdigest()[:10]
 
     gl = get_all_category_graylevels(url_or_np_array)
+    if gl is None:
+        logging.debug('got none from get_all_cateogry_graylevels, returning')
+        return
     mask = gl.argmax(axis=2)
     background = np.array((mask==0)*1,dtype=np.uint8)
     foreground = np.array((mask>0)*1,dtype=np.uint8)
-    cv2.imwrite('fg.jpg',foreground*255)
+    cv2.imwrite(name+'bg.jpg',background*255)
+    cv2.imwrite(name+'fg.jpg',foreground*255)
     tmin = np.min(foreground)
     tmax = np.max(foreground)
 #    astype(np.uint8))
@@ -435,7 +451,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     compressed_gl = cv2.resize(gl,(compressed_w,compressed_h))
     print('fg shape {} type {}'.format(foreground.shape,type(foreground)))
     compressed_foreground = cv2.resize(foreground,(compressed_w,compressed_h))
-    cv2.imwrite('fg_comp.jpg',compressed_foreground*255)
+    cv2.imwrite(name+'fg_comp.jpg',compressed_foreground*255)
     print('compressed hw {} {}'.format(compressed_h,compressed_w))
     compressed_image = cv2.resize(image,(compressed_w,compressed_h))
     big_out = np.zeros([compressed_h*n_rows,compressed_w*n_rows,3])
@@ -445,7 +461,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     for i in range(5):
         for j in range(5):
             n = i*n_rows+j
-            print('n {} i{} j {}:'.format(n,i,j))
+#            print('n {} i{} j {}:'.format(n,i,j))
             if n>=gl.shape[2]:
                 print('finished blocks i {} j {} n {}'.format(i,j,n))
                 big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,0] = compressed_image[:,:,0]
@@ -464,7 +480,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,1] = compressed_gl[:,:,n]
             big_out[i*compressed_h:(i+1)*compressed_h,j*compressed_w:(j+1)*compressed_w,2] = compressed_gl[:,:,n]
             cv2.putText(big_out,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
-            cv2.imwrite('bigout.jpg',big_out)
+            cv2.imwrite(name+'bigout.jpg',big_out)
     time.sleep(0.1)
 #            cv2.imshow('bigout',big_out)
 
@@ -492,7 +508,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
 
           #      print('tx {} ty {}'.format(int((j+0.5)*w),int((i+1)*h-10)))
                 cv2.putText(big_out2,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
-                cv2.imwrite('bigout_thresh'+str(thresh)+'.jpg',big_out2)
+                cv2.imwrite(name+'bigout_thresh'+str(thresh)+'.jpg',big_out2)
 
 def get_all_category_graylevels_ineff(url_or_np_array,required_image_size=(256,256)):
     start_time = time.time()
@@ -555,7 +571,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
 
-def get_category_graylevel_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.8):
+def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.95):
     '''
     This takes a given layer, thresholds it, but keeps original backgound strictly
     :param url_or_np_array:
@@ -564,11 +580,21 @@ def get_category_graylevel_thresholded(url_or_np_array,category_index,required_i
     :param threshold:
     :return:
     '''
+    if isinstance(url_or_np_array, basestring):
+        name = url_or_np_array.replace('/','').replace('.jpg','').replace('.','').replace('http:','')
+    else :
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        name = hash.hexdigest()[:10]
+
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
+    if all_layers is None:
+        logging.debug('got nothing back from get_all_category_graylevels in get_category_graylevel_masked_thresholded, returning')
+        return
     requested_layer = all_layers[:,:,category_index]
     mask = all_layers.argmax(axis=2)
-    basename = 'getgl_'+str(category_index)
-    cv2.imwrite(basename+'mask.jpg',mask)
+    basename = 'get_gl_thresh_'+str(name)+'_'+str(category_index)+'_'
+    cv2.imwrite(basename+'mask.jpg',mask*255/21)
     background = mask==0
     cv2.imwrite(basename+'bgnd.jpg',background*255)
     foreground = mask>0
@@ -1003,7 +1029,7 @@ if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
     url = 'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
     urls = ['http://healthyceleb.com/wp-content/uploads/2014/03/Nargis-Fakhri-Main-Tera-Hero-Trailer-Launch.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg'
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
             'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
@@ -1045,23 +1071,38 @@ if __name__ == "__main__":
             cv2.imwrite(name,nd_out)
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
-    get_category_graylevel(urls[0],category_index = 3)
 
+    get_category_graylevel(urls[0],category_index = 3)
     test_graylevels = False
     if test_graylevels:
         for i in range(21):
             get_category_graylevel(url,category_index = i)
 
-    analyze_graylevels(urls[0])
+    test_gcgl = True
+    if test_gcgl:
+        print('start test_combined_nd')
+        for url in urls:
+            print('doing url:'+url)
+#            for i in range(len(constants.ultimate_21)):
+            i = 5 #dress
+            get_category_graylevel_masked_thresholded(url,i)
+            i = 16 #skirt
+            get_category_graylevel_masked_thresholded(url,i)
+#
+#    analyze_graylevels(urls[0])
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
     test_combine = False
     if test_combine:
         print('start test_combined_nd')
-        for url in urls:
+        for url in urls: #
+            print('doing url:'+url) #
+
             analyze_graylevels(url)
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
 #                print('testing combined ml nd, median factor:'+str(median_factor))
 #                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
 #                print('combined output:'+str(out))
+
+
