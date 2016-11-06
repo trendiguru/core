@@ -1075,7 +1075,7 @@ if __name__ == "__main__":
     test_combine = False
     if test_combine:
         print('start test_combined_nd')
-        for url in urls:
+        for url in urls: #
             print('doing url:'+url)
 
             analyze_graylevels(url)
