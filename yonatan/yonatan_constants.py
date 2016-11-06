@@ -5,7 +5,7 @@ import skimage.io
 from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
-import caffe
+# import caffe
 from .. import background_removal, utils, constants
 from ..utils import imutils
 import cv2
