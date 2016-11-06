@@ -242,16 +242,16 @@ def create_txt_files_from_different_directories():
 
     print error_counter
 
-    train_lines = train_text_file.readlines()
-    cv_lines = open(cv_text_file).readlines()
-    test_lines = open(test_text_file).readlines()
-    random.shuffle(train_lines)
-    random.shuffle(cv_lines)
-    random.shuffle(test_lines)
-
     train_text_file.close()
     cv_text_file.close()
     test_text_file.close()
+
+    train_lines = open("/home/yonatan/collar_classifier/collar_images/collar_train_list.txt").readlines()
+    cv_lines = open("/home/yonatan/collar_classifier/collar_images/collar_cv_list.txt").readlines()
+    test_lines = open("/home/yonatan/collar_classifier/collar_images/collar_test_list.txt").readlines()
+    random.shuffle(train_lines)
+    random.shuffle(cv_lines)
+    random.shuffle(test_lines)
 
 
 def edit_existing_gender_txt_files():
