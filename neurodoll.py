@@ -267,7 +267,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
     if save_results:
         pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
-        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=True,save_images=False,original_image=orig_filename)
+        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=orig_filename)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
