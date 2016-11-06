@@ -1,8 +1,7 @@
 import falcon
 import datetime
 
-from jaweson import json
-from jaweson msgpack
+from jaweson import json, msgpack
 from . import new_pd
 
 import random
