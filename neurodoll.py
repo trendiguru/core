@@ -604,6 +604,8 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     cv2.imwrite(basename+'thresh.jpg',thresholded_layer*255)
     new_mask = foreground * thresholded_layer * 1
     cv2.imwrite(basename+'out.jpg',new_mask*255)
+    n_pixels = np.sum(new_mask)
+    print('n pixels in get_cat_gl_masked_trhesholded:'+str(n_pixels))
     return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
