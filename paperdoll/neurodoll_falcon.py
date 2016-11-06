@@ -110,8 +110,10 @@ class PaperResource:
 
             if category_index:
                 if threshold:
+                    print('neurodoll falcon sending img and threshold to get_cat_gl_masked_thresholded')
                     ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index,threshold=threshold)
                 else:
+                    print('neurodoll falcon sending img without threshold to get_cat_gl_masked_thresholded')
                     ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index)
                 if ret["mask"] is not None:
                     ret["success"] = True
