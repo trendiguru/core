@@ -1,6 +1,6 @@
 __author__ = 'liorsabag'
 
-from jaweson import json as msgpack
+from jaweson import msgpack
 import requests
 
 #
@@ -12,4 +12,7 @@ CLASSIFIER_ADDRESS = "http://159.8.222.7:8083/pd"
 def pd(image_arrary_or_url):
     data = msgpack.dumps({"image": image_arrary_or_url})
     resp = requests.post(CLASSIFIER_ADDRESS, data)
-    return msgpack.loads(resp.content)
+    if  200 <= resp.status_code < 300:
+        return msgpack.loads(resp.content)
+    else:
+        raise Exception('PD FAILED', resp.content)
