@@ -470,6 +470,7 @@ def collar_classifier():
     dictionary = yonatan_constants.collar_basic_dict
 
     error_counter = 0
+    counter = 0
 
     for key, value in dictionary.iteritems():
         source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
@@ -484,30 +485,30 @@ def collar_classifier():
 
         for root, dirs, files in os.walk(source_dir):
 
-            counter = 0
-
             for file in files:
 
                 if "._" in file:
                     continue
 
-                counter += 1
-                print counter
-
                 try:
-                    image_array = cv2.imread(os.path.join(root, file))
-                    resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+                    # image_array = cv2.imread(os.path.join(root, file))
+                    # resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+                    #
+                    # image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
+                    #
+                    # cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+                    if file.startswith("images"):
+                        os.remove(os.path.join(root, file))
 
-                    image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
-
-                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+                        counter += 1
+                        print counter
 
                 except:
                     print "something ain't good"
                     error_counter += 1
                     continue
 
-    print error_counter
+    print "number of errors: {0}, counter: {1}".format(error_counter, counter)
 
 
 
