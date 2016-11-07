@@ -24,7 +24,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat='belt',classlabels=None,baremetal_hostname='brainiK80X',solverstate=None):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
@@ -186,16 +186,16 @@ if __name__ == "__main__":
 #vars to change
 ###############
     solverstate = None
-    weights = '../ResNet-101-model.caffemodel'  #in brainia container jr2
-    solverproto = 'ResNet-101_solver.prototxt'
-    testproto = 'ResNet-101-train_test.prototxt'  #maybe take this out in  favor of train proto
+    weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
+    solverproto = '/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152_solver.prototxt'
+    testproto = '/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    # cat = 'belt'
-    classlabels=[''] -?????????????????????
+    cat = None
+    classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt']
     n_tests = 1000
     n_loops = 2000000
     baremetal_hostname = 'k80a'
