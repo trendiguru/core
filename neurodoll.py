@@ -550,7 +550,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     new_mask = foreground * thresholded_layer #  * 1  multiplying by one turns True/False into 1/0 but seems to mess something?
     cv2.imwrite(basename+'out.jpg',new_mask*255)
     n_pixels = np.sum(new_mask)
-    print('n pixels in get_cat_gl_masked_trhesholded:'+str(n_pixels))
+    print('n nonzero pixels in get_cat_gl_masked_trhesholded:'+str(n_pixels))
     return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
@@ -839,6 +839,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
     print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
+    print('n_fg {} n_bg {}'.format(np.sum(foreground),np.sum(background)))
 
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
