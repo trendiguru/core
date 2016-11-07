@@ -835,8 +835,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    foreground = pixlevel_categorical_output>0
-    background = pixlevel_categorical_output==0
+    foreground = np.array((pixlevel_categorical_output>0) * 1)
+    background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
     print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
 

@@ -75,7 +75,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     if type == 'multilabel':
         outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
     if type == 'single_label':
-        outdir = outdir + '_' + cat
+        outdir = outdir + '_' + str(cat)
         outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
     loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
     print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    cat = None
+    cat = ''
     classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt']
     n_tests = 1000
     n_loops = 2000000
