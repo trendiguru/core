@@ -121,3 +121,13 @@ collar_basic_dict = {
     'turtleneck': 7,
     'Hooded_T_Shirt': 8
 }
+
+# style #
+style_dict = {
+    'casual': 0,
+    'prom': 1,
+    'tuxedos_and_suits': 2,
+    'bride_dress': 3,
+    'active': 4,
+    'swim': 5
+}
