@@ -823,7 +823,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     logging.info('orig label:'+str(multilabel))
 #    print('incoming label:'+str(multilabel))
 #    logging.info('thresholded label:'+str(thresholded_multilabel))
-    for i in len(thresholded_multilabel):
+    for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             logging.info(multilabel_labels[i]+' is over threshold')
 #    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
