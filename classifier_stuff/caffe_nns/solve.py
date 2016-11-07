@@ -24,7 +24,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat='belt',classlabels=None,baremetal_hostname='brainiK80X',solverstate=None):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80X',solverstate=None):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    # cat = 'belt'
+    cat = None
     classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt']
     n_tests = 1000
     n_loops = 2000000
