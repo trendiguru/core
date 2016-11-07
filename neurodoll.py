@@ -2,14 +2,12 @@
 __author__ = 'jeremy'
 
 import caffe
-import logging
 import copy
-logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 import cv2
 import caffe
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import numpy as np
 import os
 import urllib
@@ -391,7 +389,7 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     out = out*255
     min = np.min(out)
     max = np.max(out)
-    print('min {} max {} out after scaling'.format(min,max))
+    logging.debug('min {} max {} out after scaling'.format(min,max))
 #    result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
@@ -404,15 +402,15 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
     out = np.array(out,dtype=np.uint8)
-    print('get_all_categorygraylevels:outshape '+str(out.shape))
+    logging.debug('get_all_categorygraylevels:outshape '+str(out.shape))
 #    out = out.transpose((2,0,1))  #change row,col,chan to chan,row,col as caffe wants
     out = out.transpose((1,2,0))  #change chan,row,col to row,col,chan  as the rest of world wants
-    print('get_all_categorygraylevels:outshape '+str(out.shape))
+    logging.debug('get_all_categorygraylevels:outshape '+str(out.shape))
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
-    print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
+    logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
@@ -821,10 +819,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('None result from multilabel')
         return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
-#    print('orig label:'+str(multilabel))
     print('combining multilabel w. neurodoll, watch out')
+    logging.info('orig label:'+str(multilabel))
 #    print('incoming label:'+str(multilabel))
-    print('thresholded label:'+str(thresholded_multilabel))
+#    logging.info('thresholded label:'+str(thresholded_multilabel))
+    for i in len(thresholded_multilabel):
+        if thresholded_multilabel[i]:
+            logging.info(multilabel_labels[i]+' is over threshold')
 #    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
 #    print('multilabel labels:'+str(multilabel_labels))
 
@@ -838,8 +839,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
-    print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
-    print('n_fg {} n_bg {}'.format(np.sum(foreground),np.sum(background)))
+    logging.debug('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
+    logging.debug('n_fg {} n_bg {}'.format(np.sum(foreground),np.sum(background)))
 
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
@@ -876,6 +877,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
     print('wholebody indices:'+str(whole_body_indexlist))
+    for i in whole_body_indexlist:
+        print multilabel_labels[i]
     whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
     print('wholebody ml_values:'+str(whole_body_ml_values))
     thewinning_index = whole_body_ml_values.argmax()
@@ -886,6 +889,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         print('winning wholebody is under threshold')
 
     print('uppercover indices:'+str(upper_cover_indexlist))
+    for i in upper_cover_indexlist:
+        print multilabel_labels[i]
     upper_cover_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
     upper_cover_winner = upper_cover_ml_values.argmax()
@@ -894,6 +899,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
 
     print('upperunder indices:'+str(upper_under_indexlist))
+    for i in upper_under_indexlist:
+        print multilabel_labels[i]
     upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
     print('upper_under ml_values:'+str(upper_under_ml_values))
     upper_under_winner = upper_under_ml_values.argmax()
@@ -902,6 +909,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
 
     print('lowercover indices:'+str(lower_cover_indexlist))
+    for i in lower_cover_indexlist:
+        print multilabel_labels[i]
     lower_cover_ml_values = np.array([multilabel[i] for i in lower_cover_indexlist])
     print('lower_cover ml_values:'+str(lower_cover_ml_values))
     lower_cover_winner = lower_cover_ml_values.argmax()
@@ -910,6 +919,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
 
     print('lowerunder indices:'+str(lower_under_indexlist))
+    for i in lower_under_indexlist:
+        print multilabel_labels[i]
     lower_under_ml_values = np.array([multilabel[i] for i in  lower_under_indexlist])
     print('lower_under ml_values:'+str(lower_under_ml_values))
     lower_under_winner = lower_under_ml_values.argmax()
