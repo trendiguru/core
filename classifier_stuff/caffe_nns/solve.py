@@ -24,7 +24,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat=None,classlabels=None,baremetal_hostname='brainiK80X',solverstate=None):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
