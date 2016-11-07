@@ -75,7 +75,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     if type == 'multilabel':
         outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
     if type == 'single_label':
-        outdir = outdir + '_' + str(cat)
+        outdir = outdir + '_' + cat
         outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
     loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
     print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
@@ -187,15 +187,15 @@ if __name__ == "__main__":
 ###############
     solverstate = None
     weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
-    solverproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152_solver.prototxt'
-    testproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+    solverproto = '/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152_solver.prototxt'
+    testproto = '/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    cat = "style"
-    classlabels=['casual', 'prom', 'tuxedos_and_suits', 'bride_dress', 'active', 'swim']
+    cat = "collar"
+    classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt']
     n_tests = 1000
     n_loops = 2000000
     baremetal_hostname = 'k80a'
@@ -203,3 +203,5 @@ if __name__ == "__main__":
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
           cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
+
+

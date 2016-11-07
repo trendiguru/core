@@ -1,4 +1,4 @@
-net: "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-train_test.prototxt"
+net: "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt"
 #train_net: "ResNet-152-train.prototxt"
 #test_net: "ResNet-152-test.prototxt"
 test_iter: 500
@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 10
 snapshot: 2500
-snapshot_prefix: "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories"
+snapshot_prefix: "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories"
 test_initialization: false
 solver_mode : GPU
 
