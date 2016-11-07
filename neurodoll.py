@@ -843,7 +843,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
 
-    final_mask = np.zeros([224,224])
+ #   final_mask = np.zeros([224,224])
     final_mask = np.zeros(pixlevel_categorical_output.shape[:])
     print('final_mask shape '+str(final_mask.shape))
 
@@ -853,7 +853,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     #decide on one bottom
  #   for i in range(len(thresholded_multilabel)):
  #       if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
-
 
 ##################################
 #Make some conclusions nadav style
@@ -877,11 +876,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     print('wholebody indices:'+str(whole_body_indexlist))
     whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
-    print('wholebody ml_values:'+str(whole_body_indexlist))
-    thewinner = whole_body_ml_values.argmax()
-    whole_body_winner_value=whole_body_ml_values[thewinner]
-    whole_body_winner_index=whole_body_indexlist[thewinner]
-    print('winning wholebody:'+str(thewinner)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
+    print('wholebody ml_values:'+str(whole_body_ml_values))
+    thewinning_index = whole_body_ml_values.argmax()
+    whole_body_winner_value=whole_body_ml_values[thewinning_index]
+    whole_body_winner_index=whole_body_indexlist[thewinning_index]
+    print('winning index:'+str(thewinning_index)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
     if whole_body_winner_value < multilabel_threshold:
         print('winning wholebody is under threshold')
 
@@ -1026,7 +1025,7 @@ if __name__ == "__main__":
         for i in range(21):
             get_category_graylevel(url,category_index = i)
 
-    test_gcgl = True
+    test_gcgl = False
     if test_gcgl:
         print('start test_combined_nd')
         for url in urls:
@@ -1038,19 +1037,20 @@ if __name__ == "__main__":
             get_category_graylevel_masked_thresholded(url,i)
 #
 #    analyze_graylevels(urls[0])
+#            analyze_graylevels(url)
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
-    test_combine = False
+    test_combine = True
     if test_combine:
         print('start test_combined_nd')
         for url in urls: #
             print('doing url:'+url) #
 
-            analyze_graylevels(url)
+            for median_factor in [0.75]:
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
-#                print('testing combined ml nd, median factor:'+str(median_factor))
-#                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
-#                print('combined output:'+str(out))
+                print('testing combined ml nd, median factor:'+str(median_factor))
+                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+                print('combined output:'+str(out))
 
 
