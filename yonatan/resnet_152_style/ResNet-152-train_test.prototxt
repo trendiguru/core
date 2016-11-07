@@ -1,4 +1,4 @@
-name: "ResNet-152_collar_classifier"
+name: "ResNet-152_style_classifier"
 
 layer {
       name: "data"
@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/collar_classifier/collar_images/collar_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_images/style_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
       }
   include {phase: TRAIN}
 }
@@ -20,7 +20,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/collar_classifier/collar_images/collar_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_images/style_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
       }
     include {phase: TEST}
 }
