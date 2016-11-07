@@ -194,7 +194,7 @@ if __name__ == "__main__":
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 20
-    cat = "None"
+    cat = "collar"
     classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt']
     n_tests = 1000
     n_loops = 2000000

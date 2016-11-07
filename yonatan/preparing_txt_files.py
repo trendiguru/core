@@ -321,10 +321,11 @@ def shuffle_all_lines():
     cv_text_file = open("/home/yonatan/faces_stuff/55k_face_cv_list.txt", "w").writelines(cv_lines)
     test_text_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "w").writelines(test_lines)
 
+
 if __name__ == '__main__':
     # create_txt_files(sys.argv)
     # create_txt_files_no_mongo()
-    edit_existing_gender_txt_files()
-    create_txt_files_by_adding_from_different_directories()
-    shuffle_all_lines()
+    # edit_existing_gender_txt_files()
+    # create_txt_files_by_adding_from_different_directories()
+    # shuffle_all_lines()
     create_txt_files_from_different_directories()
