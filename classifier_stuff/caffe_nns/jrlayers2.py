@@ -567,7 +567,13 @@ class JrMultilabel(caffe.Layer):
                 if self.regression:
                     label_vec = [float(i) for i in vals]
                 else:
-                    label_vec = [int(i) for i in vals]
+                    try:
+                        label_vec = [int(i) for i in vals]
+                    except:
+                        logging.debug('got something that coulndt be turned into a string in the following line from file '+self.images_and_labels_file)
+                        logging.debug(line)
+                        logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
+                        continue
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
