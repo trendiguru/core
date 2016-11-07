@@ -559,7 +559,7 @@ class JrMultilabel(caffe.Layer):
                             print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
-        else:  #
+        else:  ##
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
@@ -567,7 +567,13 @@ class JrMultilabel(caffe.Layer):
                 if self.regression:
                     label_vec = [float(i) for i in vals]
                 else:
-                    label_vec = [int(i) for i in vals]
+                    try:
+                        label_vec = [int(i) for i in vals]
+                    except:
+                        logging.debug('got something that coulndt be turned into a string in the following line from file '+self.images_and_labels_file)
+                        logging.debug(line)
+                        logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
+                        continue
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
