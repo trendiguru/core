@@ -559,7 +559,7 @@ class JrMultilabel(caffe.Layer):
                             print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
-        else:  #
+        else:  ##
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
