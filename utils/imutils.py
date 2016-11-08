@@ -8,7 +8,7 @@ import cv2
 import hashlib
 import shutil
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing

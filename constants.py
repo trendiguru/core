@@ -254,6 +254,7 @@ ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hai
 ultimate_21_area_thresholds = [0.01,0.001,0.001,0.01,0.01,0.01,0.01,0.01,0.01,0.01,
                                      0.01,0.01,0.01,0.001,0.01,0.01,0.01,0.01,0.01,0.01,
                                      0.01]
+#todo change these to be relative to face size
 
 #used for pixel level output of neurodoll as of 260716
 ultimate_21_dict = {'bag': 1, 'belt': 2, 'bgnd': 0, 'blazer': 3, 'coat': 4, 'dress': 5, 'eyewear': 6, 'face': 7, 'hair': 8, 'hat': 9,
@@ -327,7 +328,7 @@ tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewe
 #missing from webtool compared ot tamara_berg - 'legging', 'outerwear','skin',
 
 paperdoll_paperdoll_men = {'top': 'shirt', 'pants': 'pants', 'shorts': 'shorts', 'jeans': 'jeans', 'jacket': 'jacket',
-                           'blazer': 'jacket', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
+                           'blazer': 'blazer', 'shirt': 'shirt', 'skirt': 'pants', 'blouse': 'shirt',
                            'dress': 'suit', 'sweater': 'sweater', 't-shirt': 'shirt', 'bodysuit': 'suit',
                            'cardigan': 'sweater', 'coat': 'coat', 'suit': 'suit', 'vest': 'vest',
                            'sweatshirt': 'sweatshirt', 'leggings': 'pants', 'stockings': 'pants', 'tights': 'pants'}
@@ -337,8 +338,6 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "upper_under": ['t-shirt', 'blouse', 'shirt', 'top', 'sweater', 'sweatshirt'],
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
-
-
 
 nn_categories = {"whole_body": ['dress', 'suit'],
                  "upper_cover": ['blazer', 'coat'],

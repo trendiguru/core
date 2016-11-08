@@ -24,7 +24,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None,label_layer='label',estimate_layer='my_fc2'):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
@@ -75,7 +75,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     if type == 'multilabel':
         outname = os.path.join(outdir,outdir[2:]+'_mlresults.html')
     if type == 'single_label':
-        outdir = outdir + '_' + cat
+        outdir = outdir + '_' + str(cat)
         outname = os.path.join(outdir,outdir[2:]+'_'+cat+'_slresults.txt')
     loss_outputname = os.path.join(outdir,outdir[2:]+'_loss.txt')
     print('outname:{}\n lossname {}\n outdir {}\n'.format(outname,loss_outputname,outdir))
@@ -138,32 +138,35 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
         averaged_loss=sum(loss_avg)/len(loss_avg)
-        if type == 'single_label':
-            averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
-            s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
-            print(s)
-            s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
-        else:
-            s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
-            print(s)
-            s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
+        s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
-        with open(loss_outputname,'a+') as f:
-            f.write(str(int(time.time()))+'\t'+s2)
-            f.close()
     #    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
         if type == 'multilabel':
             precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=n_tests, threshold=0.5, gt_layer='labels',estimate_layer='prob')
             print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
             n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
             multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
+            s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss)
+
         elif type == 'pixlevel':
                     # number of tests for pixlevel
+            s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
+            print(s)
             val = range(0,n_tests) #
-            jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            overall_acc = results_dict['overall_acc']
+            mean_acc = results_dict['mean_acc']
+            mean_ion = results_dict['mean_iou']
+            fwavacc = results_dict['fwavacc']
+            s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,overall_acc,mean_acc,mean_ion,fwavacc)
 
         elif type == 'single_label':
+            averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
+            s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
+            print(s)
+            s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
+
             acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='my_fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
      #       test_net = solver.test_nets[0] # more than one testnet is supported
     #        testloss = test_net.blobs['loss'].data
@@ -175,6 +178,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             with open(loss_outputname,'a+') as f:
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
                 f.close()
+
+        with open(loss_outputname,'a+') as f:
+            f.write(str(int(time.time()))+'\t'+s2)
+            f.close()
     #
     #   subprocess.call(copycmd,shell=True)
         subprocess.call(scpcmd,shell=True)
@@ -186,7 +193,7 @@ if __name__ == "__main__":
 #vars to change
 ###############
     solverstate = None
-    weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
+    weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'
     solverproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152_solver.prototxt'
     testproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
     type='single_label'
@@ -199,7 +206,9 @@ if __name__ == "__main__":
     n_tests = 1000
     n_loops = 2000000
     baremetal_hostname = 'k80a'
+    label_layer='label'
+    estimate_layer='my_fc2'
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer='label',estimate_layer='my_fc2')

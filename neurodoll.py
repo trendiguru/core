@@ -2,14 +2,12 @@
 __author__ = 'jeremy'
 
 import caffe
-import logging
 import copy
-logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 import cv2
 import caffe
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import numpy as np
 import os
 import urllib
@@ -391,7 +389,7 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
     out = out*255
     min = np.min(out)
     max = np.max(out)
-    print('min {} max {} out after scaling'.format(min,max))
+    logging.debug('min {} max {} out after scaling'.format(min,max))
 #    result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
 #    outname = os.path.basename(imagename)
@@ -404,15 +402,15 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
     out = np.array(out,dtype=np.uint8)
-    print('get_all_categorygraylevels:outshape '+str(out.shape))
+    logging.debug('get_all_categorygraylevels:outshape '+str(out.shape))
 #    out = out.transpose((2,0,1))  #change row,col,chan to chan,row,col as caffe wants
     out = out.transpose((1,2,0))  #change chan,row,col to row,col,chan  as the rest of world wants
-    print('get_all_categorygraylevels:outshape '+str(out.shape))
+    logging.debug('get_all_categorygraylevels:outshape '+str(out.shape))
     if required_image_size is not None:
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
-    print('get_all_category_graylevels elapsed time:'+str(elapsed_time))
+    logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
@@ -550,7 +548,7 @@ def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,req
     new_mask = foreground * thresholded_layer #  * 1  multiplying by one turns True/False into 1/0 but seems to mess something?
     cv2.imwrite(basename+'out.jpg',new_mask*255)
     n_pixels = np.sum(new_mask)
-    print('n pixels in get_cat_gl_masked_trhesholded:'+str(n_pixels))
+    print('n nonzero pixels in get_cat_gl_masked_trhesholded:'+str(n_pixels))
     return new_mask
 
 def grabcut_using_neurodoll_output(url_or_np_array,category_index,median_factor=1.6):
@@ -797,6 +795,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     multilabel_labels=constants.binary_classifier_categories
 
     '''
+    print('combining multilabel w. neurodoll, watch out')
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
@@ -812,7 +811,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('got None in grabcut_using_neurodoll_output')
     print('writing orig to '+orig_filename)
     cv2.imwrite(orig_filename,image)
-
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -821,10 +819,12 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('None result from multilabel')
         return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
-#    print('orig label:'+str(multilabel))
-    print('combining multilabel w. neurodoll, watch out')
+    logging.info('orig label:'+str(multilabel)+' len:'+str(len(multilabel)))
 #    print('incoming label:'+str(multilabel))
-    print('thresholded label:'+str(thresholded_multilabel))
+#    logging.info('thresholded label:'+str(thresholded_multilabel))
+    for i in range(len(thresholded_multilabel)):
+        if thresholded_multilabel[i]:
+            logging.info(multilabel_labels[i]+' is over threshold')
 #    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
 #    print('multilabel labels:'+str(multilabel_labels))
 
@@ -835,15 +835,16 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    foreground = pixlevel_categorical_output>0
-    background = pixlevel_categorical_output==0
+    foreground = np.array((pixlevel_categorical_output>0) * 1)
+    background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
-    print('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
+    logging.debug('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
+    logging.debug('n_fg {} n_bg {}'.format(np.sum(foreground),np.sum(background)))
 
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
 
-    final_mask = np.zeros([224,224])
+ #   final_mask = np.zeros([224,224])
     final_mask = np.zeros(pixlevel_categorical_output.shape[:])
     print('final_mask shape '+str(final_mask.shape))
 
@@ -854,16 +855,18 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
  #   for i in range(len(thresholded_multilabel)):
  #       if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
 
-
 ##################################
 #Make some conclusions nadav style
 ##################################
     #1. decide on whole body item (dress, suit, overall) vs. non-whole body items.
-    #2. if whole body, donate non-whole-body pixels to whole body
-    #3. else, take max one upper cover , donate losers to winner
-    #4. take at least one upper under, donate losers to winner
-    #5. take at least one lower cover, donate losers to winner
-    #6. take max one lower under
+    #2. does ml have a whole-body item over thresh? yes - donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
+    #3. else, take at most one upper cover over thresh, donate losers to winner
+    #4. take at most one upper under over thresh, donate losers to winner
+    #5  if no upper cover and no upper under and no whole-body: take max of all those and donate losers to winner
+    #6. take at least one lower cover, donate losers to winner.
+    #7. if no lower cover and no whole-body was decided upon above: take max of lowercover items , donate losers to winner
+    #8. take at most one lower under, donate losers to winner
+
     #upper_cover: jacket, coat, blazer etc
     #upper under: shirt, top, blouse etc
     #lower cover: skirt, pants, shorts
@@ -875,25 +878,92 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
     lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
-    print('wholebody indices:'+str(whole_body_indexlist))
-    whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
-    print('wholebody ml_values:'+str(whole_body_indexlist))
-    thewinner = whole_body_ml_values.argmax()
-    whole_body_winner_value=whole_body_ml_values[thewinner]
-    whole_body_winner_index=whole_body_indexlist[thewinner]
-    print('winning wholebody:'+str(thewinner)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
-    if whole_body_winner_value < multilabel_threshold:
-        print('winning wholebody is under threshold')
+    final_mask = np.zeros_like(pixlevel_categorical_output)
+    logging.info('size of final mask '+str(final_mask.shape))
 
+#########################
+# WHOLEBODY
+#########################
+    print('wholebody indices:'+str(whole_body_indexlist))
+    for i in whole_body_indexlist:
+        print multilabel_labels[i]
+    whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
+    print('wholebody ml_values:'+str(whole_body_ml_values))
+    thewinning_index = whole_body_ml_values.argmax()
+    whole_body_winner_value=whole_body_ml_values[thewinning_index]
+    whole_body_winner_index=whole_body_indexlist[thewinning_index]
+    print('winning index:'+str(thewinning_index)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
+    if whole_body_winner_value > multilabel_threshold:
+        #donate non-whole-body pixels to whole-body
+        logging.info('winning wholebody is over threshold')
+        neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_value]
+        if neurodoll_wholebody_index is not None:
+            final_mask = np.array((pixlevel_categorical_output == neurodoll_wholebody_index)*1)
+            n = np.sum(final_mask)
+            logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_under_indexlist:
+                #only do this for dress - suit and overalls can have upper_under
+                pass
+            for i in lower_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in lower_under_indexlist:
+                #not doing this for stockings which is currently the only lower under
+                pass
+        else:
+            logging.debug('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
+
+
+#########################
+# UPPER COVER
+#########################
     print('uppercover indices:'+str(upper_cover_indexlist))
+    for i in upper_cover_indexlist:
+        print multilabel_labels[i]
     upper_cover_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
     upper_cover_winner = upper_cover_ml_values.argmax()
     upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
     upper_cover_winner_index=upper_cover_indexlist[upper_cover_winner]
     print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
+    if upper_cover_winner_value > multilabel_threshold:
+        #donate non-whole-body pixels to whole-body
+        logging.info('winning wholebody is over threshold')
+        neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_value]
+        if neurodoll_wholebody_index is not None:
+            final_mask = np.array((pixlevel_categorical_output == neurodoll_wholebody_index)*1)
+            n = np.sum(final_mask)
+            logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_under_indexlist:
+                #only do this for dress - suit and overalls can have upper_under
+                pass
+            for i in lower_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in lower_under_indexlist:
+                #not doing this for stockings which is currently the only lower under
+                pass
+        else:
+            logging.debug('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
+
 
     print('upperunder indices:'+str(upper_under_indexlist))
+    for i in upper_under_indexlist:
+        print multilabel_labels[i]
     upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
     print('upper_under ml_values:'+str(upper_under_ml_values))
     upper_under_winner = upper_under_ml_values.argmax()
@@ -902,6 +972,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
 
     print('lowercover indices:'+str(lower_cover_indexlist))
+    for i in lower_cover_indexlist:
+        print multilabel_labels[i]
     lower_cover_ml_values = np.array([multilabel[i] for i in lower_cover_indexlist])
     print('lower_cover ml_values:'+str(lower_cover_ml_values))
     lower_cover_winner = lower_cover_ml_values.argmax()
@@ -910,13 +982,15 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
 
     print('lowerunder indices:'+str(lower_under_indexlist))
+    for i in lower_under_indexlist:
+        print multilabel_labels[i]
     lower_under_ml_values = np.array([multilabel[i] for i in  lower_under_indexlist])
     print('lower_under ml_values:'+str(lower_under_ml_values))
     lower_under_winner = lower_under_ml_values.argmax()
     lower_under_winner_value=lower_under_ml_values[lower_under_winner]
     lower_under_winner_index=lower_under_indexlist[lower_under_winner]
     print('winning lower_under:'+str(lower_under_winner)+' mlindex:'+str(lower_under_winner_index)+' value:'+str(lower_under_winner_value))
-
+#
     for i in range(len(thresholded_multilabel)):
         if thresholded_multilabel[i]:
             neurodoll_index = multilabel_to_ultimate21_conversion[i]
@@ -1026,7 +1100,7 @@ if __name__ == "__main__":
         for i in range(21):
             get_category_graylevel(url,category_index = i)
 
-    test_gcgl = True
+    test_gcgl = False
     if test_gcgl:
         print('start test_combined_nd')
         for url in urls:
@@ -1038,19 +1112,20 @@ if __name__ == "__main__":
             get_category_graylevel_masked_thresholded(url,i)
 #
 #    analyze_graylevels(urls[0])
+#            analyze_graylevels(url)
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
-    test_combine = False
+    test_combine = True
     if test_combine:
         print('start test_combined_nd')
         for url in urls: #
             print('doing url:'+url) #
 
-            analyze_graylevels(url)
+            for median_factor in [0.75]:
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
-#                print('testing combined ml nd, median factor:'+str(median_factor))
-#                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
-#                print('combined output:'+str(out))
+                print('testing combined ml nd, median factor:'+str(median_factor))
+                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+                print('combined output:'+str(out))
 
 
