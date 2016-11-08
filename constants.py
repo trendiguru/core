@@ -339,8 +339,6 @@ paperdoll_categories = {"whole_body": ['bodysuit', 'dress', 'jumper', 'suit', 'r
                         "lower_cover": ['shorts', 'skirt', 'jeans', 'pants'],
                         "lower_under": ['stockings', 'tights', 'leggings']}
 
-
-
 nn_categories = {"whole_body": ['dress', 'suit'],
                  "upper_cover": ['blazer', 'coat'],
                  "upper_under": ['top', 'sweater'],
