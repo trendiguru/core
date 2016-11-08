@@ -16,13 +16,13 @@ import skimage
 import requests
 import yonatan_classifier
 
-# ## style ##
-# MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
-# PRETRAINED = "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories_iter_2500.caffemodel"
+## style ##
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
+PRETRAINED = "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories_iter_2500.caffemodel"
 
-## collar ##
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
+# ## collar ##
+# MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
+# PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
 caffe.set_device(3)
@@ -86,39 +86,39 @@ def theDetector(url_or_np_array):
 
     predict_label = int(max_result_index)
 
-    # ## style ##
-    # if predict_label == 0:
-    #     label = 'casual'
-    # elif predict_label == 1:
-    #     label = 'prom'
-    # elif predict_label == 2:
-    #     label = 'tuxedos_and_suits'
-    # elif predict_label == 3:
-    #     label = 'bride_dress'
-    # elif predict_label == 4:
-    #     label = 'active'
-    # elif predict_label == 5:
-    #     label = 'swim'
-
-    ## collar ##
+    ## style ##
     if predict_label == 0:
-        label = 'crew_neck'
+        label = 'casual'
     elif predict_label == 1:
-        label = 'scoop_neck'
+        label = 'prom'
     elif predict_label == 2:
-        label = 'v_neck'
+        label = 'tuxedos_and_suits'
     elif predict_label == 3:
-        label = 'deep_v_neck'
+        label = 'bride_dress'
     elif predict_label == 4:
-        label = 'Henley_t_shirts'
+        label = 'active'
     elif predict_label == 5:
-        label = 'polo_collar'
-    elif predict_label == 6:
-        label = 'tie_neck'
-    elif predict_label == 7:
-        label = 'turtleneck'
-    elif predict_label == 8:
-        label = 'Hooded_T_Shirt'
+        label = 'swim'
+
+    # ## collar ##
+    # if predict_label == 0:
+    #     label = 'crew_neck'
+    # elif predict_label == 1:
+    #     label = 'scoop_neck'
+    # elif predict_label == 2:
+    #     label = 'v_neck'
+    # elif predict_label == 3:
+    #     label = 'deep_v_neck'
+    # elif predict_label == 4:
+    #     label = 'Henley_t_shirts'
+    # elif predict_label == 5:
+    #     label = 'polo_collar'
+    # elif predict_label == 6:
+    #     label = 'tie_neck'
+    # elif predict_label == 7:
+    #     label = 'turtleneck'
+    # elif predict_label == 8:
+    #     label = 'Hooded_T_Shirt'
 
 
     print "label: {0}".format(label)
