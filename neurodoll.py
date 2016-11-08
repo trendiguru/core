@@ -795,6 +795,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     multilabel_labels=constants.binary_classifier_categories
 
     '''
+    print('combining multilabel w. neurodoll, watch out')
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
@@ -810,7 +811,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('got None in grabcut_using_neurodoll_output')
     print('writing orig to '+orig_filename)
     cv2.imwrite(orig_filename,image)
-
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
@@ -819,8 +819,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('None result from multilabel')
         return None
     thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
-    print('combining multilabel w. neurodoll, watch out')
-    logging.info('orig label:'+str(multilabel))
+    logging.info('orig label:'+str(multilabel)+' len:'+str(len(multilabel)))
 #    print('incoming label:'+str(multilabel))
 #    logging.info('thresholded label:'+str(thresholded_multilabel))
     for i in range(len(thresholded_multilabel)):
@@ -860,11 +859,14 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 #Make some conclusions nadav style
 ##################################
     #1. decide on whole body item (dress, suit, overall) vs. non-whole body items.
-    #2. if whole body, donate non-whole-body pixels to whole body
-    #3. else, take max one upper cover , donate losers to winner
-    #4. take at least one upper under, donate losers to winner
-    #5. take at least one lower cover, donate losers to winner
-    #6. take max one lower under
+    #2. does ml have a whole-body item over thresh? yes - donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
+    #3. else, take at most one upper cover over thresh, donate losers to winner
+    #4. take at most one upper under over thresh, donate losers to winner
+    #5  if no upper cover and no upper under and no whole-body: take max of all those and donate losers to winner
+    #6. take at least one lower cover, donate losers to winner.
+    #7. if no lower cover and no whole-body was decided upon above: take max of lowercover items , donate losers to winner
+    #8. take at most one lower under, donate losers to winner
+
     #upper_cover: jacket, coat, blazer etc
     #upper under: shirt, top, blouse etc
     #lower cover: skirt, pants, shorts
@@ -912,10 +914,16 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
                 logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
                 logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in lower_under_indexlist:
+                #not doing this for stockings which is currently the only lower under
+                pass
         else:
             logging.debug('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
 
 
+#########################
+# UPPER COVER
+#########################
     print('uppercover indices:'+str(upper_cover_indexlist))
     for i in upper_cover_indexlist:
         print multilabel_labels[i]
@@ -925,6 +933,33 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
     upper_cover_winner_index=upper_cover_indexlist[upper_cover_winner]
     print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
+    if upper_cover_winner_value > multilabel_threshold:
+        #donate non-whole-body pixels to whole-body
+        logging.info('winning wholebody is over threshold')
+        neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_value]
+        if neurodoll_wholebody_index is not None:
+            final_mask = np.array((pixlevel_categorical_output == neurodoll_wholebody_index)*1)
+            n = np.sum(final_mask)
+            logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_under_indexlist:
+                #only do this for dress - suit and overalls can have upper_under
+                pass
+            for i in lower_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in lower_under_indexlist:
+                #not doing this for stockings which is currently the only lower under
+                pass
+        else:
+            logging.debug('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
+
 
     print('upperunder indices:'+str(upper_under_indexlist))
     for i in upper_under_indexlist:
