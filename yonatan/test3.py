@@ -51,6 +51,8 @@ def distance(v1, v2):
 
 def theDetector(url_or_np_array):
 
+    style = ''
+
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         response = requests.get(url_or_np_array)  # download
@@ -79,6 +81,20 @@ def theDetector(url_or_np_array):
     max_result_index = np.argmax(predictions[0])
 
     predict_label = int(max_result_index)
+    
+    if predict_label == 0:
+        style = 'casual'
+    elif predict_label == 1:
+        style = 'prom'
+    elif predict_label == 2:
+        style = 'tuxedos_and_suits'
+    elif predict_label == 3:
+        style = 'bride_dress'
+    elif predict_label == 4:
+        style = 'active'
+    elif predict_label == 5:
+        style = 'swim'
+
+    print "style: {0}".format(style)
 
     print "prediction: {0}, in percent: {1}".format(predictions[0], np.exp(predictions[0]))
-
