@@ -900,14 +900,20 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             n = np.sum(final_mask)
             logging.info('n in final mask from wholebody alone:'+str(n))
             for i in upper_cover_indexlist:
-                neurodoll_index = multilabel_to_ultimate21_conversion[i]
-                final_mask = np.logical_or(pixlevel_categorical_output == 0,final_mask == 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
+                logging.info('n in final mask from wholebody alone:'+str(n))
+            for i in upper_under_indexlist:
+                #only do this for dress - suit and overalls can have upper_under
+                pass
+            for i in lower_cover_indexlist:
+                upper_cover_nd_index = multilabel_to_ultimate21_conversion[i]
+                final_mask = np.logical_or(pixlevel_categorical_output == upper_cover_nd_index,final_mask > 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
+                logging.info('uppercover nd index {} '.format(upper_cover_nd_index))
                 logging.info('n in final mask from wholebody alone:'+str(n))
         else:
             logging.debug('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
-    upper_under_indexlist = [multilabel_labels.index(s) for s in  ['top']]
-    lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
-    lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
 
     print('uppercover indices:'+str(upper_cover_indexlist))
