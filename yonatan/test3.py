@@ -17,11 +17,15 @@ import requests
 import yonatan_classifier
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve_regression/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_dress_sleeve_regression_iter_52500.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
+PRETRAINED = "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories_iter_2500.caffemodel"
+
+# caffe.set_device(int(sys.argv[1]))
+caffe.set_device(3)
+
 caffe.set_mode_gpu()
 image_dims = [224, 224]
-mean, input_scale = np.array([120, 120, 120]), None
+mean, input_scale = np.array([104.0, 116.7, 122.7]), None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
 
