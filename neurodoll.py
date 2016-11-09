@@ -975,9 +975,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
             final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
-            logging.info('upper cover index {} donated to upper cover'.format(nd_index))
             n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('n in final mask from augmented upper cover:'+str(n))
+            logging.info('upper cover index {} donated to upper cover, now {} pixels'.format(nd_index, n))
 
 #2. take max upper under, donate losers to winner
     neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
@@ -988,13 +987,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.info('n in final mask from upper under alone:'+str(n))
         for i in upper_under_indexlist: #upper under losers donated to upper under winner
             nd_index = multilabel_to_ultimate21_conversion[i]
+            print('nd index {} ml index {}'.format(nd_index,i))
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
             final_mask[final_mask==nd_index] = neurodoll_upper_under_index
-            logging.info('upper under index {} donated to upper under'.format(nd_index))
             n = len(final_mask[final_mask==neurodoll_upper_under_index])
-            logging.info('n in final mask from augmented upper under:'+str(n))
+            logging.info('upper under index {} donated to upper under, now {} pixels'.format(nd_index,n))
 
 #3. take max lower cover, donate losers to winner.
     neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
@@ -1009,9 +1008,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_cover_index
-            logging.info('lower cover index {} donated to lower cover'.format(nd_index))
             n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-            logging.info('n in final mask from augmented lower cover:'+str(n))
+            logging.info('lower cover index {} donated to lower cover, now {} pixels'.format(nd_index,n))
 
 #4. take max lower under, donate losers to winner.
     neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
@@ -1026,9 +1024,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_under_index
-            logging.info('lower under index {} donated to lower under'.format(nd_index))
             n = len(final_mask[final_mask==neurodoll_lower_under_index])
-            logging.info('n in final mask from augmented lower under:'+str(n))
+            logging.info('lower under index {} donated to lower under, now {} pixels'.format(nd_index,n))
 
 #########################
 # 5. WHOLEBODY VS TWO-PART
