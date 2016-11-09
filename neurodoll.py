@@ -977,7 +977,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             x = final_mask[final_mask==nd_index]
             final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
             n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('upper cover index {} donated to upper cover, now {} pixels, lenx {} '.format(nd_index, n,len(x)))
+            logging.info('upper cover ndindex {} {} donated to upper cover, now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index], n,len(x)))
 
 #2. take max upper under, donate losers to winner
     neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
@@ -994,7 +994,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_upper_under_index
             n = len(final_mask[final_mask==neurodoll_upper_under_index])
-            logging.info('upper under index {} donated to upper under, now {} pixels'.format(nd_index,n))
+            logging.info('upper under ndindex {} {} donated to upper under, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
 
 #3. take max lower cover, donate losers to winner.
     neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
@@ -1010,7 +1010,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_cover_index
             n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-            logging.info('lower cover index {} donated to lower cover, now {} pixels'.format(nd_index,n))
+            logging.info('lower cover ndindex {} {} donated to lower cover, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
 
 #4. take max lower under, donate losers to winner.
     neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
@@ -1026,7 +1026,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_under_index
             n = len(final_mask[final_mask==neurodoll_lower_under_index])
-            logging.info('lower under index {} donated to lower under, now {} pixels'.format(nd_index,n))
+            logging.info('lower under ndindex {} {} donated to lower under, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
 
 #########################
 # 5. WHOLEBODY VS TWO-PART
@@ -1307,10 +1307,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     nice_output = imutils.show_mask_with_labels(final_mask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
     return final_mask
-
-
-def test():
-    return 1
 
 
 if __name__ == "__main__":
