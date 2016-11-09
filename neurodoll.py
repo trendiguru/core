@@ -798,7 +798,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     '''
     print('combining multilabel w. neurodoll, watch out')
-
+#
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
