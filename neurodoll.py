@@ -1089,8 +1089,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # EXCEPT if the wholebody is overalls , in which case keep overalls, upper_under and upper_cover, donate  lower_cover/under to overalls
 # otherwise  if wholebody is e.g. dress then add dress to upper_under and lower_cover
 
-    elif (whole_body_winner_value<upper_under_winner_value) and
-            (whole_body_winner_value>lower_cover_winner_value) and (whole_body_winner_value>multilabel_threshold)
+    elif (whole_body_winner_value<upper_under_winner_value) and (whole_body_winner_value>lower_cover_winner_value) and (whole_body_winner_value>multilabel_threshold):
         logging.info('case 2. one part {} < upper under {} but > lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
 #if overalls, donate loewr_cover and lower_under to overalls
         if whole_body_winner_index == multilabel_labels.index('overalls'):
