@@ -958,8 +958,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         lower_winner_index = lower_cover_winner_index
     upper_winner_nd_index = multilabel_to_ultimate21_conversion[upper_winner_index]
     lower_winner_nd_index = multilabel_to_ultimate21_conversion[lower_winner_index]
-    print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_cover_winner_value,
-                                                                             lower_cover_winner_index,lower_winner_nd_index,lower_cover_winner_value))
+    print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_winner_value,
+                                                                             lower_winner_index,lower_winner_nd_index,lower_winner_value))
 
 #1. take max upper cover , donate losers to winner
 #this actually might not be always right, e.g. jacket+ sweater
