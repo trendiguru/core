@@ -889,7 +889,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
     lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
 
-    final_mask = np.zeros_like(pixlevel_categorical_output)
+    final_mask = np.copy(pixlevel_categorical_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
     print('wholebody indices:'+str(whole_body_indexlist))
@@ -974,9 +974,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
+            x = final_mask[final_mask==nd_index]
             final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
             n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('upper cover index {} donated to upper cover, now {} pixels'.format(nd_index, n))
+            logging.info('upper cover index {} donated to upper cover, now {} pixels, lenx {} '.format(nd_index, n,len(x)))
 
 #2. take max upper under, donate losers to winner
     neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
