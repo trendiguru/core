@@ -803,11 +803,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
-        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]+'.jpg')
+        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
     elif type(url_or_np_array) == np.ndarray:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
+        name_base = 'orig'+hash.hexdigest()[:10]
         orig_filename = os.path.join(thedir,name_base)
         image = url_or_np_array
     if image is None:
@@ -1302,12 +1302,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
     #save final_mask
-    final_mask_filename = orig_filename[:-4]+'finalmask.png'
-    final_mask_legend_name = orig_filename[:-4]+'final_legend.jpg'
+    final_mask_filename = orig_filename+'finalmask.png'
+    final_mask_legend_name = orig_filename+'final_legend.jpg'
     print('finalmask file:'+graymask_filename)
     cv2.imwrite(final_mask_filename,final_mask)
     nice_output = imutils.show_mask_with_labels(final_mask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
-    cv2.imwrite(final_mask_legend_name,nice_output)
 
     return final_mask
 
