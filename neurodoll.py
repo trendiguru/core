@@ -1162,8 +1162,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # donate lower part of wholebody to lowerwinner and upper part to upper winner
 # this can be combined with second case I guess as there is nothing different - whole body gets added to lower/upper winners
 
-    elif (whole_body_winner_value<lower_cover_winner_value) and
-            (whole_body_winner_value>upper_under_winner_value) and whole_body_winner_value>multilabel_threshold:
+    elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value>upper_under_winner_value) and whole_body_winner_value>multilabel_threshold:
         logging.info('case 3. one part {} > upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
         neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
         if upper_winner_nd_index is None:
@@ -1206,8 +1205,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # this also could get combined with #2,3 I suppose
 # neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
 
-    elif (whole_body_winner_value<lower_cover_winner_value) and
-            (whole_body_winner_value<upper_under_winner_value):
+    elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
         logging.info('case 4.one part {} < upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
         neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
         if neurodoll_lower_cover_index is None:
