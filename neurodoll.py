@@ -1028,6 +1028,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             n = len(final_mask[final_mask==neurodoll_lower_under_index])
             logging.info('lower under ndindex {} {} donated to lower under, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
 
+    logging.debug('after step 4, pixelcounts look like:')
+    count_values(final_mask,labels=constants.ultimate_21)
+
 #########################
 # 5. WHOLEBODY VS TWO-PART
 # decide on whole body item (dress, suit, overall) vs. non-whole body items.
@@ -1305,6 +1308,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('finalmask file:'+graymask_filename)
     cv2.imwrite(final_mask_filename,final_mask)
     nice_output = imutils.show_mask_with_labels(final_mask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
+    count_values(final_mask,labels=constants.ultimate_21)
 
     return final_mask
 
