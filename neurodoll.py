@@ -1089,8 +1089,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # so i arbitrarily decided to sack th whole_body in favor of the upper_under since upper_under is higher
 # EXCEPT if the wholebody is overalls , in which case keep overalls, upper_under and upper_cover, donate  lower_cover/under to overalls
 # otherwise  if wholebody is e.g. dress then add dress to upper_under and lower_cover
+
     elif (whole_body_winner_value<upper_under_winner_value) and
-            (whole_body_winner_value>lower_cover_winner_value) and (whole_body_winner_value>multilabel_threshold):
+            (whole_body_winner_value>lower_cover_winner_value) and (whole_body_winner_value>multilabel_threshold)
         logging.info('case 2. one part {} < upper under {} but > lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
 #if overalls, donate loewr_cover and lower_under to overalls
         if whole_body_winner_index == multilabel_labels.index('overalls'):
@@ -1307,11 +1308,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     return final_mask
 
 
-# Make classifier.
-#classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
-#                              image_dims=image_dims, mean=mean,
-##                              input_scale=input_scale, raw_scale=raw_scale,
- #                             channel_swap=channel_swap)
+def test():
+    return 1
 
 
 if __name__ == "__main__":
