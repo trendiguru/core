@@ -812,8 +812,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         image = url_or_np_array
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
-    print('writing orig to '+orig_filename)
-    cv2.imwrite(orig_filename,image)
+    print('writing orig to '+orig_filename+'.jpg')
+    cv2.imwrite(orig_filename+'.jpg',image)
     multilabel = get_multilabel_output(url_or_np_array)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
