@@ -1054,8 +1054,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
 #first case - wholebody > upper_under > lowercover
 #donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
-    elif (whole_body_winner_value>upper_under_winner_value) and
-            (whole_body_winner_value>lower_cover_winner_value) and whole_body_winner_value>multilabel_threshold:
+    elif (whole_body_winner_value>upper_under_winner_value) and (whole_body_winner_value>lower_cover_winner_value) and whole_body_winner_value>multilabel_threshold:
         logging.info('case 1. one part {} wins over upper cover {} and lower cover {}'.format(whole_body_winner_value,upper_cover_winner_value,lower_cover_winner_value))
         n = len(final_mask[final_mask==neurodoll_wholebody_index])
         logging.info('n in final mask from wholebody alone:'+str(n))
