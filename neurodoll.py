@@ -843,7 +843,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
     logging.debug('shape of pixlevel categorical output:'+str(pixlevel_categorical_output.shape))
-    logging.debug('n_fg {} n_bg {}'.format(np.sum(foreground),np.sum(background)))
+    logging.debug('n_fg {} n_bg {} tot {} w*h {}'.format(np.sum(foreground),np.sum(background),np.sum(foreground)+np.sum(background),pixlevel_categorical_output.shape[0]*pixlevel_categorical_output[1]))
 
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
 
@@ -968,7 +968,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-        logging.info('n in final mask from upper cover alone:'+str(n))
+        logging.info('n in final mask from upper cover winner alone:'+str(n))
         for i in upper_cover_indexlist: #whole_body donated to upper_under
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
@@ -985,7 +985,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_under_index])
-        logging.info('n in final mask from upper under alone:'+str(n))
+        logging.info('n in final mask from upper under winner alone:'+str(n))
         for i in upper_under_indexlist: #upper under losers donated to upper under winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             print('nd index {} ml index {}'.format(nd_index,i))
@@ -1002,7 +1002,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd lower cover index {}  has no conversion '.format(lower_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-        logging.info('n in final mask from lower cover alone:'+str(n))
+        logging.info('n in final mask from lower cover winner alone:'+str(n))
         for i in lower_cover_indexlist: #lower cover losers donated to lower cover winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
@@ -1018,7 +1018,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd lower under index {}  has no conversion '.format(lower_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_under_index])
-        logging.info('n in final mask from lower under alone:'+str(n))
+        logging.info('n in final mask from lower under winner alone:'+str(n))
         for i in lower_under_indexlist: #lower under losers donated to lower under winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
