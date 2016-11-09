@@ -1215,8 +1215,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             if upper_winner_nd_index is None:
                 logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
             else:
-                n1 = len(final_mask[final_mask==neurodoll_upper_winner_index])
-                n2 = len(final_mask[final_mask==neurodoll_lower_winner_index])
+                n1 = len(final_mask[final_mask==upper_winner_nd_index])
+                n2 = len(final_mask[final_mask==lower_winner_nd_index])
                 logging.info('n in final mask from wholebody before donation to upper {} and lower {}:'.format(n1,n2))
                 n = len(final_mask[final_mask==upper_winner_nd_index])
                 logging.info('n in final mask from upper winner alone:'+str(n))
@@ -1243,8 +1243,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                                     if final_mask[i][j] == nd_index:
                                         final_mask[i][j] = lower_winner_nd_index
 
-                    n1 = len(final_mask[final_mask==neurodoll_upper_winner_index])
-                    n2 = len(final_mask[final_mask==neurodoll_lower_winner_index])
+                    n1 = len(final_mask[final_mask==upper_winner_nd_index])
+                    n2 = len(final_mask[final_mask==lower_winner_nd_index])
                     logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
     foreground = np.array((pixlevel_categorical_output>0)*1)  #*1 turns T/F into 1/0
