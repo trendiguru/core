@@ -856,7 +856,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     else:
         # BETTER TO SEND A FACE
         y_split = np.round(0.4 * final_mask.shape[0])
-    print('y split {} face {}'.format(ysplit,face))
+    print('y split {} face {}'.format(y_split,face))
 
     #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
     #namely : for top , decide if its a top or dress or jacket
