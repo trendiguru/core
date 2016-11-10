@@ -1048,8 +1048,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # should prob go with whole even tho part1+part2>whole
 #########################
     neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
-    #uggh is there no way to get the entire logic out of this outer if??
-    final_mask = np.copy(pixlevel_categorical_output)
     if neurodoll_wholebody_index is None:
         logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
 
