@@ -8,7 +8,7 @@ import cv2
 import hashlib
 import shutil
 import logging
-logging.basicConfig(level=logging.DEBUG)  #debug is actually lower than info: critical/error/warning/info/debug
+logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
 from joblib import Parallel,delayed
 import multiprocessing
@@ -926,7 +926,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     if img_arr is None:
         logging.warning('img_arr is None')
         return
-    print('img size:'+str(img_arr.shape))
+    logging.debug('img size:'+str(img_arr.shape))
     if len(img_arr.shape) != 2:
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
@@ -937,7 +937,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     n_tot = h*w
     frac = float(n_nonzero)/n_tot
     uniques = np.unique(img_arr)
-    print('show_mask_with_labels:number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
+    logging.debug('show_mask_with_labels:number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
     if len(uniques)>len(labels):
         logging.warning('number of unique mask values > number of labels!!!')
         return
@@ -1005,7 +1005,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
-            print('show_mask_with_labels:got original image:'+str(original_image)+' shape:'+str(orig_arr.shape))
+            logging.debug('show_mask_with_labels:got original image:'+str(original_image)+' shape:'+str(orig_arr.shape))
             maxheight=600
             minheight=300
             desired_height=500
@@ -1045,13 +1045,13 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             combined[:,0:colorbar_w]=dest_colorbar
             combined[:,colorbar_w:colorbar_w+dest_w]=dest
             if overlay:
-                print('show_mask_with_labels:doing overlay')
+                logging.debug('show_mask_with_labels:doing overlay')
                 orig_arr = cv2.addWeighted(orig_arr, overlay, img_arr, 1 - overlay,0)
             combined[:,colorbar_w+dest_w:]=orig_arr
  #ValueError: could not broadcast input array from shape (572,940,3) into shape (256,940,3)
 
             combined_h,combined_w = combined.shape[0:2]
-            print('show_mask_with_labels:comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
+            logging.debug('show_mask_with_labels:comb w {} h {} shape {}'.format(combined_w,combined_h,combined.shape))
 #            if combined_h<minheight:
 #                factor = float(minheight)/combined_h
 #                combined = cv2.resize(combined,(int(round(combined_w*factor)),minheight))
@@ -1068,7 +1068,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
 #        full_outname=outname
-        print('show_mask_with_labels is saving labelled img to '+full_outname)
+        logging.debug('show_mask_with_labels is saving labelled img to '+full_outname)
         cv2.imwrite(full_outname,combined)
 
     #todo move this to a separate function i dont think theres any reason its here
