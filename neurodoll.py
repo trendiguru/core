@@ -977,7 +977,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             x = final_mask[final_mask==nd_index]
             final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
             n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index n,len(x)))
+            logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index, n,len(x)))
 
 #2. take max upper under, donate losers to winner
     neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
