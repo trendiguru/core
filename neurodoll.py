@@ -1081,6 +1081,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         for i in lower_under_indexlist:
             #not doing this for stockings which is currently the only lower under
             pass
+        logging.debug('after case one pixel values look like')
+        count_values(final_mask,labels=constants.ultimate_21)
+
 
 # second case - upper_under > wholebody > lowercover
 # here its not clear who to sack - the wholebody or the upper_under
@@ -1154,6 +1157,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                     n1 = len(final_mask[final_mask==neurodoll_upper_winner_index])
                     n2 = len(final_mask[final_mask==neurodoll_lower_winner_index])
                     logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
+        logging.debug('after case two pixel values look like')
+        count_values(final_mask,labels=constants.ultimate_21)
 
 # third case - lowercover > wholebody > upper_under
 # here its not clear who to sack - the lowercover or the wholebody
@@ -1203,6 +1208,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # donate bottom pixels of wholebody to greater of lower cover/lower under (again somewhat arbitrary)
 # this also could get combined with #2,3 I suppose
 # neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index] #
+        logging.debug('after case three pixel values look like')
+        count_values(final_mask,labels=constants.ultimate_21)
 
 
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
@@ -1227,7 +1234,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                         logging.warning('ml index {} has no conversion '.format(i))
                         continue
             #donate upper pixels to upper_winner
-                    logging.debug('4. donating top of wholebody to upper_under and bottom to lower_under')
+                    logging.debug('4. donating nd{} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
                     for y in range(0, final_mask.shape[0]):
                         if y <= y_split:
                             for j in range(0, final_mask.shape[1]):
@@ -1246,6 +1253,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                     n1 = len(final_mask[final_mask==upper_winner_nd_index])
                     n2 = len(final_mask[final_mask==lower_winner_nd_index])
                     logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
+
+        logging.debug('after case four pixel values look like')
+        count_values(final_mask,labels=constants.ultimate_21)
 
     foreground = np.array((pixlevel_categorical_output>0)*1)  #*1 turns T/F into 1/0
     final_mask = final_mask * foreground # only keep stuff that was part of original fg - this is already  true
