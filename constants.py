@@ -278,7 +278,6 @@ web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', '
                      'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
-
 #these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
 #results of filipino categorization efforts
 #20 cats
