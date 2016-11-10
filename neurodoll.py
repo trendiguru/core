@@ -1168,39 +1168,54 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value>upper_under_winner_value) and whole_body_winner_value>multilabel_threshold:
         logging.info('case 3. one part {} > upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
-        neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
         if upper_winner_nd_index is None:
             logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
         else:
-            n1 = len(final_mask[final_mask==neurodoll_upper_winner_index])
-            n2 = len(final_mask[final_mask==neurodoll_lower_winner_index])
-            logging.info('n in final mask from wholebody before donation to upper {} and lower {}:'.format(n1,n2))
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
             #todo - actually only wholebody pixels in the upper half of the image should be donated
-            for i in whole_body_indexlist: #whole_body donated to upper/lower winners
+            for i in whole_body_indexlist: #whole_body donated to upper_under
                 nd_index = multilabel_to_ultimate21_conversion[i]
                 if nd_index is None:
-                    logging.warning('ml index {} has no conversion '.format(i))
-                    continue
-        #donate upper pixels to upper_winner
-                logging.debug('3. donating top of wholebody to upper_under and bottom to lower_under')
+                    logging.warning('ml index {} has no conversion (4upper)'.format(i))
+                    continue            #donate upper pixels to upper_winner
+                logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(nd_index,upper_winner_nd_index,y_split))
                 for y in range(0, final_mask.shape[0]):
                     if y <= y_split:
-                        for j in range(0, final_mask.shape[1]):
-                            if final_mask[i][j] == nd_index:
-                                final_mask[i][j] = upper_winner_nd_index
-        #donate upper pixels to lower_winner
-                    else:
-                        if lower_winner_nd_index is None:
-                            logging.warning('nd lower under index {} ml index {} has no conversion '.format(lower_winner_nd_index,lower_winner_index))
-                            break
-                        else:
-                            for j in range(0, final_mask.shape[1]):
-                                if final_mask[i][j] == nd_index:
-                                    final_mask[i][j] = lower_winner_nd_index
+                        for x in range(0, final_mask.shape[1]):
+                            if final_mask[y][x] == nd_index:
+                                final_mask[y][x] = upper_winner_nd_index
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
 
-                n1 = len(final_mask[final_mask==neurodoll_upper_winner_index])
-                n2 = len(final_mask[final_mask==neurodoll_lower_winner_index])
-                logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
+# donate whole-body pixels to lower winner
+        if lower_winner_nd_index is None:
+            logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
+        else:
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+            #todo - actually only wholebody pixels in the upper half of the image should be donated
+            for i in whole_body_indexlist: #whole_body donated to upper_under
+                nd_index = multilabel_to_ultimate21_conversion[i]
+                if nd_index is None:
+                    logging.warning('ml index {} has no conversion (4lower)'.format(i))
+                    continue
+        #donate upper pixels to upper_winner
+                logging.debug('4. donating nd {} in botto of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                logging.debug('second, adding from lower part of nd {}  to nd {}, ysplit {}'.format(nd_index,lower_winner_nd_index,y_split))
+                for y in range(0, final_mask.shape[0]):
+                    if y > y_split:
+                        for x in range(0, final_mask.shape[1]):
+                            if final_mask[y][x] == nd_index:
+                                final_mask[y][x] = lower_winner_nd_index
+        #donate upper pixels to lower_winner
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
 # fourth case - lowercover , upper_under > wholebody
 # sack wholebody in favor of upper and lower
@@ -1215,63 +1230,55 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
         logging.info('case 4.one part {} < upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
         neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
-        if neurodoll_lower_cover_index is None:
-            logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
-        else:
 # donate whole-body pixels to upper winner
-            if upper_winner_nd_index is None:
-                logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
-            else:
-                n1 = len(final_mask[final_mask==upper_winner_nd_index])
-                n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
-                #todo - actually only wholebody pixels in the upper half of the image should be donated
-                for i in whole_body_indexlist: #whole_body donated to upper_under
-                    nd_index = multilabel_to_ultimate21_conversion[i]
-                    if nd_index is None:
-                        logging.warning('ml index {} has no conversion (4upper)'.format(i))
-                        continue            #donate upper pixels to upper_winner
-                    logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
-                    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(nd_index,upper_winner_nd_index,y_split))
-                    for y in range(0, final_mask.shape[0]):
-                        if y <= y_split:
-                            for x in range(0, final_mask.shape[1]):
-                                if final_mask[y][x] == nd_index:
-                                    final_mask[y][x] = upper_winner_nd_index
-                n1 = len(final_mask[final_mask==upper_winner_nd_index])
-                n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+        if upper_winner_nd_index is None:
+            logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
+        else:
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+            #todo - actually only wholebody pixels in the upper half of the image should be donated
+            for i in whole_body_indexlist: #whole_body donated to upper_under
+                nd_index = multilabel_to_ultimate21_conversion[i]
+                if nd_index is None:
+                    logging.warning('ml index {} has no conversion (4upper)'.format(i))
+                    continue            #donate upper pixels to upper_winner
+                logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(nd_index,upper_winner_nd_index,y_split))
+                for y in range(0, final_mask.shape[0]):
+                    if y <= y_split:
+                        for x in range(0, final_mask.shape[1]):
+                            if final_mask[y][x] == nd_index:
+                                final_mask[y][x] = upper_winner_nd_index
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
 
 # donate whole-body pixels to lower winner
-            if lower_winner_nd_index is None:
-                logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
-            else:
-                n1 = len(final_mask[final_mask==upper_winner_nd_index])
-                n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
-                #todo - actually only wholebody pixels in the upper half of the image should be donated
-                for i in whole_body_indexlist: #whole_body donated to upper_under
-                    nd_index = multilabel_to_ultimate21_conversion[i]
-                    if nd_index is None:
-                        logging.warning('ml index {} has no conversion (4lower)'.format(i))
-                        continue
-            #donate upper pixels to upper_winner
-                    logging.debug('4. donating nd {} in botto of wholebody to upper_under and bottom to lower_under'.format(nd_index))
-                    logging.debug('second, adding from lower part of nd {}  to nd {}, ysplit {}'.format(nd_index,lower_winner_nd_index,y_split))
-                    for y in range(0, final_mask.shape[0]):
-                        if y > y_split:
-                            for x in range(0, final_mask.shape[1]):
-                                if final_mask[y][x] == nd_index:
-                                    final_mask[y][x] = lower_winner_nd_index
-            #donate upper pixels to lower_winner
-
-
-
-
-
-                    n1 = len(final_mask[final_mask==upper_winner_nd_index])
-                    n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                    logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
+        if lower_winner_nd_index is None:
+            logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
+        else:
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+            #todo - actually only wholebody pixels in the upper half of the image should be donated
+            for i in whole_body_indexlist: #whole_body donated to upper_under
+                nd_index = multilabel_to_ultimate21_conversion[i]
+                if nd_index is None:
+                    logging.warning('ml index {} has no conversion (4lower)'.format(i))
+                    continue
+        #donate upper pixels to upper_winner
+                logging.debug('4. donating nd {} in botto of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                logging.debug('second, adding from lower part of nd {}  to nd {}, ysplit {}'.format(nd_index,lower_winner_nd_index,y_split))
+                for y in range(0, final_mask.shape[0]):
+                    if y > y_split:
+                        for x in range(0, final_mask.shape[1]):
+                            if final_mask[y][x] == nd_index:
+                                final_mask[y][x] = lower_winner_nd_index
+        #donate upper pixels to lower_winner
+            n1 = len(final_mask[final_mask==upper_winner_nd_index])
+            n2 = len(final_mask[final_mask==lower_winner_nd_index])
+            logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
         logging.debug('after case four pixel values look like')
         count_values(final_mask,labels=constants.ultimate_21)
@@ -1318,7 +1325,10 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
 
     #write file (for debugging)
+    dir = './images'
+    Utils.ensure_dir(dir)
     name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
+    name = os.path.join(dir,name)
     print('combined png name:'+name)
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
@@ -1326,6 +1336,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     #save graymask, this should be identical to nd except no threshold on low amt of pixels
     graymask_filename = orig_filename[:-4]+'graymask.png'
+    graymask_filename = os.path.join(dir,graymask_filename)
     print('graymask file:'+graymask_filename)
     cv2.imwrite(graymask_filename,pixlevel_categorical_output)
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
