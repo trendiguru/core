@@ -1219,7 +1219,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             else:
                 n1 = len(final_mask[final_mask==upper_winner_nd_index])
                 n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                logging.info('n in final mask from wholebody before donation to upper winner nd{}:{}px and lower winner nd{}:{}px'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+                logging.info('n in final mask from wholebody before donation to upper winner {}px:nd{}px and lower winner {}px:{}nd'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
                 #todo - actually only wholebody pixels in the upper half of the image should be donated
                 for i in whole_body_indexlist: #whole_body donated to upper_under
                     nd_index = multilabel_to_ultimate21_conversion[i]
