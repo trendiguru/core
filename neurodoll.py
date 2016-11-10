@@ -1234,7 +1234,8 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                         logging.warning('ml index {} has no conversion '.format(i))
                         continue
             #donate upper pixels to upper_winner
-                    logging.debug('4. donating nd{} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                    logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                    logging.debug('first adding from upper part of nd {}  to nd {}, split at {}'.format(nd_index,uppeer_winner_nd_index,y_split))
                     for y in range(0, final_mask.shape[0]):
                         if y <= y_split:
                             for j in range(0, final_mask.shape[1]):
@@ -1246,6 +1247,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                                 logging.warning('nd lower under index {} ml index {} has no conversion '.format(lower_winner_nd_index,lower_winner_index))
                                 break
                             else:
+                                logging.debug('now adding, from lower part of nd {}  to nd {}'.format(nd_index,lower_winner_nd_index))
                                 for j in range(0, final_mask.shape[1]):
                                     if final_mask[i][j] == nd_index:
                                         final_mask[i][j] = lower_winner_nd_index
