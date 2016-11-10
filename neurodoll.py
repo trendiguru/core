@@ -1137,7 +1137,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                         logging.warning('ml index {} has no conversion '.format(i))
                         continue
             #donate upper pixels to upper_winner
-                    logging.debug('donating top of wholebody to upper_under and bottom to lower_under')
+                    logging.debug('2. donating top of wholebody to upper_under and bottom to lower_under')
                     for y in range(0, final_mask.shape[0]):
                         if y <= y_split:
                             for j in range(0, final_mask.shape[1]):
@@ -1179,7 +1179,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                     logging.warning('ml index {} has no conversion '.format(i))
                     continue
         #donate upper pixels to upper_winner
-                logging.debug('donating top of wholebody to upper_under and bottom to lower_under')
+                logging.debug('3. donating top of wholebody to upper_under and bottom to lower_under')
                 for y in range(0, final_mask.shape[0]):
                     if y <= y_split:
                         for j in range(0, final_mask.shape[1]):
@@ -1206,8 +1206,11 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # this also could get combined with #2,3 I suppose
 # neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
 
+
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
         logging.info('case 4.one part {} < upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
+        logging.debug('pixelcounts look like:')
+        count_values(final_mask,labels=constants.ultimate_21)
         neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
         if neurodoll_lower_cover_index is None:
             logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
@@ -1218,9 +1221,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             else:
                 n1 = len(final_mask[final_mask==upper_winner_nd_index])
                 n2 = len(final_mask[final_mask==lower_winner_nd_index])
-                logging.info('n in final mask from wholebody before donation to upper {} and lower {}:'.format(n1,n2))
-                n = len(final_mask[final_mask==upper_winner_nd_index])
-                logging.info('n in final mask from upper winner alone:'+str(n))
+                logging.info('n in final mask from wholebody before donation to upper winner nd{}:{}px and lower winner nd{}:{}px'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
                 #todo - actually only wholebody pixels in the upper half of the image should be donated
                 for i in whole_body_indexlist: #whole_body donated to upper_under
                     nd_index = multilabel_to_ultimate21_conversion[i]
@@ -1228,7 +1229,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                         logging.warning('ml index {} has no conversion '.format(i))
                         continue
             #donate upper pixels to upper_winner
-                    logging.debug('donating top of wholebody to upper_under and bottom to lower_under')
+                    logging.debug('4. donating top of wholebody to upper_under and bottom to lower_under')
                     for y in range(0, final_mask.shape[0]):
                         if y <= y_split:
                             for j in range(0, final_mask.shape[1]):
@@ -1302,12 +1303,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     cv2.imwrite(graymask_filename,pixlevel_categorical_output)
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 
-    #save final_mask
-    final_mask_filename = orig_filename+'finalmask.png'
-    final_mask_legend_name = orig_filename+'final_legend.jpg'
-    print('finalmask file:'+graymask_filename)
-    cv2.imwrite(final_mask_filename,final_mask)
-    nice_output = imutils.show_mask_with_labels(final_mask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
     count_values(final_mask,labels=constants.ultimate_21)
 
     return final_mask
