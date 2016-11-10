@@ -960,9 +960,9 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     bar_width = 120
     colorbar = np.zeros([h,bar_width])
     i = 0
-    print('len labels:'+str(len(labels)))
+    logging.debug('len labels:'+str(len(labels)))
+    logging.debug('unique label val:'+str(uniques))
     for unique in uniques:
-        print('unique label val:'+str(unique))
         if unique > len(labels):
             logging.warning('pixel value '+str(unique)+' out of label range (1)')
             continue

@@ -960,15 +960,15 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     lower_winner_nd_index = multilabel_to_ultimate21_conversion[lower_winner_index]
     print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_winner_value,
                                                                              lower_winner_index,lower_winner_nd_index,lower_winner_value))
-
 #1. take max upper cover , donate losers to winner
 #this actually might not be always right, e.g. jacket+ sweater
+#todo  - #1 - 4 can be put into a function since they are nearly identical
     neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
     if neurodoll_upper_cover_index is None:
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-        logging.info('n in final mask from upper cover winner alone:'+str(n))
+        logging.debug('finding upper cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_cover_index)+' ml index '+str(upper_cover_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
         for i in upper_cover_indexlist: #whole_body donated to upper_under
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
@@ -977,7 +977,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
             x = final_mask[final_mask==nd_index]
             final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
             n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('upper cover ndindex {} {} donated to upper cover, now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index], n,len(x)))
+            logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index n,len(x)))
 
 #2. take max upper under, donate losers to winner
     neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
@@ -985,7 +985,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_under_index])
-        logging.info('n in final mask from upper under winner alone:'+str(n))
+        logging.debug('finding upper under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_under_index)+' ml index '+str(upper_under_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
         for i in upper_under_indexlist: #upper under losers donated to upper under winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             print('nd index {} ml index {}'.format(nd_index,i))
@@ -994,7 +994,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_upper_under_index
             n = len(final_mask[final_mask==neurodoll_upper_under_index])
-            logging.info('upper under ndindex {} {} donated to upper under, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
+            logging.info('upper under ndindex {} {} donated to upper under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_under_index,n))
 
 #3. take max lower cover, donate losers to winner.
     neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
@@ -1002,7 +1002,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd lower cover index {}  has no conversion '.format(lower_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-        logging.info('n in final mask from lower cover winner alone:'+str(n))
+        logging.debug('finding lower cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_cover_index)+' ml index '+str(lower_cover_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
         for i in lower_cover_indexlist: #lower cover losers donated to lower cover winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
@@ -1010,7 +1010,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_cover_index
             n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-            logging.info('lower cover ndindex {} {} donated to lower cover, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
+            logging.info('lower cover ndindex {} {} donated to lower cover winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_cover_index,n))
 
 #4. take max lower under, donate losers to winner.
     neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
@@ -1018,7 +1018,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.warning('nd lower under index {}  has no conversion '.format(lower_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_under_index])
-        logging.info('n in final mask from lower under winner alone:'+str(n))
+        logging.debug('finding lower under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_under_index)+' ml index '+str(lower_under_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
         for i in lower_under_indexlist: #lower under losers donated to lower under winner
             nd_index = multilabel_to_ultimate21_conversion[i]
             if nd_index is None:
@@ -1026,7 +1026,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                 continue
             final_mask[final_mask==nd_index] = neurodoll_lower_under_index
             n = len(final_mask[final_mask==neurodoll_lower_under_index])
-            logging.info('lower under ndindex {} {} donated to lower under, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],n))
+            logging.info('lower under ndindex {} {} donated to lower under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_under_index,n))
 
     logging.debug('after step 4, pixelcounts look like:')
     count_values(final_mask,labels=constants.ultimate_21)
