@@ -319,7 +319,7 @@ binary_caffemodels = [
 'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
-
+#
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
