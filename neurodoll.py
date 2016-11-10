@@ -1341,8 +1341,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     timestamp = int(10*time.time())
 
     #write file (for debugging)
-    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_combinedoutput.png'
-    print('combined png name:'+name)
+    name = orig_filename+'_mf'+str(median_factor)+'_combinedoutput.png'
+
+    print('combined png name:'+name+' orig filename '+orig_filename)
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename,visual_output=test_on)
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
