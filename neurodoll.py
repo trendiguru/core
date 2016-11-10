@@ -1220,8 +1220,28 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         if neurodoll_lower_cover_index is None:
             logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
         else:
-# donate whole-body pixels to upper/lower winner
+# donate whole-body pixels to upper winner
             if upper_winner_nd_index is None:
+                logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
+            else:
+                n1 = len(final_mask[final_mask==upper_winner_nd_index])
+                n2 = len(final_mask[final_mask==lower_winner_nd_index])
+                logging.info('n in final mask from wholebody before donation to upper winner {}px:nd{}px'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+                #todo - actually only wholebody pixels in the upper half of the image should be donated
+                for i in whole_body_indexlist: #whole_body donated to upper_under
+                    nd_index = multilabel_to_ultimate21_conversion[i]
+                    if nd_index is None:
+                        logging.warning('ml index {} has no conversion '.format(i))
+                        continue            #donate upper pixels to upper_winner
+                    logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(nd_index,upper_winner_nd_index,y_split))
+                    for y in range(0, final_mask.shape[0]):
+                        if y <= y_split:
+                            for j in range(0, final_mask.shape[1]):
+                                if final_mask[i][j] == nd_index:
+                                    final_mask[i][j] = upper_winner_nd_index
+# donate whole-body pixels to lower winner
+            if lower_winner_nd_index is None:
                 logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
             else:
                 n1 = len(final_mask[final_mask==upper_winner_nd_index])
@@ -1234,23 +1254,18 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                         logging.warning('ml index {} has no conversion '.format(i))
                         continue
             #donate upper pixels to upper_winner
-                    logging.debug('4. donating nd {} in top of wholebody to upper_under and bottom to lower_under'.format(nd_index))
-                    logging.debug('first adding from upper part of nd {}  to nd {}, split at {}'.format(nd_index,upper_winner_nd_index,y_split))
+                    logging.debug('4. donating nd {} in botto of wholebody to upper_under and bottom to lower_under'.format(nd_index))
+                    logging.debug('second, adding from lower part of nd {}  to nd {}, ysplit {}'.format(nd_index,lower_winner_nd_index,y_split))
                     for y in range(0, final_mask.shape[0]):
-                        if y <= y_split:
+                        if y > y_split:
                             for j in range(0, final_mask.shape[1]):
                                 if final_mask[i][j] == nd_index:
-                                    final_mask[i][j] = upper_winner_nd_index
+                                    final_mask[i][j] = lower_winner_nd_index
             #donate upper pixels to lower_winner
-                        else:
-                            if lower_winner_nd_index is None:
-                                logging.warning('nd lower under index {} ml index {} has no conversion '.format(lower_winner_nd_index,lower_winner_index))
-                                break
-                            else:
-                                logging.debug('now adding, from lower part of nd {}  to nd {}'.format(nd_index,lower_winner_nd_index))
-                                for j in range(0, final_mask.shape[1]):
-                                    if final_mask[i][j] == nd_index:
-                                        final_mask[i][j] = lower_winner_nd_index
+
+
+
+
 
                     n1 = len(final_mask[final_mask==upper_winner_nd_index])
                     n2 = len(final_mask[final_mask==lower_winner_nd_index])
