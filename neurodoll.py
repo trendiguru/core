@@ -1204,7 +1204,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 # donate top of wholebody to greater of upper cover/upper under (yes this is arbitrary and possibly wrong)
 # donate bottom pixels of wholebody to greater of lower cover/lower under (again somewhat arbitrary)
 # this also could get combined with #2,3 I suppose
-# neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
+# neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index] #
 
 
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
