@@ -1349,7 +1349,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 #    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
 
     #save graymask, this should be identical to nd except no threshold on low amt of pixels
-    graymask_filename = orig_filename[:-4]+'origmask.png'
+    graymask_filename = orig_filename+'_origmask.png'
     print('original mask file:'+graymask_filename)
     cv2.imwrite(graymask_filename,pixlevel_categorical_output)
     nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=test_on)
