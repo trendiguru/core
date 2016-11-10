@@ -1235,9 +1235,13 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                     logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(nd_index,upper_winner_nd_index,y_split))
                     for y in range(0, final_mask.shape[0]):
                         if y <= y_split:
-                            for j in range(0, final_mask.shape[1]):
-                                if final_mask[i][j] == nd_index:
-                                    final_mask[i][j] = upper_winner_nd_index
+                            for x in range(0, final_mask.shape[1]):
+                                if final_mask[y][x] == nd_index:
+                                    final_mask[y][x] = upper_winner_nd_index
+                n1 = len(final_mask[final_mask==upper_winner_nd_index])
+                n2 = len(final_mask[final_mask==lower_winner_nd_index])
+                logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
+
 # donate whole-body pixels to lower winner
             if lower_winner_nd_index is None:
                 logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
@@ -1256,9 +1260,9 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                     logging.debug('second, adding from lower part of nd {}  to nd {}, ysplit {}'.format(nd_index,lower_winner_nd_index,y_split))
                     for y in range(0, final_mask.shape[0]):
                         if y > y_split:
-                            for j in range(0, final_mask.shape[1]):
-                                if final_mask[i][j] == nd_index:
-                                    final_mask[i][j] = lower_winner_nd_index
+                            for x in range(0, final_mask.shape[1]):
+                                if final_mask[y][x] == nd_index:
+                                    final_mask[y][x] = lower_winner_nd_index
             #donate upper pixels to lower_winner
 
 
