@@ -294,7 +294,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
 
-    fp_q = Queue('fingerprint_new', connection=redis_conn)
+    fp_q = Queue('fingerprint_4db', connection=redis_conn)
     end_page = item_count/100 +2
     if end_page == 17:
         end_page = 16
