@@ -116,6 +116,9 @@ if __name__=='__main__':
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
         duration += download_ebay_API(col, gender)
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
+
+    for gender in ['Male', 'Female']:
+        col = 'ebay_' + gender + '_' + GEO
         theArchiveDoorman(col)
         forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
