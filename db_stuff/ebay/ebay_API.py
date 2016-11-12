@@ -8,9 +8,9 @@ from time import time
 
 from rq import Queue
 
-from core.constants import db, redis_conn
-from core.db_stuff.annoy.fanni import plantForests4AllCategories
-from core.db_stuff.general.dl_excel import mongo2xl
+from ...constants import db, redis_conn
+from ..annoy_dir.fanni import plantForests4AllCategories
+from ..general.dl_excel import mongo2xl
 from .ebay_API_worker import downloader
 from .ebay_constants import sub_attributes
 

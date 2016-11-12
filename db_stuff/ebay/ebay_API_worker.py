@@ -3,14 +3,14 @@ from .ebay_constants import ebay_account_info, ebay_gender, categories_badwords,
 from time import time, sleep
 import requests
 import json
-from core.constants import db, fingerprint_version, redis_conn, fingerprint_length
+from ...constants import db, fingerprint_version, redis_conn
 from datetime import datetime
 import logging
 from rq import Queue
 import re
 import hashlib
-from core import Utils
-from core.fingerprint_core import generate_mask_and_insert
+from ... import Utils
+from ...fingerprint_core import generate_mask_and_insert
 
 today_date = str(datetime.date(datetime.now()))
 
