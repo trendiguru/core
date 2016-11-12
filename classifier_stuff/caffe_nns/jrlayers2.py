@@ -559,7 +559,7 @@ class JrMultilabel(caffe.Layer):
                             print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
-        else:  #
+        else:  ##
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
@@ -567,7 +567,13 @@ class JrMultilabel(caffe.Layer):
                 if self.regression:
                     label_vec = [float(i) for i in vals]
                 else:
-                    label_vec = [int(i) for i in vals]
+                    try:
+                        label_vec = [int(i) for i in vals]
+                    except:
+                        logging.debug('got something that coulndt be turned into a string in the following line from file '+self.images_and_labels_file)
+                        logging.debug(line)
+                        logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
+                        continue
                 label_vec = np.array(label_vec)
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
@@ -654,7 +660,7 @@ class JrMultilabel(caffe.Layer):
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
         dt = time.time() - self.analysis_time
         dN = self.images_processed - self.previous_images_processed
-        print(str(self.counter)+' iterations, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
+        print(str(self.counter)+' fwd passes, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
         self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):

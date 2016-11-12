@@ -1,0 +1,23 @@
+net: "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt"
+#train_net: "ResNet-152-train.prototxt"
+#test_net: "ResNet-152-test.prototxt"
+test_iter: 500
+test_interval: 5000
+display: 20
+average_loss: 20
+weight_decay: 0.0005
+# no gradient accumulation
+iter_size: 10
+snapshot: 2500
+snapshot_prefix: "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories"
+test_initialization: false
+solver_mode : GPU
+
+type: "SGD"
+base_lr: 1e-3
+lr_policy: "step"
+#lr_policy: "fixed"
+gamma: 0.1
+stepsize: 10000
+max_iter: 3000000
+momentum: 0.95

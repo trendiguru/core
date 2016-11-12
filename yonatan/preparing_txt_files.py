@@ -11,6 +11,7 @@ from .. import background_removal, utils, constants
 import sys
 import random
 
+
 def create_txt_files(argv):
 
     parser = argparse.ArgumentParser()
@@ -179,6 +180,83 @@ def create_txt_files_by_adding_from_different_directories():
                                                                                                     counter_test, counter)
 
 
+def create_txt_files_from_different_directories():
+
+    dictionary = yonatan_constants.style_dict
+
+    train_text_file = open("/home/yonatan/style_classifier/style_images/style_train_list.txt", "w")
+    cv_text_file = open("/home/yonatan/style_classifier/style_images/style_cv_list.txt", "w")
+    test_text_file = open("/home/yonatan/style_classifier/style_images/style_test_list.txt", "w")
+
+    error_counter = 0
+
+    for key, value in dictionary.iteritems():
+        source_dir = '/home/yonatan/style_classifier/style_images/' + key
+        label = str(value)
+
+        if os.path.isdir(source_dir):
+            if not os.listdir(source_dir):
+                print '\nfolder is empty ' + key
+                break
+        else:
+            print '\nfolder doesn\'t exist ' + key
+            break
+
+        for root, dirs, files in os.walk(source_dir):
+            file_count = len(files)
+
+            counter = 0
+
+            print file_count
+
+            counter_train = file_count * 0.9
+            counter_cv = file_count * 0.05
+            counter_test = file_count * 0.05
+
+            for file in files:
+
+                if "._" in file:
+                    continue
+
+                counter += 1
+                print counter
+
+                try:
+                    if counter < counter_train:
+                        train_text_file.write(root + "/" + file + " " + label + "\n")
+                    elif counter >= counter_train and counter < counter_train + counter_cv:
+                        cv_text_file.write(root + "/" + file + " " + label + "\n")
+                    elif counter >= counter_train + counter_cv and counter < counter_train + counter_cv + counter_test:
+                        test_text_file.write(root + "/" + file + " " + label + "\n")
+                    else:
+                        print "DONE" + value
+                        break
+
+                except:
+                    print "something ain't good"
+                    error_counter += 1
+                    continue
+
+            print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}, key = {4}'.format(counter_train, counter_cv,
+                                                                                                    counter_test, counter, key)
+
+    print error_counter
+
+    train_text_file.close()
+    cv_text_file.close()
+    test_text_file.close()
+
+    train_lines = open("/home/yonatan/style_classifier/style_images/style_train_list.txt").readlines()
+    cv_lines = open("/home/yonatan/style_classifier/style_images/style_cv_list.txt").readlines()
+    test_lines = open("/home/yonatan/style_classifier/style_images/style_test_list.txt").readlines()
+    random.shuffle(train_lines)
+    random.shuffle(cv_lines)
+    random.shuffle(test_lines)
+    open('/home/yonatan/style_classifier/style_images/style_train_list.txt', 'w').writelines(train_lines)
+    open('/home/yonatan/style_classifier/style_images/style_cv_list.txt', 'w').writelines(cv_lines)
+    open('/home/yonatan/style_classifier/style_images/style_test_list.txt', 'w').writelines(test_lines)
+
+
 def edit_existing_gender_txt_files():
     train_txt_file = open("/home/yonatan/faces_stuff/55k_face_train_list.txt", "r+")
     cv_txt_file = open("/home/yonatan/faces_stuff/55k_face_cv_list.txt", "r+")
@@ -243,9 +321,11 @@ def shuffle_all_lines():
     cv_text_file = open("/home/yonatan/faces_stuff/55k_face_cv_list.txt", "w").writelines(cv_lines)
     test_text_file = open("/home/yonatan/faces_stuff/55k_face_test_list.txt", "w").writelines(test_lines)
 
+
 if __name__ == '__main__':
     # create_txt_files(sys.argv)
     # create_txt_files_no_mongo()
-    edit_existing_gender_txt_files()
-    create_txt_files_by_adding_from_different_directories()
-    shuffle_all_lines()
+    # edit_existing_gender_txt_files()
+    # create_txt_files_by_adding_from_different_directories()
+    # shuffle_all_lines()
+    create_txt_files_from_different_directories()

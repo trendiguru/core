@@ -33,6 +33,10 @@ class PaperResource:
             print('got req for category index '+str(category_index))
             category_index = category_index and int(category_index)
 
+        threshold = req.get_param('threshold')
+        if threshold:
+            print('got threshold '+str(threshold))
+
         get_multilabel_results = req.get_param('getMultilabelResults')
         if get_multilabel_results:
             print('got req for multi:'+str(get_multilabel_results))
@@ -105,7 +109,12 @@ class PaperResource:
             ret["label_dict"] = constants.ultimate_21_dict
 
             if category_index:
-                ret["mask"] = neurodoll.get_category_graylevel(img, category_index)
+                if threshold:
+                    print('neurodoll falcon sending img and threshold to get_cat_gl_masked_thresholded')
+                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index,threshold=threshold)
+                else:
+                    print('neurodoll falcon sending img without threshold to get_cat_gl_masked_thresholded')
+                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index)
                 if ret["mask"] is not None:
                     ret["success"] = True
 
