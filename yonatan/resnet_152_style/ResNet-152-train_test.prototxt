@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_images/style_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_second_try/style_images/style_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
       }
   include {phase: TRAIN}
 }
@@ -20,7 +20,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_images/style_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
+      param_str: "{\'images_and_labels_file\': \'/home/yonatan/style_classifier/style_second_try/style_images/style_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
       }
     include {phase: TEST}
 }
@@ -7093,7 +7093,7 @@ layer {
 	top: "my_fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 6
+		num_output: 5
                 weight_filler {
                 type: "xavier"
                    }
