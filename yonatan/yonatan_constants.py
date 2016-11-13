@@ -124,8 +124,8 @@ collar_basic_dict = {
 
 # style #
 style_dict = {
-    'swim': 0,
-    'active': 1,
+    'swimsuit': 0,
+    'sports': 1,
     'others': 2,
     'prom': 3,
     'bride_dress': 4
