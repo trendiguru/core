@@ -42,9 +42,11 @@ print('loading caffemodel for neurodoll')
 #protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
 modelpath = '/home/jeremy/caffenets/production'
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
-MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
+#MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
+MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototxt')
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
-PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
+#PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
+PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
 
 test_on = True #
 if test_on:
@@ -67,7 +69,7 @@ print('done loading caffemodel for neurodoll')
 multilabel_from_binaries = True
 if not multilabel_from_binaries: #dont need this if answers are coming from multilabel_from_binaries. otherwise get the multilabel net
     print('starting up multilabel net')
-    protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
+#    protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
     modelpath = '/home/jeremy/caffenets/production'
     solverproto = os.path.join(modelpath,'ResNet-101-test.prototxt')
     deployproto = os.path.join(modelpath,'ResNet-101-deploy.prototxt')
@@ -88,7 +90,6 @@ if not multilabel_from_binaries: #dont need this if answers are coming from mult
 else:
     print('using multilabel from binaries (thru falcon) ')
 multilabel_required_image_size = (224,224)
-
 
 # Make classifier.
 #classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
@@ -153,7 +154,7 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds = constants.ultimate_21_area_thresholds):
+def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds = constants.ultimate_21_area_thresholds,output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
@@ -211,7 +212,7 @@ def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds
     net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     net.forward()
-    out = net.blobs['score'].data[0].argmax(axis=0)
+    out = net.blobs[output_layer].data[0].argmax(axis=0)
     out = np.array(out,dtype=np.uint16)
     if out is None:
         logging.debug('out image is None')
@@ -343,7 +344,7 @@ def get_neurodoll_output(url_or_np_array):
     neuro_mask = dic['mask']
     return neuro_mask
 
-def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
+def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256),output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('get_all_category_graylevels working on url:'+url_or_np_array)
@@ -382,7 +383,7 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256)):
 
 
 #    out = net.blobs['score'].data[0] #for layer score, all outputs, no softmax#
-    out = net.blobs['siggy'].data[0] #for layer score, all outputs after softmax
+    out = net.blobs[output_layer].data[0] #for layer score, all outputs after softmax
     min = np.min(out)
     max = np.max(out)
     print('get_all_category_graylevels output shape {} min {} max {}'.format(out.shape,min,max))
@@ -787,7 +788,8 @@ def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_thresho
 
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
-                                     multilabel_labels=constants.binary_classifier_categories, face=None):
+                                     multilabel_labels=constants.binary_classifier_categories, face=None,
+                                     output_layer = 'pixlevel_sigmoid_output'):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -814,7 +816,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('got None in grabcut_using_neurodoll_output')
     print('writing orig to '+orig_filename+'.jpg')
     cv2.imwrite(orig_filename+'.jpg',image)
-    multilabel = get_multilabel_output(url_or_np_array)
+    multilabel = get_multilabel_output(url_or_np_array,output_layer=output_layer)
 #    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
     #take only labels above a threshold on the multilabel result
     #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
@@ -1487,7 +1489,7 @@ if __name__ == "__main__":
             for median_factor in [0.75]:
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
                 print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor)
+                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor,output_layer='pixlevel_sigmoid_output')
                 print('combined output:'+str(out))
 
 
