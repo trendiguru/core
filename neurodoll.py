@@ -61,7 +61,7 @@ caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 #required_image_size = (256, 256)
-required_image_size = (224,224)
+#required_image_size = (224,224)
 image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
@@ -350,7 +350,7 @@ def get_neurodoll_output(url_or_np_array):
 def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
-        print('get_all_category_graylevels working on url:'+url_or_np_array)
+        print('get_all_category_graylevels working on url:'+url_or_np_array+' req imsize:'+str(required_image_size))
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
@@ -806,7 +806,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     multilabel_labels=constants.binary_classifier_categories
 
     '''
-    print('combining multilabel w. neurodoll, watch out')
+    print('combining multilabel w. neurodoll, watch out, required imsize:'+str(required_image_size))
 #
     thedir = './images'
     Utils.ensure_dir(thedir)
