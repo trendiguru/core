@@ -44,9 +44,9 @@ class PaperResource:
         # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
 
         get_combined_results = req.get_param('getCombinedResults')
-        if get_combined_results:
+        if get_combined_results is not False:
             print('got req for  combined:'+str(get_combined_results))
-            get_combined_results = get_combined_results == "true" or get_combined_results == "True" or get_combined_results == True
+            get_combined_results = True
 
         get_layer_output = req.get_param('getLayerOutput')
         if get_layer_output:
