@@ -252,7 +252,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
     return out
 
 
-def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds)
+def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
 #done
     image_size = out.shape[0]*out.shape[1]
