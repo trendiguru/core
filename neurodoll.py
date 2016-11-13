@@ -61,7 +61,7 @@ caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,PRETRAINED, caffe.TEST)
 #required_image_size = (256, 256)
-required_image_size = None
+required_image_size = (224,224)
 image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
@@ -366,7 +366,7 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
 # deploys are 13% smaller than train on average if train starts at 256x256 and is cropped to 224x224
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
-        logging.debug('get_all_cat_gl requesting resize from {} to {}'.format(image.size,required_image_size))
+        logging.debug('get_all_cat_gl requesting resize from {} to {}'.format(image.shape,required_image_size))
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
@@ -521,7 +521,7 @@ def get_category_graylevel(url_or_np_array,category_index,required_image_size=(2
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
 
-def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,required_image_size=(256,256),threshold=0.95):
+def get_category_graylevel_masked_thresholded(url_or_np_array,category_index,required_image_size=(224,224),threshold=0.95):
     '''
     This takes a given layer, thresholds it, but keeps original backgound strictly
     :param url_or_np_array:
