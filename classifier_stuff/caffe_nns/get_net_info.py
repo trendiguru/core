@@ -1,15 +1,15 @@
 __author__ = 'jeremy'
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 def get_netname(proto):
     logging.info('looking for netname in'+str(proto))
     with open(proto,'r') as fp:
         l1 = fp.readline()
         l2 = fp.readline()
-#    print('line1 '+l1)
-#    print('line2 '+l2)
+    logging.debug('line1 '+l1)
+    logging.debug('line2 '+l2)
     if 'name' in l1:
         netname = l1[l1.find('name:')+5:] #get string after name:
         netname = netname.replace('"','')  #remove quotes
