@@ -517,7 +517,7 @@ def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
                 cv2.putText(big_out2,labels[n],(int((j+0.3)*compressed_w),int((i+1)*compressed_h-10)),cv2.FONT_HERSHEY_PLAIN,2,(250,200,255),thickness=3)
                 cv2.imwrite(name+'bigout_thresh'+str(thresh)+'.jpg',big_out2)
 
-def get_category_graylevel(url_or_np_array,category_index,required_image_size=(256,256)):
+def get_category_graylevel(url_or_np_array,category_index,required_image_size=(224,224)):
     all_layers = get_all_category_graylevels(url_or_np_array,required_image_size=required_image_size)
     requested_layer = all_layers[:,:,category_index]
     return requested_layer
@@ -1466,7 +1466,7 @@ if __name__ == "__main__":
             nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
 
 
-    get_category_graylevel(urls[0],category_index = 3)
+    #get_category_graylevel(urls[0],category_index = 3)
     test_graylevels = False
     if test_graylevels:
         for i in range(21):
