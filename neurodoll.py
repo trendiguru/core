@@ -51,7 +51,10 @@ PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
 test_on = True
 if test_on:
     if len(sys.argv)>1:
-        gpu = int(sys.argv[1])
+        try:
+            gpu = int(sys.argv[1])
+        except:
+            gpu=0
     else:
         gpu =0
     print('using gpu '+str(gpu))
@@ -255,6 +258,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
 def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
 #done
+    logging.debug('thresholding pixlevel areas')
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
     for unique in uniques:
@@ -267,7 +271,7 @@ def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thr
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
             pixelcount = len(out[out==unique])
-            logging.debug(str(unique) + ' is under thresh, new ratio '+str(ratio))
+            logging.debug(str(unique) + ' is under area threshold, new ratio '+str(ratio))
     return(out)
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
