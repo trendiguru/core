@@ -51,6 +51,8 @@ PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
 test_on = True #
 if test_on:
     gpu = int(sys.argv[1])
+    if gpu is None:
+        gpu =0
     print('using gpu '+str(gpu))
 else:
     gpu = 0
