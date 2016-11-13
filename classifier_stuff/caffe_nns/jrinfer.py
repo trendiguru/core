@@ -223,11 +223,11 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
         hist += fast_hist(gt_data.flatten(),
                                 net_data.argmax(0).flatten(),
                                 n_cl)
-
         if save_dir:
 #            continue
             Utils.ensure_dir(save_dir)
             im = Image.fromarray(net.blobs[layer].data[0].argmax(0).astype(np.uint8), mode='P')
+#            im = net.blobs[layer].data[0].argmax(0).astype(np.uint8)
             savename = os.path.join(save_dir, str(idx) + '.png')
    #         print('label size:'+str(im.shape))
             im.save(savename)
