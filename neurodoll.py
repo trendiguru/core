@@ -1362,7 +1362,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     graymask_filename = orig_filename+'_origmask.png'
     print('original mask file:'+graymask_filename)
     cv2.imwrite(graymask_filename,pixlevel_categorical_output)
-    nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=test_on)
+    nice_output = imutils.show_mask_with_labels(graymask_filename,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
     count_values(final_mask,labels=constants.ultimate_21)
 
     return final_mask
@@ -1493,11 +1493,11 @@ if __name__ == "__main__":
         print('start test_combined_nd')
         for url in urls: #
             print('doing url:'+url) #
+            out = combine_neurodoll_and_multilabel(url,output_layer='pixlevel_sigmoid_output',required_image_size=(224,224))
 
-            for median_factor in [0.75]:
+#            for median_factor in [0.75]:
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
-                print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor,output_layer='pixlevel_sigmoid_output',required_image_size=(224,224))
-                print('combined output:'+str(out))
+#                print('testing combined ml nd, median factor:'+str(median_factor))
+#                print('combined output:'+str(out))
 
 
