@@ -2549,5 +2549,5 @@ layer {
   name: "pixlevel_sigmoid_output"
   type: "Sigmoid"
   bottom: "conv_final"
-  top: "siggy"
+  top: "pixlevel_sigmoid_output"
 }
