@@ -1,3 +1,5 @@
+name: "pixlevel-sharp5"
+
 layer {
     name: "data"
     type: "Python"
