@@ -278,7 +278,6 @@ web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', '
                      'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
-
 #these are in use for multilabeller output as of 260716 - will prob change to v2 in near future so i can use
 #results of filipino categorization efforts
 #20 cats
@@ -320,7 +319,7 @@ binary_caffemodels = [
 'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
-
+#
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
