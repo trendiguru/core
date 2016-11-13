@@ -3,14 +3,14 @@ from .ebay_constants import ebay_account_info, ebay_gender, categories_badwords,
 from time import time, sleep
 import requests
 import json
-from core.constants import db, fingerprint_version, redis_conn, fingerprint_length
+from ...constants import db, fingerprint_version, redis_conn
 from datetime import datetime
 import logging
 from rq import Queue
 import re
 import hashlib
-from core import Utils
-from core.fingerprint_core import generate_mask_and_insert
+from ... import Utils
+from ...fingerprint_core import generate_mask_and_insert
 
 today_date = str(datetime.date(datetime.now()))
 
@@ -294,7 +294,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
 
-    fp_q = Queue('fingerprint_new', connection=redis_conn)
+    fp_q = Queue('fingerprinter4db', connection=redis_conn)
     end_page = item_count/100 +2
     if end_page == 17:
         end_page = 16
