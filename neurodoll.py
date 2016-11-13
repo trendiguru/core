@@ -347,7 +347,7 @@ def get_neurodoll_output(url_or_np_array):
     neuro_mask = dic['mask']
     return neuro_mask
 
-def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256),output_layer='pixlevel_sigmoid_output'):
+def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
         print('get_all_category_graylevels working on url:'+url_or_np_array)
@@ -361,6 +361,9 @@ def get_all_category_graylevels(url_or_np_array,required_image_size=(256,256),ou
         logging.debug('got None for image in get_all_categry_graylevels, returning')
         return
 
+#todo - do a resize then crop to required_image_size, then undo the crop /resize (currently just resize/unresize) .
+#this will avoid slight difference between train and deploy - train is on resize+crop, deploy is just on resize - so
+# deploys are 13% smaller than train on average if train starts at 256x256 and is cropped to 224x224
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
