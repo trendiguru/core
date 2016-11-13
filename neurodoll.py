@@ -366,6 +366,7 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
 # deploys are 13% smaller than train on average if train starts at 256x256 and is cropped to 224x224
     if required_image_size is not None:
         original_h, original_w = image.shape[0:2]
+        logging.debug('get_all_cat_gl requesting resize from {} to {}'.format(image.size,required_image_size))
         in_ = imutils.resize_keep_aspect(image,output_size=required_image_size,output_file=None)
     in_ = np.array(in_, dtype=np.float32)   #.astype(float)
     if len(in_.shape) != 3:  #h x w x channels, will be 2 if only h x w
