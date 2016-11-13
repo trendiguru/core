@@ -60,7 +60,7 @@ else:
 caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,caffe.TEST,weights = PRETRAINED )  #avoid deprecated usage
-print('test value should be 1 :'caffe.TEST)
+print('test value should be 1 :'+str(caffe.TEST))
 # #required_image_size = (256, 256)
 #required_image_size = (224,224)
 image_mean = np.array([107.0,117.0,123.0])
