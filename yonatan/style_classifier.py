@@ -508,44 +508,44 @@ def style_classifier_2():
 
     print "number of errors: {0}".format(error_counter)
 
-    # ## erase useless ##
-    #
-    # dictionary = yonatan_constants.style_dict
-    #
-    # error_counter = 0
-    #
-    # for key, value in dictionary.iteritems():
-    #     source_dir = '/home/yonatan/style_classifier/style_second_try/style_images/' + key
-    #
-    #     if os.path.isdir(source_dir):
-    #         if not os.listdir(source_dir):
-    #             print '\nfolder is empty ' + key
-    #             break
-    #     else:
-    #         print '\nfolder doesn\'t exist ' + key
-    #         break
-    #
-    #     for root, dirs, files in os.walk(source_dir):
-    #
-    #         counter = 0
-    #
-    #         for file in files:
-    #
-    #             if "._" in file:
-    #                 continue
-    #
-    #             counter += 1
-    #             print counter
-    #
-    #             if file.startswith("images"):
-    #                 try:
-    #                     os.remove(file)
-    #                 except:
-    #                     print "something ain't good"
-    #                     error_counter += 1
-    #                     continue
-    #
-    # print "number of errors: {0}".format(error_counter)
+    ## erase useless ##
+
+    dictionary = yonatan_constants.style_dict
+
+    error_counter = 0
+
+    for key, value in dictionary.iteritems():
+        source_dir = '/home/yonatan/style_classifier/style_second_try/style_images/' + key
+
+        if os.path.isdir(source_dir):
+            if not os.listdir(source_dir):
+                print '\nfolder is empty ' + key
+                break
+        else:
+            print '\nfolder doesn\'t exist ' + key
+            break
+
+        for root, dirs, files in os.walk(source_dir):
+
+            counter = 0
+
+            for file in files:
+
+                if "._" in file:
+                    continue
+
+                counter += 1
+                print counter
+
+                if file.startswith("images"):
+                    try:
+                        os.remove(file)
+                    except:
+                        print "something ain't good"
+                        error_counter += 1
+                        continue
+
+    print "number of errors: {0}".format(error_counter)
 
 
 def collar_classifier():
