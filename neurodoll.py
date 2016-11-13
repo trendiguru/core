@@ -158,7 +158,7 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(224,224),item_area_thresholds = constants.ultimate_21_area_thresholds,output_layer='pixlevel_sigmoid_output'):
+def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
@@ -231,35 +231,10 @@ def infer_one(url_or_np_array,required_image_size=(224,224),item_area_thresholds
 #        out = imutils.resize_keep_aspect(out,output_size=(original_h,original_w),output_file=None)
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
 #        out = out[:,:,0]
-    image_size = out.shape[0]*out.shape[1]
-    uniques = np.unique(out)
 
 
-#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
-    for unique in uniques:
-        pixelcount = len(out[out==unique])
-        ratio = float(pixelcount)/image_size
-#        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
-        threshold = item_area_thresholds[unique]
-        print('index {}  ratio {} threshold {}'.format(unique,ratio,threshold))
-        if ratio < threshold:
-#            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
-            out[out==unique] = 0  #set label with small number of pixels to 0 (background)
-            pixelcount = len(out[out==unique])
-#            logging.debug('new ratio '+str(ratio))
+    out = threshold_pixlevel(out)
 
-
-   # cv2.countNonZero(item_mask)
-
-
-#    result = Image.fromarray(out.astype(np.uint8))
-#        outname = im.strip('.png')[0]+'out.bmp'
-#    outname = os.path.basename(imagename)
-#    outname = outname.split('.jpg')[0]+'.bmp'
-#    outname = os.path.join(out_dir,outname)
-#    print('outname:'+outname)
-#    result.save(outname)
-    #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('infer_one elapsed time:'+str(elapsed_time))
  #   cv2.imshow('out',out.astype(np.uint8))
@@ -275,6 +250,25 @@ def infer_one(url_or_np_array,required_image_size=(224,224),item_area_thresholds
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
     return out
+
+
+def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds)
+#TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
+#done
+    image_size = out.shape[0]*out.shape[1]
+    uniques = np.unique(out)
+    for unique in uniques:
+        pixelcount = len(out[out==unique])
+        ratio = float(pixelcount)/image_size
+#        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        threshold = item_area_thresholds[unique]
+        print('index {}  ratio {} threshold {}'.format(unique,ratio,threshold))
+        if ratio < threshold:
+#            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
+            out[out==unique] = 0  #set label with small number of pixels to 0 (background)
+            pixelcount = len(out[out==unique])
+            logging.debug(str(unique) + ' is under thresh, new ratio '+str(ratio))
+    return(out)
 
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
 #################################
@@ -419,6 +413,7 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
+    out=threshold_pixlevel(out)
     logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
@@ -724,75 +719,6 @@ def count_values(mask,labels=None):
         pixelcounts[unique]=pixelcount
     return pixelcounts
 
-def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_threshold=0.7,median_factor=1.6,multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,multilabel_labels=constants.binary_classifier_categories):
-    '''
-    try product of multilabel and nd output and taking argmax
-    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
-    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
-
-    multilabel_labels=constants.web_tool_categories    , or
-    multilabel_labels=constants.binary_classifier_categories
-
-    '''
-    multilabel = get_multilabel_output(url_or_np_array)
-#    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
-    #take only labels above a threshold on the multilabel result
-    #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
-    if multilabel is None:
-        logging.debug('None result from multilabel')
-        return None
-    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
-#    print('orig label:'+str(multilabel))
-    print('combining multilabel w. neurodoll, watch out')
-#    print('incoming label:'+str(multilabel))
-#    print('thresholded label:'+str(thresholded_multilabel))
-#    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-#    print('multilabel labels:'+str(multilabel_labels))
-
-    if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
-        logging.debug('no items found')
-        return #
-#    item_masks =  nfc.pd(image, get_all_graylevels=True)
-
-# hack to combine pants and jeans for better recall
-#    pantsindex = constants.web_tool_categories.index('pants')
-#    jeansindex = constants.web_tool_categories.index('jeans')
-#   if i == pantsindex or i == jeansindex: #
-    first_time_thru = True  #hack to dtermine image size coming back from neurodoll
-    final_mask = np.zeros([224,224])
-
-    for i in range(len(thresholded_multilabel)):
-        if thresholded_multilabel[i]:
-            neurodoll_index = multilabel_to_ultimate21_conversion[i]
-            if neurodoll_index is None:
-                print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
-                continue
-            print('index {} webtoollabel {} newindex {} neurodoll_label {} was above threshold {} (ml {})'.format(
-                i,multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index], multilabel_threshold,multilabel[i]))
-            item_mask = grabcut_using_neurodoll_output(url_or_np_array,neurodoll_index,median_factor=median_factor)
-            if  item_mask is None:
-                continue
-            item_mask = np.multiply(item_mask,neurodoll_index)
-            if first_time_thru:
-                final_mask = np.zeros_like(item_mask)
-                first_time_thru = False
-            unique_to_new_mask = np.logical_and(item_mask != 0,final_mask == 0)   #dealing with same pixel claimed by two masks. if two masks include same pixel take first, don't add the pixel vals together
-            unique_to_new_mask = np.multiply(unique_to_new_mask,neurodoll_index)
-            final_mask = final_mask + unique_to_new_mask
-#            cv2.imshow('mask '+str(i),item_mask)
-#            cv2.waitKey(0)
-    timestamp = int(10*time.time())
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    name = '/home/jeremy/'+str(timestamp)+'.png'
-    name = orig_filename[:-4]+'_mf'+str(median_factor)+'_output.png'
-    print('name:'+name)
-    cv2.imwrite(name,final_mask)
-    orig_filename = '/home/jeremy/'+url_or_np_array.split('/')[-1]
-    print('orig filename:'+str(orig_filename))
-    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename)
-#    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True)
-
-    return final_mask
 
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
