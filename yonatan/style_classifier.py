@@ -508,15 +508,14 @@ def style_classifier_2():
 
     print "number of errors: {0}".format(error_counter)
 
-
-def collar_classifier():
-
-    # dictionary = yonatan_constants.collar_basic_dict
+    # ## erase useless ##
+    #
+    # dictionary = yonatan_constants.style_dict
     #
     # error_counter = 0
     #
     # for key, value in dictionary.iteritems():
-    #     source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
+    #     source_dir = '/home/yonatan/style_classifier/style_second_try/style_images/' + key
     #
     #     if os.path.isdir(source_dir):
     #         if not os.listdir(source_dir):
@@ -538,22 +537,18 @@ def collar_classifier():
     #             counter += 1
     #             print counter
     #
-    #             try:
-    #                 image_array = cv2.imread(os.path.join(root, file))
-    #                 resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
-    #
-    #                 image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
-    #
-    #                 cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-    #
-    #             except:
-    #                 print "something ain't good"
-    #                 error_counter += 1
-    #                 continue
+    #             if file.startswith("images"):
+    #                 try:
+    #                     os.remove(file)
+    #                 except:
+    #                     print "something ain't good"
+    #                     error_counter += 1
+    #                     continue
     #
     # print "number of errors: {0}".format(error_counter)
 
-    ## erase useless ##
+
+def collar_classifier():
 
     dictionary = yonatan_constants.collar_basic_dict
 
@@ -582,13 +577,18 @@ def collar_classifier():
                 counter += 1
                 print counter
 
-                if file.startswith("images"):
-                    try:
-                        os.remove(file)
-                    except:
-                        print "something ain't good"
-                        error_counter += 1
-                        continue
+                try:
+                    image_array = cv2.imread(os.path.join(root, file))
+                    resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+
+                    image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
+
+                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+
+                except:
+                    print "something ain't good"
+                    error_counter += 1
+                    continue
 
     print "number of errors: {0}".format(error_counter)
 
