@@ -48,7 +48,7 @@ MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototx
 #PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
 
-test_on = True #
+test_on = True
 if test_on:
     gpu = int(sys.argv[1])
     print('requested gpu:'+str(gpu))
