@@ -11,13 +11,13 @@ def get_netname(proto):
 #    print('line1 '+l1)
 #    print('line2 '+l2)
     if 'name' in l1:
-        netname = l1[l1.find('name:'):] #get string after name:
+        netname = l1[l1.find('name:')+5:] #get string after name:
         netname = netname.replace('"','')  #remove quotes
         logging.info('line1:'+l1)
         logging.info('netname:'+netname)
         return netname
     if 'name' in l2:
-        netname = l2[l2.find('name:'):] #get string after name:
+        netname = l2[l2.find('name:')+5:] #get string after name:
         netname = netname.replace('"','')  #remove quotes
         logging.info('line2:'+l2)
         logging.info('netname:'+netname)
