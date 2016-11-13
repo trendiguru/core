@@ -413,7 +413,6 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
         logging.debug('resizing nd input back to '+str(original_h)+'x'+str(original_w))
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
-    out=threshold_pixlevel(out)
     logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
@@ -774,6 +773,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
