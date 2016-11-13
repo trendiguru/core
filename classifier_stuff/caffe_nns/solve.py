@@ -154,7 +154,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
             val = range(0,n_tests) #
-            results_dict = jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer='pixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']

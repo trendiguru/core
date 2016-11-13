@@ -1,16 +1,11 @@
 name: "pixlevel-sharp5"
 
 layer {
-    name: "data"
-    type: "Python"
-    top: "data"
-    top: "label"
-    python_param {
-    module: "jrlayers2"
-    layer: "JrPixlevel"
-    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":8,\"save_visual_output\":False }"
-    }
-  }
+  name: "data"
+  type: "Input"
+  top: "data"
+  input_param { shape: { dim: 1 dim: 3 dim: 224 dim: 224 } }
+}
 layer {
   name: "bn1"
   type: "BatchNorm"
@@ -2549,11 +2544,10 @@ layer {
     }
   }
 }
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "conv_final"
-  bottom: "label"
-  top: "loss"
-}
 
+layer {
+  name: "pixlevel_output"
+  type: "Sigmoid"
+  bottom: "conv_final"
+  top: "siggy"
+}
