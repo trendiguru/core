@@ -511,6 +511,50 @@ def style_classifier_2():
 
 def collar_classifier():
 
+    # dictionary = yonatan_constants.collar_basic_dict
+    #
+    # error_counter = 0
+    #
+    # for key, value in dictionary.iteritems():
+    #     source_dir = '/home/yonatan/collar_classifier/collar_images/' + key
+    #
+    #     if os.path.isdir(source_dir):
+    #         if not os.listdir(source_dir):
+    #             print '\nfolder is empty ' + key
+    #             break
+    #     else:
+    #         print '\nfolder doesn\'t exist ' + key
+    #         break
+    #
+    #     for root, dirs, files in os.walk(source_dir):
+    #
+    #         counter = 0
+    #
+    #         for file in files:
+    #
+    #             if "._" in file:
+    #                 continue
+    #
+    #             counter += 1
+    #             print counter
+    #
+    #             try:
+    #                 image_array = cv2.imread(os.path.join(root, file))
+    #                 resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+    #
+    #                 image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
+    #
+    #                 cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+    #
+    #             except:
+    #                 print "something ain't good"
+    #                 error_counter += 1
+    #                 continue
+    #
+    # print "number of errors: {0}".format(error_counter)
+
+    ## erase useless ##
+
     dictionary = yonatan_constants.collar_basic_dict
 
     error_counter = 0
@@ -538,21 +582,15 @@ def collar_classifier():
                 counter += 1
                 print counter
 
-                try:
-                    image_array = cv2.imread(os.path.join(root, file))
-                    resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
-
-                    image_file_name = 'collar-' + key + '_' + str(counter) + '.jpg'
-
-                    cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-
-                except:
-                    print "something ain't good"
-                    error_counter += 1
-                    continue
+                if file.startswith("images"):
+                    try:
+                        os.remove(file)
+                    except:
+                        print "something ain't good"
+                        error_counter += 1
+                        continue
 
     print "number of errors: {0}".format(error_counter)
-
 
 
 if __name__ == '__main__':
