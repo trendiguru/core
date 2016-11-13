@@ -157,7 +157,7 @@ def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(256,256),item_area_thresholds = constants.ultimate_21_area_thresholds,output_layer='pixlevel_sigmoid_output'):
+def infer_one(url_or_np_array,required_image_size=(224,224),item_area_thresholds = constants.ultimate_21_area_thresholds,output_layer='pixlevel_sigmoid_output'):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
@@ -795,7 +795,7 @@ def combine_neurodoll_and_multilabel_onebyone(url_or_np_array,multilabel_thresho
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
-                                     output_layer = 'pixlevel_sigmoid_output'):
+                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224)):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -844,7 +844,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
@@ -1495,7 +1495,7 @@ if __name__ == "__main__":
             for median_factor in [0.75]:
 #            for median_factor in [0.5,0.75,1,1.25,1.5]:
                 print('testing combined ml nd, median factor:'+str(median_factor))
-                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor,output_layer='pixlevel_sigmoid_output')
+                out = combine_neurodoll_and_multilabel(url,median_factor=median_factor,output_layer='pixlevel_sigmoid_output',required_image_size=(224,224))
                 print('combined output:'+str(out))
 
 
