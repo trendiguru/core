@@ -539,7 +539,7 @@ def style_classifier_2():
 
                 if file.startswith("images"):
                     try:
-                        os.remove(file)
+                        os.remove(os.path.join(root, file))
                     except:
                         print "something ain't good"
                         error_counter += 1
