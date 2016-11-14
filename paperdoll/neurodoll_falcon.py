@@ -3,8 +3,9 @@ __author__ = 'liorsabag'
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
 import traceback
 import falcon
-from .. import neurodoll, neurodoll_single_category
-from .. import neurodoll_with_multilabel
+from .. import neurodoll
+    #, neurodoll_single_category
+#from .. import neurodoll_with_multilabel
 from .. import constants
 # from .darknet.pyDarknet import mydet
 
