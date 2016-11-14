@@ -54,12 +54,12 @@ if test_on:
         try:
             gpu = int(sys.argv[1])
         except:
-            gpu=0
+            gpu=1
     else:
-        gpu =0
+        gpu =1
     print('using gpu '+str(gpu))
 else:
-    gpu = 0
+    gpu = 1
 caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,caffe.TEST,weights = PRETRAINED )  #avoid deprecated usage
