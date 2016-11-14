@@ -7,7 +7,7 @@ display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 10
+iter_size: 3
 snapshot: 2500
 snapshot_prefix: "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories"
 test_initialization: false
