@@ -655,6 +655,52 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
 
+def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1.6):
+    '''
+    takes an image (or url) and category.
+    gets the neurodoll mask for that category.
+    find the median value of the neurodoll mask.
+    anything above becomes probable foreground (3) and anything less prob. background (2) (check this)
+    then does a grabcut with these regions of fg, bg
+    returned mask is 1 for fg and 0 for bg
+    '''
+    if isinstance(url_or_np_array, basestring):
+        image = url_to_image(url_or_np_array)
+    elif type(url_or_np_array) == np.ndarray:
+        image = url_or_np_array
+    if image is None:
+        logging.debug('got None in grabcut_using_neurodoll_output')
+        return
+    print('grabcut working on image of shape:'+str(image.shape)+' and mask of shape:'+str(neuro_mask.shape))
+        #def neurodoll(image, category_idx):
+#    neuro_mask = dic['mask']
+
+    nm_size = neuro_mask.shape[0:2]
+    image_size = image.shape[0:2]
+    if image_size != nm_size:
+#        logging.debug('size mismatch')
+        logging.warning('SHAPE MISMATCH IN GC USING ND GRAYLEVEL')
+        image = cv2.resize(image,(nm_size[1],nm_size[0]))
+    # rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    mask = np.zeros(image.shape[:2], np.uint8)
+    #TODO - maybe find something better than median as the threshold
+    med = np.median(neuro_mask)*median_factor
+    mask[neuro_mask > med] = cv2.GC_PR_FGD  #(=3, prob foreground)
+    mask[neuro_mask < med] = cv2.GC_PR_BGD #(=2, prob. background)
+    print('gc pr fg {} pr bgnd {} '.format(cv2.GC_PR_FGD,cv2.GC_PR_BGD))
+
+    try:
+        #TODO - try more than 1 grabcut call in itr
+        itr = 1
+        cv2.grabCut(image, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK)
+    except:
+        print('grabcut exception')
+        return None
+    mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
+    return mask2
 #this is confusing : this is how you would call falcon which calls get_multilabel_output (above...)
 def get_multilabel_output_using_nfc(url_or_np_array):
     print('starting get_multilabel_output_using_nfc')
@@ -666,6 +712,16 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     multilabel_output = multilabel_dict['multilabel_output']
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
+
+def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conversion=constants.binary_classifier_categories_to_ultimate_21):
+    for i in len(ml_values):
+        if ml_values[i] < threshold:
+            nd_index = ml_to_nd_conversion[i]
+            if nd_index is None:
+                logging.debug('in zero_graylevels, no conversion from ml {} to nd'.format(i))
+            else:
+                graylevels[:,:,nd_index] = 0
+    return graylevels
 
 def test_conversions():
     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
