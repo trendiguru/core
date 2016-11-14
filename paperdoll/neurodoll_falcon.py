@@ -102,6 +102,8 @@ class PaperResource:
             if get_combined_results:
                 combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
                 ret['combined_output'] = combined_output
+                ret['mask'] = combined_output
+
                 if combined_output is not None:
                     ret["success"] = True
 
