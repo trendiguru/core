@@ -106,6 +106,6 @@ if __name__ == "__main__":
     get_pd_results(url=url)
     dir = '/home/jeremy/images_dbs/tamara_berg_street_to_shop'
     tbphotos = [os.path.join(dir,im) for im in os.listdir(dir)]
-    print(str(len(tbphotos))' images in '+dir)
+    print(str(len(tbphotos))+' images in '+dir)
     for f in tbphotos:
         get_pd_results(filename=f)
