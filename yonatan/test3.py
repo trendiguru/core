@@ -19,9 +19,9 @@ import yonatan_classifier
 # ## style ##
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
 PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel"
-## collar ##
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
+# ## collar ##
+# MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
+# PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
 caffe.set_device(3)
