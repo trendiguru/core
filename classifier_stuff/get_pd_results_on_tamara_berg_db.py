@@ -10,9 +10,13 @@ from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
 from trendi import Utils,constants
 
-def get_pd_results(url):
-    print('getting pd results for '+url)
-    image = Utils.get_cv2_img_array(url)
+def get_pd_results(url=None,filename=None):
+    if url is not None:
+        print('getting pd results for '+url)
+        image = Utils.get_cv2_img_array(url)
+    elif filename is not None:
+        print('getting pd results for '+filename)
+        image = cv2.imaread(filename)
     if image is None:
         print('image came back none')
     seg_res = pd_falcon_client.pd(image)
@@ -25,9 +29,9 @@ def get_pd_results(url):
     label_dict = seg_res['label_dict']
     pose = seg_res['pose']
     mask_np = np.array(mask, dtype=np.uint8)
-    print('masksize '+mask_np.shape)
+    print('masksize '+str(mask_np.shape))
     pose_np = np.array(pose, dtype=np.uint8)
-    print('posesize '+pose_np.shape)
+    print('posesize '+str(pose_np.shape))
 #    print('returned url '+seg_res['url'])
     convert_and_save_results(mask_np, label_dict, pose_np, imgfilename, image, url)
     maskfilename = 'testout.png'
@@ -96,4 +100,4 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
 
 if __name__ == "__main__":
     url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
-    get_pd_results(url)
+    get_pd_results(url=url)
