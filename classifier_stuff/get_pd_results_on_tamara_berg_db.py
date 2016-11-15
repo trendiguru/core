@@ -53,6 +53,16 @@ def get_pd_results(url=None,filename=None):
 #these are 1-based not 0-based
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url):
+    '''
+    This saves the mask using the labelling fashionista_categories_augmented_zero_based
+    :param mask:
+    :param label_names:
+    :param pose:
+    :param filename:
+    :param img:
+    :param url:
+    :return:
+     '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
     new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
     success = True #assume innocence until proven guilty
@@ -113,3 +123,4 @@ if __name__ == "__main__":
     print(str(len(tbphotos))+' images in '+dir)
     for f in tbphotos:
         get_pd_results(filename=f)
+        time.sleep(5)
