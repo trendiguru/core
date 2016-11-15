@@ -17,7 +17,7 @@ def get_pd_results(url):
         print('image came back none')
     seg_res = pd_falcon_client.pd(image)
 #    print('segres:'+str(seg_res))
-    imgfilename = seg_res['filename']
+    imgfilename = seg_res['filename']+'.jpg'
     print('filename '+imgfilename)
     cv2.imwrite(imgfilename,image)
 
