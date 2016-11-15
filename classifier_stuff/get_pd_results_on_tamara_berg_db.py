@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import os 
 import json
+import sys
 
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
@@ -14,15 +15,20 @@ def get_pd_results(url):
     image = Utils.get_cv2_img_array(url)
     if image is None:
         print('image came back none')
-    imgfilename = 'orig.jpg'
-    cv2.imwrite(imgfilename,image)
     seg_res = pd_falcon_client.pd(image)
-    print('segres:'+str(seg_res))
+#    print('segres:'+str(seg_res))
+    imgfilename = seg_res['filename']
+    print('filename '+imgfilename)
+    cv2.imwrite(imgfilename,image)
+
     mask = seg_res['mask']
     label_dict = seg_res['label_dict']
     pose = seg_res['pose']
     mask_np = np.array(mask, dtype=np.uint8)
+    print('masksize '+mask_np.shape)
     pose_np = np.array(pose, dtype=np.uint8)
+    print('posesize '+pose_np.shape)
+#    print('returned url '+seg_res['url'])
     convert_and_save_results(mask_np, label_dict, pose_np, imgfilename, image, url)
     maskfilename = 'testout.png'
     cv2.imwrite(maskfilename,seg_res)
@@ -55,6 +61,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
     if success:
         try:
             dir = constants.pd_output_savedir
+            Utils.ensure_dir(dir)
             full_name = os.path.join(dir,filename)
 #            full_name = filename
             bmp_name = full_name.strip('.jpg') + ('.bmp')
