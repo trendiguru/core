@@ -22,13 +22,13 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-array_mini_length = np.zeros(6)
-array_above_knee = np.zeros(6)
-array_knee_length = np.zeros(6)
-array_tea_length = np.zeros(6)
-array_ankle_length = np.zeros(6)
+array_mini_length = np.zeros(5)
+array_above_knee = np.zeros(5)
+array_knee_length = np.zeros(5)
+array_tea_length = np.zeros(5)
+array_ankle_length = np.zeros(5)
 
-all_predictions = np.zeros(6)
+all_predictions = np.zeros(5)
 
 # ## dress length ##
 # text_file = open("db_dress_length_test.txt", "r")
@@ -47,7 +47,7 @@ caffe.set_device(3)
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
-mean, input_scale = np.array([120, 120, 120]), None
+mean, input_scale = np.array([104.0, 116.7, 122.7]), None
 #mean, input_scale = None, None
 #channel_swap = None
 channel_swap = [2, 1, 0]
