@@ -123,4 +123,4 @@ if __name__ == "__main__":
     print(str(len(tbphotos))+' images in '+dir)
     for f in tbphotos:
         get_pd_results(filename=f)
-        time.sleep(5)
+        time.sleep(1)
