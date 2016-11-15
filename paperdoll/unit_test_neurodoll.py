@@ -1,7 +1,5 @@
 __author__ = 'jeremy'
 
-
-
 import unittest
 import time
 import neurodoll_falcon_client as nfc
@@ -16,8 +14,6 @@ class OutcomesTest(unittest.TestCase):
     #    def testError(self):
     #        raise RuntimeError('Test error!')
     #run a timing test
-
-
 
     def test_nd_alone(self):
         url = 'http://i.imgur.com/ahFOgkm.jpg'
