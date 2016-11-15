@@ -57,7 +57,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
     print('attempting convert and save')
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
-            fashionista_index = fashionista_ordered_categories.index(label) + 1  # start w. 1=null,56=skin
+            fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
        #     print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
             new_mask[mask==pd_index] = fashionista_index
