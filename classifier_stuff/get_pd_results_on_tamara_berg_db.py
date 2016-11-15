@@ -7,6 +7,7 @@ from trendi import Utils,constants
 import cv2
 
 def get_pd_results(url):
+    print('getting pd results for '+url)
     image = Utils.get_cv2_img_array(url)
     if image is None:
         print('image came back none')
