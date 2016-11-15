@@ -6,8 +6,8 @@ import skimage
 from ..yonatan import yonatan_classifier
 from .. import Utils
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
+PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel"
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
@@ -23,7 +23,7 @@ print "Done initializing!"
 
 
 def distance(v1, v2):
-    if len(v1) != 9 or len(v2) != 9:
+    if len(v1) != 5 or len(v2) != 5:
         return None
     v1 = np.array(v1) if isinstance(v1, list) else v1
     v2 = np.array(v2) if isinstance(v2, list) else v2
@@ -32,7 +32,7 @@ def distance(v1, v2):
 
 def execute(image_or_url):
 
-    print "Collar classification started!"
+    print "style classification started!"
     if isinstance(image_or_url, basestring):
         image = Utils.get_cv2_img_array(image_or_url)
     elif type(image_or_url) == np.ndarray:
