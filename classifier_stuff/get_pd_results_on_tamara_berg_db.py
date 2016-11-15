@@ -120,7 +120,11 @@ if __name__ == "__main__":
     get_pd_results(url=url)
     dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos'
     tbphotos = [os.path.join(dir,im) for im in os.listdir(dir)]
+    n = len(tbphotos)
+    start = 0
+    if len(sys.argv)>1:
+        start = int(sys.argv[1])*n/3
     print(str(len(tbphotos))+' images in '+dir)
-    for f in tbphotos:
+    for f in tbphotos[start:]:
         get_pd_results(filename=f)
         time.sleep(1)
