@@ -124,7 +124,7 @@ if __name__ == "__main__":
     start = 0
     if len(sys.argv)>1:
         start = int(sys.argv[1])*n/3
-    print(str(len(tbphotos))+' images in '+dir)
+    print(str(len(tbphotos))+' images in '+dir+' starting at '+str(start))
     for f in tbphotos[start:]:
         get_pd_results(filename=f)
         time.sleep(1)
