@@ -38,10 +38,10 @@ all_predictions = np.zeros(6)
 # PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3k_images_with_people_iter_5000.caffemodel"
 
 ## style ##
-text_file = open("/home/yonatan/style_classifier/style_images/style_test_list.txt", "r")
+text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories_iter_2500.caffemodel"
+PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_2500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
 caffe.set_device(3)
@@ -124,7 +124,7 @@ for line in text_file:
     elif predict_label == 0 and true_label == 1:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
-    elif predict_label == 5 and true_label == 4:
+    elif predict_label == 4 and true_label == 3:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
