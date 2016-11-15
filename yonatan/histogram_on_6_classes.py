@@ -27,7 +27,6 @@ array_above_knee = np.zeros(6)
 array_knee_length = np.zeros(6)
 array_tea_length = np.zeros(6)
 array_ankle_length = np.zeros(6)
-array_floor_length = np.zeros(6)
 
 all_predictions = np.zeros(6)
 
@@ -109,7 +108,6 @@ for line in text_file:
     knee_length_predict = predictions[0][2]
     tea_length_predict = predictions[0][3]
     ankle_length_predict = predictions[0][4]
-    floor_length_predict = predictions[0][5]
 
     max_result = max(predictions[0])
 
@@ -145,8 +143,6 @@ for line in text_file:
         array_tea_length = np.vstack((array_tea_length, predictions[0]))
     elif true_label == 4:
         array_ankle_length = np.vstack((array_ankle_length, predictions[0]))
-    elif true_label == 5:
-        array_floor_length = np.vstack((array_floor_length, predictions[0]))
 
     print counter
     #print predictions
@@ -169,14 +165,12 @@ array_above_knee = array_above_knee[1:]
 array_knee_length = array_knee_length[1:]
 array_tea_length = array_tea_length[1:]
 array_ankle_length = array_ankle_length[1:]
-array_floor_length = array_floor_length[1:]
 
 np.save('array_mini_length.npy', array_mini_length)
 np.save('array_above_knee.npy', array_above_knee)
 np.save('array_knee_length.npy', array_knee_length)
 np.save('array_tea_length.npy', array_tea_length)
 np.save('array_ankle_length.npy', array_ankle_length)
-np.save('array_floor_length.npy', array_floor_length)
 
 # to load the saved arrays: #
 # np.load('array_mini_length.npy')
@@ -194,7 +188,7 @@ np.save('array_floor_length.npy', array_floor_length)
 # ...
 print "\ncorrelation between:\n0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
 for comb in combinations([array_mini_length, array_above_knee,array_knee_length,
-                          array_tea_length, array_ankle_length, array_floor_length], 2):
+                          array_tea_length, array_ankle_length], 2):
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
@@ -214,15 +208,15 @@ else:
 
 print "mean array_mini_length: {0}\nmean array_spaghetti: {1}\n" \
       "mean array_regular: {2}\nmean array_tea_length: {3}\n" \
-      "mean array_ankle_length: {4}\nmean array_floor_length: {5}\n".format(
+      "mean array_ankle_length: {4}\n".format(
       np.mean(array_mini_length, 0), np.mean(array_above_knee, 0), np.mean(array_knee_length, 0), np.mean(array_tea_length, 0),
-      np.mean(array_ankle_length, 0), np.mean(array_floor_length, 0))
+      np.mean(array_ankle_length, 0))
 
 print "variance array_mini_length: {0}\nvariance array_spaghetti: {1}\n" \
       "variance array_regular: {2}\nvariance array_tea_length: {3}\n" \
-      "variance array_ankle_length: {4}\nvariance array_floor_length: {5}\n".format(
+      "variance array_ankle_length: {4}\n".format(
       np.var(array_mini_length, 0), np.var(array_above_knee, 0), np.var(array_knee_length, 0), np.var(array_tea_length, 0),
-      np.var(array_ankle_length, 0), np.var(array_floor_length, 0))
+      np.var(array_ankle_length, 0))
 
 #print "variance vector: {0}".format(variance_vector)
 
