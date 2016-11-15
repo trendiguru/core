@@ -40,7 +40,7 @@ all_predictions = np.zeros(5)
 text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_2500.caffemodel"
+PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
 caffe.set_device(3)
