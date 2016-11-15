@@ -104,3 +104,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
 if __name__ == "__main__":
     url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
     get_pd_results(url=url)
+    dir = '/home/jeremy/images_dbs/tamara_berg_street_to_shop'
+    tbphotos = [os.path.join(dir,im) for im in os.listdir(dir)]
+    print(str(len(tbphotos))' images in '+dir)
+    for f in tbphotos:
+        get_pd_results(filename=f)
