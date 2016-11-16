@@ -22,14 +22,13 @@ array_failure_with_plus_minus_category = np.array([])
 array_success_without = np.array([])
 array_failure_without = np.array([])
 
-array_mini_length = np.zeros(6)
-array_above_knee = np.zeros(6)
-array_knee_length = np.zeros(6)
-array_tea_length = np.zeros(6)
-array_ankle_length = np.zeros(6)
-array_floor_length = np.zeros(6)
+array_mini_length = np.zeros(5)
+array_above_knee = np.zeros(5)
+array_knee_length = np.zeros(5)
+array_tea_length = np.zeros(5)
+array_ankle_length = np.zeros(5)
 
-all_predictions = np.zeros(6)
+all_predictions = np.zeros(5)
 
 # ## dress length ##
 # text_file = open("db_dress_length_test.txt", "r")
@@ -38,17 +37,17 @@ all_predictions = np.zeros(6)
 # PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_dress_length_3k_images_with_people_iter_5000.caffemodel"
 
 ## style ##
-text_file = open("/home/yonatan/style_classifier/style_images/style_test_list.txt", "r")
+text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/style_classifier/resnet152_caffemodels_7_11_16/caffe_resnet152_snapshot_style_6_categories_iter_2500.caffemodel"
+PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_7500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
 caffe.set_device(3)
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
-mean, input_scale = np.array([120, 120, 120]), None
+mean, input_scale = np.array([104.0, 116.7, 122.7]), None
 #mean, input_scale = None, None
 #channel_swap = None
 channel_swap = [2, 1, 0]
@@ -109,7 +108,6 @@ for line in text_file:
     knee_length_predict = predictions[0][2]
     tea_length_predict = predictions[0][3]
     ankle_length_predict = predictions[0][4]
-    floor_length_predict = predictions[0][5]
 
     max_result = max(predictions[0])
 
@@ -124,7 +122,7 @@ for line in text_file:
     elif predict_label == 0 and true_label == 1:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
-    elif predict_label == 5 and true_label == 4:
+    elif predict_label == 4 and true_label == 3:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
@@ -145,8 +143,6 @@ for line in text_file:
         array_tea_length = np.vstack((array_tea_length, predictions[0]))
     elif true_label == 4:
         array_ankle_length = np.vstack((array_ankle_length, predictions[0]))
-    elif true_label == 5:
-        array_floor_length = np.vstack((array_floor_length, predictions[0]))
 
     print counter
     #print predictions
@@ -169,14 +165,12 @@ array_above_knee = array_above_knee[1:]
 array_knee_length = array_knee_length[1:]
 array_tea_length = array_tea_length[1:]
 array_ankle_length = array_ankle_length[1:]
-array_floor_length = array_floor_length[1:]
 
 np.save('array_mini_length.npy', array_mini_length)
 np.save('array_above_knee.npy', array_above_knee)
 np.save('array_knee_length.npy', array_knee_length)
 np.save('array_tea_length.npy', array_tea_length)
 np.save('array_ankle_length.npy', array_ankle_length)
-np.save('array_floor_length.npy', array_floor_length)
 
 # to load the saved arrays: #
 # np.load('array_mini_length.npy')
@@ -194,7 +188,7 @@ np.save('array_floor_length.npy', array_floor_length)
 # ...
 print "\ncorrelation between:\n0 and 1, 0 and 2, ...\n1 and 2, 1 and 3, ...\n2 and 3, 2 and 4, ...\n"
 for comb in combinations([array_mini_length, array_above_knee,array_knee_length,
-                          array_tea_length, array_ankle_length, array_floor_length], 2):
+                          array_tea_length, array_ankle_length], 2):
     print np.min([np.linalg.norm(a-b) for a,b in product(*comb)])
 
 
@@ -214,15 +208,15 @@ else:
 
 print "mean array_mini_length: {0}\nmean array_spaghetti: {1}\n" \
       "mean array_regular: {2}\nmean array_tea_length: {3}\n" \
-      "mean array_ankle_length: {4}\nmean array_floor_length: {5}\n".format(
+      "mean array_ankle_length: {4}\n".format(
       np.mean(array_mini_length, 0), np.mean(array_above_knee, 0), np.mean(array_knee_length, 0), np.mean(array_tea_length, 0),
-      np.mean(array_ankle_length, 0), np.mean(array_floor_length, 0))
+      np.mean(array_ankle_length, 0))
 
 print "variance array_mini_length: {0}\nvariance array_spaghetti: {1}\n" \
       "variance array_regular: {2}\nvariance array_tea_length: {3}\n" \
-      "variance array_ankle_length: {4}\nvariance array_floor_length: {5}\n".format(
+      "variance array_ankle_length: {4}\n".format(
       np.var(array_mini_length, 0), np.var(array_above_knee, 0), np.var(array_knee_length, 0), np.var(array_tea_length, 0),
-      np.var(array_ankle_length, 0), np.var(array_floor_length, 0))
+      np.var(array_ankle_length, 0))
 
 #print "variance vector: {0}".format(variance_vector)
 

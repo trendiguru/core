@@ -169,7 +169,7 @@ class JrPixlevel(caffe.Layer):
             top[1].reshape(1, *self.label.shape)
             logging.debug('batchsize 1 datasize {} labelsize {} '.format(self.data.shape,self.label.shape))
         else:
-            all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))
+            all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
             for i in range(self.batch_size):
                 data, label = self.load_image_and_mask()
@@ -183,9 +183,6 @@ class JrPixlevel(caffe.Layer):
             top[1].reshape(*self.label.shape)
             logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
 
-
-
-
     def next_idx(self):
         if self.random_pick:
             self.idx = random.randint(0, len(self.imagefiles)-1)
@@ -194,7 +191,6 @@ class JrPixlevel(caffe.Layer):
             if self.idx == len(self.imagefiles):
                 self.idx = 0
 
-
     def forward(self, bottom, top):
         # assign output
         top[0].data[...] = self.data
@@ -202,10 +198,8 @@ class JrPixlevel(caffe.Layer):
         # pick next input
         self.next_idx()
 
-
     def backward(self, top, propagate_down, bottom):
         pass
-
 
     def determine_label_filename(self,idx):
         if self.labelsfile is not None:
@@ -219,7 +213,6 @@ class JrPixlevel(caffe.Layer):
 
         full_filename=os.path.join(self.labels_dir,filename)
         return full_filename
-
 
     def load_image(self,idx):
         """
@@ -365,7 +358,7 @@ class JrPixlevel(caffe.Layer):
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
 
-#        out1 = out1[:,:,::-1]   #RGB -> BGR
+#        out1 = out1[:,:,::-1]   #RGB -> BGR - not necesary since this is done above (line 303)
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
         if len(out2.shape) == 3:

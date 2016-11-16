@@ -48,7 +48,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 
     #get netname, copy train/test to outdir
-    tt = get_net_info.get_traintest_from_proto(solverproto)
     print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
@@ -83,6 +82,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     time.sleep(0.1)
     Utils.ensure_file(loss_outputname)
 
+    tt = get_net_info.get_traintest_from_proto(solverproto)
     #copy training and test files to outdir
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
@@ -154,7 +154,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
             val = range(0,n_tests) #
-            results_dict = jrinfer.seg_tests(solver,  val, output_layer='mypixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer='pixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']

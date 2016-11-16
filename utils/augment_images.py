@@ -202,13 +202,14 @@ def mask_to_multichannel(mask_arr,n_channels):
     :param n_channels:
     :return:
     '''
-    if len(mask_arr) != 2:
- #       logging.debug('got multichannel image in mask_to_multichannel, converting to single chan')
+    if len(mask_arr.shape) != 2:
+        logging.debug('got multichannel image in mask_to_multichannel, converting to single chan: array shape:'+str(mask_arr.shape))
 #        assert(mask_arr[:,:,0] == mask_arr[:,:,1])   #include these if paranoid
 #        assert(mask_arr[:,:,0] == mask_arr[:,:,2])
         mask_arr = mask_arr[:,:,0]  #take 0th channel
     h,w = mask_arr.shape[0:2]
     output_arr = np.zeros([h,w,n_channels])
+
     for i in np.unique(mask_arr):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
@@ -217,6 +218,9 @@ def mask_to_multichannel(mask_arr,n_channels):
         output_arr[:,:,i] = channel
         pixel_count = np.count_nonzero(output_arr)
    #     print('cumulative pixcount {}'.format(pixel_count))
+        logging.debug('nonzero elements in leyer {}:{} nonzero in multichan {}'.format(len(mask_arr[mask_arr==i]),np.count_nonzero[output_arr[:,:,i]]))
+
+    logging.debug('nonzero elements in orig:{} nonzero in multichan {}'.format(np.nonzero(mask_arr),np.nonzero(output_arr))
     return output_arr
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
