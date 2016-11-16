@@ -7,10 +7,35 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi import constants
 
 url='https://s-media-cache-ak0.pinimg.com/236x/df/a3/0a/dfa30af65a46ad8267d148dcefd813d1.jpg'
+
+
+def fast_hist(a, b, n):
+    k = (a >= 0) & (a < n)
+    return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
+
+def results_from_hist(hist,save_output=False,savedir='testoutput'):
+    # mean loss
+    overall_acc = np.diag(hist).sum() / hist.sum()
+    print '>>>', datetime.now(), 'overall accuracy', overall_acc
+    # per-class accuracy
+    acc = np.diag(hist) / hist.sum(1)
+    print '>>>', datetime.now(),  'acc per class', str(acc)
+    print '>>>', datetime.now(),  'mean accuracy', np.nanmean(acc)
+    # per-class IU
+    iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
+    print '>>>', datetime.now(), 'mean IU', np.nanmean(iu)
+    freq = hist.sum(1) / hist.sum()
+    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+    print '>>>', datetime.now(), 'fwavacc', \
+            fwavacc
+    mean_acc = np.nanmean(acc)
+    mean_iou = np.nanmean(iu)
+    results_dict = {'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
+    return results_dict
+
 
 def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt',labels=constants.ultimate_21):
     n_cl = len(labels)
@@ -33,10 +58,10 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
             if len(gt_mask.shape)!=2:
                 logging.debug('got weird size mask ({}), using first channel'.format(gt_mask.shape))
                 gt_mask = gt_mask[:,:,0]
-            confmat = jrinfer.fast_hist(gt_mask.flatten, inferred_mask.flatten(), n_cl)
+            confmat = fast_hist(gt_mask.flatten, inferred_mask.flatten(), n_cl)
             hist += confmat
             logging.debug(confmat)
-    results_dict = jrinfer.results_from_hist(hist)
+    results_dict = results_from_hist(hist)
     logging.debug(results_dict)
     results_to_html('test.html',results_dict)
 
