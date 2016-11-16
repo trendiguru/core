@@ -38,6 +38,7 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
     logging.debug(results_dict)
     results_to_html('test.html',results_dict)
 
+
 def results_to_html(outfilename,results_dict):
     acc = results_dict['class_accuracy']
     overall_acc = results_dict['overall_acc']
