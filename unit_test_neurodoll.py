@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import datetime
 
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi import constants
@@ -51,6 +52,7 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
             lbfile = labelfiles[i]
             logging.debug('imagefile {} labelfile {}'.format(imfile,lbfile))
             output_dict = nfc.pd(imfile,get_combined_results=True)
+            logging.debug(output_dict)
             inferred_mask = output_dict['mask']
             im = Image.open(lbfile)
             gt_mask = np.asarray(im,dtype=np.uint8)
