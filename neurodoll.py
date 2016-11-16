@@ -832,8 +832,19 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         return #
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
+
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
+    print('before graylevel zeroing:')
+    count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
+
+    do_graylevel_zeroing=True
+    if do_graylevel_zeroing:
+        graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
+
+    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
+    print('after graylevel zeroing:')
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
