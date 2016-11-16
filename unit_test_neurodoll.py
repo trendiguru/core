@@ -1,7 +1,7 @@
 __author__ = 'jeremy'
 
 import unittest
-import cv2
+from PIL import Image
 import numpy as np
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,7 +27,9 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
             logging.debug('imagefile {} labelfile {}'.format(imfile,lbfile))
             output_dict = nfc.pd(imfile,get_combined_results=True)
             inferred_mask = output_dict['mask']
-            gt_mask = cv2.imread(lbfile)
+            im = Image.open(lbfile)
+            gt_mask = np.asarray(im,dtype=np.uint8)
+#            gt_mask = cv2.imread(lbfile)
             if len(gt_mask.shape)!=2:
                 logging.debug('got weird size mask ({}), using first channel'.format(gt_mask.shape))
                 gt_mask = gt_mask[:,:,0]
