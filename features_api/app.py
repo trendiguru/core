@@ -5,6 +5,7 @@ import json
 import pkgutil
 import testpkg
 from importlib import import_module
+from .classifier_falcon import Classifier
 
 # Rely on gunicorn --env (--env FOO=1)
 # --env FEATURE_PACKAGE=trendi.features
