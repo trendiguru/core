@@ -107,7 +107,7 @@ def daily_annoy(col_name, categories, all_cats=False):
 
     jobs = []
     for c, cat in enumerate(categories):
-        forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=3600)
+        forest_job = forest.enqueue(plantAnnoyForest, args=(col_name, cat, 250), timeout=7200)
         jobs.append({'cat': cat, 'job': forest_job, 'running': True})
 
     while any(job['running'] for job in jobs if job['running']):
