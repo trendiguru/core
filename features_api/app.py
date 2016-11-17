@@ -1,5 +1,5 @@
 import falcon
-import os.environ
+import os
 import os.path
 import json
 import pkgutil
