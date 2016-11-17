@@ -56,10 +56,14 @@ def get_feature_fp(image, mask, feature):
         return color.execute(image, histograms_length, fingerprint_length, mask)
     elif feature == 'sleeve_length':
         print 'sleeve_length'
-        return classifier_client.get("sleeve_length", image)['data']
+        return sleeve_client.get_sleeve(image)['data']
     elif feature == 'length':
         print 'length'
-        return classifier_client.get("length", image)['data']
+        return length_client.get_length(image)['data']
+    #     return classifier_client.get("sleeve_length", image)['data']
+    # elif feature == 'length':
+    #     print 'length'
+    #     return classifier_client.get("length", image)['data']
     elif feature == 'collar':
         print 'collar'
         return classifier_client.get("collar", image)['data']
