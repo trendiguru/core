@@ -7,7 +7,7 @@ q = Queue('renew', connection=redis_conn)
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ RENEW THE FP @@@')
-    parser.add_argument('-c', '--collectiom',  dest="coollection_name",
+    parser.add_argument('-c', '--collection',  dest="collection_name",
                         help='enter full collection name')
     args = parser.parse_args()
     return args
