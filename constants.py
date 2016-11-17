@@ -12,11 +12,14 @@ if redis_url:
 else:
     redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
     redis_limit = 5000
-features_per_category = {'dress': ['color', 'sleeve_length', 'length'],
-                         'top': ['color', 'sleeve_length'],
-                         'shirt': ['color', 'sleeve_length'],
-                         'blouse': ['color', 'sleeve_length'],
-                         't-shirt': ['color', 'sleeve_length'],
+features_per_category = {'dress': ['color', 'sleeve_length', 'length', 'collar'],
+                         'top': ['color', 'sleeve_length', 'collar'],
+                         'shirt': ['color', 'sleeve_length', 'collar'],
+                         'blouse': ['color', 'sleeve_length', 'collar'],
+                         'cardigan': ['color', 'sleeve_length', 'collar'],
+                         'sweaters': ['color', 'collar'],
+                         'sweatshirts': ['color', 'collar'],
+                         't-shirt': ['color', 'sleeve_length', 'collar'],
                          'skirt': ['color', 'length'],
                          'other': ['color']}
 
