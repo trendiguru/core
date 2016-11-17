@@ -19,6 +19,7 @@ from trendi.utils import imutils
 from trendi import constants
 from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
+from trendi.utils import augment_images
 
 def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
@@ -250,6 +251,28 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
+
+def results_from_hist(hist,save_output=False,savedir='testoutput'):
+    # mean loss
+    overall_acc = np.diag(hist).sum() / hist.sum()
+    print '>>>', datetime.now(), 'overall accuracy', overall_acc
+    # per-class accuracy
+    acc = np.diag(hist) / hist.sum(1)
+    print '>>>', datetime.now(),  'acc per class', str(acc)
+    print '>>>', datetime.now(),  'mean accuracy', np.nanmean(acc)
+    # per-class IU
+    iu = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
+    print '>>>', datetime.now(), 'mean IU', np.nanmean(iu)
+    freq = hist.sum(1) / hist.sum()
+    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+    print '>>>', datetime.now(), 'fwavacc', \
+            fwavacc
+    mean_acc = np.nanmean(acc)
+    mean_iou = np.nanmean(iu)
+    results_dict = {'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
+    return results_dict
+
+
 def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None):
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
@@ -309,12 +332,12 @@ def do_seg_tests(net, iter, save_dir, dataset, output_layer='score', gt_layer='l
         f.write('<br>\n')
     return results_dict
 
-
 #    imutils.show_mask_with_labels('concout.bmp',constants.fashionista_categories_augmented)
 def inspect_net(prototxt,caffemodel):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     for key,value in net.blobs.iteritems():
         print(key,value)
+
 
 
 if __name__ == "__main__":
