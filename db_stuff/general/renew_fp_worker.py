@@ -5,13 +5,12 @@ import logging
 
 import numpy as np
 
-import Utils
-import background_removal
-import constants
-from db_stuff.recruit.recruit_constants import recruit2category_idx
-from falcon import sleeve_client, length_client
-from features import color
-from .paperdoll import neurodoll_falcon_client as nfc
+from ..recruit.recruit_constants import recruit2category_idx
+from ...falcon import sleeve_client, length_client
+from ...features import color
+from ...paperdoll import neurodoll_falcon_client as nfc
+from ... import Utils, constants, background_removal
+from ...features_api import classifier_client
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -57,10 +56,13 @@ def get_feature_fp(image, mask, feature):
         return color.execute(image, histograms_length, fingerprint_length, mask)
     elif feature == 'sleeve_length':
         print 'sleeve_length'
-        return sleeve_client.get_sleeve(image)['data']
+        return classifier_client.get("sleeve_length", image)['data']
     elif feature == 'length':
         print 'length'
-        return length_client.get_length(image)['data']
+        return classifier_client.get("length", image)['data']
+    elif feature == 'collar':
+        print 'collar'
+        return classifier_client.get("collar", image)['data']
     else:
         return []
 
