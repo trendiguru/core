@@ -247,6 +247,8 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
 
 ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
 
+paperdoll_to_binary_classifier_categories = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
+
 
 #used for pixel level output of neurodoll as of 260716
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
@@ -292,6 +294,17 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
+
+#same as binary_classifier_categories with addtion of lingerie.  171116
+#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits
+multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer']
+
+#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
+pixevel_classifier_categories_v2 = ['background','bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+                'womens_swimwear_nonbikini','overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer']
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
