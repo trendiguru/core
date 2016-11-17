@@ -1,4 +1,4 @@
-FEATURES =  {"collar":{"server":""},
+FEATURES =  {"collar":{"server":"http://37.58.101.173:8085"},
              "sleeve_length":{"server":"http://37.58.101.173:8081"},
              "dress_length":{"server":"http://37.58.101.173:8083"},
              "style":{"server":""},
