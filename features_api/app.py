@@ -3,7 +3,6 @@ import os
 import os.path
 import json
 import pkgutil
-import testpkg
 from importlib import import_module
 from .classifier_falcon import Classifier
 
