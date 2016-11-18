@@ -248,6 +248,7 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
 ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
 
 
+
 #used for pixel level output of neurodoll as of 260716
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
@@ -292,6 +293,18 @@ web_tool_categories = ['bag', 'belt', 'blazer','cardigan','coat','dress', 'eyewe
 binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
+
+#same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
+#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
+#lingerie is not bra/panties - the other stuff
+multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
+                'tracksuit','mens_underwear','vest','tracksuit', 'mens_underwear','panties','bra','socks','shawl',
+                'sarong','robe','pyjamas','poncho','hoodie']
+
+#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
+pixevel_classifier_categories_v2 = ['background']+multilabel_categories_v2
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
@@ -416,6 +429,17 @@ fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer'
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='bk', 56='face'
+
+#to be continued
+fashionista_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1]
+
+#for i in range(len(a)):
+#print(constants.fashionista_categories_augmented_zero_based[i],constants.pixevel_classifier_categories_v2[constants.fashionista_to_pixlevel_categories_v2[i]])
+#['null', 'bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+# 'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+# 'womens_swimwear_nonbikini', 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer',
+# 'legging','tracksuit','mens_underwear','vest', 'tracksuit', 'mens_underwear','panties','bra','socks','shawl',
+#  'sarong','robe','pyjamas','poncho']
 
 fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
                                     'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,

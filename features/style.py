@@ -7,7 +7,7 @@ from ..yonatan import yonatan_classifier
 from .. import Utils
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/style_classifier/style_second_try/resnet152_caffemodels_8_11_16/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel"
+PRETRAINED = "/home/yonatan/style_caffemodels/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel"
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
