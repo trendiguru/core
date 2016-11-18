@@ -37,5 +37,5 @@ if __name__ == "__main__":
                 while q.count > redis_limit:
                     sleep(30)
 
-                q.enqueue(refresh_fp, args=(collection_name, item_id, category, image_url), timeout=1800)
+                q.enqueue(refresh_fp, args=(col_name, item_id, category, image_url), timeout=1800)
         refresh_similar_results(col)
