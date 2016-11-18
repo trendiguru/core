@@ -24,7 +24,7 @@ if __name__ == "__main__":
             col_name = col+gen
             print 'working on %s' %col_name
             collection = db[col_name]
-            items = collection.find()
+            items = collection.find({},no_cursor_timeout=True)
 
             for item in items:
                 try:
@@ -38,4 +38,5 @@ if __name__ == "__main__":
                     sleep(30)
 
                 q.enqueue(refresh_fp, args=(col_name, item_id, category, image_url), timeout=1800)
+            items.close()
         refresh_similar_results(col)
