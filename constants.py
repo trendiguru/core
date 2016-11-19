@@ -301,7 +301,7 @@ multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
                 'tracksuit','mens_underwear','vest','tracksuit', 'mens_underwear','panties','bra','socks','shawl',
-                'sarong','robe','pyjamas','poncho','hoodie','tie']
+                'sarong','robe','pyjamas','poncho','hoodie','tie','socks']
 
 #same as multilabel_categories_v2 with addtion of 0th item (background)  171116
 pixevel_classifier_categories_v2 = ['background']+multilabel_categories_v2
@@ -431,12 +431,20 @@ fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer'
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='bk', 56='face'
 
 #translates bodysuit to top which isnt quite right. no xlation for accessories, ring, gloves, wallet, hair, skin, face
-fashionista_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
-                                         7,17,9,37,5,11,16,17,10,30,
-                                         18,8,17,3,None,33,6,2,8,6,
-                                         28,14,24,39,5,22,15,23,7,7,
-                                         None,7,45,5,7,25,None,7,7,25,
-                                         7,None,17,7,None,None,None]
+fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
+                                                       7,17,9,37,5,11,16,17,10,30,
+                                                       18,8,17,3,None,33,6,2,46,6,
+                                                       28,14,24,39,5,22,15,23,7,7,
+                                                       None,7,45,5,7,25,None,7,7,25,
+                                                       7,None,17,7,None,None,None]
+
+#for i in range(len(a)):
+#print(constants.fashionista_categories_augmented_zero_based[i],constants.pixevel_classifier_categories_v2[constants.fashionista_to_pixlevel_categories_v2[i]])
+#['null', 'bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+# 'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
+# 'womens_swimwear_nonbikini', 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer',
+# 'legging','tracksuit','mens_underwear','vest', 'tracksuit', 'mens_underwear','panties','bra','socks','shawl',
+# 'sarong','robe','pyjamas','poncho','hoodie','tie','socks',
 
 fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
                                     'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,
