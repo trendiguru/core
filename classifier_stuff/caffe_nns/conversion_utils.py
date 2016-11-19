@@ -6,7 +6,9 @@ import cv2
 import numpy as np
 
 def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                      input_suffix='.bmp',output_suffix='_pixlevelv2.png',for_webtool=True):
+                      input_suffix='.bmp',output_suffix='_pixlevelv2.png',for_webtool=True,
+                      inlabels=constants.fashionista_categories_augmented_zero_based,
+                      outlabels=constants.pixlevel_categories_v2):
     '''
     convert e..g from paperdoll to ultimate21 or pixlevel_categories_v2 .
     Optionally only convert R channel for use with webtool. Don't forget to convert back to all chans after done w webtool
@@ -23,7 +25,7 @@ def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixle
         img_arr = cv2.imread(f)
         h,w = img_arr[0:2]
         for u in np.unique(img_arr):
-            print('converting {} to {}'.format(u,converter[u]))
+            print('converting {} {} to {} {}'.format(u,inlabels[u],converter[u],outlabels[converter[u]]))
             out_arr[img_arr==u] = converter[u]  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
         if for_webtool:
             out_arr[:,:,0:2] = 0
