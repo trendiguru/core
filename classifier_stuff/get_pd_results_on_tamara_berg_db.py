@@ -136,5 +136,7 @@ if __name__ == "__main__":
         start = int(sys.argv[1])*n/3
     print(str(len(tbphotos))+' images in '+dir+' starting at '+str(start))
     for f in tbphotos[start:]:
+        i = tbphotos[f].index
+        print('working on image {} '.format(i))
         get_pd_results(filename=f)
         time.sleep(1)
