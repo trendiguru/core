@@ -302,7 +302,7 @@ multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'sarong','robe','pyjamas','poncho','hoodie','tie','socks','hair','skin','face']
 
 #same as multilabel_categories_v2 with addtion of 0th item (background)  171116
-pixevel_classifier_categories_v2 = ['background']+multilabel_categories_v2
+pixlevel_categories_v2 = ['background']+multilabel_categories_v2
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
