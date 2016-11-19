@@ -126,15 +126,15 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
 
 
 if __name__ == "__main__":
-    url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
-    get_pd_results(url=url)
+ #   url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
+ #   get_pd_results(url=url)
     dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos'
     tbphotos = [os.path.join(dir,im) for im in os.listdir(dir)]
     n = len(tbphotos)
     start = 0
     if len(sys.argv)>1:
         start = int(sys.argv[1])*n/3
-    print(str(len(tbphotos))+' images in '+dir+' starting at '+str(start))
+    print(str(len(tbphotos))+' images in '+dir+', starting at '+str(start))
     for f in tbphotos[start:]:
         i = tbphotos[f].index
         print('working on image {} '.format(i))
