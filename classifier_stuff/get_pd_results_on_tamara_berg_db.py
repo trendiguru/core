@@ -104,7 +104,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
                 bmp_name=bmp_name.replace('.bmp','_webtool.bmp')
             print('writing output bmp to '+str(bmp_name))
         except:
-            print('fail in try 2, '+sys.exc_info()[0])
+            print('fail in try 2, '+str(sys.exc_info()[0]))
         try:
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
