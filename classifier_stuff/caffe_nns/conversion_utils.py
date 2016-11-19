@@ -1,9 +1,11 @@
 __author__ = 'jeremy'
 
-import constants
 import os
 import cv2
 import numpy as np
+
+from trendi import constants
+
 
 def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
                       input_suffix='.bmp',output_suffix='_pixlevelv2.png',for_webtool=True,
