@@ -435,7 +435,7 @@ fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
                                                        7,17,9,37,5,11,16,17,10,30,
                                                        18,8,17,3,None,33,6,2,46,6,
                                                        28,14,24,39,5,22,15,23,7,7,
-                                                       None,7,45,5,7,25,None,7,7,25,
+                                                       None,7,45,5,7,25,None,7,7,26,
                                                        7,None,17,7,None,None,None]
 
 #for i in range(len(a)):
