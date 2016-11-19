@@ -67,9 +67,9 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
     :return:
      '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
-    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
+    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with in the following conversion code
     success = True #assume innocence until proven guilty
-    print('attempting convert and save')
+    print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
@@ -111,7 +111,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
 #            print('orig pose '+str(pose))
 #            print('writing pose to '+str(pose_name))
         except:
-            print('fail in try 2, '+sys.exc_info()[0])
+            print('fail in try 3, '+sys.exc_info()[0])
         try:
             with open(pose_name, "w+") as outfile:
                 print('succesful open, attempting to write pose')
