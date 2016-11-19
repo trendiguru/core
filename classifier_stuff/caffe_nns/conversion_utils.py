@@ -27,8 +27,11 @@ def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixle
         h,w = img_arr.shape[0:2]
         out_arr = np.zeros((h,w,3))
         for u in np.unique(img_arr):
-            print('converting {} {} to {} {}'.format(u,inlabels[u],converter[u],outlabels[converter[u]]))
-            out_arr[img_arr==u] = converter[u]  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
+            newindex= converter[u]
+            if newindex == None:
+                newindex = 0
+            print('converting {} {} to {} {}'.format(u,inlabels[u],newindex,outlabels[newindex]))
+            out_arr[img_arr==u] = newindex  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
         if for_webtool:
             out_arr[:,:,0:2] = 0
         newname = f.replace(input_suffix,output_suffix)
