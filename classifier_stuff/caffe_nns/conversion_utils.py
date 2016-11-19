@@ -23,9 +23,9 @@ def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixle
     files = [os.path.join(dir,f) for f in os.listdir(dir) if input_suffix in f]
     print('converting '+str(len(files))+' files in '+dir)
     for f in files:
+        img_arr = cv2.imread(f)
         h,w = img_arr[0:2]
         out_arr = np.zeros((h,w,3))
-        img_arr = cv2.imread(f)
         for u in np.unique(img_arr):
             print('converting {} {} to {} {}'.format(u,inlabels[u],converter[u],outlabels[converter[u]]))
             out_arr[img_arr==u] = converter[u]  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
