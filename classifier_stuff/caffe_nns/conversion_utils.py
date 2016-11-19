@@ -8,7 +8,7 @@ from trendi import constants
 
 
 def convert_pd_output(dir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                      input_suffix='.bmp',output_suffix='_pixlevelv2.png',for_webtool=True,
+                      input_suffix='.bmp',output_suffix='_pixlevelv2.bmp',for_webtool=True,
                       inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2):
     '''
