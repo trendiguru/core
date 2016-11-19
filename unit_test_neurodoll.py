@@ -68,7 +68,7 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
     results_to_html('test.html',results_dict)
 
 def test_fashionista_to_pixlevelv2():
-    a=constants.fashionista_to_pixlevel_categories_v2
+    a=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
     for i in range(len(a)):
         if a[i] is None:
             print(constants.fashionista_categories_augmented_zero_based[i],'None')
