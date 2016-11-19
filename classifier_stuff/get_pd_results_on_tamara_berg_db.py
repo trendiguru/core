@@ -78,7 +78,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             if pixlevel_v2_index is None:
                 pixlevel_v2_index = 0
 #            new_mask[mask==pd_index] = fashionista_index
-            print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+' and newer index '+str(pixlevel_v2_index)+fashionista_ordered_categories[fashionista_index+':'+constants.pixevel_categories_v2[pixlevel_v2_index])
+            print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+' and newer index '+str(pixlevel_v2_index)+fashionista_ordered_categories[fashionista_index]+':'+constants.pixevel_categories_v2[pixlevel_v2_index])
             new_mask[mask==pd_index] = pixlevel_v2_index
         else:
             print('label '+str(label)+' not found in regular cats')
