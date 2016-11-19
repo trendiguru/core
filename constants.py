@@ -432,7 +432,8 @@ fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer'
 
 #to be continued
 fashionista_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
-                                         7,17,9,37,5,11,16,17,10,30]
+                                         7,17,9,37,5,11,16,17,10,30,
+                                         18,8,17,3,None,33,6,2,8,6]
 
 #for i in range(len(a)):
 #print(constants.fashionista_categories_augmented_zero_based[i],constants.pixevel_classifier_categories_v2[constants.fashionista_to_pixlevel_categories_v2[i]])
