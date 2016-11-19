@@ -94,9 +94,10 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
 #            full_name = filename
             print('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
-            bmp_name = full_name.strip('.jpg') + ('_pixv2.bmp')
+            bmp_name = full_name.replace('.jpg','_pixv2.bmp')
             if forwebtool:
-                new_mask[:,:,0:2]=0 #zero out the B,G for webtool - leave only R
+                new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
+                new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
                 bmp_name=bmp_name.replace('.bmp','_webtool.bmp')
             print('writing output bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
