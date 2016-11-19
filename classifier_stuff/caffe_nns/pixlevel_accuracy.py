@@ -160,6 +160,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
+
 if __name__ =="__main__":
 
     default_solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'

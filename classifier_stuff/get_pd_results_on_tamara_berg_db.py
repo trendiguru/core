@@ -33,7 +33,10 @@ def get_pd_results(url=None,filename=None):
             print('some error on imgfile name')
             imgfilename = str(int(time.time()))+'.jpg'
     print('filename '+imgfilename)
-
+    if not 'mask' in seg_res:
+        print('pd did not return mask')
+        print seg_res
+        return
     mask = seg_res['mask']
     label_dict = seg_res['label_dict']
     print('labels:'+str(label_dict))
@@ -52,7 +55,7 @@ def get_pd_results(url=None,filename=None):
     imutils.show_mask_with_labels(bmp_name,constants.fashionista_categories_augmented_zero_based,original_image = full_name,save_images=True)
 #these are 1-based not 0-based
 
-def convert_and_save_results(mask, label_names, pose,filename,img,url):
+def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool=True):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -72,7 +75,11 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
        #     print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
-            new_mask[mask==pd_index] = fashionista_index
+            pixlevel_v2_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v2[pd_index]
+            if pixlevel_v2_index is None:
+                pixlevel_v2_index = 0
+#            new_mask[mask==pd_index] = fashionista_index
+            new_mask[mask==pd_index] = pixlevel_v2_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
@@ -85,9 +92,12 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
             Utils.ensure_dir(dir)
             full_name = os.path.join(dir,filename)
 #            full_name = filename
-            bmp_name = full_name.strip('.jpg') + ('.bmp')
             print('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
+            bmp_name = full_name.strip('.jpg') + ('_pixv2.bmp')
+            if forwebtool:
+                new_mask[:,:,0:2]=0 #zero out the B,G for webtool - leave only R
+                bmp_name=bmp_name.replace('.bmp','_webtool.bmp')
             print('writing output bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
