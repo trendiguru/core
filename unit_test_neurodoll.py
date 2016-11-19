@@ -67,6 +67,14 @@ def test_nd_against_testset(image_and_masks_file='/home/jeremy/image_dbs/colorfu
     logging.debug(results_dict)
     results_to_html('test.html',results_dict)
 
+def test_fashionista_to_pixlevelv2():
+    a=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
+    for i in range(len(a)):
+        if a[i] is None:
+            print(constants.fashionista_categories_augmented_zero_based[i],'None')
+        else:
+            print(constants.fashionista_categories_augmented_zero_based[i],constants.pixevel_classifier_categories_v2[a[i]])
+
 
 def results_to_html(outfilename,results_dict):
     acc = results_dict['class_accuracy']

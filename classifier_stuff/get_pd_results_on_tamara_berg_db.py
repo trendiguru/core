@@ -33,7 +33,10 @@ def get_pd_results(url=None,filename=None):
             print('some error on imgfile name')
             imgfilename = str(int(time.time()))+'.jpg'
     print('filename '+imgfilename)
-
+    if not 'mask' in seg_res:
+        print('pd did not return mask')
+        print seg_res
+        return
     mask = seg_res['mask']
     label_dict = seg_res['label_dict']
     print('labels:'+str(label_dict))
@@ -52,7 +55,7 @@ def get_pd_results(url=None,filename=None):
     imutils.show_mask_with_labels(bmp_name,constants.fashionista_categories_augmented_zero_based,original_image = full_name,save_images=True)
 #these are 1-based not 0-based
 
-def convert_and_save_results(mask, label_names, pose,filename,img,url):
+def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool=True):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -64,15 +67,19 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
     :return:
      '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
-    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with
+    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with in the following conversion code
     success = True #assume innocence until proven guilty
-    print('attempting convert and save')
+    print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
-       #     print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
-            new_mask[mask==pd_index] = fashionista_index
+            pixlevel_v2_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v2[fashionista_index]
+            if pixlevel_v2_index is None:
+                pixlevel_v2_index = 0
+#            new_mask[mask==pd_index] = fashionista_index
+     #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
+            new_mask[mask==pd_index] = pixlevel_v2_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
@@ -85,14 +92,27 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
             Utils.ensure_dir(dir)
             full_name = os.path.join(dir,filename)
 #            full_name = filename
-            bmp_name = full_name.strip('.jpg') + ('.bmp')
             print('writing output img to '+str(full_name))
             cv2.imwrite(full_name,img)
+        except:
+            print('fail in try 1, '+sys.exc_info()[0])
+        try:
+            bmp_name = full_name.replace('.jpg','_pixv2.bmp')
+            if forwebtool:
+                new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
+                new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
+                bmp_name=bmp_name.replace('.bmp','_webtool.bmp')
             print('writing output bmp to '+str(bmp_name))
+        except:
+            print('fail in try 2, '+str(sys.exc_info()[0]))
+        try:
             cv2.imwrite(bmp_name,new_mask)
             pose_name = full_name.strip('.jpg')+'.pose'
 #            print('orig pose '+str(pose))
 #            print('writing pose to '+str(pose_name))
+        except:
+            print('fail in try 3, '+sys.exc_info()[0])
+        try:
             with open(pose_name, "w+") as outfile:
                 print('succesful open, attempting to write pose')
                 poselist=pose[0].tolist()
@@ -116,15 +136,20 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
 
 
 if __name__ == "__main__":
-    url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
-    get_pd_results(url=url)
+ #   url = 'https://s-media-cache-ak0.pinimg.com/736x/3a/85/79/3a857905d8814faf49910f9c2b9806a8.jpg'
+ #   get_pd_results(url=url)
     dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos'
     tbphotos = [os.path.join(dir,im) for im in os.listdir(dir)]
     n = len(tbphotos)
     start = 0
     if len(sys.argv)>1:
         start = int(sys.argv[1])*n/3
-    print(str(len(tbphotos))+' images in '+dir+' starting at '+str(start))
+    if len(sys.argv)>2:
+        offset = int(sys.argv[2])
+
+    print(str(len(tbphotos))+' images in '+dir+', starting at '+str(start))
     for f in tbphotos[start:]:
+        i = tbphotos.index(f)
+        print('working on image {} '.format(i))
         get_pd_results(filename=f)
         time.sleep(1)

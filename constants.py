@@ -247,8 +247,6 @@ paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'b
 
 ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
 
-
-
 #used for pixel level output of neurodoll as of 260716
 ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
@@ -301,10 +299,10 @@ multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
                 'tracksuit','mens_underwear','vest','tracksuit', 'mens_underwear','panties','bra','socks','shawl',
-                'sarong','robe','pyjamas','poncho','hoodie']
+                'sarong','robe','pyjamas','poncho','hoodie','tie','socks','hair','skin','face']
 
 #same as multilabel_categories_v2 with addtion of 0th item (background)  171116
-pixevel_classifier_categories_v2 = ['background']+multilabel_categories_v2
+pixlevel_categories_v2 = ['background']+multilabel_categories_v2
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
@@ -430,16 +428,15 @@ fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer'
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='bk', 56='face'
 
-#to be continued
-fashionista_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1]
+#translates bodysuit to top which isnt quite right. no xlation for accessories, ring, gloves, wallet, hair, skin, face
+fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
+                                                       7,17,9,37,5,11,16,17,10,30,
+                                                       18,8,17,3,None,33,6,2,46,6,
+                                                       28,14,24,39,5,22,15,23,7,7,
+                                                       None,7,45,5,7,25,None,7,7,26,
+                                                       7,None,17,7,47,48,49]
 
-#for i in range(len(a)):
-#print(constants.fashionista_categories_augmented_zero_based[i],constants.pixevel_classifier_categories_v2[constants.fashionista_to_pixlevel_categories_v2[i]])
-#['null', 'bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-# 'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
-# 'womens_swimwear_nonbikini', 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer',
-# 'legging','tracksuit','mens_underwear','vest', 'tracksuit', 'mens_underwear','panties','bra','socks','shawl',
-#  'sarong','robe','pyjamas','poncho']
+fashionista_to_ultimate_21_index_conversion = []
 
 fashionista_categories_for_conclusions = {'background':0,'tights':1,'shorts':2,'blazer':3,'t-shirt':4,'bag':5,'shoes':6,'coat':7,'skirt':8,'purse':9,
                                     'boots':10,'blouse':11,'jacket':12,'bra':13,'dress':14,'pants':15,'sweater':16,'shirt':17,'jeans':18,'leggings':19,
@@ -475,7 +472,7 @@ tamara_berg_improved_to_ultimate_21_index_conversion = [(0,1),(1,2),(2,5),(3,6),
                   (10,19),(11,14),(12,0),(13,10),(14,13),(15,19),(16,4),(17,20),(18,16),(19,9),
                   (20,0),(21,19),(22,18),(23,19)]
 
-fashionista_to_ultimate_21_index_conversion = []
+
 
 
 pascal_context_labels = ['background','aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow','table','dog','horse','motorbike','person','pottedplant',\
