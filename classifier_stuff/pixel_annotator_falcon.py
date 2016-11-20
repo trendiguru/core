@@ -31,6 +31,9 @@ class PixlevelResource:
 #            img = data.get("image")
             print('in try of onpost')
             data = req.stream.read()
+            print('data recd:'+str(data))
+            with open('testlog.log','a') as f:
+                f.write(data)
             filename = data.filename
             img_string = data.img_data
             imagedata = img_string.split(',')[-1].decode('base64')
