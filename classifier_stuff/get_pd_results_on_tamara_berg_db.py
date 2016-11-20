@@ -10,7 +10,7 @@ import time
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
 from trendi import Utils,constants
-from trendi import neurodoll
+from trendi.classifier_stuff.caffe_nns import conversion_utils
 
 def get_pd_results(url=None,filename=None):
     if url is not None:
