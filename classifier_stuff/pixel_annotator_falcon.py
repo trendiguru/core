@@ -3,8 +3,6 @@ __author__ = 'liorsabag'
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
 import traceback
 import falcon
-from classifier_stuff import multilabel_from_binaries
-from classifier_stuff import constants
 # from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
