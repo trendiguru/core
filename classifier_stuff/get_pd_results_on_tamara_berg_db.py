@@ -113,7 +113,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             cv2.imwrite(bmp_name,new_mask)
             new_mask[:,:,0]=new_mask[2] #zero out the B,G for webtool - leave only R
             new_mask[:,:,1]=new_mask[2] #zero out the B,G for webtool - leave only R
-            bmp_name=bmp_name.replace'_webtool.bmp','rgb.bmp')
+            bmp_name=bmp_name.replace('_webtool.bmp','rgb.bmp')
             cv2.imwrite(bmp_name,new_mask)
             print('writing mask bmp to '+str(bmp_name))
             imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
