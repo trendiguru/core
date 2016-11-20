@@ -1,13 +1,15 @@
+
+#this is doing a post, which the javascript is doing , so I don't think
+#we need this file at all...
+
+
 from jaweson import msgpack
 import requests
 
 #
-CLASSIFIER_ADDRESS = "http://169.45.147.210:8080/mlb"
+CLASSIFIER_ADDRESS = "http://169.45.147.210:8083/pixlevel_annotator"
 #thats brainim60
 
-#this is doing a post, which the javascript is doing , so I don't think
-#we need this file at all...
-def pixlevel_annotator(image_array_or_url, gpu=0):
     params = {}
     if params == {}:
         params = None #not sure if this is necesary but the original line (below) made it happen
