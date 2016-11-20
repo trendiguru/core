@@ -10,6 +10,7 @@ import time
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
 from trendi import Utils,constants
+from trendi import neurodoll
 
 def get_pd_results(url=None,filename=None):
     if url is not None:
@@ -40,6 +41,7 @@ def get_pd_results(url=None,filename=None):
     mask = seg_res['mask']
     label_dict = seg_res['label_dict']
     print('labels:'+str(label_dict))
+    neurodoll.count_values(mask)
     pose = seg_res['pose']
     mask_np = np.array(mask, dtype=np.uint8)
     print('masksize '+str(mask_np.shape))
@@ -67,7 +69,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
     :return:
      '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
-    new_mask=np.ones(mask.shape)*255  # anything left with 255 wasn't dealt with in the following conversion code
+    h,w = mask.shape[0:2]
+    new_mask=np.ones((h,w,3))*255  # anything left with 255 wasn't dealt with in the following conversion code
     success = True #assume innocence until proven guilty
     print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
@@ -87,7 +90,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         print('didnt fully convert mask')
         success = False
     if success:
-        try:
+        try:   #write orig file
+            neurodoll.count_values(new_mask)
             dir = constants.pd_output_savedir
             Utils.ensure_dir(dir)
             full_name = os.path.join(dir,filename)
