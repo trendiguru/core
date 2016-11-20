@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # user_input = get_user_input()
     # collection_name = user_input.collection_name
 
-    for col in ['recruit','GangnamStyle','amazon_US','amazon_DE']:
+    for col in ['GangnamStyle','amazon_US','amazon_DE','amaze']:
         for gen in ['_Male','_Female']:
             col_name = col+gen
             print 'working on %s' %col_name
@@ -30,6 +30,8 @@ if __name__ == "__main__":
                 try:
                     item_id = item['_id']
                     category = item['categories']
+                    if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
+                        continue
                     image_url = item['images']['XLarge']
                 except:
                     continue

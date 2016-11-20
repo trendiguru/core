@@ -40,7 +40,7 @@
 #10 0 * * 0 echo "AMAZON LOG" >> /home/developer/yonti/amazon_status.log 2>&1
 #0 0 * * 0 date >> /home/developer/yonti/amazon_status.log 2>&1
 0 20 * * * echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
-10 20 * * * python -m trendi.db_stuff.amazon.amazon_download -d  > /home/developer/yonti/amazon_daily.log 2>&1
+#10 20 * * * python -m trendi.db_stuff.amazon.amazon_download -d  > /home/developer/yonti/amazon_daily.log 2>&1
 30 * * * * python -m trendi.db_stuff.amazon.amazon_download -u  > /home/developer/yonti/amazon_hourly.log 2>&1
 15 * * * * python -m trendi.db_stuff.amazon.amazon_download -u -c DE > /home/developer/yonti/amazon_hourly.log 2>&1
 
