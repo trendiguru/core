@@ -9,7 +9,7 @@ from jaweson import json, msgpack
 
 print "Done with imports"
 
-class PixevelResource:
+class PixlevelResource:
     def __init__(self):
         print "Loaded Resource"
 
