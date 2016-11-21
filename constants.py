@@ -301,6 +301,9 @@ multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'tracksuit','mens_underwear','vest','tracksuit', 'mens_underwear','panties','bra','socks','shawl',
                 'sarong','robe','pyjamas','poncho','hoodie','tie','socks','hair','skin','face']
 
+#add to finer categories:
+#traditional suit
+
 #same as multilabel_categories_v2 with addtion of 0th item (background)  171116
 pixlevel_categories_v2 = ['background']+multilabel_categories_v2
 
