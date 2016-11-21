@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
                     image_url = item['images']['XLarge']
                 except:
+                    print 'boom'
                     continue
 
                 while q.count > redis_limit:
