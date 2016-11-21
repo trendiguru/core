@@ -69,7 +69,8 @@ def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]
     uniques = np.unique(mask)
     pixelcounts = {}
-    mask =
+    if len(mask.shape) == 3:
+        mask = mask[:,:,0]  #this should be chan 3 if its a webtool image
     for unique in uniques:
         pixelcount = len(mask[mask==unique])
         ratio = float(pixelcount)/image_size
@@ -132,3 +133,6 @@ def test_conversions():
             continue
         print('index {} origlabel {} newindex {} destlabel {}'.format(i,
             orig_labels[i],dest_index,dest_labels[dest_index]))
+
+if __name__ == "__main__":
+    test_conversions()

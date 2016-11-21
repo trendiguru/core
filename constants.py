@@ -292,28 +292,6 @@ binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewe
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
-#same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
-#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
-#lingerie is not bra/panties - the other stuff
-multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
-                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
-                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
-                'poncho','tie','socks','hair','skin','face']
-
-multilabel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,28,29,30,33,37,39,45,47,48,49]
-x = [0,30,12,29,17,1,7,4,13,1,
-                                                       7,17,9,37,5,11,16,17,10,30,
-                                                       18,8,17,3,None,33,6,2,46,6,
-                                                       28,14,24,39,5,22,15,23,7,7,
-                                                       None,7,45,5,7,25,None,7,7,26,
-                                                       7,None,17,7,47,48,49]
-
-#add to finer categories:
-#traditional suit
-
-#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
-pixlevel_categories_v2 = ['background']+multilabel_categories_v2
 
 binary_caffemodels = [
 'res101_binary_bag_iter_56000.caffemodel',
@@ -441,11 +419,32 @@ fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer'
 
 #translates bodysuit to top which isnt quite right. no xlation for accessories, ring, gloves, wallet, hair, skin, face
 fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
-                                                       7,17,9,37,5,11,16,17,10,30,
-                                                       18,8,17,3,None,33,6,2,46,6,
+                                                       7,17,9,35,5,11,16,17,10,30,
+                                                       18,8,17,3,None,33,6,2,45,6,
                                                        28,14,24,39,5,22,15,23,7,7,
-                                                       None,7,45,5,7,25,None,7,7,26,
-                                                       7,None,17,7,47,48,49]
+                                                       None,7,42,5,7,25,None,7,7,26,
+                                                       7,None,17,7,44,45,46]
+
+#same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
+#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
+#lingerie is not bra/panties - the other stuff
+multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
+                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
+                'poncho','tie','socks','hair','skin','face']
+
+#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
+pixlevel_categories_v2 = ['background']+multilabel_categories_v2
+
+multilabel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
+                                                     10,11,12,13,14,15,16,17,18,22,
+                                                     23,24,25,26,28,29,30,33,35,39,
+                                                     42,44,45,46]
+
+#add to finer categories:
+#traditional suit
+
 
 fashionista_to_ultimate_21_index_conversion = []
 
