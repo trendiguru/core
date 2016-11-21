@@ -84,7 +84,7 @@ categories_badwords = ['SLEEPWEAR', 'SHAPEWEAR', 'SLIPS', 'BEDDING', 'LINGERIE',
                         'GIRLS', 'GYMBOREE', 'BRIEFS', 'BRIEF', 'WATCH', 'GIRL', 'PANTY', 'THONG', 'BOYSHORTS',
                         'KNICKER', 'HAT', 'ELECTRIC', 'FLAME', 'KNICKERS', 'SCOOPS', 'LACE', 'BOYSHORT','FLEECE',
                         'SHORTIES', 'SHORTIE', 'NIGHTGOWN','UNDERWIRE', 'SKIMMERS', 'SKIMMER', 'LABCOAT',
-                        'HIPSTER', 'HIPSTERS']
+                        'HIPSTER', 'HIPSTERS','PAJAMA']
 
 categories_keywords = ['BELT', 'BELTS', 'BIKINI', 'BIKINIS', 'BLAZER', 'BLAZERS', 'BLOUSE', 'BLOUSES', 'BOOTS', 'CAPRI',
                        'CAPRIS', 'CARDIGAN', 'COAT', 'COATS', 'DRESS', 'DRESSES', 'HILLS', 'HOODIE','HOODIES', 'JACKET',
