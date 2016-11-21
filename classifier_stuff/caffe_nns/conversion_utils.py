@@ -169,7 +169,7 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
             maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
             #print('finished maskname:'+maskname)
             if os.path.isfile(maskname):
-                print('mask exists, skipping')
+                print('mask '+maskname+' exists, skipping')
                 continue
         if not os.path.isfile(annotation_file):
             logging.debug('could not find '+str(annotation_file))
