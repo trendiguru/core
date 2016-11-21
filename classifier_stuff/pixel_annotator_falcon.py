@@ -66,15 +66,15 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
     for f in images:
         annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
         annotation_file = os.path.join(annotations_dir,annotation_file)
-        if not os.path.isfile(annotation_file):
-            print('could not find '+str(annotation_file))
-            continue
         if ignore_finished:
             maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
             print('maskname:'+maskname)
             if os.path.isfile(maskname):
                 print('mask exists, skipping')
                 continue
+        if not os.path.isfile(annotation_file):
+            print('could not find '+str(annotation_file))
+            continue
         the_dict['imageURLs'].append(f)
         the_dict['annotationURLs'].append(annotation_file)
         print('added image '+f+' mask '+annotation_file)
