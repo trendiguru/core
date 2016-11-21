@@ -28,13 +28,14 @@ def log2file(log_filename, name):
     logger.addHandler(handler)
     return logger
 
-def theArchiveDoorman(col_name):
+
+def theArchiveDoorman(col):
     """
     clean the archive from items older than a week
     send items to archive
     """
-    collection = db[col_name]
-    collection_archive = db[col_name+'_archive']
+    collection = db[col]
+    collection_archive = db[col+'_archive']
     archiver_indexes = collection_archive.index_information().keys()
     if 'id_1' not in archiver_indexes:
         collection_archive.create_index('id', background=True)
@@ -49,11 +50,11 @@ def theArchiveDoorman(col_name):
             collection_archive.delete_one({'id': item['id']})
 
     # add to the archive items which were not downloaded in the last 2 days
-    notUpdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
-    for item in notUpdated:
+    notupdated = collection.find({"download_data.dl_version": {"$ne": today_date}})
+    for item in notupdated:
         y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
         days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-        if days_out>2:
+        if days_out > 2:
             collection.delete_one({'id': item['id']})
             existing = collection_archive.find_one({"id": item["id"]})
             if existing:
@@ -65,8 +66,8 @@ def theArchiveDoorman(col_name):
                 collection_archive.insert_one(item)
 
     # move to the archive all the items which were downloaded today but are out of stock
-    outStockers = collection.find({'status.instock': False})
-    for item in outStockers:
+    outstockers = collection.find({'status.instock': False})
+    for item in outstockers:
         collection.delete_one({'id': item['id']})
         existing = collection_archive.find_one({"id": item["id"]})
         if existing:
@@ -76,7 +77,7 @@ def theArchiveDoorman(col_name):
     collection_archive.reindex()
 
 
-def download_ebay_API(col, gender,price_bottom=0, price_top=10000, mode=False, reset=False):
+def download_ebay_api(col, gender, price_bottom=0, price_top=10000, mode=False, reset=False):
     s = time()
     collection = db[col]
     if reset:
@@ -84,7 +85,7 @@ def download_ebay_API(col, gender,price_bottom=0, price_top=10000, mode=False, r
 
     indexes = collection.index_information().keys()
 
-    for idx in ['id','sku','img_hash','categories', 'images.XLarge']:
+    for idx in ['id', 'sku', 'img_hash', 'categories', 'images.XLarge']:
         idx_1 = idx+'_1'
         if idx_1 not in indexes:
             collection.create_index(idx, background=True)
@@ -102,31 +103,31 @@ def download_ebay_API(col, gender,price_bottom=0, price_top=10000, mode=False, r
         while q.count > 0:
             sleep(30)
     e = time()
-    duration = e-s
-    print ('%s download time : %d' % (gender, duration))
+    dl_duration = e-s
+    print ('%s download time : %d' % (gender, dl_duration))
     return duration
 
-if __name__=='__main__':
-    #TODO: use argsparse to select GEO
+if __name__ == '__main__':
+    # TODO: use argsparse to select GEO
     GEO = 'US'
     duration = 0
-    for gender in ['Male', 'Female']:
-        col = 'ebay_' + GEO + '_' + gender
-        status_full_path = 'collections.' + col + '.status'
+    for gen in ['Male', 'Female']:
+        col_name = 'ebay_' + GEO + '_' + gen
+        status_full_path = 'collections.' + col_name + '.status'
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Working"}})
-        duration += download_ebay_API(col, gender)
+        duration += download_ebay_api(col_name, gen)
         db.download_status.update_one({"date": today_date}, {"$set": {status_full_path: "Finishing"}})
 
-    for gender in ['Male', 'Female']:
-        col = 'ebay_' + GEO + '_' + gender
-        theArchiveDoorman(col)
-        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
+    for gen in ['Male', 'Female']:
+        col_name = 'ebay_' + GEO + '_' + gen
+        theArchiveDoorman(col_name)
+        forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
             sleep(300)
         if forest_job.is_failed:
             print ('annoy plant forest failed')
 
-        print (col + "Update Finished!!!")
+        print (col_name + "Update Finished!!!")
 
     dl_info = {"date": today_date,
                "dl_duration": duration,

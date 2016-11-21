@@ -39,16 +39,16 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         host = 'http://sandbox.api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
     else:
         host = 'http://api.ebaycommercenetwork.com/publisher/3.0/json/GeneralSearch?'
-    api_call = host+ 'apiKey='+account_info['API_Key'] + \
-                '&visitorUserAgent=""' \
-                '&visitorIPAddress=""' \
-                '&trackingId='+account_info['Tracking_ID'] + \
-                '&categoryId=31515' \
-                '&pageNumber=' + str(page) + \
-                '&numItems=' + str(num) + \
-                '&attributeValue=' + gender_attribute + \
-                '&attributeValue=' + sub_attribute + \
-                '&attributeValue=' + price_attribute
+    api_call = host + 'apiKey='+account_info['API_Key'] + \
+        '&visitorUserAgent=""' \
+        '&visitorIPAddress=""' \
+        '&trackingId='+account_info['Tracking_ID'] + \
+        '&categoryId=31515' \
+        '&pageNumber=' + str(page) + \
+        '&numItems=' + str(num) + \
+        '&attributeValue=' + gender_attribute + \
+        '&attributeValue=' + sub_attribute + \
+        '&attributeValue=' + price_attribute
 
     res = requests.get(api_call)
 
@@ -67,7 +67,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
     if not len(item):
         return True, 0, []
 
-    total_item_count= int(items['matchedItemCount'])
+    total_item_count = int(items['matchedItemCount'])
     return True, total_item_count, item
 
 
@@ -76,8 +76,8 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
     for cat in cats:
         ppd_cats.append(ebay_paperdoll_women[cat])
     cat_count = len(ppd_cats)
-    #TODO: use sub_attribute
-    if cat_count>1:
+    # TODO: use sub_attribute
+    if cat_count > 1:
         if 'shorts' in ppd_cats:
             ppd_cats.remove('shorts')
         if 'polo' in ppd_cats:
@@ -91,15 +91,15 @@ def fromCats2ppdCats(gender, cats, sub_attribute):
         elif 'bikini' in ppd_cats:
             cat = 'bikini'
         elif 'swimsuit' in ppd_cats:
-            cat =  'swimsuit'
+            cat = 'swimsuit'
         elif 'dress' in ppd_cats:
             cat = 'dress'
         elif 'sweater' in ppd_cats:
             cat = 'sweater'
         elif 'sweatshirt' in ppd_cats:
-            cat =  'sweatshirt'
+            cat = 'sweatshirt'
         elif 'pants' in ppd_cats:
-            cat =  'pants'
+            cat = 'pants'
         elif 'belt' in ppd_cats:
             cat = 'belt'
         else:
@@ -144,9 +144,9 @@ def name2category(gender, name, sub_attribute, desc):
     if not len(cats):
         try:
             print ('%s not in keywords' % name)
-        except:
-            pass
-        if len(desc)>0:
+        except Exception as e:
+            print e
+        if len(desc) > 0:
             status, cats = find_keywords(desc)
             if not status:
                 return False, []
@@ -155,14 +155,14 @@ def name2category(gender, name, sub_attribute, desc):
             logger_keywords.info(name)
             return False, []
 
-    ppd_cats = fromCats2ppdCats(gender,cats, sub_attribute)
+    ppd_cats = fromCats2ppdCats(gender, cats, sub_attribute)
     if len(ppd_cats):
         return True, ppd_cats
     else:
         return False, []
 
 
-def process_items(items, gender,GEO , sub_attribute, q):
+def process_items(items, gender, GEO , sub_attribute, q):
     col_name = 'ebay_' + GEO + '_' + gender
     collection = db[col_name]
     new_items = 0
@@ -170,8 +170,8 @@ def process_items(items, gender,GEO , sub_attribute, q):
         offer = item['offer']
         keys = offer.keys()
         name = offer['name']
-        itemId = offer['id']
-        id_exists = collection.find_one({'id': itemId})
+        itemid = offer['id']
+        id_exists = collection.find_one({'id': itemid})
 
         if id_exists:
             if 'fingerprint' in id_exists.keys() and id_exists['fingerprint']is not None:
@@ -183,7 +183,6 @@ def process_items(items, gender,GEO , sub_attribute, q):
                 continue
             else:
                 collection.delete_one({'_id': id_exists['_id']})
-
 
         if 'description' in keys:
             desc = offer['description']
@@ -240,7 +239,7 @@ def process_items(items, gender,GEO , sub_attribute, q):
         else:
             status = {"instock": False, "days_out": 0}
 
-        generic = {"id": [itemId],
+        generic = {"id": [itemid],
                    "categories": category,
                    "clickUrl": offer['offerURL'],
                    "images": {"XLarge": img_url},
@@ -280,7 +279,7 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
 
     if not item_count:
         print ('no results found for %s in the price range of %d to %d'
-               %(sub_attribute, price_bottom, price_top))
+               % (sub_attribute, price_bottom, price_top))
         return
 
     if item_count > 1490 and price_top > price_bottom:
@@ -295,11 +294,11 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         return
 
     fp_q = Queue('fingerprinter4db', connection=redis_conn)
-    end_page = item_count/100 +2
+    end_page = item_count/100 + 2
     if end_page == 17:
         end_page = 16
 
-    new_items = total_items = 0
+    new_items = totals = 0
     for i in range(1, end_page):
         sleep(1)
         success, item_count, items = GET_call(GEO, gender, sub_attribute, price_bottom, price_top, 
@@ -308,16 +307,16 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
             continue
         new_inserts, total = process_items(items, gender, GEO, sub_attribute, fp_q)
         new_items += new_inserts
-        total_items += total
+        totals += total
     end_time = time()
     logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
-              % (gender, sub_attribute, price_bottom, price_top, total_items, new_items, (end_time-start_time))
+              % (gender, sub_attribute, price_bottom, price_top, totals, new_items, (end_time-start_time))
     logger.info(summery)
     print(summery)
 
 
-def total_items(GEO, mode = True):
+def total_items(GEO, mode=True):
     total = []
     for gender in ['Male', 'Female']:
         for sub in sub_attributes:
@@ -329,7 +328,7 @@ def total_items(GEO, mode = True):
                     continue
                 item_count += count
                 print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
-            for i in [250,500,750,1000,1250]:
+            for i in [250, 500, 750, 1000, 1250]:
                 success, count, items = \
                     GET_call(GEO, gender, sub, i, i + 250, num=1, mode=mode)
                 if not success:
@@ -337,12 +336,12 @@ def total_items(GEO, mode = True):
                 item_count += count
                 print ('%d : %s / %s / %s ->> total count = %d ->> new = %d' % (i, GEO, gender, sub, item_count, count))
 
-            tmp = {'name':GEO+'_'+gender+'_'+sub,
+            tmp = {'name': GEO+'_'+gender+'_'+sub,
                    'count': item_count}
             total.append(tmp)
     t = 0
     for item in total:
         t += item['count']
-        print ('%s -> %d' %( item['name'], item['count']))
+        print ('%s -> %d' % (item['name'], item['count']))
 
     print ('all-in-all : %d' % t)
