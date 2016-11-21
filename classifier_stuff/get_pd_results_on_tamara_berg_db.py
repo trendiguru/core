@@ -6,6 +6,7 @@ import os
 import json
 import sys
 import time
+import subprocess
 
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
@@ -109,6 +110,11 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             print('writing mask bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
+            command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+            subprocess.call(command_string, shell=True)
+            command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+            subprocess.call(command_string, shell=True)
+
         except:
             print('fail in try 2, '+str(sys.exc_info()[0]))
         try: #write webtool mask
@@ -118,6 +124,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
                 bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
                 print('writing mask bmp to '+str(bmp_name))
                 cv2.imwrite(bmp_name,new_mask)
+
         except:
             print('fail in try 3, '+str(sys.exc_info()[0]))
         try:
