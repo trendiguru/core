@@ -1068,7 +1068,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         outname=outname+'_legend.jpg'
         full_outname=os.path.join(os.path.dirname(mask_filename),outname)
 #        full_outname=outname
-        logging.debug('show_mask_with_labels is saving labelled img to '+full_outname)
+        logging.info('show_mask_with_labels is saving labelled img to '+full_outname)
         cv2.imwrite(full_outname,combined)
 
     #todo move this to a separate function i dont think theres any reason its here
