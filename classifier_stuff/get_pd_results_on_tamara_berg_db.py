@@ -101,11 +101,12 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         except:
             print('fail in try 1, '+sys.exc_info()[0])
         try:
-            bmp_name = full_name.replace('.jpg','_pixv2.png')
             if forwebtool:
                 new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
                 new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
-                bmp_name=bmp_name.replace('.png','_pixv2_webtool.png')
+                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
+            else:
+                bmp_name = full_name.replace('.jpg','_pixv2.png')
             print('writing mask bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
         except:
