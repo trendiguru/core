@@ -71,6 +71,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
     h,w = mask.shape[0:2]
     new_mask=np.ones((h,w,3),dtype=np.uint8)*255  # anything left with 255 wasn't dealt with in the following conversion code
+    print('new mask size:'+str(new_mask.shape))
     success = True #assume innocence until proven guilty
     print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
@@ -100,25 +101,20 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             cv2.imwrite(full_name,img)
         except:
             print('fail in try 1, '+sys.exc_info()[0])
-        try:
+        try:   #write rgb mask
             bmp_name = full_name.replace('.jpg','_pixv2.png')
+            print('writing mask bmp to '+str(bmp_name))
+            cv2.imwrite(bmp_name,new_mask)
+            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
+        except:
+            print('fail in try 2, '+str(sys.exc_info()[0]))
+        try: #write webtool mask
             if forwebtool:
                 new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
                 new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
-                bmp_name=bmp_name.replace('.png','_pixv2_webtool.png')
-            print('writing mask bmp to '+str(bmp_name))
-            cv2.imwrite(bmp_name,new_mask)
-        except:
-            print('fail in try 2, '+str(sys.exc_info()[0]))
-        try:
-            new_mask[:,:,0]=new_mask[2] #make R=G=B
-            new_mask[:,:,1]=new_mask[2] #make R=G=B
-            bmp_name = full_name.replace('.jpg','rgb.png')
-            cv2.imwrite(bmp_name,new_mask)
-            print('writing mask bmp to '+str(bmp_name))
-            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
-#            print('orig pose '+str(pose))
-#            print('writing pose to '+str(pose_name))
+                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
+                print('writing mask bmp to '+str(bmp_name))
+                cv2.imwrite(bmp_name,new_mask)
         except:
             print('fail in try 3, '+str(sys.exc_info()[0]))
         try:
