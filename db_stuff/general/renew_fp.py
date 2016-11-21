@@ -19,21 +19,29 @@ if __name__ == "__main__":
     # user_input = get_user_input()
     # collection_name = user_input.collection_name
 
-    for col in ['GangnamStyle','amazon_US','amazon_DE','amaze']:
+    for col in ['amazon_US','amazon_DE','amaze']:
         for gen in ['_Male','_Female']:
             col_name = col+gen
-            print 'working on %s' %col_name
+            print 'working on %s' % col_name
             collection = db[col_name]
-            items = collection.find({},no_cursor_timeout=True)
+            items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
 
-            for item in items:
+            for x,item in enumerate(items):
+                if divmod(x,50000)[1]==0:
+                    print x
                 try:
                     item_id = item['_id']
                     category = item['categories']
                     if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
                         continue
+                    fp = item['fingerprint']
+                    if type(fp)==dict:
+                        if 'collar' in fp.keys():
+                            continue
+
                     image_url = item['images']['XLarge']
-                except:
+                except Exception as e:
+                    print e
                     continue
 
                 while q.count > redis_limit:

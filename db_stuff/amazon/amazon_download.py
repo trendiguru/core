@@ -4,7 +4,8 @@ import argparse
 import sys
 from datetime import datetime
 from time import strftime, gmtime, sleep, time
-
+import socket
+import platform
 import xmltodict
 from requests import get
 from rq import Queue
@@ -13,7 +14,7 @@ from .signature import get_amazon_signed_url
 from .amazon_worker import insert_items
 from ...constants import db, redis_conn
 from ..general.db_utils import log2file, print_error, email
-from .amazon_constants import blacklist, colors, log_dir
+from .amazon_constants import blacklist, colors
 from .amazon_post import post_download, daily_amazon_updates, update_drive
 
 today_date = str(datetime.date(datetime.now()))
@@ -33,7 +34,13 @@ last_time = time()
 FashionGender = 'FashionWomen'
 error_flag = False
 last_price = 3000.00
-log_dir_name = log_dir
+servername1 = socket.gethostname()
+servername2 = platform.node()
+if servername1 == 'extremli-db' or servername2 == 'extremli-db':
+    from .amazon_constants import log_dir
+    log_dir_name = log_dir
+else:
+    log_dir_name = raw_input('insert path to log dir')
 log_name = ''
 
 
@@ -83,6 +90,7 @@ def make_itemsearch_request(pagenum, node_id, min_price, max_price, cc, price_fl
     if cc == 'US':
         parameters['AssociateTag'] = 'fazz0b-20'
         parameters['SearchIndex'] = FashionGender
+    # HARDCODE-CC
     elif cc == 'DE':
         parameters['AssociateTag'] = 'trendiguru-21'
         parameters['SearchIndex'] = 'Apparel'
@@ -303,6 +311,7 @@ def build_category_tree(parents, cc, root='7141124011', tab=0, delete_collection
         parameters['SearchIndex'] = FashionGender
         if not tab:
             root = '7141124011'
+    # HARDCODE-CC
     elif cc == 'DE':
         parameters['AssociateTag'] = 'trendiguru-21'
         parameters['SearchIndex'] = 'Apparel'
@@ -396,11 +405,14 @@ def download_all(col_name, cc, gender):
     collection = db[col_name]
 
     # we will need that for querying the category tree
+    # to be updated in cases where another country db is downloded
+    # HARDCODE-CC
     if gender is 'Female':
         if cc == 'DE':
             parent_gender = 'Damen'
         else:
             parent_gender = 'Women'
+    # HARDCODE-CC
     else:
         if cc == 'DE':
             parent_gender = 'Herren'
@@ -409,7 +421,8 @@ def download_all(col_name, cc, gender):
 
     category_tree_name = 'amazon_%s_category_tree' % cc
     category_tree = db[category_tree_name]
-    # retrieve all the leaf nodes which hadn't been processed yet - assuming the higher branches has too many items
+    # retrieve all the leaf nodes which hadn't been processed yet
+    # children.count=0 because we assume the higher branches have too many items
     leafs_cursor = category_tree.find({'Children.count': 0,
                                        'Parents': parent_gender,
                                        'Status': {'$ne': 'done'},
@@ -471,8 +484,8 @@ def download_all(col_name, cc, gender):
                                % (x, total_leafs, node_id, name, downloaded)
                 log2file(mode='a', log_filename=log_name, message=finished_msg, print_flag=True)
                 category_tree.update_one({'_id': leaf_id},
-                                                   {'$set': {'Status': 'done',
-                                                             'LastPrice': 5.00}})
+                                         {'$set': {'Status': 'done',
+                                          'LastPrice': 5.00}})
             except StandardError as e:
                 error_msg1 = u"ERROR! : node id: %s -> name: %s failed!" % (node_id, name)
                 log2file(mode='a', log_filename=log_name, message=error_msg1, print_flag=True)
@@ -496,12 +509,11 @@ def download_all(col_name, cc, gender):
 
 
 def download_by_gender(gender, cc):
-    global log_dir_name, log_name
+    global log_name
     # build collection name and start logging
     col_name = 'amazon_%s_%s' % (cc, gender)
     title = "@@@ Amazon %s %s Download @@@" % (cc, gender)
 
-    # TODO: add top level log
     log_name = log_dir_name + col_name + '.log'
     title2 = "you choose to update the %s collection" % col_name
     log2file(mode='w', log_filename=log_name, message=title, print_flag=True)
@@ -519,8 +531,9 @@ def download_by_gender(gender, cc):
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Amazon Download @@@')
+    # HARDCODE-CC
     parser.add_argument('-c', '--code', default="US", dest="country_code",
-                        help='country code - currently doing only US')
+                        help='country code - currently doing only US and DE')
     parser.add_argument('-g', '--gender', dest="gender",
                         help='specify which gender to download (Female, Male, def=Both)', default='Both')
     parser.add_argument('-f', '--fresh', dest="delete_cache", default=False, action='store_true',
@@ -536,6 +549,7 @@ def get_user_input():
 
 
 if __name__ == "__main__":
+
     # get user input
     user_input = get_user_input()
     c_c = user_input.country_code
@@ -544,8 +558,12 @@ if __name__ == "__main__":
     build_tree = user_input.tree
     update_drive_only = user_input.update_only
     daily = user_input.daily_update
+
     # verify valid country code
+    # if we want to download another country then we need to update the code in all the place where cc is hard coded
+    # to make that easy I added a '#HARDCODE-CC' before all relevant lines - just search for it
     cc_upper = c_c.upper()
+    # HARDCODE-CC
     if cc_upper != 'US' and cc_upper != 'DE':
         print("bad input - for now only working on US and DE")
         sys.exit(1)
@@ -553,10 +571,11 @@ if __name__ == "__main__":
     collection_name = 'amazon_%s' % cc_upper
     tree_name = 'amazon_%s_category_tree' % cc_upper
     tree_collection = db[tree_name]
+
     # every fresh start its a good idea to build from scratch the category tree
     if build_tree:
         tmp_name = 'amazon_%s_%s' % (cc_upper, 'Category_tree')
-
+        # log dir default is our google cloud extremli-db server - need to also hardcode it for azure
         log_name = log_dir_name + tmp_name + '.log'
         build_category_tree([], cc_upper)
         tree_collection.delete_many({'Name': 'Clothing'})
