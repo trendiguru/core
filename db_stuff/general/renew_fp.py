@@ -24,7 +24,7 @@ if __name__ == "__main__":
             col_name = col+gen
             print 'working on %s' % col_name
             collection = db[col_name]
-            items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fp':1}, no_cursor_timeout=True)
+            items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
 
             for x,item in enumerate(items):
                 if divmod(x,50000)[1]==0:
@@ -34,7 +34,7 @@ if __name__ == "__main__":
                     category = item['categories']
                     if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
                         continue
-                    fp = item['fp']
+                    fp = item['fingerprint']
                     if type(fp)==dict:
                         if 'collar' in fp.keys():
                             continue
