@@ -298,8 +298,16 @@ binary_classifier_categories = ['bag', 'belt', 'cardigan','coat','dress', 'eyewe
 multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
-                'tracksuit','mens_underwear','vest','tracksuit', 'mens_underwear','panties','bra','socks','shawl',
-                'sarong','robe','pyjamas','poncho','hoodie','tie','socks','hair','skin','face']
+                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
+                'poncho','tie','socks','hair','skin','face']
+
+multilabel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,28,29,30,33,37,39,45,47,48,49]
+x = [0,30,12,29,17,1,7,4,13,1,
+                                                       7,17,9,37,5,11,16,17,10,30,
+                                                       18,8,17,3,None,33,6,2,46,6,
+                                                       28,14,24,39,5,22,15,23,7,7,
+                                                       None,7,45,5,7,25,None,7,7,26,
+                                                       7,None,17,7,47,48,49]
 
 #add to finer categories:
 #traditional suit
