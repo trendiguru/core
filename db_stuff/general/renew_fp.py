@@ -35,9 +35,6 @@ if __name__ == "__main__":
                     if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
                         continue
                     fp = item['fingerprint']
-                    if type(fp)==dict:
-                        if 'collar' in fp.keys():
-                            continue
 
                     image_url = item['images']['XLarge']
                 except Exception as e:
@@ -47,6 +44,6 @@ if __name__ == "__main__":
                 while q.count > redis_limit:
                     sleep(30)
 
-                q.enqueue(refresh_fp, args=(col_name, item_id, category, image_url), timeout=1800)
+                q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
             items.close()
         refresh_similar_results(col)
