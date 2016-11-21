@@ -22,9 +22,9 @@ if __name__ == "__main__":
     for col in ['GangnamStyle','amazon_US','amazon_DE','amaze']:
         for gen in ['_Male','_Female']:
             col_name = col+gen
-            print 'working on %s' %col_name
+            print 'working on %s' % col_name
             collection = db[col_name]
-            items = collection.find({},no_cursor_timeout=True)
+            items = collection.find({},{'_id':1,'categories':1,'images':1,'fp':1}, no_cursor_timeout=True)
 
             for item in items:
                 try:
@@ -32,6 +32,11 @@ if __name__ == "__main__":
                     category = item['categories']
                     if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
                         continue
+                    fp = item['fp']
+                    if type(fp)==dict:
+                        if 'collar' in fp.keys():
+                            continue
+
                     image_url = item['images']['XLarge']
                 except:
                     continue
