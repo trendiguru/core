@@ -58,8 +58,8 @@ class PixlevelResource:
 
 
 def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
-             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='.png',
-             ignore_finished=True,finished_mask_suffix='_finished_mask.png'):
+             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='_pixv2_webtool.png',
+             ignore_finished=True,finished_mask_suffix='_pixv2_webtool_finished_mask.png'):
     images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
     the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
 
