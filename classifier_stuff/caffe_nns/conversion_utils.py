@@ -4,7 +4,8 @@ import os
 import cv2
 import numpy as np
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+import json
 
 from trendi import constants
 
@@ -155,6 +156,31 @@ def test_conversion(orig_labels,dest_labels,converter):
         print('index {} origlabel {} newindex {} destlabel {}'.format(i,
             orig_labels[i],dest_index,dest_labels[dest_index]))
 
+def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
+             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='_pixv2_webtool.png',
+             ignore_finished=True,finished_mask_suffix='_pixv2_webtool_finished_mask.png'):
+    images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
+    the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
+
+    for f in images:
+        annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
+        annotation_file = os.path.join(annotations_dir,annotation_file)
+        if ignore_finished:
+            maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
+            #print('finished maskname:'+maskname)
+            if os.path.isfile(maskname):
+                print('mask '+maskname+' exists, skipping')
+                continue
+        if not os.path.isfile(annotation_file):
+            logging.debug('could not find '+str(annotation_file))
+            continue
+        the_dict['imageURLs'].append(f)
+        the_dict['annotationURLs'].append(annotation_file)
+        print('added image '+f+' mask '+annotation_file)
+    with open(outfile,'w') as fp:
+        json.dump(the_dict,fp,indent=4)
+
+
 
 if __name__ == "__main__":
-    test_conversions()
+    gen_json()

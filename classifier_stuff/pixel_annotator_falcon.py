@@ -7,6 +7,8 @@ import falcon
 
 from jaweson import json, msgpack
 import os
+import subprocess
+
 from trendi import constants
 
 print "Done with imports"
@@ -40,8 +42,17 @@ class PixlevelResource:
             img_string = data["img_string"]
             imagedata = img_string.split(',')[-1].decode('base64')
             print('writing '+outfilename)
+            with open(outfilename, 'wb') as f:
+                f.write(imagedata)
+            command_string = 'scp '+outfilename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
+            #save mask under old name and send also
             with open(filename, 'wb') as f:
                 f.write(imagedata)
+            command_string = 'scp '+filename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
             ret["output"] = imagedata
             if ret["output"] is not None:
                 ret["success"] = True
@@ -56,30 +67,6 @@ class PixlevelResource:
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
-
-def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
-             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='_pixv2_webtool.png',
-             ignore_finished=True,finished_mask_suffix='_pixv2_webtool_finished_mask.png'):
-    images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
-    the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
-
-    for f in images:
-        annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
-        annotation_file = os.path.join(annotations_dir,annotation_file)
-        if ignore_finished:
-            maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
-            #print('finished maskname:'+maskname)
-            if os.path.isfile(maskname):
-                print('mask exists, skipping')
-                continue
-        if not os.path.isfile(annotation_file):
-            print('could not find '+str(annotation_file))
-            continue
-        the_dict['imageURLs'].append(f)
-        the_dict['annotationURLs'].append(annotation_file)
-        print('added image '+f+' mask '+annotation_file)
-    with open(outfile,'w') as fp:
-        json.dump(the_dict,fp,indent=4)
 
 
 api = falcon.API()
