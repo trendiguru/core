@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from time import strftime, gmtime, sleep, time
 import socket
+import platform
 import xmltodict
 from requests import get
 from rq import Queue
@@ -33,8 +34,9 @@ last_time = time()
 FashionGender = 'FashionWomen'
 error_flag = False
 last_price = 3000.00
-servername = socket.gethostname()
-if servername is 'extremli-db':
+servername1 = socket.gethostname()
+servername2 = platform.node()
+if servername1 is 'extremli-db' or servername2 is 'extremli-db':
     from .amazon_constants import log_dir
     log_dir_name = log_dir
 else:
