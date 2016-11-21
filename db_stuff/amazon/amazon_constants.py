@@ -46,6 +46,7 @@ amazon_categories = {'Dresses': {'childs': ['Cocktail', 'Casual', 'Wedding Party
                      # under 'Suit Separates' there are sub sub categories
                      }
 # notice that some of the blacklist words are here only because we cant detect to that resolution yet!!!
+#HARDCODE-CC
 blacklist = ['Jewelry', 'Watches', 'Handbags', 'Accessories', 'Lingerie, Sleep & Lounge', 'Socks & Hosiery',
              'Handbags & Wallets', 'Shops', 'Girls', 'Boys', 'Shoes', 'Underwear', 'Baby', 'Sleep & Lounge',
              'Socks', 'Novelty & More', 'Luggage & Travel Gear', 'Uniforms, Work & Safety', 'Costumes & Accessories',

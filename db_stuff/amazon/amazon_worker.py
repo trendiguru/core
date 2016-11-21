@@ -14,13 +14,16 @@ from ...fingerprint_core import generate_mask_and_insert
 today_date = str(datetime.date(datetime.now()))
 
 q = Queue('fingerprinter4db', connection=redis_conn)
+# HARDCODE-CC
 pants = ['PANTS', 'PANT', 'TROUSERS', 'TROUSER', 'CULOTTE', 'CULOTTES', 'CHINO', 'CHINOS', 'CAPRI', 'CAPRIS', 'SLACKS',
          'PONTE']
+# HARDCODE-CC
 big_no_no = ['PANTIES', 'BRIEFS', 'UNDERPANTS', 'UNDERWEAR', 'BOXER', 'PANTIE', 'BRIEF', 'CUFFLINK', 'STUDS',
              'KILT', 'STRAP']
 
 
-def amazon_de_to_ppd(cat, sub_cat, title):
+# HARDCODE-CC
+def amazon_de_to_ppd(cat):
     if cat == u"Badeanzüge":
         return 'swimsuit'
     elif cat in ['Bikini - Sets', 'Bikinioberteile']:
@@ -237,6 +240,7 @@ def amazon_usa_to_ppd(cat, sub_cat, title):
 
 def find_paperdoll_cat(family, title, cc):
     leafs = re.split(r'->', family)
+    # HARDCODE-CC
     if cc == 'DE':
         leaf_length = len(leafs)
         category = leafs[leaf_length-1]
@@ -252,8 +256,9 @@ def find_paperdoll_cat(family, title, cc):
         sub_category = '%s.%s' % (sub_category, sub2)
     if cc == 'US':
         category = amazon_usa_to_ppd(category, sub1, title)
+    # HARDCODE-CC
     elif cc == 'DE':
-        category = amazon_de_to_ppd(category, sub1, title)
+        category = amazon_de_to_ppd(category)
 
     return category, sub_category
 
