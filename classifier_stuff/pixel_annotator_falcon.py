@@ -6,6 +6,8 @@ import falcon
 # from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
+import os
+from trendi import constants
 
 print "Done with imports"
 
@@ -34,9 +36,10 @@ class PixlevelResource:
             print('data recd:'+str(data))
 
             filename = data["filename"]
+            outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp')
             img_string = data["img_string"]
             imagedata = img_string.split(',')[-1].decode('base64')
-            print('writing '+filename)
+            print('writing '+outfilename)
             with open(filename, 'wb') as f:
                 f.write(imagedata)
             ret["output"] = imagedata
@@ -52,6 +55,30 @@ class PixlevelResource:
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
+
+
+def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
+             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='.png',
+             ignore_finished=True,finished_mask_suffix='_finished_mask.png'):
+    images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
+    the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
+
+    for f in images:
+        annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
+        annotation_file = os.path.join(annotations_dir,annotation_file)
+        if not os.path.isfile(annotation_file):
+            print('could not find '+str(annotation_file))
+            continue
+        if ignore_finished:
+            maskname = annotation_file.replace('.jpg',finished_mask_suffix)
+            print('maskname:'+maskname)
+            if os.path.isfile(maskname):
+                print('mask exists, skipping')
+                continue
+        the_dict['imageURLs'].append(f)
+        the_dict['annotationURLs'].append(annotation_file)
+    with open(outfile,'w') as fp:
+        json.dump(the_dict,fp,indent=4)
 
 
 api = falcon.API()

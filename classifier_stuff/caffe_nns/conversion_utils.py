@@ -134,5 +134,27 @@ def test_conversions():
         print('index {} origlabel {} newindex {} destlabel {}'.format(i,
             orig_labels[i],dest_index,dest_labels[dest_index]))
 
+def test_conversion(orig_labels,dest_labels,converter):
+#abortive attempt to get variable names that have been passed into this function
+#e
+#    constant_vars =  [item for item in dir(constants) if not item.startswith("__")]
+#    for k, v in list(locals().iteritems()):
+ #   for k, v in list(constant_vars):
+ #       if v is orig_labels:
+#            a_as_str = k
+#            print k
+    converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
+    orig_labels=constants.fashionista_categories_augmented_zero_based
+    dest_labels=constants.pixlevel_categories_v2
+    print('testing conversion aug 0-based to pixlevel_v2 cats')
+    for i in range(len(orig_labels)):
+        dest_index = converter[i]
+        if dest_index is None:
+            print('no mapping from index {} (label {}) to dest'.format(i,orig_labels[i]))
+            continue
+        print('index {} origlabel {} newindex {} destlabel {}'.format(i,
+            orig_labels[i],dest_index,dest_labels[dest_index]))
+
+
 if __name__ == "__main__":
     test_conversions()
