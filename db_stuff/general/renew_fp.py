@@ -26,7 +26,9 @@ if __name__ == "__main__":
             collection = db[col_name]
             items = collection.find({},{'_id':1,'categories':1,'images':1,'fp':1}, no_cursor_timeout=True)
 
-            for item in items:
+            for x,item in enumerate(items):
+                if divmod(x,10000)[1]==0:
+                    print x
                 try:
                     item_id = item['_id']
                     category = item['categories']
