@@ -46,6 +46,8 @@ class PixlevelResource:
                 f.write(imagedata)
             command_string = 'scp '+outfilename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
             subprocess.call(command_string, shell=True)
+            command_string = 'scp '+filename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
 
             ret["output"] = imagedata
             if ret["output"] is not None:
