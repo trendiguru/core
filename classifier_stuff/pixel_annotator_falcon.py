@@ -6,6 +6,10 @@ import falcon
 # from .darknet.pyDarknet import mydet
 
 from jaweson import json, msgpack
+import os
+import subprocess
+
+from trendi import constants
 
 print "Done with imports"
 
@@ -34,11 +38,15 @@ class PixlevelResource:
             print('data recd:'+str(data))
 
             filename = data["filename"]
+            outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp')
             img_string = data["img_string"]
             imagedata = img_string.split(',')[-1].decode('base64')
-            print('writing '+filename)
-            with open(filename, 'wb') as f:
+            print('writing '+outfilename)
+            with open(outfilename, 'wb') as f:
                 f.write(imagedata)
+            command_string = 'scp '+outfilename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
             ret["output"] = imagedata
             if ret["output"] is not None:
                 ret["success"] = True
@@ -52,6 +60,7 @@ class PixlevelResource:
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
+
 
 
 api = falcon.API()

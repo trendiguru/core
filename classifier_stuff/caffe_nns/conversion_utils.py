@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import json
 
 from trendi import constants
 
@@ -134,5 +135,52 @@ def test_conversions():
         print('index {} origlabel {} newindex {} destlabel {}'.format(i,
             orig_labels[i],dest_index,dest_labels[dest_index]))
 
+def test_conversion(orig_labels,dest_labels,converter):
+#abortive attempt to get variable names that have been passed into this function
+#e
+#    constant_vars =  [item for item in dir(constants) if not item.startswith("__")]
+#    for k, v in list(locals().iteritems()):
+ #   for k, v in list(constant_vars):
+ #       if v is orig_labels:
+#            a_as_str = k
+#            print k
+    converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
+    orig_labels=constants.fashionista_categories_augmented_zero_based
+    dest_labels=constants.pixlevel_categories_v2
+    print('testing conversion aug 0-based to pixlevel_v2 cats')
+    for i in range(len(orig_labels)):
+        dest_index = converter[i]
+        if dest_index is None:
+            print('no mapping from index {} (label {}) to dest'.format(i,orig_labels[i]))
+            continue
+        print('index {} origlabel {} newindex {} destlabel {}'.format(i,
+            orig_labels[i],dest_index,dest_labels[dest_index]))
+
+def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
+             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='_pixv2_webtool.png',
+             ignore_finished=True,finished_mask_suffix='_pixv2_webtool_finished_mask.png'):
+    images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
+    the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
+
+    for f in images:
+        annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
+        annotation_file = os.path.join(annotations_dir,annotation_file)
+        if ignore_finished:
+            maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
+            #print('finished maskname:'+maskname)
+            if os.path.isfile(maskname):
+                print('mask exists, skipping')
+                continue
+        if not os.path.isfile(annotation_file):
+            print('could not find '+str(annotation_file))
+            continue
+        the_dict['imageURLs'].append(f)
+        the_dict['annotationURLs'].append(annotation_file)
+        print('added image '+f+' mask '+annotation_file)
+    with open(outfile,'w') as fp:
+        json.dump(the_dict,fp,indent=4)
+
+
+
 if __name__ == "__main__":
-    test_conversions()
+    gen_json()

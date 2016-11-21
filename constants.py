@@ -58,7 +58,7 @@ products_per_ip_pid = {'default':
                        "sg3SH5yif242E5jL":
                                  {'default': 'amazon_US'},
                        "Y8Y4jENvaJ2Lsklz":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'ebay_US'},
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'stylebook.de': 'amazon_DE', 'recruit-lifestyle.co.jp': 'recruit'}
@@ -437,7 +437,7 @@ multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
 #same as multilabel_categories_v2 with addtion of 0th item (background)  171116
 pixlevel_categories_v2 = ['background']+multilabel_categories_v2
 
-multilabel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
+pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
                                                      10,11,12,13,14,15,16,17,18,22,
                                                      23,24,25,26,28,29,30,33,35,39,
                                                      42,44,45,46]
