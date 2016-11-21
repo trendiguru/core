@@ -68,7 +68,7 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
         annotation_file = os.path.join(annotations_dir,annotation_file)
         if ignore_finished:
             maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
-            print('maskname:'+maskname)
+            #print('finished maskname:'+maskname)
             if os.path.isfile(maskname):
                 print('mask exists, skipping')
                 continue

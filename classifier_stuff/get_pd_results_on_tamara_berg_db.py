@@ -79,7 +79,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             pd_index = label_names[label]
             pixlevel_v2_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v2[fashionista_index]
             if pixlevel_v2_index is None:
-                pixlevel_v2_index = 0
+                pixlevel_v2_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
      #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
             new_mask[mask==pd_index] = pixlevel_v2_index
@@ -101,28 +101,28 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         except:
             print('fail in try 1, '+sys.exc_info()[0])
         try:
-            bmp_name = full_name.replace('.jpg','_pixv2.bmp')
+            bmp_name = full_name.replace('.jpg','_pixv2.png')
             if forwebtool:
                 new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
                 new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
-                bmp_name=bmp_name.replace('.bmp','_webtool.bmp')
+                bmp_name=bmp_name.replace('.png','_pixv2_webtool.png')
             print('writing mask bmp to '+str(bmp_name))
+            cv2.imwrite(bmp_name,new_mask)
         except:
             print('fail in try 2, '+str(sys.exc_info()[0]))
         try:
-            cv2.imwrite(bmp_name,new_mask)
-            new_mask[:,:,0]=new_mask[2] #zero out the B,G for webtool - leave only R
-            new_mask[:,:,1]=new_mask[2] #zero out the B,G for webtool - leave only R
-            bmp_name=bmp_name.replace('_webtool.bmp','rgb.bmp')
+            new_mask[:,:,0]=new_mask[2] #make R=G=B
+            new_mask[:,:,1]=new_mask[2] #make R=G=B
+            bmp_name = full_name.replace('.jpg','rgb.png')
             cv2.imwrite(bmp_name,new_mask)
             print('writing mask bmp to '+str(bmp_name))
             imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
-            pose_name = full_name.strip('.jpg')+'.pose'
 #            print('orig pose '+str(pose))
 #            print('writing pose to '+str(pose_name))
         except:
-            print('fail in try 3, '+sys.exc_info()[0])
+            print('fail in try 3, '+str(sys.exc_info()[0]))
         try:
+            pose_name = full_name.strip('.jpg')+'.pose'
             with open(pose_name, "w+") as outfile:
                 print('succesful open, attempting to write pose')
                 poselist=pose[0].tolist()
