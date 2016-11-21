@@ -24,7 +24,7 @@ if __name__ == "__main__":
             col_name = col+gen
             print 'working on %s' % col_name
             collection = db[col_name]
-            items = collection.find({},{'_id':1,'categories':1,'images':1,'fp':1}, no_cursor_timeout=True)
+            items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fp':1}, no_cursor_timeout=True)
 
             for x,item in enumerate(items):
                 if divmod(x,50000)[1]==0:
@@ -40,8 +40,8 @@ if __name__ == "__main__":
                             continue
 
                     image_url = item['images']['XLarge']
-                except:
-                    print 'boom'
+                except Exception as e:
+                    print e
                     continue
 
                 while q.count > redis_limit:
