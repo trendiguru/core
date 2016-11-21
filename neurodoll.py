@@ -723,46 +723,6 @@ def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conver
                 graylevels[:,:,nd_index] = 0
     return graylevels
 
-def test_conversions():
-    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
-    multilabel_labels=constants.binary_classifier_categories
-    print('testing binary classifier to u21 cats')
-    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-    print('ml labels:'+str(multilabel_labels))
-    for i in range(len(multilabel_labels)):
-        neurodoll_index = multilabel_to_ultimate21_conversion[i]
-        #print('nd index:'+str(neurodoll_index))
-        if neurodoll_index is None:
-            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
-            continue
-        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
-            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
-
-    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21
-    multilabel_labels=constants.web_tool_categories
-    print('testing webtool v2 to u21 cats')
-    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-    print('ml labels:'+str(multilabel_labels))
-    for i in range(len(multilabel_labels)):
-        neurodoll_index = multilabel_to_ultimate21_conversion[i]
-        if neurodoll_index is None:
-            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
-            continue
-        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
-            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
-
-    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v2_to_ultimate_21
-    multilabel_labels=constants.web_tool_categories_v2
-    print('testing webtool v1 to u21 cats')
-    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-    print('ml labels:'+str(multilabel_labels))
-    for i in range(len(multilabel_labels)):
-        neurodoll_index = multilabel_to_ultimate21_conversion[i]
-        if neurodoll_index is None:
-            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
-            continue
-        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
-            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
 
 def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]

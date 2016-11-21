@@ -69,7 +69,8 @@ def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]
     uniques = np.unique(mask)
     pixelcounts = {}
-    mask =
+    if len(mask.shape) == 3:
+        mask = mask[:,:,0]  #this should be chan 3 if its a webtool image
     for unique in uniques:
         pixelcount = len(mask[mask==unique])
         ratio = float(pixelcount)/image_size
@@ -80,3 +81,58 @@ def count_values(mask,labels=None):
         pixelcounts[unique]=pixelcount
     return pixelcounts
 
+def test_conversions():
+    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
+    multilabel_labels=constants.binary_classifier_categories
+    print('testing binary classifier to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        #print('nd index:'+str(neurodoll_index))
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21
+    multilabel_labels=constants.web_tool_categories
+    print('testing webtool v2 to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v2_to_ultimate_21
+    multilabel_labels=constants.web_tool_categories_v2
+    print('testing webtool v1 to u21 cats')
+    print('ml2u21 conversion:'+str(multilabel_to_ultimate21_conversion))
+    print('ml labels:'+str(multilabel_labels))
+    for i in range(len(multilabel_labels)):
+        neurodoll_index = multilabel_to_ultimate21_conversion[i]
+        if neurodoll_index is None:
+            print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
+            continue
+        print('index {} webtoollabel {} newindex {} neurodoll_label {}'.format(i,
+            multilabel_labels[i],neurodoll_index,constants.ultimate_21[neurodoll_index]))
+
+    converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
+    orig_labels=constants.fashionista_categories_augmented_zero_based
+    dest_labels=constants.pixlevel_categories_v2
+    print('testing fashionista aug 0-based to pixlevel_v2 cats')
+    for i in range(len(orig_labels)):
+        dest_index = converter[i]
+        if dest_index is None:
+            print('no mapping from index {} (label {}) to dest'.format(i,orig_labels[i]))
+            continue
+        print('index {} origlabel {} newindex {} destlabel {}'.format(i,
+            orig_labels[i],dest_index,dest_labels[dest_index]))
+
+if __name__ == "__main__":
+    test_conversions()
