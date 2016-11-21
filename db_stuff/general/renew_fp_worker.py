@@ -39,14 +39,18 @@ def neurodoll(image, category_idx):
     return True, mask2
 
 
-def dict_fp(image, mask, category):
+def dict_fp(fingerprint, image, mask, category):
     print 'dict fp'
+    keys = fingerprint.keys()
     if category in constants.features_per_category:
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
-    # TODO - we should parallelize this once we have more then 1 feature
-    fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
+
+    for feature in fp_features:
+        if feature in keys:
+            continue
+        fingerprint[feature] = get_feature_fp(image, mask, feature)
     return fingerprint
 
 
@@ -115,7 +119,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def refresh_fp(collection_name, item_id, category, image_url):
+def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
 
     collection = db[collection_name]
     image = Utils.get_cv2_img_array(image_url)
@@ -141,11 +145,12 @@ def refresh_fp(collection_name, item_id, category, image_url):
 
     else:
         small_mask = background_removal.get_fg_mask(small_image)
-
-    fingerprint = dict_fp(small_image, small_mask, category)
+    if type(fingerprint) != dict:
+        fingerprint = {'color': fingerprint}
+    fingerprint = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
     try:
-        collection.update_one({'_id':item_id},{'$set':{'fingerprint':fingerprint}})
+        collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
         print "successfull"
         # db.fp_in_process.delete_one({"id": doc["id"]})
     except:
