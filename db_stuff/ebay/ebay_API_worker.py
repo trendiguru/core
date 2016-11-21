@@ -163,7 +163,7 @@ def name2category(gender, name, sub_attribute, desc):
 
 
 def process_items(items, gender,GEO , sub_attribute, q):
-    col_name = 'ebay_'+gender+'_'+GEO
+    col_name = 'ebay_' + GEO + '_' + gender
     collection = db[col_name]
     new_items = 0
     for item in items:
