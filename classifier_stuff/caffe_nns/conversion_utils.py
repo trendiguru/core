@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import json
 
 from trendi import constants
@@ -172,7 +172,7 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
                 print('mask exists, skipping')
                 continue
         if not os.path.isfile(annotation_file):
-            print('could not find '+str(annotation_file))
+            logging.debug('could not find '+str(annotation_file))
             continue
         the_dict['imageURLs'].append(f)
         the_dict['annotationURLs'].append(annotation_file)
