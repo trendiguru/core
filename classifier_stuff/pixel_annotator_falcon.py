@@ -70,7 +70,7 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
             print('could not find '+str(annotation_file))
             continue
         if ignore_finished:
-            maskname = annotation_file.replace('.jpg',finished_mask_suffix)
+            maskname = annotation_file.replace(mask_suffix,finished_mask_suffix)
             print('maskname:'+maskname)
             if os.path.isfile(maskname):
                 print('mask exists, skipping')
