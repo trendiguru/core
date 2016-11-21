@@ -7,6 +7,8 @@ import falcon
 
 from jaweson import json, msgpack
 import os
+import subprocess
+
 from trendi import constants
 
 print "Done with imports"
@@ -40,8 +42,11 @@ class PixlevelResource:
             img_string = data["img_string"]
             imagedata = img_string.split(',')[-1].decode('base64')
             print('writing '+outfilename)
-            with open(filename, 'wb') as f:
+            with open(outfilename, 'wb') as f:
                 f.write(imagedata)
+            command_string = 'scp '+outfilename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
             ret["output"] = imagedata
             if ret["output"] is not None:
                 ret["success"] = True
