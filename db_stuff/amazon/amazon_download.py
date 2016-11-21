@@ -36,7 +36,7 @@ error_flag = False
 last_price = 3000.00
 servername1 = socket.gethostname()
 servername2 = platform.node()
-if servername1 is 'extremli-db' or servername2 is 'extremli-db':
+if servername1 == 'extremli-db' or servername2 == 'extremli-db':
     from .amazon_constants import log_dir
     log_dir_name = log_dir
 else:
