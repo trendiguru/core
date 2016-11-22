@@ -32,8 +32,8 @@ if __name__ == "__main__":
                 try:
                     item_id = item['_id']
                     category = item['categories']
-                    if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
-                        continue
+                    # if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
+                    #     continue
                     fp = item['fingerprint']
 
                     image_url = item['images']['XLarge']
