@@ -19,12 +19,12 @@ if __name__ == "__main__":
     # user_input = get_user_input()
     # collection_name = user_input.collection_name
 
-    for col in ['ebay_US']:
+    for col in ['amazon_US','GangnamStyle']:
         for gen in ['_Male','_Female']:
             col_name = col+gen
             print 'working on %s' % col_name
             collection = db[col_name]
-            items = collection.find({'fingerprint.color':{'$exists':0}},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
+            items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
 
             for x,item in enumerate(items):
                 if divmod(x,50000)[1]==0:
@@ -32,8 +32,8 @@ if __name__ == "__main__":
                 try:
                     item_id = item['_id']
                     category = item['categories']
-                    # if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
-                    #     continue
+                    if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
+                        continue
                     fp = item['fingerprint']
 
                     image_url = item['images']['XLarge']
