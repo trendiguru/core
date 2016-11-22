@@ -23,6 +23,7 @@ class Feature(object):
         self.name = name
         self.model_file = model_file or features_config[name]["MODEL_FILE"]
         self.pretrained = pretrained or features_config[name]["PRETRAINED"]
+        self.labels = features_config[name]["labels"]
     
     
     def load(self)
