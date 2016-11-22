@@ -3,9 +3,13 @@ __author__ = 'yonti'
 import cv2
 import hashlib
 import logging
-
+from jaweson import msgpack
 import numpy as np
+import gevent
+from gevent import Greenlet
+import requests
 
+# OURS
 import Utils
 import background_removal
 import constants
@@ -17,6 +21,7 @@ from .paperdoll import neurodoll_falcon_client as nfc
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
 db = constants.db
+FEATURES_CLIENT_ADDRESS = "http://37.58.101.173:8084/"
 
 
 def neurodoll(image, category_idx):
@@ -47,23 +52,28 @@ def dict_fp(image, mask, category):
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
-    # TODO - we should parallelize this once we have more then 1 feature
-    fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
+    fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features}
+    gevent.joinall(fingerprint.values())
+    # fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
     return fingerprint
 
 
-def get_feature_fp(image, mask, feature):
-    if feature == 'color':
-        print 'color'
-        return color.execute(image, histograms_length, fingerprint_length, mask)
-    elif feature == 'sleeve_length':
-        print 'sleeve_length'
-        return sleeve_client.get_sleeve(image)['data']
-    elif feature == 'length':
-        print 'length'
-        return length_client.get_length(image)['data']
-    else:
-        return []
+def get_feature_fp(feature, image, mask=None):
+    data = msgpack.dumps({"image_or_url": image, "mask": mask})
+    resp = requests.post(FEATURES_CLIENT_ADDRESS+feature, data=data)
+    return msgpack.loads(resp.content)['data']
+
+    # if feature == 'color':
+    #     print 'color'
+    #     return color.execute(image, histograms_length, fingerprint_length, mask)
+    # elif feature == 'sleeve_length':
+    #     print 'sleeve_length'
+    #     return sleeve_client.get_sleeve(image)['data']
+    # elif feature == 'length':
+    #     print 'length'
+    #     return length_client.get_length(image)['data']
+    # else:
+    #     return []
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):

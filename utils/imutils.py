@@ -919,7 +919,9 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         mask_filename=mask_filename_or_img_array
     elif type(mask_filename_or_img_array) == np.ndarray:
         img_arr = mask_filename_or_img_array
-        mask_filename='./mask.png'
+        mask_filename='./legend.jpg'
+        if original_image is not None:
+            mask_filename = original_image.replace('.jpg','_legend.jpg')
     else:
         logging.warning('got something other than a filename (string) or img array')
         return
@@ -1064,12 +1066,9 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         cv2.imshow(relative_name,combined)
         k = cv2.waitKey(0)
     if save_images:
-        outname=relative_name[:-4]  #strip '.png' or 'bmp' from name
-        outname=outname+'_legend.jpg'
-        full_outname=os.path.join(os.path.dirname(mask_filename),outname)
-#        full_outname=outname
-        logging.debug('show_mask_with_labels is saving labelled img to '+full_outname)
-        cv2.imwrite(full_outname,combined)
+        save_name = mask_filename[:-4]+'_legend.jpg'
+        logging.info('show_mask_with_labels is saving labelled img to '+save_name)
+        cv2.imwrite(save_name,combined)
 
     #todo move this to a separate function i dont think theres any reason its here
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept

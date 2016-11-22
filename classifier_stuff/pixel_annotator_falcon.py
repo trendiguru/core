@@ -7,6 +7,9 @@ import falcon
 
 from jaweson import json, msgpack
 import os
+import subprocess
+import cv2
+
 from trendi import constants
 
 print "Done with imports"
@@ -36,12 +39,31 @@ class PixlevelResource:
             print('data recd:'+str(data))
 
             filename = data["filename"]
-            outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp')
             img_string = data["img_string"]
             imagedata = img_string.split(',')[-1].decode('base64')
-            print('writing '+outfilename)
+
+            #save new mask under old name and send
             with open(filename, 'wb') as f:
                 f.write(imagedata)
+                f.close()
+            command_string = 'scp '+filename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
+            #save new mask with 'finished_mask' filename and send
+            #convert from 'webtool' format (index in red channel of 3chan img) to 'regular' format - 1 chan img that
+            #cv2 reads in as 3chan with identical info in all chans
+            img_arr = cv2.imread(filename)
+            h,w = img_arr.shape[0:2]
+            data = img_arr
+            if len(img_arr.shape) == 3:
+                data = img_arr[:,:,2]
+            outfilename = filename.replace('.png','_finished_mask.png').replace('_webtool','').replace('.bmp','_finished_mask.bmp')
+            print('writing rgb img to '+outfilename)
+            cv2.imwrite(outfilename,data)
+            command_string = 'scp '+outfilename+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output'
+            subprocess.call(command_string, shell=True)
+
+
             ret["output"] = imagedata
             if ret["output"] is not None:
                 ret["success"] = True
@@ -56,29 +78,6 @@ class PixlevelResource:
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
-
-def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
-             outfile = 'data/pd_output.json',labels=constants.pixlevel_categories_v2,mask_suffix='.png',
-             ignore_finished=True,finished_mask_suffix='_finished_mask.png'):
-    images = [os.path.join(images_dir,f) for f in os.listdir(images_dir) if '.jpg' in f]
-    the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
-
-    for f in images:
-        annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
-        annotation_file = os.path.join(annotations_dir,annotation_file)
-        if not os.path.isfile(annotation_file):
-            print('could not find '+str(annotation_file))
-            continue
-        if ignore_finished:
-            maskname = annotation_file.replace('.jpg',finished_mask_suffix)
-            print('maskname:'+maskname)
-            if os.path.isfile(maskname):
-                print('mask exists, skipping')
-                continue
-        the_dict['imageURLs'].append(f)
-        the_dict['annotationURLs'].append(annotation_file)
-    with open(outfile,'w') as fp:
-        json.dump(the_dict,fp,indent=4)
 
 
 api = falcon.API()
