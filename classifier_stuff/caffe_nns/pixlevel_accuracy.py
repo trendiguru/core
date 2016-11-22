@@ -1,30 +1,24 @@
 __author__ = 'jeremy' #ripped from shelhamer pixlevel iou code at caffe home
 
-import sys
 import os
-import datetime
 import numpy as np
-import os.path as osp
-import matplotlib.pyplot as plt
-import urllib2,urllib
-from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
-import matplotlib.pyplot as plt
-
-from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
 import argparse
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
-
-import math
+from trendi.classifier_stuff.caffe_nns import caffe_utils
 from trendi.classifier_stuff.caffe_nns import jrinfer
-from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
+from trendi.paperdoll import neurodoll_falcon_client as nfc
+
 
 def open_html(htmlname,model_base,solverproto,classes,results_dict):
-    netname = multilabel_accuracy.get_netname(solverproto)
+    netname = caffe_utils.get_netname(solverproto)
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -102,7 +96,6 @@ def write_html(htmlname,results_dict):
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
-
 def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classes=None):
     if dir is None:
         protoname = solverproto.replace('.prototxt','')
@@ -160,13 +153,45 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
-def pixlevel_accuracy_from_falcon(images_and_labels_file,classes=constants.ultimate_21, savepics=True):
-    if savepics:
-        picsdir = 'nd_output'
-        Utils.ensure_dir(picsdir)
-    htmlname = os.path.join(dir,dir+'.html')
-    detailed_outputname = htmlname[:-5]+'.txt'
-    print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
+def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ultimate_21, save_dir='./nd_output'):
+    with open(images_and_labels_file,'r') as fp:
+        lines = fp.readlines()
+    n_cl = len(labels)
+    hist = np.zeros((n_cl, n_cl))
+    loss = 0
+    print('n channels: '+str(n_cl))
+    for line in lines:
+        imagefile = line.split()[0]
+        gtfile = line.split()[1]
+        img_arr = cv2.imread(imagefile)
+        if img_arr is None:
+            logging.warning('could not get image data from '+imagefile)
+            continue
+        gt_data = cv2.imread(gtfile)
+        if gt_data is None:
+            logging.warning('could not get gt data from '+gtfile)
+            continue
+        if len(gt_data.shape) == 3:
+            logging.warning('got 3 chan image for mask, taking chan 0 '+gtfile)
+            gt_data = gt_data[:,:,0]
+
+        dic = nfc.pd(img_arr)
+        if not dic['success']:
+            logging.debug('nfc pd not a success')
+            continue
+        net_data = dic['mask']
+        print('sizes of gt {} net output {}'.format())
+
+        hist += jrinfer.fast_hist(gt_data.flatten(),net_data.flatten(),n_cl)
+
+        if save_dir:
+            Utils.ensure_dir(save_dir)
+            gt_name=os.path.basename(imagefile)[:-4]+'_gt_legend.jpg'
+            ndout_name=os.path.basename(imagefile)[:-4]+'_ndout_legend.jpg'
+            imutils.show_mask_with_labels(gt_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=gt_name)
+            imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)
+        # compute the loss as well
+    return hist
 
 
 if __name__ =="__main__":
@@ -191,10 +216,14 @@ if __name__ =="__main__":
     gpu = int(args.gpu)
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
-    caffe.set_mode_gpu()
-    caffe.set_device(gpu)
-    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
-    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
+
+    testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
+    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output'):
+
+#    caffe.set_mode_gpu()
+#    caffe.set_device(gpu)
+#    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
+#    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
 
 
 
