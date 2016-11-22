@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # user_input = get_user_input()
     # collection_name = user_input.collection_name
 
-    for col in ['amazon_US','amazon_DE','amaze']:
+    for col in ['ebay_US']:
         for gen in ['_Male','_Female']:
             col_name = col+gen
             print 'working on %s' % col_name
