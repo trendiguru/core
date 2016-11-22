@@ -180,7 +180,7 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
             logging.debug('nfc pd not a success')
             continue
         net_data = dic['mask']
-        print('sizes of gt {} net output {}'.format())
+        print('sizes of gt {} net output {}'.format(gt_data.shape,net_data.shape))
 
         hist += jrinfer.fast_hist(gt_data.flatten(),net_data.flatten(),n_cl)
 
