@@ -51,6 +51,7 @@ class PixlevelResource:
 
             #save new mask with 'finished_mask' filename and send to extremeli
             outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp')
+            print('writing r-only img to '+outfilename)
             with open(outfilename, 'wb') as f:
                 f.write(imagedata)
                 f.close()
