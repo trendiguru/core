@@ -1,3 +1,5 @@
+from classifier_stuff.caffe_nns.caffe_utils import get_netname
+
 __author__ = 'jeremy' #ripped from tutorial at http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/pascal-multilabel-with-datalayer.ipynb
 
 import sys
@@ -5,8 +7,7 @@ import os
 import datetime
 import numpy as np
 import os.path as osp
-import matplotlib.pyplot as plt
-import urllib2,urllib
+import urllib
 from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
@@ -19,7 +20,6 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 
-import math
 
 # matplotlib inline
 def setup():
@@ -29,8 +29,6 @@ def setup():
     sys.path.append(caffe_root + 'python')
     sys.path.append("pycaffe/layers") # the datalayers we will use are in this directory.
     sys.path.append("pycaffe") # the tools file is in this folder
-
-    import tools #this contains some tools that we need
 
     # set data root directory, e.g:
     pascal_root = osp.join(caffe_root, 'data/pascal/VOC2012')
@@ -640,32 +638,6 @@ def write_textfile(p,r,a,tp,tn,fp,fn,threshold,model_base,dir=None):
         f.write(str(fn)+'\n')
         f.close()
 
-def get_netname(proto):
-#    print('looking for netname')
-    with open(proto,'r') as fp:
-        l1 = fp.readline()
-        l2 = fp.readline()
-#    print('line1 '+l1)
-#    print('line2 '+l2)
-    if 'name' in l1:
-        netname = l1[5:]
-        print('netname:'+netname)
-        return netname
-    if 'name' in l2:
-        netname = l2[5:]
-        print('netname:'+netname)
-        return netname
-    if 'test_net' or 'train_net' in l1: #the file is prob a solverproto and refers to test/val which may have netname
-        fname = l1.split('"')[-2]
-        print('trying to find netname in file1 '+fname)
-        return get_netname(fname)
-    if 'test_net' or 'train_net' in l2:
-        fname = l2.split('"')[-2]
-        print('trying to find netname in file2 '+fname)
-        return get_netname(fname)
-    else:
-        netname = None
-    return netname
 
 def get_traintest_from_proto(proto):
     print('looking for netname in '+proto)

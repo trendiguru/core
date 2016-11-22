@@ -905,7 +905,7 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     plt.savefig('outhist.jpg')
 #    print('fraction histogram:'+str(np.histogram(fraclist,bins=20)))
 
-def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None):
+def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,cut_the_crap=False,save_images=False,visual_output=False,resize=None,mask2=None,overlay=None,savename=None):
     '''
     split this into one function that takes mask and gives img with labels possibly with overlay, returns arr
     and another func that takes 2 images and puts side by side
@@ -919,9 +919,9 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         mask_filename=mask_filename_or_img_array
     elif type(mask_filename_or_img_array) == np.ndarray:
         img_arr = mask_filename_or_img_array
-        mask_filename='./legend.jpg'
+        mask_filename='./output.jpg'
         if original_image is not None:
-            mask_filename = original_image.replace('.jpg','_legend.jpg')
+            mask_filename = original_image
     else:
         logging.warning('got something other than a filename (string) or img array')
         return
@@ -1066,9 +1066,10 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         cv2.imshow(relative_name,combined)
         k = cv2.waitKey(0)
     if save_images:
-        save_name = mask_filename[:-4]+'_legend.jpg'
-        logging.info('show_mask_with_labels is saving labelled img to '+save_name)
-        cv2.imwrite(save_name,combined)
+        if savename is None:
+            savename = mask_filename[:-4]+'_legend.jpg'
+        logging.info('show_mask_with_labels is saving labelled img to '+savename)
+        cv2.imwrite(savename,combined)
 
     #todo move this to a separate function i dont think theres any reason its here
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
