@@ -145,8 +145,12 @@ def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
 
     else:
         small_mask = background_removal.get_fg_mask(small_image)
-    if type(fingerprint) != dict:
+    if fingerprint is None:
+        fingerprint = {}
+    elif type(fingerprint) != dict:
         fingerprint = {'color': fingerprint}
+    else:
+        pass
     fingerprint = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
     try:
