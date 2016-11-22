@@ -7,6 +7,7 @@ import cv2
 import argparse
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import time
 
 
 from trendi import constants
@@ -160,6 +161,7 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
     hist = np.zeros((n_cl, n_cl))
     loss = 0
     print('n channels: '+str(n_cl))
+    start_time=time.time()
     for line in lines:
         imagefile = line.split()[0]
         gtfile = line.split()[1]
@@ -194,6 +196,8 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
             imutils.show_mask_with_labels(gt_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=gt_name)
             imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)
         # compute the loss as well
+    elapsed_time=time.time()-start_time
+    print('elapsed time: '+str(elapsed_time)+' tpi:'+str(float(elapsed_time)/len(lines)))
     return hist
 
 
