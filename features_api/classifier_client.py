@@ -1,6 +1,6 @@
 from jaweson import msgpack
 import requests
-from .feature_deployments import DEPLOYMENTS
+from .deployment_config import DEPLOYMENTS
 
 def get(feature, image_or_url, **kwargs):
     kwargs.update({"image_or_url": image_or_url})
