@@ -64,11 +64,9 @@ def plantForests4AllCategories(col_name):
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
     elif 'ebay' in col_name:
         if 'Male' in col_name or 'Unisex' in col_name:
-            from ..shopstyle import shopstyle_constants
-            categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
+            categories = db.ebay_US_Male.distinct('categories')
         else:
-            from ..ebay import ebay_constants
-            categories = list(set(ebay_constants.ebay_paperdoll_women.values()))
+            categories = db.ebay_US_Female.distinct('categories')
     elif 'recruit' in col_name:
         from ..recruit import recruit_constants
         categories = list(set(recruit_constants.recruit2category_idx.keys()))
