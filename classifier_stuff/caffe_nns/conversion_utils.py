@@ -163,6 +163,7 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
     the_dict = {'labels': labels, 'imageURLs':[], 'annotationURLs':[]}
 
     for f in images:
+        print('looking at '+f)
         annotation_file = os.path.basename(f).replace('.jpg',mask_suffix)
         annotation_file = os.path.join(annotations_dir,annotation_file)
         if ignore_finished:
