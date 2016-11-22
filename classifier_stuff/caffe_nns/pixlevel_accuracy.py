@@ -218,7 +218,7 @@ if __name__ =="__main__":
     n_tests = int(args.n_tests)
 
     testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
-    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output'):
+    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output')
 
 #    caffe.set_mode_gpu()
 #    caffe.set_device(gpu)
