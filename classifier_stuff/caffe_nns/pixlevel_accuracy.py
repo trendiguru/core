@@ -185,7 +185,6 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
         print('sizes of gt {} net output {}'.format(gt_data.shape,net_data.shape))
 
         hist += jrinfer.fast_hist(gt_data.flatten(),net_data.flatten(),n_cl)
-        results_dict = jrinfer.results_from_hist(hist,save_file=os.path.join(save_dir,'output.html'))
 
         if save_dir:
             Utils.ensure_dir(save_dir)
@@ -194,8 +193,10 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
             ndout_name=os.path.basename(imagefile)[:-4]+'_ndout_legend.jpg'
             ndout_name=os.path.join(save_dir,ndout_name)
             imutils.show_mask_with_labels(gt_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=gt_name)
-            imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)
-        # compute the loss as well
+            imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)        # compute the loss as well
+
+    results_dict = jrinfer.results_from_hist(hist,save_file=os.path.join(save_dir,'output.html'))
+    print results_dict
     elapsed_time=time.time()-start_time
     print('elapsed time: '+str(elapsed_time)+' tpi:'+str(float(elapsed_time)/len(lines)))
     return hist
