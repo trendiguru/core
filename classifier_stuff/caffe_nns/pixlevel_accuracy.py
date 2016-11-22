@@ -183,7 +183,7 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
         print('sizes of gt {} net output {}'.format(gt_data.shape,net_data.shape))
 
         hist += jrinfer.fast_hist(gt_data.flatten(),net_data.flatten(),n_cl)
-        results_dict = jrinfer.results_from_hist(hist,save_file=os.path.join(save_dir,'output.html')
+        results_dict = jrinfer.results_from_hist(hist,save_file=os.path.join(save_dir,'output.html'))
 
         if save_dir:
             Utils.ensure_dir(save_dir)
