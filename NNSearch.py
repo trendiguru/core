@@ -147,10 +147,12 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     i = 0
     # for i, entry in enumerate(entries):
     for entry in entries:
-        i += 1
+        # i += 1
         # t1 = time()
         # tt += t1-t2
         ent = entry['fingerprint']
+        if not ent:
+            continue
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
             # t2 = time()
@@ -163,6 +165,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             # tdif = t2 - t1
             # tt += tdif
             continue
+        i += 1
         if i < number_of_matches:
             nearest_n.append((entry, d))
             farthest_nearest = 1
@@ -176,6 +179,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
             if d < farthest_nearest:
                 insert_at = number_of_matches - 2
+                # FAILS! WHEN len(nearest_n) < 100
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:

@@ -160,6 +160,14 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
+def pixlevel_accuracy_from_falcon(images_and_labels_file,classes=constants.ultimate_21, savepics=True):
+    if savepics:
+        picsdir = 'nd_output'
+        Utils.ensure_dir(picsdir)
+    htmlname = os.path.join(dir,dir+'.html')
+    detailed_outputname = htmlname[:-5]+'.txt'
+    print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
+
 
 if __name__ =="__main__":
 
