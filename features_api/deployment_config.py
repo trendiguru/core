@@ -6,5 +6,5 @@ DEPLOYMENTS =  {"collar":{"server":"http://37.58.101.173:8085"},
 
 # Generate url, by adding /{feature} to the end of server url
 for feature, depl in DEPLOYMENTS.iteritems():
-    config["url"] = depl["server"].rstrip('/') + "/" + feature
+    depl["url"] = depl["server"].rstrip('/') + "/" + feature
 
