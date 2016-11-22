@@ -13,22 +13,23 @@ else:
     redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
     redis_limit = 5000
 features_per_category = {'dress': ['color', 'sleeve_length', 'length', 'collar'],
-                         'top': ['color', 'sleeve_length', 'collar'],
-                         'shirt': ['color', 'sleeve_length', 'collar'],
-                         'blouse': ['color', 'sleeve_length', 'collar'],
-                         'cardigan': ['color', 'sleeve_length', 'collar'],
-                         'sweaters': ['color', 'collar'],
-                         'sweatshirts': ['color', 'collar'],
-                         't-shirt': ['color', 'sleeve_length', 'collar'],
-                         'skirt': ['color', 'length'],
+                         'top': ['color', 'sleeve_length', 'collar', 'style'],
+                         'shirt': ['color', 'sleeve_length', 'collar', 'style'],
+                         'blouse': ['color', 'sleeve_length', 'collar', 'style'],
+                         'sweater': ['color', 'collar', 'style'],
+                         'sweatshirt': ['color', 'collar', 'style'],
+                         't-shirt': ['color', 'sleeve_length', 'collar', 'style'],
+                         'skirt': ['color', 'length', 'style'],
                          'other': ['color']}
 
-weights_per_category = {'dress': {'color': 0.8, 'sleeve_length': 0.1, 'length': 0.1},
-                        'top': {'color': 0.8, 'sleeve_length': 0.2},
-                        'shirt': {'color': 0.8, 'sleeve_length': 0.2},
-                        'blouse': {'color': 0.8, 'sleeve_length': 0.2},
-                        't-shirt': {'color': 0.8, 'sleeve_length': 0.2},
-                        'skirt': {'color': 0.9, 'length': 0.1},
+weights_per_category = {'dress': {'color': 0.7, 'sleeve_length': 0.1, 'length': 0.1, 'collar': 0.1},
+                        'top': {'color': 0.7, 'sleeve_length': 0.1, 'collar': 0.1, 'style': 0.1},
+                        'shirt': {'color': 0.7, 'sleeve_length': 0.2, 'collar': 0.1, 'style': 0.1},
+                        'blouse': {'color': 0.7, 'sleeve_length': 0.2, 'collar': 0.1, 'style': 0.1},
+                        't-shirt': {'color': 0.7, 'sleeve_length': 0.2, 'collar': 0.1, 'style': 0.1},
+                        'sweater': {'color': 0.8, 'collar': 0.1, 'style': 0.1},
+                        'sweatshirt': {'color': 0.8, 'collar': 0.1, 'style': 0.1},
+                        'skirt': {'color': 0.8, 'length': 0.1, 'style': 0.1},
                         'other': {'color': 1}}
 
 products_per_ip_pid = {'default':
@@ -241,8 +242,8 @@ paperdoll_shopstyle_women_jp_categories = {
             'name': u'\u30d1\u30fc\u30c6\u30a3\u30c9\u30ec\u30b9'},
     'vest': {'id': u'\u30d9\u30b9\u30c8', 'name': u'\u30d9\u30b9\u30c8'}}
 
-paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse','dress',
-                                 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
+paperdoll_relevant_categories = ['top', 'pants', 'shorts', 'jeans', 'jacket', 'blazer', 'shirt', 'skirt', 'blouse',
+                                 'dress', 'bodysuit', 'vest', 'cardigan', 'leggings', 'sweater', 't-shirt', 'coat',
                                  'suit', 'tights', 'sweatshirt', 'stockings']
 
 ultimate_21_to_paperdoll = [None,None,None,5,16,9,None,None,None,None,3,13,1,None,2,None,7,20,17,14,8]
