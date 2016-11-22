@@ -743,7 +743,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
-                                     do_graylevel_zeroing=True):
+                                     do_graylevel_zeroing=False):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
