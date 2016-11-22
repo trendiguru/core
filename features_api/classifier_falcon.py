@@ -1,11 +1,14 @@
 from importlib import import_module
 import falcon
 from jaweson import json, msgpack
+from ..features.config import FEATURES
+from ..features.feature import Feature
 
 
 class Classifier(object):
-    def __init__(self, feature_name, package="trendi.features"):
-        self.feature = import_module(".{0}".format(feature_name), package)
+    def __init__(self, feature_name, gpu_device=None, package="trendi.features"):
+        # self.feature = import_module(".{0}".format(feature_name), package)
+        self.feature = Feature(feature_name, gpu_device=gpu_device)
 
     def on_get(self, req, resp):
         """Handles GET requests"""
