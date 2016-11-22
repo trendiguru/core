@@ -187,7 +187,9 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
         if save_dir:
             Utils.ensure_dir(save_dir)
             gt_name=os.path.basename(imagefile)[:-4]+'_gt_legend.jpg'
+            gt_name=os.path.join(save_dir,gt_name)
             ndout_name=os.path.basename(imagefile)[:-4]+'_ndout_legend.jpg'
+            ndout_name=os.path.join(save_dir,ndout_name)
             imutils.show_mask_with_labels(gt_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=gt_name)
             imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)
         # compute the loss as well
