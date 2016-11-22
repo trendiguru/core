@@ -46,12 +46,13 @@ def dict_fp(fingerprint, image, mask, category):
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
-
+    changed = False
     for feature in fp_features:
         if feature in keys:
             continue
         fingerprint[feature] = get_feature_fp(image, mask, feature)
-    return fingerprint
+        changed = True
+    return fingerprint, changed
 
 
 def get_feature_fp(image, mask, feature):
@@ -151,19 +152,22 @@ def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
         fingerprint = {'color': fingerprint}
     else:
         pass
-    fingerprint = dict_fp(fingerprint, small_image, small_mask, category)
+    fingerprint, any_change = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
-    try:
-        collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
-        print "successfull"
-        # db.fp_in_process.delete_one({"id": doc["id"]})
-    except:
-        # db.download_data.find_one_and_update({"criteria": collection},
-        #                                      {'$inc': {"errors": 1}})
-        collection.delete_one({'_id': item_id})
-        print "failed"
-
-    print 'done!!!!!!!!!!!!!!!!!!!!'
+    if any_change:
+        print 'changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+        try:
+            collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
+            print "successfull"
+            # db.fp_in_process.delete_one({"id": doc["id"]})
+        except:
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"errors": 1}})
+            collection.delete_one({'_id': item_id})
+            print "failed"
+    else:
+        print 'same'
+    print 'done!'
 
 
 
