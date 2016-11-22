@@ -26,7 +26,7 @@ class Feature(object):
         self.labels = features_config[name]["labels"]
     
     
-    def load(self)
+    def load(self):
         if not can_load:
             raise ImportError(import_error)
         if gpu_device is not None:
