@@ -1066,8 +1066,9 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         cv2.imshow(relative_name,combined)
         k = cv2.waitKey(0)
     if save_images:
-        logging.info('show_mask_with_labels is saving labelled img to '+mask_filename)
-        cv2.imwrite(mask_filename,combined)
+        save_name = mask_filename[:-4]+'_legend.jpg'
+        logging.info('show_mask_with_labels is saving labelled img to '+save_name)
+        cv2.imwrite(save_name,combined)
 
     #todo move this to a separate function i dont think theres any reason its here
     if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept

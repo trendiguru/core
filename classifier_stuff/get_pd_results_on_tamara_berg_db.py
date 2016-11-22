@@ -125,7 +125,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
                 bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
                 print('writing mask bmp to '+str(bmp_name))
                 cv2.imwrite(bmp_name,new_mask)
-
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
         except:
             print('fail in try 3, '+str(sys.exc_info()[0]))
         try:
