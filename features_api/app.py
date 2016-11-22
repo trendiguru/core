@@ -24,4 +24,4 @@ api = falcon.API()
 for f in features:
 #     fpkg = import_module("." + f, feature_package_string)
 #     if hasattr(fpkg, 'execute') and hasattr(fpkg, 'distance'):
-    api.add_route('/{0}'.format(f), ClassifierResource(f, feature_package_string, gpu_device=gpu_device))
+    api.add_route('/{0}'.format(f), ClassifierResource(f, gpu_device=gpu_device))
