@@ -114,6 +114,7 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
     mask = np.zeros(gc_image.shape[:2], dtype=np.uint8)
     for i in range(0, gc_image.shape[0]):
         for j in range(0, gc_image.shape[1]):
+            #skin thresholds: 80<=Cb<=120, 133<=Cr<=173 , from http://www.wseas.us/e-library/conferences/2011/Mexico/CEMATH/CEMATH-20.pdf
             if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
                 if skin_or_clothes is 'clothes':
                     mask[i][j] = 2
@@ -132,6 +133,23 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
         # detected_image = background_removal.get_masked_image(gc_image, mask2)
         return mask2
 
+def skin_detection(image_arr, face=None):
+    '''
+    return mask with skin as 255 and the rest 0
+    todo - if a face is given use that to determine skintone
+    :param image_arr:
+    :param face:
+    :return:
+    '''
+    ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
+    mask = np.zeros(image_arr.shape[:2], dtype=np.uint8)
+    for i in range(0, image_arr.shape[0]):
+        for j in range(0, image_arr.shape[1]):
+            #skin thresholds: 80<=Cb<=120, 133<=Cr<=173 , from http://www.wseas.us/e-library/conferences/2011/Mexico/CEMATH/CEMATH-20.pdf
+            # Y>0 is added to those
+            if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
+                mask = 255
+        return mask
 
 # def create_item_mask(image):
 #     """
