@@ -148,7 +148,7 @@ def skin_detection(image_arr, face=None):
             #skin thresholds: 80<=Cb<=120, 133<=Cr<=173 , from http://www.wseas.us/e-library/conferences/2011/Mexico/CEMATH/CEMATH-20.pdf
             # Y>0 is added to those
             if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
-                mask = 255
+                mask = 1
         return mask
 
 # def create_item_mask(image):
