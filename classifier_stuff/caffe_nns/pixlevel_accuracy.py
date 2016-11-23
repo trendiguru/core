@@ -228,11 +228,12 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
 
         background = np.array((nd_mask==0)*1,dtype=np.uint8)
         foreground = np.array((nd_mask>0)*1,dtype=np.uint8)
-#        skin= np.array((nd_mask==skinlayer)*1,dtype=np.uint8)
+        skin= np.array((nd_mask==skinlayer)*1,dtype=np.uint8)
         bathingsuit=np.array((nd_mask!=0)*1,dtype=np.uint8) *  np.array((nd_mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
 #        out_arr = skin + nonskin*
         n_bg_pixels = np.count_nonzero(background)
         n_fg_pixels = np.count_nonzero(foreground)
+        n_skin = np.count_nonzero(skin)
         n_bathingsuit = np.count_nonzero(bathingsuit)
         logging.debug('size  of fg {} pixels {} bg {} pixels {} bathings {} {}'.format(foreground.shape,n_fg_pixels,background.shape,n_bg_pixels,bathingsuit.shape,n_bathingsuit))
         outfile = os.path.join(dir,os.path.basename(f)[:-4]+'.png')
