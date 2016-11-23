@@ -207,13 +207,16 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
     :param category_index: category from pixlevel v2
     :param skinlayer - the index of the layer for skin which is 45 in pixlevel_categories_v2
     :return: create mask files  file.png , also convert to webtool style (index in red channel)
+    27 mens swimwear
+    19 bikini
+    20 womens_nonbikini
     '''
     print('creating masks for swimsuits category {} label {} skincat {} label {}'.format(bathingsuit_index,labels[bathingsuit_index],skinlayer,labels[skinlayer]))
     files=[os.path.join(dir,f) for f in os.listdir(dir)]
     print(str(len(files))+' files to make into masks '+dir)
     for f in files:
         img_arr = cv2.imread(f)
-        print('file '+f + ' shape '+str(img_arr.shape)+ ' uniques:'+str(np.unique(img_arr)))
+        print('file '+f + ' shape '+str(img_arr.shape))
         h,w = img_arr.shape[0:2]
         out_arr = np.zeros((h,w))
         dic = nfc.pd(img_arr)
@@ -226,7 +229,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         background = np.array((nd_mask==0)*1,dtype=np.uint8)
         foreground = np.array((nd_mask>0)*1,dtype=np.uint8)
 #        skin= np.array((nd_mask==skinlayer)*1,dtype=np.uint8)
-        bathingsuit=np.array((nd_mask!=0 and nd_mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
+        bathingsuit=np.array((nd_mask!=0)*1,dtype=np.uint8) *  np.array((nd_mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
 #        out_arr = skin + nonskin*
         n_bg_pixels = np.count_nonzero(background)
         n_fg_pixels = np.count_nonzero(foreground)
