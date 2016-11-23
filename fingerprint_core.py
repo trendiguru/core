@@ -68,7 +68,7 @@ def get_feature_fp(feature, image, mask=None):
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
     else:
-        res = classifier_client.get(feature, image, mask=mask)
+        res = classifier_client.get(feature, image)
         if isinstance(res, dict) and 'data' in res:
             return res['data']
         else:
