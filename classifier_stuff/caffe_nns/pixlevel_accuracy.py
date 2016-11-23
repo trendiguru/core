@@ -218,7 +218,8 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         img_arr = cv2.imread(f)
         print('file '+f + ' shape '+str(img_arr.shape))
         h,w = img_arr.shape[0:2]
-        out_arr = np.zeros((h,w))
+        if img_arr is None:
+            continue
         if(0):
             dic = nfc.pd(img_arr)
             if not dic['success']:
