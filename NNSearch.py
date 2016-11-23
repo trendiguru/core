@@ -71,13 +71,11 @@ def distance(category, main_fp, candidate_fp, coll):
         logging.warning("candidate_fp in distance function is a LIST!")
         return None
     # if not main_fp.keys() == candidate_fp.keys():
-    if not len(main_fp.keys()) == len(candidate_fp.keys()) and sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
+    if not len(main_fp.keys()) == len(candidate_fp.keys()) or not sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
-        if len(main_fp.keys()) > len(candidate_fp.keys()):
-            main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
-        else:
-            candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
+        main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
+        candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
 
     d = 0
     weight_keys = constants.weights_per_category.keys()
