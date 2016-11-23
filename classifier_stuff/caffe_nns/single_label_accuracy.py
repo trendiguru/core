@@ -10,6 +10,8 @@ import urllib2,urllib
 from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -21,6 +23,7 @@ from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
 import math
+import matplotlib.pyplot as plt
 
 def update_confmat(gt,est,confmat):
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
@@ -339,6 +342,242 @@ def write_textfile(txtname,proto,caffemodel,confmat,netname=None,classlabels=con
         f.write('confmat:\n')
         f.write(str(confmat)+'\n')
         f.close()
+
+def histogram_of_results_2classes(labelfile,multilabel_index,class_labels):
+
+    array_boys_success = np.array([])
+    array_girls_success = np.array([])
+    array_boys_failure = np.array([])
+    array_girls_failure = np.array([])
+
+    with open (labelfile,'r') as fp:
+        lines = fp.readlines()
+
+    counter = 0
+    for line in lines:
+        counter += 1
+
+        # split line to full path and label
+        path = line.split()
+
+        if path == []:
+            logging.warning('got wierd line '+str(line))
+            continue
+
+        # Load numpy array (.npy), directory glob (*.jpg), or image file.
+        input_file = os.path.expanduser(path[0])
+        inputs = [caffe.io.load_image(input_file)]
+        #inputs = [Utils.get_cv2_img_array(input_file)]
+
+        print("Classifying %d inputs." % len(inputs))
+
+        # Classify.
+        start = time.time()
+        predictions = gender_detector.genderator(inputs, path[2])
+        print("Done in %.2f s." % (time.time() - start))
+
+        strapless_predict = predictions[0][0]
+        spaghetti_straps_predict = predictions[0][1]
+        straps_predict = predictions[0][2]
+        sleeveless_predict = predictions[0][3]
+        cap_sleeve_predict = predictions[0][4]
+        short_sleeve_predict = predictions[0][5]
+        midi_sleeve_predict = predictions[0][6]
+        long_sleeve_predict = predictions[0][7]
+
+        max_result = max(predictions[0])
+
+        max_result_index = np.argmax(predictions[0])
+
+        true_label = int(path[1])
+        predict_label = int(max_result_index)
+
+
+
+
+
+
+
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            #if file.startswith("face-"):
+                predictions = gender_detector.genderator(root + "/" + file)
+                if predictions[0][0] > predictions[0][1]:
+                    array_boys_failure = np.append(array_boys_failure, predictions[0][0])
+                    array_girls_failure = np.append(array_girls_failure, predictions[0][1])
+                else:
+                    array_boys_success=np.append(array_boys_success, predictions[0][0])
+                    array_girls_success=np.append(array_girls_success, predictions[0][1])
+                female_count += 1
+    print ("female_count: %d" % (female_count))
+
+    histogram=plt.figure(1)
+
+    #bins = np.linspace(-1000, 1000, 50)
+
+    plt.hist(array_boys_success, alpha=0.5, label='array_boys_success')
+    plt.hist(array_girls_success, alpha=0.5, label='array_girls_success')
+    plt.legend()
+
+    plt.hist(array_boys_failure, alpha=0.5, label='array_boys_failure')
+    plt.hist(array_girls_failure, alpha=0.5, label='array_girls_failure')
+    plt.legend()
+
+    histogram.savefig('test_image_for_faces.png')
+
+
+
+
+
+    #!/usr/bin/env python
+
+    import caffe
+    import numpy as np
+    from .. import background_removal, Utils, constants
+    import cv2
+    import os
+    import sys
+    import argparse
+    import glob
+    import time
+    import skimage
+    from PIL import Image
+    from . import gender_detector
+    import random
+    import matplotlib.pyplot as plt
+
+
+    array_success_with_plus_minus_category = np.array([])
+    array_failure_with_plus_minus_category = np.array([])
+    array_success_without = np.array([])
+    array_failure_without = np.array([])
+
+    text_file = open("db_dress_sleeve_train.txt", "r")
+
+    counter = 0
+
+    MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt"
+    PRETRAINED = "/home/yonatan/resnet50_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel"
+    caffe.set_mode_gpu()
+    image_dims = [224, 224]
+    mean, input_scale = np.array([120, 120, 120]), None
+    #mean, input_scale = None, None
+    #channel_swap = None
+    channel_swap = [2, 1, 0]
+    raw_scale = 255.0
+    ext = 'jpg'
+
+    # Make classifier.
+    classifier = caffe.Classifier(MODLE_FILE, PRETRAINED,
+                                  image_dims=image_dims, mean=mean,
+                                  input_scale=input_scale, raw_scale=raw_scale,
+                                  channel_swap=channel_swap)
+
+    success_counter = 0
+    failure_counter = 0
+    guessed_mini_instead_midi = 0
+    guessed_maxi_instead_midi = 0
+    guessed_midi_instead_mini = 0
+    guessed_maxi_instead_mini = 0
+    guessed_midi_instead_maxi = 0
+    guessed_mini_instead_maxi = 0
+
+    counter_99_percent = 0
+    counter_97_percent = 0
+    counter_95_percent = 0
+    counter_90_percent = 0
+
+    failure_above_98_percent = 0
+
+    #failure_current_result = 0
+    #success_current_result = 0
+
+    for line in text_file:
+        counter += 1
+
+        # split line to full path and label
+        path = line.split()
+
+        if path == []:
+            continue
+
+        # Load numpy array (.npy), directory glob (*.jpg), or image file.
+        input_file = os.path.expanduser(path[0])
+        inputs = [caffe.io.load_image(input_file)]
+        #inputs = [Utils.get_cv2_img_array(input_file)]
+
+        print("Classifying %d inputs." % len(inputs))
+
+        # Classify.
+        start = time.time()
+        predictions = classifier.predict(inputs)
+        print("Done in %.2f s." % (time.time() - start))
+
+        strapless_predict = predictions[0][0]
+        spaghetti_straps_predict = predictions[0][1]
+        straps_predict = predictions[0][2]
+        sleeveless_predict = predictions[0][3]
+        cap_sleeve_predict = predictions[0][4]
+        short_sleeve_predict = predictions[0][5]
+        midi_sleeve_predict = predictions[0][6]
+        long_sleeve_predict = predictions[0][7]
+
+        max_result = max(predictions[0])
+
+        max_result_index = np.argmax(predictions[0])
+
+        true_label = int(path[1])
+        predict_label = int(max_result_index)
+
+        if predict_label == true_label:
+            array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+            array_success_without = np.append(array_success_without, max_result)
+        elif predict_label == 0 and true_label == 1:
+            array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+            array_failure_without = np.append(array_failure_without, max_result)
+        elif predict_label == 7 and true_label == 6:
+            array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+            array_failure_without = np.append(array_failure_without, max_result)
+        elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
+            array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
+            array_failure_without = np.append(array_failure_without, max_result)
+        else:
+            array_failure_with_plus_minus_category = np.append(array_failure_with_plus_minus_category, max_result)
+            array_failure_without = np.append(array_failure_without, max_result)
+            print max_result
+
+        print counter
+        print predictions
+
+
+    success_with = len(array_success_with_plus_minus_category)
+    failure_with = len(array_failure_with_plus_minus_category)
+
+    success_without = len(array_success_without)
+    failure_without = len(array_failure_without)
+
+    if success_with == 0 or failure_with == 0:
+        print "wrong!"
+    else:
+        print 'accuracy percent with +-category: {0}'.format(float(success_with) / (success_with + failure_with))
+        print 'accuracy percent without: {0}'.format(float(success_without) / (success_without + failure_without))
+
+    histogram = plt.figure(1)
+
+    plt.hist(array_success_with_plus_minus_category, bins=100, range=(0.9, 1), color='blue', label='array_success_with_plus_minus_category')
+    plt.legend()
+
+    plt.hist(array_failure_with_plus_minus_category, bins=100, range=(0.9, 1), color='red', label='array_failure_with_plus_minus_category')
+    plt.legend()
+
+    plt.hist(array_success_without, bins=100, range=(0.9, 1), color='green', label='array_success_without')
+    plt.legend()
+
+    plt.hist(array_failure_without, bins=100, range=(0.9, 1), color='pink', label='array_failure_without')
+    plt.legend()
+
+    histogram.savefig('db_dresses_histogram_iter_5000.png')
+
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(description='singe label accuracy tester')
