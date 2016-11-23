@@ -57,7 +57,7 @@ if __name__ == "__main__":
                     sleep(30)
                 if renew_flag:
                     image_url = item['images']['XLarge']
-                    q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
+                    q.enqueue(refresh_fp, args=(col_name, item_id, category, image_url), timeout=1800)
 
             items.close()
             fanni.plantForests4AllCategories(col_name)
