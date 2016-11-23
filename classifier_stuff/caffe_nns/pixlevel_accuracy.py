@@ -201,6 +201,66 @@ def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ul
     print('elapsed time: '+str(elapsed_time)+' tpi:'+str(float(elapsed_time)/len(lines)))
     return hist
 
+def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constants.pixlevel_categories_v2,skinlayer = 45):
+    '''
+    :param dir: directory of images for which to generate masks
+    :param category_index: category from pixlevel v2
+    :param skinlayer - the index of the layer for skin which is 45 in pixlevel_categories_v2
+    :return: create mask files  file.png , also convert to webtool style (index in red channel)
+    '''
+    print('creating masks for swimsuits category {} label {} skincat {} label {}'.format(bathingsuit_index,labels[bathingsuit_index],skinlayer,labels[skinlayer]))
+    files=[os.path.join(dir,f) for f in os.listdir(dir)]
+    print(str(len(files))+' files to make into masks '+dir)
+    for f in files:
+        img_arr = cv2.imread(f)
+        print('file '+f + ' shape '+str(img_arr.shape)+ ' uniques:'+str(np.unique(img_arr)))
+        h,w = img_arr.shape[0:2]
+        out_arr = np.zeros((h,w))
+        dic = nfc.pd(img_arr)
+        if not dic['success']:
+            logging.debug('nfc pd not a success')
+            continue
+        nd_mask = dic['mask']
+        logging.debug('sizes of gt {}'.format(nd_mask.shape))
+
+        background = np.array((nd_mask==0)*1,dtype=np.uint8)
+        foreground = np.array((nd_mask>0)*1,dtype=np.uint8)
+#        skin= np.array((nd_mask==skinlayer)*1,dtype=np.uint8)
+        bathingsuit=np.array((nd_mask!=0 and nd_mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
+#        out_arr = skin + nonskin*
+        n_bg_pixels = np.count_nonzero(background)
+        n_fg_pixels = np.count_nonzero(foreground)
+        n_bathingsuit = np.count_nonzero(bathingsuit)
+        logging.debug('size  of fg {} pixels {} bg {} pixels {} bathings {} {}'.format(foreground.shape,n_fg_pixels,background.shape,n_bg_pixels,bathingsuit.shape,n_bathingsuit))
+        outfile = os.path.join(dir,os.path.basename(f)[:-4]+'.png')
+        logging.info('writing bathingsuitmask to '+outfile)
+        cv2.imwrite(outfile,bathingsuit)
+        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True)
+    convert_masks_to_webtool(dir)
+
+def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert_to='_webtool.png'):
+    '''
+    images saved as .bmp seem to have a single grayscale channel, and an alpha.
+    using 'convert' to convert those to .png doesn't help, same story. the web tool example images have the red channel
+    as index, so this func converts to that format. actually i will try r=g=b=index, hopefully thats ok too - since that
+    will be compatible with rest of our stuff...that didnt work , the tool really wants R=category, B=G=0
+    '''
+    files_to_convert=[os.path.join(dir,f) for f in os.listdir(dir) if suffix_to_convert_from in f and not suffix_to_convert_to in f]
+    print(str(len(files_to_convert))+' files in '+dir)
+    for f in files_to_convert:
+        img_arr = cv2.imread(f)
+        print('file '+f + ' shape '+str(img_arr.shape)+ ' uniques:'+str(np.unique(img_arr)))
+        h,w = img_arr.shape[0:2]
+        out_arr = np.zeros((h,w,3))
+        out_arr[:,:,0] = 0  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
+        out_arr[:,:,1] = 0  #G
+        out_arr[:,:,2] = img_arr[:,:,0]  #R
+
+        newname = os.path.join(dir,os.path.basename(f).replace(suffix_to_convert_from,suffix_to_convert_to))
+        print('outname '+str(newname))
+        cv2.imwrite(newname,out_arr)
+        return out_arr
+
 
 if __name__ =="__main__":
 
