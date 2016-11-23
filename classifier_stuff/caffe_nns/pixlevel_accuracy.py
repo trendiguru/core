@@ -250,7 +250,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         cv2.imwrite(outfile,bathingsuit)
         #save new mask
         mask_legendname = f[:-4]+'_skin_nogc.jpg'
-        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True)
+        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True,savename=mask_legendname)
         #save original mask
         orig_legendname = f[:-4]+'_original_legend.jpg'
         imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,original_image=f,save_images=True,savename=orig_legendname)
