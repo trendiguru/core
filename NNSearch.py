@@ -88,7 +88,9 @@ def distance(category, main_fp, candidate_fp, coll):
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
         else:
-            if len(main_fp[feature]) and len(candidate_fp[feature]):
+            if not main_fp[feature] or not candidate_fp[feature]:
+                dist = 0
+            elif len(main_fp[feature]) and len(candidate_fp[feature]):
                 dist = l2_distance(main_fp[feature], candidate_fp[feature])
             else:
                 dist == 0
