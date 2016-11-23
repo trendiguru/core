@@ -71,13 +71,11 @@ def distance(category, main_fp, candidate_fp, coll):
         logging.warning("candidate_fp in distance function is a LIST!")
         return None
     # if not main_fp.keys() == candidate_fp.keys():
-    if not len(main_fp.keys()) == len(candidate_fp.keys()) and sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
+    if not len(main_fp.keys()) == len(candidate_fp.keys()) or not sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
-        if len(main_fp.keys()) > len(candidate_fp.keys()):
-            main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
-        else:
-            candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
+        main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
+        candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
 
     d = 0
     weight_keys = constants.weights_per_category.keys()
@@ -91,6 +89,8 @@ def distance(category, main_fp, candidate_fp, coll):
             if not main_fp[feature] or not candidate_fp[feature]:
                 dist = 0
             elif len(main_fp[feature]) and len(candidate_fp[feature]):
+                print "main {0} vector: {1}".format(feature, main_fp[feature])
+                print "candidate {0} vector: {1}".format(feature, candidate_fp[feature])
                 if isinstance(main_fp[feature], dict):
                     main_fp[feature] = main_fp[feature]['data']
                 if isinstance(candidate_fp[feature], dict):
