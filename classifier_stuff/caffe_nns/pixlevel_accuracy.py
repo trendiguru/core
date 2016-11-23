@@ -220,25 +220,23 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         h,w = img_arr.shape[0:2]
         if img_arr is None:
             continue
-        if(0):
-            dic = nfc.pd(img_arr)
-            if not dic['success']:
-                logging.debug('nfc pd not a success')
-                continue
-            mask = dic['mask']
-            logging.debug('sizes of gt {}'.format(mask.shape))
-            skin= np.array((mask==skinlayer)*1,dtype=np.uint8)
-            bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
-        else:
-#            mask = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
-            mask =  kassper.skin_detection(img_arr)
-
-            skin= mask
-            bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
-
-
+        dic = nfc.pd(img_arr)
+        if not dic['success']:
+            logging.debug('nfc pd not a success')
+            continue
+        mask = dic['mask']
+        logging.debug('sizes of gt {}'.format(mask.shape))
         background = np.array((mask==0)*1,dtype=np.uint8)
         foreground = np.array((mask>0)*1,dtype=np.uint8)
+        if(0):  #use nd skin layer
+            skin= np.array((mask==skinlayer)*1,dtype=np.uint8)
+            bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
+        else: #use nadav skindetector
+            #skin = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
+            skin =  kassper.skin_detection(img_arr)
+            nonskin = np.array(1-np.nonzero(skin),dtype=np.uint8)
+            bathingsuit=np.multiply(foreground * nonskin) *bathingsuit_index
+
 #        out_arr = skin + nonskin*
         n_bg_pixels = np.count_nonzero(background)
         n_fg_pixels = np.count_nonzero(foreground)
