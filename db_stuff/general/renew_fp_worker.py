@@ -11,6 +11,8 @@ from ...features import color
 from ...paperdoll import neurodoll_falcon_client as nfc
 from ... import Utils, constants, background_removal
 from ...features_api import classifier_client
+from termcolor import colored
+
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -155,7 +157,7 @@ def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
     fingerprint, any_change = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
     if any_change:
-        print 'changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+        print colored('!!!!!!!!!!!!!!!!!!!!changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', 'yellow')
         try:
             collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
             print "successfull"
