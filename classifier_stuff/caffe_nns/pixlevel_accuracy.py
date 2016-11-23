@@ -239,7 +239,11 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         outfile = os.path.join(dir,os.path.basename(f)[:-4]+'.png')
         logging.info('writing bathingsuitmask to '+outfile)
         cv2.imwrite(outfile,bathingsuit)
+        #save new mask
         imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True)
+        #save original mask
+        orig_legendname = f[:-4]+'_original_legend.jpg'
+        imutils.show_mask_with_labels(nd_mask,labels=labels,original_image=f,save_images=True,savename=orig_legendname)
     convert_masks_to_webtool(dir)
 
 def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert_to='_webtool.png'):

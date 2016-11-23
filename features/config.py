@@ -16,7 +16,7 @@ FEATURES = {
         "relevant_items": []
     },
 
-    "dress_length": {
+    "length": {
         "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt",
         "PRETRAINED": "/home/yonatan/dressLength_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel",
         "labels": {
