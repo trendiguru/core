@@ -2,7 +2,7 @@ __author__ = 'yonti'
 
 import cv2
 import logging
-
+from gevent import Greenlet, joinall
 import numpy as np
 
 from ..recruit.recruit_constants import recruit2category_idx
@@ -47,7 +47,7 @@ def dict_fp(image, mask, category):
     else:
         fp_features = constants.features_per_category['other']
     fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features}
-    gevent.joinall(fingerprint.values())
+    joinall(fingerprint.values())
     fingerprint = {k: v.value for k, v in fingerprint.iteritems()}
     # fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
     return fingerprint
