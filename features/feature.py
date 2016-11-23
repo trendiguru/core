@@ -23,9 +23,10 @@ class Feature(object):
         self.name = name
         self.model_file = model_file or features_config[name]["MODEL_FILE"]
         self.pretrained = pretrained or features_config[name]["PRETRAINED"]
+        self.labels = features_config[name]["labels"]
     
     
-    def load(self)
+    def load(self, gpu_device=None):
         if not can_load:
             raise ImportError(import_error)
         if gpu_device is not None:

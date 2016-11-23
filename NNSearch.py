@@ -70,7 +70,8 @@ def distance(category, main_fp, candidate_fp, coll):
     if isinstance(candidate_fp, list):
         logging.warning("candidate_fp in distance function is a LIST!")
         return None
-    if not main_fp.keys() == candidate_fp.keys():
+    # if not main_fp.keys() == candidate_fp.keys():
+    if not len(main_fp.keys()) == len(candidate_fp.keys()) and sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
         if len(main_fp.keys()) > len(candidate_fp.keys()):
@@ -87,12 +88,12 @@ def distance(category, main_fp, candidate_fp, coll):
     for feature in main_fp.keys():
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'sleeve_length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
+        # elif feature == 'sleeve_length':
+        #     dist = l2_distance(main_fp[feature], candidate_fp[feature])
+        # elif feature == 'length':
+        #     dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
-            return None
+            dist = l2_distance(main_fp[feature], candidate_fp[feature])
         # print "{0}: before weight = {1}, after weight = {2}\n".format(feature, dist, weights[feature]*dist)
         d += weights[feature]*dist
     # print "total distance is {0}".format(d)

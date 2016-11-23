@@ -8,6 +8,7 @@ class ClassifierResource(object):
     def __init__(self, feature_name, gpu_device=None):
         # self.feature = import_module(".{0}".format(feature_name), package)
         self.feature = Feature(feature_name, gpu_device=gpu_device)
+        self.feature.load()
 
     def on_get(self, req, resp):
         """Handles GET requests"""
