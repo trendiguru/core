@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     for gen in ['Male', 'Female']:
         col_name = 'ebay_' + GEO + '_' + gen
-        theArchiveDoorman(col_name)
+        # theArchiveDoorman(col_name)
         forest_job = forest.enqueue(plantForests4AllCategories, col_name=col_name, timeout=3600)
         while not forest_job.is_finished and not forest_job.is_failed:
             sleep(300)
