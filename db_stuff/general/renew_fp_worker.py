@@ -2,7 +2,7 @@ __author__ = 'yonti'
 
 import cv2
 import logging
-
+from gevent import Greenlet, joinall
 import numpy as np
 
 from ..recruit.recruit_constants import recruit2category_idx
@@ -41,41 +41,36 @@ def neurodoll(image, category_idx):
     return True, mask2
 
 
-def dict_fp(fingerprint, image, mask, category):
-    print 'dict fp'
-    keys = fingerprint.keys()
+def dict_fp(fp, image, mask, category):
     if category in constants.features_per_category:
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
+    if fp is None:
+        fp_keys=[]
+    else:
+        fp_keys = fp.keys()
+    fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features if feature not in fp_keys}
+    joinall(fingerprint.values())
+    fingerprint = {k: v.value for k, v in fingerprint.iteritems()}
     changed = False
-    for feature in fp_features:
-        if feature in keys:
-            continue
-        fingerprint[feature] = get_feature_fp(image, mask, feature)
+    if any(new_key not in fp_keys for new_key in fingerprint.keys()):
         changed = True
+
+    # fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
     return fingerprint, changed
 
 
-def get_feature_fp(image, mask, feature):
+def get_feature_fp(feature, image, mask=None):
     if feature == 'color':
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
-    elif feature == 'sleeve_length':
-        print 'sleeve_length'
-        return sleeve_client.get_sleeve(image)['data']
-    elif feature == 'length':
-        print 'length'
-        return length_client.get_length(image)['data']
-    #     return classifier_client.get("sleeve_length", image)['data']
-    # elif feature == 'length':
-    #     print 'length'
-    #     return classifier_client.get("length", image)['data']
-    elif feature == 'collar':
-        print 'collar'
-        return classifier_client.get("collar", image)['data']
     else:
-        return []
+        res = classifier_client.get(feature, image)
+        if isinstance(res, dict) and 'data' in res:
+            return res['data']
+        else:
+            return res
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
@@ -148,12 +143,10 @@ def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
 
     else:
         small_mask = background_removal.get_fg_mask(small_image)
-    if fingerprint is None:
-        fingerprint = {}
-    elif type(fingerprint) != dict:
+
+    if type(fingerprint) == list:
         fingerprint = {'color': fingerprint}
-    else:
-        pass
+
     fingerprint, any_change = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
     if any_change:

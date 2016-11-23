@@ -47,7 +47,7 @@ if __name__ == "__main__":
                         wanted_keys = features_per_category[category]
                         fp_keys = fp.keys()
                         if any(key not in fp_keys for key in wanted_keys):
-                            renew_flag=True
+                            renew_flag = True
 
                 except Exception as e:
                     print e
