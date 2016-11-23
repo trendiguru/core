@@ -236,7 +236,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
             skin =  kassper.skin_detection(img_arr)
             nonskin = np.array(skin==0,dtype=np.uint8)
             bathingsuit=np.multiply(foreground, nonskin) *bathingsuit_index
-            print('vals in bathingsuit '+str(np.uniques(bathingsuit)))
+            print('vals in bathingsuit '+str(np.unique(bathingsuit)))
 
 #        out_arr = skin + nonskin*
         n_bg_pixels = np.count_nonzero(background)
