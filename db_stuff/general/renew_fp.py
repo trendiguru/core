@@ -1,10 +1,12 @@
 import argparse
 from rq import Queue
-from ...constants import db, redis_conn, redis_limit
+from ...constants import db, redis_conn, redis_limit,features_per_category
 from .renew_fp_worker import refresh_fp
 from time import sleep
 from ..general.db_utils import refresh_similar_results
+from ..annoy_dir import fanni
 q = Queue('renew', connection=redis_conn)
+
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ RENEW THE FP @@@')
@@ -27,23 +29,36 @@ if __name__ == "__main__":
             items = collection.find({},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
 
             for x,item in enumerate(items):
+                renew_flag = False
                 if divmod(x,50000)[1]==0:
                     print x
                 try:
                     item_id = item['_id']
                     category = item['categories']
-                    if category not in ["dress", "top", "shirt", "t-shirt","sweater","sweatshirt","cardigan","blouse"]:
-                        continue
                     fp = item['fingerprint']
+                    if fp is None:
+                        renew_flag = True
+                    elif type(fp) != dict:
+                        fp = {'color': fp}
+                    else:
+                        pass
+                    features_keys = features_per_category.keys()
+                    if category in features_keys and not renew_flag:
+                        wanted_keys = features_per_category[category]
+                        fp_keys = fp.keys()
+                        if any(key not in fp_keys for key in wanted_keys):
+                            renew_flag=True
 
-                    image_url = item['images']['XLarge']
                 except Exception as e:
                     print e
                     continue
 
                 while q.count > redis_limit:
                     sleep(30)
+                if renew_flag:
+                    image_url = item['images']['XLarge']
+                    q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
 
-                q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
             items.close()
+            fanni.plantForests4AllCategories(col_name)
         refresh_similar_results(col)
