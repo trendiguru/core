@@ -229,7 +229,9 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
             skin= np.array((mask==skinlayer)*1,dtype=np.uint8)
             bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
         else:
-            mask = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
+#            mask = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
+            mask =  kassper.skin_detection(img_arr)
+
             skin= mask
             bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
 
@@ -248,7 +250,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         #save new mask
         imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True)
         #save original mask
-        orig_legendname = f[:-4]+'_original_legend.jpg'
+        orig_legendname = f[:-4]+'_original_nogc_legend.jpg'
         imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,original_image=f,save_images=True,savename=orig_legendname)
     convert_masks_to_webtool(dir)
 
