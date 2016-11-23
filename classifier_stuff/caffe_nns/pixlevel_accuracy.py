@@ -234,7 +234,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         else: #use nadav skindetector
             #skin = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
             skin =  kassper.skin_detection(img_arr)
-            nonskin = np.array(1-np.nonzero(skin),dtype=np.uint8)
+            nonskin = np.array(skin==0,dtype=np.uint8)
             bathingsuit=np.multiply(foreground * nonskin) *bathingsuit_index
 
 #        out_arr = skin + nonskin*
