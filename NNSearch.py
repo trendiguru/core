@@ -91,6 +91,8 @@ def distance(category, main_fp, candidate_fp, coll):
             if not main_fp[feature] or not candidate_fp[feature]:
                 dist = 0
             elif len(main_fp[feature]) and len(candidate_fp[feature]):
+                print "main {0} vector: {1}".format(feature, main_fp[feature])
+                print "candidate {0} vector: {1}".format(feature, candidate_fp[feature])
                 dist = l2_distance(main_fp[feature], candidate_fp[feature])
             else:
                 dist == 0
