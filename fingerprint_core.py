@@ -68,7 +68,11 @@ def get_feature_fp(feature, image, mask=None):
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
     else:
-        return classifier_client.get(feature, image, mask=mask)
+        res = classifier_client.get(feature, image, mask=mask)
+        if isinstance(res, dict) and 'data' in res:
+            return res['data']
+        else:
+            return res
     
 #    data = msgpack.dumps({"image_or_url": image, "mask": mask})
 #    resp = requests.post(FEATURES_CLIENT_ADDRESS+feature, data=data)
