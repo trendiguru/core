@@ -47,7 +47,7 @@ if __name__ == "__main__":
                         wanted_keys = features_per_category[category]
                         fp_keys = fp.keys()
                         if any(key not in fp_keys for key in wanted_keys):
-                            renew_flag=True
+                            renew_flag = True
 
                 except Exception as e:
                     print e
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                     sleep(30)
                 if renew_flag:
                     image_url = item['images']['XLarge']
-                    q.enqueue(refresh_fp, args=(col_name, item_id, category, image_url), timeout=1800)
+                    q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
 
             items.close()
             fanni.plantForests4AllCategories(col_name)

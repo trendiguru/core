@@ -40,17 +40,25 @@ def neurodoll(image, category_idx):
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return True, mask2
 
-def dict_fp(image, mask, category):
-    print 'dict fp'
+
+def dict_fp(fp, image, mask, category):
     if category in constants.features_per_category:
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
-    fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features}
+    if fp is None:
+        fp_keys=[]
+    else:
+        fp_keys = fp.keys()
+    fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features if feature not in fp_keys}
     joinall(fingerprint.values())
     fingerprint = {k: v.value for k, v in fingerprint.iteritems()}
+    changed = False
+    if any(new_key not in fp_keys for new_key in fingerprint.keys()):
+        changed = True
+
     # fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
-    return fingerprint
+    return fingerprint, changed
 
 
 def get_feature_fp(feature, image, mask=None):
@@ -109,7 +117,7 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def refresh_fp(collection_name, item_id, category, image_url):
+def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
 
     collection = db[collection_name]
     image = Utils.get_cv2_img_array(image_url)
@@ -136,19 +144,24 @@ def refresh_fp(collection_name, item_id, category, image_url):
     else:
         small_mask = background_removal.get_fg_mask(small_image)
 
-    fingerprint = dict_fp(small_image, small_mask, category)
+    if type(fingerprint) == list:
+        fingerprint = {'color': fingerprint}
+
+    fingerprint, any_change = dict_fp(fingerprint, small_image, small_mask, category)
     print 'fingerprint done'
-
-    try:
-        collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
-        print "successfull"
-        # db.fp_in_process.delete_one({"id": doc["id"]})
-    except:
-        # db.download_data.find_one_and_update({"criteria": collection},
-        #                                      {'$inc': {"errors": 1}})
-        collection.delete_one({'_id': item_id})
-        print "failed"
-
+    if any_change:
+        print colored('!!!!!!!!!!!!!!!!!!!!changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', 'yellow')
+        try:
+            collection.update_one({'_id': item_id}, {'$set': {'fingerprint': fingerprint}})
+            print "successfull"
+            # db.fp_in_process.delete_one({"id": doc["id"]})
+        except:
+            # db.download_data.find_one_and_update({"criteria": collection},
+            #                                      {'$inc': {"errors": 1}})
+            collection.delete_one({'_id': item_id})
+            print "failed"
+    else:
+        print 'same'
     print 'done!'
 
 
