@@ -87,12 +87,12 @@ def distance(category, main_fp, candidate_fp, coll):
     for feature in main_fp.keys():
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'sleeve_length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
+        # elif feature == 'sleeve_length':
+        #     dist = l2_distance(main_fp[feature], candidate_fp[feature])
+        # elif feature == 'length':
+        #     dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
-            return None
+            dist = l2_distance(main_fp[feature], candidate_fp[feature])
         # print "{0}: before weight = {1}, after weight = {2}\n".format(feature, dist, weights[feature]*dist)
         d += weights[feature]*dist
     # print "total distance is {0}".format(d)
