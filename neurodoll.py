@@ -714,7 +714,7 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     return multilabel_output #
 
 def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conversion=constants.binary_classifier_categories_to_ultimate_21):
-    for i in len(ml_values):
+    for i in range(len(ml_values)):
         if ml_values[i] < threshold:
             nd_index = ml_to_nd_conversion[i]
             if nd_index is None:
@@ -742,7 +742,8 @@ def count_values(mask,labels=None):
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
-                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224)):
+                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
+                                     do_graylevel_zeroing=True):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -798,7 +799,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
     print('before graylevel zeroing:')
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
 
-    do_graylevel_zeroing=True
     if do_graylevel_zeroing:
         graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
 

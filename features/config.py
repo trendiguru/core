@@ -1,7 +1,7 @@
 FEATURES = {
 
     "sleeve_length": {
-        "MODLE_FILE": "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt",
+        "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt",
         "PRETRAINED": "/home/yonatan/dressSleeve_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel",
         "labels": {
             'strapless': 0,
@@ -17,7 +17,7 @@ FEATURES = {
     },
 
     "dress_length": {
-        "MODLE_FILE": "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt",
+        "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt",
         "PRETRAINED": "/home/yonatan/dressLength_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel",
         "labels": {
             'mini_length': 0,
@@ -28,7 +28,7 @@ FEATURES = {
     },
 
     "collar": {
-        "MODLE_FILE": "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt",
+        "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt",
         "PRETRAINED": "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel",
         "labels": {
             'crew_neck': 0,
@@ -45,7 +45,7 @@ FEATURES = {
     },
 
     "style": {
-        "MODLE_FILE": "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt",
+        "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt",
         "PRETRAINED": "/home/yonatan/style_caffemodels/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel",
         "labels": {
             'swimsuit': 0,
