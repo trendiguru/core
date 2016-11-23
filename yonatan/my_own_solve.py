@@ -15,7 +15,7 @@ from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
-from trendi.classifier_stuff.caffe_nns import get_net_info
+from trendi.classifier_stuff.caffe_nns import caffe_utils
 
 matplotlib.use('Agg') #allow plot generation on X-less systems
 plt.ioff()
@@ -48,7 +48,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 
     #get netname, copy train/test to outdir
-    tt = get_net_info.get_traintest_from_proto(solverproto)
+    tt = caffe_utils.get_traintest_from_proto(solverproto)
     print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'

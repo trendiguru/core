@@ -15,7 +15,7 @@ from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
-from trendi.classifier_stuff.caffe_nns import get_net_info
+from trendi.classifier_stuff.caffe_nns import caffe_utils
 
 matplotlib.use('Agg') #allow plot generation on X-less systems
 plt.ioff()
@@ -40,7 +40,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
     test_net = solver.test_nets[0] # more than one testnet is supported
 
-    net_name = multilabel_accuracy.get_netname(testproto)
+    net_name = caffe_utils.get_netname(testproto)
 
     docker_hostname = socket.gethostname()
 
@@ -82,7 +82,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     time.sleep(0.1)
     Utils.ensure_file(loss_outputname)
 
-    tt = get_net_info.get_traintest_from_proto(solverproto)
+    tt = caffe_utils.get_traintest_from_proto(solverproto)
     #copy training and test files to outdir
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info

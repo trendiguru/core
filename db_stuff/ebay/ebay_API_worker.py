@@ -286,9 +286,9 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         api_q = Queue('ebay_API_worker', connection=redis_conn)
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
-            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=1200)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=3600)
         if price_top > middle != price_bottom:
-            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=1200)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=3600)
         print ('price range %d to %d divided to %d - %d  &  %d - %d'
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
