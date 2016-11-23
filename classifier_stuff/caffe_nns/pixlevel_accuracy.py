@@ -205,6 +205,7 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
     '''
     :param dir: directory of images for which to generate masks
     :param category_index: category from pixlevel v2
+    :param skinlayer - the index of the layer for skin which is 45 in pixlevel_categories_v2
     :return: create mask files  file.png , also convert to webtool style (index in red channel)
     '''
     print('creating masks for swimsuits category {} label {} skincat {} label {}'.format(bathingsuit_index,labels[bathingsuit_index],skinlayer,labels[skinlayer]))
