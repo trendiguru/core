@@ -50,7 +50,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         '&attributeValue=' + sub_attribute + \
         '&attributeValue=' + price_attribute
 
-    res = requests.get(api_call)
+    res = requests.get(api_call, timeout=30)
 
     if res.status_code != 200:
         return False, 0, []
@@ -309,10 +309,10 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         new_items += new_inserts
         totals += total
     end_time = time()
-    logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
+    # logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
               % (gender, sub_attribute, price_bottom, price_top, totals, new_items, (end_time-start_time))
-    logger.info(summery)
+    # logger.info(summery)
     print(summery)
 
 

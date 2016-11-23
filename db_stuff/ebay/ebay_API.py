@@ -97,7 +97,7 @@ def download_ebay_api(col, gender, price_bottom=0, price_top=10000, mode=False, 
     handler = log2file(keywords_log, 'keyword')
     handler.info('keyword started')
     for sub_attribute in sub_attributes:
-        q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, price_top, mode), timeout=3600)
+        q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, price_top, mode), timeout=14400)
         print(sub_attribute + ' sent to download worker')
         sleep(30)
         while q.count > 0:
