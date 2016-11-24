@@ -40,8 +40,8 @@ def get_db_fields(collection='products'):
         print('checking doc #' + str(i + 1))
         for k,v in doc.iteritems():
             try:
-                print(str(k))
-                print(str(v))
+                print('key:' + str(k))
+                print('value:'+str(v))
             except UnicodeEncodeError:
                 print('unicode encode error')
         i = i + 1
