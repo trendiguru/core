@@ -7,6 +7,7 @@ import json
 import sys
 import time
 import subprocess
+import socket
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -114,10 +115,11 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             print('writing mask bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
-            command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
-            subprocess.call(command_string, shell=True)
-            command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
-            subprocess.call(command_string, shell=True)
+            if socket.gethostname() != 'extremeli-evolution-1':
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
+                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
 
         except:
             print('fail in try 2, '+str(sys.exc_info()[0]))
