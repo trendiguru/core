@@ -147,8 +147,10 @@ def skin_detection(image_arr, face=None):
         for j in range(0, image_arr.shape[1]):
             #skin thresholds: 80<=Cb<=120, 133<=Cr<=173 , from http://www.wseas.us/e-library/conferences/2011/Mexico/CEMATH/CEMATH-20.pdf
             # Y>0 is added to those
-            if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
+            if 30 < ycrcb[i][j][0] < 220  and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
                 mask = 1
+        n=np.count_nonzero(mask)
+        print('skin pixels:'+str(n))
         return mask
 
 # def create_item_mask(image):
