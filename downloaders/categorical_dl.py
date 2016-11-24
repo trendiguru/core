@@ -36,6 +36,7 @@ def get_db_fields(collection='products'):
     doc = next(cursor, None)
     i = 0
     n = cursor.count()
+    print('found '+str(n)+' items in db '+collection)
     while i < n:
         print('checking doc #' + str(i + 1)+' of '+str(n))
         for k,v in doc.iteritems():
