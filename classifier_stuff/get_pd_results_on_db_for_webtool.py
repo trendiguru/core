@@ -7,6 +7,8 @@ import json
 import sys
 import time
 import subprocess
+import logging
+logging.basicConfig(level=logging.INFO)
 
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
@@ -171,23 +173,20 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
     doc = next(cursor, None)
     i = 0
     n = cursor.count()
-    print('found '+str(n)+' items in images db ')
     start = n*n_numerator/n_denominator
+    print('found '+str(n)+' items in images db, starting at '+str(start))
     for i in range(start):
         doc = next(cursor, None)
     i=start
     while i < n:
         print('checking doc #' + str(i + 1)+' of '+str(n))
-        for k,v in doc.iteritems():
-            try:
-                print('key:' + str(k))
-                print('value:'+str(v))
-            except UnicodeEncodeError:
-                print('unicode encode error')
+        if 'image_urls' in doc:
+            for url in doc['image_urls']:
+                get_pd_results(url)
+        else:
+            logging.warning('no url in doc ')
         i = i + 1
         doc = next(cursor, None)
-        print('')
-        raw_input('enter key for next doc')
     return {"success": 1}
 
 
