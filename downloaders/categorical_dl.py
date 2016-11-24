@@ -28,7 +28,7 @@ def get_db_fields(collection='products'):
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
-    cursor = db.products.find()
+    cursor = db.collection.find()
     print('returned cursor')
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
