@@ -35,11 +35,13 @@ def get_db_fields(collection='products'):
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    while doc is not None:
+    n = cursor.count()
+    while i < n:
         print('checking doc #' + str(i + 1))
         for k,v in doc.iteritems():
             try:
                 print(str(k))
+                print(str(v))
             except UnicodeEncodeError:
                 print('unicode encode error')
         i = i + 1
