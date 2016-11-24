@@ -37,9 +37,9 @@ def get_db_fields(collection='products'):
     i = 0
     while doc is not None:
         print('checking doc #' + str(i + 1))
-        for topic in doc:
+        for k,v in doc.iteritems():
             try:
-                print(str(topic))
+                print(str(k)
             except UnicodeEncodeError:
                 print('unicode encode error')
         i = i + 1
