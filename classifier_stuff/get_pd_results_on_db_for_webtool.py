@@ -12,6 +12,7 @@ from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
 from trendi import Utils,constants
 from trendi.classifier_stuff.caffe_nns import conversion_utils
+from trendi.constants import db
 
 def get_pd_results(url=None,filename=None):
     if url is not None:
@@ -151,6 +152,44 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         print('didnt fully convert mask, or unkown label in convert_and_save_results')
         success = False
         return
+
+def get_pd_results_on_images_db(n_numerator,n_denominator):
+    '''
+    go thru images db and send images to pd
+    :param n_numerator: start at image n_numerator*n_images/n_denominator
+    :param n_denominator:
+    :return:
+    '''
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.images.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' )
+        return {"success": 0, "error": "could not get collection"}
+    doc = next(cursor, None)
+    i = 0
+    n = cursor.count()
+    print('found '+str(n)+' items in images db ')
+    start = n*n_numerator/n_denominator
+    for i in range(start):
+        doc = next(cursor, None)
+    i=start
+    while i < n:
+        print('checking doc #' + str(i + 1)+' of '+str(n))
+        for k,v in doc.iteritems():
+            try:
+                print('key:' + str(k))
+                print('value:'+str(v))
+            except UnicodeEncodeError:
+                print('unicode encode error')
+        i = i + 1
+        doc = next(cursor, None)
+        print('')
+        raw_input('enter key for next doc')
+    return {"success": 1}
+
 
 
 if __name__ == "__main__":
