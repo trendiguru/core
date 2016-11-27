@@ -47,7 +47,7 @@ def collar_isolation(image, face):
     y_top = np.max([y - 0.3 * h, 0])
     y_bottom = np.min([y + 2 * h, image.shape[0] - 2])
 
-    image_copy = np.zeros(int(y_bottom) - (int(y_top), int(x_ahead) - int(x_back), 3), dtype=np.uint8)
+    image_copy = np.zeros((int(y_bottom) - int(y_top), int(x_ahead) - int(x_back), 3), dtype=np.uint8)
 
     image_copy[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :] = image[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :]
     return image_copy
