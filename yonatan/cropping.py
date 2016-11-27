@@ -33,7 +33,7 @@ def person_isolation(image, face):
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
 
     image_copy = np.zeros((image.shape[0], int(x_ahead) - int(x_back), 3), dtype=np.uint8)
-    image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
+    image_copy[...] = image[:, int(x_back):int(x_ahead), :]
 
     return image_copy
 
