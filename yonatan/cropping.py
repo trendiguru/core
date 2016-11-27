@@ -29,10 +29,12 @@ detector = dlib.get_frontal_face_detector()
 
 def person_isolation(image, face):
     x, y, w, h = face
-    image_copy = np.zeros(image.shape, dtype=np.uint8)
     x_back = np.max([x - 1.5 * w, 0])
     x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
+
+    image_copy = np.zeros((image.shape[0], int(x_ahead) - int(x_back), 3), dtype=np.uint8)
     image_copy[:, int(x_back):int(x_ahead), :] = image[:, int(x_back):int(x_ahead), :]
+
     return image_copy
 
 
