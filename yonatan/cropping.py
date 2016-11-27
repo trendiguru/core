@@ -36,6 +36,19 @@ def person_isolation(image, face):
     return image_copy
 
 
+def collar_isolation(image, face):
+    x, y, w, h = face
+    image_copy = np.zeros(image.shape, dtype=np.uint8)
+    x_back = np.max([x - 0.75 * w, 0])
+    x_ahead = np.min([x + 1.75 * w, image.shape[1] - 2])
+
+    y_top = np.max([y - 0.3 * h, 0])
+    y_bottom = np.min([y + 2 * h, image.shape[2] - 2])
+
+    image_copy[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :] = image[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :]
+    return image_copy
+
+
 def find_that_face(image, max_num_of_faces=10):
     faces = detector(image, 1)
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
@@ -75,6 +88,8 @@ def crop_person_figure_by_face(url_or_np_array):
     height, width, channels = full_image.shape
 
     person_figure = person_isolation(full_image, faces["faces"][0])
+    collar_figure = collar_isolation(full_image, faces["faces"][0])
 
     print cv2.imwrite('person_figure.jpg', person_figure)
+    print cv2.imwrite('collar_figure.jpg', collar_figure)
 
