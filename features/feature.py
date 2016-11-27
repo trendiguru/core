@@ -1,18 +1,35 @@
+# Necessary to load and execute net
+import traceback
+try:
+    import caffe
+    import cv2
+    import skimage
+    from ..yonatan import yonatan_classifier
+    from .. import Utils
+    can_load = True
+except:
+    import_error = traceback.format_exc()
+    can_load = False
+# Necessary for both load and distance
 import numpy as np
-import caffe
-import cv2
-import skimage
-from ..yonatan import yonatan_classifier
-from .. import Utils
+from .config import FEATURES
 
-
+"""
+This class can be used both to load a feature classifier net and to get distances between two results of such calssification.
+These use cases happen in different environments, therefore import logic above allows not all packages to be installed.
+"""
 class Feature(object):
-
-    def __init__(self, name, MODEL_FILE, PRETRAINED, gpu_device=None):
-
+    def __init__(self, name, model_file=None, pretrained=None, gpu_device=None, features_config=FEATURES):
         self.name = name
-
-        if gpu_device is None:
+        self.model_file = model_file or features_config[name]["MODEL_FILE"]
+        self.pretrained = pretrained or features_config[name]["PRETRAINED"]
+        self.labels = features_config[name]["labels"]
+    
+    
+    def load(self, gpu_device=None):
+        if not can_load:
+            raise ImportError(import_error)
+        if gpu_device is not None:
             caffe.set_device(int(gpu_device))
         caffe.set_mode_gpu()
         image_dims = [224, 224]
@@ -21,14 +38,18 @@ class Feature(object):
         raw_scale = 255.0
 
         # Make classifier
-        self.classifier = yonatan_classifier.Classifier(MODEL_FILE, PRETRAINED, image_dims=image_dims, mean=mean,
-                                                   input_scale=input_scale, raw_scale=raw_scale,
-                                                   channel_swap=channel_swap)
+        self.classifier = yonatan_classifier.Classifier(self.model_file, 
+                                                        self.pretrained, 
+                                                        image_dims=image_dims, 
+                                                        mean=mean,
+                                                        input_scale=input_scale, 
+                                                        raw_scale=raw_scale,
+                                                        channel_swap=channel_swap)
 
         print "Done initializing!"
 
+    
     def distance(self, cats_num, v1, v2):
-
         categories_num = int(cats_num)
         if len(v1) != categories_num or len(v2) != categories_num:
             return None
@@ -36,8 +57,8 @@ class Feature(object):
         v2 = np.array(v2) if isinstance(v2, list) else v2
         return np.linalg.norm(v1 - v2)
 
+    
     def execute(self, image_or_url):
-
         print "{0} classification started!".format(self.name)
         if isinstance(image_or_url, basestring):
             image = Utils.get_cv2_img_array(image_or_url)

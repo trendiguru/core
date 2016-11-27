@@ -7,11 +7,15 @@ import json
 import sys
 import time
 import subprocess
+import socket
+import logging
+logging.basicConfig(level=logging.INFO)
 
 from trendi.paperdoll import pd_falcon_client
 from trendi.utils import imutils
 from trendi import Utils,constants
 from trendi.classifier_stuff.caffe_nns import conversion_utils
+from trendi.constants import db
 
 def get_pd_results(url=None,filename=None):
     if url is not None:
@@ -111,10 +115,11 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             print('writing mask bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
             imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
-            command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
-            subprocess.call(command_string, shell=True)
-            command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
-            subprocess.call(command_string, shell=True)
+            if socket.gethostname() != 'extremeli-evolution-1':
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
+                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
 
         except:
             print('fail in try 2, '+str(sys.exc_info()[0]))
@@ -125,7 +130,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
                 bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
                 print('writing mask bmp to '+str(bmp_name))
                 cv2.imwrite(bmp_name,new_mask)
-
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                subprocess.call(command_string, shell=True)
         except:
             print('fail in try 3, '+str(sys.exc_info()[0]))
         try:
@@ -150,6 +156,41 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         print('didnt fully convert mask, or unkown label in convert_and_save_results')
         success = False
         return
+
+def get_pd_results_on_images_db(n_numerator,n_denominator):
+    '''
+    go thru images db and send images to pd
+    :param n_numerator: start at image n_numerator*n_images/n_denominator
+    :param n_denominator:
+    :return:
+    '''
+    if db is None:
+        print('couldnt open db')
+        return {"success": 0, "error": "could not get db"}
+    cursor = db.images.find()
+    print('returned cursor')
+    if cursor is None:  # make sure training collection exists
+        print('couldnt get cursor ' )
+        return {"success": 0, "error": "could not get collection"}
+    doc = next(cursor, None)
+    i = 0
+    n = cursor.count()
+    start = n*n_numerator/n_denominator
+    print('found '+str(n)+' items in images db, starting at '+str(start))
+    for i in range(start):
+        doc = next(cursor, None)
+    i=start
+    while i < n:
+        print('checking doc #' + str(i + 1)+' of '+str(n))
+        if 'image_urls' in doc:
+            for url in doc['image_urls']:
+                get_pd_results(url)
+        else:
+            logging.warning('no url in doc ')
+        i = i + 1
+        doc = next(cursor, None)
+    return {"success": 1}
+
 
 
 if __name__ == "__main__":

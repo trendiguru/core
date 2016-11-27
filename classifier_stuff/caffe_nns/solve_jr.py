@@ -1,4 +1,5 @@
 __author__ = 'jeremy'
+__author__ = 'jeremy'
 import caffe
 import time
 import os
@@ -24,7 +25,8 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None,label_layer='label',estimate_layer='my_fc2'):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None,label_layer='label',estimate_layer='my_f
+c2'):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
@@ -35,20 +37,23 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         solver.net.copy_from(weights)
     if solverstate is not None:
         solver.restore(solverstate)   #see https://github.com/BVLC/caffe/issues/3651
-        #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector. Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k iterations to recover. At test time you only need .caffemodel.
+        #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector.
+Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k i
+terations to recover. At test time you only need .caffemodel.
     training_net = solver.net
     solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
     test_net = solver.test_nets[0] # more than one testnet is supported
 
+    #get netname, train_test train/test
     net_name = caffe_utils.get_netname(testproto)
+    tt = caffe_utils.get_traintest_from_proto(solverproto)
+    print('netname {} train/test {}'.format(net_name,tt))
 
     docker_hostname = socket.gethostname()
 
     datestamp = datetime.datetime.strftime(datetime.datetime.now(), 'time%H.%M_%d-%m-%Y')
     prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 
-    #get netname, copy train/test to outdir
-    print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
     if weights:
@@ -82,7 +87,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     time.sleep(0.1)
     Utils.ensure_file(loss_outputname)
 
-    tt = caffe_utils.get_traintest_from_proto(solverproto)
     #copy training and test files to outdir
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
@@ -167,7 +171,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             print(s)
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
 
-            acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='my_fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
+            acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer=estimate_layer,n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
      #       test_net = solver.test_nets[0] # more than one testnet is supported
     #        testloss = test_net.blobs['loss'].data
             try:
@@ -192,23 +196,25 @@ if __name__ == "__main__":
 ###############
 #vars to change
 ###############
+#ResNet-101-deploy.prototxt  ResNet-101-train_test.prototxt  ResNet-101_solver.prototxt  snapshot  solve.py
     solverstate = None
-    weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'
-    solverproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152_solver.prototxt'
-    testproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+    base_dir = '/home/jeremy/caffenets/binary/resnet101_dress_try1/'
+    weights =  '/home/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
+    solverproto = base_dir + 'ResNet-101_solver.prototxt'
+    testproto = base_dir + 'ResNet-101-train_test.prototxt'
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
-    n_iter = 20
-    cat = "style"
-    classlabels=['casual', 'prom', 'tuxedos_and_suits', 'bride_dress', 'active', 'swim']
-    n_tests = 1000
+    n_iter = 200
+    cat = "dress"
+    classlabels=['dress','not_dress']
+    n_tests = 2000
     n_loops = 2000000
-    baremetal_hostname = 'k80a'
+    baremetal_hostname = 'k80b'
     label_layer='label'
-    estimate_layer='my_fc2'
+    estimate_layer='fc2'
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer='label',estimate_layer='my_fc2')
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)

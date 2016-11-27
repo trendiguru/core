@@ -252,7 +252,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
     return hist, loss / len(dataset)
 
 
-def results_from_hist(hist,save_output=False,savedir='testoutput'):
+def results_from_hist(hist,save_file='./summary_output.txt',info_string='',labels=constants.ultimate_21):
     # mean loss
     overall_acc = np.diag(hist).sum() / hist.sum()
     print '>>>', datetime.now(), 'overall accuracy', overall_acc
@@ -270,6 +270,27 @@ def results_from_hist(hist,save_output=False,savedir='testoutput'):
     mean_acc = np.nanmean(acc)
     mean_iou = np.nanmean(iu)
     results_dict = {'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
+    if save_file:
+        with open(save_file,'a+') as f:  #a+ creates if it doesnt exist
+            f.write('net output '+ str(datetime.now())+' ' + info_string+ '\n')
+            f.write('<br>\n')
+            f.write('classes: \n')
+            for i in range(len(labels)):
+                f.write(str(i)+':'+labels[i]+' ')
+            f.write('<br>\n')
+            f.write('acc per class:'+ str(acc)+'\n')
+            f.write('<br>\n')
+            f.write('overall acc:'+ str(overall_acc)+'\n')
+            f.write('<br>\n')
+            f.write('mean acc:'+ str(np.nanmean(acc))+'\n')
+            f.write('<br>\n')
+            f.write('IU per class:'+ str(iu)+'\n')
+            f.write('<br>\n')
+            f.write('mean IU:'+ str(np.nanmean(iu))+'\n')
+            f.write('<br>\n')
+            f.write('fwavacc:'+ str((freq[freq > 0] * iu[freq > 0]).sum())+'\n')
+            f.write('<br>\n')
+            f.write('<br>\n')
     return results_dict
 
 

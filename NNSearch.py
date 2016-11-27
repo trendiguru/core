@@ -70,32 +70,35 @@ def distance(category, main_fp, candidate_fp, coll):
     if isinstance(candidate_fp, list):
         logging.warning("candidate_fp in distance function is a LIST!")
         return None
-    if not main_fp.keys() == candidate_fp.keys():
+    # if not main_fp.keys() == candidate_fp.keys():
+    if not len(main_fp.keys()) == len(candidate_fp.keys()) or not sorted(main_fp.keys()) == sorted(candidate_fp.keys()):
         logging.warning("2 fps has different keys: main keys: {0}, cand keys: {1}".format(main_fp.keys(), candidate_fp.keys()))
         logging.warning("category is {0}, collection {1}".format(category, coll))
-        if len(main_fp.keys()) > len(candidate_fp.keys()):
-            main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
-        else:
-            candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
+        main_fp = {key: value for key, value in main_fp.iteritems() if key in candidate_fp.keys()}
+        candidate_fp = {key: value for key, value in candidate_fp.iteritems() if key in main_fp.keys()}
 
     d = 0
     weight_keys = constants.weights_per_category.keys()
     if category not in weight_keys:
         category = 'other'
     weights = constants.weights_per_category[category]
-    # print "fingerprinting a {0}, Distance ingredients are:".format(category)
     for feature in main_fp.keys():
         if feature == 'color':
             dist = color.distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'sleeve_length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
-        elif feature == 'length':
-            dist = l2_distance(main_fp[feature], candidate_fp[feature])
         else:
-            return None
-        # print "{0}: before weight = {1}, after weight = {2}\n".format(feature, dist, weights[feature]*dist)
+            if not main_fp[feature] or not candidate_fp[feature]:
+                dist = 0
+            elif len(main_fp[feature]) and len(candidate_fp[feature]):
+                # print "main {0} vector: {1}".format(feature, main_fp[feature])
+                # print "candidate {0} vector: {1}".format(feature, candidate_fp[feature])
+                if isinstance(main_fp[feature], dict):
+                    main_fp[feature] = main_fp[feature]['data']
+                if isinstance(candidate_fp[feature], dict):
+                    candidate_fp[feature] = candidate_fp[feature]['data']
+                dist = l2_distance(main_fp[feature], candidate_fp[feature])
+            else:
+                dist == 0
         d += weights[feature]*dist
-    # print "total distance is {0}".format(d)
     return d
 
 
@@ -147,10 +150,12 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     i = 0
     # for i, entry in enumerate(entries):
     for entry in entries:
-        i += 1
+        # i += 1
         # t1 = time()
         # tt += t1-t2
         ent = entry['fingerprint']
+        if not ent:
+            continue
         if isinstance(ent, list):
             logging.warning("Old fp of type 'list' found at collection {0}, category {1}".format(collection, category))
             # t2 = time()
@@ -163,6 +168,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             # tdif = t2 - t1
             # tt += tdif
             continue
+        i += 1
         if i < number_of_matches:
             nearest_n.append((entry, d))
             farthest_nearest = 1
@@ -176,6 +182,7 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
             # Loop through remaining entries, if one of them is better, insert it in the correct location and remove last item
             if d < farthest_nearest:
                 insert_at = number_of_matches - 2
+                # FAILS! WHEN len(nearest_n) < 100
                 while d < nearest_n[insert_at][1]:
                     insert_at -= 1
                     if insert_at == -1:

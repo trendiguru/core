@@ -1,30 +1,25 @@
 __author__ = 'jeremy' #ripped from shelhamer pixlevel iou code at caffe home
 
-import sys
 import os
-import datetime
 import numpy as np
-import os.path as osp
-import matplotlib.pyplot as plt
-import urllib2,urllib
-from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
-import matplotlib.pyplot as plt
-
-from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
 import argparse
+import logging
+logging.basicConfig(level=logging.INFO)
+import time
+
 
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
-
-import math
+from trendi.classifier_stuff.caffe_nns import caffe_utils
 from trendi.classifier_stuff.caffe_nns import jrinfer
-from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
+from trendi.paperdoll import neurodoll_falcon_client as nfc
+from trendi import kassper
 
 def open_html(htmlname,model_base,solverproto,classes,results_dict):
-    netname = multilabel_accuracy.get_netname(solverproto)
+    netname = caffe_utils.get_netname(solverproto)
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')
         g.write('<html>')
@@ -102,7 +97,6 @@ def write_html(htmlname,results_dict):
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
-
 def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classes=None):
     if dir is None:
         protoname = solverproto.replace('.prototxt','')
@@ -160,6 +154,130 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
+def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ultimate_21, save_dir='./nd_output'):
+    with open(images_and_labels_file,'r') as fp:
+        lines = fp.readlines()
+    n_cl = len(labels)
+    hist = np.zeros((n_cl, n_cl))
+    loss = 0
+    print('n channels: '+str(n_cl))
+    start_time=time.time()
+    for line in lines:
+        imagefile = line.split()[0]
+        gtfile = line.split()[1]
+        img_arr = cv2.imread(imagefile)
+        if img_arr is None:
+            logging.warning('could not get image data from '+imagefile)
+            continue
+        gt_data = cv2.imread(gtfile)
+        if gt_data is None:
+            logging.warning('could not get gt data from '+gtfile)
+            continue
+        if len(gt_data.shape) == 3:
+            logging.warning('got 3 chan image for mask, taking chan 0 '+gtfile)
+            gt_data = gt_data[:,:,0]
+
+        dic = nfc.pd(img_arr)
+        if not dic['success']:
+            logging.debug('nfc pd not a success')
+            continue
+        net_data = dic['mask']
+        print('sizes of gt {} net output {}'.format(gt_data.shape,net_data.shape))
+
+        hist += jrinfer.fast_hist(gt_data.flatten(),net_data.flatten(),n_cl)
+
+        if save_dir:
+            Utils.ensure_dir(save_dir)
+            gt_name=os.path.basename(imagefile)[:-4]+'_gt_legend.jpg'
+            gt_name=os.path.join(save_dir,gt_name)
+            ndout_name=os.path.basename(imagefile)[:-4]+'_ndout_legend.jpg'
+            ndout_name=os.path.join(save_dir,ndout_name)
+            imutils.show_mask_with_labels(gt_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=gt_name)
+            imutils.show_mask_with_labels(net_data,labels,original_image=imagefile,save_images=True,visual_output=False,savename=ndout_name)        # compute the loss as well
+
+    results_dict = jrinfer.results_from_hist(hist,save_file=os.path.join(save_dir,'output.html'))
+    print results_dict
+    elapsed_time=time.time()-start_time
+    print('elapsed time: '+str(elapsed_time)+' tpi:'+str(float(elapsed_time)/len(lines)))
+    return hist
+
+def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constants.pixlevel_categories_v2,skinlayer = 45):
+    '''
+    :param dir: directory of images for which to generate masks
+    :param category_index: category from pixlevel v2
+    :param skinlayer - the index of the layer for skin which is 45 in pixlevel_categories_v2
+    :return: create mask files  file.png , also convert to webtool style (index in red channel)
+    27 mens swimwear
+    19 bikini
+    20 womens_nonbikini
+    '''
+    print('creating masks for swimsuits category {} label {} skincat {} label {}'.format(bathingsuit_index,labels[bathingsuit_index],skinlayer,labels[skinlayer]))
+    files=[os.path.join(dir,f) for f in os.listdir(dir) if not 'legend' in f]
+    print(str(len(files))+' files to make into masks '+dir)
+    for f in files:
+        img_arr = cv2.imread(f)
+        print('file '+f + ' shape '+str(img_arr.shape))
+        h,w = img_arr.shape[0:2]
+        if img_arr is None:
+            continue
+        dic = nfc.pd(img_arr)
+        if not dic['success']:
+            logging.debug('nfc pd not a success')
+            continue
+        mask = dic['mask']
+        logging.debug('sizes of gt {}'.format(mask.shape))
+        background = np.array((mask==0)*1,dtype=np.uint8)
+        foreground = np.array((mask>0)*1,dtype=np.uint8)
+        if(0):  #use nd skin layer
+            skin= np.array((mask==skinlayer)*1,dtype=np.uint8)
+            bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
+        else: #use nadav skindetector
+            #skin = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
+            skin =  kassper.skin_detection(img_arr)
+            nonskin = np.array(skin==0,dtype=np.uint8)
+            bathingsuit=np.multiply(foreground, nonskin) *bathingsuit_index
+            print('vals in bathingsuit '+str(np.unique(bathingsuit)))
+
+#        out_arr = skin + nonskin*
+        n_bg_pixels = np.count_nonzero(background)
+        n_fg_pixels = np.count_nonzero(foreground)
+        n_skin = np.count_nonzero(skin)
+        n_bathingsuit = np.count_nonzero(bathingsuit)
+        logging.debug('size  of fg {} pixels {} bg {} pixels {} bathings {} {}'.format(foreground.shape,n_fg_pixels,background.shape,n_bg_pixels,bathingsuit.shape,n_bathingsuit))
+        outfile = os.path.join(dir,os.path.basename(f)[:-4]+'.png')
+        logging.info('writing bathingsuitmask to '+outfile)
+        cv2.imwrite(outfile,bathingsuit)
+        #save new mask
+        mask_legendname = f[:-4]+'_skin_nogc.jpg'
+        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True,savename=mask_legendname)
+        #save original mask
+        orig_legendname = f[:-4]+'_original_legend.jpg'
+        imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,original_image=f,save_images=True,savename=orig_legendname)
+    convert_masks_to_webtool(dir)
+
+def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert_to='_webtool.png'):
+    '''
+    images saved as .bmp seem to have a single grayscale channel, and an alpha.
+    using 'convert' to convert those to .png doesn't help, same story. the web tool example images have the red channel
+    as index, so this func converts to that format. actually i will try r=g=b=index, hopefully thats ok too - since that
+    will be compatible with rest of our stuff...that didnt work , the tool really wants R=category, B=G=0
+    '''
+    files_to_convert=[os.path.join(dir,f) for f in os.listdir(dir) if suffix_to_convert_from in f and not suffix_to_convert_to in f]
+    print(str(len(files_to_convert))+' files in '+dir)
+    for f in files_to_convert:
+        img_arr = cv2.imread(f)
+        print('file '+f + ' shape '+str(img_arr.shape)+ ' uniques:'+str(np.unique(img_arr)))
+        h,w = img_arr.shape[0:2]
+        out_arr = np.zeros((h,w,3))
+        out_arr[:,:,0] = 0  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
+        out_arr[:,:,1] = 0  #G
+        out_arr[:,:,2] = img_arr[:,:,0]  #R
+
+        newname = os.path.join(dir,os.path.basename(f).replace(suffix_to_convert_from,suffix_to_convert_to))
+        print('outname '+str(newname))
+        cv2.imwrite(newname,out_arr)
+        return out_arr
+
 
 if __name__ =="__main__":
 
@@ -183,10 +301,14 @@ if __name__ =="__main__":
     gpu = int(args.gpu)
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
-    caffe.set_mode_gpu()
-    caffe.set_device(gpu)
-    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
-    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
+
+    testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
+    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output')
+
+#    caffe.set_mode_gpu()
+#    caffe.set_device(gpu)
+#    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
+#    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
 
 
 

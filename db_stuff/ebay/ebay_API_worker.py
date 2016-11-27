@@ -50,7 +50,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         '&attributeValue=' + sub_attribute + \
         '&attributeValue=' + price_attribute
 
-    res = requests.get(api_call)
+    res = requests.get(api_call, timeout=30)
 
     if res.status_code != 200:
         return False, 0, []
@@ -286,9 +286,9 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         api_q = Queue('ebay_API_worker', connection=redis_conn)
         middle = int((price_top+price_bottom)/2)
         if middle >= price_bottom:
-            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=1200)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=3600)
         if price_top > middle != price_bottom:
-            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=1200)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=3600)
         print ('price range %d to %d divided to %d - %d  &  %d - %d'
                % (price_bottom, price_top, price_bottom, middle, middle, price_top))
         return
@@ -309,10 +309,10 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
         new_items += new_inserts
         totals += total
     end_time = time()
-    logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
+    # logger = log2file('/home/developer/yonti/ebay_'+gender+'_download_stats.log', 'download')
     summery = 'attribute: %s_%s ,price: %d to %d , item Count: %d, new: %d, download_time: %d' \
               % (gender, sub_attribute, price_bottom, price_top, totals, new_items, (end_time-start_time))
-    logger.info(summery)
+    # logger.info(summery)
     print(summery)
 
 

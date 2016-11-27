@@ -7,7 +7,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 
-
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
