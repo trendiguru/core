@@ -42,6 +42,7 @@ def collar_isolation(image, face):
     x_back = np.max([x - 0.75 * w, 0])
     x_ahead = np.min([x + 1.75 * w, image.shape[1] - 2])
 
+    print "image.shape[0]: {0}".format(image.shape[0])
     print "image.shape[1]: {0}".format(image.shape[1])
     print "image.shape[2]: {0}".format(image.shape[2])
 
