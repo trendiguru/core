@@ -867,8 +867,8 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     n=0
     if original_images_dir:
         original_images = ['.'.join(f.split('.')[:-1])+'.jpg' for f in files]
-        if webtool:
-            original_images = [f.replace('_pixv2','').replace('_webtool','') for f in files]
+#        if webtool:
+#            original_images = [f.replace('_pixv2','').replace('_webtool','') for f in files]
 #        original_images = [f.split('.')[-2]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         if original_images_dir_alt:

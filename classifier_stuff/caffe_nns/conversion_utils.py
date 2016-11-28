@@ -28,7 +28,7 @@ def convert_pd_output_dir(indir,outdir,converter=constants.fashionista_aug_zerob
     for f in files:
         converted_arr = convert_pd_output(f,converter=converter,input_suffix=suffix_in,output_suffix=suffix_out,for_webtool=for_webtool,
                           inlabels=inlabels,outlabels=outlabels)
-        newname = os.path.join(os.path.basename(outdir,f)
+        newname = os.path.join(os.path.basename(outdir,f))
         newname = newname.replace(suffix_in,suffix_out)
         print('saving {} to {} '.format(f,newname))
         cv2.imwrite(newname,converted_arr)
@@ -181,3 +181,4 @@ if __name__ == "__main__":
     #gen_json()
     print('starting test')
     test_convert(constants.ultimate_21,constants.pixlevel_categories_v3,constants.ultimate_21_to_pixlevel_v3)
+    test_convert(constants.fashionista_categories_augmented,constants.pixlevel_categories_v3,constants.fashionista_augmented_to_pixlevel_v3)

@@ -415,9 +415,15 @@ pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','u
                           'bag','belt','eyewear','hat','tie','skin']
 
 ultimate_21_to_pixlevel_v3 = [0,10,11,5,5,1,12,None,None,13,6,6,6,8,7,15,7,6,1,5,4]
-#ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
-#               'top']
+
+#romper (one-piece short+shirt)->dress
+#jumper (sleeveless dress) ->dress
+fashionista_augmented_to_pixlevel_v3 = [None,0,6,7,5,4,10,8,5,7,10,
+                                        8,4,5,2,1,6,5,4,6,6,
+                                        9,13,4,5,None,5,12,11,6,12,
+                                        2,6,None,1,1,5,1,None,8,8,
+                                        None,8,14,1,8,None,None,8,8,None,8,None,1,8,None,15,None]
+
 #39 here
 multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
