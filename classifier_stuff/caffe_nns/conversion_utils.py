@@ -9,6 +9,7 @@ import json
 
 from trendi import constants
 from trendi.utils import imutils
+from trendi import Utils
 
 def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
                       suffix_in='.bmp',suffix_out='_pixlevelv2.bmp',for_webtool=True,
@@ -23,10 +24,11 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
     :param for_webtool:
     :return:
     '''
+    Utils.ensure_dir(outdir)
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
     print('converting '+str(len(files))+' files in '+indir)
     for f in files:
-        converted_arr = convert_pd_output(f,converter=converter,input_suffix=suffix_in,output_suffix=suffix_out,for_webtool=for_webtool,
+        converted_arr = convert_labels(f,converter=converter,input_suffix=suffix_in,output_suffix=suffix_out,for_webtool=for_webtool,
                           inlabels=inlabels,outlabels=outlabels)
         newname = os.path.join(os.path.basename(outdir,f))
         newname = newname.replace(suffix_in,suffix_out)
