@@ -29,10 +29,11 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
     print('converting '+str(len(files))+' files in '+indir)
     for f in files:
         converted_arr = convert_labels(f,converter=converter,for_webtool=for_webtool,inlabels=inlabels,outlabels=outlabels)
-        newname = os.path.join(os.path.basename(outdir,f))
+        newname = os.path.join(outdir,os.path.basename(f))
         newname = newname.replace(suffix_in,suffix_out)
         print('saving {} to {} '.format(f,newname))
         cv2.imwrite(newname,converted_arr)
+        raw_input('ret to cont')
         if save_legends:
             orig_imagename=f.replace(suffix_in,'.jpg')
             imutils.show_mask_with_labels(converted_arr,constants.pixlevel_categories_v3,original_image=orig_imagename,save_images=True)
