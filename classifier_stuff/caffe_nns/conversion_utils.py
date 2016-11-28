@@ -8,12 +8,12 @@ logging.basicConfig(level=logging.INFO)
 import json
 
 from trendi import constants
+from trendi.utils import imutils
 
-
-def convert_pd_output_dir(dir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                      input_suffix='.bmp',output_suffix='_pixlevelv2.bmp',for_webtool=True,
+def convert_pd_output_dir(indir,outdir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
+                      suffix_in='.bmp',suffix_out='_pixlevelv2.bmp',for_webtool=True,
                       inlabels=constants.fashionista_categories_augmented_zero_based,
-                      outlabels=constants.pixlevel_categories_v2):
+                      outlabels=constants.pixlevel_categories_v2, save_legends=True):
     '''
     convert e..g from paperdoll to ultimate21 or pixlevel_categories_v2 .
     Optionally only convert R channel for use with webtool. Don't forget to convert back to all chans after done w webtool
@@ -23,19 +23,24 @@ def convert_pd_output_dir(dir,converter=constants.fashionista_aug_zerobased_to_p
     :param for_webtool:
     :return:
     '''
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if input_suffix in f]
-    print('converting '+str(len(files))+' files in '+dir)
+    files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
+    print('converting '+str(len(files))+' files in '+indir)
     for f in files:
-        converted_arr = convert_pd_output(f,converter=converter,input_suffix=input_suffix,output_suffix=output_suffix,for_webtool=for_webtool,
+        converted_arr = convert_pd_output(f,converter=converter,input_suffix=suffix_in,output_suffix=suffix_out,for_webtool=for_webtool,
                           inlabels=inlabels,outlabels=outlabels)
-        newname = os.path.join(dir,os.path.basename(f).replace(suffix_to_convert,suffix_to_convert_to))
-        print('outname '+str(newname))
+        newname = os.path.join(os.path.basename(outdir,f)
+        newname = newname.replace(suffix_in,suffix_out)
+        print('saving {} to {} '.format(f,newname))
         cv2.imwrite(newname,converted_arr)
+        if save_legends:
+            orig_imagename=f.replace(suffix_in,'.jpg')
+            imutils.show_mask_with_labels(converted_arr,constants.pixlevel_categories_v3,original_image=orig_imagename,save_images=True)
+
+
 
 
 def convert_pd_output(filename_or_img_array,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                      input_suffix='.bmp',output_suffix='_pixlevelv2.bmp',for_webtool=True,
-                      inlabels=constants.fashionista_categories_augmented_zero_based,
+                      for_webtool=True,inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2):
     '''
     convert e..g from paperdoll to ultimate21 or pixlevel_categories_v2 .
@@ -47,8 +52,10 @@ def convert_pd_output(filename_or_img_array,converter=constants.fashionista_aug_
     '''
     if isinstance(filename_or_img_array,basestring):
         img_arr = cv2.imread(filename_or_img_array)
+        filename = filename_or_img_array
     else:
         img_arr = filename_or_img_array
+        filename = None
     if img_arr is None:
         logging.warning('got null image in conversion_utils.convert_pd_output')
     h,w = img_arr.shape[0:2]
@@ -61,10 +68,7 @@ def convert_pd_output(filename_or_img_array,converter=constants.fashionista_aug_
         out_arr[img_arr==u] = newindex  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
     if for_webtool:
         out_arr[:,:,0:2] = 0
-    newname = f.replace(input_suffix,output_suffix)
-    print('outname '+str(newname))
-    cv2.imwrite(newname,out_arr)
-
+    return out_arr
 
 def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]
@@ -82,7 +86,7 @@ def count_values(mask,labels=None):
         pixelcounts[unique]=pixelcount
     return pixelcounts
 
-def test_conversions():
+def test_many_conversions():
     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
     multilabel_labels=constants.binary_classifier_categories
     print('testing binary classifier to u21 cats')
@@ -135,19 +139,9 @@ def test_conversions():
         print('index {} origlabel {} newindex {} destlabel {}'.format(i,
             orig_labels[i],dest_index,dest_labels[dest_index]))
 
-def test_conversion(orig_labels,dest_labels,converter):
-#abortive attempt to get variable names that have been passed into this function
-#e
-#    constant_vars =  [item for item in dir(constants) if not item.startswith("__")]
-#    for k, v in list(locals().iteritems()):
- #   for k, v in list(constant_vars):
- #       if v is orig_labels:
-#            a_as_str = k
-#            print k
-    converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2
-    orig_labels=constants.fashionista_categories_augmented_zero_based
-    dest_labels=constants.pixlevel_categories_v2
-    print('testing conversion aug 0-based to pixlevel_v2 cats')
+def test_convert(orig_labels,dest_labels,converter):
+
+    print('testing conversion')
     for i in range(len(orig_labels)):
         dest_index = converter[i]
         if dest_index is None:
@@ -185,5 +179,5 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
 
 if __name__ == "__main__":
     #gen_json()
-
-    test_conversion(constants.ultimate_21,constants.pixlevel_categories_v3,constants.ultimate_21_to_pixlevel_v3)
+    print('starting test')
+    test_convert(constants.ultimate_21,constants.pixlevel_categories_v3,constants.ultimate_21_to_pixlevel_v3)

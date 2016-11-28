@@ -844,7 +844,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False,visual_output=False):
+def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False,visual_output=False,webtool=False):
     '''
 
     :param dir:
@@ -867,6 +867,8 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     n=0
     if original_images_dir:
         original_images = ['.'.join(f.split('.')[:-1])+'.jpg' for f in files]
+        if webtool:
+            original_images = [f.replace('_pixv2','').replace('_webtool','')]
 #        original_images = [f.split('.')[-2]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         if original_images_dir_alt:
