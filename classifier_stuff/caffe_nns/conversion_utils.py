@@ -10,7 +10,7 @@ import json
 from trendi import constants
 from trendi.utils import imutils
 
-def convert_pd_output_dir(indir,outdir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
+def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
                       suffix_in='.bmp',suffix_out='_pixlevelv2.bmp',for_webtool=True,
                       inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2, save_legends=True):
@@ -39,7 +39,7 @@ def convert_pd_output_dir(indir,outdir,converter=constants.fashionista_aug_zerob
 
 
 
-def convert_pd_output(filename_or_img_array,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
+def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
                       for_webtool=True,inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2):
     '''
