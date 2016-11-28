@@ -184,4 +184,6 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
 
 
 if __name__ == "__main__":
-    gen_json()
+    #gen_json()
+
+    test_conversion(constants.ultimate_21,constants.pixlevel_categories_v3,constants.ultimate_21_to_pixlevel_v3)

@@ -133,7 +133,7 @@ terations to recover. At test time you only need .caffemodel.
             loss = solver.net.blobs['loss'].data
             loss_avg[i] = loss
             losses.append(loss)
-            tot_iters = tot_iters + steps_per_iter*n_iter
+            tot_iters = tot_iters + steps_per_iter
             if type == 'single_label':
                 accuracy = solver.net.blobs['accuracy'].data
                 accuracy_avg[i] = accuracy
@@ -141,7 +141,7 @@ terations to recover. At test time you only need .caffemodel.
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
-        averaged_loss=sum(loss_avg)/len(loss_avg)
+        averaged_loss=sum(float(loss_avg))/len(loss_avg)
         s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
@@ -166,9 +166,10 @@ terations to recover. At test time you only need .caffemodel.
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,overall_acc,mean_acc,mean_ion,fwavacc)
 
         elif type == 'single_label':
-            averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
-            s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
+            averaged_acc = sum(float(accuracy_avg))/len(accuracy_avg)
+            s = 'avg tr loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
             print(s)
+            print accuracy_avg
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
 
             acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer=estimate_layer,n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
@@ -177,7 +178,7 @@ terations to recover. At test time you only need .caffemodel.
             try:
                 testloss =     test_net.blobs['loss'].data
             except:
-                print('n o testloss available')
+                print('no testloss available')
                 testloss=0
             with open(loss_outputname,'a+') as f:
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')

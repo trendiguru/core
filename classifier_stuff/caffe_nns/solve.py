@@ -129,7 +129,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             loss = solver.net.blobs['loss'].data
             loss_avg[i] = loss
             losses.append(loss)
-            tot_iters = tot_iters + steps_per_iter*n_iter
+            tot_iters = tot_iters + steps_per_iter
             if type == 'single_label':
                 accuracy = solver.net.blobs['accuracy'].data
                 accuracy_avg[i] = accuracy
