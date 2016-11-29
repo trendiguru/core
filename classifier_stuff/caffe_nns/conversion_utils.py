@@ -25,8 +25,6 @@ def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_
     :return:
     '''
     Utils.ensure_dir(outdir)
-    if jpgdir is None:
-        jpgdir=indir
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
     print('converting '+str(len(files))+' files in '+indir)
     for f in files:
@@ -37,6 +35,8 @@ def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_
         cv2.imwrite(newname,converted_arr)
         raw_input('ret to cont')
         if save_legends:
+            if jpgdir is None:
+                jpgdir=indir
             orig_imagename=os.path.basename(f).replace(suffix_in,'.jpg')
             orig_imagename=os.path.join(jpgdir,orig_imagename)
             print('saving legend to {} '.format(orig_imagename))
@@ -67,7 +67,11 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
     h,w = img_arr.shape[0:2]
     out_arr = np.zeros((h,w,3),dtype=np.uint8)
     for u in np.unique(img_arr):
-        newindex= converter[u]
+        if u>len(converter):
+            print('index {} is past length {} of converter, forcing to 0'.format(u,len(converter)))
+            newindex=0
+        else:
+            newindex= converter[u]
         if newindex == None:
             newindex = 0
         print('converting {} {} to {} {}'.format(u,inlabels[u],newindex,outlabels[newindex]))
