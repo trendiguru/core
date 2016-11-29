@@ -1001,6 +1001,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         except:
 #            logging.warning('some problem in labelling')
             print "Unexpected error:", str(sys.exc_info()[0])
+            print('index {} len labels {}'.format(unique,len(labels)))
         i=i+1 #
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
