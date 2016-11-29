@@ -79,7 +79,7 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
         try:
             print('converting {} {} to {} {}'.format(u,inlabels[u],newindex,outlabels[newindex]))
         except:
-            print('looks like index {} is greater than inlabel array length {}'.format(u,len(inlabels)))
+            logging.warning('looks like index {} is greater than inlabel array length {}!!!'.format(u,len(inlabels)))
         out_arr[img_arr==u] = newindex  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
     if for_webtool:
         out_arr[:,:,0:2] = 0
