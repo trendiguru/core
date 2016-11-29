@@ -28,11 +28,11 @@ def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
     print('STARTING CONVERT - converting '+str(len(files))+' files in '+indir)
     for f in files:
+        print('')
+        print('converting {} to {} '.format(f,newname))
         converted_arr = convert_labels(f,converter=converter,for_webtool=for_webtool,inlabels=inlabels,outlabels=outlabels)
         newname = os.path.join(outdir,os.path.basename(f))
         newname = newname.replace(suffix_in,suffix_out)
-        print('')
-        print('saving {} to {} '.format(f,newname))
         cv2.imwrite(newname,converted_arr)
         raw_input('ret to cont')
         if save_legends:
