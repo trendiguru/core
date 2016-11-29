@@ -37,7 +37,6 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
         if save_legends:
             orig_imagename=f.replace(suffix_in,'.jpg')
             imutils.show_mask_with_labels(converted_arr,outlabels,original_image=orig_imagename,save_images=True)
-            imutils.show_mask_with_labels()
 
 
 
