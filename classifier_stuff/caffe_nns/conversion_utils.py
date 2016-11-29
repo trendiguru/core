@@ -12,7 +12,7 @@ from trendi.utils import imutils
 from trendi import Utils
 
 def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                      suffix_in='.bmp',suffix_out='_pixlevelv2.bmp',for_webtool=True,
+                      suffix_in='.png',suffix_out='_pixlevelv2.bmp',for_webtool=False,
                       inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2, save_legends=True):
     '''
@@ -36,8 +36,8 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
         raw_input('ret to cont')
         if save_legends:
             orig_imagename=f.replace(suffix_in,'.jpg')
-            imutils.show_mask_with_labels(converted_arr,constants.pixlevel_categories_v3,original_image=orig_imagename,save_images=True)
-
+            imutils.show_mask_with_labels(converted_arr,outlabels,original_image=orig_imagename,save_images=True)
+            imutils.show_mask_with_labels()
 
 
 

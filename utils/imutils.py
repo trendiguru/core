@@ -993,9 +993,14 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             logging.warning('pixel value '+str(unique)+' out of label range (2)')
             continue
         pixelcount = len(img_arr[img_arr==unique])
- #       print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
-        frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
-        cv2.putText(dest_colorbar,str(unique)+' '+labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        try:
+            logging.debug('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+            frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
+            text_string = str(unique)+' '+labels[unique]+' '+str(frac_string)
+            cv2.putText(dest_colorbar,text_string,(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        except:
+#            logging.warning('some problem in labelling')
+            print "Unexpected error:", str(sys.exc_info()[0])
         i=i+1 #
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
