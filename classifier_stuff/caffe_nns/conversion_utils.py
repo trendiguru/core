@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import json
 
 from trendi import constants
@@ -64,7 +64,7 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
         img_arr = filename_or_img_array
         filename = None
     if img_arr is None:
-        logging.warning('got null image in conversion_utils.convert_pd_output')
+        logging.debug('got null image in conversion_utils.convert_pd_output')
     h,w = img_arr.shape[0:2]
     out_arr = np.zeros((h,w,3),dtype=np.uint8)
     for u in np.unique(img_arr):
