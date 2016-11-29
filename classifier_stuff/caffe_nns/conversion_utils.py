@@ -24,7 +24,7 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
     :param for_webtool:
     :return:
     '''
-    Utils.ensure_dir(outdir,)
+    Utils.ensure_dir(outdir)
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
     print('converting '+str(len(files))+' files in '+indir)
     for f in files:
@@ -35,7 +35,10 @@ def convert_labels_dir(indir,outdir,converter=constants.fashionista_aug_zerobase
         cv2.imwrite(newname,converted_arr)
         raw_input('ret to cont')
         if save_legends:
-            orig_imagename=f.replace(suffix_in,'.jpg')
+            orig_imagename=os.path.basename(f).replace(suffix_in,'.jpg')
+            orig_imagename=os.path.join(outdir,orig_imagename)
+            print('saving legend to {} '.format(orig_imagename))
+
             imutils.show_mask_with_labels(converted_arr,outlabels,original_image=orig_imagename,save_images=True)
 
 
