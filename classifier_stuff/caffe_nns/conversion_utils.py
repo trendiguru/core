@@ -67,8 +67,8 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
     h,w = img_arr.shape[0:2]
     out_arr = np.zeros((h,w,3),dtype=np.uint8)
     for u in np.unique(img_arr):
-        logging.debug('in converter, u='+str(u))
-        if u>len(converter)+1:
+        logging.debug('in converter, u='+str(u)+'len='+str(len(converter)))
+        if u+1>len(converter):
             print('index {} is past length {} of converter, forcing to 0'.format(u,len(converter)))
             newindex=0
         else:
