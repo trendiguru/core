@@ -11,7 +11,7 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 
-def convert_labels_dir(indir,outdir,jpgdir=indir,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
+def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
                       suffix_in='.png',suffix_out='_pixlevelv2.bmp',for_webtool=False,
                       inlabels=constants.fashionista_categories_augmented_zero_based,
                       outlabels=constants.pixlevel_categories_v2, save_legends=True):
@@ -25,6 +25,8 @@ def convert_labels_dir(indir,outdir,jpgdir=indir,converter=constants.fashionista
     :return:
     '''
     Utils.ensure_dir(outdir)
+    if jpgdir is None:
+        jpgdir=indir
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
     print('converting '+str(len(files))+' files in '+indir)
     for f in files:
