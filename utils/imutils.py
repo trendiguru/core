@@ -1000,7 +1000,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             cv2.putText(dest_colorbar,text_string,(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
         except:
 #            logging.warning('some problem in labelling')
-            print "Unexpected error:", str(sys.exc_info()[0])
+            print "Unexpected error:"+ str(sys.exc_info()[0])
             print('index {} len labels {}'.format(unique,len(labels)))
         i=i+1 #
 
