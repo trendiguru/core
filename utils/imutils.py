@@ -1108,7 +1108,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             shutil.move(mask_filename,dest_dir)
 
     cv2.destroyAllWindows()
-
+    print('finished show_mask_with-labels')
     return combined,frac
 #        return dest
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):

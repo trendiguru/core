@@ -40,7 +40,7 @@ def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_
                 jpgdir=indir
             orig_imagename=os.path.basename(f).replace(suffix_in,'.jpg')
             orig_imagename=os.path.join(jpgdir,orig_imagename)
-            print('saving legend to {} '.format(orig_imagename))
+            print('saving legend using {} '.format(orig_imagename))
 
             imutils.show_mask_with_labels(converted_arr,outlabels,original_image=orig_imagename,save_images=True)
 
