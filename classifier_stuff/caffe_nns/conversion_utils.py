@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 import json
 
 from trendi import constants
@@ -67,14 +67,14 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
     h,w = img_arr.shape[0:2]
     out_arr = np.zeros((h,w,3),dtype=np.uint8)
     for u in np.unique(img_arr):
+        logging.debug('in converter, u='+str(u))
         if u>len(converter):
             print('index {} is past length {} of converter, forcing to 0'.format(u,len(converter)))
             newindex=0
-        elif newindex==None:
-            newindex=0
         else:
             newindex= converter[u]
-        print('converting {} {} to {} {}'.format(u,inlabels[u],newindex,outlabels[newindex]))
+        if newindex==None:
+            newindex=0        print('converting {} {} to {} {}'.format(u,inlabels[u],newindex,outlabels[newindex]))
         out_arr[img_arr==u] = newindex  #B it would seem this can be replaced by out_arr[:,:,:]=img_arr, maybe :: is used here
     if for_webtool:
         out_arr[:,:,0:2] = 0
