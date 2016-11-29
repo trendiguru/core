@@ -423,7 +423,7 @@ fashionista_augmented_to_pixlevel_v3 = [None,0,6,7,5,4,10,8,5,7,10,
                                         9,13,4,5,None,5,12,11,6,12,
                                         2,6,None,1,1,5,1,None,8,8,
                                         None,8,14,1,8,None,None,8,8,None,
-                                        8,None,1,8,None,15,None]
+                                        8,None,1,8,None,15,15]
 
 #39 here
 multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
