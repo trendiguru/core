@@ -26,7 +26,8 @@ def convert_labels_dir(indir,outdir,jpgdir=None,converter=constants.fashionista_
     '''
     Utils.ensure_dir(outdir)
     files = [os.path.join(indir,f) for f in os.listdir(indir) if suffix_in in f]
-    print('converting '+str(len(files))+' files in '+indir)
+    print('')
+    print('STARTING CONVERT - converting '+str(len(files))+' files in '+indir)
     for f in files:
         converted_arr = convert_labels(f,converter=converter,for_webtool=for_webtool,inlabels=inlabels,outlabels=outlabels)
         newname = os.path.join(outdir,os.path.basename(f))
