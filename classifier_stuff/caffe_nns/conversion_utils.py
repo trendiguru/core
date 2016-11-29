@@ -60,7 +60,7 @@ def convert_labels(filename_or_img_array,converter=constants.fashionista_aug_zer
     if img_arr is None:
         logging.warning('got null image in conversion_utils.convert_pd_output')
     h,w = img_arr.shape[0:2]
-    out_arr = np.zeros((h,w,3))
+    out_arr = np.zeros((h,w,3),dtype=np.uint8)
     for u in np.unique(img_arr):
         newindex= converter[u]
         if newindex == None:
