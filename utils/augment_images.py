@@ -311,9 +311,21 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
-            print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
-            x_room = 0
-            y_room = 0
+            logging.debug('crop {} is larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
+            if x_room<y_room:
+                factor = float(crop_size[1])/width
+                resize_size = (crop_size[0]*factor,crop_size[1])
+            else:
+                factor = float(crop_size[1])/width
+                resize_size = (crop_size[0]*factor,crop_size[1])
+            logging.debug('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
+            img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
+
+        x_room = width - crop_size[1]
+        y_room = height - crop_size[0]
+        if x_room<0 or y_room<0:
+            logging.warning('crop {} is still larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
+
  #       logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
 #        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
 ##            print('WARNING shape mismatch with crop in augment images, forcing reshape!')
