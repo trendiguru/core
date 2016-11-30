@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 __author__ = 'jeremy'
 import unittest
 import cv2
+import os
 
 from trendi.utils import imutils
 
@@ -18,8 +19,9 @@ class OutcomesTest(unittest.TestCase):
         pass
 
     def test_do_resize(self):
-        path = trendi.__file__
-        img_arr = cv2.imread(os.path.join(path,'images/female1.jpg')
+        path = os.path.dirname(trendi.__file__)
+        print('path:'+path)
+        img_arr = cv2.imread(os.path.join(path,'images/female1.jpg'))
         desired_size = (200,300)
         resized = imutils.resize_keep_aspect(img_arr,output_size=desired_size)
         actual_size=resized.shape[0:2]
