@@ -20,10 +20,7 @@ class OutcomesTest(unittest.TestCase):
 
     def test_do_resize(self):
         curpath = os.path.dirname(imutils.__file__)
-        print('path:'+str(curpath))
         parpath= os.path.dirname(curpath)
-
-        print('path:'+str(parpath))
         img_arr = cv2.imread(os.path.join(parpath,'images/female1.jpg'))
         desired_size = (200,300)
         resized = imutils.resize_keep_aspect(img_arr,output_size=desired_size)
@@ -32,6 +29,8 @@ class OutcomesTest(unittest.TestCase):
         print('orig size {} new size {}'.format(img_arr.shape,resized.shape))
 
     def test_undo_resize(self):
+        curpath = os.path.dirname(imutils.__file__)
+        parpath= os.path.dirname(curpath)
         img_arr = cv2.imread('../images/female1.jpg')
         desired_size = (250,351)
         resized = imutils.undo_resize_keep_aspect(img_arr, output_file=None, output_size = desired_size,use_visual_output=True,careful_with_the_labels=True)
