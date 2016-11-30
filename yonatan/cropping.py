@@ -27,13 +27,18 @@ import requests
 detector = dlib.get_frontal_face_detector()
 
 
-def person_isolation(image, face):
+def person_isolation(image, face, locate_in_center=True):
     x, y, w, h = face
-    x_back = np.max([x - 1.5 * w, 0])
-    x_ahead = np.min([x + 2.5 * w, image.shape[1] - 2])
+    x_back = int(np.max([x - 1.5 * w, 0]))
+    x_ahead = int(np.min([x + 2.5 * w, image.shape[1] - 2]))
 
-    image_copy = np.zeros((image.shape[0], int(x_ahead) - int(x_back), 3), dtype=np.uint8)
-    image_copy[...] = image[:, int(x_back):int(x_ahead), :]
+    if locate_in_center:
+        longest_axis = max(x_ahead - x_back, image.shape[0])
+        image_copy = np.zeros((longest_axis, longest_axis, 3), dtype=np.uint8)
+        image_copy[...] = image[:, x_back:x_ahead, :]
+    else:
+        image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
+        image_copy[...] = image[:, x_back:x_ahead, :]
 
     return image_copy
 
@@ -41,17 +46,17 @@ def person_isolation(image, face):
 def collar_isolation(image, face):
     x, y, w, h = face
 
-    x_back = np.max([x - 0.75 * w, 0])
-    x_ahead = np.min([x + 1.75 * w, image.shape[1] - 2])
+    x_back = int(np.max([x - 0.75 * w, 0]))
+    x_ahead = int(np.min([x + 1.75 * w, image.shape[1] - 2]))
 
     print image.shape
 
-    y_top = np.max([y - 0.3 * h, 0])
-    y_bottom = np.min([y + 2 * h, image.shape[0] - 2])
+    y_top = int(np.max([y - 0.3 * h, 0]))
+    y_bottom = int(np.min([y + 2 * h, image.shape[0] - 2]))
 
-    image_copy = np.zeros((int(y_bottom) - int(y_top), int(x_ahead) - int(x_back), 3), dtype=np.uint8)
+    image_copy = np.zeros((y_bottom - y_top, x_ahead - x_back, 3), dtype=np.uint8)
 
-    image_copy[...] = image[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :]
+    image_copy[...] = image[y_top:y_bottom, x_back:x_ahead, :]
     return image_copy
 
 
@@ -63,7 +68,7 @@ def find_that_face(image, max_num_of_faces=10):
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
-def crop_person_figure_by_face(url_or_np_array):
+def crop_figure_by_face(url_or_np_array):
 
     print "Starting the cropping!"
     # check if i get a url (= string) or np.ndarray
@@ -76,12 +81,12 @@ def crop_person_figure_by_face(url_or_np_array):
     else:
         return None
 
-    #checks if the face coordinates are inside the image
+    # checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
         return None
 
-    #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
+    # resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
     faces = background_removal.find_face_dlib(full_image)
 
@@ -89,7 +94,7 @@ def crop_person_figure_by_face(url_or_np_array):
         print "didn't find any faces"
         return None
 
-    print faces["faces"][0] # just checking if the face that found seems in the right place
+    print faces["faces"][0]  # just checking if the face that found seems in the right place
 
     height, width, channels = full_image.shape
 
