@@ -21,7 +21,7 @@ class OutcomesTest(unittest.TestCase):
     def test_do_resize(self):
         curpath = os.path.dirname(imutils.__file__)
         print('path:'+str(curpath))
-        path= os.path.pardir(curpath)
+        curpath= os.pardir(curpath)
         print('path:'+str(curpath))
         img_arr = cv2.imread(os.path.join(curpath,'images/female1.jpg'))
         desired_size = (200,300)
