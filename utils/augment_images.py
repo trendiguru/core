@@ -317,12 +317,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             logging.warning('crop {} is larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
             if x_room<y_room:
                 factor = float(crop_size[1])/width
-                resize_size = (int(crop_size[0]*factor),crop_size[1])
-                print('x limited, factor {} resize {}'.format(factor,resize_size))
+                resize_size = (int(height*factor),crop_size[1])
             else:
                 factor = float(crop_size[0])/height
-                resize_size = (crop_size[0],int(crop_size[1]*factor))
-                print('y limited, factor {} resize {}'.format(factor,resize_size))
+                resize_size = (width,int(crop_size[1]*factor))
             logging.warning('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
             img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
 
