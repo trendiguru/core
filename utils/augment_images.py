@@ -217,7 +217,7 @@ def mask_to_multichannel(mask_arr,n_channels):
         output_arr[:,:,i] = channel
    #     print('cumulative pixcount {}'.format(pixel_count))
         logging.debug('nonzero elements in layer {}:{} '.format(i,len(mask_arr[mask_arr==i])))
-        logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero([output_arr[:,:,i])))
+        logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero(output_arr[:,:,i])))
     logging.debug('nonzero elements in orig:{} nonzero in multichan {}'.format(np.nonzero(mask_arr),np.nonzero(output_arr)))
     return output_arr
 #
