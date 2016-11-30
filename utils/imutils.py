@@ -328,7 +328,7 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
         print('infile:{} desired size:{} outfile {}'.format(fullname,output_size,newname))
         resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
 
-def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False, copy_edge_pixeles=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
     :param input_file_or_np_arr:
@@ -354,10 +354,10 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     in_ar = float(inheight)/inwidth
     if len(input_file_or_np_arr.shape) == 3:
         indepth = input_file_or_np_arr.shape[2]
-        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+        output_img = np.zeros([outheight,outwidth,indepth],dtype=np.uint8)
     else:
         indepth = 1
-        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+        output_img = np.zeros([outheight,outwidth],dtype=np.uint8)
 #    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
     actual_outheight, actual_outwidth = output_img.shape[0:2]
 #    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
@@ -372,8 +372,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
 #            output_img[:,width_offset+new_width:] = resized_img[:,-1]
-            output_img[:,n] = resized_img[:,0]
-            output_img[:,n+new_width+width_offset] = resized_img[:,-1]
+            if copy_edge_pixeles:
+                output_img[:,n] = resized_img[:,0]
+                output_img[:,n+new_width+width_offset] = resized_img[:,-1]
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
@@ -381,8 +382,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         height_offset = (outheight - new_height) / 2
         logging.debug('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
-        output_img[0:height_offset,:] = resized_img[0,:]
-        output_img[height_offset+new_height:,:] = resized_img[-1,:]
+        if copy_edge_pixeles:
+            output_img[0:height_offset,:] = resized_img[0,:]
+            output_img[height_offset+new_height:,:] = resized_img[-1,:]
 #        print('resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
