@@ -33,9 +33,9 @@ def person_isolation(image, face, locate_in_center=True):
     x_ahead = int(np.min([x + 2.5 * w, image.shape[1] - 2]))
 
     if locate_in_center:
-        # image_copy = np.zeros((image.shape[0], image.shape[0], 3), dtype=np.uint8)
-        # image_copy[...] = image[:, x_back:x_ahead, :]
-        image_copy = imutils.resize_keep_aspect(image, output_size=(224, 224))
+        image_copy = np.zeros((image.shape[0], image.shape[0], 3), dtype=np.uint8)
+        image_copy[...] = image[:, x_back:x_ahead, :]
+        image_copy = imutils.resize_keep_aspect(image_copy, output_size=(224, 224))
 
 
     else:
