@@ -10,6 +10,8 @@ import string
 import random
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("simple_example")
+logger.setLevel(logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
                     max_offset_x = 100,n_offsets_x=1,
@@ -308,6 +310,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     height,width = img_arr.shape[0:2]
 
     if crop_size:
+        #calculate headroom left after crop. actual crop is random within that headroom iirc
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
