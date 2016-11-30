@@ -1112,7 +1112,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
 
     cv2.destroyAllWindows()
     print('finished show_mask_with-labels')
-    print 'caller name:', inspect.stack()[1][3]
+    print('caller name:'+str( inspect.stack()[1][3]))
     return combined,frac
 #        return dest
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):
