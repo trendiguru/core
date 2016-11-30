@@ -465,7 +465,49 @@ def style_classifier_1():
     swim_txt_file.close()
 
 
-def style_classifier_2():
+def resize_save():
+
+    #############
+
+    dictionary = yonatan_constants.style_dict
+
+    error_counter = 0
+    counter_dot = 0
+
+    source_dir = "/home/yonatan/test_can_delete"
+
+    for root, dirs, files in os.walk(source_dir):
+
+        counter = 0
+
+        for file in files:
+
+            if "._" in file:
+                counter_dot += 1
+                continue
+
+            counter += 1
+            print counter
+
+            try:
+                image_array = cv2.imread(os.path.join(root, file))
+                resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+
+                image_file_name = 'style-resized_' + str(counter) + '.jpg'
+
+                cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+
+                os.remove(os.path.join(root, file))
+
+            except:
+                print "something ain't good"
+                error_counter += 1
+                continue
+
+    print "number of errors: {0}, number of '._: {1}".format(error_counter, counter_dot)
+
+    # ## erase useless ##
+    #
     # dictionary = yonatan_constants.style_dict
     #
     # error_counter = 0
@@ -487,65 +529,18 @@ def style_classifier_2():
     #
     #         for file in files:
     #
-    #             if "._" in file:
-    #                 continue
-    #
     #             counter += 1
     #             print counter
     #
-    #             try:
-    #                 image_array = cv2.imread(os.path.join(root, file))
-    #                 resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
-    #
-    #                 image_file_name = 'style-' + key + '_' + str(counter) + '.jpg'
-    #
-    #                 cv2.imwrite(os.path.join(root, image_file_name), resized_image)
-    #
-    #             except:
-    #                 print "something ain't good"
-    #                 error_counter += 1
-    #                 continue
+    #             if file.startswith("images") or "._" in file:
+    #                 try:
+    #                     os.remove(os.path.join(root, file))
+    #                 except:
+    #                     print "something ain't good"
+    #                     error_counter += 1
+    #                     continue
     #
     # print "number of errors: {0}".format(error_counter)
-
-    ## erase useless ##
-
-    dictionary = yonatan_constants.style_dict
-
-    error_counter = 0
-
-    for key, value in dictionary.iteritems():
-        source_dir = '/home/yonatan/style_classifier/style_second_try/style_images/' + key
-
-        if os.path.isdir(source_dir):
-            if not os.listdir(source_dir):
-                print '\nfolder is empty ' + key
-                break
-        else:
-            print '\nfolder doesn\'t exist ' + key
-            break
-
-        for root, dirs, files in os.walk(source_dir):
-
-            counter = 0
-
-            for file in files:
-
-                if "._" in file:
-                    continue
-
-                counter += 1
-                print counter
-
-                if file.startswith("images"):
-                    try:
-                        os.remove(os.path.join(root, file))
-                    except:
-                        print "something ain't good"
-                        error_counter += 1
-                        continue
-
-    print "number of errors: {0}".format(error_counter)
 
 
 def collar_classifier():
@@ -595,5 +590,5 @@ def collar_classifier():
 
 if __name__ == '__main__':
     # style_classifier_1()
-    style_classifier_2()
+    resize_save()
     # collar_classifier()
