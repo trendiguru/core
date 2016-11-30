@@ -34,7 +34,7 @@ def person_isolation(image, face):
 
     image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
     image_copy[...] = image[:, x_back:x_ahead, :]
-    image_copy = imutils.resize_keep_aspect(image_copy, output_size=(224, 224))
+    # image_copy = imutils.resize_keep_aspect(image_copy, output_size=(224, 224))
 
     return image_copy
 
