@@ -33,7 +33,7 @@ class OutcomesTest(unittest.TestCase):
         parpath= os.path.dirname(curpath)
         img_arr = cv2.imread(os.path.join(parpath,'images/female1.jpg'))
         desired_size = (250,351)
-        resized = imutils.undo_resize_keep_aspect(img_arr, output_file=None, output_size = desired_size,use_visual_output=True,careful_with_the_labels=True)
+        resized = imutils.undo_resize_keep_aspect(img_arr, output_file=None, output_size = desired_size,use_visual_output=False,careful_with_the_labels=True)
         print('orig size {} new size {}'.format(img_arr.shape,resized.shape))
         actual_size=resized.shape[0:2]
         assert(actual_size==desired_size)
