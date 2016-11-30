@@ -27,20 +27,14 @@ import requests
 detector = dlib.get_frontal_face_detector()
 
 
-def person_isolation(image, face, locate_in_center=True):
+def person_isolation(image, face):
     x, y, w, h = face
     x_back = int(np.max([x - 1.5 * w, 0]))
     x_ahead = int(np.min([x + 2.5 * w, image.shape[1] - 2]))
 
-    if locate_in_center:
-        image_copy = np.zeros((image.shape[0], image.shape[0], 3), dtype=np.uint8)
-        image_copy[...] = image[:, x_back:x_ahead, :]
-        image_copy = imutils.resize_keep_aspect(image_copy, output_size=(224, 224))
-
-
-    else:
-        image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
-        image_copy[...] = image[:, x_back:x_ahead, :]
+    image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
+    image_copy[...] = image[:, x_back:x_ahead, :]
+    image_copy = imutils.resize_keep_aspect(image_copy, output_size=(224, 224))
 
     return image_copy
 
