@@ -25,8 +25,7 @@ setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
-          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None,label_layer='label',estimate_layer='my_f
-c2'):
+          cat=None,classlabels=None,baremetal_hostname='brainiK80a',solverstate=None,label_layer='label',estimate_layer='my_fc2'):
 
     if classlabels is None:
         classlabels=['not_'+cat,cat]
@@ -38,8 +37,8 @@ c2'):
     if solverstate is not None:
         solver.restore(solverstate)   #see https://github.com/BVLC/caffe/issues/3651
         #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector.
-Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k i
-terations to recover. At test time you only need .caffemodel.
+    #Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k i
+    #terations to recover. At test time you only need .caffemodel.
     training_net = solver.net
     solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
     test_net = solver.test_nets[0] # more than one testnet is supported

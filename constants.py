@@ -410,6 +410,7 @@ pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jeans' ] #and socks appears twice...
 
+#16 categories here
 pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
                           'bag','belt','eyewear','hat','tie','skin']
