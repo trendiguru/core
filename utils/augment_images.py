@@ -8,6 +8,7 @@ from trendi.utils import imutils
 from trendi import constants
 import string
 import random
+import inspect
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("simple_example")
