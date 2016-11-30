@@ -286,11 +286,11 @@ def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=cons
         for line in fp:
             print line
             path1 = line.split()[0]
-            img_arr = cv2.imread(path1)
-            cv2.imshow('image',img_arr)
+#            img_arr = cv2.imread(path1)
+#            cv2.imshow('image',img_arr)
 
             path2 = line.split()[1]
-            imutils.show_mask_with_labels(path2,labels=labels,visual_output=True)
+            imutils.show_mask_with_labels(path2,labels=labels,original_image=path1,True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     '''
