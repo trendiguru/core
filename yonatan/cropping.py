@@ -33,8 +33,7 @@ def person_isolation(image, face, locate_in_center=True):
     x_ahead = int(np.min([x + 2.5 * w, image.shape[1] - 2]))
 
     if locate_in_center:
-        longest_axis = max(x_ahead - x_back, image.shape[0])
-        image_copy = np.zeros((longest_axis, longest_axis, 3), dtype=np.uint8)
+        image_copy = np.zeros((image.shape[0], image.shape[0], 3), dtype=np.uint8)
         image_copy[...] = image[:, x_back:x_ahead, :]
     else:
         image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
