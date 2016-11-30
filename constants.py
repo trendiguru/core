@@ -384,6 +384,92 @@ paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts'
 paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
 paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 
+
+
+
+
+
+
+#these are ideally mutully exclusive , e.g you only have lower_cover_short OR lower_cover_long
+#this isnt totally necessary tho, the relaxed requirement is that similar looking stuff goes into
+#the same category .  Actually the real requirement here is that only one of a given set appears for a
+#given person.  However maybe bra can appear with lingerie so even this isnt in stone.
+#the point is a multilabel classifier will be taking care of determining whats happening
+#within these categories.  We finally decided these should be similar-looking things e.g. if there were no color
+#or texture which things would be most similar
+
+pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
+pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
+pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
+pixlevel3_upper_under = ['shirt']  #nite this is intead of top
+pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
+pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
+pixlevel3_lower_cover_short = ['shorts','skirt']
+pixlevel3_wraparwounds = ['shawl','scarf']
+pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
+
+pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jeans' ] #and socks appears twice...
+
+#16 categories here
+pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+                          'bag','belt','eyewear','hat','tie','skin']
+
+ultimate_21_to_pixlevel_v3 = [0,10,11,5,5,1,12,None,None,13,6,6,6,8,7,15,7,6,1,5,4]
+
+#romper (one-piece short+shirt)->dress
+#jumper (sleeveless dress) ->dress
+fashionista_augmented_to_pixlevel_v3 = [None,0,6,7,5,4,10,8,5,7,10,
+                                        8,4,5,2,1,6,5,4,6,6,
+                                        9,13,4,5,None,5,12,11,6,12,
+                                        2,6,None,1,1,5,1,None,8,8,
+                                        None,8,14,1,8,None,None,8,8,None,
+                                        8,None,1,8,None,15,15]
+
+#39 here
+multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt', 'mens_swimwear','lingerie','blazer','legging',
+                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
+                'poncho','tie','skin']
+
+#remove stuff that's not currently relevant to make life easier for taggers
+multilabel_categories_v3_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'sweatshirt', 'mens_swimwear','lingerie','blazer','legging','mens_underwear','vest','panties','bra','shawl','robe','pyjamas',
+                'poncho','tie','skin']
+
+multilabel_categories_v3_for_web_to_multilabel_categories_v3=[] #tbd
+multilabel_categories_v2_to_multilabel_categories_v3=[]  #tbd
+
+#same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
+#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
+#lingerie is not bra/panties - the other stuff
+#46 here
+multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
+                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
+                'poncho','tie','socks','hair','skin','face']
+
+#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
+pixlevel_categories_v2 = ['background']+multilabel_categories_v2
+
+pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
+                                                     10,11,12,13,14,15,16,17,18,22,
+                                                     23,24,25,26,28,29,30,33,35,39,
+                                                     42,44,45,46]
+
+
+
+
+
+
+
+
+
+
+
 nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
                                 'skirt', 'intimate']},
                      {'skirt': ['pants', 'jeans', 'shorts', 'romper', 'jumper']},
@@ -426,22 +512,6 @@ fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
                                                        None,7,42,5,7,25,None,7,7,26,
                                                        7,None,17,7,44,45,46]
 
-#same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
-#blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
-#lingerie is not bra/panties - the other stuff
-multilabel_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
-                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                'overalls','sweatshirt','bracelet','necklace','earrings','watch', 'mens_swimwear','lingerie','blazer','legging',
-                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
-                'poncho','tie','socks','hair','skin','face']
-
-#same as multilabel_categories_v2 with addtion of 0th item (background)  171116
-pixlevel_categories_v2 = ['background']+multilabel_categories_v2
-
-pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
-                                                     10,11,12,13,14,15,16,17,18,22,
-                                                     23,24,25,26,28,29,30,33,35,39,
-                                                     42,44,45,46]
 
 #add to finer categories:
 #traditional suit
