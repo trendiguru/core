@@ -222,7 +222,7 @@ def mask_to_multichannel(mask_arr,n_channels):
         logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero[output_arr[:,:,i]]))
     logging.debug('nonzero elements in orig:{} nonzero in multichan {}'.format(np.nonzero(mask_arr),np.nonzero(output_arr)))
     return output_arr
-
+#
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                    max_offset_x = 5,max_offset_y = 5,
