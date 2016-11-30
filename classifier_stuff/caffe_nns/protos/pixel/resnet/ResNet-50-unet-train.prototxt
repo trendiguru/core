@@ -2414,20 +2414,22 @@ layer {
 	}
 }
 
-layer {
-	bottom: "pool5"
-	top: "fc1000"
-	name: "fc1000"
-	type: "InnerProduct"
-	inner_product_param {
-		num_output: 1000
-	}
-}
+#layer {
+#	bottom: "pool5"
+#	top: "fc1000"
+#	name: "fc1000"
+#	type: "InnerProduct"
+#	inner_product_param {
+#		num_output: 1000
+#	}
+#}
 
-layer {
-	bottom: "fc1000"
-	top: "prob"
-	name: "prob"
-	type: "Softmax"
-}
+#layer {
+#	bottom: "fc1000"
+#	top: "prob"
+#	name: "prob"
+#	type: "Softmax"
+#}
+
+
 
