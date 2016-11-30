@@ -10,6 +10,9 @@ import socket
 import matplotlib
 import matplotlib.pyplot as plt
 import datetime
+import numpy as np
+
+
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -130,6 +133,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             solver.step(steps_per_iter)
     #        loss = solver.net.blobs['score'].data
             loss = solver.net.blobs['loss'].data
+            if not np.isscalar(loss):
+                loss = loss[0]
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter
