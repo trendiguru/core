@@ -27,13 +27,18 @@ import requests
 detector = dlib.get_frontal_face_detector()
 
 
-def person_isolation(image, face):
+def person_isolation(image, face, locate_in_center=True):
     x, y, w, h = face
     x_back = int(np.max([x - 1.5 * w, 0]))
     x_ahead = int(np.min([x + 2.5 * w, image.shape[1] - 2]))
 
-    image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
-    image_copy[...] = image[:, x_back:x_ahead, :]
+    if locate_in_center:
+        longest_axis = max(x_ahead - x_back, image.shape[0])
+        image_copy = np.zeros((longest_axis, longest_axis, 3), dtype=np.uint8)
+        image_copy[...] = image[:, x_back:x_ahead, :]
+    else:
+        image_copy = np.zeros((image.shape[0], x_ahead - x_back, 3), dtype=np.uint8)
+        image_copy[...] = image[:, x_back:x_ahead, :]
 
     return image_copy
 
@@ -41,17 +46,17 @@ def person_isolation(image, face):
 def collar_isolation(image, face):
     x, y, w, h = face
 
-    x_back = np.max([x - 0.75 * w, 0])
-    x_ahead = np.min([x + 1.75 * w, image.shape[1] - 2])
+    x_back = int(np.max([x - 0.75 * w, 0]))
+    x_ahead = int(np.min([x + 1.75 * w, image.shape[1] - 2]))
 
     print image.shape
 
-    y_top = np.max([y - 0.3 * h, 0])
-    y_bottom = np.min([y + 2 * h, image.shape[0] - 2])
+    y_top = int(np.max([y - 0.3 * h, 0]))
+    y_bottom = int(np.min([y + 2 * h, image.shape[0] - 2]))
 
-    image_copy = np.zeros((int(y_bottom) - int(y_top), int(x_ahead) - int(x_back), 3), dtype=np.uint8)
+    image_copy = np.zeros((y_bottom - y_top, x_ahead - x_back, 3), dtype=np.uint8)
 
-    image_copy[...] = image[int(y_top):int(y_bottom), int(x_back):int(x_ahead), :]
+    image_copy[...] = image[y_top:y_bottom, x_back:x_ahead, :]
     return image_copy
 
 
