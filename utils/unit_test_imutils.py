@@ -19,11 +19,11 @@ class OutcomesTest(unittest.TestCase):
         pass
 
     def test_do_resize(self):
-        path = os.path.dirname(imutils.__file__)
-        print('path:'+path)
-        path= os.path.pardir(path)
-        print('path:'+path)
-        img_arr = cv2.imread(os.path.join(path,'images/female1.jpg'))
+        curpath = os.path.dirname(imutils.__file__)
+        print('path:'+str(curpath))
+        path= os.path.pardir(curpath)
+        print('path:'+str(curpath))
+        img_arr = cv2.imread(os.path.join(curpath,'images/female1.jpg'))
         desired_size = (200,300)
         resized = imutils.resize_keep_aspect(img_arr,output_size=desired_size)
         actual_size=resized.shape[0:2]
