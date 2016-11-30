@@ -133,8 +133,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             solver.step(steps_per_iter)
     #        loss = solver.net.blobs['score'].data
             loss = solver.net.blobs['loss'].data
-            if not np.isscalar(loss):
-                loss = loss[0]
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter
@@ -145,7 +143,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
-        averaged_loss=sum(float(loss_avg))/len(loss_avg)
+        try:
+            averaged_loss=sum(float(loss_avg))/len(loss_avg)
+        except:
+            print("something wierd with loss:"+str(loss_avg))
         s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
