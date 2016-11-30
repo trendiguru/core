@@ -213,13 +213,11 @@ def mask_to_multichannel(mask_arr,n_channels):
     for i in np.unique(mask_arr):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
-        pixel_count = np.count_nonzero(channel)
  #       print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
-        pixel_count = np.count_nonzero(output_arr)
    #     print('cumulative pixcount {}'.format(pixel_count))
         logging.debug('nonzero elements in layer {}:{} '.format(i,len(mask_arr[mask_arr==i])))
-        logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero[output_arr[:,:,i]]))
+        logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero([output_arr[:,:,i])))
     logging.debug('nonzero elements in orig:{} nonzero in multichan {}'.format(np.nonzero(mask_arr),np.nonzero(output_arr)))
     return output_arr
 #
