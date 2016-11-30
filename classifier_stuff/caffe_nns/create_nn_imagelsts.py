@@ -290,7 +290,7 @@ def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=cons
 #            cv2.imshow('image',img_arr)
 
             path2 = line.split()[1]
-            imutils.show_mask_with_labels(path2,labels=labels,original_image=path1,True)
+            imutils.show_mask_with_labels(path2,labels=labels,original_image=path1,visual_output=True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     '''
