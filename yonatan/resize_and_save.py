@@ -465,16 +465,12 @@ def style_classifier_1():
     swim_txt_file.close()
 
 
-def resize_save():
-
-    #############
-
-    dictionary = yonatan_constants.style_dict
+def resize_save_all_in_dir(source_dir):
 
     error_counter = 0
     counter_dot = 0
 
-    source_dir = "/home/yonatan/test_can_delete"
+    # source_dir = "/home/yonatan/test_can_delete"
 
     for root, dirs, files in os.walk(source_dir):
 
@@ -541,6 +537,25 @@ def resize_save():
     #                     continue
     #
     # print "number of errors: {0}".format(error_counter)
+
+
+def resize_save_one_image(root, image, counter):
+
+    try:
+        image_array = cv2.imread(os.path.join(root, image))
+
+        resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
+
+        image_file_name = 'style-resized_' + str(counter) + '.jpg'
+
+        cv2.imwrite(os.path.join(root, image_file_name), resized_image)
+
+        os.remove(os.path.join(root, image))
+
+        print "Done"
+
+    except:
+        print "something ain't good"
 
 
 def collar_classifier():

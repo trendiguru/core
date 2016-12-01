@@ -63,12 +63,14 @@ def find_that_face(image, max_num_of_faces=10):
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
-def crop_figure_by_face(url_or_np_array):
+def crop_figure_by_face(url_or_np_array, root=False, file=False, person=True, collar=True):
 
     print "Starting the cropping!"
+    if root and file:
+        full_image = cv2.imread(url_or_np_array)
     # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
+    elif isinstance(url_or_np_array, basestring):
+        # full_image = url_to_image(url_or_np_array)
         response = requests.get(url_or_np_array)  # download
         full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
     elif type(url_or_np_array) == np.ndarray:
@@ -96,6 +98,21 @@ def crop_figure_by_face(url_or_np_array):
     person_figure = person_isolation(full_image, faces["faces"][0])
     collar_figure = collar_isolation(full_image, faces["faces"][0])
 
-    print cv2.imwrite('person_figure.jpg', person_figure)
-    print cv2.imwrite('collar_figure.jpg', collar_figure)
+    person_crop_name = "person_crop_" + file
+    collar_crop_name = "collar_crop_" + file
 
+    print cv2.imwrite(os.path.join(root, person_crop_name), person_figure)
+    print cv2.imwrite(os.path.join(root, collar_crop_name), collar_figure)
+
+
+def crop_figure_by_face_dir(source_dir):
+
+    counter = 0
+
+    for root, dirs, files in os.walk(source_dir):
+
+        for file in files:
+            crop_figure_by_face(os.path.join(root, file))
+            os.remove(os.path.join(root, file))
+            counter += 1
+            print counter

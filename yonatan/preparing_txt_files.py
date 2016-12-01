@@ -93,6 +93,9 @@ def create_txt_files(argv):
 
 
 def create_txt_files_no_mongo():
+    
+    # from the times when i first made txt files for all categories,
+    # #now i make train, cv, test directly from all categories
 
     train_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_train_set'
     cv_dir_path = '/home/yonatan/dress_length_3_labels_sets/dress_length_3_labels_cv_set'
@@ -180,18 +183,16 @@ def create_txt_files_by_adding_from_different_directories():
                                                                                                     counter_test, counter)
 
 
-def create_txt_files_from_different_directories():
+def create_txt_files_from_different_directories(feature_name, source_dir, labels):
 
-    dictionary = yonatan_constants.style_dict
-
-    train_text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_train_list.txt", "w")
-    cv_text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_cv_list.txt", "w")
-    test_text_file = open("/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt", "w")
+    train_text_file = open(source_dir + "/" + feature_name + "_train_list.txt", "w")
+    cv_text_file = open(source_dir + "/" + feature_name + "_cv_list.txt", "w")
+    test_text_file = open(source_dir + "/" + feature_name + "_test_list.txt", "w")
 
     error_counter = 0
 
-    for key, value in dictionary.iteritems():
-        source_dir = '/home/yonatan/style_classifier/style_second_try/style_images/' + key
+    for key, value in labels.iteritems():
+        source_dir = source_dir + "/" + key
         label = str(value)
 
         if os.path.isdir(source_dir):
@@ -246,15 +247,15 @@ def create_txt_files_from_different_directories():
     cv_text_file.close()
     test_text_file.close()
 
-    train_lines = open("/home/yonatan/style_classifier/style_second_try/style_images/style_train_list.txt").readlines()
-    cv_lines = open("/home/yonatan/style_classifier/style_second_try/style_images/style_cv_list.txt").readlines()
-    test_lines = open("/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt").readlines()
+    train_lines = open(source_dir + "/" + feature_name + "_train_list.txt").readlines()
+    cv_lines = open(source_dir + "/" + feature_name + "_cv_list.txt").readlines()
+    test_lines = open(source_dir + "/" + feature_name + "_test_list.txt").readlines()
     random.shuffle(train_lines)
     random.shuffle(cv_lines)
     random.shuffle(test_lines)
-    open('/home/yonatan/style_classifier/style_second_try/style_images/style_train_list.txt', 'w').writelines(train_lines)
-    open('/home/yonatan/style_classifier/style_second_try/style_images/style_cv_list.txt', 'w').writelines(cv_lines)
-    open('/home/yonatan/style_classifier/style_second_try/style_images/style_test_list.txt', 'w').writelines(test_lines)
+    open(source_dir + "/" + feature_name + "_train_list.txt", "w").writelines(train_lines)
+    open(source_dir + "/" + feature_name + "_cv_list.txt", "w").writelines(cv_lines)
+    open(source_dir + "/" + feature_name + "_test_list.txt", "w").writelines(test_lines)
 
 
 def edit_existing_gender_txt_files():
