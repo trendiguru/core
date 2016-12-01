@@ -145,8 +145,15 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
 
         try:
             averaged_loss=sum(float(loss_avg))/len(loss_avg)
+            s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         except:
             print("something wierd with loss:"+str(loss_avg))
+            s=0
+            for i in loss_avg:
+                print i
+                s=s+i
+            averaged_loss = s/len(loss_avg)
+            print('avg:'+str(s)+' '+str(averaged_loss))
         s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)

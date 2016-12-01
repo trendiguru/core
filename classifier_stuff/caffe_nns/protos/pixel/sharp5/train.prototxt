@@ -2559,9 +2559,9 @@ layer {
   top: "loss"
 }
 
-layer {
-  name: "output"
-  type: "Softmax"
-  bottom: "conv_final"
-  top: "output"
-}
+#layer {
+#  name: "output"
+#  type: "Softmax"
+#  bottom: "conv_final"
+#  top: "output"
+#}
