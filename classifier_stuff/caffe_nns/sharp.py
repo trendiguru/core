@@ -693,6 +693,8 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     decay_mult1 =1
     decay_mult2 =0
     batch_size = 1
+    orig_size = imsize[0]
+    pool_count=0
     n=caffe.NetSpec()
     #assuming input of size 224x224, ...
     n.data,n.label=L.Data(batch_size=batch_size,backend=P.Data.LMDB,source=db,transform_param=dict(scale=1./255,mean_value=mean_value,mirror=True),ntop=2)
@@ -701,30 +703,36 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     n.conv1_1,n.relu1_1,n.bn1_1,n.scale1_1 = conv_relu_bn(n.scale1,n_output=64,kernel_size=3,pad='preserve')
     n.conv1_2,n.relu1_2,n.bn1_2,n.scale1_2 = conv_relu_bn(n.conv1_1,n_output=64,kernel_size=3,pad='preserve',stage=stage)
     n.pool1 = L.Pooling(n.conv1_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    pool_count+=1
 
-    #the following will be 112x112
+    #the following will be 112x112   (/2)
     n.conv2_1,n.relu2_1,n.bn2_1,n.scale2_1 = conv_relu_bn(n.pool1,n_output=128,kernel_size=3,pad='preserve')
     n.conv2_2,n.relu2_2,n.bn2_2,n.scale2_2 = conv_relu_bn(n.conv2_1,n_output=128,kernel_size=3,pad='preserve',stage=stage)
     n.pool2 = L.Pooling(n.conv2_2, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    pool_count+=1
 
-    #the following will be 56x56
+    #the following will be 56x56  (/4)
     n.conv3_1,n.relu3_1,n.bn3_1,n.scale3_1 = conv_relu_bn(n.pool2,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_2,n.relu3_2,n.bn3_2,n.scale3_2 = conv_relu_bn(n.conv3_1,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_3,n.relu3_3,n.bn3_3,n.scale3_3 = conv_relu_bn(n.conv3_2,n_output=256,kernel_size=3,pad='preserve',stage=stage)
     n.pool3 = L.Pooling(n.conv3_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    pool_count+=1
 
-    #the following will be 28x28
+    #the following will be 28x28  (/8)
     n.conv4_1,n.relu4_1,n.bn4_1,n.scale4_1 = conv_relu_bn(n.pool3,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_2,n.relu4_2,n.bn4_2,n.scale4_2 = conv_relu_bn(n.conv4_1,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_3,n.relu4_3,n.bn4_3,n.scale4_3 = conv_relu_bn(n.conv4_2,n_output=512,kernel_size=3,pad='preserve',stage=stage)
     n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    pool_count+=1
 
-    #the following will be 14x14
+    #the following will be 14x14  (/16)
     n.conv5_1,n.relu5_1,n.bn5_1,n.scale5_1 = conv_relu_bn(n.pool4,n_output=512,kernel_size=3,pad='preserve')
     n.conv5_2,n.relu5_2,n.bn5_2,n.scale5_2 = conv_relu_bn(n.conv5_1,n_output=512,kernel_size=3,pad='preserve')
     n.conv5_3,n.relu5_3,n.bn5_3,n.scale2_3 = conv_relu_bn(n.conv5_2,n_output=512,kernel_size=3,pad='preserve',stage=stage)
     n.pool5 = L.Pooling(n.conv5_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)
+    pool_count+=1
 
+    #the following will be   /32
     n.fc6,n.relu6 = fc_relu(n.pool5,3136)  #6272=7*7*128
     n.bn6,n.scale6 = batchnorm(n.fc6,stage=stage)
     n.drop6 = L.Dropout(n.fc6, dropout_param=dict(dropout_ratio=0.2),in_place=True)
@@ -733,7 +741,9 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     n.bn7,n.scale7 = batchnorm(n.fc7,stage=stage)
     n.drop7 = L.Dropout(n.fc7, dropout_param=dict(dropout_ratio=0.2),in_place=True)
 
-    n.reshape8 = L.Reshape(n.fc7, reshape_param = dict(shape=dict(dim=[0,-1,7,7])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
+    current_size=orig_size/(2**pool_count)
+    print("innermost size:"+str(current_size))
+    n.reshape8 = L.Reshape(n.fc7, reshape_param = dict(shape=dict(dim=[0,-1,current_size,current_size])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
 
     n.conv8_0,n.relu8_0,n.bn8_0,n.scale8_0 = conv_relu_bn(n.reshape8,n_output=512,kernel_size=7,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
 
