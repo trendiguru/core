@@ -21,3 +21,5 @@ def edit_dirs_names(source_dir):
                     break
                 new_dir_name = new_dir_name + "_" + all_words[i]
 
+    print "Done editing dirs names"
+
