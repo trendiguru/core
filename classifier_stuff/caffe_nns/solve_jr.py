@@ -163,7 +163,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
             val = range(0,n_tests) #
-            results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=labels)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']
@@ -214,15 +214,14 @@ if __name__ == "__main__":
     steps_per_iter = 1
     n_iter = 200
     cat = "dress"
-    classlabels=['dress','not_dress']
+#    classlabels=['dress','not_dress']
+    classlabels=constants.pixlevel_categories_v3
     n_tests = 2000
     n_loops = 2000000
     baremetal_hostname = 'k80b'
     label_layer='label'
     estimate_layer='fc2'
-    labels = constants.pixlevel_categories_v3
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer,
-            labels=labels)
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)
