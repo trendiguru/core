@@ -10,6 +10,9 @@ import socket
 import matplotlib
 import matplotlib.pyplot as plt
 import datetime
+import numpy as np
+
+
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -140,7 +143,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
-        averaged_loss=sum(float(loss_avg))/len(loss_avg)
+        try:
+            averaged_loss=sum(float(loss_avg))/len(loss_avg)
+        except:
+            print("something wierd with loss:"+str(loss_avg))
         s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
@@ -157,7 +163,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
             val = range(0,n_tests) #
-            results_dict = jrinfer.seg_tests(solver,  val, output_layer='pixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']
@@ -208,7 +214,8 @@ if __name__ == "__main__":
     steps_per_iter = 1
     n_iter = 200
     cat = "dress"
-    classlabels=['dress','not_dress']
+#    classlabels=['dress','not_dress']
+    classlabels=constants.pixlevel_categories_v3
     n_tests = 2000
     n_loops = 2000000
     baremetal_hostname = 'k80b'

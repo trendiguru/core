@@ -158,6 +158,7 @@ class JrPixlevel(caffe.Layer):
             print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
+        start_time=time.time()
    #     print('reshaping')
         # reshape tops to fit (leading 1 is for batch dimension)
 
@@ -182,6 +183,8 @@ class JrPixlevel(caffe.Layer):
             top[0].reshape(*self.data.shape)
             top[1].reshape(*self.label.shape)
             logging.debug('batchsize {} datasize {} labelsize {}'.format(self.batch_size,self.data.shape,self.label.shape))
+        elapsed=time.time()-start_time
+        print('reshape elapsed time:'+str(elapsed))
 
     def next_idx(self):
         if self.random_pick:
@@ -203,7 +206,7 @@ class JrPixlevel(caffe.Layer):
 
     def determine_label_filename(self,idx):
         if self.labelsfile is not None:
-                filename = self.labelfiles[idx]
+                filename = self.labelfiles[idx]    
         #if there is no labelsfile specified then rename imagefiles to make labelfile names
         #so strip imagefile to get labelfile name
         else:
