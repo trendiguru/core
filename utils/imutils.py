@@ -938,7 +938,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
     histo = np.histogram(img_arr,bins=len(labels)-1)
-#    print('hist'+str(histo[0]))
+#    print('hist'+str(histo[0])) #
     h,w = img_arr.shape[0:2]
     n_nonzero = np.count_nonzero(img_arr)
     n_tot = h*w
@@ -946,7 +946,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     uniques = np.unique(img_arr)
     logging.debug('show_mask_with_labels:number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
     if len(uniques)>len(labels):
-        logging.warning('number of unique mask values > number of labels!!!')
+        logging.warning('number of unique mask values {} > number of labels {}!!!'.format(len(uniques),len(labels)))
         return
     # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
     maxVal = len(labels)
