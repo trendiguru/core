@@ -434,10 +434,12 @@ multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'poncho','tie','skin']
 
 #remove stuff that's not currently relevant to make life easier for taggers
-multilabel_categories_v3_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+multilabel_categories_v4_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'sweatshirt', 'mens_swimwear','lingerie','blazer','legging','mens_underwear','vest','panties','bra','shawl','robe','pyjamas',
-                'poncho','tie','skin']
+                'tie','skin']
+
+pixlevel_categories_v4_for_web = ['bgnd']+multilabel_categories_v4_for_web
 
 multilabel_categories_v3_for_web_to_multilabel_categories_v3=[] #tbd
 multilabel_categories_v2_to_multilabel_categories_v3=[]  #tbd
