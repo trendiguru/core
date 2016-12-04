@@ -119,7 +119,8 @@ collar_basic_dict = {
     'polo_collar': 5,
     'tie_neck': 6,
     'turtleneck': 7,
-    'Hooded_T_Shirt': 8
+    'Hooded_T_Shirt': 8,
+    'strapless': 9
 }
 
 # style #

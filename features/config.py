@@ -24,7 +24,7 @@ FEATURES = {
         "labels": {
             'mini_length': 0,
             'midi_length': 1,
-            'maxi_length': 2,
+            'maxi_length': 2
         },
         "relevant_items": []
     },
@@ -42,7 +42,8 @@ FEATURES = {
             'polo_collar': 5,
             'tie_neck': 6,
             'turtleneck': 7,
-            'Hooded_T_Shirt': 8
+            'Hooded_T_Shirt': 8,
+            'strapless': 9
         },
         "relevant_items": []
     },

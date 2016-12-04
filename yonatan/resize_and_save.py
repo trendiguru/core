@@ -465,7 +465,7 @@ def style_classifier_1():
     swim_txt_file.close()
 
 
-def resize_save_all_in_dir(source_dir):
+def resize_save_all_in_dir(feature_name, source_dir):
 
     error_counter = 0
     counter_dot = 0
@@ -489,7 +489,7 @@ def resize_save_all_in_dir(source_dir):
                 image_array = cv2.imread(os.path.join(root, file))
                 resized_image = imutils.resize_keep_aspect(image_array, output_size=(224, 224))
 
-                image_file_name = 'style-resized_' + str(counter) + '.jpg'
+                image_file_name = feature_name + '-resized_' + str(counter) + '.jpg'
 
                 cv2.imwrite(os.path.join(root, image_file_name), resized_image)
 
