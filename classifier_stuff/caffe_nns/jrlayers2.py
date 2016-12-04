@@ -11,9 +11,11 @@ import cv2
 import random
 import string
 import time
+import multiprocessing
 
 from trendi.utils import augment_images
 from trendi.utils import imutils
+from trendi import constants
 
 class JrPixlevel(caffe.Layer):
     """
@@ -70,16 +72,15 @@ class JrPixlevel(caffe.Layer):
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
 
+        print('##############')
+        print('params coming into jrlayers2')
+        print('batchsize {}\n type {}\n'.format(self.batch_size,type(self.batch_size)))
+        print('imfile {} \nmean {}  \nrandinit {} \nrandpick {} \n'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        print('seed {} \nresize \n{} \nbatchsize {} \naugment \n{} \naugmaxangle {} \n'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {} \n'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}\n'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('##############')
 
-        print('batchsize {} type {}'.format(self.batch_size,type(self.batch_size)))
-        print('imfile {} mean {}  randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
-        print('seed {} resize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
-        print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
-        print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
-
-
-#        print('PRINTlabeldir {} imagedir {} labelfile {} imagefile {}'.format(self.labels_dir,self.images_dir,self.labelsfile,self.imagesfile))
-        logging.debug('imgs_and_labelsfile {}'.format(self.images_and_labels_file))
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
@@ -100,7 +101,7 @@ class JrPixlevel(caffe.Layer):
                 logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
-#######begin vestigial code
+#######begin vestigial code for separate images/labels files
         elif self.imagesfile is not None:
             if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
                 self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
@@ -108,9 +109,6 @@ class JrPixlevel(caffe.Layer):
                 logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
             self.n_files = len(self.imagefiles)
-    #        self.indices = open(split_f, 'r').read().splitlines()
-#        else:
-#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
 
         elif self.labelsfile is not None:  #if labels flie is none then get labels from images
             if not os.path.isfile(self.labelsfile) and not '/' in self.labelsfile:
@@ -118,9 +116,6 @@ class JrPixlevel(caffe.Layer):
             if not os.path.isfile(self.labelsfile):
                 print('COULD NOT OPEN labelS FILE '+str(self.labelsfile))
                 self.labelfiles = open(self.labelsfile, 'r').read().splitlines()
-#        else:
-#            self.labelfiles = [f for f in os.listdir(self.labels_dir) if self.labelfile_suffix in f]
-#            self.n_files = len(self.imagefiles)
 ###########end vestigial code
 
         print('found {} imagefiles and {} labelfiles'.format(len(self.imagefiles),len(self.labelfiles)))
@@ -155,7 +150,7 @@ class JrPixlevel(caffe.Layer):
             assert(len(self.imagefiles) == len(self.labelfiles))
             print('{} images and {} labels'.format(len(self.imagefiles),len(self.labelfiles)))
             self.n_files = len(self.imagefiles)
-            print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
+#            print(str(self.n_files)+' good files in image dir '+str(self.images_dir))
 
     def reshape(self, bottom, top):
         start_time=time.time()
@@ -172,11 +167,20 @@ class JrPixlevel(caffe.Layer):
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
-            for i in range(self.batch_size):
-                data, label = self.load_image_and_mask()
-                all_data[i,...]=data
-                all_labels[i,...]=label
-                self.next_idx()
+
+            multiprocess=True
+            if multiprocess:
+                pool = multiprocessing.Pool(4)
+                output = pool.map(self.load_image_and_mask_helper, range(self.batch_size))
+                for o in output:
+                    all_data[i,...]=o[0]
+                    all_labels[i,...]=o[1]
+            else:
+                for i in range(self.batch_size):
+                    data, label = self.load_image_and_mask()
+                    all_data[i,...]=data
+                    all_labels[i,...]=label
+                    self.next_idx()
             self.data = all_data
             self.label = all_labels
             #no extra dimension needed
@@ -276,6 +280,12 @@ class JrPixlevel(caffe.Layer):
 
         return label
 
+    def load_image_and_mask_helper(self,x):
+        #this is to alow multiprocess to send an unneeded argument , probably there is some way to multiprocess without args
+        #without this hack but this works and is easy
+        out1,out2=self.load_image_and_mask()
+        return out1,out2
+
     def load_image_and_mask(self):
         """
         Load input image and preprocess for Caffe:
@@ -284,6 +294,9 @@ class JrPixlevel(caffe.Layer):
         - subtract mean
         - transpose to channel x height x width order
         """
+        #add idx and allow randomness of next_idx to take care of multiprocessing case where
+        #multiple threads are using this simultanesouly and dont want to get the same image
+        self.next_idx()
         while(1):
             filename = self.imagefiles[self.idx]
             label_filename=self.labelfiles[self.idx]
@@ -340,7 +353,7 @@ class JrPixlevel(caffe.Layer):
 #        print('after extradim shape:'+str(label.shape))
 #        out1,out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_)
         logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} maxangle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
-        print('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
+#        print('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
@@ -360,7 +373,7 @@ class JrPixlevel(caffe.Layer):
             cv2.imwrite(name+'.jpg',out1)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
-
+            imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_legend.jpg',save_images=True)
 #        out1 = out1[:,:,::-1]   #RGB -> BGR - not necesary since this is done above (line 303)
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
@@ -368,10 +381,7 @@ class JrPixlevel(caffe.Layer):
             logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
-
         return out1,out2
-
-
 
 
 
