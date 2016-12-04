@@ -5,6 +5,9 @@ from ..features import config
 
 main_dictionary = config.FEATURES
 
+# example for copy from my pc to brainik80a:
+# rsync -avz -e ssh /home/yonatan/Pictures/collar/* yonatan@159.8.222.10:/home/yonatan/collar_classifier/collar_images/
+
 
 def get_feature_data_ready(feature_name, crop=False):
 
