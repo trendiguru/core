@@ -241,8 +241,6 @@ def create_txt_files_from_different_directories(feature_name, source_dir, labels
             print 'counter_train = {0}, counter_cv = {1}, counter_test = {2}, counter = {3}, key = {4}, error_counter = {5}'.format(counter_train, counter_cv,
                                                                                                     counter_test, counter, key, error_counter)
 
-    print error_counter
-
     train_text_file.close()
     cv_text_file.close()
     test_text_file.close()

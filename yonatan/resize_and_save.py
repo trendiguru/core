@@ -603,7 +603,6 @@ def collar_classifier():
     print "number of errors: {0}".format(error_counter)
 
 
-if __name__ == '__main__':
-    # style_classifier_1()
-    resize_save()
-    # collar_classifier()
+# if __name__ == '__main__':
+#     # style_classifier_1()
+#     # collar_classifier()
