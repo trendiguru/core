@@ -17,8 +17,7 @@ def edit_dirs_names(source_dir):
                     print "{0} -> {1}".format(dir, new_dir_name)
                     break
                 new_dir_name = new_dir_name + "_" + all_words[i]
-            # os.rename(dir, new_dir_name)
-            print "root: {0}, dir: {1}".format(root, dir)
+            os.rename(os.path.join(root, dir), os.path.join(root, new_dir_name))
 
     print "Done editing dirs names"
 
