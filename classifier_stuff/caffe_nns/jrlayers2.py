@@ -168,7 +168,7 @@ class JrPixlevel(caffe.Layer):
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
 
-            multiprocess=True
+            multiprocess=False
             if multiprocess:
                 pool = multiprocessing.Pool(4)
                 output = pool.map(self.load_image_and_mask_helper, range(self.batch_size))
@@ -280,7 +280,7 @@ class JrPixlevel(caffe.Layer):
 
         return label
 
-    def load_image_and_mask_helper(self,x):
+    def load_image_and_mask_helper(self,idxs):
         #this is to alow multiprocess to send an unneeded argument , probably there is some way to multiprocess without args
         #without this hack but this works and is easy
         out1,out2=self.load_image_and_mask()
