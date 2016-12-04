@@ -469,12 +469,11 @@ def resize_save_all_in_dir(feature_name, source_dir):
 
     error_counter = 0
     counter_dot = 0
+    counter = 0
 
     # source_dir = "/home/yonatan/test_can_delete"
 
     for root, dirs, files in os.walk(source_dir):
-
-        counter = 0
 
         for file in files:
 
