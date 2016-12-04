@@ -401,7 +401,8 @@ class JrPixlevel(caffe.Layer):
         ins = range(bsize)
     #    outs = zip(*pool.map(squared, range(bsize)))
         outs = pool.map(self.squared_cubed, ins)
-      #  outs = pool.map(helpnoargs, ins)
+        print outs
+        outs = pool.map(self.helpnoargs, ins)
         print outs
         theout1=[]
         theout2=[]
