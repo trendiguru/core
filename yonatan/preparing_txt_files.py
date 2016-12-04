@@ -192,18 +192,18 @@ def create_txt_files_from_different_directories(feature_name, source_dir, labels
     error_counter = 0
 
     for key, value in labels.iteritems():
-        source_dir = source_dir + "/" + key
+        label_dir = source_dir + "/" + key
         label = str(value)
 
-        if os.path.isdir(source_dir):
-            if not os.listdir(source_dir):
-                print '\nfolder is empty ' + key
+        if os.path.isdir(label_dir):
+            if not os.listdir(label_dir):
+                print '\nfolder is empty: ' + key
                 break
         else:
-            print '\nfolder doesn\'t exist ' + key
+            print '\nfolder doesn\'t exist: ' + key
             break
 
-        for root, dirs, files in os.walk(source_dir):
+        for root, dirs, files in os.walk(label_dir):
             file_count = len(files)
 
             counter = 0
