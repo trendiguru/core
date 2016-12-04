@@ -74,11 +74,11 @@ class JrPixlevel(caffe.Layer):
 
         print('##############')
         print('params coming into jrlayers2')
-        print('batchsize {}\n type {}\n'.format(self.batch_size,type(self.batch_size)))
-        print('imfile {} \nmean {}  \nrandinit {} \nrandpick {} \n'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
-        print('seed {} \nresize \n{} \nbatchsize {} \naugment \n{} \naugmaxangle {} \n'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
-        print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {} \n'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
-        print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}\n'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('batchsize {}\n type {}'.format(self.batch_size,type(self.batch_size)))
+        print('imfile {} \nmean {}  \nrandinit {} \nrandpick {}'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        print('seed {} \nresize \n{} \nbatchsize {} \naugment \n{} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {}'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
+        print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
         print('##############')
 
         # two tops: data and label
@@ -385,7 +385,31 @@ class JrPixlevel(caffe.Layer):
 
 
 
+    def squared_cubed(self,x):
+        return x**2,x**3
 
+    def noargs(self):
+        return 3**2,3**3
+
+    def helpnoargs(self,X):
+        r=noargs()
+        return r
+
+    def test_multi(self,bsize):
+    #    bsize = 4
+        pool = multiprocessing.Pool(20)
+        ins = range(bsize)
+    #    outs = zip(*pool.map(squared, range(bsize)))
+        outs = pool.map(self.squared_cubed, ins)
+      #  outs = pool.map(helpnoargs, ins)
+        print outs
+        theout1=[]
+        theout2=[]
+        for o in outs:
+            theout1.append(o[0])
+            theout2.append(o[1])
+        print theout1
+        print theout2
 
 
 

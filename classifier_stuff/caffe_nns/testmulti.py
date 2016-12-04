@@ -8,7 +8,7 @@ def squared_cubed(x):
     return x**2,x**3
 
 def noargs():
-    return 3**2,4**3
+    return 3**2,3**3
 
 def helpnoargs(X):
     r=noargs()
@@ -20,7 +20,7 @@ def test_multi(bsize):
     ins = range(bsize)
 #    outs = zip(*pool.map(squared, range(bsize)))
     outs = pool.map(squared_cubed, ins)
-    outs = pool.map(helpnoargs, [None,None,None])
+  #  outs = pool.map(helpnoargs, ins)
     print outs
     theout1=[]
     theout2=[]
