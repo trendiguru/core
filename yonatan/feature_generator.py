@@ -12,8 +12,8 @@ main_dictionary = config.FEATURES
 def get_feature_data_ready(feature_name, crop=False):
 
     feature_dict = config.FEATURES[feature_name]
-    source_dir = feature_dict.path_to_images
-    labels = feature_dict.labels
+    source_dir = feature_dict['path_to_images']
+    labels = feature_dict['labels']
 
     edit_names.edit_dirs_names(source_dir)
 
