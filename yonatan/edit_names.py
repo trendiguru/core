@@ -7,8 +7,6 @@ import os
 
 def edit_dirs_names(source_dir):
 
-    counter = 0
-
     for root, dirs, files in os.walk(source_dir):
         for dir in dirs:
             all_words = dir.split()
@@ -17,9 +15,9 @@ def edit_dirs_names(source_dir):
             for i in range(1, len(all_words)):
                 if all_words[i] == "-":
                     print "{0} -> {1}".format(dir, new_dir_name)
-                    print counter
                     break
                 new_dir_name = new_dir_name + "_" + all_words[i]
+            os.rename(dir, new_dir_name)
 
     print "Done editing dirs names"
 
