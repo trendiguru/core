@@ -10,7 +10,7 @@ from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -468,12 +468,12 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
 def get_multilabel_output_using_nfc(url_or_np_array):
     print('starting get_multilabel_output_using_nfc')
     multilabel_dict = nfc.pd(url_or_np_array, get_multilabel_results=True)
-    print('get_multi_output:dict from falcon dict:'+str(multilabel_dict))
+    logging.debug('get_multi_output:dict from falcon dict:'+str(multilabel_dict))
     if not multilabel_dict['success']:
-        print('did not get nfc pd result succesfully')
+        logging.warning('did not get nfc pd result succesfully')
         return
     multilabel_output = multilabel_dict['multilabel_output']
-    print('multilabel output:'+str(multilabel_output))
+    logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
 def test_multilabel_output_on_testset(testfile,outdir='./'):
