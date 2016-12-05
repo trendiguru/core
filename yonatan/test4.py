@@ -26,10 +26,10 @@ array_failure_without = np.array([])
 text_file = open("/home/yonatan/collar_classifier/collar_images/collar_test_list.txt", "r")
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
+PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_4_12_16/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
-caffe.set_device(3)
+caffe.set_device(1)
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
@@ -86,7 +86,7 @@ for line in text_file:
     elif predict_label == 0 and true_label == 1:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
-    elif predict_label == 8 and true_label == 7:
+    elif predict_label == 9 and true_label == 8:
         array_success_with_plus_minus_category = np.append(array_success_with_plus_minus_category, max_result)
         array_failure_without = np.append(array_failure_without, max_result)
     elif predict_label == (true_label + 1) or predict_label == (true_label - 1):
