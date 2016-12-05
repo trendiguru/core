@@ -51,6 +51,7 @@ def GET_call(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, page=1
         '&attributeValue=' + price_attribute
 
     res = requests.get(api_call, timeout=30)
+    res = requests.get(api_call, timeout=30)
 
     if res.status_code != 200:
         return False, 0, []
@@ -284,14 +285,19 @@ def downloader(GEO, gender, sub_attribute, price_bottom=0, price_top=10000, mode
 
     if item_count > 1490 and price_top > price_bottom:
         api_q = Queue('ebay_API_worker', connection=redis_conn)
-        middle = int((price_top+price_bottom)/2)
-        if middle >= price_bottom:
+        middle = int((price_top+price_bottom)/2.0)
+        if middle == price_bottom:
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_top, price_top, mode), timeout=3600)
+            api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, middle, mode), timeout=3600)
+            return
+        elif middle > price_bottom:
             api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, price_bottom, middle, mode), timeout=3600)
-        if price_top > middle != price_bottom:
             api_q.enqueue(downloader, args=(GEO, gender, sub_attribute, middle, price_top, mode), timeout=3600)
-        print ('price range %d to %d divided to %d - %d  &  %d - %d'
-               % (price_bottom, price_top, price_bottom, middle, middle, price_top))
-        return
+            print ('price range %d to %d divided to %d - %d  &  %d - %d'
+                   % (price_bottom, price_top, price_bottom, middle, middle, price_top))
+            return
+        else:
+            pass
 
     fp_q = Queue('fingerprinter4db', connection=redis_conn)
     end_page = item_count/100 + 2
