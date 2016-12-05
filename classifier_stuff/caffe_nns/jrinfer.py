@@ -415,7 +415,7 @@ if __name__ == "__main__":
         caffe.set_mode_cpu()
 
     if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
-        print('using net defined by {} and {} '.format(args.prototxt,args.model))
+        print('using net defined by {} and {} '.format(args.solverproto,args.model))
         solver = caffe.SGDSolver(args.prototxt)
         solver.net.copy_from(args.model)
 #        if args.image_file:
