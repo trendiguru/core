@@ -548,6 +548,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
         print('ml output:'+str(ml_output))
         mlfilename = os.path.basename(imgfile).replace('.txt','_mloutput.txt')
         mlfilename = os.path.join(outdir,mlfilename)
+        logging.info('mlfilename'+str(mlfilename))
         with(open(mlfilename,'a')) as fp:
             for e in ml_output:
                 fp.write(str(e)+'\t')
@@ -558,9 +559,9 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
 
     with open(estimates_file,'a') as fp:
         for imgfile,estimate in zip(img_files,estimates):
-            fp.write(imgfile+'\t')
+            fp.write(imgfile+' ')
             for e in estimate:
-                fp.write(str(round(e,2))+'\t')
+                fp.write(str(round(e,2))+' ')
             fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
