@@ -524,13 +524,16 @@ def test_multilabel_output_on_testset(testfile,outdir='./'):
     print('checking accuracy')
     check_acc_nonet(label_vecs,estimates)
 
-def multilabel_output_on_testfile(testfile,outdir='./',estimates_file='estimates.txt'):
-    img_files = []
-    with open(testfile,'r') as fp:
-        lines = fp.readlines()
-        for line in lines:
-            imgfilename = line.split()[0]
-            img_files.append(imgfilename)
+def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdir='./',estimates_file='estimates.txt'):
+    if testfile is not None:
+        img_files = []
+        with open(testfile,'r') as fp:
+            lines = fp.readlines()
+            for line in lines:
+                imgfilename = line.split()[0]
+                img_files.append(imgfilename)
+    elif testdir is not None:
+        img_files = [os.path.join(testdir,f) for f in os.listdir(testdir) if filter in f]
 
     estimates=[]
     for imgfile in img_files:
