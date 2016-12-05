@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 10
 snapshot: 2500
-snapshot_prefix: "/home/yonatan/collar_classifier/resnet152_caffemodels_6_11_16/caffe_resnet152_snapshot_collar_9_categories"
+snapshot_prefix: "/home/yonatan/collar_classifier/resnet152_caffemodels_4_12_16/caffe_resnet152_snapshot_collar_10_categories"
 test_initialization: false
 solver_mode : GPU
 

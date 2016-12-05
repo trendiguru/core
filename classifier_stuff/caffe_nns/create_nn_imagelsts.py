@@ -7,7 +7,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 
-
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
@@ -282,16 +281,16 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
-def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt'):
+def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):
     with open(filename,'r') as fp:
         for line in fp:
             print line
             path1 = line.split()[0]
-            img_arr = cv2.imread(path1)
-            cv2.imshow('image',img_arr)
+#            img_arr = cv2.imread(path1)
+#            cv2.imshow('image',img_arr)
 
             path2 = line.split()[1]
-            imutils.show_mask_with_labels(path2,labels=constants.ultimate_21,visual_output=True)
+            imutils.show_mask_with_labels(path2,labels=labels,original_image=path1,visual_output=True)
 
 def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
     '''

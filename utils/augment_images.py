@@ -8,8 +8,11 @@ from trendi.utils import imutils
 from trendi import constants
 import string
 import random
+import inspect
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("simple_example")
+logger.setLevel(logging.DEBUG)
 
 def generate_images(img_filename, max_angle = 5,n_angles=10,
                     max_offset_x = 100,n_offsets_x=1,
@@ -213,16 +216,14 @@ def mask_to_multichannel(mask_arr,n_channels):
     for i in np.unique(mask_arr):
         channel = np.zeros([h,w])
         channel[mask_arr == i] = 1
-        pixel_count = np.count_nonzero(channel)
  #       print('mask to multichannel {} pixcount {}'.format(i,pixel_count))
         output_arr[:,:,i] = channel
-        pixel_count = np.count_nonzero(output_arr)
    #     print('cumulative pixcount {}'.format(pixel_count))
-        logging.debug('nonzero elements in leyer {}:{} nonzero in multichan {}'.format(len(mask_arr[mask_arr==i]),np.count_nonzero[output_arr[:,:,i]]))
-
+        logging.debug('nonzero elements in layer {}:{} '.format(i,len(mask_arr[mask_arr==i])))
+        logging.debug('nonzero in multichan layer {}:{}'.format(i,np.count_nonzero(output_arr[:,:,i])))
     logging.debug('nonzero elements in orig:{} nonzero in multichan {}'.format(np.nonzero(mask_arr),np.nonzero(output_arr)))
     return output_arr
-
+#
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                    max_offset_x = 5,max_offset_y = 5,
@@ -310,12 +311,26 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     height,width = img_arr.shape[0:2]
 
     if crop_size:
+        #calculate headroom left after crop. actual crop is random within that headroom iirc
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
-            print('crop {} is larger than incoming image {} so I refuse to crop'.format(crop_size,img_arr.shape[0:2]))
-            x_room = 0
-            y_room = 0
+            logging.debug('crop {} is larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
+            if x_room<y_room:
+                factor = float(crop_size[1])/width
+                resize_size = (int(height*factor),crop_size[1])
+            else:
+                factor = float(crop_size[0])/height
+                resize_size = (width,int(crop_size[1]*factor))
+            logging.debug('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
+            img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
+
+        height,width = img_arr.shape[0:2]
+        x_room = width - crop_size[1]
+        y_room = height - crop_size[0]
+        if x_room<0 or y_room<0:
+            logging.warning('crop {} is still larger than incoming image {} !!!!! something went wrong'.format(crop_size,img_arr.shape[0:2]))
+
  #       logging.debug('crop size {} xroom {} yroom {}'.format(crop_size,x_room,y_room))
 #        if crop_size[0]!=img_arr.shape[0] or crop_size[1]!= img_arr.shape[1]:
 ##            print('WARNING shape mismatch with crop in augment images, forcing reshape!')

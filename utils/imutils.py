@@ -17,6 +17,7 @@ import copy
 from trendi import constants
 import matplotlib.pyplot as plt
 import shutil
+import inspect
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -328,7 +329,7 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
         print('infile:{} desired size:{} outfile {}'.format(fullname,output_size,newname))
         resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
 
-def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False, copy_edge_pixeles=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
     :param input_file_or_np_arr:
@@ -354,10 +355,10 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     in_ar = float(inheight)/inwidth
     if len(input_file_or_np_arr.shape) == 3:
         indepth = input_file_or_np_arr.shape[2]
-        output_img = np.ones([outheight,outwidth,indepth],dtype=np.uint8)
+        output_img = np.zeros([outheight,outwidth,indepth],dtype=np.uint8)
     else:
         indepth = 1
-        output_img = np.ones([outheight,outwidth],dtype=np.uint8)
+        output_img = np.zeros([outheight,outwidth],dtype=np.uint8)
 #    print('input:{}x{}x{}'.format(inheight,inwidth,indepth))
     actual_outheight, actual_outwidth = output_img.shape[0:2]
 #    print('output:{}x{}'.format(actual_outheight,actual_outwidth))
@@ -372,8 +373,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         for n in range(0,width_offset):  #doing this like the below runs into a broadcast problem which could prob be solved by reshaping
 #            output_img[:,0:width_offset] = resized_img[:,0]
 #            output_img[:,width_offset+new_width:] = resized_img[:,-1]
-            output_img[:,n] = resized_img[:,0]
-            output_img[:,n+new_width+width_offset] = resized_img[:,-1]
+            if copy_edge_pixeles:
+                output_img[:,n] = resized_img[:,0]
+                output_img[:,n+new_width+width_offset] = resized_img[:,-1]
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
@@ -381,8 +383,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         height_offset = (outheight - new_height) / 2
         logging.debug('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
-        output_img[0:height_offset,:] = resized_img[0,:]
-        output_img[height_offset+new_height:,:] = resized_img[-1,:]
+        if copy_edge_pixeles:
+            output_img[0:height_offset,:] = resized_img[0,:]
+            output_img[height_offset+new_height:,:] = resized_img[-1,:]
 #        print('resize size:'+str(resized_img.shape)+' desired height:'+str(outheight)+' orig height resized:'+str(new_height))
 #        print('orig dims {} resized to {}'.format(input_file_or_np_arr.shape,output_img.shape))
 
@@ -844,7 +847,7 @@ def resize_and_crop_maintain_bb_on_dir(dir, output_width = 150, output_height = 
         fullfile = os.path.join(dir,a_file)
         retval = resize_and_crop_maintain_bb(fullfile, output_width = 150, output_height = 200,use_visual_output=True,bb=None)
 
-def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False,visual_output=False):
+def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,original_images_dir_alt=None,cut_the_crap=False,save_images=False,visual_output=False,webtool=False):
     '''
 
     :param dir:
@@ -867,6 +870,8 @@ def show_mask_with_labels_dir(dir,labels,filter=None,original_images_dir=None,or
     n=0
     if original_images_dir:
         original_images = ['.'.join(f.split('.')[:-1])+'.jpg' for f in files]
+#        if webtool:
+#            original_images = [f.replace('_pixv2','').replace('_webtool','') for f in files]
 #        original_images = [f.split('.')[-2]+'.jpg' for f in files]
         original_fullpaths = [os.path.join(original_images_dir,f) for f in original_images]
         if original_images_dir_alt:
@@ -933,7 +938,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
         logging.warning('got a multichannel image, using chan 0')
         img_arr = img_arr[:,:,0]
     histo = np.histogram(img_arr,bins=len(labels)-1)
-#    print('hist'+str(histo[0]))
+#    print('hist'+str(histo[0])) #
     h,w = img_arr.shape[0:2]
     n_nonzero = np.count_nonzero(img_arr)
     n_tot = h*w
@@ -941,7 +946,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     uniques = np.unique(img_arr)
     logging.debug('show_mask_with_labels:number of unique mask values:'+str(len(uniques))+' frac nonzero:'+str(frac) +' hxw:'+str(h)+','+str(w))
     if len(uniques)>len(labels):
-        logging.warning('number of unique mask values > number of labels!!!')
+        logging.warning('number of unique mask values {} > number of labels {}!!!'.format(len(uniques),len(labels)))
         return
     # minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(img_array)
     maxVal = len(labels)
@@ -991,9 +996,15 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             logging.warning('pixel value '+str(unique)+' out of label range (2)')
             continue
         pixelcount = len(img_arr[img_arr==unique])
- #       print('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
-        frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
-        cv2.putText(dest_colorbar,str(unique)+' '+labels[unique]+' '+str(frac_string),(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        try:
+            logging.debug('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
+            frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
+            text_string = str(unique)+' '+labels[unique]+' '+str(frac_string)
+            cv2.putText(dest_colorbar,text_string,(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+        except:
+#            logging.warning('some problem in labelling')
+            print("Unexpected error:"+ str(sys.exc_info()[0]))
+            print('index {} len labels {}'.format(unique,len(labels)))
         i=i+1 #
 
     #dest_colorbar = cv2.applyColorMap(scaled_colorbar, colormap)
@@ -1100,7 +1111,8 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             shutil.move(mask_filename,dest_dir)
 
     cv2.destroyAllWindows()
-
+    print('finished show_mask_with-labels')
+    print('caller name:'+str( inspect.stack()[1][3]))
     return combined,frac
 #        return dest
 def resize_dir(dir,out_dir,factor=4,filter='.jpg'):

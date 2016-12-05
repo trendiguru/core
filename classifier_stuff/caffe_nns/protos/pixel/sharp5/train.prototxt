@@ -8,9 +8,11 @@ layer {
     python_param {
     module: "jrlayers2"
     layer: "JrPixlevel"
-    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":8,\"save_visual_output\":False }"
-    }
+#    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":3,\"save_visual_output\":False }"
+    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(448,448), \"batch_size\":8,\"save_visual_output\":False }"
+
   }
+ }
 layer {
   name: "bn1"
   type: "BatchNorm"
@@ -2536,7 +2538,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 21
+    num_output: 16
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2557,3 +2559,9 @@ layer {
   top: "loss"
 }
 
+#layer {
+#  name: "output"
+#  type: "Softmax"
+#  bottom: "conv_final"
+#  top: "output"
+#}

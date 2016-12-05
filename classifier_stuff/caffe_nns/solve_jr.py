@@ -1,4 +1,5 @@
 __author__ = 'jeremy'
+__author__ = 'jeremy'
 import caffe
 import time
 import os
@@ -9,6 +10,9 @@ import socket
 import matplotlib
 import matplotlib.pyplot as plt
 import datetime
+import numpy as np
+
+
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -35,20 +39,23 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         solver.net.copy_from(weights)
     if solverstate is not None:
         solver.restore(solverstate)   #see https://github.com/BVLC/caffe/issues/3651
-        #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector. Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k iterations to recover. At test time you only need .caffemodel.
+        #No need to use solver.net.copy_from(). .caffemodel contains the weights. .solverstate contains the momentum vector.
+    #Both are needed to restart training. If you restart training without momentum, the loss will spike up and it will take ~50k i
+    #terations to recover. At test time you only need .caffemodel.
     training_net = solver.net
     solver.test_nets[0].share_with(solver.net)  #share train weight updates with testnet
     test_net = solver.test_nets[0] # more than one testnet is supported
 
+    #get netname, train_test train/test
     net_name = caffe_utils.get_netname(testproto)
+    tt = caffe_utils.get_traintest_from_proto(solverproto)
+    print('netname {} train/test {}'.format(net_name,tt))
 
     docker_hostname = socket.gethostname()
 
     datestamp = datetime.datetime.strftime(datetime.datetime.now(), 'time%H.%M_%d-%m-%Y')
     prefix = baremetal_hostname+'_'+net_name+'_'+docker_hostname+'_'+datestamp
 
-    #get netname, copy train/test to outdir
-    print('netname {} train/test {}'.format(net_name,tt))
 
     #detailed_jsonfile = detailed_outputname[:-4]+'.json'
     if weights:
@@ -82,7 +89,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     time.sleep(0.1)
     Utils.ensure_file(loss_outputname)
 
-    tt = caffe_utils.get_traintest_from_proto(solverproto)
     #copy training and test files to outdir
     if tt is not None:
         if len(tt) == 1:  #copy single traintest file to dir of info
@@ -137,7 +143,17 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
-        averaged_loss=sum(loss_avg)/len(loss_avg)
+        try:
+            averaged_loss=sum(float(loss_avg))/len(loss_avg)
+            s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
+        except:
+            print("something wierd with loss:"+str(loss_avg))
+            s=0
+            for i in loss_avg:
+                print i
+                s=s+i
+            averaged_loss = s/len(loss_avg)
+            print('avg:'+str(s)+' '+str(averaged_loss))
         s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
@@ -154,7 +170,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
             val = range(0,n_tests) #
-            results_dict = jrinfer.seg_tests(solver,  val, output_layer='pixlevel_output',gt_layer='label',outfilename=outname,save_dir=outdir)
+            results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']
@@ -162,18 +178,19 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,overall_acc,mean_acc,mean_ion,fwavacc)
 
         elif type == 'single_label':
-            averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
-            s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
+            averaged_acc = sum(float(accuracy_avg))/len(accuracy_avg)
+            s = 'avg tr loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
             print(s)
+            print accuracy_avg
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
 
-            acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer='my_fc2',n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
+            acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer=estimate_layer,n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
      #       test_net = solver.test_nets[0] # more than one testnet is supported
     #        testloss = test_net.blobs['loss'].data
             try:
                 testloss =     test_net.blobs['loss'].data
             except:
-                print('n o testloss available')
+                print('no testloss available')
                 testloss=0
             with open(loss_outputname,'a+') as f:
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
@@ -192,23 +209,26 @@ if __name__ == "__main__":
 ###############
 #vars to change
 ###############
+#ResNet-101-deploy.prototxt  ResNet-101-train_test.prototxt  ResNet-101_solver.prototxt  snapshot  solve.py
     solverstate = None
-    weights = '/home/yonatan/prepared_caffemodels/ResNet-152-model.caffemodel'
-    solverproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152_solver.prototxt'
-    testproto = '/home/yonatan/trendi/yonatan/resnet_152_style/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+    base_dir = '/home/jeremy/caffenets/binary/resnet101_dress_try1/'
+    weights =  '/home/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
+    solverproto = base_dir + 'ResNet-101_solver.prototxt'
+    testproto = base_dir + 'ResNet-101-train_test.prototxt'
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
-    n_iter = 20
-    cat = "style"
-    classlabels=['casual', 'prom', 'tuxedos_and_suits', 'bride_dress', 'active', 'swim']
-    n_tests = 1000
+    n_iter = 200
+    cat = "dress"
+#    classlabels=['dress','not_dress']
+    classlabels=constants.pixlevel_categories_v3
+    n_tests = 2000
     n_loops = 2000000
-    baremetal_hostname = 'k80a'
+    baremetal_hostname = 'k80b'
     label_layer='label'
-    estimate_layer='my_fc2'
+    estimate_layer='fc2'
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer='label',estimate_layer='my_fc2')
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)

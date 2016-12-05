@@ -6,7 +6,7 @@ import caffe # If you get "No module named _caffe", either you have not built py
 import cv2
 import argparse
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import time
 
 
@@ -16,7 +16,7 @@ from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import caffe_utils
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
+from trendi import kassper
 
 def open_html(htmlname,model_base,solverproto,classes,results_dict):
     netname = caffe_utils.get_netname(solverproto)
@@ -212,24 +212,32 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
     20 womens_nonbikini
     '''
     print('creating masks for swimsuits category {} label {} skincat {} label {}'.format(bathingsuit_index,labels[bathingsuit_index],skinlayer,labels[skinlayer]))
-    files=[os.path.join(dir,f) for f in os.listdir(dir)]
+    files=[os.path.join(dir,f) for f in os.listdir(dir) if not 'legend' in f]
     print(str(len(files))+' files to make into masks '+dir)
     for f in files:
         img_arr = cv2.imread(f)
         print('file '+f + ' shape '+str(img_arr.shape))
         h,w = img_arr.shape[0:2]
-        out_arr = np.zeros((h,w))
+        if img_arr is None:
+            continue
         dic = nfc.pd(img_arr)
         if not dic['success']:
             logging.debug('nfc pd not a success')
             continue
-        nd_mask = dic['mask']
-        logging.debug('sizes of gt {}'.format(nd_mask.shape))
+        mask = dic['mask']
+        logging.debug('sizes of gt {}'.format(mask.shape))
+        background = np.array((mask==0)*1,dtype=np.uint8)
+        foreground = np.array((mask>0)*1,dtype=np.uint8)
+        if(0):  #use nd skin layer
+            skin= np.array((mask==skinlayer)*1,dtype=np.uint8)
+            bathingsuit=np.array((mask!=0)*1,dtype=np.uint8) *  np.array((mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
+        else: #use nadav skindetector
+            #skin = kassper.skin_detection_with_grabcut(img_arr, img_arr, face=None, skin_or_clothes='skin')
+            skin =  kassper.skin_detection(img_arr)
+            nonskin = np.array(skin==0,dtype=np.uint8)
+            bathingsuit=np.multiply(foreground, nonskin) *bathingsuit_index
+            print('vals in bathingsuit '+str(np.unique(bathingsuit)))
 
-        background = np.array((nd_mask==0)*1,dtype=np.uint8)
-        foreground = np.array((nd_mask>0)*1,dtype=np.uint8)
-        skin= np.array((nd_mask==skinlayer)*1,dtype=np.uint8)
-        bathingsuit=np.array((nd_mask!=0)*1,dtype=np.uint8) *  np.array((nd_mask!=skinlayer)*bathingsuit_index,dtype=np.uint8)
 #        out_arr = skin + nonskin*
         n_bg_pixels = np.count_nonzero(background)
         n_fg_pixels = np.count_nonzero(foreground)
@@ -240,10 +248,11 @@ def create_swimsuit_mask_using_grabcut_only(dir,bathingsuit_index,labels=constan
         logging.info('writing bathingsuitmask to '+outfile)
         cv2.imwrite(outfile,bathingsuit)
         #save new mask
-        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True)
+        mask_legendname = f[:-4]+'_skin_nogc.jpg'
+        imutils.show_mask_with_labels(outfile,labels=labels,original_image=f,save_images=True,savename=mask_legendname)
         #save original mask
         orig_legendname = f[:-4]+'_original_legend.jpg'
-        imutils.show_mask_with_labels(nd_mask,labels=labels,original_image=f,save_images=True,savename=orig_legendname)
+        imutils.show_mask_with_labels(mask,labels=constants.ultimate_21,original_image=f,save_images=True,savename=orig_legendname)
     convert_masks_to_webtool(dir)
 
 def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert_to='_webtool.png'):

@@ -1,5 +1,3 @@
-from classifier_stuff.caffe_nns.caffe_utils import get_netname
-
 __author__ = 'jeremy' #ripped from tutorial at http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/pascal-multilabel-with-datalayer.ipynb
 
 import sys
@@ -19,6 +17,7 @@ import argparse
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
 
 
 # matplotlib inline

@@ -28,18 +28,21 @@ def get_db_fields(collection='products'):
     if db is None:
         print('couldnt open db')
         return {"success": 0, "error": "could not get db"}
-    cursor = db.products.find()
+    cursor = db[collection].find()
     print('returned cursor')
     if cursor is None:  # make sure training collection exists
         print('couldnt get cursor ' + str(collection))
         return {"success": 0, "error": "could not get collection"}
     doc = next(cursor, None)
     i = 0
-    while doc is not None:
-        print('checking doc #' + str(i + 1))
-        for topic in doc:
+    n = cursor.count()
+    print('found '+str(n)+' items in db '+collection)
+    while i < n:
+        print('checking doc #' + str(i + 1)+' of '+str(n))
+        for k,v in doc.iteritems():
             try:
-                print(str(topic))
+                print('key:' + str(k))
+                print('value:'+str(v))
             except UnicodeEncodeError:
                 print('unicode encode error')
         i = i + 1

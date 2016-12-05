@@ -294,7 +294,7 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
     return results_dict
 
 
-def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None):
+def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
         print('saving net test output to '+save_dir)
@@ -302,15 +302,15 @@ def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilenam
     else:
         save_dir = None
     solver.test_nets[0].share_with(solver.net)
-    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, output_layer, gt_layer,outfilename=outfilename)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, output_layer, gt_layer,outfilename=outfilename,labels=labels)
     return results_dict
 
-def do_seg_tests(net, iter, save_dir, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_output=False,savedir='testoutput'):
+def do_seg_tests(net, iter, save_dir, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_output=False,savedir='testoutput',labels=constants.pixlevel_categories_v3):
     n_cl = net.blobs[output_layer].channels
     if save_dir:
 #        save_format = save_format.format(iter)
         Utils.ensure_dir(save_dir)
-    hist, loss = compute_hist(net, save_dir, dataset, output_layer, gt_layer)
+    hist, loss = compute_hist(net, save_dir, dataset, output_layer, gt_layer,labels=labels)
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy
