@@ -27,12 +27,12 @@
 #15 0 * * * sudo restart supervisor >> /home/developer/yonti/download.log 2>&1
 #4 0 * * * echo "shopstyle US Female download started at 00:05 am" >> /home/developer/yonti/download.log 2>&1
 #5 0 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n ShopStyle -g Female > /home/developer/yonti/ShopStyle_US_Female.log 2>&1
-4 0 * * * echo "shopstyle KR Female download started at 03:00 am" >> /home/developer/yonti/download.log 2>&1
-5 0 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Female > /home/developer/yonti/ShopStyle_KR_Female.log 2>&1
+#4 0 * * * echo "shopstyle KR Female download started at 03:00 am" >> /home/developer/yonti/download.log 2>&1
+#5 0 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Female > /home/developer/yonti/ShopStyle_KR_Female.log 2>&1
 #59 5 * * * echo "shopstyle US Male download started at 06:00 am" >> /home/developer/yonti/download.log 2>&1
 #0 6 * * * python -m trendi.db_stuff.shopstyle_download -n ShopStyle -g Male > /home/developer/yonti/ShopStyle_US_Male.log 2>&1
-59 3 * * * echo "shopstyle KR Male download started at 09:00 am" >> /home/developer/yonti/download.log 2>&1
-0 4 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Male > /home/developer/yonti/ShopStyle_KR_Male.log 2>&1
+#59 3 * * * echo "shopstyle KR Male download started at 09:00 am" >> /home/developer/yonti/download.log 2>&1
+#0 4 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Male > /home/developer/yonti/ShopStyle_KR_Male.log 2>&1
 #59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
 #0 12 * * * python -m trendi.db_stuff.ebay_API > /home/developer/yonti/EBAY.log 2>&1
 #59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
