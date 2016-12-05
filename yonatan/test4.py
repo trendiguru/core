@@ -29,7 +29,7 @@ MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-dep
 PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_4_12_16/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel"
 
 # caffe.set_device(int(sys.argv[1]))
-caffe.set_device(3)
+caffe.set_device(1)
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
