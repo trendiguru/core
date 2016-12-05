@@ -534,9 +534,11 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
                 img_files.append(imgfilename)
     elif testdir is not None:
         img_files = [os.path.join(testdir,f) for f in os.listdir(testdir) if filter in f]
-
+    n = len(img_files)
     estimates=[]
+    i=0
     for imgfile in img_files:
+        print('doing {} ({}/{})'.format(imgfile,i,n))
         img_arr = cv2.imread(imgfile)
         if img_arr is None:
             logging.info('could not read '+str(imgfile))
@@ -552,12 +554,14 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
             fp.write('\n')
             fp.close()
         estimates.append(ml_output)
-        with open(estimates_file,'a') as fp:
-            for imgfile,estimate in zip(img_files,estimates):
-                fp.write(imgfile+'\t')
-                for e in estimate:
-                    fp.write(str(round(e,2))+'\t')
-                fp.write('\n')#
+        i=i+1
+
+    with open(estimates_file,'a') as fp:
+        for imgfile,estimate in zip(img_files,estimates):
+            fp.write(imgfile+'\t')
+            for e in estimate:
+                fp.write(str(round(e,2))+'\t')
+            fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
     model_base = os.path.basename(modelname)
