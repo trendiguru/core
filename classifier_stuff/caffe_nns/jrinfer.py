@@ -10,7 +10,8 @@ import argparse
 from datetime import datetime
 import caffe
 import sys
-import copy
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 #import json
 
