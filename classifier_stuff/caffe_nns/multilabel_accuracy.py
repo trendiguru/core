@@ -548,7 +548,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
         mlfilename = os.path.join(outdir,mlfilename)
         with(open(mlfilename,'a')) as fp:
             for e in ml_output:
-                fp.write(e+'\t')
+                fp.write(str(e)+'\t')
             fp.write('\n')
             fp.close()
         estimates.append(ml_output)
