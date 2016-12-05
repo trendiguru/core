@@ -546,7 +546,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
             continue
         ml_output=get_multilabel_output_using_nfc(img_arr)
         print('ml output:'+str(ml_output))
-        mlfilename = os.path.basename(imgfile).replace('.txt','_mloutput.txt')
+        mlfilename = os.path.basename(imgfile).replace('.jpg','_mloutput.txt')
         mlfilename = os.path.join(outdir,mlfilename)
         logging.info('mlfilename'+str(mlfilename))
         with(open(mlfilename,'a')) as fp:
