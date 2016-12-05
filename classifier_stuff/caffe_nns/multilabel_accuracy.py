@@ -556,7 +556,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
             for imgfile,estimate in zip(img_files,estimates):
                 fp.write(imgfile+'\t')
                 for e in estimate:
-                    fp.write(str(round(estimate,2))+'\t')
+                    fp.write(str(round(e,2))+'\t')
                 fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
