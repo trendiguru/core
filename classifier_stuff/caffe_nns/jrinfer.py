@@ -428,7 +428,7 @@ if __name__ == "__main__":
             #this just runs the train net i think, doesnt test new images
         #seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
 
-        seg_tests(solver,  val, output_layer=args.output,save_dir='outs')
+        seg_tests(solver,  val, output_layer=args.output_layer,save_dir='outs')
 #        else:
 #            print('gave neither image nor directory as input to iou test')
     #do image level tests
