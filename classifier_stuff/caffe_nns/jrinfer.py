@@ -241,6 +241,7 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
             orig_image_transposed += np.array(mean)
             orig_image_transposed = orig_image_transposed.astype(np.uint8)
             print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_image.shape))
+            print('xformed image max {} min {} :'.format(np.max(orig_image_transposed),np.min(orig_image_transposed)))
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image_transposed)
             gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
