@@ -550,7 +550,7 @@ def multilabel_output_on_testfile(testfile,outdir='./',estimates_file='estimates
         with open(estimates_file,'a') as fp:
             for imgfile,estimate in zip(img_files,estimates):
                 fp.write(imgfile+' '+estimate)+'\n'
-
+#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
     model_base = os.path.basename(modelname)
