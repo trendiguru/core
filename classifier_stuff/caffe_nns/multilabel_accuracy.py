@@ -554,8 +554,10 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
         estimates.append(ml_output)
         with open(estimates_file,'a') as fp:
             for imgfile,estimate in zip(img_files,estimates):
-                fp.write(imgfile+' '+estimate)+'\n'
-#
+                fp.write(imgfile+'\t')
+                for e in estimate:
+                    fp.write(str(estimate)+'\t')
+                fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
     model_base = os.path.basename(modelname)
