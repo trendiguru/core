@@ -40,8 +40,9 @@ class PixlevelResource:
 
             filename = data["filename"]
             img_string = data["img_string"]
+            taggername = data["strUser"]
             imagedata = img_string.split(',')[-1].decode('base64')
-
+            print('filename {} tagger {}'.format(filename,taggername))
             #save new mask under old name and send to extremeli
 #            with open(filename, 'wb') as f:
 #                f.write(imagedata)
@@ -50,7 +51,8 @@ class PixlevelResource:
 #            subprocess.call(command_string, shell=True)
 
             #save new mask with 'finished_mask' filename and send to extremeli
-            outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp')
+            outfilename = filename.replace('.png','_finished_mask.png').replace('.bmp','_finished_mask.bmp').replace('\n','')
+            outfilename = outfilename.replace('_finished_mask','_'+taggername+'_finished_mask')
             print('writing r-only img to '+outfilename)
             with open(outfilename, 'wb') as f:
                 f.write(imagedata)

@@ -701,6 +701,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
         return None
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
+
 #this is confusing : this is how you would call falcon which calls get_multilabel_output (above...)
 def get_multilabel_output_using_nfc(url_or_np_array):
     print('starting get_multilabel_output_using_nfc')
