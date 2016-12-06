@@ -88,11 +88,12 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
             pixlevel_v2_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v2[fashionista_index]
-            if pixlevel_v2_index is None:
-                pixlevel_v2_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
+            pixlevel_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web[fashionista_index]
+            if pixlevel_index is None:
+                pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
      #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
-            new_mask[mask==pd_index] = pixlevel_v2_index
+            new_mask[mask==pd_index] = pixlevel_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
@@ -101,7 +102,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         success = False
     if success:
         try:   #write orig file
-            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v2)
+#            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v2)
+            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v4_for_web)
             dir = constants.pd_output_savedir
             Utils.ensure_dir(dir)
             full_name = os.path.join(dir,filename)
@@ -111,14 +113,15 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         except:
             print('fail in try 1, '+sys.exc_info()[0])
         try:   #write rgb mask
-            bmp_name = full_name.replace('.jpg','_pixv2.png')
+#            bmp_name = full_name.replace('.jpg','_pixv2.png')
+            bmp_name = full_name.replace('.jpg','_pixv4.png')
             print('writing mask bmp to '+str(bmp_name))
             cv2.imwrite(bmp_name,new_mask)
-            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v2,original_image=full_name,save_images=True)
+            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v4,original_image=full_name,save_images=True)
             if socket.gethostname() != 'extremeli-evolution-1':
-                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
                 subprocess.call(command_string, shell=True)
-                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'
+                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
                 subprocess.call(command_string, shell=True)
 
         except:
@@ -127,7 +130,8 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
             if forwebtool:
                 new_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
                 new_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
-                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
+#                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
+                bmp_name=full_name.replace('.jpg','_pixv4_webtool.png')
                 print('writing mask bmp to '+str(bmp_name))
                 cv2.imwrite(bmp_name,new_mask)
                 command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/'

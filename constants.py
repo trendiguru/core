@@ -434,15 +434,16 @@ multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear',
                 'poncho','tie','skin']
 
 #remove stuff that's not currently relevant to make life easier for taggers
-multilabel_categories_v4_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                'sweatshirt', 'mens_swimwear','lingerie','blazer','legging','mens_underwear','vest','panties','bra','shawl','robe','pyjamas',
-                'tie','skin']
+multilabel_categories_v4_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'footwear', 'hat','jacket','pants','shorts',
+        'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini','sweatshirt', 'mens_swimwear',
+        'lingerie','blazer','legging','mens_underwear','vest','panties','bra','shawl','robe','pyjamas',
+        'tie','skin']
 
 pixlevel_categories_v4_for_web = ['bgnd']+multilabel_categories_v4_for_web
 
 multilabel_categories_v3_for_web_to_multilabel_categories_v3=[] #tbd
 multilabel_categories_v2_to_multilabel_categories_v3=[]  #tbd
+
 
 #same as binary_classifier_categories with addtion of lingerie,blazer,legging.  171116
 #blazer is a suit jacket, so it overlaps with suit - all suits have jackets, not all jackets are part of suits, same for vest
@@ -513,6 +514,14 @@ fashionista_aug_zerobased_to_pixlevel_categories_v2 = [0,30,12,29,17,1,7,4,13,1,
                                                        28,14,24,39,5,22,15,23,7,7,
                                                        None,7,42,5,7,25,None,7,7,26,
                                                        7,None,17,7,44,45,46]
+
+fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web = [0,23,10,22,15,1,6,3,11,1,
+                                                       6,15,8,27,4,9,14,15,9,23,
+                                                       16,7,15,14,None,25,5,2,23,5,
+                                                       21,12,None,29,4,19,13,None,6,6,
+                                                       None,6,31,4,6,None,None,6,6,None,
+                                                       6,None,None,6,None,32,None]
+
 
 
 #add to finer categories:

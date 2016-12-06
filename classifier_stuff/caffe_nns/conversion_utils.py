@@ -194,8 +194,8 @@ def gen_json(images_dir='data/pd_output',annotations_dir='data/pd_output',
 
 if __name__ == "__main__":
 
-    #gen json has to run on calling conversion_utils - its called on extremeli to update the list of finished masks in the js-segment annotator tool
-    gen_json()
-    #print('starting test')
+#    gen_json()
+    print('starting test')
     #test_convert(constants.ultimate_21,constants.pixlevel_categories_v3,constants.ultimate_21_to_pixlevel_v3)
     #test_convert(constants.fashionista_categories_augmented,constants.pixlevel_categories_v3,constants.fashionista_augmented_to_pixlevel_v3)
+    test_convert(constants.fashionista_categories_augmented_zero_based,constants.pixlevel_categories_v4_for_web,constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web)
