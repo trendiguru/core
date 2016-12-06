@@ -40,7 +40,11 @@ class PixlevelResource:
 
             filename = data["filename"]
             img_string = data["img_string"]
-            taggername = data["strUser"]
+            try:
+                taggername = data["strUser"]
+            except:
+                taggername = "unknown"
+                print('strUser not sent from webtool')
             imagedata = img_string.split(',')[-1].decode('base64')
             print('filename {} tagger {}'.format(filename,taggername))
             #save new mask under old name and send to extremeli
