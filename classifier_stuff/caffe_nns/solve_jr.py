@@ -1,5 +1,4 @@
 __author__ = 'jeremy'
-__author__ = 'jeremy'
 import caffe
 import time
 import os
@@ -118,8 +117,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     i = 0
     losses = []
     iters = []
-    loss_avg = [0]*n_iter
-    accuracy_avg = [0]*n_iter
+#    loss_avg = [0]*n_iter
+    loss_avg = np.zeros(n_iter)
+#    accuracy_avg = [0]*n_iter
+    accuracy_avg = np.zeros(n_iter)
     tot_iters = 0
 
     #instead of taking steps its also possible to do
