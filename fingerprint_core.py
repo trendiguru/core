@@ -14,7 +14,7 @@ import Utils
 import background_removal
 import constants
 from db_stuff.recruit.recruit_constants import recruit2category_idx
-
+from utils import imutils
 #from .falcon import sleeve_client, length_client
 from .features_api import classifier_client
 from .features import color
@@ -68,10 +68,7 @@ def get_feature_fp(feature, image, mask=None):
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
     img = np.copy(image)
-    if feature == 'dress_texture':
-        img = np.copy(image)
-        idx = (mask == 0)
-        img[idx] = 0
+    img = imutils.resize_keep_aspect(img, output_size=(224,224))
     res = classifier_client.get(feature, img)
     if isinstance(res, dict) and 'data' in res:
         return res['data']

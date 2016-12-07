@@ -46,7 +46,11 @@ if __name__ == "__main__":
                     if category in features_keys and not renew_flag:
                         wanted_keys = features_per_category[category]
                         fp_keys = fp.keys()
-                        if any(key not in fp_keys for key in wanted_keys):
+                        collar = False
+                        if 'collar' in fp_keys:
+                            if len(fp['collar'])==9:
+                                collar = True
+                        if any(key not in fp_keys for key in wanted_keys) or collar:
                             renew_flag = True
 
                 except Exception as e:

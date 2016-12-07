@@ -12,7 +12,7 @@ from ...paperdoll import neurodoll_falcon_client as nfc
 from ... import Utils, constants, background_removal
 from ...features_api import classifier_client
 from termcolor import colored
-
+from ...utils import imutils
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -41,36 +41,41 @@ def neurodoll(image, category_idx):
     return True, mask2
 
 
-def dict_fp(fp, image, mask, category):
+def dict_fp(fing, image, mask, category):
     if category in constants.features_per_category:
         fp_features = constants.features_per_category[category]
     else:
         fp_features = constants.features_per_category['other']
-    if fp is None:
-        fp_keys=[]
+    if fing is None:
+        fp_keys = []
     else:
-        fp_keys = fp.keys()
+        fp_keys = fing.keys()
+        if 'collar' in fp_keys:
+            if len(fing['collar']) == 9:
+                fing.pop('collar', None)
+                fp_keys = fing.keys()
     fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features if feature not in fp_keys}
     joinall(fingerprint.values())
     fingerprint = {k: v.value for k, v in fingerprint.iteritems()}
-    changed = False
-    if any(new_key not in fp_keys for new_key in fingerprint.keys()):
-        changed = True
-
+    if len(fingerprint.keys()):
+        fingerprint = dict(fingerprint, **fing)
+        return fingerprint, True
+    else:
+        return fing, False
     # fingerprint = {feature: get_feature_fp(image, mask, feature) for feature in fp_features}
-    return fingerprint, changed
 
 
 def get_feature_fp(feature, image, mask=None):
     if feature == 'color':
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
+    img = np.copy(image)
+    img = imutils.resize_keep_aspect(img, output_size=(224, 224))
+    res = classifier_client.get(feature, img)
+    if isinstance(res, dict) and 'data' in res:
+        return res['data']
     else:
-        res = classifier_client.get(feature, image)
-        if isinstance(res, dict) and 'data' in res:
-            return res['data']
-        else:
-            return res
+        return res
 
 
 def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):

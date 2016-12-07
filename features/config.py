@@ -31,7 +31,7 @@ FEATURES = {
 
     "collar": {
         "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel",
+        "PRETRAINED": "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel",
         "path_to_images": "/home/yonatan/collar_classifier/collar_images",
         "labels": {
             'crew_neck': 0,
@@ -64,7 +64,7 @@ FEATURES = {
 
     "dress_texture": {
         "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "",
+        "PRETRAINED": "/home/yonatan/dressTexture_caffemodels/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel",
         "path_to_images": "/home/yonatan/dress_texture_classifier/dress_texture_images",
         "labels": {
             'one_color': 0,
