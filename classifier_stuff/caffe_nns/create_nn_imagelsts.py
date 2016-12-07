@@ -230,11 +230,11 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
             outlines.append(line)
         else:
             print('{} votes for cat {} and {} votes for cat {} b, not using'.format(votelist[index_a],index_a,votelist[index_b],index_b))
-        print('writing {} lines to {}, breakdown:{}'.format(len(outlines),outfile,n_instances))
-        with open(outfile,'w') as fp:
-            for l in outlines:
-                fp.write(l)
-            fp.close()
+    print('writing {} lines to {}, breakdown:{}'.format(len(outlines),outfile,n_instances))
+    with open(outfile,'w') as fp:
+        for l in outlines:
+            fp.write(l)
+        fp.close()
 
 def create_class_a_vs_class_b_file_from_multilabel_file(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
     if outfile is None:
