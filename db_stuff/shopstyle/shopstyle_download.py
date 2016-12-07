@@ -23,8 +23,9 @@ from .shopstyle2generic import convert2generic
 q = Queue('fingerprinter4db', connection=constants.redis_conn)
 forest = Queue('annoy_forest', connection=constants.redis_conn)
 
-BASE_URL = "http://api.shopstyle.com/api/v2/"
-BASE_URL_PRODUCTS = BASE_URL + "products/"
+BASE_URL_part1 = "http://api.shopstyle."
+BASE_URL_part2 = "/api/v2/products/"
+
 PID = "uid900-25284470-95"
 # ideally, get filter list from DB. for now:
 # removed "Category" for now because its results  are not disjoint (sum of subsets > set)
@@ -44,9 +45,9 @@ def zip_through_all_categories():
 
 
 class ShopStyleDownloader:
-    def __init__(self,collection,gender):
+    def __init__(self,collection, gender, cc):
         # connect to db
-        dl_cache =  collection +'_cache'
+        dl_cache = collection + '_cache'
         self.db = constants.db
         self.collection_name = collection
         self.collection = self.db[collection]
@@ -66,6 +67,13 @@ class ShopStyleDownloader:
         self.status_full_path = "collections." + self.collection_name + ".status"
         self.notes_full_path = "collections." + self.collection_name + ".notes"
         self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
+        self.country_code = cc
+        if cc == 'DE':
+            self.BASE_URL = BASE_URL_part1+"de/api/v2/"
+            self.BASE_URL_PRODUCTS = BASE_URL_part1+'de'+BASE_URL_part2
+        else:
+            self.BASE_URL = BASE_URL_part1+"com/api/v2/"
+            self.BASE_URL_PRODUCTS = BASE_URL_part1 + 'com' + BASE_URL_part2
 
     def db_download(self):
         start_time = time.time()
@@ -79,7 +87,7 @@ class ShopStyleDownloader:
             self.download_category(cat)
 
         self.wait_for()
-        end_time= time.time()
+        end_time = time.time()
         total_time = (end_time - start_time)/3600
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
         self.collection.delete_many({'fingerprint': {"$exists": False}})
@@ -148,7 +156,7 @@ class ShopStyleDownloader:
         parameters = {"pid": PID, "filters": "Category"}
 
         # download all categories
-        category_list_response = requests.get(BASE_URL + "categories", params=parameters)
+        category_list_response = requests.get(self.BASE_URL + "categories", params=parameters)
         category_list_response_json = category_list_response.json()
         root_category = category_list_response_json["metadata"]["root"]["id"]
         category_list = category_list_response_json["categories"]
@@ -164,7 +172,7 @@ class ShopStyleDownloader:
         # let's get some numbers in there - get a histogram for each ancestor
         for anc in ancestors:
             parameters["cat"] = anc["id"]
-            response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", parameters)
+            response = self.delayed_requests_get(self.BASE_URL_PRODUCTS + "histogram", parameters)
             hist = response.json()["categoryHistogram"]
             # save count for each category
             for cat in hist:
@@ -175,8 +183,8 @@ class ShopStyleDownloader:
         if category_id not in self.relevant:
             return
         parameters = {"pid": PID}
-        if self.collection_name in ["GangnamStyle_Female","GangnamStyle_Male"]:
-            parameters["shipping"]= "KR" # , "filters": "Category"}
+        if self.country_code == "KR":
+            parameters["shipping"] = "KR"  # , "filters": "Category"}
 
         category = self.categories.find_one({"id": category_id})
         parameters["cat"] = category["id"]
@@ -202,7 +210,7 @@ class ShopStyleDownloader:
             return
         filter_params["filters"] = FILTERS[filter_index]
 
-        histogram_response = self.delayed_requests_get(BASE_URL_PRODUCTS + "histogram", filter_params)
+        histogram_response = self.delayed_requests_get(self.BASE_URL_PRODUCTS + "histogram", filter_params)
         # TODO: check the request worked here
         try:
             histogram_results = histogram_response.json()
@@ -260,7 +268,7 @@ class ShopStyleDownloader:
         filter_params["offset"] = 0
         while filter_params["offset"] < MAX_OFFSET and \
                         (filter_params["offset"] + MAX_RESULTS_PER_PAGE) <= total:
-            product_response = self.delayed_requests_get(BASE_URL_PRODUCTS, filter_params)
+            product_response = self.delayed_requests_get(self.BASE_URL_PRODUCTS, filter_params)
             if product_response.status_code == 200:
                 product_results = product_response.json()
                 total = product_results["metadata"]["total"]
@@ -472,8 +480,8 @@ class UrlParams(collections.MutableMapping):
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
-    parser.add_argument('-n', '--name',default="ShopStyle", dest= "name",
-                        help='collection name - currently only ShopStyle or GangnamStyle')
+    parser.add_argument('-c', '--countrycode', default="US", dest= "country_code",
+                        help='country code - currently only US or DE allowed')
     parser.add_argument('-g', '--gender', dest= "gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
@@ -481,23 +489,25 @@ def get_user_input():
 
 if __name__ == "__main__":
     user_input = get_user_input()
-    col_name = user_input.name
-    gender = user_input.gender
+    country_code = user_input.country_code
+    gen = user_input.gender
 
-    if gender in ['Female', 'Male'] and col_name in ["ShopStyle", "GangnamStyle"]:
-        col = col_name + "_" + gender
+    if gen in ['Female', 'Male'] and country_code in ["US", "DE"]:
+        col_name = "shopstyle_" + country_code
+        col = col_name + "_" + gen
+
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
 
     print ("@@@ Shopstyle Download @@@\n you choose to update the " + col + " collection")
-    update_db = ShopStyleDownloader(col, gender)
+    update_db = ShopStyleDownloader(col, gen, country_code)
     update_db.db_download()
     forest_job = forest.enqueue(plantForests4AllCategories, col_name=col, timeout=3600)
     while not forest_job.is_finished and not forest_job.is_failed:
         time.sleep(300)
     if forest_job.is_failed:
         print ('annoy plant forest failed')
-    if gender == 'Male':
+    if gen == 'Male':
         refresh_similar_results(col_name)
     print (col + "Update Finished!!!")
