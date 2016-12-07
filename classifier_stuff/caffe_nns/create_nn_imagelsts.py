@@ -177,7 +177,7 @@ def class_a_vs_class_b(index_a,index_b,multilabel_textfile,visual_output=False,o
     outlines = []
     with open(multilabel_textfile,'r') as fp:
         for line in fp:
-            print line
+   #         print line
             path = line.split()[0]
             vals = [int(v) for v in line.split()[1:]]
             v1 = vals[index_a]
@@ -187,11 +187,14 @@ def class_a_vs_class_b(index_a,index_b,multilabel_textfile,visual_output=False,o
             elif v1:
                 n_instances[0]+=1
                 outlines.append(path+' '+str(output_cat_for_a))
+                print('indexa {} indexb {} file {} n {}'.format(v1,v2,path,n_instances))
             elif v2:
                 n_instances[1]+=1
                 outlines.append(path+' '+str(output_cat_for_b))
+                print('indexa {} indexb {} file {} n {}'.format(v1,v2,path,n_instances))
+            else:
+                print('got image {} with no cats, not using'.format(path))
             if(visual_output):
-                print('indexa {} indexb {} file {}'.format(v1,v2,path))
                 img_arr = cv2.imread(path)
                 imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
         fp.close()
