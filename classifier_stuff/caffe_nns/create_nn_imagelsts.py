@@ -168,6 +168,109 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2):
+    '''
+    read multilabel db.
+    if n_votes[cat] = 0 put that image in negatives for cat.
+    if n_votes[cat] = n_voters put that image in positives for cat
+    '''
+    if outfile is None:
+        outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
+    db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    n_instances=[0,0]
+    output_cat_for_a = 0
+    output_cat_for_b = 1
+    outlines=[]
+    print(str(n_done)+' docs to check')
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        if not os.path.exists(full_path):
+            print('file '+full_path+' does not exist, skipping')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        if votelist[index_a]>=2 and votelist[index_b]==0:
+            line = str(full_path) + ' '+str(output_cat_for_a)+'\n'
+            n_instances[1]+=1
+            print('file {} n {}'.format(full_path,n_instances))
+            outlines.append(line)
+        elif votelist[index_a]==0 and votelist[index_b]>=2:
+            line = str(full_path) + ' '+str(output_cat_for_b)+'\n'
+            n_instances[1]+=1
+            print('file {} n {}'.format(full_path,n_instances))
+            outlines.append(line)
+        else:
+            print('{} votes for cat {} and {} votes for cat {} b, not using'.format(votelist[index_a],index_a,votelist[index_b],index_b))
+        with open(outfile,'a') as fp:
+            for l in outlines:
+                fp.write(l)
+            fp.close()
+
+def create_class_a_vs_class_b_file_from_multilabel(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
+    if outfile is None:
+        outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
+    n_instances=[0,0]
+    output_cat_for_a = 0
+    output_cat_for_b = 1
+    outlines = []
+    with open(multilabel_textfile,'r') as fp:
+        for line in fp:
+   #         print line
+            path = line.split()[0]
+            vals = [int(v) for v in line.split()[1:]]
+            v1 = vals[index_a]
+            v2 = vals[index_b]
+            if v1 and v2:
+                print('got image {} with both cats, not using'.format(path))
+            elif v1:
+                n_instances[0]+=1
+                outlines.append(path+' '+str(output_cat_for_a))
+                print('indexa {} indexb {} file {} n {}'.format(v1,v2,path,n_instances))
+            elif v2:
+                n_instances[1]+=1
+                outlines.append(path+' '+str(output_cat_for_b))
+                print('indexa {} indexb {} file {} n {}'.format(v1,v2,path,n_instances))
+            else:
+                print('got image {} with no cats, not using'.format(path))
+            if(visual_output):
+                img_arr = cv2.imread(path)
+                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+        fp.close()
+    with open(outfile,'a') as f2:
+        for line in outlines:
+            f2.write(line+'\n')
+        f2.close()
+
+
 def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
     dirs = [os.path.join(dir_of_dirs,d) for d in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,d))]
     for d in dirs:
@@ -259,7 +362,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
-def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
+def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt',labels=constants.web_tool_categories_v2):
     '''
     for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
     so file lines are /path/to/file 0 0 1 0 0 1 0 1
@@ -275,7 +378,7 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
                 current_val = int(line.split()[i+1])
 #                print('cur digit {} val {}'.format(i,current_val))
                 if current_val:
-                    cats = cats + ',' + constants.web_tool_categories[i]
+                    cats = cats + ',' + labels[i]
             print(cats)
             print()
             img_arr = cv2.imread(path)

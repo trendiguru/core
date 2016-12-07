@@ -23,13 +23,13 @@ array_success_without = np.array([])
 array_failure_without = np.array([])
 
 ## style ##
-text_file = open("/home/yonatan/collar_classifier/collar_images/collar_test_list.txt", "r")
+text_file = open("/home/yonatan/dress_texture_classifier/dress_texture_images/dress_texture_test_list.txt", "r")
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_classifier/resnet152_caffemodels_4_12_16/caffe_resnet152_snapshot_collar_10_categories_iter_7500.caffemodel"
+MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt"
+PRETRAINED = "/home/yonatan/dress_texture_classifier/resnet152_caffemodels_6_12_16/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel"
 
-# caffe.set_device(int(sys.argv[1]))
-caffe.set_device(1)
+caffe.set_device(int(sys.argv[1]))
+# caffe.set_device(1)
 
 caffe.set_mode_gpu()
 image_dims = [224, 224]
