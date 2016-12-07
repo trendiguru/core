@@ -168,7 +168,74 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
-def class_a_vs_class_b(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
+def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2):
+    '''
+    read multilabel db.
+    if n_votes[cat] = 0 put that image in negatives for cat.
+    if n_votes[cat] = n_voters put that image in positives for cat
+    '''
+    if outfile is None:
+        outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
+    db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    n_instances=[0,0]
+    output_cat_for_a = 0
+    output_cat_for_b = 1
+    outlines=[]
+    print(str(n_done)+' docs to check')
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        if not os.path.exists(full_path):
+            print('file '+full_path+' does not exist, skipping')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        if votelist[index_a]>=2 and votelist[index_b]==0:
+            line = str(full_path) + ' '+str(output_cat_for_a)+'\n'
+            n_instances[1]+=1
+            print('file {} n {}'.format(full_path,n_instances))
+            outlines.append(line)
+        elif votelist[index_a]==0 and votelist[index_b]>=2:
+            line = str(full_path) + ' '+str(output_cat_for_b)+'\n'
+            n_instances[1]+=1
+            print('file {} n {}'.format(full_path,n_instances))
+            outlines.append(line)
+        else:
+            print('{} votes for cat {} and {} votes for cat {} b, not using'.format(votelist[index_a],index_a,votelist[index_b],index_b))
+        with open(outfile,'a') as fp:
+            for l in outlines:
+                fp.write(l)
+            fp.close()
+
+def create_class_a_vs_class_b_file_from_multilabel(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
     if outfile is None:
         outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
     n_instances=[0,0]
