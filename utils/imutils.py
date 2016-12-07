@@ -1207,7 +1207,7 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
 
 
 host = socket.gethostname()
-print('host:'+str(host))
+# print('host:'+str(host))
 
 if __name__ == "__main__":
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
