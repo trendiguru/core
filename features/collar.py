@@ -7,7 +7,7 @@ from ..yonatan import yonatan_classifier
 from .. import Utils
 
 MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_9_categories_iter_2500.caffemodel"
+PRETRAINED = "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel"
 
 classifier = None
 
@@ -29,7 +29,7 @@ def load(gpu_device=None):
 
 
 def distance(v1, v2):
-    if len(v1) != 9 or len(v2) != 9:
+    if len(v1) != 10 or len(v2) != 10:
         return None
     v1 = np.array(v1) if isinstance(v1, list) else v1
     v2 = np.array(v2) if isinstance(v2, list) else v2
