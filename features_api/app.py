@@ -13,6 +13,7 @@ from .classifier_falcon import ClassifierResource
 features = json.loads(os.environ.get("FEATURES_JSON", "[]"))
 gpu_device = os.environ.get("GPU_DEVICE")
 gpu_device = int(gpu_device) if gpu_device else None
+print "gpu_device: " + str(gpu_device)
 
 # To allow loading multiple (all) features per gunicorn, deprecated for now.
 #feature_package_string = os.environ.get("FEATURE_PACKAGE", "trendi.features")
