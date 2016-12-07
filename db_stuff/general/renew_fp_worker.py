@@ -12,7 +12,7 @@ from ...paperdoll import neurodoll_falcon_client as nfc
 from ... import Utils, constants, background_removal
 from ...features_api import classifier_client
 from termcolor import colored
-from ...utils import imutils
+from ...utils.imutils import resize_keep_aspect
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length
@@ -70,7 +70,7 @@ def get_feature_fp(feature, image, mask=None):
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
     img = np.copy(image)
-    img = imutils.resize_keep_aspect(img, output_size=(224, 224))
+    img = resize_keep_aspect(img, output_size=(224, 224))
     res = classifier_client.get(feature, img)
     if isinstance(res, dict) and 'data' in res:
         return res['data']
