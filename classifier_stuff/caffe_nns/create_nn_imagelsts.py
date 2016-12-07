@@ -168,6 +168,39 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def class_a_vs_class_b(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
+    if outfile is None:
+        outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
+    n_instances=[0,0]
+    output_cat_for_a = 0
+    output_cat_for_b = 1
+    outlines = []
+    with open(multilabel_textfile,'r') as fp:
+        for line in fp:
+            print line
+            path = line.split()[0]
+            vals = [int(v) for v in line.split()[1:]]
+            v1 = vals[index_a]
+            v2 = vals[index_b]
+            if v1 and v2:
+                print('got image {} with both cats, not using'.format(path))
+            elif v1:
+                n_instances[0]+=1
+                outlines.append(path+' '+str(output_cat_for_a))
+            elif v2:
+                n_instances[1]+=1
+                outlines.append(path+' '+str(output_cat_for_b))
+            if(visual_output):
+                print('indexa {} indexb {} file {}'.format(v1,v2,path))
+                img_arr = cv2.imread(path)
+                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+        fp.close()
+    with open(outfile,'a') as f2:
+        for line in outlines:
+            fp.write(line+'\n')
+        f2.close()
+
+
 def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
     dirs = [os.path.join(dir_of_dirs,d) for d in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,d))]
     for d in dirs:
