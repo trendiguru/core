@@ -48,7 +48,7 @@ if __name__ == "__main__":
                         fp_keys = fp.keys()
                         collar = False
                         if 'collar' in fp_keys:
-                            if len(fp['collar'])==9:
+                            if fp['collar'] is None or len(fp['collar'])==9:
                                 collar = True
                         if any(key not in fp_keys for key in wanted_keys) or collar:
                             renew_flag = True

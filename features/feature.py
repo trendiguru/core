@@ -21,6 +21,7 @@ These use cases happen in different environments, therefore import logic above a
 class Feature(object):
     def __init__(self, name, model_file=None, pretrained=None, gpu_device=None, features_config=FEATURES):
         self.name = name
+        self.gpu_device = gpu_device
         self.model_file = model_file or features_config[name]["MODEL_FILE"]
         self.pretrained = pretrained or features_config[name]["PRETRAINED"]
         self.labels = features_config[name]["labels"]
@@ -29,6 +30,7 @@ class Feature(object):
     def load(self, gpu_device=None):
         if not can_load:
             raise ImportError(import_error)
+        gpu = gpu_device or self.gpu_device
         if gpu_device is not None:
             caffe.set_device(int(gpu_device))
         caffe.set_mode_gpu()
