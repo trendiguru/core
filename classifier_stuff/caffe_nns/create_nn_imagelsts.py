@@ -197,7 +197,7 @@ def class_a_vs_class_b(index_a,index_b,multilabel_textfile,visual_output=False,o
         fp.close()
     with open(outfile,'a') as f2:
         for line in outlines:
-            fp.write(line+'\n')
+            f2.write(line+'\n')
         f2.close()
 
 
