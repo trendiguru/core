@@ -156,7 +156,7 @@ class ShopStyleDownloader:
         parameters = {"pid": PID, "filters": "Category"}
 
         # download all categories
-        category_list_response = requests.get(BASE_URL + "categories", params=parameters)
+        category_list_response = requests.get(self.BASE_URL + "categories", params=parameters)
         category_list_response_json = category_list_response.json()
         root_category = category_list_response_json["metadata"]["root"]["id"]
         category_list = category_list_response_json["categories"]
