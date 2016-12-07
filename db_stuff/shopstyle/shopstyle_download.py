@@ -69,8 +69,10 @@ class ShopStyleDownloader:
         self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
         self.country_code = cc
         if cc == 'DE':
+            self.BASE_URL = BASE_URL_part1+'de'
             self.BASE_URL_PRODUCTS = BASE_URL_part1+'de'+BASE_URL_part2
         else:
+            self.BASE_URL = BASE_URL_part1+'com'
             self.BASE_URL_PRODUCTS = BASE_URL_part1 + 'com' + BASE_URL_part2
 
     def db_download(self):
