@@ -67,12 +67,16 @@ def get_feature_fp(feature, image, mask=None):
     if feature == 'color':
         print 'color'
         return color.execute(image, histograms_length, fingerprint_length, mask)
+    img = np.copy(image)
+    if feature == 'dress_texture':
+        img = np.copy(image)
+        idx = (mask == 0)
+        img[idx] = 0
+    res = classifier_client.get(feature, img)
+    if isinstance(res, dict) and 'data' in res:
+        return res['data']
     else:
-        res = classifier_client.get(feature, image)
-        if isinstance(res, dict) and 'data' in res:
-            return res['data']
-        else:
-            return res
+        return res
     
 #    data = msgpack.dumps({"image_or_url": image, "mask": mask})
 #    resp = requests.post(FEATURES_CLIENT_ADDRESS+feature, data=data)
