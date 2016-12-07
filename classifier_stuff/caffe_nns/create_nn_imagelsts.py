@@ -202,7 +202,7 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
         if items_list is None:
             print('no items in doc')
             continue
-        print('items:'+str(items_list))
+#        print('items:'+str(items_list))
         votelist = [0]*len(constants.web_tool_categories_v2)
         for item in items_list:
             cat = item['category']
@@ -221,12 +221,12 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
         if votelist[index_a]>=2 and votelist[index_b]==0:
             line = str(full_path) + ' '+str(output_cat_for_a)+'\n'
             n_instances[0]+=1
-            print('file {} n {}'.format(full_path,n_instances))
+            print('catA file {} n {}'.format(full_path,n_instances))
             outlines.append(line)
         elif votelist[index_a]==0 and votelist[index_b]>=2:
             line = str(full_path) + ' '+str(output_cat_for_b)+'\n'
             n_instances[1]+=1
-            print('file {} n {}'.format(full_path,n_instances))
+            print('catB file {} n {}'.format(full_path,n_instances))
             outlines.append(line)
         else:
             print('{} votes for cat {} and {} votes for cat {} b, not using'.format(votelist[index_a],index_a,votelist[index_b],index_b))
