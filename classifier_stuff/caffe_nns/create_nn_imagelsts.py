@@ -216,11 +216,11 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
                 print('unrecognized cat')
                 continue
             votelist[index] += 1
-            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+#            print('item:'+str(cat) +' votes:'+str(votelist[index]))
         print('votes:'+str(votelist))
         if votelist[index_a]>=2 and votelist[index_b]==0:
             line = str(full_path) + ' '+str(output_cat_for_a)+'\n'
-            n_instances[1]+=1
+            n_instances[0]+=1
             print('file {} n {}'.format(full_path,n_instances))
             outlines.append(line)
         elif votelist[index_a]==0 and votelist[index_b]>=2:
