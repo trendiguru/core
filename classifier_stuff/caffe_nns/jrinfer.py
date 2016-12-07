@@ -10,7 +10,8 @@ import argparse
 from datetime import datetime
 import caffe
 import sys
-import copy
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 #import json
 
@@ -196,12 +197,12 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120)):
+def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120),denormalize=True):
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
     print('n channels: '+str(n_cl))
-    for idx in dataset:
+    for idx in n_images:
         net.forward()
         print('idx:'+str(idx))
 
@@ -239,8 +240,17 @@ def compute_hist(net, save_dir, dataset, layer='score', gt='label',labels=consta
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
             orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
             orig_image_transposed += np.array(mean)
-            orig_image_transposed = orig_image_transposed.astype(np.uint8)
+            min = np.min(orig_image_transposed)
+            max = np.max(orig_image_transposed)
             print('xformed image size:'+str(orig_image_transposed.shape)+' gt:'+str(gt_image.shape))
+            print('xformed image max {} min {} :'.format(max,min))
+            if denormalize:
+                orig_image_transposed = orig_image_transposed-min
+                orig_image_transposed = orig_image_transposed*255.0/(max-min)
+                min = np.min(orig_image_transposed)
+                max = np.max(orig_image_transposed)
+                print('after denorm image max {} min {} :'.format(max,min))
+            orig_image_transposed = orig_image_transposed.astype(np.uint8)
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image_transposed)
             gt_savename = os.path.join(save_dir, str(idx) + 'gt.png')
@@ -294,7 +304,7 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
     return results_dict
 
 
-def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
+def seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
         print('saving net test output to '+save_dir)
@@ -302,15 +312,15 @@ def seg_tests(solver, dataset, output_layer='score', gt_layer='label',outfilenam
     else:
         save_dir = None
     solver.test_nets[0].share_with(solver.net)
-    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, dataset, output_layer, gt_layer,outfilename=outfilename,labels=labels)
+    results_dict = do_seg_tests(solver.test_nets[0], solver.iter, save_dir, n_images, output_layer, gt_layer,outfilename=outfilename,labels=labels)
     return results_dict
 
-def do_seg_tests(net, iter, save_dir, dataset, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_output=False,savedir='testoutput',labels=constants.pixlevel_categories_v3):
+def do_seg_tests(net, iter, save_dir, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_output=False,savedir='testoutput',labels=constants.pixlevel_categories_v3):
     n_cl = net.blobs[output_layer].channels
     if save_dir:
 #        save_format = save_format.format(iter)
         Utils.ensure_dir(save_dir)
-    hist, loss = compute_hist(net, save_dir, dataset, output_layer, gt_layer,labels=labels)
+    hist, loss = compute_hist(net, save_dir, n_images, output_layer, gt_layer,labels=labels)
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy
@@ -383,7 +393,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--model', help='caffemodel', default=caffemodel)
-    parser.add_argument('--prototxt', help='prototxt',default='solver.prototxt')
+    parser.add_argument('--solverproto', help='solver prototxt',default='solver.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
@@ -391,6 +401,7 @@ if __name__ == "__main__":
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
     parser.add_argument('--iou',help='do iou test on pixel level net',default=True)
+    parser.add_argument('--output_layer',help='output layer of net',default='output')
     args = parser.parse_args()
     print('args:'+str(args))
     print('caffemodel:'+str(args.model))
@@ -405,8 +416,8 @@ if __name__ == "__main__":
         caffe.set_mode_cpu()
 
     if args.iou == 'True' or args.iou == 'true' or args.iou =='1':
-        print('using net defined by {} and {} '.format(args.prototxt,args.model))
-        solver = caffe.SGDSolver(args.prototxt)
+        print('using net defined by {} and {} '.format(args.solverproto,args.model))
+        solver = caffe.SGDSolver(args.solverproto)
         solver.net.copy_from(args.model)
 #        if args.image_file:
 #            val = range(0,1)
@@ -416,7 +427,9 @@ if __name__ == "__main__":
 #            print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
         val = range(0,200)
             #this just runs the train net i think, doesnt test new images
-        seg_tests(solver, False, val, layer='score')
+        #seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
+
+        seg_tests(solver,  val, output_layer=args.output_layer,save_dir='outs')
 #        else:
 #            print('gave neither image nor directory as input to iou test')
     #do image level tests

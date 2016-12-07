@@ -701,6 +701,7 @@ def grabcut_using_neurodoll_graylevel(url_or_np_array,neuro_mask,median_factor=1
         return None
     mask2 = np.where((mask == 1) + (mask == 3), 1, 0).astype(np.uint8)
     return mask2
+
 #this is confusing : this is how you would call falcon which calls get_multilabel_output (above...)
 def get_multilabel_output_using_nfc(url_or_np_array):
     print('starting get_multilabel_output_using_nfc')
@@ -740,6 +741,21 @@ def count_values(mask,labels=None):
 
 
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
+                                     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
+                                     multilabel_labels=constants.binary_classifier_categories, face=None,
+                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
+                                     do_graylevel_zeroing=True):
+
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
+    retval = combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_threshold=multilabel_threshold,median_factor=median_factor,
+                                     multilabel_to_ultimate21_conversion=multilabel_to_ultimate21_conversion,
+                                     multilabel_labels=multilabel_labels, face=face,
+                                     output_layer = output_layer,required_image_size=required_image_size,
+                                     do_graylevel_zeroing=do_graylevel_zeroing)
+    return retval
+
+
+def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
@@ -792,7 +808,6 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
         logging.debug('no items found')
         return #
 
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
 
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas

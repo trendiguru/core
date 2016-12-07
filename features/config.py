@@ -60,5 +60,24 @@ FEATURES = {
             'bride_dress': 4
         },
         "relevant_items": []
+    },
+
+    "dress_texture": {
+        "MODEL_FILE": "/home/yonatan/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt",
+        "PRETRAINED": "",
+        "path_to_images": "/home/yonatan/dress_texture_classifier/dress_texture_images",
+        "labels": {
+            'one_color': 0,
+            'applique': 1,
+            'floral': 2,
+            'square_pattern': 3,
+            'dots': 4,
+            'animal_print': 5,
+            'zebra_print': 6,
+            'stripes': 7,
+            'chevron': 8,
+            'colorblock': 9
+        },
+        "relevant_items": []
     }
 }

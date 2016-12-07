@@ -9,6 +9,8 @@ import urllib
 from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
+import logging
+logging.basicConfig(level=logging.INFO)
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -18,6 +20,7 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
+from trendi.paperdoll import neurodoll_falcon_client as nfc
 
 
 # matplotlib inline
@@ -265,6 +268,44 @@ def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels'
     print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
     return full_prec,full_rec,full_acc,tp,tn,fp,fn
 
+def check_acc_nonet(ground_truths,estimates,threshold=0.5):
+    acc = 0.0 #
+    baseline_acc = 0.0
+    n = 0
+    for gt, est in zip(ground_truths, estimates): #for each ground truth and estimated label vector
+        if est.shape != gt.shape:
+            print('shape mismatch')
+            return
+        if first_time == True:
+            first_time = False
+            tp = np.zeros_like(gt)
+            tn = np.zeros_like(gt)
+            fp = np.zeros_like(gt)
+            fn = np.zeros_like(gt)
+            baseline_est = np.zeros_like(est)
+        #binarize the estimate which can come in as floating
+        est = [e>threshold for e in est]
+        tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
+        print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
+        print('gt:'+str([int(x) for x in gt]))  #turn to int since print as float takes 2 lines
+        print('est:'+str(est))
+        h = hamming_distance(gt, est)
+        baseline_h = hamming_distance(gt,baseline_est)
+        #            print('gt {} est {} (1-hamming) {}'.format(gt,est,h))
+        sum = np.sum(gt)
+        acc += h
+        baseline_acc += baseline_h
+        n += 1
+
+    print('len(gts) {} len(ests) {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),batch_size,acc/n,baseline_acc/n))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
+    full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
+    full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
+    print('THRESHOLD '+str(threshold))
+    print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
+    return full_prec,full_rec,full_acc,tp,tn,fp,fn
+
 #train
 def train():
     for itt in range(6):
@@ -423,6 +464,105 @@ def get_multilabel_output(url_or_np_array,required_image_size=(227,227),output_l
     min = np.min(out)
     max = np.max(out)
     print('out  {}'.format(out))
+
+def get_multilabel_output_using_nfc(url_or_np_array):
+    print('starting get_multilabel_output_using_nfc')
+    multilabel_dict = nfc.pd(url_or_np_array, get_multilabel_results=True)
+    logging.debug('get_multi_output:dict from falcon dict:'+str(multilabel_dict))
+    if not multilabel_dict['success']:
+        logging.warning('did not get nfc pd result succesfully')
+        return
+    multilabel_output = multilabel_dict['multilabel_output']
+    logging.debug('multilabel output:'+str(multilabel_output))
+    return multilabel_output #
+
+def test_multilabel_output_on_testset(testfile,outdir='./'):
+    '''
+    this takes an images+multilabels file and determines accuracy
+    :param testfile: images+labels n testset
+    :return:acc/precision/recall
+    '''
+    #get list of images, labels from file
+    img_files=[]
+    label_vecs=[]
+    with open(testfile,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            imgfilename = line.split()[0]
+            try:
+                vals = line.split()[1:]
+                n_labels = len(vals)
+                label_vec = [int(i) for i in vals]
+            except:
+                logging.debug('got something that coulndt be turned into a string in the following line from file '+testfile)
+                logging.debug(line)
+                logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
+                continue
+            label_vec = np.array(label_vec)
+            n_labels = len(label_vec)
+            if n_labels == 1:
+        #                  print('length 1 label')
+                label_vec = label_vec[0]
+            img_files.append(imgfilename)
+            label_vecs.append(label_vec)
+
+    estimates=[]
+    for imgfile in img_files:
+        img_arr = cv2.imread(imgfile)
+        if img_arr is None:
+            logging.info('could not read '+str(imgfile))
+            estimates.append(None)
+            continue
+        ml_output=get_multilabel_output_using_nfc(img_arr)
+        print('ml output:'+str(ml_output))
+        mlfilename = os.path.basename(imgfile).replace('.txt','_mloutput.txt')
+        mlfilename = os.path.join(outdir,mlfilename)
+        with(open(mlfilename,'a')) as fp:
+            fp.write(ml_output)
+        fp.close()
+        estimates.append(ml_output)
+    print('checking accuracy')
+    check_acc_nonet(label_vecs,estimates)
+
+def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdir='./',estimates_file='estimates.txt'):
+    if testfile is not None:
+        img_files = []
+        with open(testfile,'r') as fp:
+            lines = fp.readlines()
+            for line in lines:
+                imgfilename = line.split()[0]
+                img_files.append(imgfilename)
+    elif testdir is not None:
+        img_files = [os.path.join(testdir,f) for f in os.listdir(testdir) if filter in f]
+    n = len(img_files)
+    estimates=[]
+    i=0
+    for imgfile in img_files:
+        print('doing {} ({}/{})'.format(imgfile,i,n))
+        img_arr = cv2.imread(imgfile)
+        if img_arr is None:
+            logging.info('could not read '+str(imgfile))
+            estimates.append(None)
+            continue
+        ml_output=get_multilabel_output_using_nfc(img_arr)
+        print('ml output:'+str(ml_output))
+        mlfilename = os.path.basename(imgfile).replace('.jpg','_mloutput.txt')
+        mlfilename = os.path.join(outdir,mlfilename)
+        logging.info('mlfilename:'+str(mlfilename))
+        with(open(mlfilename,'a')) as fp:
+            for e in ml_output:
+                fp.write(str(round(e,3))+' ')
+            fp.write('\n')
+            fp.close()
+        estimates.append(ml_output)
+        i=i+1
+
+    with open(estimates_file,'a') as fp:
+        for imgfile,estimate in zip(img_files,estimates):
+            fp.write(imgfile+' ')
+            for e in estimate:
+                fp.write(str(round(e,2))+' ')
+            fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
     model_base = os.path.basename(modelname)
@@ -795,6 +935,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 #
     summary_html(dir)
   #  print 'Baseline accuracy:{0:.4f}'.format(check_baseline_accuracy(solver.test_nets[0], 10,batch_size = 20))
+
 
 
 if __name__ =="__main__":
