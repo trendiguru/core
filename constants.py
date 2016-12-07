@@ -12,7 +12,7 @@ if redis_url:
 else:
     redis_conn = Redis(host=os.getenv("REDIS_HOST", "redis1-redis-1-vm"), port=int(os.getenv("REDIS_PORT", "6379")))
     redis_limit = 5000
-features_per_category = {'dress': ['color', 'sleeve_length', 'length', 'collar'],
+features_per_category = {'dress': ['color', 'sleeve_length', 'length', 'collar', 'dress_texture'],
                          'top': ['color', 'sleeve_length', 'collar', 'style'],
                          'shirt': ['color', 'sleeve_length', 'collar', 'style'],
                          'blouse': ['color', 'sleeve_length', 'collar', 'style'],
@@ -22,7 +22,8 @@ features_per_category = {'dress': ['color', 'sleeve_length', 'length', 'collar']
                          'skirt': ['color', 'length', 'style'],
                          'other': ['color']}
 
-weights_per_category = {'dress': {'color': 0.7, 'sleeve_length': 0.1, 'length': 0.1, 'collar': 0.1},
+weights_per_category = {'dress': {'color': 0.6, 'sleeve_length': 0.1, 'length': 0.1, 'collar': 0.1,
+                                  'dress_texture': 0.1},
                         'top': {'color': 0.7, 'sleeve_length': 0.1, 'collar': 0.1, 'style': 0.1},
                         'shirt': {'color': 0.7, 'sleeve_length': 0.2, 'collar': 0.1, 'style': 0.1},
                         'blouse': {'color': 0.7, 'sleeve_length': 0.2, 'collar': 0.1, 'style': 0.1},
