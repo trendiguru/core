@@ -145,7 +145,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
         try:
-            averaged_loss=sum(float(loss_avg))/len(loss_avg)
+            averaged_loss=np.average(loss_avg)
             s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
         except:
             print("something wierd with loss:"+str(loss_avg))
@@ -179,7 +179,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,overall_acc,mean_acc,mean_ion,fwavacc)
 
         elif type == 'single_label':
-            averaged_acc = sum(float(accuracy_avg))/len(accuracy_avg)
+            averaged_acc = np.average(accuracy_avg)
             s = 'avg tr loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
             print(s)
             print accuracy_avg
