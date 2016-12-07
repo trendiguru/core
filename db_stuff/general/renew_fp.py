@@ -21,8 +21,8 @@ if __name__ == "__main__":
     # user_input = get_user_input()
     # collection_name = user_input.collection_name
 
-    for col in ['amazon_US','GangnamStyle']:
-        for gen in ['_Male','_Female']:
+    for col in ['amazon_US','amaze', 'ebay_US']:
+        for gen in ['_Female','_Male']:
             col_name = col+gen
             print 'working on %s' % col_name
             collection = db[col_name]
@@ -60,5 +60,5 @@ if __name__ == "__main__":
                     q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
 
             items.close()
-            fanni.plantForests4AllCategories(col_name)
+            # fanni.plantForests4AllCategories(col_name)
         refresh_similar_results(col)
