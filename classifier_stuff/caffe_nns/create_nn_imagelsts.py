@@ -292,7 +292,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
-def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
+def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt',labels=constants.web_tool_categories_v2):
     '''
     for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
     so file lines are /path/to/file 0 0 1 0 0 1 0 1
@@ -308,7 +308,7 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
                 current_val = int(line.split()[i+1])
 #                print('cur digit {} val {}'.format(i,current_val))
                 if current_val:
-                    cats = cats + ',' + constants.web_tool_categories[i]
+                    cats = cats + ',' + labels[i]
             print(cats)
             print()
             img_arr = cv2.imread(path)
