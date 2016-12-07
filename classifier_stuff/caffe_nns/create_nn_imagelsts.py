@@ -235,7 +235,7 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
                 fp.write(l)
             fp.close()
 
-def create_class_a_vs_class_b_file_from_multilabel(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
+def create_class_a_vs_class_b_file_from_multilabel_file(index_a,index_b,multilabel_textfile,visual_output=False,outfile=None):
     if outfile is None:
         outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
     n_instances=[0,0]
