@@ -42,10 +42,11 @@ def checkout_mask_pkl_file(thefile):
     for l in db:
         for k,v in l.iteritems():
             print k
-            if not k in ['mask_max','gt_masks']:
+            if not k in ['mask_max','gt_masks','flipped']:
                 print('got unexpected key :'+str(k))
 
+        flipped=l['flipped']
         mask_max=l['mask_max']
         gt_masks=l['gt_masks']
-        print('mask_max:'+str(mask_max))
-        print('len gt masks:'+str(len(gt_masks))+' size0 '+gt_masks[0].shape)
+        print('mask_max:'+str(mask_max)+ ' flipped '+str(flipped))
+        print('len gt masks:'+str(len(gt_masks))+' size0 '+str(gt_masks[0].shape))
