@@ -18,6 +18,7 @@ def checkout_roi_pkl_file(thefile):
     if os.path.exists(thefile):
         with open(thefile, 'rb') as fid:
             roi_db = cPickle.load(fid)
+    count=0
     for l in roi_db:
         for k,v in l.iteritems():
             print k
@@ -31,6 +32,8 @@ def checkout_roi_pkl_file(thefile):
         print('gt overlaps:'+str(gt_overlaps))
         print('gt_classes:'+str(gt_classes))
         print('flipped:'+str(flipped))
+        count += 1
+    print('count '.format(count))
 
 def checkout_mask_pkl_file(thefile):
  #   {'boxes': array([[265, 144, 290, 213]], dtype=uint16), 'gt_overlaps': <1x21 sparse matrix of type '<type 'numpy.float32'>'
@@ -39,6 +42,7 @@ def checkout_mask_pkl_file(thefile):
     if os.path.exists(thefile):
         with open(thefile, 'rb') as fid:
             db = cPickle.load(fid)
+    count=0
     for l in db:
         for k,v in l.iteritems():
             print k
@@ -50,3 +54,5 @@ def checkout_mask_pkl_file(thefile):
         gt_masks=l['gt_masks']
         print('mask_max:'+str(mask_max)+ ' flipped '+str(flipped))
         print('len gt masks:'+str(len(gt_masks))+' size0 '+str(gt_masks[0].shape))
+        count += 1
+    print('count '.format(count))
