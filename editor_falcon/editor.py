@@ -22,6 +22,10 @@ class Editor(object):
 
     def on_get(self, req, resp, **path_args):
         logging.debug("ON_GET {0}".format(str(path_args)))
+        
+        user_identifier = req.context["user_identifier"]
+        logging.debug("user_identifier: {0]".format(user_identifier))
+        
         ret = {'ok': False, 'data': {}}
         params = req.params
         try:
