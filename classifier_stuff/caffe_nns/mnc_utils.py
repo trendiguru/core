@@ -42,7 +42,7 @@ def checkout_roi_pkl_file(thefile):
         print('gt_classes:'+str(gt_classes))
         print('flipped:'+str(flipped))
         count += 1
-    print('count '.format(count))
+    print('count {}'.format(count))
 
 def checkout_mask_pkl_file(thefile):
  #   {'boxes': array([[265, 144, 290, 213]], dtype=uint16), 'gt_overlaps': <1x21 sparse matrix of type '<type 'numpy.float32'>'
