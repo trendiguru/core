@@ -117,6 +117,7 @@ class AuthMiddleware(object):
                                           challenges,
                                           href='http://docs.example.com/auth')
             else:
+                logging.debug("user_identifier: {0]".format(user_identifier))
                 req.context["user_identifier"] = user_identifier
 
     def _decode_token(self, token):
