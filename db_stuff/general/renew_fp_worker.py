@@ -122,21 +122,9 @@ def fp(img, bins=histograms_length, fp_length=fingerprint_length, mask=None):
     return result_vector[:fp_length]
 
 
-def refresh_fp(fingerprint, collection_name, item_id, category, image_url):
+def refresh_fp(fingerprint, collection_name, item_id, category, image, small_image):
 
     collection = db[collection_name]
-    image = Utils.get_cv2_img_array(image_url)
-    if not Utils.is_valid_image(image):
-        logging.warning("image is None. url: {url}".format(url=image_url))
-        collection.delete_one({'_id': item_id})
-        return
-
-    small_image, resize_ratio = background_removal.standard_resize(image, 400)
-
-    if not Utils.is_valid_image(small_image):
-        logging.warning("small_image is Bad. {img}".format(img=small_image))
-        collection.delete_one({'_id': item_id})
-        return
 
     if "recruit" in collection_name:
         category_idx = recruit2category_idx[category]

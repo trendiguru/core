@@ -5,6 +5,8 @@ from .renew_fp_worker import refresh_fp
 from time import sleep
 from ..general.db_utils import refresh_similar_results
 from ..annoy_dir import fanni
+from ... import Utils, background_removal
+import logging
 q = Queue('renew', connection=redis_conn)
 
 
@@ -61,7 +63,19 @@ if __name__ == "__main__":
                     sleep(30)
                 if renew_flag:
                     image_url = item['images']['XLarge']
-                    q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image_url), timeout=1800)
+                    image = Utils.get_cv2_img_array(image_url)
+                    if not Utils.is_valid_image(image):
+                        logging.warning("image is None. url: {url}".format(url=image_url))
+                        collection.delete_one({'_id': item_id})
+                        continue
+
+                    small_image, resize_ratio = background_removal.standard_resize(image, 400)
+
+                    if not Utils.is_valid_image(small_image):
+                        logging.warning("small_image is Bad. {img}".format(img=small_image))
+                        collection.delete_one({'_id': item_id})
+                        continue
+                    q.enqueue(refresh_fp, args=(fp, col_name, item_id, category, image, small_image), timeout=1800)
 
             items.close()
             # fanni.plantForests4AllCategories(col_name)
