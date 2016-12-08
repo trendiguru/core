@@ -54,5 +54,13 @@ def checkout_mask_pkl_file(thefile):
         gt_masks=l['gt_masks']
         print('mask_max:'+str(mask_max)+ ' flipped '+str(flipped))
         print('len gt masks:'+str(len(gt_masks))+' size0 '+str(gt_masks[0].shape))
+        max0=0
+        max1=0
+        for m in gt_masks:
+            gt0 = m[0]
+            max0=gt0 if gt0>max0 else max0
+            gt1 = m[1]
+            max1=gt1 if gt1>max1 else max1
         count += 1
-    print('count '.format(count))
+        print('calculated max {},{}'.format(max0,max1))
+    print('count {}'.format(count))
