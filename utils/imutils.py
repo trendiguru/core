@@ -10,7 +10,11 @@ import shutil
 import logging
 logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
-from joblib import Parallel,delayed
+# So this file can be imported on servers where joblib is not installed
+try:
+    from joblib import Parallel,delayed
+except:
+    pass
 import multiprocessing
 import socket
 import copy
