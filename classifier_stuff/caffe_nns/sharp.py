@@ -1,32 +1,18 @@
 # coding: utf-8
 __author__ = 'jeremy'
-import socket
 from pylab import *
-from trendi.classifier_stuff.caffe_nns import lmdb_utils
-import sys
 import caffe
 import caffe.draw
-from trendi.utils import imutils
+from caffe.proto import caffe_pb2  #...what is this
+from caffe import to_proto
+from caffe import layers as L
+from caffe import params as P
 from matplotlib import pyplot as plt
-import numpy as np
 import os
 from trendi import Utils
-from caffe.proto import caffe_pb2
 from google.protobuf import text_format
-#sys.path.insert(0, 'python/')
 
-
-try:
-    import caffe
-    from caffe import layers as L
-    from caffe import params as P
-except:
-    print(sys.path)
-    sys.path.append('/home/jr/sw/caffe/python')
-    os.environ['PYTHONPATH'] = os.environ['PYTHONPATH']+'/home/jr/sw/caffe/python'
-    import caffe
-    from caffe import layers as L
-    from caffe import params as P
+from trendi.classifier_stuff.caffe_nns import lmdb_utils
 
 #label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
 #data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
@@ -285,6 +271,14 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     loss = L.SoftmaxWithLoss(fc, label)
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
+
+def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
+    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    return relu
 
 def vgg16(db,mean_value=[112.0,112.0,112.0]):
     '''
