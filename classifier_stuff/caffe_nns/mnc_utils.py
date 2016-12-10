@@ -30,7 +30,7 @@ def checkout_roi_pkl_file(thefile):
     count=0
     for l in roi_db:
         for k,v in l.iteritems():
-            print k
+#            print k
             if not k in ['boxes','gt_overlaps','gt_classes','flipped']:
                 print('got unexpected key :'+str(k))
         boxes=l['boxes']
@@ -54,7 +54,7 @@ def checkout_mask_pkl_file(thefile):
     count=0
     for l in db:
         for k,v in l.iteritems():
-            print k
+ #           print k
             if not k in ['mask_max','gt_masks','flipped']:
                 print('got unexpected key :'+str(k))
 
