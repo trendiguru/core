@@ -8,6 +8,7 @@ from ..annoy_dir import fanni
 from ... import Utils, background_removal
 import logging
 q = Queue('renew', connection=redis_conn)
+f = Queue('failed', connection=redis_conn)
 
 
 def get_user_input():
@@ -61,7 +62,8 @@ if __name__ == "__main__":
                 print e
                 continue
 
-            while q.count > redis_limit:
+            while q.count > redis_limit or f.count > redis_limit:
+                print 'renew count = %d // failed count = %d' % (q.count, f.count)
                 sleep(30)
             if renew_flag:
                 image_url = item['images']['XLarge']
