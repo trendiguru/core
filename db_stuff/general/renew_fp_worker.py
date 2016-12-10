@@ -50,10 +50,13 @@ def dict_fp(fing, image, mask, category):
         fp_keys = []
     else:
         fp_keys = fing.keys()
-        if 'collar' in fp_keys:
-            if fing['collar'] is None or len(fing['collar']) == 9:
-                fing.pop('collar', None)
-                fp_keys = fing.keys()
+        for f in fp_keys:
+            if f == 'collar':
+                if fing['collar'] is None or len(fing['collar']) == 9:
+                    fing.pop('collar', None)
+            elif fing[f] is None:
+                fing.pop(f, None)
+        fp_keys = fing.keys()
     fingerprint = {feature: Greenlet.spawn(get_feature_fp, feature, image, mask) for feature in fp_features if feature not in fp_keys}
     joinall(fingerprint.values())
     fingerprint = {k: v.value for k, v in fingerprint.iteritems()}
