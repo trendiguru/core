@@ -276,9 +276,16 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
         doc = next(cursor, None)
     return {"success": 1}
 
-def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
+def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt',
                          n_channels=len(constants.fashionista_categories_augmented),output_labels=constants.pixlevel_categories_v3,
                          pd_to_output_converter=constants.fashionista_augmented_to_pixlevel_v3):
+    '''
+    :param images_file: file w lines of imgfile,labelfile. fash.augmented.zerobased list at 'pixlevel_fullsize_test_labels_faz.txt'
+    :param n_channels: number of categories
+    :param output_labels: what labels for output (used in legends)
+    :param pd_to_output_converter: convert pd to outputlabels using this mapping
+    :return: results from histogram - iou etc
+    '''
     if not(os.path.exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
         return
@@ -321,8 +328,8 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
 
         hist += jrinfer.fast_hist(gt_arr,final_mask,n_channels)
 
-    jrinfer.results_from_hist(hist,labels=labels)
-
+    results = jrinfer.results_from_hist(hist,labels=labels)
+    return results
 
 
 if __name__ == "__main__":
