@@ -102,7 +102,7 @@ def get_pd_results(url=None,filename=None,img_arr=None):
     print('masksize '+str(mask_np.shape))
     pose_np = np.array(pose, dtype=np.uint8)
     print('posesize '+str(pose_np.shape))
-    return mask, label_dict,pose_np
+    return [mask, label_dict,pose_np]
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool=True):
     '''
@@ -296,7 +296,9 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         image_arr = Utils.get_cv2_img_array(image_file)
         gt_arr = cv2.imread(labelfile)
         print('gt size {} img size {} for {} and {}'.format(gt_arr.shape,image_arr.shape,labelfile,image_file))
-        mask,labels,pose = get_pd_results(img_arr=image_arr)
+        result = get_pd_results(img_arr=image_arr)
+        if result is not None:
+            mask,labels,pose = result[:]
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
         converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
         print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
