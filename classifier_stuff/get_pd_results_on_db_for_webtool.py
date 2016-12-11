@@ -102,8 +102,7 @@ def get_pd_results(url=None,filename=None,img_arr=None):
     print('masksize '+str(mask_np.shape))
     pose_np = np.array(pose, dtype=np.uint8)
     print('posesize '+str(pose_np.shape))
-    converted_mask = convert_results(mask_np, label_dict)
-    return mask, label_dict,pose_np, converted_mask
+    return mask, label_dict,pose_np
 
 def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool=True):
     '''
@@ -278,7 +277,8 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
     return {"success": 1}
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
-                         n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented):
+                         n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented,
+                         pd_to_nd_converter=constants.fashionista_augmented_to_pixlevel_v3):
     if not(os.path.exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
         return
@@ -298,10 +298,10 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         print('gt size {} img size {} for {} and {}'.format(gt_arr.shape,image_arr.shape,labelfile,image_file))
         mask,labels,pose,converted_mask = get_pd_results(img_arr=image_arr)
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
-#        converted_mask = pd.convert_and_save_results(mask,labels)
+        converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_nd_converter)
         print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
         final_mask = pipeline.after_pd_conclusions(mask,labels)
-        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=constants.fashionista_augmented_to_pixlevel_v3)
+        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_nd_converter)
         print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
     #before conclusions
         savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
