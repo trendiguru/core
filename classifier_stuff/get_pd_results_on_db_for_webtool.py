@@ -216,7 +216,12 @@ def convert_results(mask, pd_label_dict,pd_to_nd_label_converter,inlabels=consta
     print('new mask size:'+str(new_mask.shape))
     success = True #assume innocence until proven guilty
     print('attempting convert, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
-    for label in pd_label_dict: # need these in order
+    for mask_value in np.unique(mask):
+        label=None
+        for k,v in pd_label_dict.iteritems():
+            if v==mask_value:
+                label=k
+                break
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = pd_label_dict[label]
@@ -226,7 +231,7 @@ def convert_results(mask, pd_label_dict,pd_to_nd_label_converter,inlabels=consta
             if pixlevel_index is None:
                 pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
-            print('old index '+str(pd_index)+' for '+str(label)+'  gets new index:'+str(pixlevel_index)+':' + outlabels[pixlevel_index])
+            print('v '+str(v)+' pd index '+str(pd_index)+' for '+str(label)+'  gets new index:'+str(pixlevel_index)+':' + outlabels[pixlevel_index]+' fashionista label :'+str(fashionista_ordered_categories[fashionista_index]+' fashindex '+str(fashionista_index)))
             new_mask[mask==pd_index] = pixlevel_index
         else:
             print('label '+str(label)+' not found in regular cats')
