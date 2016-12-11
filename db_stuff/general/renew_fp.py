@@ -34,7 +34,10 @@ if __name__ == "__main__":
             print 'working on %s' % cat
             items = collection.find({'categories':cat},{'_id':1,'categories':1,'images.XLarge':1,'fingerprint':1}, no_cursor_timeout=True)
             category = cat
-            wanted_keys = features_per_category[category]
+            if category in features_per_category:
+                wanted_keys = features_per_category[category]
+            else:
+                wanted_keys = ['color']
             for x,item in enumerate(items):
                 renew_flag = False
                 if divmod(x, 10000)[1] == 0:
