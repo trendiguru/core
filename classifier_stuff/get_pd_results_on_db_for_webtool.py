@@ -275,12 +275,14 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
                          n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented):
-    if not(os._exists(images_file)):
+    if not(os.exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
+        return
     with open(images_file,'r') as fp:
         lines = fp.readlines()
         imgfiles = [line.split[0] for line in lines]
         labelfiles = [line.split[0] for line in lines]
+    print('{} has lines like {}'.format(images_file,lines[0]))
     hist = np.zeros((n_channels, n_channels))
 
     for image_file,labelfile in zip(imgfiles,labelfiles):
