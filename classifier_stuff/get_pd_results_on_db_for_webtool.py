@@ -275,7 +275,7 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
                          n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented):
-    if not(os.exists(images_file)):
+    if not(os.path.exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
         return
     with open(images_file,'r') as fp:
