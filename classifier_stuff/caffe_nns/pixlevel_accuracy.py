@@ -280,22 +280,6 @@ def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert
         cv2.imwrite(newname,out_arr)
         return out_arr
 
-def check_pd_on_nd_testset(images_file='/home/jeremy/image_dbs/pixlevel_fullsize_test/testimages.txt'):
-    if not(os._exists(images_file)):
-        logging.warning('file {} does not exist, exiting'.format(images_file))
-    with open(images_file,'r') as fp:
-        imgfiles = fp.readlines()
-    for image_file in imgfiles:
-        image_arr = Utils.get_cv2_img_array(image_file)
-        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
-        final_mask = pipeline.after_pd_conclusions(mask,labels)
-        savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
-        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
-        print('saved to '+savename+', uniques'+str(np.unique(final_mask)))
-        bmpname = os.path.basename(image_file).replace('.jpg','.bmp')
-        cv2.imwrite(bmpname,final_mask)
-
-
 
 
 if __name__ =="__main__":

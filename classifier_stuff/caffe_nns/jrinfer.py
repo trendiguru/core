@@ -197,6 +197,9 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
+
+
+
 def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120),denormalize=True):
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
