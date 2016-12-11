@@ -283,9 +283,9 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         if len(lines)==0:
             logging.warning('got no lines from {}, exiting'.format(images_file))
             return
-        print('{} has lines like {}'.format(images_file,lines[0]))
-        imgfiles = [l.split[0] for l in lines]
-        labelfiles = [l.split[0] for l in lines]
+        print('{} has lines like:\n{}'.format(images_file,lines[0]))
+        imgfiles = [l.split()[0] for l in lines]
+        labelfiles = [l.split()[0] for l in lines]
     hist = np.zeros((n_channels, n_channels))
 
     for image_file,labelfile in zip(imgfiles,labelfiles):
