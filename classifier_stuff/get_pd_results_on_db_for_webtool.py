@@ -96,7 +96,7 @@ def get_pd_results(url=None,filename=None,img_arr=None):
     mask = seg_res['mask']
     label_dict = seg_res['label_dict']
     print('labels:'+str(label_dict))
-    conversion_utils.count_values(mask)
+#    conversion_utils.count_values(mask)
     pose = seg_res['pose']
     mask_np = np.array(mask, dtype=np.uint8)
     print('masksize '+str(mask_np.shape))
@@ -199,7 +199,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url,forwebtool
         success = False
         return
 
-def convert_results(mask, pd_label_names,pd_to_nd_label_converter):
+def convert_results(mask, pd_label_dict,pd_to_nd_label_converter,inlabels=constants.fashionista_categories_augmented_zero_based,outlabels=constants.pixlevel_categories_v3):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -210,23 +210,23 @@ def convert_results(mask, pd_label_names,pd_to_nd_label_converter):
     :param url:
     :return:
      '''
-    fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
+    fashionista_ordered_categories = inlabels  #constants.fashionista_categories
     h,w = mask.shape[0:2]
     new_mask=np.ones((h,w,3),dtype=np.uint8)*255  # anything left with 255 wasn't dealt with in the following conversion code
     print('new mask size:'+str(new_mask.shape))
     success = True #assume innocence until proven guilty
     print('attempting convert, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
-    for label in pd_label_names: # need these in order
+    for label in pd_label_dict: # need these in order
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
-            pd_index = pd_label_names[label]
+            pd_index = pd_label_dict[label]
 #            pixlevel_v2_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v2[fashionista_index]
 #            pixlevel_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web[fashionista_index]
             pixlevel_index = pd_to_nd_label_converter[fashionista_index]
             if pixlevel_index is None:
                 pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
-     #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
+            print('old index '+str(pd_index)+' for '+str(label)+'  gets new index:'+str(pixlevel_index)+':' + outlabels[pixlevel_index])
             new_mask[mask==pd_index] = pixlevel_index
         else:
             print('label '+str(label)+' not found in regular cats')
@@ -277,7 +277,7 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
     return {"success": 1}
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt',
-                         n_channels=len(constants.fashionista_categories_augmented),output_labels=constants.pixlevel_categories_v3,
+                         n_channels=len(constants.pixlevel_categories_v3),output_labels=constants.pixlevel_categories_v3,
                          pd_to_output_converter=constants.fashionista_augmented_to_pixlevel_v3):
     '''
     :param images_file: file w lines of imgfile,labelfile. fash.augmented.zerobased list at 'pixlevel_fullsize_test_labels_faz.txt'
@@ -307,10 +307,14 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         if result is not None:
             mask,labels,pose = result[:]
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
+        conversion_utils.count_values(mask)
         converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
-        print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
+        conversion_utils.count_values(converted_mask)
+        print('mask uniques {} converted uniques {} gt uniques {}'.format(np.unique(mask),np.unique(converted_mask)np.unique(gt_arr)))
         final_mask = pipeline.after_pd_conclusions(mask,labels)
-        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
+        conversion_utils.count_values(final_mask)
+        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_output_converter,inlabels=constants.fashionista_categories_augmented,outlabels=constants.pixlevel_categories_v3)
+        conversion_utils.count_values(converted_final_mask)
         print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
     #before conclusions
         savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
