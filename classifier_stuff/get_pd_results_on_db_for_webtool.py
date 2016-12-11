@@ -70,13 +70,16 @@ def get_pd_results_and_save(url=None,filename=None):
     return mask, label_dict,pose_np, converted_mask
 #these are 1-based not 0-based
 
-def get_pd_results(url=None,filename=None):
+def get_pd_results(url=None,filename=None,img_arr=None):
     if url is not None:
         print('getting pd results for '+url)
         image = Utils.get_cv2_img_array(url)
     elif filename is not None:
         print('getting pd results for '+filename)
         image = cv2.imread(filename)
+    elif img_arr is not None:
+        print('getting pd results for img_arr ')
+        image = img_arr
     if image is None:
         print('image came back none')
         return None
@@ -292,7 +295,7 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         image_arr = Utils.get_cv2_img_array(image_file)
         gt_arr = cv2.imread(labelfile)
         print('gt size {} img size {}'.format(gt_arr.shape,image_arr.shape))
-        mask,labels,pose,converted_mask = get_pd_results(image_arr)
+        mask,labels,pose,converted_mask = get_pd_results(img_arr=image_arr)
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
 #        converted_mask = pd.convert_and_save_results(mask,labels)
         print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
