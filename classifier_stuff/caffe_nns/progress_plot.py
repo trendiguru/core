@@ -18,7 +18,8 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import time
 import datetime
 from scipy.optimize import curve_fit
-import socket
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 #TODO - run this automatically every eg 6hrs on any net showing up in /tmp/caffe* in the last  6 hrs
 #then throw the jpgs onto a results website
@@ -350,12 +351,25 @@ def lossplot(input_filename,netinfo='',logy=True):
     if thesplit[0] == 'test': #got testing line
       thetime = thesplit[1]
       loss_iter = thesplit[2]
-      testloss = thesplit[3]
-      testacc = float(thesplit[4])
+
+      try:
+        testloss = thesplit[3]
+      except:
+        print('trouble geting element 3 from list:'+str(thesplit))
+        testloss=0
+      try:
+        testacc = float(thesplit[4])
+      except:
+        print('trouble geting element 4 from list:'+str(thesplit))
+        testacc=0
       if testloss !=0 :
         testlosses.append(testloss)
       testaccuracies.append(testacc)
-      test_iters.append(int(loss_iter))
+      try:
+        test_iters.append(int(loss_iter))
+      except:
+        test_iters.append(0)
+        logging.warning('got nonint for iter, wtf')
     else:
       print('line:'+str(line))
       thetime = thesplit[0]
@@ -396,12 +410,12 @@ def lossplot(input_filename,netinfo='',logy=True):
   fig, ax1 = plt.subplots()
   ax2 = ax1.twinx()
 
-  print('niters '+str(n_iters))
-  print('testiter '+str(test_iters))
-  print('losses '+str(losses))
-  print('losses '+str(testlosses))
-  print('acc '+str(accuracy))
-  print('testacc '+str(testaccuracies))
+#  print('len niters '+str(len(n_iters)))
+#  print('len testiter '+str(len(test_iters)))
+#  print('len losses '+str(len(losses)))
+#  print('len losses '+str(len(testlosses)))
+#  print('len acc '+str(len(accuracy)))
+#  print('len  testacc '+str(len(testaccuracies)))
 
   print('trainlengths: iter {} thetime {} loss {} acc {} prec {} rec {}'.format(len(n_iters),len(times),len(losses),len(accuracy),len(precision),len(recall)))
   print('testlengths: iter {} loss {} acc {}'.format(len(test_iters),len(testlosses),len(testaccuracies)))
