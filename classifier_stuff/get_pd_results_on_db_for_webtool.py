@@ -311,6 +311,9 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         result = get_pd_results(img_arr=image_arr)
         if result is not None:
             mask,labels,pose = result[:]
+        else:
+            logging.warning('got None result from get_pd_results in pd_test_iou_and_cats')
+            continue
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
         conversion_utils.count_values(mask)
         converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
