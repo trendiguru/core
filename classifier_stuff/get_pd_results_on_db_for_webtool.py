@@ -296,7 +296,7 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         image_arr = Utils.get_cv2_img_array(image_file)
         gt_arr = cv2.imread(labelfile)
         print('gt size {} img size {} for {} and {}'.format(gt_arr.shape,image_arr.shape,labelfile,image_file))
-        mask,labels,pose,converted_mask = get_pd_results(img_arr=image_arr)
+        mask,labels,pose = get_pd_results(img_arr=image_arr)
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
         converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_nd_converter)
         print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
