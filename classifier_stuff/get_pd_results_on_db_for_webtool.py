@@ -277,8 +277,8 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
     return {"success": 1}
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
-                         n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented,
-                         pd_to_nd_converter=constants.fashionista_augmented_to_pixlevel_v3):
+                         n_channels=len(constants.fashionista_categories_augmented),output_labels=constants.pixlevel_categories_v3,
+                         pd_to_output_converter=constants.fashionista_augmented_to_pixlevel_v3):
     if not(os.path.exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
         return
@@ -298,21 +298,21 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         print('gt size {} img size {} for {} and {}'.format(gt_arr.shape,image_arr.shape,labelfile,image_file))
         mask,labels,pose = get_pd_results(img_arr=image_arr)
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
-        converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_nd_converter)
+        converted_mask = convert_results(mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
         print('mask uniques {} gt uniques {}'.format(np.unique(mask),np.unique(gt_arr)))
         final_mask = pipeline.after_pd_conclusions(mask,labels)
-        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_nd_converter)
+        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
         print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
     #before conclusions
         savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
-        imutils.show_mask_with_labels(converted_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
+        imutils.show_mask_with_labels(converted_mask,labels=output_labels,original_image=image_file,visual_output=True,savename=savename)
     #after conclusions
         savename_finalmask = os.path.basename(image_file).replace('.jpg','_afterpdconclusions_legend.jpg')
-        imutils.show_mask_with_labels(converted_final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename_finalmask)
+        imutils.show_mask_with_labels(converted_final_mask,labels=output_labels,original_image=image_file,visual_output=True,savename=savename_finalmask)
     #ground truth
         gtsavename = os.path.basename(image_file).replace('.jpg','_gt_legend.jpg')
-        imutils.show_mask_with_labels(gt_arr,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=gtsavename)
-    #maks (after conclusions)
+        imutils.show_mask_with_labels(gt_arr,labels=output_labels,original_image=image_file,visual_output=True,savename=gtsavename)
+    #mask (after conclusions)
         bmpname = os.path.basename(image_file).replace('.jpg','pd.bmp')
         cv2.imwrite(bmpname,converted_final_mask)
         print('saving naive legend to '+savename+' afterconclusions legend to '+savename_finalmask+' gt legend to '+gtsavename+', mask to '+bmpname)
