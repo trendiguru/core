@@ -48,6 +48,7 @@ def dict_fp(fing, image, mask, category):
         fp_features = constants.features_per_category['other']
     if fing is None:
         fp_keys = []
+        fing = {}
     else:
         fp_keys = fing.keys()
         for f in fp_keys:
