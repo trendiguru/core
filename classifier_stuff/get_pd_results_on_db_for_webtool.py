@@ -289,13 +289,13 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
             return
         print('{} has lines like:\n{}'.format(images_file,lines[0]))
         imgfiles = [l.split()[0] for l in lines]
-        labelfiles = [l.split()[0] for l in lines]
+        labelfiles = [l.split()[1] for l in lines]
     hist = np.zeros((n_channels, n_channels))
 
     for image_file,labelfile in zip(imgfiles,labelfiles):
         image_arr = Utils.get_cv2_img_array(image_file)
         gt_arr = cv2.imread(labelfile)
-        print('gt size {} img size {}'.format(gt_arr.shape,image_arr.shape))
+        print('gt size {} img size {} for {} and {}'.format(gt_arr.shape,image_arr.shape,labelfile,image_file))
         mask,labels,pose,converted_mask = get_pd_results(img_arr=image_arr)
 #        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
 #        converted_mask = pd.convert_and_save_results(mask,labels)
