@@ -18,6 +18,7 @@ from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi import kassper
 from trendi.paperdoll import paperdoll_parse_enqueue
+from trendi import pipeline
 
 def open_html(htmlname,model_base,solverproto,classes,results_dict):
     netname = caffe_utils.get_netname(solverproto)
@@ -282,29 +283,17 @@ def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert
 def check_pd_on_nd_testset(images_file='/home/jeremy/image_dbs/pixlevel_fullsize_test/testimages.txt'):
     if not(os._exists(images_file)):
         logging.warning('file {} does not exist, exiting'.format(images_file))
-    for image_url in images_file:
-        image = Utils.get_cv2_img_array(image_url)
-        mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
-        cv2.imshow('image', image)
-        cv2.imshow('color_mask', color_paperdoll_mask(mask))
-        bgnd_mask = []
-        for num in np.unique(mask):
-            # convert numbers to labelsC
-            category = list(labels.keys())[list(labels.values()).index(num)]
-            item_mask = 255 * np.array(mask == num, dtype=np.uint8)
-            if category == 'null':
-                bgnd_mask = 255 - item_mask
-            if cv2.countNonZero(item_mask) > 2000:
-                item_image = background_removal.get_masked_image(image, item_mask)
-                after_gc = create_gc_mask(image, item_mask, bgnd_mask)
-                cv2.imshow(category + "'s image (" + str(num) + ')', item_image)
-                cv2.imshow(category + "'s gc image",
-                           background_removal.get_masked_image(image, background_removal.get_masked_image(image, after_gc)))
-                # cv2.imshow(category + "'s mask", 255 * item_mask / num)
-                cv2.waitKey(0)
-                cv2.destroyWindow(category + "'s image (" + str(num) + ')')
-                cv2.destroyWindow(category + "'s gc image")
-        cv2.destroyAllWindows()
+    with open(images_file,'r') as fp:
+        imgfiles = fp.readlines()
+    for image_file in imgfiles:
+        image_arr = Utils.get_cv2_img_array(image_file)
+        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
+        final_mask = pipeline.after_pd_conclusions(mask,labels)
+        savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
+        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
+        print('saved to '+savename+', uniques'+str(np.unique(final_mask)))
+        bmpname = os.path.basename(image_file).replace('.jpg','.bmp')
+        cv2.imwrite(bmpname,final_mask)
 
 
 
