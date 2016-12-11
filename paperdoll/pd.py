@@ -247,7 +247,7 @@ def convert_and_save_results(mask, label_names, pose,filename,img,url):
                 with open(url_name, "w+") as outfile2:
                     logging.debug('succesful open, attempting to write:'+str(url))
                     outfile2.write(url)
-            return
+            return new_mask
         except:
             logging.debug('fail in convert_and_save_results dude, bummer')
             logging.debug(str(sys.exc_info()[0]))

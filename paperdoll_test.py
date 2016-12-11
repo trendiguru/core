@@ -77,17 +77,24 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         gt_arr = cv2.imread(labelfile)
         print('gt size {} img size {}'.format(gt_arr.shape,image_arr.shape))
         mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
+        converted_mask = pd.convert_and_save_results(mask,labels)
+        print('mask uniques {} gt uniques {}'.format(np.unique(final_mask),np.unique(gt_arr)))
         final_mask = pipeline.after_pd_conclusions(mask,labels)
-
-        converted_mask = pd.convert_and_save_results
-        print('final mask uniques {} gt uniques {}'.format(np.unique(gt_arr),np.unique(final_mask)))
+        converted_final_mask = pd.convert_and_save_results(final_mask,labels)
+        print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
+    #before conclusions
         savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
-        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
+        imutils.show_mask_with_labels(converted_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
+    #after conclusions
+        savename_finalmask = os.path.basename(image_file).replace('.jpg','_afterpdconclusions_legend.jpg')
+        imutils.show_mask_with_labels(converted_final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename_finalmask)
+    #ground truth
         gtsavename = os.path.basename(image_file).replace('.jpg','_gt_legend.jpg')
-        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=gtsavename)
+        imutils.show_mask_with_labels(gt_arr,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=gtsavename)
+    #maks (after conclusions)
         bmpname = os.path.basename(image_file).replace('.jpg','pd.bmp')
-        print('saving legend to '+savename+' and '+gtsavename+', mask to '+bmpname)
-        cv2.imwrite(bmpname,final_mask)
+        cv2.imwrite(bmpname,converted_final_mask)
+        print('saving naive legend to '+savename+' afterconclusions legend to '+savename_finalmask+' gt legend to '+gtsavename+', mask to '+bmpname)
 
         hist += jrinfer.fast_hist(gt_arr,final_mask,n_channels)
 
