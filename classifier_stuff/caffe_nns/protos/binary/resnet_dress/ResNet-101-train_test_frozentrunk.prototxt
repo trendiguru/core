@@ -3644,6 +3644,7 @@ layer {
 		pad: 0
 		stride: 1
 		bias_term: false
+		}
 	 param {
 		  lr_mult: 0
 		  decay_mult: 0
