@@ -12,6 +12,23 @@ import numpy as np
 ##But different masks have different h/w, so I generate a blob according to the max value (num_mask x 1 x max(mask_height) x max(mask_width)) over each mask and pad with 0.
 
 
+def prepare_roi_bb_data(image):
+
+
+def prepare_segmentation_data(image):
+    '''
+    :param image: np.ndarray of a mask image
+    :return: dictionary : {'mask_max': [26, 70], 'gt_masks': [array([[False, False, ..., False, False, False]], dtype=bool)], 'flipped': False}
+    '''
+    unique_num = np.unique(image)
+
+    mask_dict = {'mask_max': np.zeros(2), 'gt_masks' : np.zeros(unique_num)}
+
+    for index, item in enumerate(unique_num):
+        bool_image = image == item
+        mask_dict['gt_masks'][index] = bool_image
+
+
 def checkout_pkl_file(thefile):
     if os.path.exists(thefile):
         with open(thefile, 'rb') as fid:
@@ -42,7 +59,7 @@ def checkout_roi_pkl_file(thefile):
         print('gt_classes:'+str(gt_classes))
         print('flipped:'+str(flipped))
         count += 1
-    print('count {}'.format(count))
+    print('count {0}'.format(count))
 
 def checkout_mask_pkl_file(thefile):
  #   {'boxes': array([[265, 144, 290, 213]], dtype=uint16), 'gt_overlaps': <1x21 sparse matrix of type '<type 'numpy.float32'>'
