@@ -1373,7 +1373,7 @@ if __name__ == "__main__":
 #    solver.net.copy_from(weights)
 
     # surgeries
-#    interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+ #   interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
 #    all_layers = [k for k in solver.net.params.keys()]
 #    surgery.interp(solver.net, interp_layers)
     # scoring
