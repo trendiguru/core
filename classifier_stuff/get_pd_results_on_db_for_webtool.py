@@ -320,8 +320,9 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         conversion_utils.count_values(converted_mask)
         print('mask uniques {} converted uniques {} gt uniques {}'.format(np.unique(mask),np.unique(converted_mask),np.unique(gt_arr)))
         final_mask = pipeline.after_pd_conclusions(mask,labels)
+        print('mask, after conclusions')
         conversion_utils.count_values(final_mask)
-        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_output_converter,inlabels=constants.fashionista_categories_augmented,outlabels=constants.pixlevel_categories_v3)
+        converted_final_mask = convert_results(final_mask,labels,pd_to_nd_label_converter=pd_to_output_converter)
         conversion_utils.count_values(converted_final_mask)
         print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
     #before conclusions
