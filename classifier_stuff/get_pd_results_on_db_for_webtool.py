@@ -283,7 +283,7 @@ def get_pd_results_on_images_db(n_numerator,n_denominator):
 
 def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt',
                          n_channels=len(constants.pixlevel_categories_v3),output_labels=constants.pixlevel_categories_v3,
-                         pd_to_output_converter=constants.fashionista_augmented_to_pixlevel_v3):
+                         pd_to_output_converter=constants.fashionista_augmented_zero_based_to_pixlevel_v3):
     '''
     :param images_file: file w lines of imgfile,labelfile. fash.augmented.zerobased list at 'pixlevel_fullsize_test_labels_faz.txt'
     :param n_channels: number of categories
