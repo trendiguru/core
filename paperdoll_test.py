@@ -62,36 +62,6 @@ def pd_test(image_url):
             cv2.destroyWindow(category + "'s gc image")
     cv2.destroyAllWindows()
 
-def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_faz.txt',
-                         n_channels=len(constants.fashionista_categories_augmented),labels=constants.fashionista_categories_augmented):
-    if not(os._exists(images_file)):
-        logging.warning('file {} does not exist, exiting'.format(images_file))
-    with open(images_file,'r') as fp:
-        lines = fp.readlines()
-        imgfiles = [line.split[0] for line in lines]
-        labelfiles = [line.split[0] for line in lines]
-    hist = np.zeros((n_channels, n_channels))
-
-    for image_file,labelfile in zip(imgfiles,labelfiles):
-        image_arr = Utils.get_cv2_img_array(image_file)
-        gt_arr = cv2.imread(labelfile)
-        print('gt size {} img size {}'.format(gt_arr.shape,image_arr.shape))
-        mask, labels, pose = paperdoll_parse_enqueue.paperdoll_enqueue(image_arr, async=False)
-        final_mask = pipeline.after_pd_conclusions(mask,labels)
-
-        converted_mask = pd.convert_and_save_results
-        print('final mask uniques {} gt uniques {}'.format(np.unique(gt_arr),np.unique(final_mask)))
-        savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
-        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=savename)
-        gtsavename = os.path.basename(image_file).replace('.jpg','_gt_legend.jpg')
-        imutils.show_mask_with_labels(final_mask,labels=constants.fashionista_categories_augmented_zero_based,original_image=image_file,visual_output=True,savename=gtsavename)
-        bmpname = os.path.basename(image_file).replace('.jpg','pd.bmp')
-        print('saving legend to '+savename+' and '+gtsavename+', mask to '+bmpname)
-        cv2.imwrite(bmpname,final_mask)
-
-        hist += jrinfer.fast_hist(gt_arr,final_mask,n_channels)
-
-    jrinfer.results_from_hist(hist,labels=labels)
 
 
 def create_gc_mask(image, pd_mask, bgnd_mask):
