@@ -339,7 +339,7 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         cv2.imwrite(bmpname,converted_final_mask)
         print('saving naive legend to '+savename+' afterconclusions legend to '+savename_finalmask+' gt legend to '+gtsavename+', mask to '+bmpname)
 
-        hist += jrinfer.fast_hist(gt_arr,final_mask,n_channels)
+        hist += jrinfer.fast_hist(gt_arr,converted_final_mask,n_channels)
 
     results = jrinfer.results_from_hist(hist,labels=labels)
     return results
