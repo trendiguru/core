@@ -327,13 +327,13 @@ def pd_test_iou_and_cats(images_file='/home/jeremy/image_dbs/pixlevel/pixlevel_f
         print('final mask uniques {} gt uniques {}'.format(np.unique(converted_final_mask),np.unique(gt_arr)))
     #before conclusions
         savename = os.path.basename(image_file).replace('.jpg','_legend.jpg')
-        imutils.show_mask_with_labels(converted_mask,labels=output_labels,original_image=image_file,visual_output=True,savename=savename)
+        imutils.show_mask_with_labels(converted_mask,labels=output_labels,original_image=image_file,visual_output=False,savename=savename,save_images=True)
     #after conclusions
         savename_finalmask = os.path.basename(image_file).replace('.jpg','_afterpdconclusions_legend.jpg')
-        imutils.show_mask_with_labels(converted_final_mask,labels=output_labels,original_image=image_file,visual_output=True,savename=savename_finalmask)
+        imutils.show_mask_with_labels(converted_final_mask,labels=output_labels,original_image=image_file,visual_output=False,savename=savename_finalmask,save_images=True)
     #ground truth
         gtsavename = os.path.basename(image_file).replace('.jpg','_gt_legend.jpg')
-        imutils.show_mask_with_labels(gt_arr,labels=output_labels,original_image=image_file,visual_output=True,savename=gtsavename)
+        imutils.show_mask_with_labels(gt_arr,labels=output_labels,original_image=image_file,visual_output=False,savename=gtsavename,save_images=True)
     #mask (after conclusions)
         bmpname = os.path.basename(image_file).replace('.jpg','pd.bmp')
         cv2.imwrite(bmpname,converted_final_mask)
