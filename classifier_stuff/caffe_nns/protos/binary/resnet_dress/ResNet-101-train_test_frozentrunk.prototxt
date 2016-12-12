@@ -4979,7 +4979,8 @@ layer {
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 512
-	}
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
 	 param {
 			  lr_mult: 1
 			  decay_mult: 1
@@ -5002,7 +5003,8 @@ layer {
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 128
-	}
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
 	 param {
 			  lr_mult: 1
 			  decay_mult: 1
@@ -5025,7 +5027,8 @@ layer {
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 2
-	}
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
 	 param {
 			  lr_mult: 1
 			  decay_mult: 1
