@@ -7,7 +7,9 @@
   nvidia-docker run -it -v /data:/data -p 8085:8085 --name collar eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:1 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && pip install gunicorn && gunicorn -b :8085 --env GPU_DEVICE=1 --env FEATURES_JSON='["collar"]' -w 3 -k gevent -n collar --timeout 120 trendi.features_api.app:api'
   
   actually the use of  single quotes within the gunicorn command messes up the single quote that is trying to wrap all the commands to give docker, and its prob. hard to get around this since both single and double quotes are being used. So you can do 
+  
   nvidia-docker run -it -v /data:/data -p 8085:8085 --name collar eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:1 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && pip install gunicorn && /bin/bash'   
+  
   and then finish interactively by running the gunicorn command, namely
   
   gunicorn -b :8085 --env GPU_DEVICE=1 --env FEATURES_JSON='["collar"]' -w 3 -k gevent -n collar --timeout 120 trendi.features_api.app:api
