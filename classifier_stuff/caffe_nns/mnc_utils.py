@@ -86,7 +86,7 @@ def checkout_mask_pkl_file(thefile):
         max1=0
         for m in gt_masks:
             print m.shape
-            copy_image = np.array(m, dtype=np.uint8)
+            copy_image = np.array(m*255, dtype=np.uint8)
             cv2.imshow('image', copy_image)
             cv2.waitKey(0)
             gt0 = m.shape[0]
