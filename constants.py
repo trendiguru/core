@@ -427,7 +427,16 @@ fashionista_augmented_to_pixlevel_v3 = [None,0,6,7,5,4,10,8,5,7,10,
                                         None,8,14,1,8,None,None,8,8,None,
                                         8,None,1,8,None,15,15]
 
+fashionista_augmented_zero_based_to_pixlevel_v3 = [0,6,7,5,4,10,8,5,7,10,
+                                                    8,4,5,2,1,6,5,4,6,6,
+                                                    9,13,4,5,None,5,12,11,6,12,
+                                                    2,6,None,1,1,5,1,None,8,8,
+                                                    None,8,14,1,8,None,None,8,8,None,
+                                                    8,None,1,8,None,15,15]
+
+
 #39 here
+#NOT IN USE
 multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
                 'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
                 'overalls','sweatshirt', 'mens_swimwear','lingerie','blazer','legging',
@@ -442,6 +451,7 @@ multilabel_categories_v4_for_web = ['bag', 'belt','coat','dress', 'eyewear', 'fo
 
 pixlevel_categories_v4_for_web = ['bgnd']+multilabel_categories_v4_for_web
 
+#NOT IN USE
 multilabel_categories_v3_for_web_to_multilabel_categories_v3=[] #tbd
 multilabel_categories_v2_to_multilabel_categories_v3=[]  #tbd
 

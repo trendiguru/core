@@ -17,6 +17,8 @@ from trendi.classifier_stuff.caffe_nns import caffe_utils
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi import kassper
+from trendi.paperdoll import paperdoll_parse_enqueue
+from trendi import pipeline
 
 def open_html(htmlname,model_base,solverproto,classes,results_dict):
     netname = caffe_utils.get_netname(solverproto)
@@ -277,6 +279,7 @@ def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert
         print('outname '+str(newname))
         cv2.imwrite(newname,out_arr)
         return out_arr
+
 
 
 if __name__ =="__main__":

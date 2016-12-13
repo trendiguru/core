@@ -1,14 +1,21 @@
 __author__ = 'Nadav Paz'
 
 import random
-
 import numpy as np
 import cv2
+import os
+import logging
+logging.basicConfig(level=logging.INFO)
 
-import paperdoll.paperdoll_parse_enqueue
+
+from trendi.paperdoll import paperdoll_parse_enqueue
 import Utils
 import background_removal
-
+from trendi import constants
+from trendi.classifier_stuff.caffe_nns import jrinfer
+from trendi import pipeline
+from trendi.utils import imutils
+from trendi.paperdoll import pd
 
 def color_paperdoll_mask(paperdoll_mask):
     items_list = np.unique(paperdoll_mask)
@@ -31,6 +38,7 @@ def color_paperdoll_mask(paperdoll_mask):
 
 
 def pd_test(image_url):
+    '''not sure if this is currenltly kosher 10.12.16'''
     image = Utils.get_cv2_img_array(image_url)
     mask, labels, pose = paperdoll.paperdoll_parse_enqueue.paperdoll_enqueue(image_url, async=False)
     cv2.imshow('image', image)
@@ -53,6 +61,7 @@ def pd_test(image_url):
             cv2.destroyWindow(category + "'s image (" + str(num) + ')')
             cv2.destroyWindow(category + "'s gc image")
     cv2.destroyAllWindows()
+
 
 
 def create_gc_mask(image, pd_mask, bgnd_mask):

@@ -272,6 +272,13 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
+def conv_factory(bottom, ks, nout, stride=1, pad=0):
+    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    return scale
+
 def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
     conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
@@ -279,6 +286,43 @@ def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
     return relu
+
+def residual_factory1(bottom, num_filter):
+    conv1 = conv_factory_relu_inverse_no_inplace(bottom, 3, num_filter, 1, 1);
+    conv2 = conv_factory_relu_inverse(conv1, 3, num_filter, 1, 1);
+    addition = L.Eltwise(bottom, conv2, operation=P.Eltwise.SUM)
+    return addition
+
+def residual_factory_proj(bottom, num_filter, stride=2):
+    batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    conv1 = conv_factory_relu(scale, 3, num_filter, stride, 1);
+    conv2 = L.Convolution(conv1, kernel_size=3, stride=1,
+                                num_output=num_filter, pad=1, weight_filler=dict(type='msra'));
+    proj = L.Convolution(scale, kernel_size=1, stride=stride,
+                                num_output=num_filter, pad=0, weight_filler=dict(type='msra'));
+    addition = L.Eltwise(conv2, proj, operation=P.Eltwise.SUM)
+    return addition
+
+def conv_factory_relu_inverse(bottom, ks, nout, stride=1, pad=0):
+    batch_norm = L.BatchNorm(bottom, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    conv = L.Convolution(relu, kernel_size=ks, stride=stride,
+                                num_output=nout, pad=pad, weight_filler=dict(type='msra'))
+    return conv
+
+def conv_factory_relu_inverse_no_inplace(bottom, ks, nout, stride=1, pad=0):
+    batch_norm = L.BatchNorm(bottom, in_place=False, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    conv = L.Convolution(relu, kernel_size=ks, stride=stride,
+                                num_output=nout, pad=pad, weight_filler=dict(type='msra'))
+    return conv
+
+def max_pool(bottom, ks, stride=1):
+    return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
+
 
 def vgg16(db,mean_value=[112.0,112.0,112.0]):
     '''
@@ -814,6 +858,8 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
     return n.to_proto()
 
+def sharp_res50():
+    pss
 
 '''layer {
   name: "data"
@@ -1327,7 +1373,7 @@ if __name__ == "__main__":
 #    solver.net.copy_from(weights)
 
     # surgeries
-#    interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
+ #   interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
 #    all_layers = [k for k in solver.net.params.keys()]
 #    surgery.interp(solver.net, interp_layers)
     # scoring
