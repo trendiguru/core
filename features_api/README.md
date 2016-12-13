@@ -21,6 +21,6 @@
 
 n.b. currently gender is started differently , namely by 
 
-gunicorn -b :8357 -w 5 -k gevent -n gender app:api
+gunicorn -b :8357 -w 5 -k gevent -n gender trendi.features_api.gender_app:api
 
 and also it needs dlib, so you need to do pip install dlib in the container
