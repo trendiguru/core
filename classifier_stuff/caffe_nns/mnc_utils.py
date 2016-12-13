@@ -20,15 +20,34 @@ def prepare_roi_bb_data(image):
 def prepare_segmentation_data(image):
     '''
     :param image: np.ndarray of a mask image
-    :return: dictionary : {'mask_max': [26, 70], 'gt_masks': [array([[False, False, ..., False, False, False]], dtype=bool)], 'flipped': False}
+    :return: dictionary : {'mask_max': [max_x_value, max_y_value], 'gt_masks': [array([[False, False, ..., False, False, False]], dtype=bool)], 'flipped': False}
     '''
-    unique_num = np.unique(image)
+    unique_num = np.nonzero(np.unique(image))[0]
 
-    mask_dict = {'mask_max': np.zeros(2), 'gt_masks' : np.zeros(unique_num)}
+    mask_dict = {'mask_max': [None] * 2, 'gt_masks': [None] * len(unique_num), 'flipped': False}
 
+    # if there's a few False pixels between 2 True, it makes them one False
+    # for index, item in enumerate(unique_num):
+    #     bool_image = image == item
+    #     mask_dict['gt_masks'][index] = bool_image[np.ix_(bool_image.any(1), bool_image.any(0))]
+
+    # if i'll have [True False False False True]
     for index, item in enumerate(unique_num):
         bool_image = image == item
-        mask_dict['gt_masks'][index] = bool_image
+        coords = np.argwhere(bool_image)
+        x0, y0 = coords.min(axis=0)
+        x1, y1 = coords.max(axis=0) + 1
+        mask_dict['gt_masks'][index] = bool_image[x0:x1, y0:y1]
+
+    max_y_axis = 0
+    max_x_axis = 0
+    for m in mask_dict['gt_masks']:
+        gt0 = m.shape[0]
+        max_y_axis = gt0 if gt0 > max_y_axis else max_y_axis
+        gt1 = m.shape[1]
+        max_x_axis = gt1 if gt1 > max_x_axis else max_x_axis
+
+    mask_dict['mask_max'] = [max_x_axis, max_y_axis]
 
 
 def checkout_pkl_file(thefile):
@@ -85,10 +104,10 @@ def checkout_mask_pkl_file(thefile):
         max0=0
         max1=0
         for m in gt_masks:
-            print m.shape
-            copy_image = np.array(m*255, dtype=np.uint8)
-            cv2.imshow('image', copy_image)
-            cv2.waitKey(0)
+            # print m.shape
+            # copy_image = np.array(m*255, dtype=np.uint8)
+            # cv2.imshow('image', copy_image)
+            # cv2.waitKey(0)
             gt0 = m.shape[0]
             max0=gt0 if gt0>max0 else max0
             gt1 = m.shape[1]
