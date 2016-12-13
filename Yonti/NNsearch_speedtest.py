@@ -134,13 +134,13 @@ def test10():
             pass
 
 n=1
-timeit(test1, number=n, name='with EXHAUST')
 timeit(test2, number=n, name='without EXHAUST')
 timeit(test3, number=n, name='with EXHAUST /10')
 timeit(test4, number=n, name='without EXHAUST /10')
-timeit(test5, number=n, name='with EXHAUST /30')
+timeit(test5, number=n, name='with EXHAUST /20')
 timeit(test6, number=n, name='without EXHAUST /20')
 timeit(test7, number=n, name='with EXHAUST /50')
 timeit(test8, number=n, name='without EXHAUST /50')
 timeit(test9, number=n, name='with EXHAUST /100')
 timeit(test10, number=n, name='without EXHAUST /100')
+timeit(test1, number=n, name='with EXHAUST')
