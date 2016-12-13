@@ -4578,7 +4578,7 @@ layer {
 }
 
 layer {
-  name: "prob"
+  name: "prob_0"
   type: "Softmax"
   bottom: "fc4_0"
   top: "prob_0"
@@ -4633,7 +4633,7 @@ layer {
 }
 
 layer {
-  name: "prob"
+  name: "prob_1"
   type: "Softmax"
   bottom: "fc4_1"
   top: "prob_1"
