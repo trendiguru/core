@@ -17,6 +17,7 @@ def test1():
     for i in entries:
         print i
 
+
 def timeit(f):
     t1 = time()
     f()
@@ -24,3 +25,4 @@ def timeit(f):
     print (t2-t1)
 
 
+timeit(test1)
