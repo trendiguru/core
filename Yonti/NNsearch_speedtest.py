@@ -78,20 +78,22 @@ def diviWO(b):
     d = {k: v for k, v in queries.iteritems()}
 
 
-timeit(withH, number=1, name='with EXHAUST')
-timeit(without, number=1, name='without EXHAUST')
-timeit(withH, number=10, name='with EXHAUST /10')
-timeit(without, number=10, name='without EXHAUST /10')
-timeit(withH, number=20, name='with EXHAUST /20')
-timeit(without, number=20, name='without EXHAUST /20')
-timeit(withH, number=50, name='with EXHAUST /50')
-timeit(without, number=50, name='without EXHAUST /50')
-timeit(withH, number=100, name='with EXHAUST /100')
-timeit(without, number=100, name='without EXHAUST /100')
-
-timeit(diviWH, number=10, name='divi with EXHAUST /10')
-timeit(diviWO, number=10, name='divi without EXHAUST /10')
-timeit(diviWH, number=50, name='divi with EXHAUST /50')
-timeit(diviWO, number=50, name='divi without EXHAUST /50')
-
-
+# timeit(withH, number=1, name='with EXHAUST')
+# timeit(without, number=1, name='without EXHAUST')
+# timeit(withH, number=10, name='with EXHAUST /10')
+# timeit(without, number=10, name='without EXHAUST /10')
+# timeit(withH, number=20, name='with EXHAUST /20')
+# timeit(without, number=20, name='without EXHAUST /20')
+# timeit(withH, number=50, name='with EXHAUST /50')
+# timeit(without, number=50, name='without EXHAUST /50')
+# timeit(withH, number=100, name='with EXHAUST /100')
+# timeit(without, number=100, name='without EXHAUST /100')
+#
+# timeit(diviWH, number=10, name='divi with EXHAUST /10')
+# timeit(diviWO, number=10, name='divi without EXHAUST /10')
+# timeit(diviWH, number=50, name='divi with EXHAUST /50')
+# timeit(diviWO, number=50, name='divi without EXHAUST /50')
+timeit(withH, number=1000, name='with EXHAUST /1000')
+timeit(without, number=1000, name='without EXHAUST /1000')
+timeit(diviWH, number=1000, name='divi with EXHAUST /1000')
+timeit(diviWO, number=1000, name='divi without EXHAUST /1000')
