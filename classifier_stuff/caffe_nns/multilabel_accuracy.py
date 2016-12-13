@@ -476,6 +476,8 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
+
+
 def test_multilabel_output_on_testset(testfile,outdir='./'):
     '''
     this takes an images+multilabels file and determines accuracy

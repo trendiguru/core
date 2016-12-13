@@ -53,7 +53,7 @@ if __name__ == "__main__":
                     else:
                         pass
                     # features_keys = features_per_category.keys()
-                    if category in features_keys and not renew_flag:
+                    if not renew_flag:
                         # wanted_keys = features_per_category[category]
                         fp_keys = fp.keys()
                         if 'collar' in fp_keys:
