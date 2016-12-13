@@ -2,6 +2,7 @@ __author__ = 'jeremy'
 import cPickle
 import os
 import numpy as np
+import cv2
 
 
 #jeremy attempts to make .pkl files for use with MNC
@@ -83,6 +84,8 @@ def checkout_mask_pkl_file(thefile):
         max0=0
         max1=0
         for m in gt_masks:
+            cv2.imshow('image', m)
+            cv2.waitKey(0)
             gt0 = m.shape[0]
             max0=gt0 if gt0>max0 else max0
             gt1 = m.shape[1]
