@@ -22,16 +22,25 @@ def prepare_segmentation_data(image):
     :param image: np.ndarray of a mask image
     :return: dictionary : {'mask_max': [max_x_value, max_y_value], 'gt_masks': [array([[False, False, ..., False, False, False]], dtype=bool)], 'flipped': False}
     '''
+    # not like the original use of this pixel level that we prepare the data for,
+    # in our use every item can be at most one time in every image, so if we see
+    # 2 pixels of the same class but far away one from another, so i'm going to
+    # take those 2 pixels and all that in between them to the bounding box (although
+    # the pixels between them going to stay False)
     unique_num = np.nonzero(np.unique(image))[0]
 
+    # dictionary for mask
     mask_dict = {'mask_max': [None] * 2, 'gt_masks': [None] * len(unique_num), 'flipped': False}
+    # dictionary for roi (bounding boxes)
+    roi_dict = {'boxes': [None] * len(unique_num), 'gt_overlaps': [None] * len(unique_num), 'gt_classes': [None] * len(unique_num), 'flipped': False}
 
     # if there's a few False pixels between 2 True, it makes them one False
     # for index, item in enumerate(unique_num):
     #     bool_image = image == item
     #     mask_dict['gt_masks'][index] = bool_image[np.ix_(bool_image.any(1), bool_image.any(0))]
 
-    # if i'll have [True False False False True]
+    # if i'll have [True False False False True] so i'm going to take to 'gt_masks'
+    # all those False's
     for index, item in enumerate(unique_num):
         bool_image = image == item
         coords = np.argwhere(bool_image)
@@ -79,6 +88,7 @@ def checkout_roi_pkl_file(thefile):
         print('gt overlaps:'+str(gt_overlaps))
         print('gt_classes:'+str(gt_classes))
         print('flipped:'+str(flipped))
+        print l
         count += 1
     print('count {0}'.format(count))
 
