@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # load new net
     net_new = caffe.Net('/'.join([folder_path, user_input.protoname]), caffe.TRAIN)
 
-    nets = (caffe.Net('/'.join([folder_path, proto_files[0]]), cfm) for cfm in model_files)
+    nets = list(caffe.Net('/'.join([folder_path, proto_files[0]]), cfm) for cfm in model_files)
 
     weights_dict(net_new.params, nets[0].params)
 
