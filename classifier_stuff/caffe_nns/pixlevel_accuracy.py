@@ -156,6 +156,23 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
+def get_pixlevel_nd_output(img_file_or_cv2_arr):
+    if isinstance(img_file_or_cv2_arr,basestring):
+        img_arr = cv2.imread(img_file_or_cv2_arr)
+        if img_arr is None:
+            logging.WARNING('file '+img_file_or_cv2_arr+' not readable')
+            return
+    else:
+        img_arr = img_file_or_cv2_arr
+
+    dic = nfc.pd(img_arr)
+    if not dic['success']:
+        logging.debug('nfc  not a success')
+        return
+    net_data = dic['mask']
+    return net_data
+
+
 def get_pixlevel_confmat_using_falcon(images_and_labels_file,labels=constants.ultimate_21, save_dir='./nd_output'):
     with open(images_and_labels_file,'r') as fp:
         lines = fp.readlines()
