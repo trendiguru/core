@@ -17,7 +17,7 @@ def timeit(f, number, name='function'):
     t1 = time()
     f(number)
     t2 = time()
-    print '{} duration = {}'.format(name,(t2-t1)/float(number))
+    print '{} duration = {}'.format(name, (t2-t1))
 
 
 def withH(b):
