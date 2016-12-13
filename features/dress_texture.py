@@ -44,11 +44,13 @@ def execute(image_or_url):
     elif type(image_or_url) == np.ndarray:
         image = image_or_url
     else:
+        print "problem in opening the image"
         return None
 
     image_for_caffe = [skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)]
 
     if image_for_caffe is None:
+        print "problem in [skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)]"
         return None
 
     # Classify
