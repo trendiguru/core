@@ -1,4 +1,4 @@
-import timeit
+from time import time
 import numpy as np
 import pymongo
 from ..constants import db
@@ -17,12 +17,10 @@ def test1():
     for i in entries:
         print i
 
-timeit.timeit("""
-entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                  cursor_type=pymongo.cursor.CursorType.EXHAUST)
+def timeit(f):
+    t1 = time()
+    f()
+    t2 = time()
+    print (t2-t1)
 
-    for i in entries:
-        print i
-""", number=1)
 
