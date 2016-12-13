@@ -45,8 +45,7 @@ if __name__ == "__main__":
     proto_files.remove(user_input.protoname)
     # load new net
     net_new = caffe.Net('/'.join([folder_path, user_input.protoname]), caffe.TRAIN)
-    print proto_files[0]
-    nets = (caffe.Net('/'.join([folder_path, proto_files[0]]), cfm) for cfm in model_files)
+    nets = (caffe.Net('/'.join([folder_path, proto_files[0]]), cfm, caffe.TEST) for cfm in model_files)
 
     weights_dict(net_new.params, nets.next().params)
 
