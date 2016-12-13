@@ -17,5 +17,12 @@ def test1():
     for i in entries:
         print i
 
-timeit.timeit(test1)
+timeit.timeit("""
+entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                  cursor_type=pymongo.cursor.CursorType.EXHAUST)
+
+    for i in entries:
+        print i
+""", number=1)
 
