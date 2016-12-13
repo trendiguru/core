@@ -11,7 +11,7 @@ category = 'dress'
 
 def timeit(f, number, name='function'):
     t1 = time()
-    for i in number:
+    for i in range(number):
         f()
     t2 = time()
     print '{} duration = {}'.format(name,(t2-t1)/float(number))
