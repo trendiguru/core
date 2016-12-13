@@ -5,11 +5,14 @@ from ..constants import db
 
 
 collection = 'amazon_US_Female'
-annoy_top_results = list(np.random.randint(480000, size=1000))
 category = 'dress'
+annoy_top_results = list(np.random.randint(480000, size=1000))
 
 
 def timeit(f, number, name='function'):
+    global annoy_top_results
+    annoy_top_results = list(np.random.randint(480000, size=1000))
+
     t1 = time()
     for i in range(number):
         f()
@@ -134,6 +137,7 @@ def test10():
             pass
 
 n=1
+
 timeit(test2, number=n, name='without EXHAUST')
 timeit(test3, number=n, name='with EXHAUST /10')
 timeit(test4, number=n, name='without EXHAUST /10')
