@@ -5,7 +5,7 @@ from ..constants import db
 
 
 collection = 'amazon_US_Female'
-annoy_top_results = np.random.randint(10000, size=100)
+annoy_top_results = list(np.random.randint(10000, size=100))
 category = 'dress'
 
 
