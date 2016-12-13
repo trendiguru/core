@@ -24,7 +24,6 @@ def withH(b):
     bs = 1000/b
     for i in range(b):
         small_list = annoy_top_results[i*bs:(i+1)*bs]
-        len(annoy_top_results)
         entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                       cursor_type=pymongo.cursor.CursorType.EXHAUST)
@@ -38,7 +37,6 @@ def without(b):
     bs = 1000 / b
     for i in range(b):
         small_list = annoy_top_results[i * bs:(i + 1) * bs]
-        len(annoy_top_results)
         entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
         for ee in entries:
@@ -80,6 +78,26 @@ def diviWO(b):
     d = {k: v for k, v in queries.iteritems()}
 
 
+def nofp(b):
+
+    bs = 1000 / b
+    for i in range(b):
+        small_list = annoy_top_results[i * bs:(i + 1) * bs]
+        entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
+                                      {"id": 1, "images.XLarge": 1, "clickUrl": 1})
+        for ee in entries:
+            # print ee['id']
+            pass
+
+
+def it(b):
+    for i in annoy_top_results:
+        entries = db[collection].find({"AnnoyIndex": i, 'categories': category},
+                                      {"id": 1, "images.XLarge": 1, "clickUrl": 1})
+        for ee in entries:
+            # print ee['id']
+            pass
+
 # timeit(withH, number=1, name='with EXHAUST')
 # timeit(without, number=1, name='without EXHAUST')
 # timeit(withH, number=10, name='with EXHAUST /10')
@@ -99,3 +117,6 @@ timeit(withH, number=1000, name='with EXHAUST /1000')
 timeit(without, number=1000, name='without EXHAUST /1000')
 timeit(diviWH, number=1000, name='divi with EXHAUST /1000')
 timeit(diviWO, number=1000, name='divi without EXHAUST /1000')
+timeit(nofp, number=1, name='nofp')
+timeit(nofp, number=10, name='nofp 10')
+timeit(it, number=1, name='noin')
