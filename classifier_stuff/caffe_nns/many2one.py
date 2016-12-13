@@ -50,10 +50,10 @@ if __name__ == "__main__":
     weights_dict(net_new.params, nets.next().params)
 
     for i in range(1, len(model_files)):
-        for j in range(2,5):
+        tmp_net = nets.next()
+        for j in range(2, 5):
             tmp_fc_base = 'fc{}_0'.format(j)
             tmp_fc_new = 'fc{}_{}'.format(j, i)
-            tmp_net = nets.next()
             net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
             if len(net_new.params[tmp_fc_new]) == 2:
                 net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
