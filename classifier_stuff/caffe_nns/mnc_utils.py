@@ -14,6 +14,7 @@ import cv2
 
 
 def prepare_roi_bb_data(image):
+    print "Hey"
 
 
 def prepare_segmentation_data(image):
