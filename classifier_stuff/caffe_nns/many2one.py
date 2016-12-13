@@ -54,9 +54,9 @@ if __name__ == "__main__":
             tmp_fc_base = 'fc{}_0'.format(j)
             tmp_fc_new = 'fc{}_{}'.format(j, i)
             tmp_net = nets.next()
-            net_new.params[tmp_fc_new][0].data = tmp_net.params[tmp_fc_base][0].data
+            net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
             if len(net_new.params[tmp_fc_new]) == 2:
-                net_new.params[tmp_fc_new][1].data = tmp_net.params[tmp_fc_base][1].data
+                net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
     nets.close()
