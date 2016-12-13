@@ -1,8 +1,8 @@
 FEATURES = {
 
     "sleeve_length": {
-        "MODEL_FILE": "/usr/lib/python2.7/dist-packages/trendi/yonatan/resnet_50_dress_sleeve/ResNet-50-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/dressSleeve_caffemodels/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/sleeve_length/ResNet-50-deploy.prototxt",
+        "PRETRAINED": "/data/production/caffemodels_and_protos/sleeve_length/caffe_resnet50_snapshot_50_sgd_iter_10000.caffemodel",
         "path_to_images": "/home/yonatan/dresses_stuff/dress_sleeve_sets",
         "labels": {
             'strapless': 0,
@@ -18,8 +18,8 @@ FEATURES = {
     },
 
     "length": {
-        "MODEL_FILE": "/usr/lib/python2.7/dist-packages/trendi/yonatan/resnet_50_dress_length/ResNet-50-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/dressLength_caffemodels/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/length/length/ResNet-50-deploy.prototxt",
+        "PRETRAINED": "/data/production/caffemodels_and_protos/length/length/caffe_resnet50_snapshot_dress_length_3_categories_iter_10000.caffemodel",
         "path_to_images": "/home/yonatan/dresses_stuff/dress_length_3_labels_sets",
         "labels": {
             'mini_length': 0,
@@ -30,8 +30,8 @@ FEATURES = {
     },
 
     "collar": {
-        "MODEL_FILE": "/usr/lib/python2.7/dist-packages/trendi/yonatan/resnet_152_collar_type/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/collar_caffemodels/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/collar/ResNet-152-deploy.prototxt",
+        "PRETRAINED": "/data/production/caffemodels_and_protos/collar/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel",
         "path_to_images": "/home/yonatan/collar_classifier/collar_images",
         "labels": {
             'crew_neck': 0,
@@ -49,8 +49,8 @@ FEATURES = {
     },
 
     "style": {
-        "MODEL_FILE": "/usr/lib/python2.7/dist-packages/trendi/yonatan/resnet_152_style/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/style_caffemodels/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/style/ResNet-152-deploy.prototxt",
+        "PRETRAINED": "/data/production/caffemodels_and_protos/style/caffe_resnet152_snapshot_style_5_categories_iter_5000.caffemodel",
         "path_to_images": "/home/yonatan/style_classifier/style_second_try/style_images",
         "labels": {
             'swimsuit': 0,
@@ -63,8 +63,8 @@ FEATURES = {
     },
 
     "dress_texture": {
-        "MODEL_FILE": "/usr/lib/python2.7/dist-packages/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "/home/yonatan/dressTexture_caffemodels/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/dress_texture/resnet_152_dress_texture/ResNet-152-deploy.prototxt",
+        "PRETRAINED": "/data/production/caffemodels_and_protos/dress_texture/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel",
         "path_to_images": "/home/yonatan/dress_texture_classifier/dress_texture_images",
         "labels": {
             'one_color': 0,
