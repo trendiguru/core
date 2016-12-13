@@ -85,6 +85,7 @@ def checkout_mask_pkl_file(thefile):
         max0=0
         max1=0
         for m in gt_masks:
+            print m.shape
             cv2.imshow('image', m)
             cv2.waitKey(0)
             gt0 = m.shape[0]
