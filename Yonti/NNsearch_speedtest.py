@@ -21,7 +21,6 @@ def timeit(f, number, name='function'):
 
 
 def withH(b):
-    """with exhaust - divided to 10 subgroups"""
     bs = 1000/b
     for i in range(b):
         small_list = annoy_top_results[i*bs:(i+1)*bs]
@@ -30,11 +29,10 @@ def withH(b):
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                       cursor_type=pymongo.cursor.CursorType.EXHAUST)
         for i in entries:
-            pass
+            print i['categories']
 
 
 def without(b):
-    """without exhaust - divided to 10 subgroups"""
 
     bs = 1000 / b
     for i in range(b):
@@ -43,7 +41,7 @@ def without(b):
         entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
         for i in entries:
-            pass
+            print i['categories']
 
 
 def get_batchWH(batch):
@@ -51,7 +49,7 @@ def get_batchWH(batch):
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     for i in entries:
-        pass
+        print i['categories']
 
     return {'d':'done'}
 
@@ -60,7 +58,7 @@ def get_batchWO(batch):
     entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     for i in entries:
-        pass
+        print i['categories']
 
 
     return {'d': 'done'}
