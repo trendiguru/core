@@ -63,13 +63,13 @@ def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None):
+def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224]):
     if caffe_variant == None:
         import caffe
     else:
         pass
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
-    dims = [150,100]
+#    dims = [150,100] default for something??
     start_time = time.time()
     print('working on:'+imagename)
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
