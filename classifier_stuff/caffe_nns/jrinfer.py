@@ -63,7 +63,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224]):
+def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob'):
     if caffe_variant == None:
         import caffe
     else:
@@ -92,7 +92,8 @@ def infer_one(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims
     net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     net.forward()
-    out = net.blobs['score'].data[0].argmax(axis=0)
+    #output_layer='prob'
+    out = net.blobs[output_layer].data[0].argmax(axis=0)
     result = Image.fromarray(out.astype(np.uint8))
 #        outname = im.strip('.png')[0]+'out.bmp'
     outname = os.path.basename(imagename)
