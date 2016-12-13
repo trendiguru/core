@@ -46,20 +46,21 @@ if __name__ == "__main__":
     # load new net
     net_new = caffe.Net('/'.join([folder_path, user_input.protoname]), caffe.TRAIN)
 
-    nets = list(caffe.Net('/'.join([folder_path, proto_files[0]]), cfm) for cfm in model_files)
+    nets = (caffe.Net('/'.join([folder_path, proto_files[0]]), cfm) for cfm in model_files)
 
-    weights_dict(net_new.params, nets[0].params)
+    weights_dict(net_new.params, nets.next().params)
 
     for i in range(1, len(model_files)):
         for j in range(2,5):
             tmp_fc_base = 'fc{}_0'.format(j)
-            tmp_fc_new = 'fc{}_{}'.format(j,i)
-            net_new.params[tmp_fc_new][0].data = nets[i].params[tmp_fc_base][0].data
-            if len(net_new.params[tmp_fc_new])==2:
-                net_new.params[tmp_fc_new][1].data = nets[i].params[tmp_fc_base][1].data
+            tmp_fc_new = 'fc{}_{}'.format(j, i)
+            tmp_net = nets.next()
+            net_new.params[tmp_fc_new][0].data = tmp_net.params[tmp_fc_base][0].data
+            if len(net_new.params[tmp_fc_new]) == 2:
+                net_new.params[tmp_fc_new][1].data = tmp_net.params[tmp_fc_base][1].data
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
-    del nets
+    nets.close()
     del net_new
 
     print 'DONE!'
