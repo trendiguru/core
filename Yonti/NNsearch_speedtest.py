@@ -28,8 +28,8 @@ def withH(b):
         entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                       cursor_type=pymongo.cursor.CursorType.EXHAUST)
-        for i in entries:
-            print i['categories']
+        for ee in entries:
+            print ee['categories']
 
 
 def without(b):
@@ -40,16 +40,16 @@ def without(b):
         len(annoy_top_results)
         entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
                                       {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-        for i in entries:
-            print i['categories']
+        for ee in entries:
+            print ee['categories']
 
 
 def get_batchWH(batch):
     entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
-    for i in entries:
-        print i['categories']
+    for ee in entries:
+        print ee['categories']
 
     return {'d':'done'}
 
@@ -57,8 +57,8 @@ def get_batchWH(batch):
 def get_batchWO(batch):
     entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-    for i in entries:
-        print i['categories']
+    for ee in entries:
+        print ee['categories']
 
 
     return {'d': 'done'}
