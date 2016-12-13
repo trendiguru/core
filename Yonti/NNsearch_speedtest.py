@@ -14,7 +14,7 @@ def test1():
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
 
-    for i in entries:
+    for i,x in enumerate(entries):
         print i
 
 
