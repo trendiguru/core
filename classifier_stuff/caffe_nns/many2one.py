@@ -15,7 +15,7 @@ import argparse
 
 def weights_dict(params_new, params_base):
     for pr in params_base.keys():
-        params_new[pr][0].data = params_base[pr][0].data
+        params_new[pr][0].data.flat = params_base[pr][0].data.flat
         if len(params_new[pr]) == 2:
             params_new[pr][1].data = params_base[pr][1].data
 
