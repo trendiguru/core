@@ -45,11 +45,11 @@ if __name__ == "__main__":
     assert len(proto_files)==2, 'base prototxt file is missing!'
     proto_files.remove(user_input.protoname)
     # load new net
-    net_new = caffe.Net('/'.join([folder_path, user_input.protoname]), caffe.TRAIN)
+    net_new = caffe.Net('/'.join([folder_path, user_input.protoname]),'/'.join([folder_path, model_files[0]]), caffe.TEST)
     nets = (caffe.Net('/'.join([folder_path, proto_files[0]]),'/'.join([folder_path, cfm]), caffe.TEST) for cfm in model_files)
 
-    weights_dict(net_new.params, nets.next().params)
-
+    # weights_dict(net_new.params, nets.next().params)
+    nets.next()
     for i in range(1, len(model_files)):
         tmp_net = nets.next()
         for j in range(2, 5):
