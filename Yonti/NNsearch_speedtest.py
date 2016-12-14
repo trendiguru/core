@@ -7,16 +7,16 @@ from gevent import Greenlet
 import random
 
 collection = 'amazon_US_Female'
-category = 'skirt'
-annoy_top_results = list(np.random.randint(44000, size=1000))
+category = 'dress'
+annoy_top_results = list(np.random.randint(440000, size=1000))
 annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
 def timeit(f, number, name='function'):
     global annoy_top_results, annoy_new
     rndstate = random.getstate()
     random.setstate(rndstate)
-    annoy_top_results = list(np.random.randint(44000, size=1000))
-    annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
+    annoy_top_results = list(np.random.randint(440000, size=1000))
+    annoy_new = ['shirt_{}'.format(i) for i in annoy_top_results]
     t1 = time()
     f(number)
     t2 = time()
