@@ -17,7 +17,7 @@ def timeit(f, number, name='function'):
     rndstate = random.getstate()
     random.setstate(rndstate)
     annoy_top_results = list(np.random.randint(120000, size=1000))
-    annoy_new = ['sweatshirt_{}'.format(i) for i in annoy_top_results]
+    annoy_new = ['dress_{}'.format(ii) for ii in annoy_top_results]
     t1 = time()
     f(number)
     t2 = time()
@@ -25,7 +25,7 @@ def timeit(f, number, name='function'):
 
 
 def withH(b):
-    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_new}},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     w = 0
@@ -37,7 +37,7 @@ def withH(b):
 
 
 def without(b):
-    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_new}},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     w = 0
     ec = entries.count() - 5
@@ -48,7 +48,7 @@ def without(b):
 
 
 def get_batchWH(batch):
-    entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
+    entries = db[collection].find({"AnnoyIndex": {"$in": batch}},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     for ee in entries:
@@ -59,7 +59,7 @@ def get_batchWH(batch):
 
 
 def get_batchWO(batch):
-    entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
+    entries = db[collection].find({"AnnoyIndex": {"$in": batch}},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     for ee in entries:
         # print ee['id']
@@ -70,14 +70,14 @@ def get_batchWO(batch):
 
 def diviWH(b):
     bs = 1000/b
-    queries = {q: Greenlet.spawn(get_batchWH, annoy_top_results[q*bs:(q+1)*bs]) for q in range(b)}
+    queries = {q: Greenlet.spawn(get_batchWH, annoy_new[q*bs:(q+1)*bs]) for q in range(b)}
     gevent.joinall(queries.values())
     d = {k: v for k, v in queries.iteritems()}
 
 
 def diviWO(b):
     bs = 1000 / b
-    queries = {q: Greenlet.spawn(get_batchWO, annoy_top_results[q * bs:(q + 1) * bs]) for q in range(b)}
+    queries = {q: Greenlet.spawn(get_batchWO, annoy_new[q * bs:(q + 1) * bs]) for q in range(b)}
     gevent.joinall(queries.values())
     d = {k: v for k, v in queries.iteritems()}
 
