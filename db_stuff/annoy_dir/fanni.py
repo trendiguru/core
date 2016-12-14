@@ -12,21 +12,27 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     """
     forest = annoy.AnnoyIndex(696, distance_function)
 
-    items = db[col_name].find({'categories':category})
+    items = db[col_name].find({'categories': category})
     for x, item in enumerate(items):
         fp = item['fingerprint']
+        idx = item['_id']
         if type(fp) != dict:
             fp = {'color': fp}
-            idx = item['_id']
             db[col_name].update_one({'_id': idx}, {'$set': {'fingerprint': fp}})
         v = fp['color']
-        forest.add_item(x, v)
+        try:
+            forest.add_item(x, v)
+        except:
+            db[col_name].delete_one({'_id': idx})
+            continue
+
         """
         annoy index the items in the order the are inserted to the tree
         when searching the forest - the item index is returned back
         thats why we need to match between items in the database and their annoy index
         """
-        annoy_index = '{}_{}'.format(category,x)
+
+        annoy_index = '{}_{}'.format(category, x)
         if hold:
             db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": annoy_index}})
         else:
@@ -44,7 +50,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     """
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
-    print ("%s forest in planted! come here for picnics..." %( category))
+    print ("%s forest in planted! come here for picnics..." % category)
 
 
 def reindex_forest(col_name):
@@ -73,7 +79,7 @@ def plantForests4AllCategories(col_name):
     else:
         print('ERROR - Bad collection name')
         return
-    print ("planting %s" % (col_name))
+    print ("planting %s" % col_name)
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
     reindex_forest(col_name)
