@@ -41,7 +41,9 @@ class Images(object):
         data = json_util.loads(req.stream.read())
         page_url = data.get("pageUrl")
         images = data.get("imageList")
+        print 'before: ' + str(images)
         images = filter(lambda url:'undefined' not in url, images)
+        print 'after: ' + str(images)
         
         try:
             if type(images) is list and page_url is not None:
