@@ -90,13 +90,23 @@ def nofp(b):
             pass
 
 
-def it(b):
-    for i in annoy_top_results:
-        entries = db[collection].find({"AnnoyIndex": i, 'categories': category},
-                                      {"id": 1, "images.XLarge": 1, "clickUrl": 1})
-        for ee in entries:
+def annoy_new_w(b):
+
+    entries = db[collection].find({"AnnoyIndex_new": {"$in": annoy_top_results}, 'categories': category},
+                                  {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1},
+                                  cursor_type=pymongo.cursor.CursorType.EXHAUST)
+    for ee in entries:
             # print ee['id']
-            pass
+        pass
+
+
+def annoy_new_wo(b):
+
+    entries = db[collection].find({"AnnoyIndex_new": {"$in": annoy_top_results}, 'categories': category},
+                                  {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1})
+    for ee in entries:
+            # print ee['id']
+        pass
 
 # timeit(withH, number=1, name='with EXHAUST')
 # timeit(without, number=1, name='without EXHAUST')
@@ -113,10 +123,12 @@ def it(b):
 # timeit(diviWO, number=10, name='divi without EXHAUST /10')
 # timeit(diviWH, number=50, name='divi with EXHAUST /50')
 # timeit(diviWO, number=50, name='divi without EXHAUST /50')
-timeit(withH, number=1000, name='with EXHAUST /1000')
-timeit(without, number=1000, name='without EXHAUST /1000')
-timeit(diviWH, number=1000, name='divi with EXHAUST /1000')
-timeit(diviWO, number=1000, name='divi without EXHAUST /1000')
-timeit(nofp, number=1, name='nofp')
-timeit(nofp, number=10, name='nofp 10')
-timeit(it, number=1, name='noin')
+timeit(withH, number=1, name='with EXHAUST /1000')
+timeit(without, number=1, name='without EXHAUST /1000')
+# timeit(diviWH, number=1000, name='divi with EXHAUST /1000')
+# timeit(diviWO, number=1000, name='divi without EXHAUST /1000')
+# timeit(nofp, number=1, name='nofp')
+# timeit(nofp, number=10, name='nofp 10')
+timeit(annoy_new_w, number=1, name='new with')
+timeit(annoy_new_wo, number=1, name='new without')
+
