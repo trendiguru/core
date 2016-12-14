@@ -40,6 +40,7 @@ class OutcomesTest(unittest.TestCase):
         features = ['collar','sleeve_length','length','style','dress_texture']
         for url in self.urls:
             img_arr = Utils.get_cv2_img_array(url)
+            print('image size:'+str(img_arr.shape))
             face_dict = cropping.find_that_face(img_arr,1)
             face = face_dict['faces'][0]
             print face
