@@ -120,12 +120,13 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     # t2 = time()
     # print t2 - t1
     # t1 = time()
-    if entries.count() > 2000 and 'amazon_DE' not in collection:
+    if entries.count() > 2000:
 
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         # print "annoy_search took {0} secs".format(time()-start)
         if not len(annoy_top_results):
             return []
+        annoy_top_results = ['{}_{}'.format(category, x) for x in annoy_top_results]
         try:
             # entries = db[collection].find({'categories': category, "AnnoyIndex": {"$in": annoy_top_results}},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
