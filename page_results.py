@@ -14,7 +14,7 @@ import Utils
 import constants
 import find_similar_mongo
 from .background_removal import image_is_relevant
-from .features_api import classfier_client
+from .features_api import classifier_client
 
 db = constants.db
 start_pipeline = constants.q1
