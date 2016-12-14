@@ -20,7 +20,7 @@ class OutcomesTest(unittest.TestCase):
 
     def setUp(self):
         self.urls = ['http://i1.adis.ws/s/boohooamplience/azz51307_ms.jpg',
-                'http://www.betterthanpants.com/media/catalog/product/e/x/extreme-hunting-cool-shirt-female-model.jpg'
+                'http://www.betterthanpants.com/media/catalog/product/e/x/extreme-hunting-cool-shirt-female-model.jpg']
 
     def test_features(self):
         features = ['collar','sleeve_length','length','style','dress_texture']
