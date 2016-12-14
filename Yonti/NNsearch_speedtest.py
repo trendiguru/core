@@ -8,12 +8,14 @@ from gevent import Greenlet
 collection = 'amazon_US_Female'
 category = 'dress'
 annoy_top_results = list(np.random.randint(440000, size=1000))
-annoy_new = ['dress_{}'.format(i) for i in annoy_top_results]
+annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
 def timeit(f, number, name='function'):
     global annoy_top_results, annoy_new
+    rndstate = np.random.getstate()
+    np.random.setstate(rndstate)
     annoy_top_results = list(np.random.randint(480000, size=1000))
-    annoy_new = ['dress_{}'.format(i) for i in annoy_top_results]
+    annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
     t1 = time()
     f(number)
     t2 = time()
