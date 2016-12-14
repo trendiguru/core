@@ -25,9 +25,10 @@ def withH(b):
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     w = 0
+    ec = entries.count() - 5
     for ee in entries:
         w += 1
-        if w > 995:
+        if w > ec:
             print w
 
 
@@ -35,9 +36,10 @@ def without(b):
     entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
                                   {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
     w = 0
+    ec = entries.count() - 5
     for ee in entries:
         w += 1
-        if w > 995:
+        if w > ec:
             print w
 
 
@@ -94,9 +96,10 @@ def annoy_new_w(b):
                                   {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     w = 0
+    ec = entries.count() - 5
     for ee in entries:
         w += 1
-        if w > 995:
+        if w > ec:
             print w
 
 
@@ -104,10 +107,11 @@ def annoy_new_wo(b):
 
     entries = db[collection].find({"AnnoyIndex_new": {"$in": annoy_new}},
                                   {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1})
-    w=0
+    w = 0
+    ec = entries.count() - 5
     for ee in entries:
-        w +=1
-        if w > 995:
+        w += 1
+        if w > ec:
             print w
 
 # timeit(withH, number=1, name='with EXHAUST')
