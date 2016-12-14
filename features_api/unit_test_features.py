@@ -20,8 +20,7 @@ class OutcomesTest(unittest.TestCase):
 
     def setUp(self):
         self.urls = ['http://i1.adis.ws/s/boohooamplience/azz51307_ms.jpg',
-  'https://static.missguided.co.uk/media/catalog/product/cache/3/image/600x870/9df78eab33525d08d6e5fb8d27136e95/h/i/high_neck_lace_dress_kirstie_07.07.16_hm_144201_a.jpg' ]
-
+                'http://www.betterthanpants.com/media/catalog/product/e/x/extreme-hunting-cool-shirt-female-model.jpg'
 
     def test_features(self):
         features = ['collar','sleeve_length','length','style','dress_texture']
@@ -35,6 +34,8 @@ class OutcomesTest(unittest.TestCase):
     def test_gender(self):
       for url in self.urls:
             img_arr = Utils.get_cv2_img_array(url)
+            if img_arr is None:
+                continue
             print('image size:'+str(img_arr.shape))
             face_dict = cropping.find_that_face(img_arr,1)
             face = face_dict['faces'][0]
