@@ -6,8 +6,8 @@ import gevent
 from gevent import Greenlet
 import random
 
-collection = 'amazon_US_Female'
-category = 'tanktop'
+collection = 'ebay_US_Female'
+category = 'dress'
 annoy_top_results = list(np.random.randint(120000, size=1000))
 annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
@@ -129,16 +129,16 @@ def annoy_new_wo(b):
 # timeit(withH, number=100, name='with EXHAUST /100')
 # timeit(without, number=100, name='without EXHAUST /100')
 #
-# timeit(diviWH, number=10, name='divi with EXHAUST /10')
-# timeit(diviWO, number=10, name='divi without EXHAUST /10')
-# timeit(diviWH, number=50, name='divi with EXHAUST /50')
-# timeit(diviWO, number=50, name='divi without EXHAUST /50')
+timeit(diviWH, number=10, name='divi with EXHAUST /10')
+timeit(diviWO, number=10, name='divi without EXHAUST /10')
+timeit(diviWH, number=50, name='divi with EXHAUST /50')
+timeit(diviWO, number=50, name='divi without EXHAUST /50')
 timeit(withH, number=1, name='with EXHAUST /1000')
 timeit(without, number=1, name='without EXHAUST /1000')
 # timeit(diviWH, number=1000, name='divi with EXHAUST /1000')
 # timeit(diviWO, number=1000, name='divi without EXHAUST /1000')
 # timeit(nofp, number=1, name='nofp')
 # timeit(nofp, number=10, name='nofp 10')
-timeit(annoy_new_w, number=1, name='new with')
-timeit(annoy_new_wo, number=1, name='new without')
+# timeit(annoy_new_w, number=1, name='new with')
+# timeit(annoy_new_wo, number=1, name='new without')
 
