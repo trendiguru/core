@@ -209,5 +209,5 @@ def l2_distance(v1, v2):
     v1 = np.array(v1) if isinstance(v1, list) else v1
     v2 = np.array(v2) if isinstance(v2, list) else v2
     if not v1.size == v2.size:
-        return None
+        return 1
     return np.linalg.norm(v1 - v2)
