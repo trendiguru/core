@@ -16,7 +16,7 @@ def timeit(f, number, name='function'):
     rndstate = random.getstate()
     random.setstate(rndstate)
     annoy_top_results = list(np.random.randint(440000, size=1000))
-    annoy_new = ['t-shirt{}'.format(i) for i in annoy_top_results]
+    annoy_new = ['t-shirt_{}'.format(i) for i in annoy_top_results]
     t1 = time()
     f(number)
     t2 = time()
