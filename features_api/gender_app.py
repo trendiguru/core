@@ -28,6 +28,7 @@ class NeuralResource:
                 ret["success"] = True
             else:
                 ret["error"] = "NN returned None, FACE="+str(face)
+                ret["face"] = face
         except Exception as e:
             ret["error"] = str(e)
 
