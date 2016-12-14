@@ -40,7 +40,8 @@ from trendi.paperdoll import neurodoll_falcon_client as nfc
 #PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 print('loading caffemodel for neurodoll')
 #protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
-modelpath = '/home/jeremy/caffenets/production'
+modelpath = '/data/production/caffemodels_and_protos/neurodoll/'
+#modelpath = '/home/jeremy/caffenets/production'
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
 MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototxt')
