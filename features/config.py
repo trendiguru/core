@@ -63,7 +63,7 @@ FEATURES = {
     },
 
     "dress_texture": {
-        "MODEL_FILE": "/data/production/caffemodels_and_protos/dress_texture/resnet_152_dress_texture/ResNet-152-deploy.prototxt",
+        "MODEL_FILE": "/data/production/caffemodels_and_protos/dress_texture/ResNet-152-deploy.prototxt",
         "PRETRAINED": "/data/production/caffemodels_and_protos/dress_texture/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel",
         "path_to_images": "/data/production/caffemodels_and_protos/dress_texture/images",
         "labels": {
