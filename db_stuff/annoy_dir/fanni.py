@@ -62,23 +62,24 @@ def reindex_forest(col_name):
 
 
 def plantForests4AllCategories(col_name):
-    if any(x for x in ['shopstyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
-        from ..shopstyle import shopstyle_constants
-        if 'Male' in col_name:
-            categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
-        else:
-            categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
-    elif 'ebay' in col_name:
-        if 'Male' in col_name or 'Unisex' in col_name:
-            categories = db.ebay_US_Male.distinct('categories')
-        else:
-            categories = db.ebay_US_Female.distinct('categories')
-    elif 'recruit' in col_name:
-        from ..recruit import recruit_constants
-        categories = list(set(recruit_constants.recruit2category_idx.keys()))
-    else:
-        print('ERROR - Bad collection name')
-        return
+    # if any(x for x in ['shopstyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
+    #     from ..shopstyle import shopstyle_constants
+    #     if 'Male' in col_name:
+    #         categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
+    #     else:
+    #         categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
+    # elif 'ebay' in col_name:
+    #     if 'Male' in col_name or 'Unisex' in col_name:
+    #         categories = db.ebay_US_Male.distinct('categories')
+    #     else:
+    #         categories = db.ebay_US_Female.distinct('categories')
+    # elif 'recruit' in col_name:
+    #     from ..recruit import recruit_constants
+    #     categories = list(set(recruit_constants.recruit2category_idx.keys()))
+    # else:
+    #     print('ERROR - Bad collection name')
+    #     return
+    categories  = db[col_name].distinct('categories')
     print ("planting %s" % col_name)
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
