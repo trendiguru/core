@@ -87,9 +87,9 @@ def plantForests4AllCategories(col_name):
 
 def plantTheFuckingAmazon():
     '''
-    create forests for all the categories in all the collections // "ebay_US",
+    create forests for all the categories in all the collections // "ebay_US","shopstyle_DE",
     '''
-    for collection_main in ["shopstyle_DE", "GangnamStyle", "amazon_US", "amazon_DE", 'recruit']:
+    for collection_main in ["amazon_US", "amazon_DE", 'recruit', "GangnamStyle"]:
         for gender in ["Male", "Female"]:
             collection_name = '{}_{}'.format(collection_main, gender)
             plantForests4AllCategories(collection_name)
