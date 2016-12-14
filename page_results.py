@@ -1,4 +1,5 @@
 
+import traceback
 import hashlib
 import logging
 import datetime
@@ -40,7 +41,7 @@ def handle_post(image_url, page_url, products_collection, method):
     # if not db.whitelist.find_one({'domain': domain}):
     #     return False
 
-    if image_url[:4] == "data":
+    if image_url[:4] == "data" or image_url == "undefined":
         return False
 
     if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
@@ -264,6 +265,10 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     :param image_hash: hash (of image) to find
     :return:
     """
+    if image_url is 'undefined':
+        traceback.print_stack()
+        return None
+    
     if lang:
         set_lang(lang)
     image_collection = db[image_coll_name]
