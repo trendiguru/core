@@ -271,7 +271,6 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     """
     # filter invalid url
     if image_url and not all(list(urlparse(image_url))[:3]):
-        traceback.print_stack()
         return None
     
     if lang:
