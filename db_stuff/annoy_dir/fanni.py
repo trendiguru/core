@@ -18,8 +18,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         if type(fp) != dict:
             fp = {'color': fp}
             idx = item['_id']
-            # TODO - POSSIBLE BUG @ YONTI ('_d')
-            db[col_name].update_one({'_d': idx}, {'$set': {'fingerprint': fp}})
+            db[col_name].update_one({'_id': idx}, {'$set': {'fingerprint': fp}})
         v = fp['color']
         forest.add_item(x, v)
         """
@@ -27,10 +26,11 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         when searching the forest - the item index is returned back
         thats why we need to match between items in the database and their annoy index
         """
+        annoy_index = '{}_{}'.format(category,x)
         if hold:
-            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": annoy_index}})
         else:
-            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex": x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex": annoy_index}})
 
     forest.build(num_of_trees)
 
@@ -56,7 +56,7 @@ def reindex_forest(col_name):
 
 
 def plantForests4AllCategories(col_name):
-    if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
+    if any(x for x in ['shopstyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
         from ..shopstyle import shopstyle_constants
         if 'Male' in col_name:
             categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
@@ -83,12 +83,11 @@ def plantTheFuckingAmazon():
     '''
     create forests for all the categories in all the collections
     '''
-    for collection_main in ["ebay", "ShopStyle", "GangnamStyle"]:
+    for collection_main in ["ebay_US", "shopstyle_DE", "GangnamStyle", "amazon_US", "amazon_DE", 'recruit']:
         for gender in ["Male", "Female"]:
-            collection_name = collection_main +'_'+gender
+            collection_name = '{}_{}'.format(collection_main, gender)
             plantForests4AllCategories(collection_name)
 
-    plantForests4AllCategories('ebay_Unisex')
     print ("all forests are ready")
 
 
