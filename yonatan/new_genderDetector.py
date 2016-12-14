@@ -39,6 +39,7 @@ print "Done initializing!"
 
 
 def cv2_image_to_caffe(image):
+    print('img size in cv2_img_to_caffe '+str(image.shape))
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
