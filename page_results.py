@@ -1,7 +1,9 @@
 
+import traceback
 import hashlib
 import logging
 import datetime
+from urlparse import urlparse
 import maxminddb
 import tldextract
 import bson
@@ -13,6 +15,7 @@ import Utils
 import constants
 import find_similar_mongo
 from .background_removal import image_is_relevant
+from .features_api import classifier_client
 
 db = constants.db
 start_pipeline = constants.q1
@@ -25,7 +28,8 @@ lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
 geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
-GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
+# GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
+GENDER_ADDRESS = "http://13.69.27.202:8357/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
 geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
@@ -40,7 +44,7 @@ def handle_post(image_url, page_url, products_collection, method):
     # if not db.whitelist.find_one({'domain': domain}):
     #     return False
 
-    if image_url[:4] == "data":
+    if image_url[:4] == "data" or image_url == "undefined":
         return False
 
     if db.iip.find_one({'image_urls': image_url}) or db.irrelevant_images.find_one({'image_urls': image_url}):
@@ -227,7 +231,7 @@ def check_if_relevant(image_url, page_url, products_collection, method):
         db.labeled_irrelevant.insert_one(image_obj)
         return image_obj
     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
-                             'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
+                             'gender': classifier_client.get('gender', image, face=face.tolist())['gender']} for face in relevance.faces],
                  'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
     db.iip.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
@@ -237,8 +241,9 @@ def check_if_relevant(image_url, page_url, products_collection, method):
 # --------------------------------------------- NNs -----------------------------------------------------
 
 
+## Deprecated in favor classifier_client
 def genderize(image_or_url, face):
-    data = msgpack.dumps({"image": image_or_url, "face": face})
+    data = msgpack.dumps({"image_or_url": image_or_url, "face": face})
     resp = requests.post(GENDER_ADDRESS, data)
     return msgpack.loads(resp.content)
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
@@ -264,6 +269,10 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     :param image_hash: hash (of image) to find
     :return:
     """
+    # filter invalid url
+    if image_url and not all(list(urlparse(image_url))[:3]):
+        return None
+    
     if lang:
         set_lang(lang)
     image_collection = db[image_coll_name]

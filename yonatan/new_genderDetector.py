@@ -19,8 +19,10 @@ from ..utils import imutils
 import yonatan_classifier
 
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/genderator_caffemodels/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel"
+#MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+MODLE_FILE = "/data/production/caffemodels_and_protos/gender/ResNet-50-deploy.prototxt"
+#PRETRAINED = "/home/yonatan/genderator_caffemodels/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel"
+PRETRAINED = "/data/production/caffemodels_and_protos/gender/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel"
 caffe.set_mode_gpu()
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
@@ -37,6 +39,7 @@ print "Done initializing!"
 
 
 def cv2_image_to_caffe(image):
+    print('img size in cv2_img_to_caffe '+str(image.shape))
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
