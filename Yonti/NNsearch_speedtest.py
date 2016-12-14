@@ -8,7 +8,7 @@ import random
 
 collection = 'ebay_US_Female'
 category = 'dress'
-annoy_top_results = list(np.random.randint(120000, size=1000))
+annoy_top_results = list(np.random.randint(20000, size=1000))
 annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
 
@@ -16,7 +16,7 @@ def timeit(f, number, name='function'):
     global annoy_top_results, annoy_new
     rndstate = random.getstate()
     random.setstate(rndstate)
-    annoy_top_results = list(np.random.randint(120000, size=1000))
+    annoy_top_results = list(np.random.randint(20000, size=1000))
     annoy_new = ['dress_{}'.format(ii) for ii in annoy_top_results]
     t1 = time()
     f(number)
