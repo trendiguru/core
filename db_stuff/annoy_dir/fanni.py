@@ -19,8 +19,8 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
         if type(fp) != dict:
             fp = {'color': fp}
             db[col_name].update_one({'_id': idx}, {'$set': {'fingerprint': fp}})
-        v = fp['color']
         try:
+            v = fp['color']
             forest.add_item(x, v)
         except:
             db[col_name].delete_one({'_id': idx})
