@@ -22,6 +22,7 @@ class NeuralResource:
             data = msgpack.loads(req.stream.read())
             image = data.get("image")
             face = data.get("face")
+            print('gender_app nEURALrESOURCE got face {}'.format(face))
             ret["gender"] = new_genderDetector.theDetector(image, face)
             if ret["gender"] is not None:
                 ret["success"] = True
