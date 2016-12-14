@@ -14,6 +14,7 @@ import Utils
 import constants
 import find_similar_mongo
 from .background_removal import image_is_relevant
+from .features_api import classifier_client
 
 db = constants.db
 start_pipeline = constants.q1
@@ -229,7 +230,7 @@ def check_if_relevant(image_url, page_url, products_collection, method):
         db.labeled_irrelevant.insert_one(image_obj)
         return image_obj
     image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
-                             'gender': genderize(image, face.tolist())['gender']} for face in relevance.faces],
+                             'gender': classifier_client.get('gender', image, face=face.tolist())['gender']} for face in relevance.faces],
                  'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
     db.iip.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
@@ -239,8 +240,9 @@ def check_if_relevant(image_url, page_url, products_collection, method):
 # --------------------------------------------- NNs -----------------------------------------------------
 
 
+## Deprecated in favor classifier_client
 def genderize(image_or_url, face):
-    data = msgpack.dumps({"image": image_or_url, "face": face})
+    data = msgpack.dumps({"image_or_url": image_or_url, "face": face})
     resp = requests.post(GENDER_ADDRESS, data)
     return msgpack.loads(resp.content)
     # returns {'success': bool, 'gender': Female/Male, ['error': the error as string if success is False]}
