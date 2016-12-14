@@ -4,6 +4,7 @@ import pymongo
 from ..constants import db
 import gevent
 from gevent import Greenlet
+import random
 
 collection = 'amazon_US_Female'
 category = 'dress'
@@ -12,8 +13,8 @@ annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
 def timeit(f, number, name='function'):
     global annoy_top_results, annoy_new
-    rndstate = np.random.getstate()
-    np.random.setstate(rndstate)
+    rndstate = random.getstate()
+    random.setstate(rndstate)
     annoy_top_results = list(np.random.randint(480000, size=1000))
     annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
     t1 = time()
