@@ -41,7 +41,7 @@ class OutcomesTest(unittest.TestCase):
         for url in self.urls:
             img_arr = Utils.get_cv2_img_array(url)
             face = cropping.find_that_face(img_arr,1)
-            result = classifier_client.get('gender',url,{'face':face})
+            result = classifier_client.get('gender',url,face=face)
             print('result for gender on {} is {}'.format(url,result))
 
 
