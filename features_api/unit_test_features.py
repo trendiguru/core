@@ -39,7 +39,7 @@ class OutcomesTest(unittest.TestCase):
             face_dict = cropping.find_that_face(img_arr,1)
             face = face_dict['faces'][0]
             print('face x,y,w,h: '+str(face))
-            result = classifier_client.get('gender',url,face=face)
+            result = classifier_client.get('gender',url,url=url,face=face)
             print('result for gender on {} is {}'.format(url,result))
 
 
