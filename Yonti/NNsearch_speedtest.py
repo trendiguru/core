@@ -21,27 +21,21 @@ def timeit(f, number, name='function'):
 
 
 def withH(b):
-    bs = 1000/b
-    for i in range(b):
-        small_list = annoy_top_results[i*bs:(i+1)*bs]
-        entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                      cursor_type=pymongo.cursor.CursorType.EXHAUST)
-        for ee in entries:
-            # print ee['id']
-            pass
+    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
+                                  cursor_type=pymongo.cursor.CursorType.EXHAUST)
+    for ee in entries:
+        print ee['id']
+        pass
 
 
 def without(b):
+    entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
+                                  {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
+    for ee in entries:
+        print ee['id']
+        pass
 
-    bs = 1000 / b
-    for i in range(b):
-        small_list = annoy_top_results[i * bs:(i + 1) * bs]
-        entries = db[collection].find({"AnnoyIndex": {"$in": small_list}, 'categories': category},
-                                      {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
-        for ee in entries:
-            # print ee['id']
-            pass
 
 def get_batchWH(batch):
     entries = db[collection].find({"AnnoyIndex": {"$in": batch}, 'categories': category},
@@ -96,7 +90,7 @@ def annoy_new_w(b):
                                   {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1},
                                   cursor_type=pymongo.cursor.CursorType.EXHAUST)
     for ee in entries:
-            # print ee['id']
+        print ee['id']
         pass
 
 
@@ -105,7 +99,7 @@ def annoy_new_wo(b):
     entries = db[collection].find({"AnnoyIndex_new": {"$in": annoy_top_results}, 'categories': category},
                                   {"id": 1, "images.XLarge": 1, "clickUrl": 1, "fingerprint":1})
     for ee in entries:
-            # print ee['id']
+        print ee['id']
         pass
 
 # timeit(withH, number=1, name='with EXHAUST')
