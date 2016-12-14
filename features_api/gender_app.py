@@ -27,7 +27,7 @@ class NeuralResource:
             if ret["gender"] is not None:
                 ret["success"] = True
             else:
-                ret["error"] = "NN returned None"
+                ret["error"] = "NN returned None, FACE="+str(face)
         except Exception as e:
             ret["error"] = str(e)
 
