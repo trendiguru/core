@@ -6,9 +6,9 @@ import gevent
 from gevent import Greenlet
 import random
 
-collection = 'ebay_US_Female'
+collection = 'amazon_US_Female'
 category = 'dress'
-annoy_top_results = list(np.random.randint(20000, size=1000))
+annoy_top_results = list(np.random.randint(450000, size=1000))
 annoy_new = ['skirt_{}'.format(i) for i in annoy_top_results]
 
 
