@@ -20,7 +20,7 @@ class OutcomesTest(unittest.TestCase):
     def test_features(self):
 
         urls = ['http://i1.adis.ws/s/boohooamplience/azz51307_ms.jpg',
-                    'https://static.missguided.co.uk/media/catalog/product/cache/3/image/600x870/9df78eab33525d08d6e5fb8d27136e95/h/i/high_neck_lace_dress_kirstie_07.07.16_hm_144201_a.jpg' ]
+  'https://static.missguided.co.uk/media/catalog/product/cache/3/image/600x870/9df78eab33525d08d6e5fb8d27136e95/h/i/high_neck_lace_dress_kirstie_07.07.16_hm_144201_a.jpg' ]
         features = ['collar','sleeve_length','length','style','dress_texture','gender']
         for url in urls:
             for feature in features:
