@@ -26,6 +26,7 @@ class OutcomesTest(unittest.TestCase):
             for feature in features:
                 result = classifier_client.get(feature,url)
                 print('result for {} on {} is {}'.format(feature,url,result))
+                print
 
 if __name__ == "__main__":
     unittest.main()
