@@ -31,7 +31,7 @@ def get_user_input():
     parser.add_argument('-f', '--folder', dest="path2folder",
                         help='path to the folder containing the trained models', required=True)
     parser.add_argument('-p', '--prototxt', dest="protoname",
-                        help='name of the new prototxt', required=True)
+                        help='name of the deploy prototxt', required=True)
     parser.add_argument('-o', '--output', dest="modelname",
                         help='name of the new model', required=True)
     args = parser.parse_args()
@@ -51,7 +51,10 @@ if __name__ == "__main__":
     proto_files.remove(user_input.protoname)
     # load new net
     net_new = caffe.Net('/'.join([folder_path, user_input.protoname]),'/'.join([folder_path, model_files[0]]), caffe.TEST)
+    print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
+    raw_input()
     nets = (caffe.Net('/'.join([folder_path, proto_files[0]]),'/'.join([folder_path, cfm]), caffe.TEST) for cfm in model_files)
+    print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
     # weights_dict(net_new.params, nets.next().params)
     nets.next()
