@@ -3,6 +3,7 @@ import traceback
 import hashlib
 import logging
 import datetime
+from urlparse import urlparse
 import maxminddb
 import tldextract
 import bson
@@ -268,8 +269,8 @@ def get_data_for_specific_image(image_url=None, image_hash=None, image_projectio
     :param image_hash: hash (of image) to find
     :return:
     """
-    if image_url is 'undefined':
-        traceback.print_stack()
+    # filter invalid url
+    if image_url and not all(list(urlparse(image_url))[:3]):
         return None
     
     if lang:

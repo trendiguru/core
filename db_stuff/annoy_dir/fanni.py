@@ -12,25 +12,31 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     """
     forest = annoy.AnnoyIndex(696, distance_function)
 
-    items = db[col_name].find({'categories':category})
+    items = db[col_name].find({'categories': category})
     for x, item in enumerate(items):
         fp = item['fingerprint']
+        idx = item['_id']
         if type(fp) != dict:
             fp = {'color': fp}
-            idx = item['_id']
-            # TODO - POSSIBLE BUG @ YONTI ('_d')
-            db[col_name].update_one({'_d': idx}, {'$set': {'fingerprint': fp}})
-        v = fp['color']
-        forest.add_item(x, v)
+            db[col_name].update_one({'_id': idx}, {'$set': {'fingerprint': fp}})
+        try:
+            v = fp['color']
+            forest.add_item(x, v)
+        except:
+            db[col_name].delete_one({'_id': idx})
+            continue
+
         """
         annoy index the items in the order the are inserted to the tree
         when searching the forest - the item index is returned back
         thats why we need to match between items in the database and their annoy index
         """
+
+        annoy_index = '{}_{}'.format(category, x)
         if hold:
-            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex_tmp": annoy_index}})
         else:
-            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex": x}})
+            db[col_name].update_one({'_id': item['_id']}, {'$set': {"AnnoyIndex": annoy_index}})
 
     forest.build(num_of_trees)
 
@@ -44,7 +50,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     """
     name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
     forest.save(name)
-    print ("%s forest in planted! come here for picnics..." %( category))
+    print ("%s forest in planted! come here for picnics..." % category)
 
 
 def reindex_forest(col_name):
@@ -56,24 +62,25 @@ def reindex_forest(col_name):
 
 
 def plantForests4AllCategories(col_name):
-    if any(x for x in ['ShopStyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
-        from ..shopstyle import shopstyle_constants
-        if 'Male' in col_name:
-            categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
-        else:
-            categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
-    elif 'ebay' in col_name:
-        if 'Male' in col_name or 'Unisex' in col_name:
-            categories = db.ebay_US_Male.distinct('categories')
-        else:
-            categories = db.ebay_US_Female.distinct('categories')
-    elif 'recruit' in col_name:
-        from ..recruit import recruit_constants
-        categories = list(set(recruit_constants.recruit2category_idx.keys()))
-    else:
-        print('ERROR - Bad collection name')
-        return
-    print ("planting %s" % (col_name))
+    # if any(x for x in ['shopstyle','GangnamStyle','amaze', 'amazon'] if x in col_name):
+    #     from ..shopstyle import shopstyle_constants
+    #     if 'Male' in col_name:
+    #         categories = list(set(shopstyle_constants.shopstyle_paperdoll_male.values()))
+    #     else:
+    #         categories = list(set(shopstyle_constants.shopstyle_paperdoll_female.values()))
+    # elif 'ebay' in col_name:
+    #     if 'Male' in col_name or 'Unisex' in col_name:
+    #         categories = db.ebay_US_Male.distinct('categories')
+    #     else:
+    #         categories = db.ebay_US_Female.distinct('categories')
+    # elif 'recruit' in col_name:
+    #     from ..recruit import recruit_constants
+    #     categories = list(set(recruit_constants.recruit2category_idx.keys()))
+    # else:
+    #     print('ERROR - Bad collection name')
+    #     return
+    categories  = db[col_name].distinct('categories')
+    print ("planting %s" % col_name)
     for cat in categories:
         plantAnnoyForest(col_name,cat,250)
     reindex_forest(col_name)
@@ -81,14 +88,13 @@ def plantForests4AllCategories(col_name):
 
 def plantTheFuckingAmazon():
     '''
-    create forests for all the categories in all the collections
+    create forests for all the categories in all the collections // "ebay_US","shopstyle_DE",
     '''
-    for collection_main in ["ebay", "ShopStyle", "GangnamStyle"]:
-        for gender in ["Male", "Female"]:
-            collection_name = collection_main +'_'+gender
+    for collection_main in ["amazon_DE", "amazon_US", 'recruit', "GangnamStyle"]:
+        for gender in ["Female", "Male"]:
+            collection_name = '{}_{}'.format(collection_main, gender)
             plantForests4AllCategories(collection_name)
 
-    plantForests4AllCategories('ebay_Unisex')
     print ("all forests are ready")
 
 

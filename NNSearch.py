@@ -120,21 +120,21 @@ def find_n_nearest_neighbors(fp, collection, category, number_of_matches, annoy_
     # t2 = time()
     # print t2 - t1
     # t1 = time()
-    if entries.count() > 2000 and 'amazon_DE' not in collection:
+    if entries.count() > 2000:
 
         annoy_top_results = annoy_search(collection, category, fp['color'], annoy_top)
         # print "annoy_search took {0} secs".format(time()-start)
         if not len(annoy_top_results):
             return []
+        annoy_top_results = ['{}_{}'.format(category, x) for x in annoy_top_results]
         try:
             # entries = db[collection].find({'categories': category, "AnnoyIndex": {"$in": annoy_top_results}},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
             # entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
             #                               cursor_type=pymongo.cursor.CursorType.EXHAUST).hint([('AnnoyIndex', 1)])
-            entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
-                                          {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1},
-                                          cursor_type=pymongo.cursor.CursorType.EXHAUST)
+            entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}},
+                                          {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1})
             # entries = db[collection].find({"AnnoyIndex": {"$in": annoy_top_results}, 'categories': category},
             #                               {"id": 1, "fingerprint": 1, "images.XLarge": 1, "clickUrl": 1}).hint([('AnnoyIndex', 1)])
         except Exception as e:
@@ -209,5 +209,5 @@ def l2_distance(v1, v2):
     v1 = np.array(v1) if isinstance(v1, list) else v1
     v2 = np.array(v2) if isinstance(v2, list) else v2
     if not v1.size == v2.size:
-        return None
+        return 1
     return np.linalg.norm(v1 - v2)
