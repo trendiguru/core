@@ -1,4 +1,4 @@
-net: "ResNet-101-train_test.prototxt"
+net: "ResNet-101-train_test_frozentrunk.prototxt"
 #train_net: "ResNet-101-train.prototxt"
 #test_net: "ResNet-101-test.prototxt"
 test_iter: 500
