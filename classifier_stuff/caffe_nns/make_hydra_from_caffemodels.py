@@ -15,10 +15,15 @@ import argparse
 
 def weights_dict(params_new, params_base):
     for pr in params_base.keys():
-        params_new[pr][0].data.flat = params_base[pr][0].data.flat
-        print pr
-        if len(params_new[pr]) == 2:
-            params_new[pr][1].data[...] = params_base[pr][1].data
+        print('param key {} len new {} len base {}'.format(pr,params_new[pr].shape,params_base[pr].shape))
+        assert(params_new[pr].shape==params_base[pr].shape)
+#possibly:
+        # params_new[pr] = params_base[pr]
+#or even
+        #params_new = params_base
+        for i in range(len(params_new[pr])):
+            print('param {} weightshape {}'.format(i,params_new[pr][i].data.shape,params_base[pr][i].data.shape))
+            params_new[pr][i].data = params_base[pr][i].data
 
 
 def get_user_input():
