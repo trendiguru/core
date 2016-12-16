@@ -50,6 +50,7 @@ def get_user_input():
 if __name__ == "__main__":
     user_input = get_user_input()
     folder_path = '/'.join(['.', user_input.path2folder])
+    folder_path = user_input.path2folder
     all_files_in_dir = os.listdir(folder_path)
     assert user_input.protoname in all_files_in_dir, 'new prototxt file not in folder!'
 
@@ -60,10 +61,18 @@ if __name__ == "__main__":
  #   assert len(proto_files)==2, 'base prototxt file is missing!'
     proto_files.remove(user_input.protoname)
     # load new net
-    net_new = caffe.Net('/'.join([folder_path, user_input.protoname]),'/'.join([folder_path, model_files[0]]), caffe.TEST)
+    protopath = '/'.join([folder_path, user_input.protoname])
+    protopath = user_input.protoname
+    modelpath = '/'.join([folder_path, model_files[0]])
+    modelpath = model_files[0]
+    net_new = caffe.Net(protopath,modelpath, caffe.TEST)
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
-    raw_input()
-    nets = (caffe.Net('/'.join([folder_path, proto_files[0]]),'/'.join([folder_path, cfm]), caffe.TEST) for cfm in model_files)
+    raw_input('ret to cont')
+    modelpath = '/'.join([folder_path, proto_files[0]])
+    modelpath = os.path.join(folder_path,proto_files[0])
+    protopath = '/'.join([folder_path, cfm])
+    protopath = os.path.join(folder_path,cfm)
+    nets = (caffe.Net(protopath,modelpath, caffe.TEST) for cfm in model_files)
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
     # weights_dict(net_new.params, nets.next().params)
