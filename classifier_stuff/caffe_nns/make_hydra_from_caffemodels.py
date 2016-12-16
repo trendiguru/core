@@ -57,9 +57,11 @@ if __name__ == "__main__":
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
-    proto_files = [f for f in all_files_in_dir if '.prototxt' in f]
+    print('modelfiles to add:'+str(model_files))
+    proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
  #   assert len(proto_files)==2, 'base prototxt file is missing!'
     proto_files.remove(user_input.protoname)
+    print('protofiles to read added modefiles:'+str(model_files))
     # load new net
     protopath = '/'.join([folder_path, user_input.protoname])
     protopath = user_input.protoname
