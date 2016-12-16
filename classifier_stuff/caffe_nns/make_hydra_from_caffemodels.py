@@ -70,9 +70,7 @@ if __name__ == "__main__":
     raw_input('ret to cont')
     modelpath = '/'.join([folder_path, proto_files[0]])
     modelpath = os.path.join(folder_path,proto_files[0])
-    protopath = '/'.join([folder_path, cfm])
-    protopath = os.path.join(folder_path,cfm)
-    nets = (caffe.Net(protopath,modelpath, caffe.TEST) for cfm in model_files)
+    nets = (caffe.Net(os.path.join(folder_path,cfm),modelpath, caffe.TEST) for cfm in model_files)
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
     # weights_dict(net_new.params, nets.next().params)
