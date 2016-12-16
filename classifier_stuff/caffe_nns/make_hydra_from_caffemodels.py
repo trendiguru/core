@@ -13,7 +13,7 @@ import os
 import argparse
 
 
-def weights_dict(params_new, params_base):
+def copy_net_params(params_new, params_base):
     for pr in params_base.keys():
         print('param key {} len new {} len base {}'.format(pr,params_new[pr].shape,params_base[pr].shape))
         assert(params_new[pr].shape==params_base[pr].shape)
@@ -24,7 +24,17 @@ def weights_dict(params_new, params_base):
         for i in range(len(params_new[pr])):
             print('param {} weightshape {}'.format(i,params_new[pr][i].data.shape,params_base[pr][i].data.shape))
             params_new[pr][i].data = params_base[pr][i].data
+    return params_new
 
+def copy_layer_params(dest_net,dest_layer,source_net,source_layer):
+    assert(dest_net[dest_layer].shape==source_net[source_layer].shape)
+    print('copying suorcce layer {} to dest layer {}'.format(source_layer,dest_layer))
+
+    for i in range(len(source_net.params[source_layer])):
+        print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net[dest_layer][i].data.shape,source_layer,i,source_net[source_layer][i].data.shape))
+        dest_net.params[dest_layer][0].data = source_net.params[source_layer][0].data
+
+    return dest_layer
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Many2One @@@')
@@ -60,12 +70,17 @@ if __name__ == "__main__":
     nets.next()
     for i in range(1, len(model_files)):
         tmp_net = nets.next()
-        for j in range(2, 5):
+        lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0
+        last_fully_connected = 5  #e.g. fc5_2 is the last fullyconnected of net2
+        for j in range(lower_fully_connected, last_fully_connected):
             tmp_fc_base = 'fc{}_0'.format(j)
             tmp_fc_new = 'fc{}_{}'.format(j, i)
             net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
             if len(net_new.params[tmp_fc_new]) == 2:
                 net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
+            if len(net_new.params[tmp_fc_new]) > 2:
+                print('uh o')
+
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
     nets.close()
