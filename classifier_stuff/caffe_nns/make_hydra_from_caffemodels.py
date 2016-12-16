@@ -57,7 +57,7 @@ if __name__ == "__main__":
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f]
-    assert len(proto_files)==2, 'base prototxt file is missing!'
+ #   assert len(proto_files)==2, 'base prototxt file is missing!'
     proto_files.remove(user_input.protoname)
     # load new net
     net_new = caffe.Net('/'.join([folder_path, user_input.protoname]),'/'.join([folder_path, model_files[0]]), caffe.TEST)
@@ -69,17 +69,19 @@ if __name__ == "__main__":
     # weights_dict(net_new.params, nets.next().params)
     nets.next()
     for i in range(1, len(model_files)):
-        tmp_net = nets.next()
+        net_orig = nets.next()
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0
         last_fully_connected = 5  #e.g. fc5_2 is the last fullyconnected of net2
         for j in range(lower_fully_connected, last_fully_connected):
-            tmp_fc_base = 'fc{}_0'.format(j)
-            tmp_fc_new = 'fc{}_{}'.format(j, i)
-            net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
-            if len(net_new.params[tmp_fc_new]) == 2:
-                net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
-            if len(net_new.params[tmp_fc_new]) > 2:
-                print('uh o')
+
+            fc_orig = 'fc{}_0'.format(j)
+            fc_new = 'fc{}_{}'.format(j, i)
+            net_new.params = copy_layer_params(net_new,fc_new,net_ori,fc_orig)
+#            net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
+#            if len(net_new.params[tmp_fc_new]) == 2:
+ #               net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
+#            if len(net_new.params[tmp_fc_new]) > 2:
+#                print('uh o')
 
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
