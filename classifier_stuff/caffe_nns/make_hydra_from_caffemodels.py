@@ -74,9 +74,16 @@ if __name__ == "__main__":
     model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
     nets = ()
-    for cfm in model_files:
-        raw_input('adding net {} (ret to cont)'.format(cfm))
-        net = caffe.Net(os.path.join(folder_path,cfm), caffe.TEST,weights=modelpath)
+    for i in range (model_files):
+        cfm = model_files[i]
+        if len(proto_files)==len(model_files):
+            proto = proto_files[i]
+        else:
+            proto = proto_files[0]
+        caffemodel = os.path.join(folder_path,cfm)
+        prototxt = os.path.join(folder_path,proto)
+        raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
+        net = caffe.Net(prototxt, caffe.TEST,weights=caffmodel)
         nets.append(net)
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
