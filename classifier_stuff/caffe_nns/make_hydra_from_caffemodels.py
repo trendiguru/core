@@ -71,8 +71,8 @@ if __name__ == "__main__":
     modelpath = model_files[0]
     net_new = caffe.Net(protopath, caffe.TEST,weights=modelpath)
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
+    model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
-    modelpath = os.path.join(folder_path,proto_files[0])
     nets = ()
     for cfm in model_files:
         raw_input('adding net {} (ret to cont)'.format(cfm))
