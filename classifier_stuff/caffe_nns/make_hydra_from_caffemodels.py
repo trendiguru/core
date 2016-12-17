@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print('modelfiles to add:'+str(model_files))
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
     assert len(proto_files)==2, 'base prototxt file is missing!'
-    assert len(model_files)>=2, 'one or fewer model files found'
+    assert len(model_files)>=2, 'one or fewer model files found '
     proto_files.remove(user_input.protoname)
     print('protofiles to read:'+str(proto_files))
     # load new net
@@ -71,10 +71,13 @@ if __name__ == "__main__":
     modelpath = model_files[0]
     net_new = caffe.Net(protopath, caffe.TEST,weights=modelpath)
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
-    raw_input('ret to cont')
-    modelpath = '/'.join([folder_path, proto_files[0]])
+#    modelpath = '/'.join([folder_path, proto_files[0]])
     modelpath = os.path.join(folder_path,proto_files[0])
-    nets = (caffe.Net(os.path.join(folder_path,cfm), caffe.TEST,weights=modelpath) for cfm in model_files)
+    nets = ()
+    for cfm in model_files:
+        raw_input('adding net {} (ret to cont)'.format(cfm))
+        net = caffe.Net(os.path.join(folder_path,cfm), caffe.TEST,weights=modelpath)
+        nets.append(net)
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
     # weights_dict(net_new.params, nets.next().params)
