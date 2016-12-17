@@ -52,20 +52,22 @@ if __name__ == "__main__":
     folder_path = '/'.join(['.', user_input.path2folder])
     folder_path = user_input.path2folder
     all_files_in_dir = os.listdir(folder_path)
-    assert user_input.protoname in all_files_in_dir, 'new prototxt file not in folder!'
+    print all_files_in_dir
+    assert os.path.isfile(os.path.join(folder_path,user_input.protoname)), 'new prototxt file {} not found!'.format(user_input.protoname)
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
     print('modelfiles to add:'+str(model_files))
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
- #   assert len(proto_files)==2, 'base prototxt file is missing!'
+    assert len(proto_files)==2, 'base prototxt file is missing!'
+    assert len(model_files)>=2, 'one or fewer model files found'
     proto_files.remove(user_input.protoname)
-    print('protofiles to read added modefiles:'+str(model_files))
+    print('protofiles to read:'+str(proto_files))
     # load new net
-    protopath = '/'.join([folder_path, user_input.protoname])
+#    protopath = '/'.join([folder_path, user_input.protoname])
     protopath = user_input.protoname
-    modelpath = '/'.join([folder_path, model_files[0]])
+#    modelpath = '/'.join([folder_path, model_files[0]])#
     modelpath = model_files[0]
     net_new = caffe.Net(protopath, caffe.TEST,weights=modelpath)
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
