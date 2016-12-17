@@ -83,7 +83,7 @@ if __name__ == "__main__":
         caffemodel = os.path.join(folder_path,cfm)
         prototxt = os.path.join(folder_path,proto)
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
-        net = caffe.Net(prototxt, caffe.TEST,weights=caffmodel)
+        net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
