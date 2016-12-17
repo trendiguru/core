@@ -74,7 +74,7 @@ if __name__ == "__main__":
     model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
     nets = ()
-    for i in range (model_files):
+    for i in range len((model_files)):
         cfm = model_files[i]
         if len(proto_files)==len(model_files):
             proto = proto_files[i]
