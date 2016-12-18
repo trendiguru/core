@@ -76,7 +76,7 @@ if __name__ == "__main__":
     nets = []
     for i in range(len((model_files))):
         cfm = model_files[i]
-        if len(proto_files)==len(model_files):
+        if 0*len(proto_files)==len(model_files):
             proto = proto_files[i]
         else:
             proto = proto_files[0]
