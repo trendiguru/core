@@ -73,7 +73,7 @@ if __name__ == "__main__":
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
     model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
-    nets = ()
+    nets = []
     for i in range(len((model_files))):
         cfm = model_files[i]
         if len(proto_files)==len(model_files):
@@ -88,9 +88,9 @@ if __name__ == "__main__":
     print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
 
     # weights_dict(net_new.params, nets.next().params)
-    nets.next()
+#    nets.next()
     for i in range(1, len(model_files)):
-        net_orig = nets.next()
+        net_orig = nets[i]
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0
         last_fully_connected = 5  #e.g. fc5_2 is the last fullyconnected of net2
         for j in range(lower_fully_connected, last_fully_connected):
