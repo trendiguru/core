@@ -40,8 +40,10 @@ def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Many2One @@@')
     parser.add_argument('-f', '--folder', dest="path2folder",
                         help='path to the folder containing the trained models', required=True)
-    parser.add_argument('-p', '--prototxt', dest="protoname",
-                        help='name of the deploy prototxt', required=True)
+    parser.add_argument('-d', '--destproto', dest="dest_proto",
+                        help='name of the destination deploy prototxt', required=True)
+    parser.add_argument('-s', '--sourceproto', dest="source_proto",
+                        help='name of the source (train/test prototxt', required=False)
     parser.add_argument('-o', '--output', dest="modelname",
                         help='name of the new model', required=True)
     args = parser.parse_args()
@@ -53,14 +55,19 @@ if __name__ == "__main__":
     folder_path = user_input.path2folder
     all_files_in_dir = os.listdir(folder_path)
     print all_files_in_dir
+    proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
+    if 'source_proto' in user_input:
+        source_proto = user_input.source_proto
+    else:
+        source_proto = user_input.dest_proto
+
     assert os.path.isfile(os.path.join(folder_path,user_input.protoname)), 'new prototxt file {} not found!'.format(user_input.protoname)
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
     print('modelfiles to add:'+str(model_files))
-    proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
-    assert len(proto_files)==2, 'base prototxt file is missing!'
+    #assert len(proto_files)==2, 'base prototxt file is missing!'
     assert len(model_files)>=2, 'one or fewer model files found '
     proto_files.remove(user_input.protoname)
     print('protofiles to read:'+str(proto_files))
@@ -97,7 +104,7 @@ if __name__ == "__main__":
 
             fc_orig = 'fc{}_0'.format(j)
             fc_new = 'fc{}_{}'.format(j, i)
-            net_new.params = copy_layer_params(net_new,fc_new,net_ori,fc_orig)
+            net_new.params = copy_layer_params(net_new,fc_new,net_orig,fc_orig)
 #            net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
 #            if len(net_new.params[tmp_fc_new]) == 2:
  #               net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
