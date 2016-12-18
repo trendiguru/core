@@ -12,6 +12,7 @@ import caffe
 import os
 import argparse
 
+from trendi import jrinfer
 
 def copy_net_params(params_new, params_base):
     for pr in params_base.keys():
@@ -48,6 +49,16 @@ def get_user_input():
                         help='name of the new model', required=True)
     args = parser.parse_args()
     return args
+
+def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
+    #pants, shirt, dress
+    urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
+            'http://getabhi.com/image/cache/catalog/BARCODE:%20324BNZ61RBLUE/2-800x800.jpg',
+            'http://myntra.myntassets.com/images/style/properties/Belle-Fille-Black-Maxi-Dress_e3e65039ce204cefb7590fc8ec10f1e9_images.jpg']
+
+    for url in urls:
+        jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=[224,224],output_layers=['fc4_0','fc4_1','fc4_2'])
+
 
 if __name__ == "__main__":
     user_input = get_user_input()
