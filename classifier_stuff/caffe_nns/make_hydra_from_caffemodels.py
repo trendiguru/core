@@ -12,7 +12,7 @@ import caffe
 import os
 import argparse
 
-from trendi import jrinfer
+from trendi.classifier_stuff.caffe_nns import jrinfer
 
 def copy_net_params(params_new, params_base):
     for pr in params_base.keys():
