@@ -365,6 +365,7 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         files = files[0:num_images]
         labels = labels[0:num_images]
     results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
+    print results
     cats = ['pants','dress','top']
     indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
     print('cats {} indices {}'.format(cats,indices))
