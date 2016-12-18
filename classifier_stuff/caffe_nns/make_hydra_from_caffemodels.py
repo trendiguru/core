@@ -98,15 +98,15 @@ if __name__ == "__main__":
             fc_orig = 'fc{}_0'.format(j)
             fc_new = 'fc{}_{}'.format(j, i)
             #the below fails due to 'type net doesnt have expected attribute '__get_item'
-#            net_new.params = copy_layer_params(net_new,fc_new,net_orig,fc_orig)
+#            net_new.params = copy_layer_params(net_new.params,fc_new.params,net_orig,fc_orig)
  #           assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
-            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
+#            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
 
-            print('copying source layer {} to dest layer {}'.format(fc_new,fc_orig))
+#            print('copying source layer {} to dest layer {}'.format(fc_new,fc_orig))
 
-            for layer_level in range(len(net_new.params[fc_new])):
-                print('orig layer {}[{}] shape {} new layer {}[{}] shape  {}'.format(fc_orig,layer_level,net_orig[fc_orig][layer_level].data.shape,fc_new,layer_level,net_new[fc_new][layer_level].data.shape))
-                net_new.params[fc_new][layer_level].data = net_orig.params[fc_orig][layer_level].data
+#            for layer_level in range(len(net_new.params[fc_new])):#
+#                print('orig layer {}[{}] shape {} new layer {}[{}] shape  {}'.format(fc_orig,layer_level,net_orig[fc_orig][layer_level].data.shape,fc_new,layer_level,net_new[fc_new][layer_level].data.shape))
+#                net_new.params[fc_new][layer_level].data = net_orig.params[fc_orig][layer_level].data
 
             # net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
             # if len(net_new.params[tmp_fc_new]) == 2:
