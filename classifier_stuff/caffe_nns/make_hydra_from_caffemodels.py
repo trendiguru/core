@@ -65,8 +65,8 @@ if __name__ == "__main__":
     assert os.path.isfile(os.path.join(folder_path,dest_proto)), 'dest prototxt file {} not found!'.format(dest_proto)
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
-    if user_input.modelname in model_files:
-        model_files.remove(user_input.modelname)
+    first_model_path = model_files[0]
+    model_files.remove(user_input.modelname)
     print('modelfiles to add:'+str(model_files))
     #assert len(proto_files)==2, 'base prototxt file is missing!'
     assert len(model_files)>=2, 'one or fewer model files found '
@@ -77,8 +77,8 @@ if __name__ == "__main__":
 #    protopath = user_input.protoname
 #    modelpath = '/'.join([folder_path, model_files[0]])#
     modelpath = model_files[0]
-    net_new = caffe.Net(dest_proto, caffe.TEST,weights=modelpath)
-    print('loaded model {} defined by proto {}'.format(model_files[0],dest_proto))
+    net_new = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
+    print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
     model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
     nets = []
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
-    nets.close()
+#    nets.close()
     del net_new
 
     print 'DONE!'
