@@ -86,7 +86,7 @@ if __name__ == "__main__":
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
-    print('loaded models {} defined by proto {}'.format(model_files,proto_files[0]))
+    print('loaded models {} defined by proto {}'.format(model_files,prototxt))
 
     # weights_dict(net_new.params, nets.next().params)
 #    nets.next()
@@ -95,15 +95,22 @@ if __name__ == "__main__":
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0
         last_fully_connected = 5  #e.g. fc5_2 is the last fullyconnected of net2
         for j in range(lower_fully_connected, last_fully_connected):
-
             fc_orig = 'fc{}_0'.format(j)
             fc_new = 'fc{}_{}'.format(j, i)
-            net_new.params = copy_layer_params(net_new,fc_new,net_orig,fc_orig)
-#            net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
-#            if len(net_new.params[tmp_fc_new]) == 2:
- #               net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
-#            if len(net_new.params[tmp_fc_new]) > 2:
-#                print('uh o')
+            #the below fails due to 'type net doesnt have expected attribute '__get_item'
+#            net_new.params = copy_layer_params(net_new,fc_new,net_orig,fc_orig)
+            assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
+            print('copying source layer {} to dest layer {}'.format(fc_new,fc_orig))
+
+            for layer_level in range(len(net_new.params[fc_new])):
+                print('orig layer {}[{}] shape {} new layer {}[{}] shape  {}'.format(fc_orig,layer_level,net_orig[fc_orig][layer_level].data.shape,fc_new,layer_level,net_new[fc_new][layer_level].data.shape))
+                net_new.params[fc_new][layer_level].data = net_orig.params[fc_orig][layer_level].data
+
+            # net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
+            # if len(net_new.params[tmp_fc_new]) == 2:
+            #     net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
+            # if len(net_new.params[tmp_fc_new]) > 2:
+            #     print('uh o')
 
     net_new.save('/'.join([folder_path, user_input.modelname]))
 
