@@ -56,7 +56,7 @@ if __name__ == "__main__":
     all_files_in_dir = os.listdir(folder_path)
     print all_files_in_dir
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
-    if 'source_proto' in user_input:
+    if  user_input.source_proto is not None:
         source_proto = user_input.source_proto
     else:
         source_proto = user_input.dest_proto
