@@ -399,6 +399,8 @@ paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 #within these categories.  We finally decided these should be similar-looking things e.g. if there were no color
 #or texture which things would be most similar
 
+#lingerie -> babydoll, not a bra or panties
+
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
 pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']

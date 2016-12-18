@@ -145,12 +145,12 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
 def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2']):
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
     outs = []
+    start_time = time.time()
     for url_or_image_arr in url_or_image_arr_list:
         im = Utils.get_cv2_img_array(url_or_image_arr)
         if im is None:
             logging.warning('could not get image '+str(url_or_image_arr))
             return
-        start_time = time.time()
         print('working on:'+url_or_image_arr)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = cv2.resize(im,dims)

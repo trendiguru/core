@@ -21,7 +21,7 @@ from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
+from trendi.classifier_stuff.caffe_nns import jrinfer
 
 # matplotlib inline
 def setup():
@@ -334,7 +334,6 @@ def results():#prediction results
         plt.title('GT: {} \n EST: {}'.format(classes[np.where(gtlist)], classes[np.where(estlist)]))
         plt.axis('off')
 
-
 def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label'):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
 #    solver = caffe.SGDSolver(solverproto)
@@ -352,6 +351,33 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
 #    solver.step(1)
 #    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
     precision,recall,accuracy,tp,tn,fp,fn = check_acc(net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    return precision,recall,accuracy,tp,tn,fp,fn
+
+def check_accuracy_hydra(proto,caffemodel,num_images=5,
+                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/labels_webtool_v1/tb_cats_from_webtool_v1_test.txt',
+                         outlayers=['fc4_0','fc4_1','fc4_2']):
+    with open(multilabel_file,'r') as fp:
+        lines = fp.readlines()
+        fp.close()
+    files = [l.split()[0] for l in lines]
+    labels = [[int(i) for i in l.split()[1:]] for l in lines]
+    if num_images is not None:
+        files = files[0:num_images]
+        labels = labels[0:num_images]
+    results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
+    cats = ['pants','dress','top']
+    indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
+    print('cats {} indices {}'.format(cats,indices))
+    for l in labels:
+        print('l b4 '+str(l))
+        l = [l[indices[0]],l[indices[1]],l[indices[2]]]
+        print('l after '+str(l))
+    for r in results:
+        print('r b4 '+str(r))
+        r = [np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])]
+        print('r after '+str(r))
+
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(l,r,thresh=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
@@ -475,8 +501,6 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     multilabel_output = multilabel_dict['multilabel_output']
     logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
-
-
 
 def test_multilabel_output_on_testset(testfile,outdir='./'):
     '''
