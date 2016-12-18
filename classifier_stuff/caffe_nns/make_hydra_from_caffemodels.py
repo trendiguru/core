@@ -99,7 +99,9 @@ if __name__ == "__main__":
             fc_new = 'fc{}_{}'.format(j, i)
             #the below fails due to 'type net doesnt have expected attribute '__get_item'
 #            net_new.params = copy_layer_params(net_new,fc_new,net_orig,fc_orig)
-            assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
+ #           assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
+            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
+
             print('copying source layer {} to dest layer {}'.format(fc_new,fc_orig))
 
             for layer_level in range(len(net_new.params[fc_new])):
