@@ -57,7 +57,7 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
             'http://myntra.myntassets.com/images/style/properties/Belle-Fille-Black-Maxi-Dress_e3e65039ce204cefb7590fc8ec10f1e9_images.jpg']
 
     for url in urls:
-        jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=[224,224],output_layers=['fc4_0','fc4_1','fc4_2'])
+        jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
 
 
 if __name__ == "__main__":
