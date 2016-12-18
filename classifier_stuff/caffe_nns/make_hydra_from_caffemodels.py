@@ -60,8 +60,9 @@ if __name__ == "__main__":
         source_proto = user_input.source_proto
     else:
         source_proto = user_input.dest_proto
-
-    assert os.path.isfile(os.path.join(folder_path,user_input.protoname)), 'new prototxt file {} not found!'.format(user_input.protoname)
+    dest_proto = user_input.dest_proto
+    assert os.path.isfile(os.path.join(folder_path,source_proto)), 'source prototxt file {} not found!'.format(source_proto)
+    assert os.path.isfile(os.path.join(folder_path,dest_proto)), 'dest prototxt file {} not found!'.format(dest_proto)
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
     if user_input.modelname in model_files:
@@ -69,8 +70,8 @@ if __name__ == "__main__":
     print('modelfiles to add:'+str(model_files))
     #assert len(proto_files)==2, 'base prototxt file is missing!'
     assert len(model_files)>=2, 'one or fewer model files found '
-    proto_files.remove(user_input.protoname)
-    print('protofiles to read:'+str(proto_files))
+#    proto_files.remove(user_input.protoname)
+#    print('protofiles to read:'+str(proto_files))
     # load new net
 #    protopath = '/'.join([folder_path, user_input.protoname])
     protopath = user_input.protoname
@@ -82,13 +83,13 @@ if __name__ == "__main__":
 #    modelpath = '/'.join([folder_path, proto_files[0]])
     nets = []
     for i in range(len((model_files))):
-        cfm = model_files[i]
-        if 0*len(proto_files)==len(model_files):
-            proto = proto_files[i]
-        else:
-            proto = proto_files[0]
-        caffemodel = os.path.join(folder_path,cfm)
-        prototxt = os.path.join(folder_path,proto)
+        cfm_base = model_files[i]
+ #       if 0*len(proto_files)==len(model_files):
+ #           proto = proto_files[i]
+  #      else:
+        proto_base = dest_proto
+        caffemodel = os.path.join(folder_path,cfm_base)
+        prototxt = os.path.join(folder_path,proto_base)
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
