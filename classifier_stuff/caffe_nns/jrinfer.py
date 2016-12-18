@@ -127,7 +127,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
  #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
     in_ -= np.array((104.0,116.7,122.7))
     in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
-    print('img shape after:'+str(in_.shape)+' net data shape '+net.blobs['data'].shape)
+    print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
@@ -138,6 +138,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
     for output_layer in output_layers:
         one_out = net.blobs[output_layer].data
         out.append(one_out)
+        print('output for {} is {}'.format(output_layer,one_out))
     print(str(out)+' elapsed time:'+str(time.time()-start_time))
     return out
 
