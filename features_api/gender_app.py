@@ -20,13 +20,15 @@ class NeuralResource:
         ret = {"success": False}
         try:
             data = msgpack.loads(req.stream.read())
-            image = data.get("image")
+            image = data.get("image_or_url")
             face = data.get("face")
+            print('gender_app nEURALrESOURCE got face {}'.format(face))
             ret["gender"] = new_genderDetector.theDetector(image, face)
             if ret["gender"] is not None:
                 ret["success"] = True
             else:
-                ret["error"] = "NN returned None"
+                ret["error"] = "NN returned None, FACE="+str(face)
+                ret["face"] = face
         except Exception as e:
             ret["error"] = str(e)
 

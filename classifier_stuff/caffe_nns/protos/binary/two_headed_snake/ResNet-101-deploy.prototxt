@@ -1,4 +1,4 @@
-name: "ResNet-101_binary"
+name: "ResNet-101_frozentrunk_binary"
 input: "data"
 input_dim: 1
 input_dim: 3
@@ -16,7 +16,11 @@ layer {
 		pad: 3
 		stride: 2
 		bias_term: false
-	}
+         }
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -24,9 +28,7 @@ layer {
 	top: "conv1"
 	name: "bn_conv1"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
 }
 
 layer {
@@ -70,6 +72,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -77,9 +83,11 @@ layer {
 	top: "res2a_branch1"
 	name: "bn2a_branch1"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+  param { lr_mult: 0 }
+param { lr_mult: 0 }
+param { lr_mult: 0 }
+
 }
 
 layer {
@@ -104,6 +112,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -111,9 +123,8 @@ layer {
 	top: "res2a_branch2a"
 	name: "bn2a_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -145,6 +156,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -152,9 +167,8 @@ layer {
 	top: "res2a_branch2b"
 	name: "bn2a_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -186,6 +200,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -193,9 +211,8 @@ layer {
 	top: "res2a_branch2c"
 	name: "bn2a_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -235,6 +252,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -242,9 +263,8 @@ layer {
 	top: "res2b_branch2a"
 	name: "bn2b_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -276,6 +296,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -283,9 +307,8 @@ layer {
 	top: "res2b_branch2b"
 	name: "bn2b_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -317,6 +340,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -324,9 +351,8 @@ layer {
 	top: "res2b_branch2c"
 	name: "bn2b_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -366,6 +392,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -373,9 +403,8 @@ layer {
 	top: "res2c_branch2a"
 	name: "bn2c_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+
+
 }
 
 layer {
@@ -407,6 +436,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -414,9 +447,8 @@ layer {
 	top: "res2c_branch2b"
 	name: "bn2c_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -448,6 +480,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -455,9 +491,8 @@ layer {
 	top: "res2c_branch2c"
 	name: "bn2c_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -497,6 +532,10 @@ layer {
 		stride: 2
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -504,9 +543,8 @@ layer {
 	top: "res3a_branch1"
 	name: "bn3a_branch1"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -531,6 +569,10 @@ layer {
 		stride: 2
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -538,9 +580,8 @@ layer {
 	top: "res3a_branch2a"
 	name: "bn3a_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -572,6 +613,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -579,9 +624,8 @@ layer {
 	top: "res3a_branch2b"
 	name: "bn3a_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -613,6 +657,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -620,9 +668,8 @@ layer {
 	top: "res3a_branch2c"
 	name: "bn3a_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -662,6 +709,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -669,9 +720,8 @@ layer {
 	top: "res3b1_branch2a"
 	name: "bn3b1_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -703,6 +753,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -710,9 +764,8 @@ layer {
 	top: "res3b1_branch2b"
 	name: "bn3b1_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -744,6 +797,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -751,9 +808,8 @@ layer {
 	top: "res3b1_branch2c"
 	name: "bn3b1_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -793,6 +849,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -800,9 +860,8 @@ layer {
 	top: "res3b2_branch2a"
 	name: "bn3b2_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -834,6 +893,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -841,9 +904,8 @@ layer {
 	top: "res3b2_branch2b"
 	name: "bn3b2_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -875,6 +937,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -882,9 +948,8 @@ layer {
 	top: "res3b2_branch2c"
 	name: "bn3b2_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -924,6 +989,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -931,9 +1000,8 @@ layer {
 	top: "res3b3_branch2a"
 	name: "bn3b3_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -965,6 +1033,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -972,9 +1044,8 @@ layer {
 	top: "res3b3_branch2b"
 	name: "bn3b3_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1006,6 +1077,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1013,9 +1088,8 @@ layer {
 	top: "res3b3_branch2c"
 	name: "bn3b3_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1055,6 +1129,10 @@ layer {
 		stride: 2
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1062,9 +1140,8 @@ layer {
 	top: "res4a_branch1"
 	name: "bn4a_branch1"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1089,6 +1166,10 @@ layer {
 		stride: 2
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1096,9 +1177,8 @@ layer {
 	top: "res4a_branch2a"
 	name: "bn4a_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1130,6 +1210,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1137,9 +1221,8 @@ layer {
 	top: "res4a_branch2b"
 	name: "bn4a_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1171,6 +1254,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1178,9 +1265,8 @@ layer {
 	top: "res4a_branch2c"
 	name: "bn4a_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1220,6 +1306,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1227,9 +1317,8 @@ layer {
 	top: "res4b1_branch2a"
 	name: "bn4b1_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1261,6 +1350,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1268,9 +1361,8 @@ layer {
 	top: "res4b1_branch2b"
 	name: "bn4b1_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1302,6 +1394,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1309,9 +1405,8 @@ layer {
 	top: "res4b1_branch2c"
 	name: "bn4b1_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1351,6 +1446,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1358,9 +1457,8 @@ layer {
 	top: "res4b2_branch2a"
 	name: "bn4b2_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1392,6 +1490,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1399,9 +1501,8 @@ layer {
 	top: "res4b2_branch2b"
 	name: "bn4b2_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1433,6 +1534,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1440,9 +1545,8 @@ layer {
 	top: "res4b2_branch2c"
 	name: "bn4b2_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1482,6 +1586,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1489,9 +1597,8 @@ layer {
 	top: "res4b3_branch2a"
 	name: "bn4b3_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1523,6 +1630,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1530,9 +1641,8 @@ layer {
 	top: "res4b3_branch2b"
 	name: "bn4b3_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1564,6 +1674,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1571,9 +1685,8 @@ layer {
 	top: "res4b3_branch2c"
 	name: "bn4b3_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1613,6 +1726,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1620,9 +1737,8 @@ layer {
 	top: "res4b4_branch2a"
 	name: "bn4b4_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1654,6 +1770,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1661,9 +1781,8 @@ layer {
 	top: "res4b4_branch2b"
 	name: "bn4b4_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1695,6 +1814,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1702,9 +1825,8 @@ layer {
 	top: "res4b4_branch2c"
 	name: "bn4b4_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1744,6 +1866,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1751,9 +1877,8 @@ layer {
 	top: "res4b5_branch2a"
 	name: "bn4b5_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1785,6 +1910,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1792,9 +1921,8 @@ layer {
 	top: "res4b5_branch2b"
 	name: "bn4b5_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1826,6 +1954,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1833,9 +1965,8 @@ layer {
 	top: "res4b5_branch2c"
 	name: "bn4b5_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1875,6 +2006,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1882,9 +2017,8 @@ layer {
 	top: "res4b6_branch2a"
 	name: "bn4b6_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1916,6 +2050,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1923,9 +2061,8 @@ layer {
 	top: "res4b6_branch2b"
 	name: "bn4b6_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -1957,6 +2094,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -1964,9 +2105,8 @@ layer {
 	top: "res4b6_branch2c"
 	name: "bn4b6_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2006,6 +2146,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2013,9 +2157,8 @@ layer {
 	top: "res4b7_branch2a"
 	name: "bn4b7_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2047,6 +2190,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2054,9 +2201,8 @@ layer {
 	top: "res4b7_branch2b"
 	name: "bn4b7_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2088,6 +2234,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2095,9 +2245,8 @@ layer {
 	top: "res4b7_branch2c"
 	name: "bn4b7_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2137,6 +2286,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2144,9 +2297,8 @@ layer {
 	top: "res4b8_branch2a"
 	name: "bn4b8_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2178,6 +2330,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2185,9 +2341,8 @@ layer {
 	top: "res4b8_branch2b"
 	name: "bn4b8_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2219,6 +2374,11 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+		 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
+
 }
 
 layer {
@@ -2226,9 +2386,8 @@ layer {
 	top: "res4b8_branch2c"
 	name: "bn4b8_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2268,6 +2427,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2275,9 +2438,8 @@ layer {
 	top: "res4b9_branch2a"
 	name: "bn4b9_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2309,6 +2471,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2316,9 +2482,8 @@ layer {
 	top: "res4b9_branch2b"
 	name: "bn4b9_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2350,6 +2515,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2357,9 +2526,8 @@ layer {
 	top: "res4b9_branch2c"
 	name: "bn4b9_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2399,6 +2567,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2406,9 +2578,8 @@ layer {
 	top: "res4b10_branch2a"
 	name: "bn4b10_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2440,6 +2611,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2447,9 +2622,8 @@ layer {
 	top: "res4b10_branch2b"
 	name: "bn4b10_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2481,6 +2655,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2488,9 +2666,8 @@ layer {
 	top: "res4b10_branch2c"
 	name: "bn4b10_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2530,6 +2707,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2537,9 +2718,8 @@ layer {
 	top: "res4b11_branch2a"
 	name: "bn4b11_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2571,6 +2751,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2578,9 +2762,8 @@ layer {
 	top: "res4b11_branch2b"
 	name: "bn4b11_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2612,6 +2795,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2619,9 +2806,8 @@ layer {
 	top: "res4b11_branch2c"
 	name: "bn4b11_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2661,6 +2847,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2668,9 +2858,8 @@ layer {
 	top: "res4b12_branch2a"
 	name: "bn4b12_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2702,6 +2891,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2709,9 +2902,8 @@ layer {
 	top: "res4b12_branch2b"
 	name: "bn4b12_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2743,6 +2935,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2750,9 +2946,8 @@ layer {
 	top: "res4b12_branch2c"
 	name: "bn4b12_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2792,6 +2987,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2799,9 +2998,8 @@ layer {
 	top: "res4b13_branch2a"
 	name: "bn4b13_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2833,6 +3031,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2840,9 +3042,8 @@ layer {
 	top: "res4b13_branch2b"
 	name: "bn4b13_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2874,6 +3075,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2881,9 +3086,8 @@ layer {
 	top: "res4b13_branch2c"
 	name: "bn4b13_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2923,6 +3127,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2930,9 +3138,8 @@ layer {
 	top: "res4b14_branch2a"
 	name: "bn4b14_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -2964,6 +3171,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -2971,9 +3182,8 @@ layer {
 	top: "res4b14_branch2b"
 	name: "bn4b14_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3005,6 +3215,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3012,9 +3226,8 @@ layer {
 	top: "res4b14_branch2c"
 	name: "bn4b14_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3054,6 +3267,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3061,9 +3278,8 @@ layer {
 	top: "res4b15_branch2a"
 	name: "bn4b15_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3095,6 +3311,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3102,9 +3322,8 @@ layer {
 	top: "res4b15_branch2b"
 	name: "bn4b15_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3136,6 +3355,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3143,9 +3366,8 @@ layer {
 	top: "res4b15_branch2c"
 	name: "bn4b15_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3185,6 +3407,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3192,9 +3418,8 @@ layer {
 	top: "res4b16_branch2a"
 	name: "bn4b16_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3226,6 +3451,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3233,9 +3462,8 @@ layer {
 	top: "res4b16_branch2b"
 	name: "bn4b16_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3267,6 +3495,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3274,9 +3506,8 @@ layer {
 	top: "res4b16_branch2c"
 	name: "bn4b16_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3315,7 +3546,11 @@ layer {
 		pad: 0
 		stride: 1
 		bias_term: false
-	}
+		}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3323,9 +3558,8 @@ layer {
 	top: "res4b17_branch2a"
 	name: "bn4b17_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3357,6 +3591,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3364,9 +3602,8 @@ layer {
 	top: "res4b17_branch2b"
 	name: "bn4b17_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3398,6 +3635,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3405,9 +3646,8 @@ layer {
 	top: "res4b17_branch2c"
 	name: "bn4b17_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3447,6 +3687,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3454,9 +3698,8 @@ layer {
 	top: "res4b18_branch2a"
 	name: "bn4b18_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3487,7 +3730,12 @@ layer {
 		pad: 1
 		stride: 1
 		bias_term: false
-	}
+		}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
+
 }
 
 layer {
@@ -3495,9 +3743,8 @@ layer {
 	top: "res4b18_branch2b"
 	name: "bn4b18_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3529,6 +3776,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3536,9 +3787,8 @@ layer {
 	top: "res4b18_branch2c"
 	name: "bn4b18_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3578,6 +3828,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3585,9 +3839,8 @@ layer {
 	top: "res4b19_branch2a"
 	name: "bn4b19_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3619,6 +3872,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3626,9 +3883,8 @@ layer {
 	top: "res4b19_branch2b"
 	name: "bn4b19_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3660,6 +3916,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3667,9 +3927,8 @@ layer {
 	top: "res4b19_branch2c"
 	name: "bn4b19_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3709,6 +3968,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3716,9 +3979,8 @@ layer {
 	top: "res4b20_branch2a"
 	name: "bn4b20_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3750,6 +4012,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3757,9 +4023,8 @@ layer {
 	top: "res4b20_branch2b"
 	name: "bn4b20_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3791,6 +4056,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3798,9 +4067,8 @@ layer {
 	top: "res4b20_branch2c"
 	name: "bn4b20_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3840,6 +4108,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3847,9 +4119,8 @@ layer {
 	top: "res4b21_branch2a"
 	name: "bn4b21_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3881,6 +4152,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3888,9 +4163,8 @@ layer {
 	top: "res4b21_branch2b"
 	name: "bn4b21_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3922,6 +4196,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3929,9 +4207,8 @@ layer {
 	top: "res4b21_branch2c"
 	name: "bn4b21_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -3971,6 +4248,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -3978,9 +4259,8 @@ layer {
 	top: "res4b22_branch2a"
 	name: "bn4b22_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4012,6 +4292,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4019,9 +4303,8 @@ layer {
 	top: "res4b22_branch2b"
 	name: "bn4b22_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4053,6 +4336,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4060,9 +4347,8 @@ layer {
 	top: "res4b22_branch2c"
 	name: "bn4b22_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4102,6 +4388,10 @@ layer {
 		stride: 2
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4109,9 +4399,8 @@ layer {
 	top: "res5a_branch1"
 	name: "bn5a_branch1"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4135,17 +4424,21 @@ layer {
 		pad: 0
 		stride: 2
 		bias_term: false
-	}
-}
+		}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 
+}
+#
 layer {
 	bottom: "res5a_branch2a"
 	top: "res5a_branch2a"
 	name: "bn5a_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4177,6 +4470,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4184,9 +4481,8 @@ layer {
 	top: "res5a_branch2b"
 	name: "bn5a_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4218,6 +4514,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4225,9 +4525,8 @@ layer {
 	top: "res5a_branch2c"
 	name: "bn5a_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4267,6 +4566,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4274,9 +4577,8 @@ layer {
 	top: "res5b_branch2a"
 	name: "bn5b_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4308,6 +4610,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4315,9 +4621,8 @@ layer {
 	top: "res5b_branch2b"
 	name: "bn5b_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4349,6 +4654,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4356,9 +4665,8 @@ layer {
 	top: "res5b_branch2c"
 	name: "bn5b_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4398,6 +4706,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4405,9 +4717,8 @@ layer {
 	top: "res5c_branch2a"
 	name: "bn5c_branch2a"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4439,6 +4750,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4446,9 +4761,8 @@ layer {
 	top: "res5c_branch2b"
 	name: "bn5c_branch2b"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4480,6 +4794,10 @@ layer {
 		stride: 1
 		bias_term: false
 	}
+	 param {
+		  lr_mult: 0
+		  decay_mult: 0
+		}
 }
 
 layer {
@@ -4487,9 +4805,8 @@ layer {
 	top: "res5c_branch2c"
 	name: "bn5c_branch2c"
 	type: "BatchNorm"
-	batch_norm_param {
-		use_global_stats: true
-	}
+	
+
 }
 
 layer {
@@ -4578,8 +4895,118 @@ layer {
 }
 
 layer {
-  name: "prob"
+  name: "prob_0"
   type: "Softmax"
   bottom: "fc4_0"
   top: "prob_0"
+}
+
+layer {
+        bottom: "pool5"
+        top: "fc2_1"
+        name: "fc2_1"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 512
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+}
+
+layer {
+        top: "fc2_1"
+        bottom: "fc2_1"
+        name: "fc2_1_relu"
+        type: "ReLU"
+}
+
+layer {
+        bottom: "fc2_1"
+        top: "fc3_1"
+        name: "fc3_1"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 128
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+
+}
+
+layer {
+        top: "fc3_1"
+        bottom: "fc3_1"
+        name: "fc3_1_relu"
+        type: "ReLU"
+}
+
+layer {
+        bottom: "fc3_1"
+        top: "fc4_1"
+        name: "fc4_1"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 2
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+}
+
+layer {
+  name: "prob_1"
+  type: "Softmax"
+  bottom: "fc4_1"
+  top: "prob_1"
+}
+
+layer {
+        bottom: "pool5"
+        top: "fc2_2"
+        name: "fc2_2"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 512
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+}
+
+layer {
+        top: "fc2_2"
+        bottom: "fc2_2"
+        name: "fc2_2_relu"
+        type: "ReLU"
+}
+
+layer {
+        bottom: "fc2_2"
+        top: "fc3_2"
+        name: "fc3_2"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 128
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+
+}
+
+layer {
+        top: "fc3_2"
+        bottom: "fc3_2"
+        name: "fc3_2_relu"
+        type: "ReLU"
+}
+
+layer {
+        bottom: "fc3_2"
+        top: "fc4_2"
+        name: "fc4_2"
+        type: "InnerProduct"
+        inner_product_param {
+                num_output: 2
+                weight_filler { type: "xavier"}
+                bias_filler { type:"constant"}  }
+}
+
+layer {
+  name: "prob_2"
+  type: "Softmax"
+  bottom: "fc4_2"
+  top: "prob_2"
 }
