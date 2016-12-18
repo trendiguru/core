@@ -56,7 +56,7 @@ if __name__ == "__main__":
     all_files_in_dir = os.listdir(folder_path)
     print all_files_in_dir
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
-    if  user_input.source_proto is not None:
+    if user_input.source_proto is not None:
         source_proto = user_input.source_proto
     else:
         source_proto = user_input.dest_proto
@@ -74,10 +74,10 @@ if __name__ == "__main__":
 #    print('protofiles to read:'+str(proto_files))
     # load new net
 #    protopath = '/'.join([folder_path, user_input.protoname])
-    protopath = user_input.protoname
+#    protopath = user_input.protoname
 #    modelpath = '/'.join([folder_path, model_files[0]])#
     modelpath = model_files[0]
-    net_new = caffe.Net(protopath, caffe.TEST,weights=modelpath)
+    net_new = caffe.Net(dest_proto, caffe.TEST,weights=modelpath)
     print('loaded model {} defined by proto {}'.format(model_files[0],user_input.protoname))
     model_files.remove(model_files[0])
 #    modelpath = '/'.join([folder_path, proto_files[0]])
@@ -87,7 +87,7 @@ if __name__ == "__main__":
  #       if 0*len(proto_files)==len(model_files):
  #           proto = proto_files[i]
   #      else:
-        proto_base = dest_proto
+        proto_base = source_proto
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = os.path.join(folder_path,proto_base)
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
