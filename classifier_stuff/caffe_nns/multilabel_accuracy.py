@@ -378,7 +378,7 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         r = [np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])]
         print('r after '+str(r))
 
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(l,r,thresh=0.5)
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(l,r,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
