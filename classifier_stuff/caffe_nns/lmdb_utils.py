@@ -31,8 +31,6 @@ logging.basicConfig(level=logging.WARNING)
 #get_ipython().system(u'data/mnist/get_mnist.sh')
 #get_ipython().system(u'examples/mnist/create_mnist.sh')
 
-
-
 #label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
 #data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
 
@@ -45,6 +43,105 @@ def db_size(dbname):
     db_size = db_stats['entries']
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
+
+def labelfile_to_lmdb(labelfile,dbname=None,test_or_train=None,max_images_per_class = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,use_visual_output=False,shuffle=True,regression=False):
+    if dbname is None:
+        dbname = labelfile+'.lmdb'
+    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
+    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
+    initial_only_dirs.sort()
+ #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
+    # txn is a Transaction object
+    with open(labelfile,'r') as fp:
+        lines = fp.readlines()
+    n_files = len(lines)
+    n_pixels = resize[0]*resize[1]*n_files
+    bytes_per_pixel = 3 #assuming rgb
+    n_bytes = n_pixels*bytes_per_pixel
+    print('n pixels {} nbytes {} files {}'.format(n_pixels,n_bytes,n_files))
+    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
+    map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size  as in:
+    # We need to prepare the database for the size. We'll set it 10 times
+    # greater than what we theoretically need. There is little drawback to
+    # setting this too big. If you still run into problem after raising
+    # this, you might want to try saving fewer entries in a single
+    # transaction.
+    print('writing to db:'+dbname)
+    classno = 0
+    image_number =0
+    n_for_each_class = []
+    env = lmdb.open(dbname, map_size=map_size)
+    with env.begin(write=True) as txn:
+    # txn is a Transaction object
+            #maybe open and close db every class to cut down on memory
+            #assuming this is irrelevant and we can do this once
+        if shuffle is True:
+            random.shuffle(lines)
+        print('n files {} in {}'.format(len(lines),labelfile))
+        first_time = True
+        for line in lines:
+            file = line.split()[0]
+            vals = line.split()[1:]
+            if regression:
+                label = [float(l) for l in vals]
+            else:
+                label = [int(l) for l in vals]
+            if first_time:
+                class_populations = np.zeros(len(label))
+            if not os.path.exists(file):
+                print('could not find file '+file)
+                continue
+            img_arr = cv2.imread(file)
+            print('type of image:'+str(type(img_arr)))
+            if img_arr is None:
+                print('couldnt read '+file)
+                continue
+            h_orig=img_arr.shape[0]
+            w_orig=img_arr.shape[1]
+            if(resize is not None):
+#                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
+            #    resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                resized = imutils.resize_keep_aspect(img_arr,output_size=resize)
+                if resized is not None:
+                    img_arr = resized
+                else:
+                    print('resize failed')
+                    continue  #didnt do good resize
+            h=img_arr.shape[0]
+            w=img_arr.shape[1]
+            logging.debug('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,file))
+            if use_visual_output is True:
+                cv2.imshow('img',img_arr)
+                cv2.waitKey(0)
+            if mean is not None:  #this subtraction can prob be done in 1 step, broadcasting dimensions
+                img_arr[:,:,0] = img_arr[:,:,0]-mean[0]
+                img_arr[:,:,1] = img_arr[:,:,1]-mean[1]
+                img_arr[:,:,2] = img_arr[:,:,2]-mean[2]
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.channels = img_arr.shape[2]
+            datum.height = img_arr.shape[0]
+            datum.width = img_arr.shape[1]
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+#                    print('reshaped size: '+str(img_reshaped.shape))
+            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+            datum.label = label.tobytes()
+            str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
+            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
+            # The encode is only essential in Python 3
+            try:
+                txn.put(str_id.encode('ascii'), datum.SerializeToString())
+    #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                image_number += 1
+                for j in range(len(label)):
+                    class_populations[label[j]]+=1
+            except:
+                e = sys.exc_info()[0]
+                print('some problem with lmdb:'+str(e))
+        print
+        print('{} items in classes'.format(class_populations))
+    env.close()
+    return class_populations,image_number
+
 
 def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
@@ -151,7 +248,6 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             n_for_each_class.append(image_number_in_class)
     env.close()
     return classno, n_for_each_class,image_number
-
 
 def crop_dir(dir_to_crop,resize_x,resize_y,save_cropped=False,use_bb_from_name=True):
 #fix this up to make it work
@@ -564,8 +660,6 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         env_label.close()
     env_image.close()
     return image_number
-
-
 
 def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)
