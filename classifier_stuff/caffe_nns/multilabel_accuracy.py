@@ -285,6 +285,7 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
             fn = np.zeros_like(gt)
             baseline_est = np.zeros_like(est)
         #binarize the estimate which can come in as floating
+        print('type of est:'+str(type(est)))
         if type(est) is np.array:
             est = est>threshold
         else:
