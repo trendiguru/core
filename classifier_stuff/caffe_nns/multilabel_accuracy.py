@@ -285,7 +285,10 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
             fn = np.zeros_like(gt)
             baseline_est = np.zeros_like(est)
         #binarize the estimate which can come in as floating
-        est = [e>threshold for e in est]
+        if type(est) is np.array:
+            est = est>threshold
+        else:
+            est = [e>threshold for e in est]
         tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
         print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
         print('gt:'+str([int(x) for x in gt]))  #turn to int since print as float takes 2 lines
