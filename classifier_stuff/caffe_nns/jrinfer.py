@@ -174,7 +174,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         #output_layer='prob'
         out = []
         for output_layer in output_layers:
-            one_out = net.blobs[output_layer].data
+            one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
             out.append(one_out)
             print('output for {} is {}'.format(output_layer,one_out))
         print(str(out)+' elapsed time:'+str(time.time()-start_time))
