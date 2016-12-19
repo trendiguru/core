@@ -371,11 +371,11 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
     print('cats {} indices {}'.format(cats,indices))
     for l in labels:
         print('l b4 '+str(l))
-        l = [l[indices[0]],l[indices[1]],l[indices[2]]]
+        l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]])
         print('l after '+str(l))
     for r in results:
         print('r b4 '+str(r))
-        r = [np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])]
+        r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])])
         print('r after '+str(r))
 
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(l,r,threshold=0.5)
