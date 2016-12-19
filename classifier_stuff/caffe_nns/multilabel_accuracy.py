@@ -311,6 +311,8 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
     full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
     print('THRESHOLD '+str(threshold))
     print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
+    print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
+
     return full_prec,full_rec,full_acc,tp,tn,fp,fn
 
 #train

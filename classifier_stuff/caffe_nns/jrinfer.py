@@ -107,7 +107,7 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
     print('elapsed time:'+str(elapsed_time))
     return out.astype(np.uint8)
 
-def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2']):
+def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2']):
     im = Utils.get_cv2_img_array(url_or_image_arr)
     if im is None:
         logging.warning('could not get image '+str(url_or_image_arr))
@@ -143,7 +143,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
     print(str(out)+' elapsed time:'+str(time.time()-start_time))
     return out
 
-def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2']):
+def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2']):
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
     all_outs = []
     all_outs2=[]
