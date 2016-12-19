@@ -144,7 +144,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
 
 def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2']):
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
-    outs = []
+    all_outs = []
     start_time = time.time()
     for url_or_image_arr in url_or_image_arr_list:
         im = Utils.get_cv2_img_array(url_or_image_arr)
@@ -178,9 +178,10 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
             out.append(one_out)
             print('output for {} is {}'.format(output_layer,one_out))
         print(str(out)+' elapsed time:'+str(time.time()-start_time))
-        outs.append(out)
-    print('final output:'+str(outs))
-    return outs
+        all_outs.append(out)
+        print('final till now:'+str(all_outs))
+    print('final output:'+str(all_outs))
+    return all_outs
 
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
