@@ -386,7 +386,7 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])],dtype=np.uint8)
         print('r after '+str(r))
     results = np.array(results,dtype=np.uint8)
-    print('labels {} \n results {}'.labels,results)
+    print('labels {} \n results {}'.format(labels,results))
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(labels,results,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
