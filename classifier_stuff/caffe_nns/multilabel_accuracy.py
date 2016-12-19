@@ -304,7 +304,7 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
         baseline_acc += baseline_h
         n += 1
 
-    print('len(gts) {} len(ests) {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),batch_size,acc/n,baseline_acc/n))
+    print('len(gts) {} len(ests) {} acc {} baseline {}'.format(len(ground_truths),len(estimates),acc/n,baseline_acc/n))
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
