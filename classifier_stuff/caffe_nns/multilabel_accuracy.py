@@ -272,6 +272,7 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
+    first_time = True
     for gt, est in zip(ground_truths, estimates): #for each ground truth and estimated label vector
         if est.shape != gt.shape:
             print('shape mismatch')
