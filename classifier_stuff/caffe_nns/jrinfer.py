@@ -145,6 +145,8 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
 def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2']):
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
     all_outs = []
+    all_outs2=[]
+    j=0
     start_time = time.time()
     for url_or_image_arr in url_or_image_arr_list:
         im = Utils.get_cv2_img_array(url_or_image_arr)
@@ -173,14 +175,20 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         net.forward()
         #output_layer='prob'
         out = []
+        out2 = []
+        i=j*10
         for output_layer in output_layers:
             one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
             out.append(one_out)
+            out2.append(i)
             print('output for {} is {}'.format(output_layer,one_out))
-        print(str(out)+' elapsed time:'+str(time.time()-start_time))
+            i=i+1
+        print(str(out)+' elapsed time:'+str(time.time()-start_time)+' '+str(out2))
         all_outs.append(out)
-        print('final till now:'+str(all_outs))
-    print('final output:'+str(all_outs))
+        all_outs2.append(out2)
+        print('final till now:'+str(all_outs)+' '+str(all_outs2))
+        j=j+1
+    print('final output:'+str(all_outs)+' '+str(all_outs2))
     return all_outs
 
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
