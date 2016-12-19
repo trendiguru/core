@@ -376,18 +376,22 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
     cats = ['pants','dress','top']
     indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
     print('cats {} indices {}'.format(cats,indices))
+    reduced_labels = []
     for l in labels:
         print('l b4 '+str(l))
         l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]],dtype=np.uint8)
-        print('l after '+str(l))
-    labels = np.array(labels,dtype=np.uint8)
+        reduced_labels.append(l)
+        print('l after '+str(reduced_labels))
+    reduced_labels = np.array(reduced_labels,dtype=np.uint8)
+    reduced_results = []
     for r in results:
         print('r b4 '+str(r))
         r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])],dtype=np.uint8)
-        print('r after '+str(r))
-    results = np.array(results,dtype=np.uint8)
+        reduced_results.append(r)
+        print('r after '+str(reduced_results))
+    reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(labels,results))
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(labels,results,threshold=0.5)
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
