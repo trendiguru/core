@@ -179,6 +179,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
             print('output for {} is {}'.format(output_layer,one_out))
         print(str(out)+' elapsed time:'+str(time.time()-start_time))
         outs.append(out)
+    print('final output:'+str(outs))
     return outs
 
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
@@ -471,8 +472,6 @@ def inspect_net(prototxt,caffemodel):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     for key,value in net.blobs.iteritems():
         print(key,value)
-
-
 
 if __name__ == "__main__":
 
