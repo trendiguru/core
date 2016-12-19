@@ -331,7 +331,7 @@ def check_baseline_accuracy(net, num_batches, batch_size = 128):
     return acc / (num_batches * batch_size)
 
 
-def results():#prediction results
+def results_unk():#prediction results
     test_net = solver.test_nets[0]
     for image_index in range(5):
         plt.figure()
@@ -380,13 +380,14 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         print('l b4 '+str(l))
         l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]],dtype=np.uint8)
         print('l after '+str(l))
+    labels = np.array(labels,dtype=np.uint8)
     for r in results:
         print('r b4 '+str(r))
         r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])],dtype=np.uint8)
         print('r after '+str(r))
-
-    print('labels {} \n results {}')
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(l,r,threshold=0.5)
+    results = np.array(results,dtype=np.uint8)
+    print('labels {} \n results {}'.labels,results)
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(labels,results,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
