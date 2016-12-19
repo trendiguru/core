@@ -12,6 +12,7 @@ import caffe
 import sys
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import copy
 
 #import json
 
@@ -179,7 +180,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         i=j*10
         for output_layer in output_layers:
             one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
-            out.append(one_out)
+            out.append(copy.copy(one_out))
             out2.append(i)
             print('output for {} is {}'.format(output_layer,one_out))
             i=i+1
