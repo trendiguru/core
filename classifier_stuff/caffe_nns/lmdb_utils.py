@@ -44,7 +44,7 @@ def db_size(dbname):
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
 
-def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False):
+def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False):
     if dbname is None:
         dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
@@ -75,9 +75,13 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             if regression:
                 label = [float(l) for l in vals]
                 lbl = np.array(label) #maybe specify float type here - must agree with read operation
+                if not multilabel:
+                    lbl = lbl[0] #may hit trouble as datum.label expects int or long
             else:
                 label = [int(l) for l in vals]
-                lbl = np.array(label) #,dtype = np.uint8  assuming labels are non-neg integers less than 255...
+                lbl = np.array(label,dtype = np.uint8) #  assuming labels are non-neg integers less than 255...
+                if not multilabel:
+                    lbl = lbl[0]
             if first_time:
                 class_populations = np.zeros(len(label))
             if not os.path.exists(file):
@@ -122,13 +126,14 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
  #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
  #           datum.label = label.tobytes()
             datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
-            print(type(lbl))
-            datum.label = lbl.tostring() #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
+            #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
             #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
+            datum.label = lbl
             #         str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
             print('len img {} len imgdata {} len label {} len lbl data {}'.format(img_arr.shape,len(datum.data,len(label),len(datum.label))))
             # The encode is only essential in Python 3
+            datum.extra = 1
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
     #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
