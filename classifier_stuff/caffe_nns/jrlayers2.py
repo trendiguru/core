@@ -484,6 +484,7 @@ class JrMultilabel(caffe.Layer):
         self.batch_size = params.get('batch_size',1)
         self.regression = params.get('regression',False)
         self.scale = params.get('scale',False)
+        self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',20)
@@ -745,7 +746,7 @@ class JrMultilabel(caffe.Layer):
                     continue
 
                 in_ = np.array(im, dtype=np.float32)
-                if self.new_size is not None:
+                if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
@@ -851,6 +852,8 @@ class JrMultilabel(caffe.Layer):
         - do random xforms (rotate, translate, crop, possibly noise)
         - subtract mean
         - transpose to channel x height x width order
+        - note this currently only works with single-label info as the lmdb label is expected (by caffe)
+          to be an int or long, so no way to cram a vector in there
         """
         #print('load_image_and_label start')
         while(1):
@@ -897,7 +900,7 @@ class JrMultilabel(caffe.Layer):
             label_vec = np.array(label_vec)
             logging.debug('label vec:'+str(label_vec))
             in_ = np.array(x, dtype=np.float32)
-            if self.new_size is not None:
+            if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
        #         im = im.resize(self.new_size,Image.ANTIALIAS)
                 print('resizing from {} to {}'.format(in_.shape,self.new_size))
                 in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
@@ -918,7 +921,6 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
                 self.next_idx()
                 continue
-
 #############end added code to avoid cv2.imread############
 
             out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
@@ -962,7 +964,7 @@ class JrMultilabel(caffe.Layer):
                 continue
             break #got good img after all that , get out of while
 
-        if self.augment_save_visual_output:
+        if self.save_visual_output:
             name = str(self.idx)+str(label_vec)+'.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
