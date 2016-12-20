@@ -871,7 +871,7 @@ class JrMultilabel(caffe.Layer):
             datum.ParseFromString(raw_datum)
             flat_x = np.fromstring(datum.data, dtype=np.uint8) #is this right, given that this may be neg and float numbers...maybe just save as un-normalized positive  uint8s to save space
             orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-            print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {} reshaped {}'.format(self.lmdb,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x),orig_x.shape))
+            print('strid {} channels {} width {} height {} flatxsize {} reshaped {} min {} max {}'.format(str_id,datum.channels,datum.width,datum.height,len(flat_x),orig_x.shape,np.min(orig_x),np.max(orig_x)))
             if datum.channels == 3:
                 logging.debug('before transpose shape:'+str(orig_x.shape))
             # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
