@@ -76,12 +76,17 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 label = [float(l) for l in vals]
                 lbl = np.array(label) #maybe specify float type here - must agree with read operation
                 if not multilabel:
+                    if len(lbl)>1:
+                        logging.warning('dunmping extra info on len {} label {}'.format(len(lbl),lbl))
                     lbl = lbl[0] #may hit trouble as datum.label expects int or long
             else:
                 label = [int(l) for l in vals]
                 lbl = np.array(label,dtype = np.int) #  assuming labels are non-neg integers less than 255...
                 if not multilabel:
+                    if len(lbl)>1:
+                        logging.warning('dunmping extra info on len {} label {}'.format(len(lbl),lbl))
                     lbl = lbl[0]
+
             if first_time:
                 class_populations = np.zeros(len(label))
             if not os.path.exists(file):
@@ -131,7 +136,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             datum.label = lbl
             str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
-            print('len img {} len imgdata {} len label {} len lbl data {}'.format(img_arr.shape,len(datum.data,len(label),len(datum.label))))
+            print('len img {} len imgdata {}'.format(img_arr.shape,len(datum.data)))
             # The encode is only essential in Python 3
             datum.extra = 1
             try:
