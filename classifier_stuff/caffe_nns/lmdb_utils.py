@@ -74,10 +74,10 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             vals = line.split()[1:]
             if regression:
                 label = [float(l) for l in vals]
-                label = np.array(label) #maybe specify float type here - must agree with read operation
+                lbl = np.array(label) #maybe specify float type here - must agree with read operation
             else:
                 label = [int(l) for l in vals]
-                label = np.array(label,dtype = np.uint8) #assuming labels are non-neg integers less than 255...
+                lbl = np.array(label,dtype = np.uint8) #assuming labels are non-neg integers less than 255...
             if first_time:
                 class_populations = np.zeros(len(label))
             if not os.path.exists(file):
@@ -122,7 +122,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
  #           datum.label = label.tobytes()
             datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
             print(type(label))
-            datum.label = label.tostring() #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
+            datum.label = lbl.tostring() #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
             #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
             #         str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
