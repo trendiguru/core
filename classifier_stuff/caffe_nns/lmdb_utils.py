@@ -86,6 +86,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             img_arr = cv2.imread(file)
             img_arr = np.array(img_arr,dtype=np.uint8) #make sure uint8 to make small db
             print('type of image:'+str(type(img_arr))+' label:'+str(type(label)))
+            print('img shape {} label={}'.format(img_arr.shape,lbl))
             if img_arr is None:
                 print('couldnt read '+file)
                 continue
