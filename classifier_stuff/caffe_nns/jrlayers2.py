@@ -617,7 +617,6 @@ class JrMultilabel(caffe.Layer):
             with self.lmdb_env.begin() as self.txn:
                 self.n_files = self.txn.stat()['entries']
                 print('lmdb {} opened\nstat {}\nentries {}'.format(self.lmdb,self.txn.stat(),self.n_files))
-                print self.n_files
             #get first dB entry to determine label size
                 str_id = '{:08}'.format(0)
                 raw_datum = self.txn.get(str_id.encode('ascii'))
@@ -634,8 +633,8 @@ class JrMultilabel(caffe.Layer):
         if self.random_init:
             random.seed(self.seed)
             self.idx = random.randint(0, self.n_files-1)
-        if self.random_pick:
-            random.shuffle(self.images_and_labels_list)
+#        if self.random_pick:
+#            random.shuffle(self.images_and_labels_list)
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         spinner = spinning_cursor()
