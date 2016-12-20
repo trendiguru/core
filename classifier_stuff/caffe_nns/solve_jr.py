@@ -189,7 +189,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
      #       test_net = solver.test_nets[0] # more than one testnet is supported
     #        testloss = test_net.blobs['loss'].data
             try:
-                testloss =     test_net.blobs['loss'].data
+                testloss = test_net.blobs['loss'].data
             except:
                 print('no testloss available')
                 testloss=0

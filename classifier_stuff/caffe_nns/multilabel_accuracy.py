@@ -21,7 +21,7 @@ from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
+from trendi.classifier_stuff.caffe_nns import jrinfer
 
 # matplotlib inline
 def setup():
@@ -272,10 +272,12 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
     acc = 0.0 #
     baseline_acc = 0.0
     n = 0
+    first_time = True
     for gt, est in zip(ground_truths, estimates): #for each ground truth and estimated label vector
         if est.shape != gt.shape:
             print('shape mismatch')
             return
+
         if first_time == True:
             first_time = False
             tp = np.zeros_like(gt)
@@ -284,7 +286,12 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
             fn = np.zeros_like(gt)
             baseline_est = np.zeros_like(est)
         #binarize the estimate which can come in as floating
-        est = [e>threshold for e in est]
+        print('type of est:'+str(type(est))+' shape:'+str(est.shape))
+        if type(est) is np.uint8 or type(est) is np.int or type(est) is np.float or type(est) is np.float64 or type(est) is np.ndarray:
+            print('g ot np arr')
+            est = est>threshold
+        else:
+            est = np.array([e>threshold for e in est])
         tp,tn,fp,fn = update_confmat(gt,est,tp,tn,fp,fn)
         print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
         print('gt:'+str([int(x) for x in gt]))  #turn to int since print as float takes 2 lines
@@ -297,13 +304,15 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
         baseline_acc += baseline_h
         n += 1
 
-    print('len(gts) {} len(ests) {} batchsize {} acc {} baseline {}'.format(len(gts),len(ests),batch_size,acc/n,baseline_acc/n))
+    print('len(gts) {} len(ests) {} acc {} baseline {}'.format(len(ground_truths),len(estimates),acc/n,baseline_acc/n))
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     full_rec = [float(tp[i])/(tp[i]+fn[i]) for i in range(len(tp))]
     full_prec = [float(tp[i])/(tp[i]+fp[i]) for i in range(len(tp))]
     full_acc = [float(tp[i]+tn[i])/(tp[i]+tn[i]+fp[i]+fn[i]) for i in range(len(tp))]
     print('THRESHOLD '+str(threshold))
     print('precision {}\nrecall {}\nacc {}\navgacc {}'.format(full_prec,full_rec,full_acc,acc/n))
+    print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
+
     return full_prec,full_rec,full_acc,tp,tn,fp,fn
 
 #train
@@ -324,7 +333,7 @@ def check_baseline_accuracy(net, num_batches, batch_size = 128):
     return acc / (num_batches * batch_size)
 
 
-def results():#prediction results
+def results_unk():#prediction results
     test_net = solver.test_nets[0]
     for image_index in range(5):
         plt.figure()
@@ -333,7 +342,6 @@ def results():#prediction results
         estlist = test_net.blobs['score'].data[image_index, ...] > 0
         plt.title('GT: {} \n EST: {}'.format(classes[np.where(gtlist)], classes[np.where(estlist)]))
         plt.axis('off')
-
 
 def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5,outlayer='label'):
     print('checking accuracy of net {} using proto {}'.format(caffemodel,proto))
@@ -352,6 +360,40 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
 #    solver.step(1)
 #    precision,recall,accuracy,tp,tn,fp,fn = check_acc(solver.test_nets[0], num_batches=num_batches,batch_size = batch_size, threshold=threshold)
     precision,recall,accuracy,tp,tn,fp,fn = check_acc(net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
+    return precision,recall,accuracy,tp,tn,fp,fn
+
+def check_accuracy_hydra(proto,caffemodel,num_images=5,
+                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/labels_webtool_v1/tb_cats_from_webtool_v1_test.txt',
+                         outlayers=['fc4_0','fc4_1','fc4_2']):
+    with open(multilabel_file,'r') as fp:
+        lines = fp.readlines()
+        fp.close()
+    files = [l.split()[0] for l in lines]
+    labels = [[int(i) for i in l.split()[1:]] for l in lines]
+    if num_images is not None:
+        files = files[0:num_images]
+        labels = labels[0:num_images]
+    results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
+    print('all reslts from jrinfer.infer_many_hydra:'+str(results))
+    cats = ['pants','dress','top']
+    indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
+    print('cats {} indices {}'.format(cats,indices))
+    reduced_labels = []
+    for l in labels:
+        print('l b4 '+str(l))
+        l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]],dtype=np.uint8)
+        reduced_labels.append(l)
+        print('l after '+str(reduced_labels))
+    reduced_labels = np.array(reduced_labels,dtype=np.uint8)
+    reduced_results = []
+    for r in results:
+        print('r b4 '+str(r))
+        r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])],dtype=np.uint8)
+        reduced_results.append(r)
+        print('r after '+str(reduced_results))
+    reduced_results = np.array(reduced_results,dtype=np.uint8)
+    print('labels {} \n results {}'.format(reduced_labels,reduced_results))
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
 
 def multilabel_infer_one(url):
@@ -475,8 +517,6 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     multilabel_output = multilabel_dict['multilabel_output']
     logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
-
-
 
 def test_multilabel_output_on_testset(testfile,outdir='./'):
     '''

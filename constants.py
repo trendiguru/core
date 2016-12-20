@@ -54,7 +54,7 @@ products_per_ip_pid = {'default':
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "6nGzEP7cp5s957P4":
-                                 {'default': 'amazon_DE'},
+                                 {'default': 'shopstyle_DE'},
                        "2DqGp6fum7jiv2B6":
                                  {'default': 'amazon_US'},
                        "sg3SH5yif242E5jL":
@@ -398,6 +398,8 @@ paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 #the point is a multilabel classifier will be taking care of determining whats happening
 #within these categories.  We finally decided these should be similar-looking things e.g. if there were no color
 #or texture which things would be most similar
+
+#lingerie -> babydoll, not a bra or panties
 
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']

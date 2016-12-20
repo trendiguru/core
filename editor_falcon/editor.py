@@ -106,7 +106,8 @@ class Editor(object):
     def on_post(self, req, resp, **path_args):
         ret = {'ok': False, 'data': {}}
         body = req.stream.read()
-        data = body['data'] if 'data' in body else None
+        if body:
+            data = json_util.loads(body)
         user_email = req.context["user_identifier"]
         pid = db.users.find_one({'email': user_email})['pid']
         products_collection = page_results.get_collection_from_ip_and_pid(None, pid)
@@ -115,7 +116,7 @@ class Editor(object):
                 ret['ok'] = edit_results.add_result(path_args['image_id'],
                                                     path_args["person_id"],
                                                     path_args["item_category"],
-                                                    products_collection,
+                                                    path_args["results_collection"],
                                                     data)
             elif "person_id" in path_args:
                 ret['ok'] = edit_results.add_item(path_args["image_id"],
