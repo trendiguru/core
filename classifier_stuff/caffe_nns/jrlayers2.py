@@ -615,8 +615,8 @@ class JrMultilabel(caffe.Layer):
         elif self.lmdb is not None:
             self.lmdb_env = lmdb.open(self.lmdb, readonly=True)
             with self.lmdb_env.begin() as self.txn:
-                print('lmdb {} opened, stat {}  entries '.format(self.lmdb,self.txn.stat()))
-                self.n_files = self.lmdb.stat()['entries']
+                self.n_files = self.txn.stat()['entries']
+                print('lmdb {} opened\nstat {}\nentries {}'.format(self.lmdb,self.txn.stat(),self.n_files))
                 print self.n_files
             #get first dB entry to determine label size
                 str_id = '{:08}'.format(0)
