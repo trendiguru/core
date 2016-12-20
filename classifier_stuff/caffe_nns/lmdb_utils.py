@@ -44,7 +44,7 @@ def db_size(dbname):
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
 
-def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False):
+def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False,n_classes=2):
     if dbname is None:
         dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
@@ -89,7 +89,10 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
 
             if first_time:
                 first_time = False
-                class_populations = np.zeros(len(label))
+                if multilabel:
+                    class_populations = np.zeros(len(label))
+                else:
+                    class_populations = np.zeros(n_classes)
             if not os.path.exists(file):
                 print('could not find file '+file)
                 continue
