@@ -533,9 +533,9 @@ class JrMultilabel(caffe.Layer):
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
             print('using images/labels file '+self.images_and_labels_file)
-            if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
-                if self.images_dir is not None:
-                    self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+ #           if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
+ #               if self.images_dir is not None:
+ #                   self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
@@ -736,8 +736,8 @@ class JrMultilabel(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
-            if self.images_dir:
-                filename=os.path.join(self.images_dir,filename)
+ #           if self.images_dir:
+ #               filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename)+' ; trying next')
