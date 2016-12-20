@@ -56,7 +56,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
     n_pixels = resize[0]*resize[1]*n_files
     bytes_per_pixel = 3 #assuming rgb
     n_bytes = n_pixels*bytes_per_pixel
-    print('n pixels {} nbytes {} files {}'.format(n_pixels,n_bytes,n_files))
+    print('n pixels {} nbytes {} ({}Gb) files {}'.format(n_pixels,n_bytes,n_bytes/10**9,n_files))
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size
     print('writing to db:'+dbname)
