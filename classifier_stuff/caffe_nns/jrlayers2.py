@@ -626,7 +626,7 @@ class JrMultilabel(caffe.Layer):
                 y = datum.label
 #                vals = y.split() #in the meantime lmdb cant handle multilabel
                 self.n_labels = 1
-                print('lmdb label {} length {}'.format(y,self.n_labels))
+                print('lmdb label {} length {} datashape'.format(y,self.n_labels,flat_x.shape))
 
         self.idx = 0
         # randomization: seed and pick
@@ -861,7 +861,7 @@ class JrMultilabel(caffe.Layer):
         """
         #print('load_image_and_label start')
         while(1):
-            str_id = '{:08}'.format(idx)
+            str_id = '{:08}'.format(self.idx)
             raw_datum = self.txn.get(str_id.encode('ascii'))
             datum = caffe.proto.caffe_pb2.Datum()
             datum.ParseFromString(raw_datum)
