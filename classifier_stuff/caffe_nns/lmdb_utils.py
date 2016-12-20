@@ -44,10 +44,10 @@ def db_size(dbname):
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
 
-def labelfile_to_lmdb(labelfile,dbname=None,test_or_train=None,max_images_per_class = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,use_visual_output=False,shuffle=True,regression=False):
+def labelfile_to_lmdb(labelfile,dbname=None,max_images_per_class = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False):
     if dbname is None:
         dbname = labelfile+'.lmdb'
-    print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
+    print('writing to lmdb {} test/train {} max {} resize to {} subtract mean {} scale {}'.format(dbname,test_or_train,max_images_per_class,resize,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
@@ -60,12 +60,10 @@ def labelfile_to_lmdb(labelfile,dbname=None,test_or_train=None,max_images_per_cl
     n_bytes = n_pixels*bytes_per_pixel
     print('n pixels {} nbytes {} files {}'.format(n_pixels,n_bytes,n_files))
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
-    map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size  as in:
-    # We need to prepare the database for the size. We'll set it 10 times
-    # greater than what we theoretically need. There is little drawback to
+    map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size
+    # We need to prepare the database for the size. There is little drawback to
     # setting this too big. If you still run into problem after raising
-    # this, you might want to try saving fewer entries in a single
-    # transaction.
+    # this, you might want to try saving fewer entries in a single transaction.
     print('writing to db:'+dbname)
     classno = 0
     image_number =0
@@ -117,6 +115,8 @@ def labelfile_to_lmdb(labelfile,dbname=None,test_or_train=None,max_images_per_cl
                 img_arr[:,:,0] = img_arr[:,:,0]-mean[0]
                 img_arr[:,:,1] = img_arr[:,:,1]-mean[1]
                 img_arr[:,:,2] = img_arr[:,:,2]-mean[2]
+            if scale: #this will scale from -.5 to 0.5 or 0 to 1 dep. on whether mean was subtracted
+                img_arr = img_arr/256
             datum = caffe.proto.caffe_pb2.Datum()
             datum.channels = img_arr.shape[2]
             datum.height = img_arr.shape[0]
