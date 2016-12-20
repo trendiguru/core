@@ -480,7 +480,7 @@ class JrMultilabel(caffe.Layer):
 
         self.images_and_labels_file = params.get('images_and_labels_file',None)
         self.lmdb = params.get('lmdb',None)
-        self.mean = np.array(params['mean'])
+        self.mean = np.array(params.get('mean',(0,0,0)))
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
@@ -871,7 +871,7 @@ class JrMultilabel(caffe.Layer):
             datum.ParseFromString(raw_datum)
             flat_x = np.fromstring(datum.data, dtype=np.uint8) #is this right, given that this may be neg and float numbers...maybe just save as un-normalized positive  uint8s to save space
             orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-            print('strid {} channels {} width {} height {} flatxsize {} reshaped {} min {} max {}'.format(str_id,datum.channels,datum.width,datum.height,len(flat_x),orig_x.shape,np.min(orig_x),np.max(orig_x)))
+            logging.debug('strid {} channels {} width {} height {} flatxsize {} reshaped {} min {} max {}'.format(str_id,datum.channels,datum.width,datum.height,len(flat_x),orig_x.shape,np.min(orig_x),np.max(orig_x)))
             if datum.channels == 3:
                 logging.debug('before transpose shape:'+str(orig_x.shape))
             # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
@@ -970,7 +970,7 @@ class JrMultilabel(caffe.Layer):
             break #got good img after all that , get out of while
 
         if self.save_visual_output:
-            name = str(self.idx)+str(label_vec)+'_after.jpg'
+            name = str(self.idx)+str(label_vec)+'_after_aug.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
         out_ = np.array(out_, dtype=np.float32)
