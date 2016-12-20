@@ -130,6 +130,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             datum.channels = img_arr.shape[2]
             datum.height = img_arr.shape[0]
             datum.width = img_arr.shape[1]
+            img_arr=img_arr.transpose(2,0,1) #h,w,c -> c,h,w
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
 #                    print('reshaped size: '+str(img_reshaped.shape))
  #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
