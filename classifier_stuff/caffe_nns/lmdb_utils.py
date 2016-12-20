@@ -138,7 +138,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
             print('len img {} len imgdata {}'.format(img_arr.shape,len(datum.data)))
             # The encode is only essential in Python 3
-            datum.extra = 1
+#            datum.extra = 1  #nice try , but the fields are defined elsewhere so we need ot conform to img=bytes and label = int or long
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
     #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
