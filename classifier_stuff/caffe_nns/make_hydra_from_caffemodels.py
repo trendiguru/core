@@ -11,6 +11,8 @@ stages:
 import caffe
 import os
 import argparse
+import cv2
+import numpy as np
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
@@ -59,6 +61,63 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
  #   for url in urls:
  #       jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
     jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
+
+def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    conv1 = net.params['conv1'][0].data
+    print('conv1 params shape {} mean {} std {}'.format(conv1.shape,np.mean(conv1),np.std(conv1)))
+
+    bn1_0 = net.params['bn_conv1'][0].data
+    print('bn0 params shape {} mean {} std {}'.format(bn1_0.shape,np.mean(bn1_0),np.std(bn1_0)))
+    bn1_1 = net.params['bn_conv1'][1].data
+    print('bn1 params shape {} mean {} std {}'.format(bn1_1.shape,np.mean(bn1_1),np.std(bn1_1)))
+    bn1_2 = net.params['bn_conv1'][2].data
+    print('bn2 params shape {} mean {} std {}'.format(bn1_2.shape,np.mean(bn1_2),np.std(bn1_2)))
+
+    scale1_0 = net.params['scale_conv1'][0].data
+    print('scale0 params shape {} mean {} std {}'.format(scale1_0.shape,np.mean(scale1_0),np.std(scale1_0)))
+    scale1_1 = net.params['scale_conv1'][1].data
+    print('scale1 params shape {} mean {} std {}'.format(scale1_1.shape,np.mean(scale1_1),np.std(scale1_1)))
+
+#    img_arr = cv2.imread('/usr/lib/python2.7/dist-packages/trendi/images/female1.jpg')
+    img_arr = cv2.imread('/home/jeremy/projects/core/images/female1.jpg')
+    img_arr=cv2.resize(img_arr,(224,224))
+    print('in shape '+str(img_arr.shape))
+    img_arr=np.transpose(img_arr,[2,0,1])
+    img_arr = np.array(img_arr, dtype=np.float32)
+    print('out shape '+str(img_arr.shape))
+    net.blobs['data'].reshape(1,*img_arr.shape)
+    net.blobs['data'].data[...] = img_arr
+    net.forward()
+    print('data mean {} std {}'.format(np.mean(net.blobs['data'].data),np.std(net.blobs['data'].data)))
+    print('conv1 mean {} std {}'.format(np.mean(net.blobs['conv1'].data),np.std(net.blobs['conv1'].data)))
+    print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
+
+    print('demeaned image now:')
+    img_arr = img_arr - 112
+    net.blobs['data'].data[...] = img_arr
+    net.forward()
+    print('data mean {} std {}'.format(np.mean(net.blobs['data'].data),np.std(net.blobs['data'].data)))
+    print('conv1 mean {} std {}'.format(np.mean(net.blobs['conv1'].data),np.std(net.blobs['conv1'].data)))
+    print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
+
+    print('scaled img')
+    img_arr = img_arr / 256
+    net.blobs['data'].data[...] = img_arr
+    net.forward()
+    print('data mean {} std {}'.format(np.mean(net.blobs['data'].data),np.std(net.blobs['data'].data)))
+    print('conv1 mean {} std {}'.format(np.mean(net.blobs['conv1'].data),np.std(net.blobs['conv1'].data)))
+    print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
+
+    conv1 = net.params['conv1'][0].data
+    print('conv1 params shape {} mean {} std {}'.format(conv1.shape,np.mean(conv1),np.std(conv1)))
+
+    bn1_0 = net.params['bn_conv1'][0].data
+    print('bn0 params shape {} mean {} std {}'.format(bn1_0.shape,np.mean(bn1_0),np.std(bn1_0)))
+    bn1_1 = net.params['bn_conv1'][1].data
+    print('bn1 params shape {} mean {} std {}'.format(bn1_1.shape,np.mean(bn1_1),np.std(bn1_1)))
+    bn1_2 = net.params['bn_conv1'][2].data
+    print('bn2 params shape {} mean {} std {}'.format(bn1_2.shape,np.mean(bn1_2),np.std(bn1_2)))
 
 
 if __name__ == "__main__":

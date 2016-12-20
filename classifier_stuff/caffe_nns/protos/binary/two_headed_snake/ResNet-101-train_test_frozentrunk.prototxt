@@ -52,7 +52,9 @@ layer {
 	top: "conv1"
 	name: "bn_conv1"
 	type: "BatchNorm"
-
+	  param { lr_mult: 0 }
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
 }
 
 layer {

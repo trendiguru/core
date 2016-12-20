@@ -32,7 +32,7 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
+
 }
 
 layer {
@@ -91,7 +91,6 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-
 }
 
 layer {
@@ -130,6 +129,7 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
+
 
 }
 
@@ -225,7 +225,6 @@ layer {
 	param { lr_mult: 0 }
 
 
-
 }
 
 layer {
@@ -281,7 +280,6 @@ layer {
 	param { lr_mult: 0 }
 
 
-
 }
 
 layer {
@@ -329,7 +327,6 @@ layer {
 	param { lr_mult: 0 }
 
 
-
 }
 
 layer {
@@ -375,7 +372,6 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
-
 
 
 }
@@ -433,7 +429,6 @@ layer {
 	param { lr_mult: 0 }
 
 
-
 }
 
 layer {
@@ -480,7 +475,6 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -524,11 +518,10 @@ layer {
 	top: "res2c_branch2c"
 	name: "bn2c_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -580,11 +573,10 @@ layer {
 	top: "res3a_branch1"
 	name: "bn3a_branch1"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -621,11 +613,10 @@ layer {
 	top: "res3a_branch2a"
 	name: "bn3a_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -669,11 +660,10 @@ layer {
 	top: "res3a_branch2b"
 	name: "bn3a_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -717,11 +707,10 @@ layer {
 	top: "res3a_branch2c"
 	name: "bn3a_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -773,11 +762,10 @@ layer {
 	top: "res3b1_branch2a"
 	name: "bn3b1_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -821,11 +809,10 @@ layer {
 	top: "res3b1_branch2b"
 	name: "bn3b1_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -869,11 +856,10 @@ layer {
 	top: "res3b1_branch2c"
 	name: "bn3b1_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -925,11 +911,10 @@ layer {
 	top: "res3b2_branch2a"
 	name: "bn3b2_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -973,11 +958,10 @@ layer {
 	top: "res3b2_branch2b"
 	name: "bn3b2_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1021,11 +1005,10 @@ layer {
 	top: "res3b2_branch2c"
 	name: "bn3b2_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1077,11 +1060,10 @@ layer {
 	top: "res3b3_branch2a"
 	name: "bn3b3_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1125,11 +1107,10 @@ layer {
 	top: "res3b3_branch2b"
 	name: "bn3b3_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1173,11 +1154,10 @@ layer {
 	top: "res3b3_branch2c"
 	name: "bn3b3_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1229,11 +1209,10 @@ layer {
 	top: "res4a_branch1"
 	name: "bn4a_branch1"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1270,11 +1249,10 @@ layer {
 	top: "res4a_branch2a"
 	name: "bn4a_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1318,11 +1296,10 @@ layer {
 	top: "res4a_branch2b"
 	name: "bn4a_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1366,11 +1343,10 @@ layer {
 	top: "res4a_branch2c"
 	name: "bn4a_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1422,11 +1398,10 @@ layer {
 	top: "res4b1_branch2a"
 	name: "bn4b1_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1470,11 +1445,10 @@ layer {
 	top: "res4b1_branch2b"
 	name: "bn4b1_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1518,11 +1492,10 @@ layer {
 	top: "res4b1_branch2c"
 	name: "bn4b1_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-
 	
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
 
 }
 
@@ -1574,11 +1547,10 @@ layer {
 	top: "res4b2_branch2a"
 	name: "bn4b2_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1622,11 +1594,10 @@ layer {
 	top: "res4b2_branch2b"
 	name: "bn4b2_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1670,11 +1641,10 @@ layer {
 	top: "res4b2_branch2c"
 	name: "bn4b2_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1726,11 +1696,10 @@ layer {
 	top: "res4b3_branch2a"
 	name: "bn4b3_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1774,11 +1743,10 @@ layer {
 	top: "res4b3_branch2b"
 	name: "bn4b3_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1822,11 +1790,10 @@ layer {
 	top: "res4b3_branch2c"
 	name: "bn4b3_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1878,11 +1845,10 @@ layer {
 	top: "res4b4_branch2a"
 	name: "bn4b4_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1926,11 +1892,10 @@ layer {
 	top: "res4b4_branch2b"
 	name: "bn4b4_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -1974,11 +1939,10 @@ layer {
 	top: "res4b4_branch2c"
 	name: "bn4b4_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -2030,11 +1994,10 @@ layer {
 	top: "res4b5_branch2a"
 	name: "bn4b5_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-
 	
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
 
 }
 
@@ -2078,11 +2041,10 @@ layer {
 	top: "res4b5_branch2b"
 	name: "bn4b5_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -2126,11 +2088,10 @@ layer {
 	top: "res4b5_branch2c"
 	name: "bn4b5_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -2182,11 +2143,10 @@ layer {
 	top: "res4b6_branch2a"
 	name: "bn4b6_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -2230,11 +2190,10 @@ layer {
 	top: "res4b6_branch2b"
 	name: "bn4b6_branch2b"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-	param { lr_mult: 0 }
-
 	
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
+	param { lr_mult: 0 }
 
 }
 
@@ -2278,11 +2237,10 @@ layer {
 	top: "res4b6_branch2c"
 	name: "bn4b6_branch2c"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -2334,11 +2292,10 @@ layer {
 	top: "res4b7_branch2a"
 	name: "bn4b7_branch2a"
 	type: "BatchNorm"
-	param { lr_mult: 0 }
+		param { lr_mult: 0 }
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
 
 }
 
@@ -5214,9 +5171,6 @@ layer {
 	param { lr_mult: 0 }
 	param { lr_mult: 0 }
 
-	
-
-}
 
 layer {
 	bottom: "res5c_branch2c"
