@@ -698,7 +698,7 @@ class JrMultilabel(caffe.Layer):
         if self.random_pick:
 #            self.idx = random.randint(0, len(self.imagefiles)-1)
             self.idx = random.randint(0, self.n_files-1)
-            print('next idx='+str(self.idx))
+            logging.debug('next idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
@@ -870,17 +870,16 @@ class JrMultilabel(caffe.Layer):
             datum = caffe.proto.caffe_pb2.Datum()
             datum.ParseFromString(raw_datum)
             flat_x = np.fromstring(datum.data, dtype=np.uint8) #is this right, given that this may be neg and float numbers...maybe just save as un-normalized positive  uint8s to save space
-            print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(self.lmdb,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
             orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
-            print('lmdb image shape {}'.format(orig_x.shape))
+            print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {} reshaped {}'.format(self.lmdb,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x),orig_x.shape))
             if datum.channels == 3:
                 logging.debug('before transpose shape:'+str(orig_x.shape))
             # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
             #h w c  transpose(2,0,1) -> c h w
             #c h w  transpose(1,2,0) -> h w c
-                transpose_time=time.time()
+ #               transpose_time=time.time()
                 x = orig_x.transpose((1,2,0)) #get hwc image
-                print('transposetime '+str(time.time()-transpose_time))
+#                print('transposetime '+str(time.time()-transpose_time))
                 logging.debug('after transpose shape:'+str(x.shape))
                 x[:,:,0] = x[:,:,0]-self.mean[0] #add mean
                 x[:,:,1] = x[:,:,1]-self.mean[1] #maybe do this after augment as it will force floatiness
@@ -896,7 +895,7 @@ class JrMultilabel(caffe.Layer):
                     x=x/self.scale
             y = datum.label
 #            vals = y.split()
-            print('lmdb label {} length {}'.format(y,self.n_labels))
+#            print('lmdb label {} length {}'.format(y,self.n_labels))
             if self.regression:
                 label_vec = [float(i) for i in y] #currently not possible
             else:
