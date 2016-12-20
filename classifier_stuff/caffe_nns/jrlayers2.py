@@ -869,7 +869,7 @@ class JrMultilabel(caffe.Layer):
             datum = caffe.proto.caffe_pb2.Datum()
             datum.ParseFromString(raw_datum)
             flat_x = np.fromstring(datum.data, dtype=np.uint8) #is this right, given that this may be neg and float numbers...maybe just save as un-normalized positive  uint8s to save space
-            logging.debug('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(self.lmdb,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
+            print('db {} strid {} channels {} width {} height {} datumsize {} flatxsize {}'.format(self.lmdb,str_id,datum.channels,datum.width,datum.height,len(raw_datum),len(flat_x)))
             orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
             print('lmdb image shape {}'.format(orig_x.shape))
             if datum.channels == 3:
