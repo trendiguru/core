@@ -49,7 +49,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
         dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
         max_images = 10**8
-    print('writing to lmdb {}\nmaximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale))
+    print('writing to lmdb {}\nmaximages {} resize to {} subtract mean {} scale images {}'.format(dbname,max_images,resize,mean,scale))
     with open(labelfile,'r') as fp:
         lines = fp.readlines()
     n_files = min(len(lines),max_images)
