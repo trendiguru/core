@@ -49,7 +49,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
         dbname = labelfile+'.lmdb'
     if max_images == None:
         max_images = 10**8
-    print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale {}'.format(dbname,max_images,resize,avg_B,avg_G,avg_R))
+    print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale)
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
