@@ -116,7 +116,7 @@ class Editor(object):
                 ret['ok'] = edit_results.add_result(path_args['image_id'],
                                                     path_args["person_id"],
                                                     path_args["item_category"],
-                                                    products_collection,
+                                                    path_args["results_collection"],
                                                     data)
             elif "person_id" in path_args:
                 ret['ok'] = edit_results.add_item(path_args["image_id"],
