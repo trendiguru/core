@@ -864,6 +864,7 @@ class JrMultilabel(caffe.Layer):
         """
         logging.debug('load_image_and_label start, idx:'+str(self.idx))
         while(1):
+
             str_id = '{:08}'.format(self.idx)
             raw_datum = self.txn.get(str_id.encode('ascii'))
             datum = caffe.proto.caffe_pb2.Datum()
