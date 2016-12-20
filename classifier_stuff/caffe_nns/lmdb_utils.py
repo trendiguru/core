@@ -52,7 +52,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
     print('writing to lmdb {}\nmaximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale))
     with open(labelfile,'r') as fp:
         lines = fp.readlines()
-    n_files = len(lines)
+    n_files = min(len(lines),len(max_images))
     n_pixels = resize[0]*resize[1]*n_files
     bytes_per_pixel = 3 #assuming rgb
     n_bytes = n_pixels*bytes_per_pixel
