@@ -603,7 +603,7 @@ class JrMultilabel(caffe.Layer):
                             else:
                                 print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
                     else:
-                        print('got bad image:'+self.imagefiles[ind])
+                        print('got bad image:'+line)
 
             assert(len(self.imagefiles) == len(self.label_vecs))
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
@@ -615,8 +615,8 @@ class JrMultilabel(caffe.Layer):
         elif self.lmdb is not None:
             self.lmdb_env = lmdb.open(self.lmdb, readonly=True)
             with self.lmdb_env.begin() as self.txn:
+                print('lmdb {} opened, stat {}  entries {}'.format(self.lmdb,self.lmdb.stat()))
                 self.n_files = self.lmdb.stat()['entries']
-                print('lmdb {} opened, stat {}  entries {}'.format(self.lmdb,self.lmdb.stat(),self.n_files))
             #get first dB entry to determine label size
                 str_id = '{:08}'.format(0)
                 raw_datum = self.txn.get(str_id.encode('ascii'))
@@ -624,9 +624,9 @@ class JrMultilabel(caffe.Layer):
                 datum.ParseFromString(raw_datum)
                 flat_x = np.fromstring(datum.data, dtype=np.uint8)
                 y = datum.label
-                vals = y.split()
-                self.n_labels = len(vals)
-                print('lmdb label {} length {}'.format(vals,self.n_labels))
+#                vals = y.split() #in the meantime lmdb cant handle multilabel
+                self.n_labels = 1
+                print('lmdb label {} length {}'.format(y,self.n_labels))
 
         self.idx = 0
         # randomization: seed and pick
