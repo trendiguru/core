@@ -881,18 +881,9 @@ class JrMultilabel(caffe.Layer):
                 x = orig_x.transpose((1,2,0)) #get hwc image
 #                print('transposetime '+str(time.time()-transpose_time))
                 logging.debug('after transpose shape:'+str(x.shape))
-                x[:,:,0] = x[:,:,0]-self.mean[0] #add mean
-                x[:,:,1] = x[:,:,1]-self.mean[1] #maybe do this after augment as it will force floatiness
-                x[:,:,2] = x[:,:,2]-self.mean[2]
             elif datum.channels == 1:
 #                 print('reshaping 1 chan')
                 x = flat_x.reshape(datum.height, datum.width)
-                x[:,:] = x[:,:]+self.mean[0]
-            if self.scale:
-                if self.scale==True:
-                    x=x/255.0
-                else:
-                    x=x/self.scale
             y = datum.label
 #            vals = y.split()
 #            print('lmdb label {} length {}'.format(y,self.n_labels))
@@ -978,11 +969,15 @@ class JrMultilabel(caffe.Layer):
             cv2.imwrite(name,out_)
             print('saving '+name)
         out_ = np.array(out_, dtype=np.float32)
-
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
-        #todo maybe also normalize to -1:1
         out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
+        #DONE maybe also normalize to -1:1
+        if self.scale:
+            if self.scale==True:
+                out_=out_/255.0
+            else:
+                out_=out_/self.scale
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
         return self.idx, out_, label_vec
