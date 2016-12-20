@@ -54,7 +54,7 @@ products_per_ip_pid = {'default':
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "6nGzEP7cp5s957P4":
-                                 {'default': 'amazon_DE'},
+                                 {'default': 'shopstyle_DE'},
                        "2DqGp6fum7jiv2B6":
                                  {'default': 'amazon_US'},
                        "sg3SH5yif242E5jL":
