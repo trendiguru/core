@@ -79,7 +79,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                     lbl = lbl[0] #may hit trouble as datum.label expects int or long
             else:
                 label = [int(l) for l in vals]
-                lbl = np.array(label,dtype = np.uint8) #  assuming labels are non-neg integers less than 255...
+                lbl = np.array(label,dtype = np.int) #  assuming labels are non-neg integers less than 255...
                 if not multilabel:
                     lbl = lbl[0]
             if first_time:
