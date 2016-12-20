@@ -129,7 +129,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
             #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
             datum.label = lbl
-            #         str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
+            str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
             print('len img {} len imgdata {} len label {} len lbl data {}'.format(img_arr.shape,len(datum.data,len(label),len(datum.label))))
             # The encode is only essential in Python 3
