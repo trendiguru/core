@@ -104,8 +104,8 @@ class JrPixlevel(caffe.Layer):
 
 #######begin vestigial code for separate images/labels files
         elif self.imagesfile is not None:
-            if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
-                self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
+    #        if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
+    #            self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
                 logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
