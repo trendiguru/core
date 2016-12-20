@@ -914,14 +914,19 @@ class JrMultilabel(caffe.Layer):
                 logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
                 self.next_idx()
                 continue
-            try:
-                in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
-            except:
-                e = sys.exc_info()[0]
-                logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
-                self.next_idx()
-                continue
-#############end added code to avoid cv2.imread############
+#            try:
+#                in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
+#            except:
+#                e = sys.exc_info()[0]
+#                logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
+#                self.next_idx()
+#                continue
+
+            if self.save_visual_output:
+                name = str(self.idx)+str(label_vec)+'_before_aug.jpg'
+                cv2.imwrite(name,in_)
+                print('saving '+name)
+
 
             out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
                 max_angle = self.augment_max_angle,
@@ -965,7 +970,7 @@ class JrMultilabel(caffe.Layer):
             break #got good img after all that , get out of while
 
         if self.save_visual_output:
-            name = str(self.idx)+str(label_vec)+'.jpg'
+            name = str(self.idx)+str(label_vec)+'_after.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
         out_ = np.array(out_, dtype=np.float32)
