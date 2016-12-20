@@ -1,3 +1,4 @@
+import traceback
 import pymongo
 import bson
 import datetime
@@ -207,12 +208,13 @@ def add_result(image_id, person_id, item_category, results_collection, new_resul
         person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
         item = [item for item in person['items'] if item['category'] == item_category][0]
         results = item['similar_results'][results_collection]
-        new_result['id'] = db[results_collection+'_'+person['gender']].find_one({'images.XLarge': new_result['images']['XLarge']})['id']
+        # new_result['id'] = db[results_collection+'_'+person['gender']].find_one({'images.XLarge': new_result['images']['XLarge']})['id']
+        new_result['id'] = bson.ObjectId()
         results.insert(0, new_result)
         db.images.replace_one({'image_id': image_id}, image_obj)
         return True
     except Exception as e:
-        print e
+        print traceback.format_exc()
         return False
 
 
