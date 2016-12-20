@@ -891,16 +891,16 @@ class JrMultilabel(caffe.Layer):
                 else:
                     x=x/self.scale
             y = datum.label
-            vals = y.split()
-            print('lmdb label {} length {}'.format(vals,self.n_labels))
+#            vals = y.split()
+            print('lmdb label {} length {}'.format(y,self.n_labels))
             if self.regression:
-                label_vec = [float(i) for i in vals]
+                label_vec = [float(i) for i in y] #currently not possible
             else:
                 try:
-                    label_vec = [int(i) for i in vals]
+                    label_vec = y
                 except:
-                    logging.debug('got something that coulndt be turned into a string in the following line from file '+self.images_and_labels_file)
-                    logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
+                    logging.debug('got something that coulndt be turned into a label from lmdb '+self.lmdb)
+                    logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line, index='+str(self.idx))
                     self.next_idx()
                     continue
             label_vec = np.array(label_vec)
