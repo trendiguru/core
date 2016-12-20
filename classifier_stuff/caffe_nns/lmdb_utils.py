@@ -85,7 +85,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 continue
             img_arr = cv2.imread(file)
             img_arr = np.array(img_arr,dtype=np.uint8) #make sure uint8 to make small db
-            print('type of image:'+str(type(img_arr)))
+            print('type of image:'+str(type(img_arr))+' label:'+str(type(label)))
             if img_arr is None:
                 print('couldnt read '+file)
                 continue
@@ -121,6 +121,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
  #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
  #           datum.label = label.tobytes()
             datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
+            print(type(label))
             datum.label = label.tostring() #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
             #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
             #         str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
