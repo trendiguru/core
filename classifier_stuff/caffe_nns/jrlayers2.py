@@ -614,19 +614,21 @@ class JrMultilabel(caffe.Layer):
     #use lmdb
         elif self.lmdb is not None:
             self.lmdb_env = lmdb.open(self.lmdb, readonly=True)
-            with self.lmdb_env.begin() as self.txn:
-                self.n_files = self.txn.stat()['entries']
-                print('lmdb {} opened\nstat {}\nentries {}'.format(self.lmdb,self.txn.stat(),self.n_files))
-            #get first dB entry to determine label size
-                str_id = '{:08}'.format(0)
-                raw_datum = self.txn.get(str_id.encode('ascii'))
-                datum = caffe.proto.caffe_pb2.Datum()
-                datum.ParseFromString(raw_datum)
-                flat_x = np.fromstring(datum.data, dtype=np.uint8)
-                y = datum.label
+#            with self.lmdb_env.begin() as self.txn:
+            self.txn = self.lmdb_env.begin() #can also do begin(buffers=True), check https://lmdb.readthedocs.io/en/release/ for wtf this does
+
+            self.n_files = self.txn.stat()['entries']
+            print('lmdb {} opened\nstat {}\nentries {}'.format(self.lmdb,self.txn.stat(),self.n_files))
+        #get first dB entry to determine label size
+            str_id = '{:08}'.format(0)
+            raw_datum = self.txn.get(str_id.encode('ascii'))
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.ParseFromString(raw_datum)
+            flat_x = np.fromstring(datum.data, dtype=np.uint8)
+            y = datum.label
 #                vals = y.split() #in the meantime lmdb cant handle multilabel
-                self.n_labels = 1
-                print('lmdb label {} length {} datashape'.format(y,self.n_labels,flat_x.shape))
+            self.n_labels = 1
+            print('lmdb label {} length {} datashape {}'.format(y,self.n_labels,flat_x.shape))
 
         self.idx = 0
         # randomization: seed and pick
