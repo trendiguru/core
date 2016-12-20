@@ -306,7 +306,7 @@ class ShopStyleDownloader:
         p_hash = get_p_hash(image)
         p_hash_exists = self.collection.find_one({'p_hash': p_hash})
         if p_hash_exists:
-            print ('p_hash already exists')
+            # print ('p_hash already exists')
             return
 
         prod['p_hash'] = p_hash
