@@ -473,9 +473,13 @@ class JrMultilabel(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
+#mandatory argument
+#        self.parname = params['param_name']
+#optional argument
+ #       self.parname = params.get('param_name',default_value)
 
-        self.images_and_labels_file = params.get['images_and_labels_file',None]
-        self.lmdb = params.get['lmdb'],None
+        self.images_and_labels_file = params.get('images_and_labels_file',None)
+        self.lmdb = params.get('lmdb',None)
         self.mean = np.array(params['mean'])
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time

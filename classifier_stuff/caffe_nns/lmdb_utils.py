@@ -156,7 +156,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 e = sys.exc_info()[0]
                 print('some problem with lmdb:'+str(e))
         print
-        print('{} items in classes being written to {}'.format(class_populations,dbname))
+        print('{} items in {} classes being written to {}'.format(class_populations,len(class_populations),dbname))
     env.close()
     print('done')
     return class_populations,image_number
