@@ -102,7 +102,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 continue
             h_orig=img_arr.shape[0]
             w_orig=img_arr.shape[1]
-            if(resize is not None):
+            if(resize is not None and (h_orig != resize[0] or w_orig != resize[1])):
 #                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
             #    resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
                 resized = imutils.resize_keep_aspect(img_arr,output_size=resize)
@@ -140,12 +140,15 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             logging.debug('len img {} len imgdata {}'.format(img_arr.shape,len(datum.data)))
             # The encode is only essential in Python 3
 #            datum.extra = 1  #nice try , but the fields are defined elsewhere so we need ot conform to img=bytes and label = int or long
+            if multilabel:
+                for j in range(len(label)):
+                    class_populations[label[j]]+=1
+            else:
+                class_populations[label]+=1
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
     #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
                 image_number += 1
-                for j in range(len(label)):
-                    class_populations[label[j]]+=1
             except:
                 e = sys.exc_info()[0]
                 print('some problem with lmdb:'+str(e))
