@@ -46,14 +46,10 @@ def db_size(dbname):
 
 def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False):
     if dbname is None:
-        dbname = labelfile+'.lmdb'
+        dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
         max_images = 10**8
     print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale))
-    initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
-    initial_only_dirs.sort()
- #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
-    # txn is a Transaction object
     with open(labelfile,'r') as fp:
         lines = fp.readlines()
     n_files = len(lines)
@@ -63,18 +59,10 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
     print('n pixels {} nbytes {} files {}'.format(n_pixels,n_bytes,n_files))
     map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
     map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size
-    # We need to prepare the database for the size. There is little drawback to
-    # setting this too big. If you still run into problem after raising
-    # this, you might want to try saving fewer entries in a single transaction.
     print('writing to db:'+dbname)
-    classno = 0
     image_number =0
-    n_for_each_class = []
     env = lmdb.open(dbname, map_size=map_size)
-    with env.begin(write=True) as txn:
-    # txn is a Transaction object
-            #maybe open and close db every class to cut down on memory
-            #assuming this is irrelevant and we can do this once
+    with env.begin(write=True) as txn: # txn is a Transaction object
         if shuffle is True:
             random.shuffle(lines)
         print('n files {} in {}'.format(len(lines),labelfile))
