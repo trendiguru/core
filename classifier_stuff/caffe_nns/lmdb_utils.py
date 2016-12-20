@@ -49,7 +49,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
         dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
         max_images = 10**8
-    print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale))
+    print('writing to lmdb {}\nmaximages {} resize to {} subtract mean {} scale_images {}'.format(dbname,max_images,resize,mean,scale))
     with open(labelfile,'r') as fp:
         lines = fp.readlines()
     n_files = len(lines)
@@ -74,14 +74,17 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             vals = line.split()[1:]
             if regression:
                 label = [float(l) for l in vals]
+                label = np.array(label) #maybe specify float type here - must agree with read operation
             else:
                 label = [int(l) for l in vals]
+                label = np.array(label,dtype = np.uint8) #assuming labels are non-neg integers less than 255...
             if first_time:
                 class_populations = np.zeros(len(label))
             if not os.path.exists(file):
                 print('could not find file '+file)
                 continue
             img_arr = cv2.imread(file)
+            img_arr = np.array(img_arr,dtype=np.uint8) #make sure uint8 to make small db
             print('type of image:'+str(type(img_arr)))
             if img_arr is None:
                 print('couldnt read '+file)
@@ -115,10 +118,14 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
             datum.width = img_arr.shape[1]
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
 #                    print('reshaped size: '+str(img_reshaped.shape))
-            datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
-            datum.label = label.tobytes()
-            str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
+ #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+ #           datum.label = label.tobytes()
+            datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
+            datum.label = label.tostring() #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
+            #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
+            #         str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
             print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
+            print('len img {} len imgdata {} len label {} len lbl data {}'.format(img_arr.shape,len(datum.data,len(label),len(datum.label))))
             # The encode is only essential in Python 3
             try:
                 txn.put(str_id.encode('ascii'), datum.SerializeToString())
