@@ -88,6 +88,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                     lbl = lbl[0]
 
             if first_time:
+                first_time = False
                 class_populations = np.zeros(len(label))
             if not os.path.exists(file):
                 print('could not find file '+file)
@@ -149,7 +150,7 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 e = sys.exc_info()[0]
                 print('some problem with lmdb:'+str(e))
         print
-        print('{} items in classes'.format(class_populations))
+        print('{} items in classes written to {}'.format(class_populations,dbname))
     env.close()
     return class_populations,image_number
 
