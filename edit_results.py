@@ -199,6 +199,7 @@ def reorder_results(image_id, person_id, item_category, collection, new_results)
 # ----------------------------------------------- RESULT-LEVEL ---------------------------------------------------------
 
 def add_result(image_id, person_id, item_category, results_collection, new_result):
+    print "Will add result..."
     image_obj = db.images.find_one({'image_id': image_id})
     if not image_obj:
         return False
