@@ -696,7 +696,8 @@ class JrMultilabel(caffe.Layer):
 
     def next_idx(self):
         if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
+#            self.idx = random.randint(0, len(self.imagefiles)-1)
+            self.idx = random.randint(0, self.n_files-1)
             print('next idx='+str(self.idx))
         else:
             self.idx += 1
@@ -861,7 +862,7 @@ class JrMultilabel(caffe.Layer):
         - note this currently only works with single-label info as the lmdb label is expected (by caffe)
           to be an int or long, so no way to cram a vector in there
         """
-        #print('load_image_and_label start')
+        logging.debug('load_image_and_label start, idx:'+str(self.idx))
         while(1):
             str_id = '{:08}'.format(self.idx)
             raw_datum = self.txn.get(str_id.encode('ascii'))
