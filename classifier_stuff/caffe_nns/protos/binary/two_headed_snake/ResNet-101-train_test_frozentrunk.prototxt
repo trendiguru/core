@@ -4949,7 +4949,7 @@ layer {
 	top: "loss"
 	name: "loss"
 	type: "SoftmaxWithLoss"
-  include {phase: TRAIN}
+#  include {phase: TRAIN}
 }
 layer {
 	bottom: "fc4_0"

@@ -878,7 +878,9 @@ class JrMultilabel(caffe.Layer):
             # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
             #h w c  transpose(2,0,1) -> c h w
             #c h w  transpose(1,2,0) -> h w c
+                transpose_time=time.time()
                 x = orig_x.transpose((1,2,0)) #get hwc image
+                print('transposetime '+str(time.time()-transpose_time))
                 logging.debug('after transpose shape:'+str(x.shape))
                 x[:,:,0] = x[:,:,0]-self.mean[0] #add mean
                 x[:,:,1] = x[:,:,1]-self.mean[1] #maybe do this after augment as it will force floatiness
@@ -889,7 +891,7 @@ class JrMultilabel(caffe.Layer):
                 x[:,:] = x[:,:]+self.mean[0]
             if self.scale:
                 if self.scale==True:
-                    x=x/256.0
+                    x=x/255.0
                 else:
                     x=x/self.scale
             y = datum.label
