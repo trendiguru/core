@@ -47,7 +47,9 @@ def db_size(dbname):
 def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False):
     if dbname is None:
         dbname = labelfile+'.lmdb'
-    print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale {}'.format(dbname,max_images_per_class,resize,avg_B,avg_G,avg_R))
+    if max_images == None:
+        max_images = 10**8
+    print('writing to lmdb {} maximages {} resize to {} subtract mean {} scale {}'.format(dbname,max_images,resize,avg_B,avg_G,avg_R))
     initial_only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))]
     initial_only_dirs.sort()
  #   print(str(len(initial_only_dirs))+' dirs:'+str(initial_only_dirs)+' in '+dir_of_dirs)
@@ -69,8 +71,6 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
     image_number =0
     n_for_each_class = []
     env = lmdb.open(dbname, map_size=map_size)
-    if max_images == None:
-        max_images = 10**8
     with env.begin(write=True) as txn:
     # txn is a Transaction object
             #maybe open and close db every class to cut down on memory
