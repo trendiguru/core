@@ -44,7 +44,7 @@ def db_size(dbname):
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
 
-def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=(0,0,0),resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False,n_classes=2):
+def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=None,resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False,n_classes=2):
     if dbname is None:
         dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
     if max_images == None:
@@ -125,14 +125,17 @@ def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),m
                 img_arr[:,:,1] = img_arr[:,:,1]-mean[1]
                 img_arr[:,:,2] = img_arr[:,:,2]-mean[2]
             if scale: #this will scale from -.5 to 0.5 or 0 to 1 dep. on whether mean was subtracted
-                img_arr = img_arr/256
+                if scale is True:
+                    img_arr = img_arr/256
+                else:
+                    img_arr = img_arr/scale
             datum = caffe.proto.caffe_pb2.Datum()
             datum.channels = img_arr.shape[2]
             datum.height = img_arr.shape[0]
             datum.width = img_arr.shape[1]
             img_arr=img_arr.transpose(2,0,1) #h,w,c -> c,h,w
 #                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
-#                    print('reshaped size: '+str(img_reshaped.shape))
+            print('reshaped size {} min {} max {} '.format(img_arr.shape,np.min(img_arr),np.max(img_arr)))
  #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
  #           datum.label = label.tobytes()
             datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
