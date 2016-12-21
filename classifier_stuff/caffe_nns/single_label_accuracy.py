@@ -40,7 +40,7 @@ def test_confmat():
         confmat = update_confmat(gt,e,tp,tn,fp,fn)
     print('confmat: {}'.format(confmat))
 
-def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250)):
+def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250),gpu=0):
     '''
     This checks accuracy using the deploy instead of the test net
     Its a more definitive test since it checks ifyou are doing the input transforms (resize, mean, scale)
@@ -58,9 +58,11 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
     :return:
     '''
     #check accuracy as deployed, using labelfile instead of test net
-    caffe.set_mode_cpu()
-#    caffe.set_mode_gpu()
-#    caffe.set_device(gpu)
+    if gpu == -1:
+        caffe.set_mode_cpu()
+    else:
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
 #        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
     if caffemodel == '':
         caffemodel = None  #hack to keep things working, ideally change refs to caffemodel s.t. None is ok
@@ -660,6 +662,7 @@ if __name__ =="__main__":
     parser.add_argument('--deployproto',  help='deploy prototxt')
     parser.add_argument('--caffemodel', help='caffemodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
+    parser.add_argument('--cpu', help='use cpu')
     parser.add_argument('--output_layer_name', help='output layer name',default='estimate')
     parser.add_argument('--label_layer_name', help='label layer name',default='label')
     parser.add_argument('--label_file', help='label file name',default=None)
@@ -669,8 +672,12 @@ if __name__ =="__main__":
 
     args = parser.parse_args()
     print(args)
-#    if args.gpu is not None:
-    gpu = int(args.gpu)
+    if args.cpu is not None:
+        gpu = -1
+    elif args.gpu is not None:
+        gpu = int(args.gpu)
+    else:
+        gpu = 0
 #    if args.output_layer_name is not None:
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
@@ -690,6 +697,6 @@ if __name__ =="__main__":
     n_classes = 2
     if args.label_file is None:
         args.label_file = '/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_train_250x250.txt'
-    check_accuracy_deploy(args.deployproto,args.caffemodel,n_classes,args.label_file,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250))
+    check_accuracy_deploy(args.deployproto,args.caffemodel,n_classes,args.label_file,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250),gpu=gpu)
 
 
