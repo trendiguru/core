@@ -82,8 +82,8 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         lines = fp.readlines()
         if not lines:
             print('coundlt get lines from file '+labelfile)
-    imagelist = [line.split[0] for line in lines]
-    labellist = [line.split[1] for line in lines]
+    imagelist = [line.split()[0] for line in lines]
+    labellist = [line.split()[1] for line in lines]
     print('1st label {} and file {}, n_classes {} nlabel {} nfile {}'.format(labellist[0],imagelist[0],n_classes,len(labellist),len(imagelist)))
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
