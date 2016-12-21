@@ -137,6 +137,7 @@ if __name__ == "__main__":
     assert os.path.isfile(os.path.join(folder_path,dest_proto)), 'dest prototxt file {} not found!'.format(dest_proto)
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
+    model_files.sort()
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
     assert len(model_files)>=1, 'no extra model files found '
