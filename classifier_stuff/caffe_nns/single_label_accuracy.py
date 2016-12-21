@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
 import argparse
+import time
 
 from trendi import constants
 from trendi.utils import imutils
@@ -79,7 +80,7 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
 
     print('checking acc using deploy {} caffemodel {} labels in {} '.format(deployproto,caffemodel,labelfile))
     print('mean {} scale {} gpu {} resize {} finalsize {}'.format(mean,scale,gpu,resize_size,finalsize))
-
+    start_time=time.time()
     all_params = [k for k in net.params.keys()]
     print('all params:')
     print all_params
@@ -122,6 +123,11 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         print(confmat)
     print('final confmat')
     print(confmat)
+    elapsed=time.time()-start_time
+    print('elapsed time {} tpi {} gpu {}'.format(elapsed,elapsed/n_tests,gpu))
+    for i in range(n_classes):
+        p,r,a = precision_recall_accuracy(confmat,i)
+        print('class {} prec {} rec {} acc {}'.format(i,p,r,a))
     return confmat
 
 def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
