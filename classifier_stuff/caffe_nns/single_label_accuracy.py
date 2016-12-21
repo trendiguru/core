@@ -107,8 +107,15 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         if finalsize is not None:
             img_arr=imutils.center_crop(img_arr,finalsize)
         print('in shape '+str(img_arr.shape))
-        img_arr=np.transpose(img_arr,[2,0,1])
+        img_arr=np.transpose(img_arr,[2,0,1]) #hwc->cwh , rgb-bgr not needed (cv2 read)
         img_arr = np.array(img_arr, dtype=np.float32)
+        if mean is not None:
+            img_arr = img_arr - mean
+        if scale is not None:
+            if scale is True:
+                img_arr = img_arr/255
+            else:
+                img_arr = img_arr/scale
         #feed img into net
         net.blobs['data'].reshape(1,*img_arr.shape)
         net.blobs['data'].data[...] = img_arr
