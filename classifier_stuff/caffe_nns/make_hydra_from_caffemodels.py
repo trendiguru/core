@@ -152,7 +152,7 @@ if __name__ == "__main__":
 #    modelpath = '/'.join([folder_path, proto_files[0]])
 
     nets = []
-    for i in range(len((model_files)-1)):
+    for i in range(len(model_files)-1):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = source_proto
