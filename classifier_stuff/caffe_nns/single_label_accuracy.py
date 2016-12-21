@@ -72,6 +72,9 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
     else:
         net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
 
+    print('checking acc using deploy {} caffemodel {} labels in {} ')
+    print('mean {} scale {} gpu {} resize {} finalsize {}',mean,scale,gpu,resize_size,finalsize)
+
     all_params = [k for k in net.params.keys()]
     print('all params:')
     print all_params
