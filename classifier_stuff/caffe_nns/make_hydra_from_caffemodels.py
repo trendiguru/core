@@ -32,7 +32,7 @@ def copy_net_params(params_new, params_base):
 
 def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer):
     print('attempting to sub {} into {}'.format(source_layer,dest_layer))
-    assert((len(dest_net_params[dest_layer])==len(source_net_params[source_layer]),'inequal lengths of params')
+    assert(len(dest_net_params[dest_layer])==len(source_net_params[source_layer]),'inequal lengths of params')
 
     for i in range(len(source_net_params[source_layer])):
         print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,source_layer,i,source_net_params[source_layer][i].data.shape))
