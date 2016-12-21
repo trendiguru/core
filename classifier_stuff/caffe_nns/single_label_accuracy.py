@@ -91,7 +91,7 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         if not lines:
             print('coundlt get lines from file '+labelfile)
     imagelist = [line.split()[0] for line in lines]
-    labellist = [line.split()[1] for line in lines]
+    labellist = [int(line.split()[1]) for line in lines] #label is a single number for single label
     print('1st label {} and file {}, n_classes {} nlabel {} nfile {}'.format(labellist[0],imagelist[0],n_classes,len(labellist),len(imagelist)))
     confmat = np.zeros([n_classes,n_classes])
     for t in range(n_tests):
@@ -113,11 +113,11 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         net.blobs['data'].data[...] = img_arr
         net.forward()
         est = net.blobs[estimate_layer].data  #.data gets the loss
-        print('test {}/{}: gt {} est {} '.format(t,n_tests,label, est))
         if np.any(np.isnan(est)):
             print('got nan in ests, continuing')
             continue
         best_guess = np.argmax(est)
+        print('test {}/{}: gt {} est {}->{} '.format(t,n_tests,label, est,best_guess))
         confmat = update_confmat(label,best_guess,confmat)
         print(confmat)
     print('final confmat')
