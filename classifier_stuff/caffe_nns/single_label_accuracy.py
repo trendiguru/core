@@ -106,7 +106,7 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         net.blobs['data'].data[...] = img_arr
         net.forward()
         est = net.blobs[estimate_layer].data  #.data gets the loss
-        print('test {}/{}: gt {} est {} '.format(t,n_tests,gt, est))
+        print('test {}/{}: gt {} est {} '.format(t,n_tests,label, est))
         if np.any(np.isnan(est)):
             print('got nan in ests, continuing')
             continue
