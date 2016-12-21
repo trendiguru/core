@@ -58,6 +58,8 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
     :return:
     '''
     #check accuracy as deployed, using labelfile instead of test net
+    print('checking acc using deploy {} caffemodel {} labels in {} ')
+    print('mean {} scale {} gpu {} resize {} finalsize {}',mean,scale,gpu,resize_size,finalsize)
     if gpu == -1:
         caffe.set_mode_cpu()
     else:
@@ -696,7 +698,7 @@ if __name__ =="__main__":
 
     n_classes = 2
     if args.label_file is None:
-        args.label_file = '/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_train_250x250.txt'
+        args.label_file = '/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_test_250x250.txt'
     check_accuracy_deploy(args.deployproto,args.caffemodel,n_classes,args.label_file,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250),gpu=gpu)
 
 
