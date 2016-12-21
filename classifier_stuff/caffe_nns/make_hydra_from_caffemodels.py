@@ -35,7 +35,10 @@ def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer)
     assert(len(dest_net_params[dest_layer])==len(source_net_params[source_layer]),'inequal lengths of params')
 
     for i in range(len(source_net_params[source_layer])):
-        print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,source_layer,i,source_net_params[source_layer][i].data.shape))
+        print('dest layer {}[{}] shape {} mean {} std {} source layer {}[{}] shape  {} mean {} std {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,
+                        np.mean(dest_net_params[dest_layer][i].data),np.std(dest_net_params[dest_layer][i].data),
+                        source_layer,i,source_net_params[source_layer][i].data.shape,
+                        np.mean(source_net_params[source_layer][i].data),np.std(source_net_params[source_layer][i].data)))
         dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
 
     return dest_net_params
@@ -172,7 +175,7 @@ if __name__ == "__main__":
         for j in range(lower_fully_connected, upper_fully_connected):
             fc_orig = 'fc{}_0'.format(j)
             fc_dest = 'fc{}_{}'.format(j, destination_output)
-            destination_net.params = copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
+            copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
  #           assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
 #            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
 
