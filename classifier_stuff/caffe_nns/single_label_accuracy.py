@@ -26,6 +26,13 @@ import math
 import matplotlib.pyplot as plt
 
 def update_confmat(gt,est,confmat):
+    '''
+
+    :param gt: ground truth class (int)
+    :param est:  proposed class (int(
+    :param confmat: confusion matrix , rows are gt and cols are proposals
+    :return:
+    '''
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
 #    pantsindex = constants.web_tool_categories.index('pants')
 #    jeansindex = constants.web_tool_categories.index('jeans')
