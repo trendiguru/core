@@ -58,8 +58,6 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
     :return:
     '''
     #check accuracy as deployed, using labelfile instead of test net
-    print('checking acc using deploy {} caffemodel {} labels in {} ')
-    print('mean {} scale {} gpu {} resize {} finalsize {}',mean,scale,gpu,resize_size,finalsize)
     if gpu == -1:
         caffe.set_mode_cpu()
     else:
@@ -72,8 +70,8 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
     else:
         net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
 
-    print('checking acc using deploy {} caffemodel {} labels in {} ')
-    print('mean {} scale {} gpu {} resize {} finalsize {}',mean,scale,gpu,resize_size,finalsize)
+    print('checking acc using deploy {} caffemodel {} labels in {} '.format(deployproto,caffemodel,labelfile))
+    print('mean {} scale {} gpu {} resize {} finalsize {}'.format(mean,scale,gpu,resize_size,finalsize))
 
     all_params = [k for k in net.params.keys()]
     print('all params:')
@@ -93,10 +91,13 @@ def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200
         imgfile = imagelist[t]
         label  = labellist[t]
         img_arr = cv2.imread(imgfile)
+        if img_arr is None:
+            print('couldnt get '+imgfile+' ,skipping')
+            continue
         if resize_size is not None:
-            img_arr=imutils.resize_keep_aspect(img_arr,(250,250))
+            img_arr=imutils.resize_keep_aspect(img_arr,output_size = resize_size)
         if finalsize is not None:
-            img_arr=imutils.center_crop(img_arr,(224,224))
+            img_arr=imutils.center_crop(img_arr,finalsize)
         print('in shape '+str(img_arr.shape))
         img_arr=np.transpose(img_arr,[2,0,1])
         img_arr = np.array(img_arr, dtype=np.float32)
