@@ -29,24 +29,25 @@ def copy_net_params(params_new, params_base):
             params_new[pr][i].data = params_base[pr][i].data
     return params_new
 
-def copy_layer_params(dest_net,dest_layer,source_net,source_layer):
-    assert(dest_net[dest_layer].shape==source_net[source_layer].shape)
-    print('copying suorcce layer {} to dest layer {}'.format(source_layer,dest_layer))
 
-    for i in range(len(source_net.params[source_layer])):
-        print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net[dest_layer][i].data.shape,source_layer,i,source_net[source_layer][i].data.shape))
-        dest_net.params[dest_layer][0].data = source_net.params[source_layer][0].data
+def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer):
+    assert(dest_net_params[dest_layer].shape==source_net_params[source_layer].shape)
+    print('copying source layer {} to dest layer {}, shape {}'.format(source_layer,dest_layer,source_net_params[source_layer].shape))
 
-    return dest_layer
+    for i in range(len(source_net_params[source_layer])):
+        print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,source_layer,i,source_net[source_layer][i].data.shape))
+        dest_net_params[dest_layer][i].data = source_net_params[source_layer][i].data
+
+    return dest_net_params
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Many2One @@@')
     parser.add_argument('-f', '--folder', dest="path2folder",
                         help='path to the folder containing the trained models', required=True)
-    parser.add_argument('-d', '--destproto', dest="dest_proto",
-                        help='name of the destination deploy prototxt', required=True)
+    parser.add_argument('-d', '--deployproto', dest="dest_proto",
+                        help='name of the deploy (destination) prototxt', required=True)
     parser.add_argument('-s', '--sourceproto', dest="source_proto",
-                        help='name of the source (train/test prototxt', required=False)
+                        help='name of the source (train/test) prototxt', required=False)
     parser.add_argument('-o', '--output', dest="modelname",
                         help='name of the new model', required=True)
     args = parser.parse_args()
@@ -122,13 +123,14 @@ def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffe
 
 if __name__ == "__main__":
     user_input = get_user_input()
-    folder_path = '/'.join(['.', user_input.path2folder])
     folder_path = user_input.path2folder
     all_files_in_dir = os.listdir(folder_path)
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
     if user_input.source_proto is not None:
         source_proto = user_input.source_proto
     else:
+    #till now the dest proto is a superset of the source so its ok to use dest as source, it will
+    #have extra outputs and layers that will just get ignored
         source_proto = user_input.dest_proto
     dest_proto = user_input.dest_proto
     assert os.path.isfile(os.path.join(folder_path,source_proto)), 'source prototxt file {} not found!'.format(source_proto)
@@ -136,40 +138,36 @@ if __name__ == "__main__":
 
     model_files = [f for f in all_files_in_dir if '.caffemodel' in f]
     model_files.remove(user_input.modelname)
-    first_model_path = model_files[0]
-    model_files.remove(first_model_path)
+    assert len(model_files)>=1, 'no extra model files found '
+    first_model_path = os.path.join(folder_path,user_input.modelname)
     print('initial model:'+str(first_model_path))
     print('modelfiles to add:'+str(model_files))
     raw_input('loading net {} using proto {} (ret to cont)'.format(first_model_path,dest_proto))
-    assert len(model_files)>=1, 'no extra model files found '
-    net_new = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
+    destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
     nets = []
     for i in range(len((model_files))):
         cfm_base = model_files[i]
- #       if 0*len(proto_files)==len(model_files):
- #           proto = proto_files[i]
-  #      else:
-        proto_base = source_proto
         caffemodel = os.path.join(folder_path,cfm_base)
-        prototxt = os.path.join(folder_path,proto_base)
+        prototxt = os.path.join(folder_path,source_proto)
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
-    print('loaded models {} defined by proto {}'.format(model_files,prototxt))
+    print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 
     # weights_dict(net_new.params, nets.next().params)
 #    nets.next()
-    for i in range(1, len(model_files)):
+   #add final layers from nets to destination net
+    for i in range(len(model_files)):
         net_orig = nets[i]
-        lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0
-        last_fully_connected = 5  #e.g. fc5_2 is the last fullyconnected of net2
-        for j in range(lower_fully_connected, last_fully_connected):
+        lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
+        upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
+        destination_output = i+1
+        for j in range(lower_fully_connected, upper_fully_connected):
             fc_orig = 'fc{}_0'.format(j)
-            fc_new = 'fc{}_{}'.format(j, i)
-            #the below fails due to 'type net doesnt have expected attribute '__get_item'
-#            net_new.params = copy_layer_params(net_new.params,fc_new.params,net_orig,fc_orig)
+            fc_dest = 'fc{}_{}'.format(j, destination_output)
+            destination_net.params = copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
  #           assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
 #            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
 
