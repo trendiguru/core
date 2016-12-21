@@ -142,11 +142,14 @@ if __name__ == "__main__":
     assert len(model_files)>=1, 'no extra model files found '
     first_model_path = os.path.join(folder_path,model_files[0])
     print('initial model:'+str(first_model_path))
-    print('modelfiles to add:'+str(model_files))
+    print('modelfiles to add:'+str(model_files[1:]))
     raw_input('loading net {} using proto {} (ret to cont)'.format(first_model_path,dest_proto))
-    destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
+
+    caffe.set_mode_cpu()
+     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
+
     nets = []
     for i in range(len((model_files))):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
