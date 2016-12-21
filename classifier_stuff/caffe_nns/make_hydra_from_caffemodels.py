@@ -149,13 +149,10 @@ if __name__ == "__main__":
     caffe.set_mode_cpu()
     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
-    raw_input('ret to ent')
-    destination_net2 = caffe.Net(dest_proto, caffe.TEST,weights=os.path.join(folder_path,model_files[1]))
-    print('loaded model {} defined by proto {}'.format(model_files[1],dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
 
     nets = []
-    for i in range(len((model_files))):
+    for i in range(len((model_files)-1)):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = source_proto
