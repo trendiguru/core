@@ -514,6 +514,7 @@ class JrMultilabel(caffe.Layer):
         print('seed {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('scale {}'.format(self.scale))
         print('############end of net params for jrlayers2#########')
 
         self.idx = 0
@@ -849,6 +850,11 @@ class JrMultilabel(caffe.Layer):
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
+        if self.scale:
+            if self.scale==True:
+                out_=out_/255.0
+            else:
+                out_=out_/self.scale
         return filename, out_, label_vec
 
     def load_image_and_label_from_lmdb(self,idx=None):
