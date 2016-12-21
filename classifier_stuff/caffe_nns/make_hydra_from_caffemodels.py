@@ -155,7 +155,7 @@ if __name__ == "__main__":
     for i in range(len((model_files))):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
-        prototxt = os.path.join(folder_path,source_proto)
+        prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
