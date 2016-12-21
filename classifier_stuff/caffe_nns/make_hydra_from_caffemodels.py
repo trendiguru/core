@@ -36,7 +36,7 @@ def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer)
 
     for i in range(len(source_net_params[source_layer])):
         print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,source_layer,i,source_net_params[source_layer][i].data.shape))
-        dest_net_params[dest_layer][i].data = source_net_params[source_layer][i].data
+        dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
 
     return dest_net_params
 
