@@ -191,10 +191,16 @@ if __name__ == "__main__":
             # if len(net_new.params[tmp_fc_new]) > 2:
             #     print('uh o')
 
-    net_new.save('/'.join([folder_path, user_input.modelname]))
+        #verify that the stuff passed is getting changed ....
+            for k in range(len(destination_net.params[fc_dest])):
+                print('dest layer {}[{}] shape {} mean {} std {}'.format(fc_dest,k,
+                        destination_net.params[fc_dest][k].data.shape,
+                            np.mean(destination_net.params[fc_dest][k].data),np.std(destination_net.params[fc_dest][k].data)))
+
+    destination_net.save('/'.join([folder_path, user_input.modelname]))
 
 #    nets.close()
-    del net_new
+#    del net_new
 
     print 'DONE!'
 
