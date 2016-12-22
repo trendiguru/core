@@ -117,15 +117,6 @@ def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffe
     print('conv1 mean {} std {}'.format(np.mean(net.blobs['conv1'].data),np.std(net.blobs['conv1'].data)))
     print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
 
-    conv1 = net.params['conv1'][0].data
-    print('conv1 params shape {} mean {} std {}'.format(conv1.shape,np.mean(conv1),np.std(conv1)))
-
-    bn1_0 = net.params['bn_conv1'][0].data
-    print('bn0 params shape {} mean {} std {}'.format(bn1_0.shape,np.mean(bn1_0),np.std(bn1_0)))
-    bn1_1 = net.params['bn_conv1'][1].data
-    print('bn1 params shape {} mean {} std {}'.format(bn1_1.shape,np.mean(bn1_1),np.std(bn1_1)))
-    bn1_2 = net.params['bn_conv1'][2].data
-    print('bn2 params shape {} mean {} std {}'.format(bn1_2.shape,np.mean(bn1_2),np.std(bn1_2)))
 
 
 if __name__ == "__main__":

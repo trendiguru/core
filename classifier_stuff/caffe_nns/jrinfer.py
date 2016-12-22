@@ -165,7 +165,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         if im is None:
             logging.warning('could not get image '+str(url_or_image_arr))
             continue
-        print('working on:'+url_or_image_arr+' '+str(j)+'/'+str(len(url_or_image_arr_list)))
+        print('infer_many_hydra working on:'+url_or_image_arr+' '+str(j)+'/'+str(len(url_or_image_arr_list)))
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = cv2.resize(im,dims)
         in_ = np.array(im, dtype=np.float32)
