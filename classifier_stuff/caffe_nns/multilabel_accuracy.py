@@ -20,7 +20,6 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
-from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -192,6 +191,21 @@ def update_confmat(gt,est,tp,tn,fp,fn,thresh=0.5):
                 tn[i] += 1
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
+
+def precision_recall_accuracy(confmat,class_to_analyze):
+    npconfmat = np.array(confmat)
+    tp = npconfmat[class_to_analyze,class_to_analyze]
+    fn = np.sum(npconfmat[class_to_analyze,:]) - tp
+    fp = np.sum(npconfmat[:,class_to_analyze]) - tp
+    tn = np.sum(npconfmat[:,:]) - tp -fn - fp
+    print('confmat:'+str(confmat))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    precision = float(tp)/(tp+fp)
+    recall = float(tp)/(tp+fn)
+    accuracy = float(tp+tn)/(tp+fp+tn+fn)
+    print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
+    return precision, recall, accuracy
+
 
 def test_confmat():
     gt=[True,False,1,0]
@@ -445,7 +459,7 @@ def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
     confmat = np.zeros([n_classes,n_classes])
     for gt,est in zip(reduced_labels,reduced_results):
         confmat[gt][est]+=1
-    single_label_accuracy.precision_recall_accuracy(confmat,1)  #pra(confmat,class_to_analyze)
+    precision_recall_accuracy(confmat,1)  #pra(confmat,class_to_analyze)
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
