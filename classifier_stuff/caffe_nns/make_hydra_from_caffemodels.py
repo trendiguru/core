@@ -85,7 +85,10 @@ def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffe
     print('scale1 params shape {} mean {} std {}'.format(scale1_1.shape,np.mean(scale1_1),np.std(scale1_1)))
 
 #    img_arr = cv2.imread('/usr/lib/python2.7/dist-packages/trendi/images/female1.jpg')
-    img_arr = cv2.imread('/home/jeremy/projects/core/images/female1.jpg')
+    img_arr = cv2.imread('/data/jeremy/projects/core/images/female1.jpg')
+    if img_arr is None:
+        print('couldnt get image')
+        return
     img_arr=cv2.resize(img_arr,(224,224))
     print('in shape '+str(img_arr.shape))
     img_arr=np.transpose(img_arr,[2,0,1])
@@ -195,7 +198,7 @@ if __name__ == "__main__":
 
         #verify that the stuff passed is getting changed ....
             for k in range(len(destination_net.params[fc_dest])):
-                print('dest layer {}[{}] shape {} mean {} std {}'.format(fc_dest,k,
+                print('check:dest layer {}[{}] shape {} mean {} std {}'.format(fc_dest,k,
                         destination_net.params[fc_dest][k].data.shape,
                             np.mean(destination_net.params[fc_dest][k].data),np.std(destination_net.params[fc_dest][k].data)))
 
