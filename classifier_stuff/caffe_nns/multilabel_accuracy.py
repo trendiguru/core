@@ -362,9 +362,9 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
     precision,recall,accuracy,tp,tn,fp,fn = check_acc(net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
     return precision,recall,accuracy,tp,tn,fp,fn
 
-def check_accuracy_hydra(proto,caffemodel,num_images=5,
-                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/labels_webtool_v1/tb_cats_from_webtool_v1_test.txt',
-                         outlayers=['fc4_0','fc4_1','fc4_2']):
+def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
+                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/tb_cats_from_webtool_round2_train.txt',
+                         outlayers=['fc4_0','fc4_1']):
     with open(multilabel_file,'r') as fp:
         lines = fp.readlines()
         fp.close()
@@ -397,6 +397,46 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
             i=i+1
         reduced_results.append(reduced_r)
         print('r after '+str(reduced_r))
+    reduced_results = np.array(reduced_results,dtype=np.uint8)
+    print('labels {} \n results {}'.format(reduced_labels,reduced_results))
+    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
+    return precision,recall,accuracy,tp,tn,fp,fn
+
+def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
+                         label_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_test_250x250.txt',
+                         outlayers=['fc4_0','fc4_1'],save_imgs=True,hydra_head_index=1):
+    '''
+    check individual outputs using files of single-label ground truths
+    :param proto:
+    :param caffemodel:
+    :param num_images:
+    :param multilabel_file:
+    :param outlayers:
+    :return:
+    '''
+    with open(label_file,'r') as fp:
+        lines = fp.readlines()
+        fp.close()
+    files = [l.split()[0] for l in lines]
+    labels = [int(l.split()[1]) for l in lines]
+    if num_images is not None:
+        files = files[0:num_images]
+        labels = labels[0:num_images]
+    results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
+    print('all results from jrinfer.infer_many_hydra:'+str(results))
+    reduced_labels = np.array(labels,dtype=np.uint8)
+    reduced_results = []
+    i=0
+    for r in results: #take results from [p1,p2,...] to index of winner (largest)
+        print('r b4 '+str(r))
+        reduced_r=np.argmax(r[hydra_head_index])
+        reduced_results.append(reduced_r)
+        print('r after '+str(reduced_r))
+        if save_imgs:
+            img_arr = cv2.imread(files[i])
+            name = 'img'+str(i)+'gt_'+str(reduced_labels[i])+'_est_'+str(reduced_r)+'_head_'+str(hydra_head_index+'.jpg'
+            cv2.imwrite(name,img_arr)
+        i=i+1
     reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(reduced_labels,reduced_results))
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)

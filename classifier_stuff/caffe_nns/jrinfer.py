@@ -143,7 +143,18 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
     print(str(out)+' elapsed time:'+str(time.time()-start_time))
     return out
 
-def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2']):
+def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2'],mean=(104.0,116.7,122.7)):
+    '''
+    start net, get a bunch of results. TODO: resize to e.g. 250x250 (whatever was done in training) and crop to dims
+    :param url_or_image_arr_list:
+    :param prototxt:
+    :param caffemodel:
+    :param out_dir:
+    :param dims:
+    :param output_layers:
+    :param mean:
+    :return:
+    '''
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
     all_outs = []
     all_outs2=[]
@@ -166,7 +177,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
             return
    #     print('shape before:'+str(in_.shape))
      #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
-        in_ -= np.array((104.0,116.7,122.7))
+        in_ -= mean
         in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
     #    print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
         # shape for input (data blob is N x C x H x W), set data
@@ -176,20 +187,15 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         net.forward()
         #output_layer='prob'
         out = []
-        out2 = []
-        i=j*10
         for output_layer in output_layers:
             one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
             out.append(copy.copy(one_out)) #the copy is required - if you dont do it then out gets over-written with each new one_out
-            out2.append(i)
-#            print('output for {} is {}'.format(output_layer,one_out))
-            i=i+1
-#        print(str(out)+' elapsed time:'+str(time.time()-start_time)+' '+str(out2))
+            logging.debug('output for {} is {}, len outputlayer {}'.format(output_layer,one_out,len(net.blobs[output_layer].data)))
         all_outs.append(out)
-        all_outs2.append(out2)
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         j=j+1
-    logging.debug('final output:'+str(all_outs)+' '+str(all_outs2))
+    logging.debug('all output:'+str(all_outs))
+    logging.debug('elapsed time:'+str(time.time()-start_time)+' tpi '+str((time.time()-start_time)/j)
     return all_outs
 
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
