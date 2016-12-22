@@ -67,6 +67,20 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
  #       jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
     jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
 
+def compare_nets(proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.prototxt',caffemodel1='three_heads.caffemodel',caffemodel2='three_heads.caffemodel'):
+    net1 = caffe.Net(proto1, caffe.TEST,weights=caffemodel1)
+    net2 = caffe.Net(proto2, caffe.TEST,weights=caffemodel2)
+    all_layers = net1.layers
+    print('all in net1:'+str(all_layers))
+    layers_to_compare = ['conv1','bn_conv1','scale_conv1']
+    for layer in layers_to_compare:
+        for i in range(len(net1.params[layer])):
+            params1 = net1.params[layer][i].data
+            params2 = net1.params[layer][i].data
+            print('{} params shape {} mean {} std {}'.format(layer,params1.shape,np.mean(params1),np.std(params1)))
+            print('{} params shape {} mean {} std {}'.format(layer,params2.shape,np.mean(params2),np.std(params2)))
+            print('params equal ' if params1==params2 else 'params not equal')
+
 def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
     conv1 = net.params['conv1'][0].data
