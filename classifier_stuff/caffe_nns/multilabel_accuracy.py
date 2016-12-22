@@ -390,7 +390,7 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
     reduced_results = []
     for r in results: #take results from [p1,p2,...] to index of winner (largest)
         print('r b4 '+str(r))
-        reduced=np.zeros(len(outlayers))
+        reduced_r=np.zeros(len(outlayers))
         i=0
         for singlehead_answer in r:
             reduced_r[i]=np.array(np.argmax(singlehead_answer),dtype=np.uint8)

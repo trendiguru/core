@@ -154,7 +154,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         if im is None:
             logging.warning('could not get image '+str(url_or_image_arr))
             return
-        print('working on:'+url_or_image_arr)
+        print('working on:'+url_or_image_arr+' '+str(j)+'/'+str(len(url_or_image_arr)))
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         im = cv2.resize(im,dims)
         in_ = np.array(im, dtype=np.float32)
@@ -164,11 +164,11 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         elif in_.shape[2] != 3:
             print('got n-chan image, skipping - shape:'+str(in_.shape))
             return
-        print('shape before:'+str(in_.shape))
+   #     print('shape before:'+str(in_.shape))
      #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
         in_ -= np.array((104.0,116.7,122.7))
         in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
-        print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
+    #    print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
         # shape for input (data blob is N x C x H x W), set data
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
