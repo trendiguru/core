@@ -434,7 +434,7 @@ def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
         print('r after '+str(reduced_r))
         if save_imgs:
             img_arr = cv2.imread(files[i])
-            name = 'img'+str(i)+'gt_'+str(reduced_labels[i])+'_est_'+str(reduced_r)+'_head_'+str(hydra_head_index+'.jpg'
+            name = 'img'+str(i)+'gt_'+str(reduced_labels[i])+'_est_'+str(reduced_r)+'_head_'+str(hydra_head_index)+'.jpg'
             cv2.imwrite(name,img_arr)
         i=i+1
     reduced_results = np.array(reduced_results,dtype=np.uint8)
