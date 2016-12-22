@@ -386,11 +386,13 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         print('l after '+str(reduced_labels))
     reduced_labels = np.array(reduced_labels,dtype=np.uint8)
     reduced_results = []
-    for r in results: #take binary result from [p1,p2] to index of winner (larger)
+    for r in results: #take binary results from [p1,p2] to index of winner (larger)
         print('r b4 '+str(r))
-        reduced=[]
-        for res in r:
-            reduced.append(np.array(np.argmax(res),dtype=np.uint8)
+        reduced=np.zeros(len(outlayers))
+        i=0
+        for singlehead_answer in r:
+            reduced[i]=np.array(np.argmax(singlehead_answer),dtype=np.uint8)
+            i=i+1
         reduced_results.append(reduced)
         print('r after '+str(reduced_results))
     reduced_results = np.array(reduced_results,dtype=np.uint8)
