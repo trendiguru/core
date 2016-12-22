@@ -155,7 +155,8 @@ if __name__ == "__main__":
 #    modelpath = '/'.join([folder_path, proto_files[0]])
 
     nets = []
-    for i in range(len(model_files)-1):
+    n_models_to_add = len(model_files)-1
+    for i in range(n_models_to_add):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = source_proto
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     # weights_dict(net_new.params, nets.next().params)
 #    nets.next()
    #add final layers from nets to destination net
-    for i in range(len(model_files)):
+    for i in range(n_models_to_add):
         net_orig = nets[i]
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
