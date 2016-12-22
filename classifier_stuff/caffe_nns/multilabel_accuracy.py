@@ -20,8 +20,11 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
+from trendi.classifier_stuff.caffe_nns import single_label_accuracy
+
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi.classifier_stuff.caffe_nns import jrinfer
+
 
 # matplotlib inline
 def setup():
@@ -404,7 +407,7 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
 
 def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
                          label_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_test_250x250.txt',
-                         outlayers=['fc4_0','fc4_1'],save_imgs=True,hydra_head_index=1):
+                         outlayers=['fc4_0','fc4_1'],save_imgs=True,hydra_head_index=1,n_classes=2):
     '''
     check individual outputs using files of single-label ground truths
     :param proto:
@@ -439,8 +442,10 @@ def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
         i=i+1
     reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(reduced_labels,reduced_results))
-    precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
-    return precision,recall,accuracy,tp,tn,fp,fn
+    confmat = np.zeros([n_classes,n_classes])
+    for gt,est in zip(reduced_labels,reduced_results):
+        confmat[gt][est]+=1
+    single_label_accuracy.precision_recall_accuracy(confmat,1)  #pra(confmat,class_to_analyze)
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
