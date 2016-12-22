@@ -381,8 +381,10 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
     reduced_labels = []
     for l in labels:
         print('l b4 '+str(l))
-        l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]],dtype=np.uint8)
-        reduced_labels.append(l)
+        reduced_l = np.zeros(len(outlayers))
+        for i in len(outlayers):
+            reduced_l[i]=l[indices[i]]
+        reduced_labels.append(reduced_l)
         print('l after '+str(reduced_labels))
     reduced_labels = np.array(reduced_labels,dtype=np.uint8)
     reduced_results = []
