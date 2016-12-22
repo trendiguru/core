@@ -286,7 +286,7 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
             fn = np.zeros_like(gt)
             baseline_est = np.zeros_like(est)
         #binarize the estimate which can come in as floating
-        print('type of est:'+str(type(est))+' shape:'+str(est.shape))
+    #    print('type of est:'+str(type(est))+' shape:'+str(est.shape))
         if type(est) is np.uint8 or type(est) is np.int or type(est) is np.float or type(est) is np.float64 or type(est) is np.ndarray:
             print('g ot np arr')
             est = est>threshold
@@ -379,24 +379,24 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
     indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
     print('cats {} indices {}'.format(cats,indices))
     reduced_labels = []
-    for l in labels:
+    for l in labels:  #tkae only selected elements from multilabel result
         print('l b4 '+str(l))
         reduced_l = np.zeros(len(outlayers))
         for i in range(len(outlayers)):
             reduced_l[i]=l[indices[i]]
         reduced_labels.append(reduced_l)
-        print('l after '+str(reduced_labels))
+        print('l after '+str(reduced_l))
     reduced_labels = np.array(reduced_labels,dtype=np.uint8)
     reduced_results = []
-    for r in results: #take binary results from [p1,p2] to index of winner (larger)
+    for r in results: #take results from [p1,p2,...] to index of winner (largest)
         print('r b4 '+str(r))
         reduced=np.zeros(len(outlayers))
         i=0
         for singlehead_answer in r:
-            reduced[i]=np.array(np.argmax(singlehead_answer),dtype=np.uint8)
+            reduced_r[i]=np.array(np.argmax(singlehead_answer),dtype=np.uint8)
             i=i+1
-        reduced_results.append(reduced)
-        print('r after '+str(reduced_results))
+        reduced_results.append(reduced_r)
+        print('r after '+str(reduced_r))
     reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(reduced_labels,reduced_results))
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
