@@ -195,7 +195,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         j=j+1
     logging.debug('all output:'+str(all_outs))
-    logging.debug('elapsed time:'+str(time.time()-start_time)+' tpi '+str((time.time()-start_time)/j)
+    logging.debug('elapsed time:'+str(time.time()-start_time)+' tpi '+str((time.time()-start_time)/j))
     return all_outs
 
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
