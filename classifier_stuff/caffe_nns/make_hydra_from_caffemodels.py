@@ -76,7 +76,7 @@ def compare_nets(proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.p
     for layer in layers_to_compare:
         for i in range(len(net1.params[layer])):
             params1 = net1.params[layer][i].data
-            params2 = net1.params[layer][i].data
+            params2 = net2.params[layer][i].data
             print('{} params shape {} mean {} std {}'.format(layer,params1.shape,np.mean(params1),np.std(params1)))
             print('{} params shape {} mean {} std {}'.format(layer,params2.shape,np.mean(params2),np.std(params2)))
             print('params equal ' if np.all(params1==params2) else 'params not equal')
