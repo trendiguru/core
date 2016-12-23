@@ -70,9 +70,10 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
 def compare_nets(proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.prototxt',caffemodel1='three_heads.caffemodel',caffemodel2='three_heads.caffemodel'):
     net1 = caffe.Net(proto1, caffe.TEST,weights=caffemodel1)
     net2 = caffe.Net(proto2, caffe.TEST,weights=caffemodel2)
-    all_layers = net1.layers
-    print('all in net1:'+str(all_layers))
+    all_params = [p for p in net1.params]
+    print('all in net1:'+str(all_params))
     layers_to_compare = ['conv1','bn_conv1','scale_conv1']
+    layers_to_compare = all_params
     for layer in layers_to_compare:
         for i in range(len(net1.params[layer])):
             params1 = net1.params[layer][i].data
