@@ -10,7 +10,7 @@ from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -418,8 +418,10 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
             img_arr = cv2.imread(files[n])
             ml_str=''
             for j in range(len(reduced_labels[n])):
-                ml_str = ml_str+'cat'+str(indices[j])+'gt'+reduced_labels[n][j]+'est'+reduced_results[n][j]+'_'
-            name = 'img'+str(n)+ml_str+'.jpg'
+                ml_str = ml_str+'cat'+str(indices[j])+'gt'+str(reduced_labels[n][j])+'est'+str(reduced_results[n][j])+'_'
+            name = 'img'+str(n)+ml_str[:-1]+'.jpg'
+            print('lbl {} est {}'.format(reduced_labels[n],reduced_results[n]))
+            print('saving to '+ml_str)
             cv2.imwrite(name,img_arr)
         n=n+1
 
