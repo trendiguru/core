@@ -158,7 +158,7 @@ if __name__ == "__main__":
     print('modelfiles to add:'+str(model_files[1:]))
     raw_input('loading net {} using proto {} (ret to cont)'.format(first_model_path,dest_proto))
 
-    caffe.set_mode_cpu()
+    caffe.set_mode_gpu()
     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
