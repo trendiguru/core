@@ -146,7 +146,7 @@ def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffe
     print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
 
 
-
+#
 if __name__ == "__main__":
     user_input = get_user_input()
     folder_path = user_input.path2folder
