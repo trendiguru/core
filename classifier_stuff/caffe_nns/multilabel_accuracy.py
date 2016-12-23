@@ -425,6 +425,7 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
             cv2.imwrite(name,img_arr)
         if show_imgs:
             cv2.imshow(files[n]+'_'+str(n),cv2.imread(files[n]))
+            cv2.waitKey(0)
         n=n+1
 
     reduced_results = np.array(reduced_results,dtype=np.uint8)
