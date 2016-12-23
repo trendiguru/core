@@ -32,7 +32,7 @@ def copy_net_params(params_new, params_base):
 
 def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer):
     print('attempting to sub {} into {}'.format(source_layer,dest_layer))
-    assert(len(dest_net_params[dest_layer])==len(source_net_params[source_layer]),'inequal lengths of params')
+    assert len(dest_net_params[dest_layer])==len(source_net_params[source_layer]) ,'inequal lengths of params'
 
     for i in range(len(source_net_params[source_layer])):
         print('dest layer {}[{}] shape {} mean {} std {}'.format(dest_layer,i,dest_net_params[dest_layer][i].data.shape,
@@ -197,7 +197,7 @@ if __name__ == "__main__":
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
         destination_output = i+1
-        for j in range(lower_fully_connected, upper_fully_connected):
+        for j in range(lower_fully_connected, upper_fully_connected+1):
             fc_orig = 'fc{}_0'.format(j)
             fc_dest = 'fc{}_{}'.format(j, destination_output)
             copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
