@@ -67,9 +67,21 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
  #       jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
     jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
 
-def compare_nets(proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.prototxt',caffemodel1='three_heads.caffemodel',caffemodel2='three_heads.caffemodel'):
-    net1 = caffe.Net(proto1, caffe.TEST,weights=caffemodel1)
-    net2 = caffe.Net(proto2, caffe.TEST,weights=caffemodel2)
+def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.prototxt',caffemodel1='three_heads.caffemodel',caffemodel2='three_heads.caffemodel'):
+    '''
+    check if/what layers are same/diff between 2 nets. provide either net or model+params
+    :param net1:
+    :param net2:
+    :param proto1:
+    :param proto2:
+    :param caffemodel1:
+    :param caffemodel2:
+    :return:
+    '''
+    if net1 is None:
+        net1 = caffe.Net(proto1, caffe.TEST,weights=caffemodel1)
+    if net2 is None:
+        net2 = caffe.Net(proto2, caffe.TEST,weights=caffemodel2)
     all_params = [p for p in net1.params]
     print('all in net1:'+str(all_params))
     layers_to_compare = ['conv1','bn_conv1','scale_conv1']
@@ -173,6 +185,7 @@ if __name__ == "__main__":
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)
+        compare_nets(destination_net,net)
     print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 
     # weights_dict(net_new.params, nets.next().params)
