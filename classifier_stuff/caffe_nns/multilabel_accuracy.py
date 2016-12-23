@@ -381,7 +381,7 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
 
 def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
                          multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/tb_cats_from_webtool_round2_train.txt',
-                         outlayers=['fc4_0','fc4_1'],cats=['skirt','pants']):
+                         outlayers=['fc4_0','fc4_1'],cats=['skirt','pants'],save_imgs=True):
     with open(multilabel_file,'r') as fp:
         lines = fp.readlines()
         fp.close()
@@ -404,6 +404,7 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
         print('l after '+str(reduced_l))
     reduced_labels = np.array(reduced_labels,dtype=np.uint8)
     reduced_results = []
+    n=0
     for r in results: #take results from [p1,p2,...] to index of winner (largest)
         print('r b4 '+str(r))
         reduced_r=np.zeros(len(outlayers))
@@ -413,6 +414,15 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
             i=i+1
         reduced_results.append(reduced_r)
         print('r after '+str(reduced_r))
+        if save_imgs:
+            img_arr = cv2.imread(files[n])
+            ml_str=''
+            for j in range(len(reduced_labels[n])):
+                ml_str = ml_str+'cat'+str(indices[j])+'gt'+reduced_labels[n][j]+'est'+reduced_results[n][j]+'_'
+            name = 'img'+str(n)+ml_str+'.jpg'
+            cv2.imwrite(name,img_arr)
+        n=n+1
+
     reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(reduced_labels,reduced_results))
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)

@@ -190,7 +190,7 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
         for output_layer in output_layers:
             one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
             out.append(copy.copy(one_out)) #the copy is required - if you dont do it then out gets over-written with each new one_out
-            logging.debug('output for {} is {}, len outputlayer {}'.format(output_layer,one_out,len(net.blobs[output_layer].data)))
+            logging.debug('output for {} is {}'.format(output_layer,one_out))
         all_outs.append(out)
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         j=j+1
