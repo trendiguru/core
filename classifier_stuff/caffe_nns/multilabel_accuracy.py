@@ -381,7 +381,7 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
 
 def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
                          multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/tb_cats_from_webtool_round2_train.txt',
-                         outlayers=['fc4_0','fc4_1'],cats=['skirt','pants'],save_imgs=True):
+                         outlayers=['fc4_0','fc4_1'],cats=['skirt','pants'],save_imgs=True,show_imgs=True):
     with open(multilabel_file,'r') as fp:
         lines = fp.readlines()
         fp.close()
@@ -423,6 +423,8 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
             print('lbl {} est {}'.format(reduced_labels[n],reduced_results[n]))
             print('saving to '+ml_str)
             cv2.imwrite(name,img_arr)
+        if show_imgs:
+            cv2.imshow(files[n]+'_'+str(n),cv2.imread(files[n]))
         n=n+1
 
     reduced_results = np.array(reduced_results,dtype=np.uint8)
