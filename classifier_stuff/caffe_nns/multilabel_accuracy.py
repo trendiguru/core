@@ -407,10 +407,10 @@ def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
     n=0
     for r in results: #take results from [p1,p2,...] to index of winner (largest)
         print('r b4 '+str(r))
-        reduced_r=np.zeros(len(outlayers))
+        reduced_r=np.zeros(len(outlayers),dtype=np.uint8)
         i=0
-        for singlehead_answer in r:
-            reduced_r[i]=np.array(np.argmax(singlehead_answer),dtype=np.uint8)
+        for i in range(len(r)):
+            reduced_r[i]=np.argmax(r[i])
             i=i+1
         reduced_results.append(reduced_r)
         print('r after '+str(reduced_r))
