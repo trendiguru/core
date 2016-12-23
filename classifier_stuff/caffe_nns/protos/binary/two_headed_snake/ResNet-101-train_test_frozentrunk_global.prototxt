@@ -4,7 +4,7 @@ name: "ResNet-101_frozentrunk_binary"
 #input_dim: 3
 #input_dim: 224
 #input_dim: 224
-
+#resnet mean  [103.939, 116.779, 123.68]
 layer {
       name: "data"
       type: "Python"
@@ -13,7 +13,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-#      param_str: "{\'images_and_labels_file\': \'/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_train_250x250.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':18 }"
+#      param_str: "{\'images_and_labels_file\': \'/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_train_250x250.txt\', \'mean\': (103.939, 116.770, 123.68),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':18 }"
       param_str: "{\'lmdb\': \'/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_train_250x250.lmdb\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':18 }"
       }
   include {phase: TRAIN}
