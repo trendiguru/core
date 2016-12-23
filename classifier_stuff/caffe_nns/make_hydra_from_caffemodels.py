@@ -83,15 +83,16 @@ def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2=
     if net2 is None:
         net2 = caffe.Net(proto2, caffe.TEST,weights=caffemodel2)
     all_params = [p for p in net1.params]
-    print('all in net1:'+str(all_params))
+    print('comparing params in two nets')
+    print('all params in net1:'+str(all_params))
     layers_to_compare = ['conv1','bn_conv1','scale_conv1']
     layers_to_compare = all_params
     for layer in layers_to_compare:
         for i in range(len(net1.params[layer])):
             params1 = net1.params[layer][i].data
             params2 = net2.params[layer][i].data
-            print('{}[{}] params shape {} mean {} std {}'.format(layer,i,params1.shape,np.mean(params1),np.std(params1)))
-            print('{}[{}] params shape {} mean {} std {}'.format(layer,i,params2.shape,np.mean(params2),np.std(params2)))
+            print('net1 {}[{}] params shape {} mean {} std {}'.format(layer,i,params1.shape,np.mean(params1),np.std(params1)))
+            print('net2 {}[{}] params shape {} mean {} std {}'.format(layer,i,params2.shape,np.mean(params2),np.std(params2)))
             print('params equal ' if np.all(params1==params2) else 'params not equal')
 
 def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
