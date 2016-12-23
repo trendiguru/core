@@ -197,7 +197,7 @@ if __name__ == "__main__":
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
         destination_output = i+1
-        for j in range(lower_fully_connected, upper_fully_connected+1):
+        for j in range(lower_fully_connected, upper_fully_connected+1): #go from lower to upper inclusive
             fc_orig = 'fc{}_0'.format(j)
             fc_dest = 'fc{}_{}'.format(j, destination_output)
             copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
