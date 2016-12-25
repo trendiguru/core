@@ -12,6 +12,7 @@ import random
 import string
 import time
 import multiprocessing
+import lmdb
 
 from trendi.utils import augment_images
 from trendi.utils import imutils
@@ -103,8 +104,8 @@ class JrPixlevel(caffe.Layer):
 
 #######begin vestigial code for separate images/labels files
         elif self.imagesfile is not None:
-            if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
-                self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
+    #        if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
+    #            self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
                 logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
@@ -438,8 +439,11 @@ class JrPixlevel(caffe.Layer):
 
 
 
+
+
+
 ######################################################################################3
-# MULTILABEL
+# SINGLE/MULTILABEL
 #######################################################################################
 
 class JrMultilabel(caffe.Layer):
@@ -469,15 +473,22 @@ class JrMultilabel(caffe.Layer):
         """
         # config
         params = eval(self.param_str)
+#mandatory argument
+#        self.parname = params['param_name']
+#optional argument
+ #       self.parname = params.get('param_name',default_value)
 
-        self.images_and_labels_file = params['images_and_labels_file']
-        self.mean = np.array(params['mean'])
+        self.images_and_labels_file = params.get('images_and_labels_file',None)
+        self.lmdb = params.get('lmdb',None)
+        self.mean = np.array(params.get('mean',(0,0,0)))
         self.random_init = params.get('random_initialization', True) #start from random point in image list
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.new_size = params.get('resize',None)
         self.batch_size = params.get('batch_size',1)
         self.regression = params.get('regression',False)
+        self.scale = params.get('scale',False)
+        self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',20)
@@ -494,13 +505,16 @@ class JrMultilabel(caffe.Layer):
         self.n_labels = params.get('n_labels',0)  #this will obvious from the image/label file. in case of multilabel this is number of classes, i n case of single label this is 1
         self.counter = 0
 
-        #on the way out
-        self.images_dir = params.get('images_dir',None)
         print('############net params for jrlayers2#########')
-        print('im/label file {} mean {}  randinit {} randpick {} '.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
+        if self.images_and_labels_file is not None:
+            print('im/label file {}'.format(self.images_and_labels_file))
+        if self.lmdb is not None:
+            print('lmdb {}'.format(self.lmdb))
+        print('mean {}  randinit {} randpick {} '.format( self.mean,self.random_init, self.random_pick))
         print('seed {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('scale {}'.format(self.scale))
         print('############end of net params for jrlayers2#########')
 
         self.idx = 0
@@ -520,9 +534,9 @@ class JrMultilabel(caffe.Layer):
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
             print('using images/labels file '+self.images_and_labels_file)
-            if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
-                if self.images_dir is not None:
-                    self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+ #           if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
+ #               if self.images_dir is not None:
+ #                   self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
@@ -534,63 +548,12 @@ class JrMultilabel(caffe.Layer):
                 print('COULD NOT FIND ANYTHING IN  IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT FIND ANYTHING IN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 return
-
             self.n_files = len(self.images_and_labels_list)
             logging.debug('images and labels file: {} n: {}'.format(self.images_and_labels_file,self.n_files))
     #        self.indices = open(split_f, 'r').read().splitlines()
-        else:
-            print('option not supported')
-#            return
-#            self.imagefiles = [f for f in os.listdir(self.images_dir) if self.imagefile_suffix in f]
-
-        self.idx = 0
-        # randomization: seed and pick
-#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
-        if self.random_init:
-            random.seed(self.seed)
-            self.idx = random.randint(0, self.n_files-1)
-        if self.random_pick:
-            random.shuffle(self.images_and_labels_list)
-#        print('imgslbls [0] {} [1] {}'.format(self.images_and_labels_list[0],self.images_and_labels_list[1]))
-        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
-
-        spinner = spinning_cursor()
-        ##check that all images are openable and have labels
-        ## and ge t
-        good_img_files = []
-        good_label_vecs = []
-        check_files = False
-        if check_files:
-            print('checking image files')
-            for line in self.images_and_labels_list:
-                imgfilename = line.split()[0]
-                img_arr = Image.open(imgfilename)
-                in_ = np.array(img_arr, dtype=np.float32)
-
-                if img_arr is not None:
-                    vals = line.split()[1:]
-                    label_vec = [int(i) for i in vals]
-                    label_vec = np.array(label_vec)
-                    self.n_labels = len(label_vec)   #the length of the label vector for multiclass data
-                    if self.n_labels == 1:  #for the case of single_class data
-                        label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
-    #                label_vec = label_vec[...,np.newaxis]  #this is required by loss whihc otherwise throws:
-    #                label_vec = label_vec[...,np.newaxis,np.newaxis]  #this is required by loss whihc otherwise throws:
-    #                F0616 10:54:30.921106 43184 accuracy_layer.cpp:31] Check failed: outer_num_ * inner_num_ == bottom[1]->count() (1 vs. 21) Number of labels must match number of predictions; e.g., if label axis == 1 and prediction shape is (N, C, H, W), label count (number of labels) must be N*H*W, with integer values in {0, 1, ..., C-1}.
-
-                    if label_vec is not None:
-                        if len(label_vec) > 0:  #got a vec
-                            good_img_files.append(imgfilename)
-                            good_label_vecs.append(label_vec)
-                            sys.stdout.write(spinner.next())
-                            sys.stdout.flush()
-                            sys.stdout.write('\b')
-                      #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
-                        else:
-                            print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
-                else:
-                    print('got bad image:'+self.imagefiles[ind])
-        else:  ##
+    #build list of files
+            good_img_files = []
+            good_label_vecs = []
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
@@ -612,19 +575,76 @@ class JrMultilabel(caffe.Layer):
                     label_vec = label_vec[0]
                 good_img_files.append(imgfilename)
                 good_label_vecs.append(label_vec)
+            self.imagefiles = good_img_files
+            self.label_vecs = good_label_vecs
 
-        self.imagefiles = good_img_files
-        self.label_vecs = good_label_vecs
-        assert(len(self.imagefiles) == len(self.label_vecs))
-        #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
-        self.n_files = len(self.imagefiles)
-        print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-        time.sleep(1)
+            check_files = False
+            ##check that all images are openable and have labels
+            if check_files:
+                print('checking image files')
+                for line in self.images_and_labels_list:
+                    imgfilename = line.split()[0]
+                    img_arr = Image.open(imgfilename)
+                    in_ = np.array(img_arr, dtype=np.float32)
+                    if img_arr is not None:
+                        vals = line.split()[1:]
+                        label_vec = [int(i) for i in vals]
+                        label_vec = np.array(label_vec)
+                        self.n_labels = len(label_vec)   #the length of the label vector for multiclass data
+                        if self.n_labels == 1:  #for the case of single_class data
+                            label_vec = label_vec[0]    #                label_vec = label_vec[np.newaxis,...]  #this is required by loss whihc otherwise throws:
+                        if label_vec is not None:
+                            if len(label_vec) > 0:  #got a vec
+                                good_img_files.append(imgfilename)
+                                good_label_vecs.append(label_vec)
+                                sys.stdout.write(spinner.next())
+                                sys.stdout.flush()
+                                sys.stdout.write('\b')
+                          #      print('got good image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                            else:
+                                print('something wrong w. image of size {} and label of size {}'.format(in_.shape,label_vec.shape))
+                    else:
+                        print('got bad image:'+line)
+
+            assert(len(self.imagefiles) == len(self.label_vecs))
+            #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
+            self.n_files = len(self.imagefiles)
+            print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
+            time.sleep(1)
+
+    #use lmdb
+        elif self.lmdb is not None:
+            self.lmdb_env = lmdb.open(self.lmdb, readonly=True)
+#            with self.lmdb_env.begin() as self.txn:
+            self.txn = self.lmdb_env.begin() #can also do begin(buffers=True), check https://lmdb.readthedocs.io/en/release/ for wtf this does
+
+            self.n_files = self.txn.stat()['entries']
+            print('lmdb {} opened\nstat {}\nentries {}'.format(self.lmdb,self.txn.stat(),self.n_files))
+        #get first dB entry to determine label size
+            str_id = '{:08}'.format(0)
+            raw_datum = self.txn.get(str_id.encode('ascii'))
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.ParseFromString(raw_datum)
+            flat_x = np.fromstring(datum.data, dtype=np.uint8)
+            y = datum.label
+#                vals = y.split() #in the meantime lmdb cant handle multilabel
+            self.n_labels = 1
+            print('lmdb label {} length {} datashape {}'.format(y,self.n_labels,flat_x.shape))
+
+        self.idx = 0
+        # randomization: seed and pick
+        if self.random_init:
+            random.seed(self.seed)
+            self.idx = random.randint(0, self.n_files-1)
+#        if self.random_pick:
+#            random.shuffle(self.images_and_labels_list)
+        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+
+        spinner = spinning_cursor()
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         #if images are being augmented then dont do this resize
         if self.augment_images == False:
-
             if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
                 print(' got no size for self.newsize')
 #                self.new_size = (224,224)
@@ -644,7 +664,10 @@ class JrMultilabel(caffe.Layer):
         #print('start reshape')
 #        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
         if self.batch_size == 1:
-            imgfilename, self.data, self.label = self.load_image_and_label()
+            if self.lmdb is not None:
+                imgfilename, self.data, self.label = self.load_image_and_label_from_lmdb()
+            else:
+                imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
             if self.augment_images is True and self.augment_crop_size is not None:
@@ -654,7 +677,10 @@ class JrMultilabel(caffe.Layer):
             all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
-                imgfilename, data, label = self.load_image_and_label()
+                if self.lmdb is not None:
+                    imgfilename, data, label = self.load_image_and_label_from_lmdb()
+                else:
+                    imgfilename, data, label = self.load_image_and_label()
                 all_data[i,...]=data
                 all_labels[i,...]=label
                 self.next_idx()
@@ -671,8 +697,9 @@ class JrMultilabel(caffe.Layer):
 
     def next_idx(self):
         if self.random_pick:
-            self.idx = random.randint(0, len(self.imagefiles)-1)
-            print('next idx='+str(self.idx))
+#            self.idx = random.randint(0, len(self.imagefiles)-1)
+            self.idx = random.randint(0, self.n_files-1)
+            logging.debug('next idx='+str(self.idx))
         else:
             self.idx += 1
             if self.idx == len(self.imagefiles):
@@ -702,6 +729,7 @@ class JrMultilabel(caffe.Layer):
         Load input image and preprocess for Caffe:
         - cast to float
         - switch channels RGB -> BGR
+        - do random xforms (rotate, translate, crop, possibly noise)
         - subtract mean
         - transpose to channel x height x width order
         """
@@ -709,8 +737,8 @@ class JrMultilabel(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
-            if self.images_dir:
-                filename=os.path.join(self.images_dir,filename)
+ #           if self.images_dir:
+ #               filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename)+' ; trying next')
@@ -726,7 +754,7 @@ class JrMultilabel(caffe.Layer):
                     continue
 
                 in_ = np.array(im, dtype=np.float32)
-                if self.new_size is not None:
+                if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
@@ -811,7 +839,7 @@ class JrMultilabel(caffe.Layer):
             break #got good img after all that , get out of while
 
         if self.augment_save_visual_output:
-            name = str(self.idx)+str(label_vec)+'.jpg'
+            name = str(self.idx)+str(label_vec)+'jr.jpg'
             cv2.imwrite(name,out_)
             print('saving '+name)
         out_ = np.array(out_, dtype=np.float32)
@@ -822,8 +850,148 @@ class JrMultilabel(caffe.Layer):
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
+        if self.scale:
+            if self.scale==True:
+                out_=out_/255.0
+            else:
+                out_=out_/self.scale
         return filename, out_, label_vec
 
+    def load_image_and_label_from_lmdb(self,idx=None):
+        """
+        Load input image, label from lmdb and preprocess for Caffe:
+        - cast to float
+        - switch channels RGB -> BGR
+        - do random xforms (rotate, translate, crop, possibly noise)
+        - subtract mean
+        - transpose to channel x height x width order
+        - note this currently only works with single-label info as the lmdb label is expected (by caffe)
+          to be an int or long, so no way to cram a vector in there
+        """
+        logging.debug('load_image_and_label start, idx:'+str(self.idx))
+        while(1):
+
+            str_id = '{:08}'.format(self.idx)
+            raw_datum = self.txn.get(str_id.encode('ascii'))
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.ParseFromString(raw_datum)
+            flat_x = np.fromstring(datum.data, dtype=np.uint8) #is this right, given that this may be neg and float numbers...maybe just save as un-normalized positive  uint8s to save space
+            orig_x = flat_x.reshape(datum.channels, datum.height, datum.width)
+            logging.debug('strid {} channels {} width {} height {} flatxsize {} reshaped {} min {} max {}'.format(str_id,datum.channels,datum.width,datum.height,len(flat_x),orig_x.shape,np.min(orig_x),np.max(orig_x)))
+            if datum.channels == 3:
+                logging.debug('before transpose shape:'+str(orig_x.shape))
+            # as the input is transposed to c,h,w  by transpose(2,0,1) we have to undo it with transpose(1,2,0)
+            #h w c  transpose(2,0,1) -> c h w
+            #c h w  transpose(1,2,0) -> h w c
+ #               transpose_time=time.time()
+                x = orig_x.transpose((1,2,0)) #get hwc image
+#                print('transposetime '+str(time.time()-transpose_time))
+                logging.debug('after transpose shape:'+str(x.shape))
+            elif datum.channels == 1:
+#                 print('reshaping 1 chan')
+                x = flat_x.reshape(datum.height, datum.width)
+            y = datum.label
+#            vals = y.split()
+#            print('lmdb label {} length {}'.format(y,self.n_labels))
+            if self.regression:
+                label_vec = [float(i) for i in y] #currently not possible
+            else:
+                try:
+                    label_vec = y
+                except:
+                    logging.debug('got something that coulndt be turned into a label from lmdb '+self.lmdb)
+                    logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line, index='+str(self.idx))
+                    self.next_idx()
+                    continue
+            label_vec = np.array(label_vec)
+            logging.debug('label vec:'+str(label_vec))
+            in_ = np.array(x, dtype=np.float32)
+            if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
+       #         im = im.resize(self.new_size,Image.ANTIALIAS)
+                print('resizing from {} to {}'.format(in_.shape,self.new_size))
+                in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
+##                     print('new shape '+str(in_.shape))
+            if in_ is None:
+                logging.warning('jrlayers2 could not get in_ of idx:'+str(self.idx))
+                self.next_idx()
+                continue
+            logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
+            if in_.shape[2] != 3:
+                logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                self.next_idx()
+                continue
+#            try:
+#                in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
+#            except:
+#                e = sys.exc_info()[0]
+#                logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
+#                self.next_idx()
+#                continue
+
+            if self.save_visual_output:
+                name = str(self.idx)+str(label_vec)+'_before_aug.jpg'
+                cv2.imwrite(name,in_)
+                print('saving '+name)
+
+
+            out_ = augment_images.generate_image_onthefly(in_, gaussian_or_uniform_distributions=self.augment_distribution,
+                max_angle = self.augment_max_angle,
+                max_offset_x = self.augment_max_offset_x,max_offset_y = self.augment_max_offset_y,
+                max_scale=self.augment_max_scale,
+                max_noise_level=self.augment_max_noise_level,noise_type='gauss',
+                max_blur=self.augment_max_blur,
+                do_mirror_lr=self.augment_do_mirror_lr,
+                do_mirror_ud=self.augment_do_mirror_ud,
+                crop_size=self.augment_crop_size,
+                show_visual_output=self.augment_show_visual_output,
+                                save_visual_output=self.augment_save_visual_output)
+            if out_ is None:
+                logging.warning('could not get augmented image idx'+str(self.idx))
+                self.next_idx()
+                continue
+            if len(out_.shape) != 3 :
+                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
+                print('weird file:'+str(self.idx))
+                self.next_idx()  #goto next
+                continue
+
+    #if there's a crop then check resultsize=cropsize.
+            if self.augment_crop_size is not None and (out_.shape[0] != self.augment_crop_size[0] or out_.shape[1] != self.augment_crop_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected cropped hxw is '+str(self.augment_crop_size))
+                    print('weird file , crop+resize idx:'+str(self.idx))
+                    self.next_idx()  #goto next
+                    continue
+    #If there's no crop but there is a resize, check resultsize=resize_size
+            if self.augment_crop_size is None and self.new_size is not None and (out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1]):
+                    print('got strange-sized img of size '+str(out_.shape) + ' when expected resized hxw is '+str(self.new_size))
+                    print('weird file, no crop+resize idx:'+str(self.idx))
+                    self.next_idx()  #goto next
+                    continue
+
+            if out_.shape[2] !=3 :
+                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
+                print('weird file:'+str(self.idx))
+                self.next_idx()  #goto next
+                continue
+            break #got good img after all that , get out of while
+
+        if self.save_visual_output:
+            name = str(self.idx)+str(label_vec)+'_after_aug.jpg'
+            cv2.imwrite(name,out_)
+            print('saving '+name)
+        out_ = np.array(out_, dtype=np.float32)
+        #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
+        out_ -= self.mean
+        out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
+        #DONE maybe also normalize to -1:1
+        if self.scale:
+            if self.scale==True:
+                out_=out_/255.0
+            else:
+                out_=out_/self.scale
+#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+        #print('load_image_and_label end')
+        return self.idx, out_, label_vec
 
 
 def spinning_cursor():

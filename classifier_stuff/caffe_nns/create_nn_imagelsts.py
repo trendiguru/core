@@ -383,6 +383,9 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt',labels=con
             print(cats)
             print()
             img_arr = cv2.imread(path)
+            if img_arr is None:
+                print('could not grok file '+path)
+                continue
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):

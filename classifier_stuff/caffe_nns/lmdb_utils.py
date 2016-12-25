@@ -31,8 +31,6 @@ logging.basicConfig(level=logging.WARNING)
 #get_ipython().system(u'data/mnist/get_mnist.sh')
 #get_ipython().system(u'examples/mnist/create_mnist.sh')
 
-
-
 #label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
 #data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
 
@@ -45,6 +43,128 @@ def db_size(dbname):
     db_size = db_stats['entries']
     print('size of db {}:{}'.format(dbname,db_size))
     return db_size
+
+def labelfile_to_lmdb(labelfile,dbname=None,max_images = None,resize=(250,250),mean=None,resize_w_bb=True,scale=False,use_visual_output=False,shuffle=True,regression=False,multilabel=False,n_classes=2):
+    if dbname is None:
+        dbname = labelfile.replace('.txt','')+str(resize[0])+'x'+str(resize[1])+'.lmdb'
+    if max_images == None:
+        max_images = 10**8
+    print('writing to lmdb {}\nmaximages {} resize to {} subtract mean {} scale images {}'.format(dbname,max_images,resize,mean,scale))
+    with open(labelfile,'r') as fp:
+        lines = fp.readlines()
+    n_files = min(len(lines),max_images)
+    n_pixels = resize[0]*resize[1]*n_files
+    bytes_per_pixel = 3 #assuming rgb
+    n_bytes = n_pixels*bytes_per_pixel
+    print('n pixels {} nbytes {} ({}Gb) files {}'.format(n_pixels,n_bytes,n_bytes/10**9,n_files))
+    map_size = 1e13  #size of db in bytes, can also be done by 10X actual size  as in:
+    map_size = n_bytes*10  #size of db in bytes, can also be done by 10X actual size
+    print('writing to db:'+dbname)
+    image_number =0
+    env = lmdb.open(dbname, map_size=map_size)
+    with env.begin(write=True) as txn: # txn is a Transaction object
+        if shuffle is True:
+            random.shuffle(lines)
+        print('n files {} in {}'.format(len(lines),labelfile))
+        first_time = True
+        for line in lines:
+            if image_number>max_images:
+                break
+            file = line.split()[0]
+            vals = line.split()[1:]
+            if regression:
+                label = [float(l) for l in vals]
+                lbl = np.array(label) #maybe specify float type here - must agree with read operation
+                if not multilabel:
+                    if len(lbl)>1:
+                        logging.warning('dunmping extra info on len {} label {}'.format(len(lbl),lbl))
+                    lbl = lbl[0] #may hit trouble as datum.label expects int or long
+            else:
+                label = [int(l) for l in vals]
+                lbl = np.array(label,dtype = np.int) #  assuming labels are non-neg integers less than 255...
+                if not multilabel:
+                    if len(lbl)>1:
+                        logging.warning('dunmping extra info on len {} label {}'.format(len(lbl),lbl))
+                    lbl = lbl[0]
+
+            if first_time:
+                first_time = False
+                if multilabel:
+                    class_populations = np.zeros(len(label))
+                else:
+                    class_populations = np.zeros(n_classes)
+            if not os.path.exists(file):
+                print('could not find file '+file)
+                continue
+            img_arr = cv2.imread(file)
+            img_arr = np.array(img_arr,dtype=np.uint8) #make sure uint8 to make small db
+            logging.debug('type of image:'+str(type(img_arr))+' label:'+str(type(label)))
+            logging.debug('img shape {} label={}'.format(img_arr.shape,lbl))
+            if img_arr is None:
+                print('couldnt read '+file)
+                continue
+            h_orig=img_arr.shape[0]
+            w_orig=img_arr.shape[1]
+            if(resize is not None and (h_orig != resize[0] or w_orig != resize[1])):
+#                            img_arr = imutils.resize_and_crop_image(img_arr, output_side_length = resize_x)
+            #    resized = imutils.resize_and_crop_image_using_bb(fullname, output_file=cropped_name,output_w=resize_x,output_h=resize_y,use_visual_output=use_visual_output)
+                resized = imutils.resize_keep_aspect(img_arr,output_size=resize)
+                if resized is not None:
+                    img_arr = resized
+                else:
+                    print('resize failed')
+                    continue  #didnt do good resize
+            h=img_arr.shape[0]
+            w=img_arr.shape[1]
+            logging.debug('img {} after resize w:{} h:{} (before was {}x{} name:{}'.format(image_number, h,w,h_orig,w_orig,file))
+            if use_visual_output is True:
+                cv2.imshow('img',img_arr)
+                cv2.waitKey(0)
+            if mean is not None:  #this subtraction can prob be done in 1 step, broadcasting dimensions
+                img_arr[:,:,0] = img_arr[:,:,0]-mean[0]
+                img_arr[:,:,1] = img_arr[:,:,1]-mean[1]
+                img_arr[:,:,2] = img_arr[:,:,2]-mean[2]
+            if scale: #this will scale from -.5 to 0.5 or 0 to 1 dep. on whether mean was subtracted
+                if scale is True:
+                    img_arr = img_arr/256
+                else:
+                    img_arr = img_arr/scale
+            datum = caffe.proto.caffe_pb2.Datum()
+            datum.channels = img_arr.shape[2]
+            datum.height = img_arr.shape[0]
+            datum.width = img_arr.shape[1]
+            img_arr=img_arr.transpose(2,0,1) #h,w,c -> c,h,w
+#                    img_reshaped = img_arr.reshape((datum.channels,datum.height,datum.width))
+            print('reshaped size {} min {} max {} '.format(img_arr.shape,np.min(img_arr),np.max(img_arr)))
+ #           datum.data = img_arr.tobytes()  # or .tostring() if numpy < 1.9
+ #           datum.label = label.tobytes()
+            datum.data = img_arr.tostring()  # or .tostring() if numpy < 1.9
+            #this seems wasteful as e..g 1 gets converted to \x01\x00\x00\x00\x00\x00\x00\x00 making the db 8* bigger than it needs to be
+            #No! convert it to uint8 and this no londer happens. looks like numpy float is 8 bytes.
+            datum.label = lbl
+            str_id = '{:08}'.format(image_number)  #up to 99,999,999 imgs
+            print('strid:{} w:{} h:{} d:{} class:{}'.format(str_id,datum.width,datum.height,datum.channels,datum.label))
+            logging.debug('len img {} len imgdata {}'.format(img_arr.shape,len(datum.data)))
+            # The encode is only essential in Python 3
+#            datum.extra = 1  #nice try , but the fields are defined elsewhere so we need ot conform to img=bytes and label = int or long
+            if multilabel:
+                for j in range(len(label)):
+                    class_populations[label[j]]+=1
+            else:
+                class_populations[label]+=1
+            try:
+                txn.put(str_id.encode('ascii'), datum.SerializeToString())
+    #            in_txn.put('{:0>10d}'.format(in_idx), im_dat.SerializeToString())
+                image_number += 1
+            except:
+                e = sys.exc_info()[0]
+                print('some problem with lmdb:'+str(e))
+        print
+        print('{} items in {} classes being written to {}'.format(class_populations,len(class_populations),dbname))
+    env.close()
+    print('done')
+    return class_populations,image_number
+
 
 def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_class = 1000,resize_x=128,resize_y=128,avg_B=None,avg_G=None,avg_R=None,resize_w_bb=True,use_visual_output=False,shuffle=True):
     print('writing to lmdb {} test/train {} max {} new_x {} new_y {} avgB {} avg G {} avgR {}'.format(dbname,test_or_train,max_images_per_class,resize_x,resize_y,avg_B,avg_G,avg_R))
@@ -151,7 +271,6 @@ def dir_of_dirs_to_lmdb(dbname,dir_of_dirs,test_or_train=None,max_images_per_cla
             n_for_each_class.append(image_number_in_class)
     env.close()
     return classno, n_for_each_class,image_number
-
 
 def crop_dir(dir_to_crop,resize_x,resize_y,save_cropped=False,use_bb_from_name=True):
 #fix this up to make it work
@@ -564,8 +683,6 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
         env_label.close()
     env_image.close()
     return image_number
-
-
 
 def inspect_db(dbname,show_visual_output=True,B=0,G=0,R=0):
     env = lmdb.open(dbname, readonly=True)

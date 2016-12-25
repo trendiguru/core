@@ -12,6 +12,7 @@ import caffe
 import sys
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import copy
 
 #import json
 
@@ -106,8 +107,99 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
     print('elapsed time:'+str(elapsed_time))
     return out.astype(np.uint8)
 
+def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2']):
+    im = Utils.get_cv2_img_array(url_or_image_arr)
+    if im is None:
+        logging.warning('could not get image '+str(url_or_image_arr))
+        return
+    net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
+    start_time = time.time()
+    print('working on:'+url_or_image_arr)
+        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+    im = cv2.resize(im,dims)
+    in_ = np.array(im, dtype=np.float32)
+    if len(in_.shape) != 3:
+        print('got 1-chan image, skipping')
+        return
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+    print('shape before:'+str(in_.shape))
+ #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
+    in_ -= np.array((104.0,116.7,122.7))
+    in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
+    print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
+    # shape for input (data blob is N x C x H x W), set data
+    net.blobs['data'].reshape(1, *in_.shape)
+    net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    net.forward()
+    #output_layer='prob'
+    out = []
+    for output_layer in output_layers:
+        one_out = net.blobs[output_layer].data
+        out.append(one_out)
+        print('output for {} is {}'.format(output_layer,one_out))
+    print(str(out)+' elapsed time:'+str(time.time()-start_time))
+    return out
+
+def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2'],mean=(104.0,116.7,122.7)):
+    '''
+    start net, get a bunch of results. TODO: resize to e.g. 250x250 (whatever was done in training) and crop to dims
+    :param url_or_image_arr_list:
+    :param prototxt:
+    :param caffemodel:
+    :param out_dir:
+    :param dims:
+    :param output_layers:
+    :param mean:
+    :return:
+    '''
+    net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
+    all_outs = []
+    all_outs2=[]
+    j=0
+    start_time = time.time()
+    for url_or_image_arr in url_or_image_arr_list:
+        im = Utils.get_cv2_img_array(url_or_image_arr)
+        if im is None:
+            logging.warning('could not get image '+str(url_or_image_arr))
+            continue
+        print('infer_many_hydra working on:'+url_or_image_arr+' '+str(j)+'/'+str(len(url_or_image_arr_list)))
+            # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+        im = cv2.resize(im,dims)
+        in_ = np.array(im, dtype=np.float32)
+        if len(in_.shape) != 3:
+            print('got 1-chan image, skipping')
+            return
+        elif in_.shape[2] != 3:
+            print('got n-chan image, skipping - shape:'+str(in_.shape))
+            return
+   #     print('shape before:'+str(in_.shape))
+     #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
+        in_ -= mean
+        in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
+    #    print('img shape after:'+str(in_.shape)+' net data shape '+str(net.blobs['data'].shape))
+        # shape for input (data blob is N x C x H x W), set data
+        net.blobs['data'].reshape(1, *in_.shape)
+        net.blobs['data'].data[...] = in_
+        # run net and take argmax for prediction
+        net.forward()
+        #output_layer='prob'
+        out = []
+        for output_layer in output_layers:
+            one_out = net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
+            out.append(copy.copy(one_out)) #the copy is required - if you dont do it then out gets over-written with each new one_out
+            logging.debug('output for {} is {}'.format(output_layer,one_out))
+        all_outs.append(out)
+#        print('final till now:'+str(all_outs)+' '+str(all_outs2))
+        j=j+1
+    logging.debug('all output:'+str(all_outs))
+    logging.debug('elapsed time:'+str(time.time()-start_time)+' tpi '+str((time.time()-start_time)/j))
+    return all_outs
+
 def infer_one_single_label(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob'):
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
     start_time = time.time()
     print('working on:'+imagename)
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
@@ -227,9 +319,6 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-
-
-
 def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120),denormalize=True):
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
@@ -294,7 +383,6 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
         loss += net.blobs['loss'].data.flat[0]
     return hist, loss / len(dataset)
 
-
 def results_from_hist(hist,save_file='./summary_output.txt',info_string='',labels=constants.ultimate_21):
     # mean loss
     overall_acc = np.diag(hist).sum() / hist.sum()
@@ -335,7 +423,6 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
             f.write('<br>\n')
             f.write('<br>\n')
     return results_dict
-
 
 def seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
     print '>>>', datetime.now(), 'Begin seg tests'
@@ -401,8 +488,6 @@ def inspect_net(prototxt,caffemodel):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     for key,value in net.blobs.iteritems():
         print(key,value)
-
-
 
 if __name__ == "__main__":
 
