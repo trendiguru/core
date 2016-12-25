@@ -2,19 +2,7 @@
 
 __author__ = 'yonatan_guy'
 
-import numpy as np
-import os
-import caffe
-#import caffe_batch_infer import caffe
-import sys
-import argparse
-import glob
-import time
-from trendi import background_removal, Utils, constants
-import cv2
-import urllib
-import skimage
-import requests
+
 
 
 
