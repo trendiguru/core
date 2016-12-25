@@ -476,10 +476,12 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
                                                      23,24,25,26,28,29,30,33,35,39,
                                                      42,44,45,46]
 
+#the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
               'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
              ['bra','panties','babydoll'] , #NOT SOFTMAX - these are either/or aka multilabel
-             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'], #upper cover
+             ['cardigan','sweatshirt','sweater','vest','poncho'], #upper middle
+               ['coat','jacket','blazer'] #upper cover (need middle and cover e.g since coat can be w. sweater)
              ['jeans','pants','stocking','legging','socks'], #lower_cover_long
              ['shorts','skirt'], #lower_cover_short
              ['tee','button-down','blouse','polo','henley','tube','tank','top'], #tops - button is buttons all the way down but not a blouse

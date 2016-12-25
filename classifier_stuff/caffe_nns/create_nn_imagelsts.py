@@ -271,7 +271,6 @@ def create_class_a_vs_class_b_file_from_multilabel_file(index_a,index_b,multilab
             f2.write(line+'\n')
         f2.close()
 
-
 def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
     dirs = [os.path.join(dir_of_dirs,d) for d in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,d))]
     for d in dirs:
@@ -525,6 +524,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
+def deepfashion_to_
 
 #
 if __name__ == "__main__": #
