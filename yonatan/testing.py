@@ -17,7 +17,7 @@ import re
 
 yonatan_txt_file_dict = open('/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/list_attr_cloth_yonatan_dict.txt', 'w')
 
-with open('/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/list_attr_cloth.txt',
+with open('/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/list_attr_cloth_yonatan.txt',
           'r') as handle:
     for count, line in enumerate(handle):
         words = line.split()
