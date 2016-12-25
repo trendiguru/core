@@ -476,7 +476,41 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
                                                      23,24,25,26,28,29,30,33,35,39,
                                                      42,44,45,46]
 
+hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
+              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
+             ['bra','panties','babydoll'] , #NOT SOFTMAX - these are either/or aka multilabel
+             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'], #upper cover
+             ['jeans','pants','stocking','legging','socks'], #lower_cover_long
+             ['shorts','skirt'], #lower_cover_short
+             ['tee','button-down','blouse','polo','henley','tube','tank','top'], #tops - button is buttons all the way down but not a blouse
+             ['shawl','scarf'],
+             ['boots','shoes','sandals'],  #footwear
+             ['bag'],['belt'],['sarong']] #extra stuff
 
+
+#deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
+#all their images are in folders with at least one of those 50 cats
+#things missing from this list are same in our system namely:
+#blazer, blouse ,cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.
+#button-down is not a cat but listed in their list of cats (dress or blouse or shirt always appears w. button-down)
+#halter also appears always w. a real cat like dress or top so no translation
+#flannel is generally a shirt unless it appears with 'skirt' or 'dress' so watch out for that one
+#top is annoying since it seems to contain a bunch of subcats. i can sort it myself i guess
+#culottes seems to have some shorts but is mostly pants so i convert to pants
+#couldnt figure out what gauchos are from the pics, only around 100 of these anyway
+#cape never seems to come up (except as part of 'landscape' so watch out for substrings when converting)
+#nightdress seems to never be used
+#onesie is a single folder (70 items) of panda suits....
+#romper is a short jumpsuit so i put it under jumpsuit
+#shirtdress doesnt exist but shirt_dress does, i put those under dress
+#sun_dress looks to be dress
+
+deep_fashion_to_trendi_map = {'anorak':'coat','bomber':'jacket','flannel':'button-down','hoodie':'sweatshirt','jersey':'tee',
+                             'parka':'coat','peacoat':'coat','turtleneck':'sweater','capris':'pants','chinos':'pants','culottes':'pants',
+                              'cutoffs':'shorts','gauchos':'None','jeggings':'jeans','jodhpurs':'pants','joggers':'pants',
+                              'leggings':'legging','sweatpants':'pants','sweatshorts':'shorts','trunks':'mens_swimwear',
+                              'caftan':'dress','cape':None,'coat':None,'coverup':'robe','kaftan':'robe','kinmono':'robe',
+                              'nightdress':None, 'onesie':None,'romper':'jumpsuit','shirt_dress':'dress'
 
 
 
