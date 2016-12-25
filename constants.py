@@ -491,7 +491,7 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
 #all their images are in folders with at least one of those 50 cats
 #things missing from this list are same in our system namely:
-#blazer, blouse ,cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.
+#blazer, blouse ,cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.,coat
 #button-down is not a cat but listed in their list of cats (dress or blouse or shirt always appears w. button-down)
 #halter also appears always w. a real cat like dress or top so no translation
 #flannel is generally a shirt unless it appears with 'skirt' or 'dress' so watch out for that one
@@ -509,8 +509,8 @@ deep_fashion_to_trendi_map = {'anorak':'coat','bomber':'jacket','flannel':'butto
                              'parka':'coat','peacoat':'coat','turtleneck':'sweater','capris':'pants','chinos':'pants','culottes':'pants',
                               'cutoffs':'shorts','gauchos':'None','jeggings':'jeans','jodhpurs':'pants','joggers':'pants',
                               'leggings':'legging','sweatpants':'pants','sweatshorts':'shorts','trunks':'mens_swimwear',
-                              'caftan':'dress','cape':None,'coat':None,'coverup':'robe','kaftan':'robe','kinmono':'robe',
-                              'nightdress':None, 'onesie':None,'romper':'jumpsuit','shirt_dress':'dress'
+                              'caftan':'dress','cape':None,'coverup':'robe','kaftan':'robe','kimono':'robe',
+                              'nightdress':None, 'onesie':None,'romper':'jumpsuit','shirt_dress':'dress'}
 
 
 
