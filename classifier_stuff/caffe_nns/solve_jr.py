@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import datetime
 import numpy as np
 
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
 
 from trendi import Utils
 from trendi import constants
@@ -19,6 +22,9 @@ from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 from trendi.classifier_stuff.caffe_nns import progress_plot
 from trendi.classifier_stuff.caffe_nns import caffe_utils
+import scipy
+import matplotlib as plt
+
 
 matplotlib.use('Agg') #allow plot generation on X-less systems
 plt.ioff()
@@ -122,7 +128,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
 #    accuracy_avg = [0]*n_iter
     accuracy_avg = np.zeros(n_iter)
     tot_iters = 0
-
+    iter_list = []
+    accuracy_list = []
     #instead of taking steps its also possible to do
     #solver.solve()
 
@@ -144,6 +151,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
+        iter_list.append(tot_iters)
+
         try:
             averaged_loss=np.average(loss_avg)
             s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
@@ -155,7 +164,9 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
                 s=s+i
             averaged_loss = s/len(loss_avg)
             print('avg:'+str(s)+' '+str(averaged_loss))
-        s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
+
+            s2 = '{}\t{}\n'.format(tot_iters,averaged_loss)
+
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
     #    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
@@ -180,9 +191,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
 
         elif type == 'single_label':
             averaged_acc = np.average(accuracy_avg)
+            accuracy_list.append(averaged_acc)
             s = 'avg tr loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
             print(s)
-            print accuracy_avg
+#            print accuracy_avg
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
 
             acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer=estimate_layer,n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
@@ -196,6 +208,9 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             with open(loss_outputname,'a+') as f:
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
                 f.close()
+            params,n_timeconstants = fit_points_exp(iter_list,accuracy_list)
+            if n_timeconstants > 0 and tot_iters>2000:  #on a long tail
+                return params,n_timeconstants
 
         with open(loss_outputname,'a+') as f:
             f.write(str(int(time.time()))+'\t'+s2)
@@ -205,6 +220,112 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         subprocess.call(scpcmd,shell=True)
 
 
+def expfunc(x,asymptote,timeconst,x0):
+    eps = 10**-5
+    y = asymptote * (1-np.exp(-(x-x0)/(timeconst)))
+    print('as {} tm {} x0 {}'.format(asymptote,timeconst,x0))
+
+    return y
+#    return a * np.exp(-b * x) + c
+#a * np.exp(-b * x) + c
+
+def fit_points_exp(xlist,ylist):
+    p0 = {'asymptote':0.8,'timeconst':2000,'y0':0.7}
+    p0 = [0.8,2000,0]
+    popt,pcov = curve_fit(expfunc, xlist, ylist,p0=p0, sigma=None, absolute_sigma=False)
+    print('popt {} pcov {}'.format(popt,pcov))
+    n_timeconstants = xlist[-1]/popt[1]
+    return(popt,n_timeconstants)
+
+def test_fit():
+#    x=np.linspace(0,10000,100)
+#    y=expfunc(x,0.8,2000,100)
+#    y = y + 0.2*np.random.rand(len(y))*y
+    with open('/home/jeremy/projects/core/classifier_stuff/caffe_nns/loss3.txt','r') as fp:
+        r = fp.readlines()
+        x = [int(l.split()[1]) for l in r]
+        y = [float(l.split()[-1]) for l in r ]
+        x = np.array(x)
+        y=np.array(y)
+        print x,y
+        popt,nt = fit_points_exp(x,y)
+        y_est = expfunc(x,popt[0],popt[1],popt[2])
+        n_timeconstants = x[-1]/popt[1]
+        print('ntimesconsts {} nt {}'.format(n_timeconstants,nt))
+        plt.plot(x,y,x,y_est)
+        plt.show()
+        print y_est
+
+
+def solve_a_bunch():
+    solverstate = None
+    dirs = constants.
+    base_dir = '/home/jeremy/caffenets/binary/resnet101_dress_try1/'
+    weights =  '/home/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
+    solverproto = base_dir + 'ResNet-101_solver.prototxt'
+    testproto = base_dir + 'ResNet-101-train_test.prototxt'
+    type='single_label'
+    #type='multilabel'
+    #type='pixlevel'
+    steps_per_iter = 1
+    n_iter = 200
+    cat = "dress"
+#    classlabels=['dress','not_dress']
+    classlabels=constants.pixlevel_categories_v3
+    n_tests = 2000
+    n_loops = 2000000
+    baremetal_hostname = 'k80b'
+    label_layer='label'
+    estimate_layer='fc4_0'
+    dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)
+
+    pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
+pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
+pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
+pixlevel3_upper_under = ['shirt']  #nite this is intead of top
+pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
+pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
+pixlevel3_lower_cover_short = ['shorts','skirt']
+pixlevel3_wraparwounds = ['shawl','scarf']
+pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
+
+pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jeans' ] #and socks appears twice...
+pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+                          'bag','belt','eyewear','hat','tie','skin']
+multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
+                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+                'overalls','sweatshirt', 'mens_swimwear','lingerie','blazer','legging',
+                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
+                'poncho','tie','skin']
+
+hydra_cats = [['bag'],['belt'],
+             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'],
+             ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ],
+             ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra'],
+             ['mens_swimwear','mens_underwear','panties'],
+             ['shirt'],
+             ['jeans','pants','stocking','legging','socks']
+             ['shorts','skirt'],
+             ['shawl','scarf'],
+             ['boots','shoes','sandals']]
+
+
+hydra_cats = [['relevant_image'],
+              ['full_person','upper_body_crop','lower_body_crop'],
+              ['female'],
+              ['whole_body','skin','two-part'],
+             ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
+              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear'],  #whole body
+             ['bra','panties','babydoll']  #NOT SOFTMAX - these are either/or aka multilabel
+             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'], #upper cover
+             ['jeans','pants','stocking','legging','socks'], #lower_cover_long
+             ['shorts','skirt'], #lower_cover_short
+             ['shirt'],
+             ['shawl','scarf'],
+             ['boots','shoes','sandals']  #footwear
+             ['bag'],['belt']] #extra stuff
 
 if __name__ == "__main__":
 ###############
