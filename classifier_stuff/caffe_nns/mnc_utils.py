@@ -3,6 +3,7 @@ import cPickle
 import os
 import numpy as np
 import cv2
+from scipy import sparse
 
 
 #jeremy attempts to make .pkl files for use with MNC
@@ -57,6 +58,12 @@ def prepare_segmentation_data(image):
         max_x_axis = gt1 if gt1 > max_x_axis else max_x_axis
 
     mask_dict['mask_max'] = [max_x_axis, max_y_axis]
+
+
+
+
+
+    sA = sparse.csr_matrix(A)
 
 
 def checkout_pkl_file(thefile):
