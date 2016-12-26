@@ -506,7 +506,7 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
 #romper is a short jumpsuit so i put it under jumpsuit
 #shirtdress doesnt exist but shirt_dress does, i put those under dress
 #sun_dress looks to be dress
-
+#
 #not included: sundress,shirtdress,button-down,halter ,top
 deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket','flannel':'button-down','hoodie':'sweatshirt',
                               'jersey':'tee','parka':'coat','peacoat':'coat','turtleneck':'sweater','capris':'pants',
