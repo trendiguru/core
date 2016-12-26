@@ -1,21 +1,6 @@
 #!/usr/bin/env python
 
 import numpy as np
-import skimage.io
-from scipy.ndimage import zoom
-from skimage.transform import resize
-import os
-# import caffe
-from .. import background_removal, utils, constants
-from ..utils import imutils
-import cv2
-import sys
-import argparse
-import glob
-import time
-import skimage
-import urllib
-from PIL import Image
 import pymongo
 import argparse
 import shutil
