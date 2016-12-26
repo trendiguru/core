@@ -4,10 +4,9 @@ stages:
     - there should by equal number of protos and models - 1 and 1 under each name
 
 2. create a new prototxt with the same root layers but many output leafs
-2. load that proto in train mode
-3. load many nets in Test mode
-4. create a dict where each key is a pointer to the new net params
-5. assign the params from the old nets to the ndict by keys
+3. load that proto in test mode with the first layer weights
+4. load many nets in Test mode and fill in their weights
+5. save new net to output folder
 """
 
 import caffe
