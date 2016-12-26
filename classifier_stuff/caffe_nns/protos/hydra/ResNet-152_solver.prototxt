@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 10
 snapshot: 10000
-snapshot_prefix: "snapshot/res152_binary_dress"
+snapshot_prefix: "/data/yonatan/yonatan_files/dress_texture_classifier/resnet152_caffemodels_hydra_26_12_16/caffe_resnet152_snapshot_dress_texture_10_categories_hydra"
 test_initialization: false
 solver_mode : GPU
 
