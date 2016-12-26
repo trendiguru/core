@@ -10,6 +10,7 @@ from PIL import Image
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
+from trendi.yonatan import yonatan_constants
 import sys
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
@@ -362,7 +363,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
-def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt',labels=constants.web_tool_categories_v2):
+def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
     for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
     so file lines are /path/to/file 0 0 1 0 0 1 0 1
@@ -370,22 +371,21 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt',labels=con
     :return:
     '''
     with open(filename,'r') as fp:
-        for line in fp:
+        for count, line in enumerate(fp):
             print line
             path = line.split()[0]
-            cats = ''
-            for i in range(len(constants.web_tool_categories)):
-                current_val = int(line.split()[i+1])
-#                print('cur digit {} val {}'.format(i,current_val))
-                if current_val:
-                    cats = cats + ',' + labels[i]
-            print(cats)
-            print()
+            vals = [int(i) for i in line.split()[1:]]
+            non_zero_idx = np.nonzero(vals)
+            for i in range(non_zero_idx):
+                print yonatan_constants.attribute_type_dict[str(i)]
+
             img_arr = cv2.imread(path)
             if img_arr is None:
                 print('could not grok file '+path)
                 continue
-            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+
+            cv2.imshow("image", img_arr)
+            cv2.waitKey(0)
 
 def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):
     with open(filename,'r') as fp:
