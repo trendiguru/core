@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
 import argparse
+import time
 
 from trendi import constants
 from trendi.utils import imutils
@@ -26,9 +27,16 @@ import math
 import matplotlib.pyplot as plt
 
 def update_confmat(gt,est,confmat):
+    '''
+
+    :param gt: ground truth class (int)
+    :param est:  proposed class (int(
+    :param confmat: confusion matrix , rows are gt and cols are proposals
+    :return:
+    '''
 #    print('gt {} \nest {} sizes tp {} tn {} fp {} fn {} '.format(gt,est,tp.shape,tn.shape,fp.shape,fn.shape))
-    pantsindex = constants.web_tool_categories.index('pants')
-    jeansindex = constants.web_tool_categories.index('jeans')
+#    pantsindex = constants.web_tool_categories.index('pants')
+#    jeansindex = constants.web_tool_categories.index('jeans')
     confmat[gt][est]+=1
     return confmat
 
@@ -40,6 +48,95 @@ def test_confmat():
         confmat = update_confmat(gt,e,tp,tn,fp,fn)
     print('confmat: {}'.format(confmat))
 
+def check_accuracy_deploy(deployproto,caffemodel,n_classes,labelfile,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250),gpu=0):
+    '''
+    This checks accuracy using the deploy instead of the test net
+    Its a more definitive test since it checks ifyou are doing the input transforms (resize, mean, scale)
+    correctly
+    :param net:
+    :param n_classes:
+    :param labelfile:
+    :param n_tests:
+    :param estimate_layer:
+    :param mean:
+    :param scale:
+    :param finalsize: img will be cropped to this after resize if any
+    :param resize_size: resize keeping aspect to this .
+    in training i have been doing resize to 250x250 and random crop of that to 224x224
+    :return:
+    '''
+    #check accuracy as deployed, using labelfile instead of test net
+    if gpu == -1:
+        caffe.set_mode_cpu()
+    else:
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
+#        net = caffe.Net(testproto,caffemodel, caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+    if caffemodel == '':
+        caffemodel = None  #hack to keep things working, ideally change refs to caffemodel s.t. None is ok
+        net = caffe.Net(deployproto,caffe.TEST)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+    else:
+        net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)  #apparently this is how test is chosen instead of train if you use a proto that contains both test and train
+
+    print('checking acc using deploy {} caffemodel {} labels in {} '.format(deployproto,caffemodel,labelfile))
+    print('mean {} scale {} gpu {} resize {} finalsize {}'.format(mean,scale,gpu,resize_size,finalsize))
+    start_time=time.time()
+    all_params = [k for k in net.params.keys()]
+    print('all params:')
+    print all_params
+    all_blobs = [k for k in net.blobs.keys()]
+    print('all blobs:')
+    print all_blobs
+    with open(labelfile,'r') as fp:
+        lines = fp.readlines()
+        if not lines:
+            print('coundlt get lines from file '+labelfile)
+    imagelist = [line.split()[0] for line in lines]
+    labellist = [int(line.split()[1]) for line in lines] #label is a single number for single label
+    print('1st label {} and file {}, n_classes {} nlabel {} nfile {}'.format(labellist[0],imagelist[0],n_classes,len(labellist),len(imagelist)))
+    confmat = np.zeros([n_classes,n_classes])
+    for t in range(n_tests):
+        imgfile = imagelist[t]
+        label  = labellist[t]
+        img_arr = cv2.imread(imgfile)
+        if img_arr is None:
+            print('couldnt get '+imgfile+' ,skipping')
+            continue
+        if resize_size is not None:
+            img_arr=imutils.resize_keep_aspect(img_arr,output_size = resize_size)
+        if finalsize is not None:
+            img_arr=imutils.center_crop(img_arr,finalsize)
+        print('in shape '+str(img_arr.shape))
+        if mean is not None:
+            img_arr = img_arr - mean
+        img_arr=np.transpose(img_arr,[2,0,1]) #hwc->cwh , rgb-bgr not needed (cv2 read)
+        img_arr = np.array(img_arr, dtype=np.float32)
+        if scale is not None:
+            if scale is True:
+                img_arr = img_arr/255
+            else:
+                img_arr = img_arr/scale
+        print('img mean {} std {}'.format(np.average(img_arr),np.std(img_arr)))
+        #feed img into net
+        net.blobs['data'].reshape(1,*img_arr.shape)
+        net.blobs['data'].data[...] = img_arr
+        net.forward()
+        est = net.blobs[estimate_layer].data  #.data gets the loss
+        if np.any(np.isnan(est)):
+            print('got nan in ests, continuing')
+            continue
+        best_guess = np.argmax(est)
+        print('test {}/{}: gt {} est {}->{} '.format(t,n_tests,label, est,best_guess))
+        confmat = update_confmat(label,best_guess,confmat)
+        print(confmat)
+    print('final confmat')
+    print(confmat)
+    elapsed=time.time()-start_time
+    print('elapsed time {} tpi {} gpu {}'.format(elapsed,elapsed/n_tests,gpu))
+    for i in range(n_classes):
+        p,r,a = precision_recall_accuracy(confmat,i)
+        print('class {} prec {} rec {} acc {}'.format(i,p,r,a))
+    return confmat
 
 def check_accuracy(net,n_classes,n_tests=200,label_layer='label',estimate_layer='score'):
     all_params = [k for k in net.params.keys()]
@@ -204,9 +301,16 @@ def multilabel_infer_one(url):
     return out.astype(np.uint8)
 
 def get_single_label_output(url_or_np_array,required_image_size=(227,227),output_layer_name='prob'):
+    '''
+    CURRENTLY INOPERATIONAL
+    :param url_or_np_array:
+    :param required_image_size:
+    :param output_layer_name:
+    :return:
+    '''
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
+        image = Utils.get_cv2_img_array(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
 # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
@@ -582,18 +686,25 @@ def histogram_of_results_2classes(labelfile,multilabel_index,class_labels):
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(description='singe label accuracy tester')
     parser.add_argument('--testproto',  help='test prototxt')
+    parser.add_argument('--deployproto',  help='deploy prototxt')
     parser.add_argument('--caffemodel', help='caffemodel')
     parser.add_argument('--gpu', help='gpu #',default=0)
+    parser.add_argument('--cpu', help='use cpu')
     parser.add_argument('--output_layer_name', help='output layer name',default='estimate')
     parser.add_argument('--label_layer_name', help='label layer name',default='label')
+    parser.add_argument('--label_file', help='label file name',default=None)
     parser.add_argument('--n_tests', help='number of examples to test',default=1000)
     parser.add_argument('--n_classes', help='number of classes',default=21)
     parser.add_argument('--classlabels', help='class labels (specify a list from trendi.constants)')
 
     args = parser.parse_args()
     print(args)
-#    if args.gpu is not None:
-    gpu = int(args.gpu)
+    if args.cpu is not None:
+        gpu = -1
+    elif args.gpu is not None:
+        gpu = int(args.gpu)
+    else:
+        gpu = 0
 #    if args.output_layer_name is not None:
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
@@ -605,10 +716,14 @@ if __name__ =="__main__":
     else:
         classlabels = constants.classlabels
     print('classlabels:'+str(classlabels))
-    single_label_acc(args.caffemodel,args.testproto,label_layer='label', estimate_layer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
-#def single_label_acc(caffemodel,          testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
+#    single_label_acc(args.caffemodel,args.testproto,label_layer='label', estimate_layer=outlayer,n_tests=n_tests,gpu=gpu,classlabels=classlabels)
 
+#def single_label_acc(caffemodel,          testproto,net=None,label_layer='label',estimate_layer='loss',n_tests=100,gpu=0,classlabels = constants.web_tool_categories_v2):
 #python  /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/single_label_accuracy.py --caffemodel snapshot/res101_binary_dress_iter_37000.caffemodel --testproto ResNet-101-train_test.prototxt --output_layer_name estimate --n_classes 2 --n_tests 10
 
+    n_classes = 2
+    if args.label_file is None:
+        args.label_file = '/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_test_250x250.txt'
+    check_accuracy_deploy(args.deployproto,args.caffemodel,n_classes,args.label_file,n_tests=200,estimate_layer='prob_0',mean=(110,110,110),scale=None,finalsize=(224,224),resize_size=(250,250),gpu=gpu)
 
 

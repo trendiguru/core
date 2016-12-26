@@ -10,7 +10,7 @@ from copy import copy
 import caffe # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 import matplotlib.pyplot as plt
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 from caffe import layers as L, params as P # Shortcuts to define the net prototxt.
 import cv2
@@ -20,8 +20,10 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns.caffe_utils import get_netname
+
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi.classifier_stuff.caffe_nns import jrinfer
+
 
 # matplotlib inline
 def setup():
@@ -190,6 +192,21 @@ def update_confmat(gt,est,tp,tn,fp,fn,thresh=0.5):
 #        print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
     return tp,tn,fp,fn
 
+def precision_recall_accuracy(confmat,class_to_analyze):
+    npconfmat = np.array(confmat)
+    tp = npconfmat[class_to_analyze,class_to_analyze]
+    fn = np.sum(npconfmat[class_to_analyze,:]) - tp
+    fp = np.sum(npconfmat[:,class_to_analyze]) - tp
+    tn = np.sum(npconfmat[:,:]) - tp -fn - fp
+    print('confmat:'+str(confmat))
+    print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
+    precision = float(tp)/(tp+fp)
+    recall = float(tp)/(tp+fn)
+    accuracy = float(tp+tn)/(tp+fp+tn+fn)
+    print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
+    return precision, recall, accuracy
+
+
 def test_confmat():
     gt=[True,False,1,0]
     ests=[[True,False,0,0],
@@ -286,7 +303,7 @@ def check_acc_nonet(ground_truths,estimates,threshold=0.5):
             fn = np.zeros_like(gt)
             baseline_est = np.zeros_like(est)
         #binarize the estimate which can come in as floating
-        print('type of est:'+str(type(est))+' shape:'+str(est.shape))
+    #    print('type of est:'+str(type(est))+' shape:'+str(est.shape))
         if type(est) is np.uint8 or type(est) is np.int or type(est) is np.float or type(est) is np.float64 or type(est) is np.ndarray:
             print('g ot np arr')
             est = est>threshold
@@ -362,9 +379,9 @@ def check_accuracy(proto,caffemodel,num_batches=200,batch_size=1,threshold = 0.5
     precision,recall,accuracy,tp,tn,fp,fn = check_acc(net, num_batches=num_batches,batch_size = batch_size, threshold=threshold)
     return precision,recall,accuracy,tp,tn,fp,fn
 
-def check_accuracy_hydra(proto,caffemodel,num_images=5,
-                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/labels_webtool_v1/tb_cats_from_webtool_v1_test.txt',
-                         outlayers=['fc4_0','fc4_1','fc4_2']):
+def check_accuracy_hydra_using_multilabel(proto,caffemodel,num_images=5,
+                         multilabel_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/tb_cats_from_webtool_round2_train.txt',
+                         outlayers=['fc4_0','fc4_1'],cats=['skirt','pants'],save_imgs=True,show_imgs=True):
     with open(multilabel_file,'r') as fp:
         lines = fp.readlines()
         fp.close()
@@ -375,26 +392,88 @@ def check_accuracy_hydra(proto,caffemodel,num_images=5,
         labels = labels[0:num_images]
     results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
     print('all reslts from jrinfer.infer_many_hydra:'+str(results))
-    cats = ['pants','dress','top']
     indices = [constants.web_tool_categories_v2.index(cat) for cat in cats]
     print('cats {} indices {}'.format(cats,indices))
     reduced_labels = []
-    for l in labels:
+    for l in labels:  #tkae only selected elements from multilabel result
         print('l b4 '+str(l))
-        l = np.array([l[indices[0]],l[indices[1]],l[indices[2]]],dtype=np.uint8)
-        reduced_labels.append(l)
-        print('l after '+str(reduced_labels))
+        reduced_l = np.zeros(len(outlayers))
+        for i in range(len(outlayers)):
+            reduced_l[i]=l[indices[i]]
+        reduced_labels.append(reduced_l)
+        print('l after '+str(reduced_l))
     reduced_labels = np.array(reduced_labels,dtype=np.uint8)
     reduced_results = []
-    for r in results:
+    n=0
+    for r in results: #take results from [p1,p2,...] to index of winner (largest)
         print('r b4 '+str(r))
-        r = np.array([np.argmax(r[0]),np.argmax(r[1]),np.argmax(r[2])],dtype=np.uint8)
-        reduced_results.append(r)
-        print('r after '+str(reduced_results))
+        reduced_r=np.zeros(len(outlayers),dtype=np.uint8)
+        i=0
+        for i in range(len(r)):
+            reduced_r[i]=np.argmax(r[i])
+            i=i+1
+        reduced_results.append(reduced_r)
+        print('r after '+str(reduced_r))
+        if save_imgs:
+            img_arr = cv2.imread(files[n])
+            ml_str=''
+            for j in range(len(reduced_labels[n])):
+                ml_str = ml_str+cats[j]+'gt'+str(reduced_labels[n][j])+'est'+str(reduced_results[n][j])+'_'
+            name = 'img'+str(n)+ml_str[:-1]+'.jpg'
+            print('lbl {} est {}'.format(reduced_labels[n],reduced_results[n]))
+            print('saving to '+ml_str)
+            cv2.imwrite(name,img_arr)
+        if show_imgs:
+            cv2.imshow(files[n]+'_'+str(n),cv2.imread(files[n]))
+            cv2.waitKey(0)
+        n=n+1
+
     reduced_results = np.array(reduced_results,dtype=np.uint8)
     print('labels {} \n results {}'.format(reduced_labels,reduced_results))
     precision,recall,accuracy,tp,tn,fp,fn = check_acc_nonet(reduced_labels,reduced_results,threshold=0.5)
     return precision,recall,accuracy,tp,tn,fp,fn
+
+def check_accuracy_hydra_using_single_label(proto,caffemodel,num_images=10,
+                         label_file='/data/jeremy/image_dbs/tamara_berg_street_to_shop/binary/dress_filipino_labels_balanced_test_250x250.txt',
+                         outlayers=['fc4_0','fc4_1'],save_imgs=True,hydra_head_index=1,n_classes=2):
+    '''
+    check individual outputs using files of single-label ground truths
+    :param proto:
+    :param caffemodel:
+    :param num_images:
+    :param multilabel_file:
+    :param outlayers:
+    :return:
+    '''
+    with open(label_file,'r') as fp:
+        lines = fp.readlines()
+        fp.close()
+    files = [l.split()[0] for l in lines]
+    labels = [int(l.split()[1]) for l in lines]
+    if num_images is not None:
+        files = files[0:num_images]
+        labels = labels[0:num_images]
+    results = jrinfer.infer_many_hydra(files,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=outlayers)
+    print('all results from jrinfer.infer_many_hydra:'+str(results))
+    reduced_labels = np.array(labels,dtype=np.uint8)
+    reduced_results = []
+    i=0
+    for r in results: #take results from [p1,p2,...] to index of winner (largest)
+        print('r b4 '+str(r))
+        reduced_r=np.argmax(r[hydra_head_index])
+        reduced_results.append(reduced_r)
+        print('r after '+str(reduced_r))
+        if save_imgs:
+            img_arr = cv2.imread(files[i])
+            name = 'img'+str(i)+'gt_'+str(reduced_labels[i])+'_est_'+str(reduced_r)+'_head_'+str(hydra_head_index)+'.jpg'
+            cv2.imwrite(name,img_arr)
+        i=i+1
+    reduced_results = np.array(reduced_results,dtype=np.uint8)
+    print('labels {} \n results {}'.format(reduced_labels,reduced_results))
+    confmat = np.zeros([n_classes,n_classes])
+    for gt,est in zip(reduced_labels,reduced_results):
+        confmat[gt][est]+=1
+    precision_recall_accuracy(confmat,1)  #pra(confmat,class_to_analyze)
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])

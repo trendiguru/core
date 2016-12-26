@@ -14,7 +14,7 @@ FEATURES = {
             'midi_sleeve': 6,
             'long_sleeve': 7
         },
-        "relevant_items": []
+        "relevant_items": ['dress', 'top', 'shirt', 'blouse', 't-shirt']
     },
 
     "length": {
@@ -26,7 +26,7 @@ FEATURES = {
             'midi_length': 1,
             'maxi_length': 2
         },
-        "relevant_items": []
+        "relevant_items": ['dress', 'skirt']
     },
 
     "collar": {
@@ -45,7 +45,7 @@ FEATURES = {
             'Hooded_T_Shirt': 8,
             'strapless': 9
         },
-        "relevant_items": []
+        "relevant_items": ['dress', 'top', 'shirt', 'blouse', 'sweater', 'sweatshirt', 't-shirt']
     },
 
     "style": {
@@ -59,7 +59,7 @@ FEATURES = {
             'prom': 3,
             'bride_dress': 4
         },
-        "relevant_items": []
+        "relevant_items": ['top', 'shirt', 'blouse', 'sweater', 'sweatshirt', 't-shirt']
     },
 
     "dress_texture": {
@@ -78,6 +78,6 @@ FEATURES = {
             'chevron': 8,
             'colorblock': 9
         },
-        "relevant_items": []
+        "relevant_items": ['dress']
     }
 }

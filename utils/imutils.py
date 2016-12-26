@@ -351,6 +351,9 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
     outheight, outwidth = output_size[:]
+    if inheight==outheight and inwidth==outwidth:
+        logging.info('resize not needed , in {}x{} out {}x{}'.format(inheight,inwidth,outheight,outwidth))
+        return input_file_or_np_arr
     logging.info('doing resize , input hxw  {} {} output hxw {} {}'.format(inheight,inwidth,outheight,outwidth))
     if inheight == 0 or inwidth == 0:
         logging.warning('got a bad image')
@@ -702,6 +705,25 @@ def resize_and_crop_image_using_bb( input_file_or_np_arr, bb=None, output_file=N
         if retval is False:
              logging.warning('retval from imwrite is false (attempt to write file:'+output_file+' has failed :(  )')
     return scaled_cropped_img
+
+def center_crop(input_file_or_np_arr,cropsize):
+    img_arr = Utils.get_cv2_img_array(input_file_or_np_arr)
+    if img_arr is None:
+        print('couldnt get img arr in imutils.center_crop')
+        return
+    h,w = img_arr.shape[0:2]
+    if cropsize[0]>h or cropsize[1]>w:
+        print('cropsize {} > imagesize {}'.format(cropsize,img_arr.shape))
+        return
+    h_margin = (h-cropsize[0])/2
+    w_margin = (w-cropsize[1])/2
+    out_arr = img_arr[h_margin:h_margin+cropsize[0],w_margin:w_margin+cropsize[1]] #takes care of odd h-crop[0]
+    return out_arr
+
+def resize_and_crop_maintain_aspect(img_arr_or_url,resize_size,crop_size):
+    resized = resize_keep_aspect(img_arr_or_url,output_size=resize_size)
+    cropped = center_crop(resized,crop_size)
+    return cropped
 
 def crop_files_in_dir(dirname,save_dir,**arglist):
     '''

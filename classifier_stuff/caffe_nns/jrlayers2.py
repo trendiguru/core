@@ -104,8 +104,8 @@ class JrPixlevel(caffe.Layer):
 
 #######begin vestigial code for separate images/labels files
         elif self.imagesfile is not None:
-            if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
-                self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
+    #        if not os.path.isfile(self.imagesfile) and not '/' in self.imagesfile:
+    #            self.imagesfile = os.path.join(self.images_dir,self.imagesfile)
             if not os.path.isfile(self.imagesfile):
                 logging.warning('COULD NOT OPEN IMAGES FILE '+str(self.imagesfile))
             self.imagefiles = open(self.imagesfile, 'r').read().splitlines()
@@ -514,6 +514,7 @@ class JrMultilabel(caffe.Layer):
         print('seed {} newsize {} batchsize {} augment {} augmaxangle {} '.format(self.seed,self.new_size,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} augmaxdy {} augmaxscale {} augmaxnoise {} augmaxblur {} '.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} augmirrorud {} augcrop {} augvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
+        print('scale {}'.format(self.scale))
         print('############end of net params for jrlayers2#########')
 
         self.idx = 0
@@ -533,9 +534,9 @@ class JrMultilabel(caffe.Layer):
         #if file not found and its not a path then tack on the training dir as a default locaiton for the trainingimages file
         if self.images_and_labels_file is not None:
             print('using images/labels file '+self.images_and_labels_file)
-            if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
-                if self.images_dir is not None:
-                    self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
+ #           if not os.path.isfile(self.images_and_labels_file) and not '/' in self.images_and_labels_file:
+ #               if self.images_dir is not None:
+ #                   self.images_and_labels_file = os.path.join(self.images_dir,self.images_and_labels_file)
             if not os.path.isfile(self.images_and_labels_file):
                 print('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT OPEN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
@@ -736,8 +737,8 @@ class JrMultilabel(caffe.Layer):
         while(1):
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
-            if self.images_dir:
-                filename=os.path.join(self.images_dir,filename)
+ #           if self.images_dir:
+ #               filename=os.path.join(self.images_dir,filename)
             #print('the imagefile:'+filename+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename)+' ; trying next')
@@ -849,6 +850,11 @@ class JrMultilabel(caffe.Layer):
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
+        if self.scale:
+            if self.scale==True:
+                out_=out_/255.0
+            else:
+                out_=out_/self.scale
         return filename, out_, label_vec
 
     def load_image_and_label_from_lmdb(self,idx=None):

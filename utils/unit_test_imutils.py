@@ -38,6 +38,45 @@ class OutcomesTest(unittest.TestCase):
         actual_size=resized.shape[0:2]
         assert(actual_size==desired_size)
 
+    def test_crop(self):
+        print('test crop')
+        curpath = os.path.dirname(imutils.__file__)
+        parpath= os.path.dirname(curpath)
+        img_arr = cv2.imread(os.path.join(parpath,'images/female1.jpg'))
+        crop_size = (250,351)
+        resized = imutils.center_crop(img_arr,crop_size)
+        print('orig size {} new size {}'.format(img_arr.shape,resized.shape))
+        actual_size=resized.shape[0:2]
+        assert(actual_size==crop_size)
+        cv2.imshow('cropped',resized)
+        cv2.imshow('orig',img_arr)
+        cv2.waitKey(0)
+
+    def test_resize_and_crop(self):
+        print('test resize and crop')
+        curpath = os.path.dirname(imutils.__file__)
+        parpath= os.path.dirname(curpath)
+        img_arr = cv2.imread(os.path.join(parpath,'images/female1.jpg'))
+        resize_size = (451,502)
+        crop_size = (350,351)
+        resized = imutils.resize_and_crop_maintain_aspect(img_arr,resize_size,crop_size)
+        print('orig size {} new size {}'.format(img_arr.shape,resized.shape))
+        actual_size=resized.shape[0:2]
+        assert(actual_size==crop_size)
+        cv2.imshow('cropped',resized)
+        cv2.imshow('orig',img_arr)
+        cv2.waitKey(0)
+
+        resize_size = (612,816)  #same as female1, test dont resize if resize_size=input_size
+        crop_size = (350,351)
+        resized = imutils.resize_and_crop_maintain_aspect(img_arr,resize_size,crop_size)
+        print('orig size {} new size {}'.format(img_arr.shape,resized.shape))
+        actual_size=resized.shape[0:2]
+        assert(actual_size==crop_size)
+        cv2.imshow('cropped',resized)
+        cv2.imshow('orig',img_arr)
+        cv2.waitKey(0)
+
 #        resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
 #        undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
 
