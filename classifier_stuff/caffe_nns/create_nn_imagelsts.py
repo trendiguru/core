@@ -379,7 +379,7 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
             for i in range(len(non_zero_idx)):
                 print yonatan_constants.attribute_type_dict[str(i)]
 
-                img_arr = cv2.imread(path)
+                img_arr = cv2.imread(os.path.join("/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction", path))
                 if img_arr is None:
                     print('could not grok file '+path)
                     continue
