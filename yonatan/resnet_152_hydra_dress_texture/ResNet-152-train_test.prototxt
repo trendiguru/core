@@ -7776,13 +7776,6 @@ layer {
 }
 
 layer {
-	bottom: "fc4_0"
-	top: "estimate"
-	name: "estimate"
-	type: "Softmax"
-#  include {phase: TEST}
-}
-layer {
   name: "accuracy"
   type: "Accuracy"
   bottom: "fc4_0"
