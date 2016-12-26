@@ -280,53 +280,6 @@ def solve_a_bunch():
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
           cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)
 
-    pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
-pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
-pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
-pixlevel3_upper_under = ['shirt']  #nite this is intead of top
-pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
-pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
-pixlevel3_lower_cover_short = ['shorts','skirt']
-pixlevel3_wraparwounds = ['shawl','scarf']
-pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
-
-pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jeans' ] #and socks appears twice...
-pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-                          'bag','belt','eyewear','hat','tie','skin']
-multilabel_categories_v3 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket',
-                'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
-                'overalls','sweatshirt', 'mens_swimwear','lingerie','blazer','legging',
-                'tracksuit','mens_underwear','vest','panties','bra','socks','shawl','sarong','robe','pyjamas',
-                'poncho','tie','skin']
-
-hydra_cats = [['bag'],['belt'],
-             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'],
-             ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ],
-             ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra'],
-             ['mens_swimwear','mens_underwear','panties'],
-             ['shirt'],
-             ['jeans','pants','stocking','legging','socks']
-             ['shorts','skirt'],
-             ['shawl','scarf'],
-             ['boots','shoes','sandals']]
-
-
-hydra_cats = [['relevant_image'],
-              ['full_person','upper_body_crop','lower_body_crop'],
-              ['female'],
-              ['whole_body','skin','two-part'],
-             ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
-              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear'],  #whole body
-             ['bra','panties','babydoll']  #NOT SOFTMAX - these are either/or aka multilabel
-             ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho'], #upper cover
-             ['jeans','pants','stocking','legging','socks'], #lower_cover_long
-             ['shorts','skirt'], #lower_cover_short
-             ['shirt'],
-             ['shawl','scarf'],
-             ['boots','shoes','sandals']  #footwear
-             ['bag'],['belt']] #extra stuff
-
 if __name__ == "__main__":
 ###############
 #vars to change
