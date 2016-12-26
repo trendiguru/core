@@ -376,7 +376,7 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
             path = line.split()[0]
             vals = [int(i) for i in line.split()[1:]]
             non_zero_idx = np.nonzero(vals)
-            for i in range(len(non_zero_idx)):
+            for i in non_zero_idx:
                 print yonatan_constants.attribute_type_dict[str(i)]
 
                 img_arr = cv2.imread(os.path.join("/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction", path))
