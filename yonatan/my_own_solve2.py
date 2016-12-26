@@ -187,8 +187,8 @@ if __name__ == "__main__":
 ###############
     solverstate = None
     weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
-    solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_dress_texture/ResNet-152_solver.prototxt'
-    testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_dress_texture/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+    solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152_solver.prototxt'
+    testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
