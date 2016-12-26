@@ -379,13 +379,13 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
             for i in range(len(non_zero_idx)):
                 print yonatan_constants.attribute_type_dict[str(i)]
 
-            img_arr = cv2.imread(path)
-            if img_arr is None:
-                print('could not grok file '+path)
-                continue
+                img_arr = cv2.imread(path)
+                if img_arr is None:
+                    print('could not grok file '+path)
+                    continue
 
-            cv2.imshow("image", img_arr)
-            cv2.waitKey(0)
+                cv2.imshow("image", img_arr)
+                cv2.waitKey(0)
 
 def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):
     with open(filename,'r') as fp:
