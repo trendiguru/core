@@ -484,7 +484,7 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
              ['coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
              ['jeans','pants','stocking','legging','socks'], #lower_cover_long
              ['shorts','skirt'], #lower_cover_short
-             ['tee','button-down','blouse','polo','henley','tube','tank','top'], #tops - button is buttons all the way down but not a blouse
+             ['tee','button-down','blouse','polo','henley','tube','tank'], #tops - button is buttons all the way down but not a blouse
              ['shawl','scarf'],
              ['boots','shoes','sandals'],  #footwear
              ['bag'],['belt'],['sarong']] #extra stuff
@@ -493,7 +493,7 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
 #all their images are in folders with at least one of those 50 cats
 #things missing from this list are same in our system namely:
-#blazer, blouse ,cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.,coat
+#blazer, blouse ,button-down, cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.,coat
 #button-down is not a cat but listed in their list of cats (dress or blouse or shirt always appears w. button-down)
 #halter also appears always w. a real cat like dress or top so no translation
 #flannel is generally a shirt unless it appears with 'skirt' or 'dress' so watch out for that one
@@ -507,20 +507,16 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
 #shirtdress doesnt exist but shirt_dress does, i put those under dress
 #sun_dress looks to be dress
 
-deep_fashion_to_trendi_map = {'anorak':'coat','bomber':'jacket','flannel':'button-down','hoodie':'sweatshirt','jersey':'tee',
-                             'parka':'coat','peacoat':'coat','turtleneck':'sweater','capris':'pants','chinos':'pants','culottes':'pants',
-                              'cutoffs':'shorts','gauchos':'None','jeggings':'jeans','jodhpurs':'pants','joggers':'pants',
-                              'leggings':'legging','sweatpants':'pants','sweatshorts':'shorts','trunks':'mens_swimwear',
-                              'caftan':'dress','cape':None,'coverup':'robe','kaftan':'robe','kimono':'robe',
-                              'nightdress':None, 'onesie':None,'romper':'jumpsuit','shirt_dress':'dress'}
-
-
-
-
-
-
-
-
+#not included: sundress,shirtdress,button-down,halter ,top
+deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket','flannel':'button-down','hoodie':'sweatshirt',
+                              'jersey':'tee','parka':'coat','peacoat':'coat','turtleneck':'sweater','capris':'pants',
+                              'chinos':'pants','culottes':'pants','cutoffs':'shorts','gauchos':'None','jeggings':'jeans',
+                              'jodhpurs':'pants','joggers':'pants','leggings':'legging','sweatpants':'pants','sweatshorts':'shorts',
+                              'trunks':'mens_swimwear','caftan':'dress','cape':None,'coverup':'robe','kaftan':'robe',
+                              'kimono':'robe','nightdress':None,'onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
+                              'blouse':'blouse','cardigan':'cardigan','henley':'henley','jacket':'jacket','poncho':'poncho',
+                              'sweater':'sweater','tank':'tank','tee':'tee','jeans':'jeans','sarong':'sarong',
+                              'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe'}
 
 nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
                                 'skirt', 'intimate']},
