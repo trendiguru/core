@@ -385,7 +385,7 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
                     continue
 
                 # cv2.imshow("image", img_arr)
-                cv2.waitKey(0)
+                # cv2.waitKey(0)
 
 def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):
     with open(filename,'r') as fp:
