@@ -524,8 +524,15 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
-def deepfashion_to_
-
+def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+    dirs = os.listdir(folderpath)
+    for dir in dirs:
+        cats_found = []
+        for k,v in constants.deep_fashion_to_trendi_map.iteritems():
+            if k in dir:
+                cats_found.append(dir)
+            print('matching cats:{}'.format(cats_found))
+            cats_found.sort(key=len)
 #
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
