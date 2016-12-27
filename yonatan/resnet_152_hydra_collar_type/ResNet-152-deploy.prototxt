@@ -6762,7 +6762,7 @@ layer {
 	name: "fc2"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 2
+		num_output: 10
 	}
 }
 
