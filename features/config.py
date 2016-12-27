@@ -30,9 +30,9 @@ FEATURES = {
     },
 
     "collar": {
-        "MODEL_FILE": "/data/production/caffemodels_and_protos/collar/ResNet-152-deploy.prototxt",
-        "PRETRAINED": "/data/production/caffemodels_and_protos/collar/caffe_resnet152_snapshot_collar_10_categories_iter_2500.caffemodel",
-        "path_to_images": "/data/production/caffemodels_and_protos/collar/images",
+        "MODEL_FILE": "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152-deploy.prototxt",
+        "PRETRAINED": "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra",
+        "path_to_images": "/data/yonatan/yonatan_files/collar_classifier/collar_images",
         "labels": {
             'crew_neck': 0,
             'scoop_neck': 1,
