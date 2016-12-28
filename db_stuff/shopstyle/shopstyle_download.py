@@ -91,19 +91,19 @@ class ShopStyleDownloader:
         total_time = (end_time - start_time)/3600
         self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
         self.collection.delete_many({'fingerprint': {"$exists": False}})
-        self.theArchiveDoorman()
+        # self.theArchiveDoorman()
 
-        dl_info = {"start_date": self.current_dl_date,
-                   "dl_duration": total_time,
-                   "items_before": bef,
-                   "items_after": self.collection.count(),
-                   "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
-
-        dl_excel.mongo2xl(self.collection_name, dl_info)
-        print self.collection_name + " DOWNLOAD DONE!!!!!\n"
-        new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
-                                                                         self.notes_full_path: new_items}})
+        # dl_info = {"start_date": self.current_dl_date,
+        #            "dl_duration": total_time,
+        #            "items_before": bef,
+        #            "items_after": self.collection.count(),
+        #            "items_new": self.collection.find({'download_data.first_dl':self.current_dl_date}).count()}
+        #
+        # dl_excel.mongo2xl(self.collection_name, dl_info)
+        # print self.collection_name + " DOWNLOAD DONE!!!!!\n"
+        # new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
+        # self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
+        #                                                                  self.notes_full_path: new_items}})
         self.cache.delete_many({})
 
     def theArchiveDoorman(self):
