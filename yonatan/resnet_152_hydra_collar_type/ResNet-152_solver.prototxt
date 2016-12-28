@@ -1,4 +1,4 @@
-net: "ResNet-152-train_test.prototxt"
+net: "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152-train_test.prototxt"
 #train_net: "ResNet-152-train.prototxt"
 #test_net: "ResNet-152-test.prototxt"
 test_iter: 500
@@ -9,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 10
 snapshot: 10000
-snapshot_prefix: "/data/yonatan/yonatan_files/dress_texture_classifier/resnet152_caffemodels_hydra_26_12_16/caffe_resnet152_snapshot_dress_texture_10_categories_hydra"
+snapshot_prefix: "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra"
 test_initialization: false
 solver_mode : GPU
 

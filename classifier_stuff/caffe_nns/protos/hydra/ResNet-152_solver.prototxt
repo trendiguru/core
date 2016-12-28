@@ -1,4 +1,4 @@
-net: "ResNet-152-train_test.prototxt"
+net: "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152-train_test.prototxt"
 #train_net: "ResNet-152-train.prototxt"
 #test_net: "ResNet-152-test.prototxt"
 test_iter: 500

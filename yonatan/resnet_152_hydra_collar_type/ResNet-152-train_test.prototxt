@@ -1,4 +1,4 @@
-name: "ResNet-152_dress_texture_for_hydra"
+name: "ResNet-152_collar_for_hydra"
 
 layer {
       name: "data"
@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images/dress_texture_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
+      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/collar_classifier/collar_images/collar_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':12 }"
       }
   include {phase: TRAIN}
 }
@@ -20,7 +20,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images/dress_texture_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
+      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/collar_classifier/collar_images/collar_cv_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
       }
     include {phase: TEST}
 }
@@ -7754,7 +7754,7 @@ layer {
 	name: "fc4_0"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 2
+		num_output: 10
 		weight_filler { type: "xavier"}
 		bias_filler { type:"constant"}	}
 	 param {
@@ -7775,13 +7775,6 @@ layer {
 #  include {phase: TRAIN}
 }
 
-layer {
-	bottom: "fc4_0"
-	top: "estimate"
-	name: "estimate"
-	type: "Softmax"
-#  include {phase: TEST}
-}
 layer {
   name: "accuracy"
   type: "Accuracy"
