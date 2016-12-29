@@ -119,9 +119,10 @@ class Editor(object):
                                                     path_args["results_collection"],
                                                     data)
             elif "person_id" in path_args:
+                data = data.get("data", data)
                 ret['ok'] = edit_results.add_item(path_args["image_id"],
                                                   path_args["person_id"],
-                                                  data['category'],
+                                                  data["category"],
                                                   products_collection)
             elif "image_id" in path_args:
                 ret['ok'] = edit_results.add_people_to_image(path_args['image_id'],
