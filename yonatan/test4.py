@@ -11,7 +11,7 @@ import glob
 import time
 import skimage
 from PIL import Image
-from . import gender_detector
+# from . import gender_detector
 import random
 import matplotlib.pyplot as plt
 import yonatan_classifier
