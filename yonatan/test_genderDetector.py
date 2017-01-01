@@ -38,6 +38,7 @@ classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
 
 print "Done initializing!"
 
+
 def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
@@ -73,6 +74,7 @@ def theDetector(url_or_np_array):
     #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
     faces = background_removal.find_face_dlib(full_image)
+    # faces = find_face_dlib(full_image, 1)
 
     if not faces["are_faces"]:
         print "didn't find any faces"
