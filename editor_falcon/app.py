@@ -2,7 +2,7 @@ import falcon
 from falcon_cors import CORS
 from . import falcon_jwt
 
-from . import editor
+from .editor import Editor
 from .temp_editor_users import USERS
 
 login, auth_middleware = falcon_jwt.get_auth_objects(
@@ -24,11 +24,12 @@ cors = CORS(allow_all_headers=True,
 
 api = falcon.API(middleware=[auth_middleware, cors.middleware])
 
-editor = editor.Editor()
+editor = Editor()
 
 api.add_route('/editor/images', editor)
 api.add_route('/editor/images/{image_id}', editor)
 api.add_route('/editor/images/{image_id}/people/{person_id}', editor)
+api.add_route('/editor/images/{image_id}/people/{person_id}/items' ,editor)
 api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category}', editor)
 api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category}/similar_results/{results_collection}', editor)
 api.add_route('/editor/images/{image_id}/people/{person_id}/items/{item_category}/similar_results/{results_collection}/{result_id}', editor)
