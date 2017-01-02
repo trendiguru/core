@@ -4,10 +4,9 @@ import yonatan_constants
 
 dict = yonatan_constants.attribute_type_dict
 
+counter = 0
 
 for key, value in dict.iteritems():
-
-    counter = 0
 
     if value[1] == "fabric":
         counter += 1
