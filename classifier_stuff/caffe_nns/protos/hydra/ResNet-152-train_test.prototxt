@@ -25,7 +25,6 @@ layer {
     include {phase: TEST}
 }
 
-#
 layer {
 	bottom: "data"
 	top: "conv1"
