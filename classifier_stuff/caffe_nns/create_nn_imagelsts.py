@@ -174,6 +174,7 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
     if n_votes[cat] = n_voters put that image in positives for cat
+    dress 4 skirt 12...
     '''
     if outfile is None:
         outfile = 'class'+str(index_a)+'_vs_class'+str(index_b)+'.txt'
