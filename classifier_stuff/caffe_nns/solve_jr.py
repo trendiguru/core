@@ -26,9 +26,9 @@ import scipy
 import matplotlib as plt
 
 
-matplotlib.use('Agg') #allow plot generation on X-less systems
-plt.ioff()
-setproctitle.setproctitle(os.path.basename(os.getcwd()))
+#matplotlib.use('Agg') #allow plot generation on X-less systems
+#plt.ioff()
+#setproctitle.setproctitle(os.path.basename(os.getcwd()))
 
 
 
