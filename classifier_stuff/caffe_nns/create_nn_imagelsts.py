@@ -424,7 +424,7 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
             tefp.writelines(test_lines)
             tefp.close()
 
-def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=2.0,n_cats=2,outfilename=None,shuffle=True):
+def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=1.0,n_cats=2,outfilename=None,shuffle=True):
     '''
     balance the occurence of categories - take minimum occurences and let all cats occur only that amt
     ie. if there are 10 examples of class 1, 20 examples class 2, 30 examples class 3, take 10 examples of each class and write
