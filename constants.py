@@ -127,7 +127,7 @@ neurodooll_queuename = 'neurodoll'
 
 # to do the portforwards required to make this work:
 #ssh -f -N -L 27017:mongodb1-instance-1:27017 -L 6379:redis1-redis-1-vm:6379 root@extremeli.trendi.guru
-#to kill nound ports
+#to kill bound ports
 # lsof -ti:27017 | xargs kill -9
 # lsof -ti:6379 | xargs kill -9
 #to add to .bashrc (maybe better in .profile!!)

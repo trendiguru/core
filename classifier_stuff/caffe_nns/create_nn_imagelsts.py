@@ -169,7 +169,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
-def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2):
+def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -197,7 +197,7 @@ def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir=
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
-        if not os.path.exists(full_path):
+        if not os.path.exists(full_path) and skip_missing_files:
             print('file '+full_path+' does not exist, skipping')
             continue
         items_list = document['items'] #
