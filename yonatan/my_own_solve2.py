@@ -193,7 +193,7 @@ if __name__ == "__main__":
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
-    n_iter = 20
+    n_iter = 100
     cat = "collar"
     classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt', 'strapless']
     n_tests = 1000

@@ -7,8 +7,8 @@ display: 20
 average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
-iter_size: 10
-snapshot: 5000
+iter_size: 20
+snapshot: 2500
 snapshot_prefix: "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra"
 test_initialization: false
 solver_mode : GPU
