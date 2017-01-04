@@ -258,8 +258,7 @@ def test_fit():
 
 
 def solve_a_bunch():
-    solverstate = None
-    dirs = constants.
+
     base_dir = '/home/jeremy/caffenets/binary/resnet101_dress_try1/'
     weights =  '/home/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
     solverproto = base_dir + 'ResNet-101_solver.prototxt'
