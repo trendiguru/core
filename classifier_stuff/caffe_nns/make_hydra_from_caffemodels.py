@@ -16,20 +16,6 @@ import numpy as np
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
-def copy_net_params(params_new, params_base):
-    for pr in params_base.keys():
-        print('param key {} len new {} len base {}'.format(pr,params_new[pr].shape,params_base[pr].shape))
-        assert(params_new[pr].shape==params_base[pr].shape)
-#possibly:
-        # params_new[pr] = params_base[pr]
-#or even
-        #params_new = params_base
-        for i in range(len(params_new[pr])):
-            print('param {} weightshape {}'.format(i,params_new[pr][i].data.shape,params_base[pr][i].data.shape))
-            params_new[pr][i].data = params_base[pr][i].data
-    return params_new
-
-
 def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer):
     print('attempting to sub {} into {}'.format(source_layer,dest_layer))
     assert len(dest_net_params[dest_layer])==len(source_net_params[source_layer]) ,'inequal lengths of params'
@@ -145,8 +131,7 @@ def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffe
     print('conv1 mean {} std {}'.format(np.mean(net.blobs['conv1'].data),np.std(net.blobs['conv1'].data)))
     print('pool1 mean {} std {}'.format(np.mean(net.blobs['pool1'].data),np.std(net.blobs['pool1'].data)))
 
-
-##
+###
 if __name__ == "__main__":
     user_input = get_user_input()
     folder_path = user_input.path2folder
@@ -189,9 +174,7 @@ if __name__ == "__main__":
         compare_nets(destination_net,net)
     print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 
-    # weights_dict(net_new.params, nets.next().params)
-#    nets.next()
-   #add final layers from nets to destination net
+
     for i in range(n_models_to_add):
         net_orig = nets[i]
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
@@ -201,20 +184,6 @@ if __name__ == "__main__":
             fc_orig = 'fc{}_0'.format(j)
             fc_dest = 'fc{}_{}'.format(j, destination_output)
             copy_layer_params(destination_net.params,fc_dest,net_orig.params,fc_orig)
- #           assert(net_new[fc_new].shape==net_orig[fc_orig].shape)
-#            assert(net_new[fc_new][0].data.shape==net_orig[fc_orig][0].data.shape)
-
-#            print('copying source layer {} to dest layer {}'.format(fc_new,fc_orig))
-
-#            for layer_level in range(len(net_new.params[fc_new])):#
-#                print('orig layer {}[{}] shape {} new layer {}[{}] shape  {}'.format(fc_orig,layer_level,net_orig[fc_orig][layer_level].data.shape,fc_new,layer_level,net_new[fc_new][layer_level].data.shape))
-#                net_new.params[fc_new][layer_level].data = net_orig.params[fc_orig][layer_level].data
-
-            # net_new.params[tmp_fc_new][0].data.flat = tmp_net.params[tmp_fc_base][0].data.flat
-            # if len(net_new.params[tmp_fc_new]) == 2:
-            #     net_new.params[tmp_fc_new][1].data[...] = tmp_net.params[tmp_fc_base][1].data
-            # if len(net_new.params[tmp_fc_new]) > 2:
-            #     print('uh o')
 
         #verify that the stuff passed is getting changed ....
             for k in range(len(destination_net.params[fc_dest])):
@@ -226,7 +195,7 @@ if __name__ == "__main__":
 
 #    nets.close()
 #    del net_new
-
+#
     print 'DONE!'
 
 

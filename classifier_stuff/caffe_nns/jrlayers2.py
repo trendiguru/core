@@ -643,18 +643,18 @@ class JrMultilabel(caffe.Layer):
         spinner = spinning_cursor()
         logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
-        #if images are being augmented then dont do this resize
-        if self.augment_images == False:
-            if self.new_size == None:   #the old size of 227 is not actually correct, original vgg/resnet wants 224
-                print(' got no size for self.newsize')
-#                self.new_size = (224,224)
+        if self.augment_crop_size is not None and self.augment_images is True:
+            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
+            self.size_for_shaping = self.augment_crop_size
+        elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
-        else:  #only resize if specified in the param line in prototxt /resize:(h,w)
-#            self.new_size=(self.augment_crop_size[0],self.augment_crop_size[1])
-            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[0])
-#            top[0].reshape(self.batch_size, 3, self.augment_crop_size[0], self.augment_crop_size[1])
-#        logging.debug('doing reshape of top[0] to img size:'+str(self.new_size))
-#        logging.debug('reshaping labels to '+str(self.batch_size)+'x'+str(self.n_labels))
+            self.size_for_shaping = self.new_size
+        else:
+            logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
+            self.new_size = (224,224)
+            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+            self.size_for_shaping = (224,224)
+        print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
 
@@ -670,11 +670,8 @@ class JrMultilabel(caffe.Layer):
                 imgfilename, self.data, self.label = self.load_image_and_label()
             self.images_processed += 1
         else:
-            if self.augment_images is True and self.augment_crop_size is not None:
-                size_for_shaping=self.augment_crop_size
-            elif self.new_size is not None:
-                size_for_shaping=self.new_size
-            all_data = np.zeros((self.batch_size,3,size_for_shaping[0],size_for_shaping[1]))
+
+            all_data = np.zeros((self.batch_size,3,self.size_for_shaping[0],self.size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 if self.lmdb is not None:

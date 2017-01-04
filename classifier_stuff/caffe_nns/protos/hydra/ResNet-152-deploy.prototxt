@@ -34,9 +34,11 @@ layer {
 	top: "conv1"
 	name: "scale_conv1"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -64,12 +66,15 @@ layer {
 	name: "res2a_branch1"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false }
+		param { 		  lr_mult: 0 		  decay_mult: 0 		}
+
 }
 
 layer {
@@ -87,9 +92,11 @@ layer {
 	top: "res2a_branch1"
 	name: "scale2a_branch1"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -98,12 +105,14 @@ layer {
 	name: "res2a_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+bias_term: false          } 	 param { 		  lr_mult: 0 		  decay_mult: 0 		}
+
 }
 
 layer {
@@ -121,9 +130,11 @@ layer {
 	top: "res2a_branch2a"
 	name: "scale2a_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -139,12 +150,14 @@ layer {
 	name: "res2a_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		     bias_term: false  } param { lr_mult: 0 		  decay_mult: 0 		}
+
 }
 
 layer {
@@ -162,9 +175,11 @@ layer {
 	top: "res2a_branch2b"
 	name: "scale2a_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -180,12 +195,14 @@ layer {
 	name: "res2a_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false  } param { lr_mult: 0 		  decay_mult: 0 		}
+
 }
 
 layer {
@@ -203,9 +220,11 @@ layer {
 	top: "res2a_branch2c"
 	name: "scale2a_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -229,12 +248,16 @@ layer {
 	name: "res2b_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -252,9 +275,11 @@ layer {
 	top: "res2b_branch2a"
 	name: "scale2b_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -270,12 +295,16 @@ layer {
 	name: "res2b_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -293,9 +322,11 @@ layer {
 	top: "res2b_branch2b"
 	name: "scale2b_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -311,12 +342,16 @@ layer {
 	name: "res2b_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -334,9 +369,11 @@ layer {
 	top: "res2b_branch2c"
 	name: "scale2b_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -360,12 +397,16 @@ layer {
 	name: "res2c_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -383,9 +424,11 @@ layer {
 	top: "res2c_branch2a"
 	name: "scale2c_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -401,12 +444,16 @@ layer {
 	name: "res2c_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 64
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -424,9 +471,11 @@ layer {
 	top: "res2c_branch2b"
 	name: "scale2c_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -442,12 +491,16 @@ layer {
 	name: "res2c_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -465,9 +518,11 @@ layer {
 	top: "res2c_branch2c"
 	name: "scale2c_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -491,12 +546,16 @@ layer {
 	name: "res3a_branch1"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -514,9 +573,11 @@ layer {
 	top: "res3a_branch1"
 	name: "scale3a_branch1"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -525,12 +586,16 @@ layer {
 	name: "res3a_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -548,9 +613,11 @@ layer {
 	top: "res3a_branch2a"
 	name: "scale3a_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -566,12 +633,16 @@ layer {
 	name: "res3a_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -589,9 +660,11 @@ layer {
 	top: "res3a_branch2b"
 	name: "scale3a_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -607,12 +680,16 @@ layer {
 	name: "res3a_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -630,9 +707,11 @@ layer {
 	top: "res3a_branch2c"
 	name: "scale3a_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -656,12 +735,16 @@ layer {
 	name: "res3b1_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -679,9 +762,11 @@ layer {
 	top: "res3b1_branch2a"
 	name: "scale3b1_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -697,12 +782,16 @@ layer {
 	name: "res3b1_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -720,9 +809,11 @@ layer {
 	top: "res3b1_branch2b"
 	name: "scale3b1_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -738,12 +829,16 @@ layer {
 	name: "res3b1_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -761,9 +856,11 @@ layer {
 	top: "res3b1_branch2c"
 	name: "scale3b1_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -787,12 +884,16 @@ layer {
 	name: "res3b2_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -810,9 +911,11 @@ layer {
 	top: "res3b2_branch2a"
 	name: "scale3b2_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -828,12 +931,16 @@ layer {
 	name: "res3b2_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -851,9 +958,11 @@ layer {
 	top: "res3b2_branch2b"
 	name: "scale3b2_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -869,12 +978,16 @@ layer {
 	name: "res3b2_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -892,9 +1005,11 @@ layer {
 	top: "res3b2_branch2c"
 	name: "scale3b2_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -918,12 +1033,16 @@ layer {
 	name: "res3b3_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -941,9 +1060,11 @@ layer {
 	top: "res3b3_branch2a"
 	name: "scale3b3_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -959,12 +1080,16 @@ layer {
 	name: "res3b3_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -982,9 +1107,11 @@ layer {
 	top: "res3b3_branch2b"
 	name: "scale3b3_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1000,12 +1127,16 @@ layer {
 	name: "res3b3_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1023,9 +1154,11 @@ layer {
 	top: "res3b3_branch2c"
 	name: "scale3b3_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1049,12 +1182,16 @@ layer {
 	name: "res3b4_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1072,9 +1209,11 @@ layer {
 	top: "res3b4_branch2a"
 	name: "scale3b4_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1090,12 +1229,16 @@ layer {
 	name: "res3b4_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1113,9 +1256,11 @@ layer {
 	top: "res3b4_branch2b"
 	name: "scale3b4_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1131,12 +1276,16 @@ layer {
 	name: "res3b4_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1154,9 +1303,11 @@ layer {
 	top: "res3b4_branch2c"
 	name: "scale3b4_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1180,12 +1331,16 @@ layer {
 	name: "res3b5_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1203,9 +1358,11 @@ layer {
 	top: "res3b5_branch2a"
 	name: "scale3b5_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1221,12 +1378,16 @@ layer {
 	name: "res3b5_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1244,9 +1405,11 @@ layer {
 	top: "res3b5_branch2b"
 	name: "scale3b5_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1262,12 +1425,16 @@ layer {
 	name: "res3b5_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1285,9 +1452,11 @@ layer {
 	top: "res3b5_branch2c"
 	name: "scale3b5_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1311,12 +1480,16 @@ layer {
 	name: "res3b6_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1334,9 +1507,11 @@ layer {
 	top: "res3b6_branch2a"
 	name: "scale3b6_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1352,12 +1527,16 @@ layer {
 	name: "res3b6_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1375,9 +1554,11 @@ layer {
 	top: "res3b6_branch2b"
 	name: "scale3b6_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1393,12 +1574,16 @@ layer {
 	name: "res3b6_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1416,9 +1601,11 @@ layer {
 	top: "res3b6_branch2c"
 	name: "scale3b6_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1442,12 +1629,16 @@ layer {
 	name: "res3b7_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1465,9 +1656,11 @@ layer {
 	top: "res3b7_branch2a"
 	name: "scale3b7_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1483,12 +1676,16 @@ layer {
 	name: "res3b7_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 128
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1506,9 +1703,11 @@ layer {
 	top: "res3b7_branch2b"
 	name: "scale3b7_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1524,12 +1723,16 @@ layer {
 	name: "res3b7_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1547,9 +1750,11 @@ layer {
 	top: "res3b7_branch2c"
 	name: "scale3b7_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1573,12 +1778,16 @@ layer {
 	name: "res4a_branch1"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1596,9 +1805,11 @@ layer {
 	top: "res4a_branch1"
 	name: "scale4a_branch1"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1607,12 +1818,16 @@ layer {
 	name: "res4a_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1630,9 +1845,11 @@ layer {
 	top: "res4a_branch2a"
 	name: "scale4a_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1648,12 +1865,16 @@ layer {
 	name: "res4a_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1671,9 +1892,11 @@ layer {
 	top: "res4a_branch2b"
 	name: "scale4a_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1689,12 +1912,16 @@ layer {
 	name: "res4a_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1712,9 +1939,11 @@ layer {
 	top: "res4a_branch2c"
 	name: "scale4a_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1738,12 +1967,16 @@ layer {
 	name: "res4b1_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1761,9 +1994,11 @@ layer {
 	top: "res4b1_branch2a"
 	name: "scale4b1_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1779,12 +2014,16 @@ layer {
 	name: "res4b1_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1802,9 +2041,11 @@ layer {
 	top: "res4b1_branch2b"
 	name: "scale4b1_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1820,12 +2061,16 @@ layer {
 	name: "res4b1_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1843,9 +2088,11 @@ layer {
 	top: "res4b1_branch2c"
 	name: "scale4b1_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1869,12 +2116,16 @@ layer {
 	name: "res4b2_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1892,9 +2143,11 @@ layer {
 	top: "res4b2_branch2a"
 	name: "scale4b2_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1910,12 +2163,16 @@ layer {
 	name: "res4b2_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1933,9 +2190,11 @@ layer {
 	top: "res4b2_branch2b"
 	name: "scale4b2_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -1951,12 +2210,16 @@ layer {
 	name: "res4b2_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -1974,9 +2237,11 @@ layer {
 	top: "res4b2_branch2c"
 	name: "scale4b2_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2000,12 +2265,16 @@ layer {
 	name: "res4b3_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2023,9 +2292,11 @@ layer {
 	top: "res4b3_branch2a"
 	name: "scale4b3_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2041,12 +2312,16 @@ layer {
 	name: "res4b3_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2064,9 +2339,11 @@ layer {
 	top: "res4b3_branch2b"
 	name: "scale4b3_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2082,12 +2359,16 @@ layer {
 	name: "res4b3_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2105,9 +2386,11 @@ layer {
 	top: "res4b3_branch2c"
 	name: "scale4b3_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2131,12 +2414,16 @@ layer {
 	name: "res4b4_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2154,9 +2441,11 @@ layer {
 	top: "res4b4_branch2a"
 	name: "scale4b4_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2172,12 +2461,16 @@ layer {
 	name: "res4b4_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2195,9 +2488,11 @@ layer {
 	top: "res4b4_branch2b"
 	name: "scale4b4_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2213,12 +2508,16 @@ layer {
 	name: "res4b4_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2236,9 +2535,11 @@ layer {
 	top: "res4b4_branch2c"
 	name: "scale4b4_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2262,12 +2563,16 @@ layer {
 	name: "res4b5_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2285,9 +2590,11 @@ layer {
 	top: "res4b5_branch2a"
 	name: "scale4b5_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2303,12 +2610,16 @@ layer {
 	name: "res4b5_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2326,9 +2637,11 @@ layer {
 	top: "res4b5_branch2b"
 	name: "scale4b5_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2344,12 +2657,16 @@ layer {
 	name: "res4b5_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2367,9 +2684,11 @@ layer {
 	top: "res4b5_branch2c"
 	name: "scale4b5_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2393,12 +2712,16 @@ layer {
 	name: "res4b6_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2416,9 +2739,11 @@ layer {
 	top: "res4b6_branch2a"
 	name: "scale4b6_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2434,12 +2759,16 @@ layer {
 	name: "res4b6_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2457,9 +2786,11 @@ layer {
 	top: "res4b6_branch2b"
 	name: "scale4b6_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2475,12 +2806,16 @@ layer {
 	name: "res4b6_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2498,9 +2833,11 @@ layer {
 	top: "res4b6_branch2c"
 	name: "scale4b6_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2524,12 +2861,16 @@ layer {
 	name: "res4b7_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2547,9 +2888,11 @@ layer {
 	top: "res4b7_branch2a"
 	name: "scale4b7_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2565,12 +2908,16 @@ layer {
 	name: "res4b7_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2588,9 +2935,11 @@ layer {
 	top: "res4b7_branch2b"
 	name: "scale4b7_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2606,12 +2955,16 @@ layer {
 	name: "res4b7_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2629,9 +2982,11 @@ layer {
 	top: "res4b7_branch2c"
 	name: "scale4b7_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2655,12 +3010,16 @@ layer {
 	name: "res4b8_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2678,9 +3037,11 @@ layer {
 	top: "res4b8_branch2a"
 	name: "scale4b8_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2696,12 +3057,16 @@ layer {
 	name: "res4b8_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2719,9 +3084,11 @@ layer {
 	top: "res4b8_branch2b"
 	name: "scale4b8_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2737,12 +3104,16 @@ layer {
 	name: "res4b8_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2760,9 +3131,11 @@ layer {
 	top: "res4b8_branch2c"
 	name: "scale4b8_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2786,12 +3159,16 @@ layer {
 	name: "res4b9_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2809,9 +3186,11 @@ layer {
 	top: "res4b9_branch2a"
 	name: "scale4b9_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2827,12 +3206,16 @@ layer {
 	name: "res4b9_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2850,9 +3233,11 @@ layer {
 	top: "res4b9_branch2b"
 	name: "scale4b9_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2868,12 +3253,16 @@ layer {
 	name: "res4b9_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2891,9 +3280,11 @@ layer {
 	top: "res4b9_branch2c"
 	name: "scale4b9_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2917,12 +3308,16 @@ layer {
 	name: "res4b10_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2940,9 +3335,11 @@ layer {
 	top: "res4b10_branch2a"
 	name: "scale4b10_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2958,12 +3355,16 @@ layer {
 	name: "res4b10_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -2981,9 +3382,11 @@ layer {
 	top: "res4b10_branch2b"
 	name: "scale4b10_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -2999,12 +3402,16 @@ layer {
 	name: "res4b10_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3022,9 +3429,11 @@ layer {
 	top: "res4b10_branch2c"
 	name: "scale4b10_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3048,12 +3457,16 @@ layer {
 	name: "res4b11_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3071,9 +3484,11 @@ layer {
 	top: "res4b11_branch2a"
 	name: "scale4b11_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3089,12 +3504,16 @@ layer {
 	name: "res4b11_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3112,9 +3531,11 @@ layer {
 	top: "res4b11_branch2b"
 	name: "scale4b11_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3130,12 +3551,16 @@ layer {
 	name: "res4b11_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3153,9 +3578,11 @@ layer {
 	top: "res4b11_branch2c"
 	name: "scale4b11_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3179,12 +3606,16 @@ layer {
 	name: "res4b12_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3202,9 +3633,11 @@ layer {
 	top: "res4b12_branch2a"
 	name: "scale4b12_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3220,12 +3653,16 @@ layer {
 	name: "res4b12_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3243,9 +3680,11 @@ layer {
 	top: "res4b12_branch2b"
 	name: "scale4b12_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3261,12 +3700,16 @@ layer {
 	name: "res4b12_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3284,9 +3727,11 @@ layer {
 	top: "res4b12_branch2c"
 	name: "scale4b12_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3310,12 +3755,16 @@ layer {
 	name: "res4b13_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3333,9 +3782,11 @@ layer {
 	top: "res4b13_branch2a"
 	name: "scale4b13_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3351,12 +3802,16 @@ layer {
 	name: "res4b13_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3374,9 +3829,11 @@ layer {
 	top: "res4b13_branch2b"
 	name: "scale4b13_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3392,12 +3849,16 @@ layer {
 	name: "res4b13_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3415,9 +3876,11 @@ layer {
 	top: "res4b13_branch2c"
 	name: "scale4b13_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3441,12 +3904,16 @@ layer {
 	name: "res4b14_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3464,9 +3931,11 @@ layer {
 	top: "res4b14_branch2a"
 	name: "scale4b14_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3482,12 +3951,16 @@ layer {
 	name: "res4b14_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3505,9 +3978,11 @@ layer {
 	top: "res4b14_branch2b"
 	name: "scale4b14_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3523,12 +3998,16 @@ layer {
 	name: "res4b14_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3546,9 +4025,11 @@ layer {
 	top: "res4b14_branch2c"
 	name: "scale4b14_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3572,12 +4053,16 @@ layer {
 	name: "res4b15_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3595,9 +4080,11 @@ layer {
 	top: "res4b15_branch2a"
 	name: "scale4b15_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3613,12 +4100,16 @@ layer {
 	name: "res4b15_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3636,9 +4127,11 @@ layer {
 	top: "res4b15_branch2b"
 	name: "scale4b15_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3654,12 +4147,16 @@ layer {
 	name: "res4b15_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3677,9 +4174,11 @@ layer {
 	top: "res4b15_branch2c"
 	name: "scale4b15_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3703,12 +4202,16 @@ layer {
 	name: "res4b16_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3726,9 +4229,11 @@ layer {
 	top: "res4b16_branch2a"
 	name: "scale4b16_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3744,12 +4249,16 @@ layer {
 	name: "res4b16_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3767,9 +4276,11 @@ layer {
 	top: "res4b16_branch2b"
 	name: "scale4b16_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3785,12 +4296,16 @@ layer {
 	name: "res4b16_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3808,9 +4323,11 @@ layer {
 	top: "res4b16_branch2c"
 	name: "scale4b16_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3834,12 +4351,16 @@ layer {
 	name: "res4b17_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3857,9 +4378,11 @@ layer {
 	top: "res4b17_branch2a"
 	name: "scale4b17_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3875,12 +4398,16 @@ layer {
 	name: "res4b17_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3898,9 +4425,11 @@ layer {
 	top: "res4b17_branch2b"
 	name: "scale4b17_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3916,12 +4445,16 @@ layer {
 	name: "res4b17_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3939,9 +4472,11 @@ layer {
 	top: "res4b17_branch2c"
 	name: "scale4b17_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -3965,12 +4500,16 @@ layer {
 	name: "res4b18_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -3988,9 +4527,11 @@ layer {
 	top: "res4b18_branch2a"
 	name: "scale4b18_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4006,12 +4547,16 @@ layer {
 	name: "res4b18_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4029,9 +4574,11 @@ layer {
 	top: "res4b18_branch2b"
 	name: "scale4b18_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4047,12 +4594,16 @@ layer {
 	name: "res4b18_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4070,9 +4621,11 @@ layer {
 	top: "res4b18_branch2c"
 	name: "scale4b18_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4096,12 +4649,16 @@ layer {
 	name: "res4b19_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4119,9 +4676,11 @@ layer {
 	top: "res4b19_branch2a"
 	name: "scale4b19_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4137,12 +4696,16 @@ layer {
 	name: "res4b19_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4160,9 +4723,11 @@ layer {
 	top: "res4b19_branch2b"
 	name: "scale4b19_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4178,12 +4743,16 @@ layer {
 	name: "res4b19_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4201,9 +4770,11 @@ layer {
 	top: "res4b19_branch2c"
 	name: "scale4b19_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4227,12 +4798,16 @@ layer {
 	name: "res4b20_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4250,9 +4825,11 @@ layer {
 	top: "res4b20_branch2a"
 	name: "scale4b20_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4268,12 +4845,16 @@ layer {
 	name: "res4b20_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4291,9 +4872,11 @@ layer {
 	top: "res4b20_branch2b"
 	name: "scale4b20_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4309,12 +4892,16 @@ layer {
 	name: "res4b20_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4332,9 +4919,11 @@ layer {
 	top: "res4b20_branch2c"
 	name: "scale4b20_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4358,12 +4947,16 @@ layer {
 	name: "res4b21_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4381,9 +4974,11 @@ layer {
 	top: "res4b21_branch2a"
 	name: "scale4b21_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4399,12 +4994,16 @@ layer {
 	name: "res4b21_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4422,9 +5021,11 @@ layer {
 	top: "res4b21_branch2b"
 	name: "scale4b21_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4440,12 +5041,16 @@ layer {
 	name: "res4b21_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4463,9 +5068,11 @@ layer {
 	top: "res4b21_branch2c"
 	name: "scale4b21_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4489,12 +5096,16 @@ layer {
 	name: "res4b22_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4512,9 +5123,11 @@ layer {
 	top: "res4b22_branch2a"
 	name: "scale4b22_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4530,12 +5143,16 @@ layer {
 	name: "res4b22_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4553,9 +5170,11 @@ layer {
 	top: "res4b22_branch2b"
 	name: "scale4b22_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4571,12 +5190,16 @@ layer {
 	name: "res4b22_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4594,9 +5217,11 @@ layer {
 	top: "res4b22_branch2c"
 	name: "scale4b22_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4620,12 +5245,16 @@ layer {
 	name: "res4b23_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4643,9 +5272,11 @@ layer {
 	top: "res4b23_branch2a"
 	name: "scale4b23_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4661,12 +5292,16 @@ layer {
 	name: "res4b23_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4684,9 +5319,11 @@ layer {
 	top: "res4b23_branch2b"
 	name: "scale4b23_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4702,12 +5339,16 @@ layer {
 	name: "res4b23_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4725,9 +5366,11 @@ layer {
 	top: "res4b23_branch2c"
 	name: "scale4b23_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4751,12 +5394,16 @@ layer {
 	name: "res4b24_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4774,9 +5421,11 @@ layer {
 	top: "res4b24_branch2a"
 	name: "scale4b24_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4792,12 +5441,16 @@ layer {
 	name: "res4b24_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4815,9 +5468,11 @@ layer {
 	top: "res4b24_branch2b"
 	name: "scale4b24_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4833,12 +5488,16 @@ layer {
 	name: "res4b24_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4856,9 +5515,11 @@ layer {
 	top: "res4b24_branch2c"
 	name: "scale4b24_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4882,12 +5543,16 @@ layer {
 	name: "res4b25_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4905,9 +5570,11 @@ layer {
 	top: "res4b25_branch2a"
 	name: "scale4b25_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4923,12 +5590,16 @@ layer {
 	name: "res4b25_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4946,9 +5617,11 @@ layer {
 	top: "res4b25_branch2b"
 	name: "scale4b25_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -4964,12 +5637,16 @@ layer {
 	name: "res4b25_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -4987,9 +5664,11 @@ layer {
 	top: "res4b25_branch2c"
 	name: "scale4b25_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5013,12 +5692,16 @@ layer {
 	name: "res4b26_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5036,9 +5719,11 @@ layer {
 	top: "res4b26_branch2a"
 	name: "scale4b26_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5054,12 +5739,16 @@ layer {
 	name: "res4b26_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5077,9 +5766,11 @@ layer {
 	top: "res4b26_branch2b"
 	name: "scale4b26_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5095,12 +5786,16 @@ layer {
 	name: "res4b26_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5118,9 +5813,11 @@ layer {
 	top: "res4b26_branch2c"
 	name: "scale4b26_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5144,12 +5841,16 @@ layer {
 	name: "res4b27_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5167,9 +5868,11 @@ layer {
 	top: "res4b27_branch2a"
 	name: "scale4b27_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5185,12 +5888,16 @@ layer {
 	name: "res4b27_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5208,9 +5915,11 @@ layer {
 	top: "res4b27_branch2b"
 	name: "scale4b27_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5226,12 +5935,16 @@ layer {
 	name: "res4b27_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5249,9 +5962,11 @@ layer {
 	top: "res4b27_branch2c"
 	name: "scale4b27_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5275,12 +5990,16 @@ layer {
 	name: "res4b28_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5298,9 +6017,11 @@ layer {
 	top: "res4b28_branch2a"
 	name: "scale4b28_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5316,12 +6037,16 @@ layer {
 	name: "res4b28_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5339,9 +6064,11 @@ layer {
 	top: "res4b28_branch2b"
 	name: "scale4b28_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5357,12 +6084,16 @@ layer {
 	name: "res4b28_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5380,9 +6111,11 @@ layer {
 	top: "res4b28_branch2c"
 	name: "scale4b28_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5406,12 +6139,16 @@ layer {
 	name: "res4b29_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5429,9 +6166,11 @@ layer {
 	top: "res4b29_branch2a"
 	name: "scale4b29_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5447,12 +6186,16 @@ layer {
 	name: "res4b29_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5470,9 +6213,11 @@ layer {
 	top: "res4b29_branch2b"
 	name: "scale4b29_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5488,12 +6233,16 @@ layer {
 	name: "res4b29_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5511,9 +6260,11 @@ layer {
 	top: "res4b29_branch2c"
 	name: "scale4b29_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5537,12 +6288,16 @@ layer {
 	name: "res4b30_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5560,9 +6315,11 @@ layer {
 	top: "res4b30_branch2a"
 	name: "scale4b30_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5578,12 +6335,16 @@ layer {
 	name: "res4b30_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5601,9 +6362,11 @@ layer {
 	top: "res4b30_branch2b"
 	name: "scale4b30_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5619,12 +6382,16 @@ layer {
 	name: "res4b30_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5642,9 +6409,11 @@ layer {
 	top: "res4b30_branch2c"
 	name: "scale4b30_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5668,12 +6437,16 @@ layer {
 	name: "res4b31_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5691,9 +6464,11 @@ layer {
 	top: "res4b31_branch2a"
 	name: "scale4b31_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5709,12 +6484,16 @@ layer {
 	name: "res4b31_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5732,9 +6511,11 @@ layer {
 	top: "res4b31_branch2b"
 	name: "scale4b31_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5750,12 +6531,16 @@ layer {
 	name: "res4b31_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5773,9 +6558,11 @@ layer {
 	top: "res4b31_branch2c"
 	name: "scale4b31_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5799,12 +6586,16 @@ layer {
 	name: "res4b32_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5822,9 +6613,11 @@ layer {
 	top: "res4b32_branch2a"
 	name: "scale4b32_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5840,12 +6633,16 @@ layer {
 	name: "res4b32_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5863,9 +6660,11 @@ layer {
 	top: "res4b32_branch2b"
 	name: "scale4b32_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5881,12 +6680,16 @@ layer {
 	name: "res4b32_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5904,9 +6707,11 @@ layer {
 	top: "res4b32_branch2c"
 	name: "scale4b32_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5930,12 +6735,16 @@ layer {
 	name: "res4b33_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5953,9 +6762,11 @@ layer {
 	top: "res4b33_branch2a"
 	name: "scale4b33_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -5971,12 +6782,16 @@ layer {
 	name: "res4b33_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -5994,9 +6809,11 @@ layer {
 	top: "res4b33_branch2b"
 	name: "scale4b33_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6012,12 +6829,16 @@ layer {
 	name: "res4b33_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6035,9 +6856,11 @@ layer {
 	top: "res4b33_branch2c"
 	name: "scale4b33_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6061,12 +6884,16 @@ layer {
 	name: "res4b34_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6084,9 +6911,11 @@ layer {
 	top: "res4b34_branch2a"
 	name: "scale4b34_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6102,12 +6931,16 @@ layer {
 	name: "res4b34_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6125,9 +6958,11 @@ layer {
 	top: "res4b34_branch2b"
 	name: "scale4b34_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6143,12 +6978,16 @@ layer {
 	name: "res4b34_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6166,9 +7005,11 @@ layer {
 	top: "res4b34_branch2c"
 	name: "scale4b34_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6192,12 +7033,16 @@ layer {
 	name: "res4b35_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6215,9 +7060,11 @@ layer {
 	top: "res4b35_branch2a"
 	name: "scale4b35_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6233,12 +7080,16 @@ layer {
 	name: "res4b35_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 256
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6256,9 +7107,11 @@ layer {
 	top: "res4b35_branch2b"
 	name: "scale4b35_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6274,12 +7127,16 @@ layer {
 	name: "res4b35_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 1024
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6297,9 +7154,11 @@ layer {
 	top: "res4b35_branch2c"
 	name: "scale4b35_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6323,12 +7182,16 @@ layer {
 	name: "res5a_branch1"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6346,9 +7209,11 @@ layer {
 	top: "res5a_branch1"
 	name: "scale5a_branch1"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6357,12 +7222,16 @@ layer {
 	name: "res5a_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 2
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6380,9 +7249,11 @@ layer {
 	top: "res5a_branch2a"
 	name: "scale5a_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6398,12 +7269,16 @@ layer {
 	name: "res5a_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6421,9 +7296,11 @@ layer {
 	top: "res5a_branch2b"
 	name: "scale5a_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6439,12 +7316,16 @@ layer {
 	name: "res5a_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6462,9 +7343,11 @@ layer {
 	top: "res5a_branch2c"
 	name: "scale5a_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6488,12 +7371,16 @@ layer {
 	name: "res5b_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6511,9 +7398,11 @@ layer {
 	top: "res5b_branch2a"
 	name: "scale5b_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6529,12 +7418,16 @@ layer {
 	name: "res5b_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6552,9 +7445,11 @@ layer {
 	top: "res5b_branch2b"
 	name: "scale5b_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6570,12 +7465,16 @@ layer {
 	name: "res5b_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6593,9 +7492,11 @@ layer {
 	top: "res5b_branch2c"
 	name: "scale5b_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6619,12 +7520,16 @@ layer {
 	name: "res5c_branch2a"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6642,9 +7547,11 @@ layer {
 	top: "res5c_branch2a"
 	name: "scale5c_branch2a"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6660,12 +7567,16 @@ layer {
 	name: "res5c_branch2b"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 512
 		kernel_size: 3
 		pad: 1
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6683,9 +7594,11 @@ layer {
 	top: "res5c_branch2b"
 	name: "scale5c_branch2b"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6701,12 +7614,16 @@ layer {
 	name: "res5c_branch2c"
 	type: "Convolution"
 	convolution_param {
+                weight_filler { type: "xavier"}
+ #               bias_filler { type:"constant"}
 		num_output: 2048
 		kernel_size: 1
 		pad: 0
 		stride: 1
-		bias_term: false
-	}
+		bias_term: false          }
+		param { lr_mult: 0
+			decay_mult: 0 		}
+
 }
 
 layer {
@@ -6724,9 +7641,11 @@ layer {
 	top: "res5c_branch2c"
 	name: "scale5c_branch2c"
 	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
+	scale_param {		bias_term: true}
+	 param {lr_mult: 0
+		 decay_mult: 0}
+ 	param {lr_mult: 0
+		 decay_mult: 0}
 }
 
 layer {
@@ -6758,18 +7677,74 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc2"
-	name: "fc2"
+	top: "fc2_0"
+	name: "fc2_0"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 512
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
+	 param {
+			  lr_mult: 1
+			  decay_mult: 1
+			}
+	 param {
+			  lr_mult: 2
+			  decay_mult: 0
+			}
+}
+layer {
+	top: "fc2_0"
+	bottom: "fc2_0"
+	name: "fc2_0_relu"
+	type: "ReLU"
+}
+layer {
+	bottom: "fc2_0"
+	top: "fc3_0"
+	name: "fc3_0"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 128
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
+	 param {
+			  lr_mult: 1
+			  decay_mult: 1
+			}
+	 param {
+			  lr_mult: 2
+			  decay_mult: 0
+			}
+}
+layer {
+	top: "fc3_0"
+	bottom: "fc3_0"
+	name: "fc3_0_relu"
+	type: "ReLU"
+}
+layer {
+	bottom: "fc3_0"
+	top: "fc4_0"
+	name: "fc4_0"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 2
-	}
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
+	 param {
+			  lr_mult: 1
+			  decay_mult: 1
+			}
+	 param {
+			  lr_mult: 2
+			  decay_mult: 0
+			}
 }
 
 layer {
-	bottom: "fc2"
-	top: "prob"
-	name: "prob"
+	bottom: "fc4_0"
+	top: "estimate"
+	name: "estimate"
 	type: "Softmax"
 }
-
