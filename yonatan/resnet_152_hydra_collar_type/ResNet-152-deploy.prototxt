@@ -6758,16 +6758,57 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc2"
-	name: "fc2"
+	top: "fc2_0"
+	name: "fc2_0"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 512
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
+}
+layer {
+	top: "fc2_0"
+	bottom: "fc2_0"
+	name: "fc2_0_relu"
+	type: "ReLU"
+}
+layer {
+	bottom: "fc2_0"
+	top: "fc3_0"
+	name: "fc3_0"
+	type: "InnerProduct"
+	inner_product_param {
+		num_output: 128
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
+}
+layer {
+	top: "fc3_0"
+	bottom: "fc3_0"
+	name: "fc3_0_relu"
+	type: "ReLU"
+}
+layer {
+	bottom: "fc3_0"
+	top: "fc4_0"
+	name: "fc4_0"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 10
-	}
+		weight_filler { type: "xavier"}
+		bias_filler { type:"constant"}	}
 }
 
+# layer {
+# 	bottom: "fc4_0"
+#	top: "estimate"
+#	name: "estimate"
+#	type: "Softmax"
+#  include {phase: TEST}
+# }
+
 layer {
-	bottom: "fc2"
+	bottom: "fc4_0"
 	top: "prob"
 	name: "prob"
 	type: "Softmax"
