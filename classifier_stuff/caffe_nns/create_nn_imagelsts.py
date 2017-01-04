@@ -527,14 +527,195 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
 
 def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     dirs = os.listdir(folderpath)
+    all_cats = []
     for dir in dirs:
         cats_found = []
         for k,v in constants.deep_fashion_to_trendi_map.iteritems():
-            if k in dir:
-                cats_found.append(dir)
-            print('matching cats:{}'.format(cats_found))
-            cats_found.sort(key=len)
-#
+            if k.lower() in dir.lower():
+                if 'velveteen' in dir.lower() and k.lower=='tee': #'velveteen tee' will  get skipped
+                    print('skipping dir {} cat {}'.format(dir,k))
+                    continue
+                else:
+                    cats_found.append((dir,v))
+
+        #        print('dir {} cat {} match'.format(dir,k))
+            else:
+                pass
+#                print('dir {} cat {} NO match'.format(dir,k))
+
+        #take care of all the cases where multiple cats are found....yeesh
+        cats_found.sort(key=len)
+        if len(cats_found)==2 :
+            print('dir {} 2 matching cats:{}'.format(dir,cats_found))
+            if cats_found[0][1]==cats_found[1][1]:
+#                print('matching cats')
+                cats_found=[(dir,cats_found[0][1])]
+                print('final disposition:'+str(cats_found))
+            else:
+                print('nonmatching cats')
+
+                if cats_found[0][1]=='tank' and cats_found[1][1]=='dress':
+                    cats_found=[(dir,'dress')]
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='tank':
+                    cats_found=[(dir,'tank')]
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='dress':
+                    cats_found=[(dir,'dress')]
+                elif cats_found[0][1]=='henley' and cats_found[1][1]=='tank':
+                    cats_found=[(dir,'tank')]
+                elif cats_found[0][1]=='tank' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'tank')]
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='poncho':
+                    cats_found=[(dir,'sweater')]
+                elif cats_found[0][1]=='tank' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'tank')]  #this could o either way
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='jacket':
+                    cats_found=[(dir,'jacket')]
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'sweater')]
+                elif cats_found[0][1]=='jeans' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'jeans')] #velveteen jeans
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'henley')]  #Contrast_Trim_Henley_Tee
+                elif cats_found[0][1]=='dress' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'dress')]  #Jersey_Knit_Trapeze_Dress
+                elif cats_found[0][1]=='sweatshirt' and cats_found[1][1]=='jacket':
+                    cats_found=[(dir,'jacket')]
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='jumpsuit':
+                    cats_found=[(dir,'jumpsuit')] #Flounced_Sateen_Romper
+                elif cats_found[0][1]=='cardigan' and cats_found[1][1]=='robe':
+                    cats_found=[(dir,'cardigan')]  #free_spirit_kimono_cardigan -  toss out noncardigan stuf
+                elif cats_found[0][1]=='coat' and cats_found[1][1]=='jacket':
+                    cats_found=[(dir,'coat')]
+                elif cats_found[0][1]=='hoodie' and cats_found[1][1]=='jacket':
+                    cats_found=[(dir,'jacket')]
+                elif cats_found[0][1]=='hoodie' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'hoodie')]
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='dress':
+                    cats_found=[(dir,'dress')] #turtleneck bodycon dress
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='hoodie':
+                    cats_found=[(dir,'sweater')]
+                elif cats_found[0][1]=='jeans' and cats_found[1][1]=='shorts':
+                    cats_found=[(dir,'shorts')]
+                elif cats_found[0][1]=='legging' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'legging')] #velveteen leggings
+                elif cats_found[0][1]=='sweater' and cats_found[1][1]=='dress':
+                    cats_found=[(dir,'dress')]  #baroque floral sweater dress, marled_knit_sweaterr_dress
+                elif cats_found[0][1]=='blouse' and cats_found[1][1]=='robe':
+                    cats_found=[(dir,'blouse')] #kimono-sleeved-paisley-blouse
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='robe':
+                    cats_found=[(dir,'robe')]
+                elif cats_found[0][1]=='jumpsuit' and cats_found[1][1]=='pants':
+                    cats_found=[(dir,'jumpsuit')]
+                elif cats_found[0][1]=='button-down' and cats_found[1][1]=='skirt':
+                    cats_found=[(dir,'skirt')]
+                elif cats_found[0][1]=='dress' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'dress')]
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='blouse':
+                    cats_found=[(dir,'blouse')]
+                elif cats_found[0][1]=='blouse' and cats_found[1][1]=='henley':
+                    cats_found=[(dir,'blouse')]
+                elif cats_found[0][1]=='poncho' and cats_found[1][1]=='dress':
+                    cats_found=[(dir,'dress')]
+                elif cats_found[0][1]=='tee' and cats_found[1][1]=='skirt':
+                    cats_found=[(dir,'skirt')]
+                elif cats_found[0][1]=='shorts' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'shorts')]
+                elif cats_found[0][1]=='cardigan' and cats_found[1][1]=='tee':
+                    cats_found=[(dir,'cardigan')]
+
+                elif cats_found[0][1]==None and cats_found[1][1] != None:
+                    cats_found=[(dir,cats_found[1][1])]
+                elif cats_found[0][1]!=None and cats_found[1][1] == None:
+                    cats_found=[(dir,cats_found[1][0])]
+
+                if len(cats_found)==1:
+                    print('final disposition:'+str(cats_found))
+                else:
+                    print('NONFINAL disposition:'+str(cats_found))
+
+        elif len(cats_found)==0:
+            pass
+#            print('dir {} no matching cats'.format(dir))
+        elif len(cats_found)>2:
+            print('3 or more! dir {} matching cats:{}'.format(dir,cats_found))
+            if cats_found[1][1]=='sweater' and cats_found[2][1] == 'dress':
+                cats_found=[(dir,'sweater')]
+            elif cats_found[1][1]=='dress' and cats_found[2][1] == 'tee':
+                cats_found=[(dir,'dress')]
+            elif cats_found[1][1]=='button-down' and cats_found[2][1] == 'dress':
+                cats_found=[(dir,None)]  #plaid flannel shirt dres s-half of these lookl like shirts and half dresses so aus
+            elif cats_found[0][1]=='dress' and cats_found[1][1] == 'tee':
+                cats_found=[(dir,'dress')]
+            elif cats_found[1][1]=='dress' and cats_found[2][1] == 'henley':
+                cats_found=[(dir,'dress')]
+            elif  cats_found[0][1]==cats_found[1][1]and cats_found[1][1]==cats_found[2][1]:
+                cats_found=[(dir,cats_found[0][1])]
+            elif cats_found[0][1]=='button-down' and cats_found[1][1] == 'dress':
+                cats_found=[(dir,'dress')]
+
+            if len(cats_found)==1:
+                print('final disposition:'+str(cats_found))
+            else:
+                print('NONFINAL disposition:'+str(cats_found))
+        all_cats.append(cats_found)
+    return all_cats
+
+def generate_deep_fashion_hydra_labelfiles(folderpath=None,labelfile_dir='/data/jeremy/image_dbs/'):
+    '''
+    generate label file (line like: /path/to/file.jpg category ) using the deep fashion cats put into the hydra_cats lists
+    does not overwrite the label files so delete if necessary before running
+    :param folderpath:
+    :param labelfile_dir:
+    :return:
+    '''
+    if folderpath:
+        dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    else:
+        dirs_and_cats = deepfashion_to_tg_hydra()
+    pops ={}
+    print('len dirs_and_cats:'+str(len(dirs_and_cats)))
+    for dc in dirs_and_cats:
+        print('dc ')+str(dc)
+        cat = dc[1]
+        if cat in pops:
+            pops[cat]+=1
+        else:
+            pops[cat]=1
+    print pops
+    raw_input('ret to cont')
+    overall_populations = [0]*len(constants.hydra_cats)
+    for i in range(len(constants.hydra_cats)):   #iterate over category lists - whole_body, upper_cover etc
+        catlist = constants.hydra_cats[i]
+        labelfile_name = constants.hydra_cat_listlabels[i]+'_labels.txt'
+        Utils.ensure_file(labelfile_name)
+        populations = [0]*(len(catlist)+1)
+        positives=[0]*len(catlist)
+        print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
+        with open(labelfile_name,'wa') as fp:
+            for j in range(len(catlist)):   #iterate over indiv cats in catlist e.g. whole_body=['dress','suit',etc]
+                cat = catlist[j]
+                cat_index = j + 1 #the 0th cat is always 'none of the following' e.g. ['not_whole_body','dress','suit',etc]
+                print('doing cat {} with index {} '.format(cat,cat_index))
+                for dir_cat_tuple in dirs_and_cats:
+                    dir = dir_cat_tuple[0]
+                    dircat = dir_cat_tuple[1]
+                    if dircat==cat:
+                        print('directory {} used for category {} index {}'.format(dir,dircat,cat_index))
+                        files = os.listdir(dir)
+                        positives[i].append(files)
+                        for file in files:
+                            print('file {} cat {} '.format(file,cat_index))  #add no-cr
+                            full_path = os.path.join(dir,file)
+                            fp.write(full_path+' '+str(cat_index))
+                            populations[cat_index]+=len(files)
+                        raw_input('ret to cont')
+        overall_populations[i] = populations
+        print('populations of {} ({}) are {}'.format(constants.hydra_cat_listlabels[i],constants.hydra_cats[i]),populations)
+
+    #do negatives using positives of everythin else
+    #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
+
+
 if __name__ == "__main__": #
 #    write_cats_from_db_to_textfile()
 #    split_to_trainfile_and_testfile()
@@ -594,6 +775,8 @@ if __name__ == "__main__": #
     #    split_to_trainfile_and_testfile(dir+'images_and_labelsfile.txt')
         inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
 
+#    deepfashion_to_tg_hydra()
+    generate_deep_fashion_hydra_labelfiles()
 
         #useful script - change all photos to photos_250x250
 #!/usr/bin/env bash

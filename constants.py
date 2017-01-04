@@ -480,14 +480,26 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
 hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
               'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
              ['bra','panties','babydoll'] , #NOT SOFTMAX - these are either/or aka multilabel
-             ['cardigan','sweatshirt','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
              ['coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
+             ['cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
+             ['tee','button-down','blouse','polo','henley','tube','tank'], #tops - button is buttons all the way down but not a blouse
              ['jeans','pants','stocking','legging','socks'], #lower_cover_long
              ['shorts','skirt'], #lower_cover_short
-             ['tee','button-down','blouse','polo','henley','tube','tank'], #tops - button is buttons all the way down but not a blouse
-             ['shawl','scarf'],
+             ['shawl','scarf'], #wraps
              ['boots','shoes','sandals'],  #footwear
              ['bag'],['belt'],['sarong']] #extra stuff
+
+hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps','footwear','bag','belt','sarong']
+
+pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
+pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
+pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
+pixlevel3_upper_under = ['shirt']  #nite this is intead of top
+pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
+pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
+pixlevel3_lower_cover_short = ['shorts','skirt']
+pixlevel3_wraparwounds = ['shawl','scarf']
+pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
@@ -506,6 +518,8 @@ hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas',
 #romper is a short jumpsuit so i put it under jumpsuit
 #shirtdress doesnt exist but shirt_dress does, i put those under dress
 #sun_dress looks to be dress
+
+#still problematic - combos like 'sweater-dress', 'jeggings'
 #
 #not included: sundress,shirtdress,button-down,halter ,top
 deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket','flannel':'button-down','hoodie':'sweatshirt',
@@ -516,7 +530,7 @@ deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket
                               'kimono':'robe','nightdress':None,'onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
                               'blouse':'blouse','cardigan':'cardigan','henley':'henley','jacket':'jacket','poncho':'poncho',
                               'sweater':'sweater','tank':'tank','tee':'tee','jeans':'jeans','sarong':'sarong',
-                              'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe'}
+                              'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe','hoodie':'hoodie'}
 
 nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
                                 'skirt', 'intimate']},
