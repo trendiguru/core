@@ -654,7 +654,7 @@ class JrMultilabel(caffe.Layer):
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
-        logging.info('Size for shaping (final img size):'+str(self.size_for_shaping))
+        print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
 
