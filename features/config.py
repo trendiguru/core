@@ -65,7 +65,7 @@ FEATURES = {
     "dress_texture": {
         "MODEL_FILE": "/data/production/caffemodels_and_protos/dress_texture/ResNet-152-deploy.prototxt",
         "PRETRAINED": "/data/production/caffemodels_and_protos/dress_texture/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel",
-        "path_to_images": "/data/production/caffemodels_and_protos/dress_texture/images",
+        "path_to_images": "/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images",
         "labels": {
             'one_color': 0,
             'applique': 1,
