@@ -527,6 +527,11 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             fp.write(line+'\n')
 
 def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+    '''
+    generate list of folders and corresponding categories from our list (map is using constants.deep_dashion_to_trendi_map)
+    :param folderpath: folder of deep fashion folders
+    :return: list of tuples [(dir1,cat1),(dir2,cat2),...]
+    '''
     dirs = os.listdir(folderpath)
     all_cats = []
     for dir in dirs:
@@ -658,7 +663,14 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
                 print('final disposition:'+str(cats_found))
             else:
                 print('NONFINAL disposition:'+str(cats_found))
-        all_cats.append(cats_found)
+
+        if len(cats_found)==1:
+            print('unambiguous! '+str(cats_found))
+            all_cats.append(cats_found[0])  #add unambiguous cat to list
+        else:
+            print('AMBIGUOUS!!:'+str(cats_found))
+                  #ambiguous (more thn one cat still) so dont add to list
+
     return all_cats
 
 def generate_deep_fashion_hydra_labelfiles(folderpath=None,labelfile_dir='/data/jeremy/image_dbs/'):
