@@ -701,13 +701,15 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
         Utils.ensure_file(labelfile_name)
         positives=[[] for dummy in range(len(catlist))]  #keep these positives for use as negatives against other cats
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
+        populations = [0 for dummy in range(len(catlist))] #
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
         with open(labelfile_name,'wa') as fp:
-            for j in range(1,len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
-                populations = [0 for dummy in range(len(catlist))] #
+            for j in range(len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
                 cat = catlist[j]
                 cat_index = j  #the 0th cat is always None e.g. [None,'dress','suit',etc]
                 print('doing cat {} with index {} '.format(cat,cat_index))
+                if cat is None:
+                    continue
                 for dir_cat_tuple in dirs_and_cats:
                     dir = dir_cat_tuple[0]
                     dircat = dir_cat_tuple[1]
