@@ -694,7 +694,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
             pops[cat]=1
     print pops
     raw_input('ret to cont')
-    overall_populations = [0]*len(constants.hydra_cats)
+    overall_populations = [[] for dummy in len(constants.hydra_cats)]
     for i in range(len(constants.hydra_cats)):   #iterate over category lists - whole_body, upper_cover etc
         catlist = constants.hydra_cats[i]
         labelfile_name = constants.hydra_cat_listlabels[i]+'_labels.txt'
@@ -703,7 +703,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
         with open(labelfile_name,'wa') as fp:
-            for j in range(len(catlist)):   #iterate over indiv cats in catlist e.g. whole_body=['dress','suit',etc]
+            for j in range(1,len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
                 populations = [[0] for dummy in range(len(catlist))] #
                 cat = catlist[j]
                 cat_index = j  #the 0th cat is always None e.g. [None,'dress','suit',etc]
@@ -720,7 +720,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                             file_path = os.path.join(full_path,file)
                             fp.write(file_path+' '+str(cat_index))
                             print('wrote "{} {}" for file {} cat {} '.format(file_path,cat_index,file,cat_index))  #add no-cr
-                            populations[cat_index]+=len(files)
+                            populations[cat_index]+=1
                         raw_input('ret to cont')
         overall_populations[i] = populations
         print('populations of {} ({}) are {}'.format(constants.hydra_cat_listlabels[i],constants.hydra_cats[i]),populations)
