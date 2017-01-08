@@ -78,8 +78,6 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     outdir = outdir.replace('\r','')  #remove return
     outdir = './'+outdir
 
-
-
     #generate report filename, outdir to save everything (loss, html etc)
     if type == 'pixlevel':
         outname = os.path.join(outdir,outdir[2:]+'_netoutput.txt')  #TODO fix the shell script to not look for this, then it wont be needed
