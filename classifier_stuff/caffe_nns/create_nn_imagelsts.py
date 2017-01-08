@@ -721,7 +721,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                             fp.write(file_path+' '+str(cat_index))
                             print('wrote "{} {}" for file {} cat {} '.format(file_path,cat_index,file,cat_index))  #add no-cr
                             populations[cat_index]+=1
-                        raw_input('ret to cont')
+                        #raw_input('ret to cont')
         overall_populations[i] = populations
         print('populations of {} ({}) are {}'.format(constants.hydra_cat_listlabels[i],constants.hydra_cats[i]),populations)
 
