@@ -721,7 +721,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                         full_path = os.path.join(folderpath,dir)
                         files = os.listdir(full_path)
 
-                        positives[i].append(files)
+                        positives[j].append(files)
                         for file in files:
                             file_path = os.path.join(full_path,file)
                             fp.write(file_path+' '+str(cat_index))
