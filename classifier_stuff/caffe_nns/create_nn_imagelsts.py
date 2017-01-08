@@ -705,6 +705,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
         print('positives '+str(positives))
         print('pops '+str(populations))
+        raw_input('ret to cont')
         with open(labelfile_name,'wa') as fp:
             for j in range(len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
                 cat = catlist[j]
