@@ -4,6 +4,9 @@ import os
 import cv2
 import random
 import logging
+import sys
+from shutil import copyfile
+
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
 
@@ -11,7 +14,8 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 from trendi.yonatan import yonatan_constants
-import sys
+from trendi.features import config
+
 
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
@@ -731,6 +735,70 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
 
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
+
+
+def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+    '''
+    copy dirs from deep fashion into yonatan's training dirs
+    :param folderpath:
+    :return:
+    '''
+    dirs = os.listdir(deep_fashion_path)
+    overall_populations = [[] for dummy in range(len(constants.hydra_cats))]
+    for kw,feature in config.FEATURES.iteritems():   #iterate over category lists - whole_body, upper_cover etc
+        print('kw {} feature {}'.format(kw,feature))
+
+        path_to_images = feature['path_to_images']
+        labels = feature['labels']
+        find_labels = feature['labels']
+        if kw == 'length':
+            find_labels = {'mini':0,'midi':1,'maxi':2}
+        elif kw == 'collar':
+            find_labels= {
+            'crew_neck': 0,
+            'scoop_neck': 1,
+            'v_neck': 2,
+            'deep_v_neck': 3,
+            'henley': 4,
+            'polo': 5,
+            'tie_neck': 6,
+            'turtleneck': 7,
+            'hoodie': 8,
+            'strapless': 9
+            }
+        populations = {label:0 for label in find_labels} #
+        print('doing categories: '+str(find_labels))
+        raw_input('ret to cont')
+        for label in find_labels:   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
+            cat = label.lower()
+            print('doing label {} '.format(cat))
+            for dir in dirs:
+                if cat.lower() in dir.lower():
+                    orig_path = os.path.join(deep_fashion_path,dir)
+                    label_index = find_labels[label]
+                    found = False
+                    orig = label
+                    for orig_label in labels:
+                        if labels[orig_label] == label_index:
+                            orig = orig_label
+                            found = True
+                    if not found:
+                        print('didnt find corresponding label for label_index {} label {}'.format(label_index,label))
+                    dest_path = os.path.join(path_to_images,orig)
+                    dest_path = os.path.join(dest_path,'deepfashion_'+dir)
+                    print('directory {} used for category {}\ncopy  to {}'.format(orig_path,cat,dest_path))
+                    Utils.ensure_dir(dest_path)
+                    files = os.listdir(orig_path)
+                    for file in files:
+                        full_orig_path = os.path.join(orig_path,file)
+                        full_dest_path = os.path.join(dest_path,file)
+                        logging.debug('copy "{} to {}" for cat {}\n'.format(full_orig_path,full_dest_path,cat))  #add no-cr
+                        copyfile(full_orig_path, full_dest_path)
+                        populations[cat]+=1
+                    #raw_input('ret to cont')
+            raw_input('ret to cont')
+        print('populations: {} '.format(populations))
+
 
 
 if __name__ == "__main__": #
