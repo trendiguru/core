@@ -725,7 +725,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                             populations[cat_index]+=1
                         #raw_input('ret to cont')
         overall_populations[i] = populations
-        print('populations of {} ({}) are {}'.format(constants.hydra_cat_listlabels[i],constants.hydra_cats[i]),populations)
+        print('populations of {} ({}) are {}'.format(constants.hydra_cat_listlabels[i],constants.hydra_cats[i],populations))
 
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
