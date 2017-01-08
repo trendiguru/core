@@ -209,7 +209,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
                 f.close()
             params,n_timeconstants = fit_points_exp(iter_list,accuracy_list)
-            if n_timeconstants > 0 and tot_iters>2000:  #on a long tail
+            print('fit: asymptote {} tau {} x0 {} t/tau {}'.format(params[0],params[1],params[2],n_timeconstants))
+            if n_timeconstants > 10 and tot_iters>10000:  #on a long tail
                 return params,n_timeconstants
 
         with open(loss_outputname,'a+') as f:
@@ -234,7 +235,7 @@ def fit_points_exp(xlist,ylist):
     p0 = [0.8,2000,0]
     popt,pcov = curve_fit(expfunc, xlist, ylist,p0=p0, sigma=None, absolute_sigma=False)
     print('popt {} pcov {}'.format(popt,pcov))
-    n_timeconstants = xlist[-1]/popt[1]
+    n_timeconstants = xlist[-1]/popt[1]  #last time point / timeconst
     return(popt,n_timeconstants)
 
 def test_fit():
