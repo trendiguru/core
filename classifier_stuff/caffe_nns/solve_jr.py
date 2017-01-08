@@ -216,7 +216,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         with open(loss_outputname,'a+') as f:
             f.write(str(int(time.time()))+'\t'+s2)
             f.close()
-    #
+    ##
     #   subprocess.call(copycmd,shell=True)
         subprocess.call(scpcmd,shell=True)
 
