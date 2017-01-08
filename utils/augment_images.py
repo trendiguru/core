@@ -230,6 +230,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                    max_scale=1.2,
                    max_noise_level= 0,noise_type='gauss',
                    max_blur=0,
+                   max_color_rotation=0,
                    do_mirror_lr=True,do_mirror_ud=False,
                    crop_size=None,
                     show_visual_output=False,save_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):

@@ -673,7 +673,7 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
 
     return all_cats
 
-def generate_deep_fashion_hydra_labelfiles(folderpath=None,labelfile_dir='/data/jeremy/image_dbs/'):
+def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/'):
     '''
     generate label file (line like: /path/to/file.jpg category ) using the deep fashion cats put into the hydra_cats lists
     does not overwrite the label files so delete if necessary before running
@@ -681,14 +681,12 @@ def generate_deep_fashion_hydra_labelfiles(folderpath=None,labelfile_dir='/data/
     :param labelfile_dir:
     :return:
     '''
-    if folderpath:
-        dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
-    else:
-        dirs_and_cats = deepfashion_to_tg_hydra()
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+
     pops ={}
     print('len dirs_and_cats:'+str(len(dirs_and_cats)))
     for dc in dirs_and_cats:
-        print('dc ')+str(dc)
+        print('dir,cat:')+str(dc)
         cat = dc[1]
         if cat in pops:
             pops[cat]+=1
@@ -714,12 +712,13 @@ def generate_deep_fashion_hydra_labelfiles(folderpath=None,labelfile_dir='/data/
                     dircat = dir_cat_tuple[1]
                     if dircat==cat:
                         print('directory {} used for category {} index {}'.format(dir,dircat,cat_index))
-                        files = os.listdir(dir)
+                        full_path = os.path.join(folderpath,dir)
+                        files = os.listdir(full_path)
                         positives[i].append(files)
                         for file in files:
-                            print('file {} cat {} '.format(file,cat_index))  #add no-cr
-                            full_path = os.path.join(dir,file)
-                            fp.write(full_path+' '+str(cat_index))
+                            file_path = os.path.join(full_path,file)
+                            fp.write(file_path+' '+str(cat_index))
+                            print('wrote "{} {}" for file {} cat {} '.format(file_path,cat_index,file,cat_index))  #add no-cr
                             populations[cat_index]+=len(files)
                         raw_input('ret to cont')
         overall_populations[i] = populations
