@@ -703,6 +703,8 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
         populations = [0 for dummy in range(len(catlist))] #
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
+        print('positives '+str(positives))
+        print('pops '+str(populations))
         with open(labelfile_name,'wa') as fp:
             for j in range(len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
                 cat = catlist[j]
@@ -717,6 +719,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                         print('directory {} used for category {} index {}'.format(dir,dircat,cat_index))
                         full_path = os.path.join(folderpath,dir)
                         files = os.listdir(full_path)
+
                         positives[i].append(files)
                         for file in files:
                             file_path = os.path.join(full_path,file)
