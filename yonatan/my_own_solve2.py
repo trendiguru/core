@@ -9,6 +9,7 @@ import socket
 import matplotlib
 import matplotlib.pyplot as plt
 import datetime
+import numpy as np
 from trendi import Utils
 from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
@@ -112,8 +113,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     i = 0
     losses = []
     iters = []
-    loss_avg = [0]*n_iter
-    accuracy_avg = [0]*n_iter
+    loss_avg = np.zeros(n_iter)
+    accuracy_avg = np.zeros(n_iter)
     tot_iters = 0
 
     #instead of taking steps its also possible to do
@@ -137,9 +138,9 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
 
-        averaged_loss=sum(loss_avg)/len(loss_avg)
+        averaged_loss=np.mean(loss_avg)
         if type == 'single_label':
-            averaged_acc = sum(accuracy_avg)/len(accuracy_avg)
+            averaged_acc = np.mean(accuracy_avg)
             s = 'avg loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
             print(s)
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
