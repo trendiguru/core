@@ -477,19 +477,21 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
                                                      42,44,45,46]
 
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
-hydra_cats = [ ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
+#None means None of the following , ie not a dress or suit or overalls etc.
+hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
               'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
-             ['bra','panties','babydoll'] , #NOT SOFTMAX - these are either/or aka multilabel
-             ['coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
-             ['cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
-             ['tee','button-down','blouse','polo','henley','tube','tank'], #tops - button is buttons all the way down but not a blouse
-             ['jeans','pants','stocking','legging','socks'], #lower_cover_long
-             ['shorts','skirt'], #lower_cover_short
-             ['shawl','scarf'], #wraps
-             ['boots','shoes','sandals'],  #footwear
-             ['bag'],['belt'],['sarong']] #extra stuff
+             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel
+             [None,'coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
+             [None,'cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
+             [None,'tee','button-down','blouse','polo','henley','tube','tank'], #upper under - tops - button is buttons all the way down but not a blouse
+             [None,'jeans','pants','stocking','legging','socks'], #lower_cover_long
+             [None,'shorts','skirt'], #lower_cover_short
+             [None,'shawl','scarf'], #wraps
+             [None,'boots','shoes','sandals'],  #footwear
+             [None,'bag'],[None,'belt'],[None,'sarong']] #extra stuff
 
-hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps','footwear','bag','belt','sarong']
+hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps',
+                        'footwear','bag','belt','sarong']
 
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
