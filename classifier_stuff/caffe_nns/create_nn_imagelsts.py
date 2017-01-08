@@ -694,7 +694,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
             pops[cat]=1
     print pops
     raw_input('ret to cont')
-    overall_populations = [[] for dummy in len(constants.hydra_cats)]
+    overall_populations = [[] for dummy in range(len(constants.hydra_cats))]
     for i in range(len(constants.hydra_cats)):   #iterate over category lists - whole_body, upper_cover etc
         catlist = constants.hydra_cats[i]
         labelfile_name = constants.hydra_cat_listlabels[i]+'_labels.txt'
