@@ -187,15 +187,17 @@ if __name__ == "__main__":
 ###############
     solverstate = None
     weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
-    solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152_solver.prototxt'
-    testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+    solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152_solver.prototxt'
+    testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
     steps_per_iter = 1
     n_iter = 100
-    cat = "collar"
-    classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt', 'strapless']
+    cat = "dress_texture"
+    # classlabels=['crew_neck', 'scoop_neck', 'v_neck', 'deep_v_neck', 'Henley_t_shirts', 'polo_collar', 'tie_neck', 'turtleneck', 'Hooded_T_Shirt', 'strapless']
+    classlabels = ['one_color', 'applique', 'floral', 'square_pattern', 'dots', 'animal_print', 'zebra_print',
+               'stripes', 'chevron', 'colorblock']
     n_tests = 1000
     n_loops = 2000000
     baremetal_hostname = 'k80a'
@@ -203,4 +205,3 @@ if __name__ == "__main__":
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
           cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
-
