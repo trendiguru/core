@@ -4,7 +4,7 @@ import os
 import cv2
 import random
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 from PIL import Image
 
 from trendi import constants
@@ -703,8 +703,6 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
         populations = [0 for dummy in range(len(catlist))] #
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
-        print('positives '+str(positives))
-        print('pops '+str(populations))
         raw_input('ret to cont')
         with open(labelfile_name,'wa') as fp:
             for j in range(len(catlist)):   #iterate over indiv cats in catlist except for first, e.g. whole_body=[None, 'dress','suit',etc]
@@ -725,7 +723,7 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                         for file in files:
                             file_path = os.path.join(full_path,file)
                             fp.write(file_path+' '+str(cat_index))
-                            print('wrote "{} {}" for file {} cat {} '.format(file_path,cat_index,file,cat_index))  #add no-cr
+                            logging.debug('wrote "{} {}" for file {} cat {}\n'.format(file_path,cat_index,file,cat_index))  #add no-cr
                             populations[cat_index]+=1
                         #raw_input('ret to cont')
         overall_populations[i] = populations
