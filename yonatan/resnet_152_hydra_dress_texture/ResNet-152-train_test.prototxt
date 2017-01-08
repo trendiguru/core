@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/dress_texture_classifier/collar_images/dress_texture_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':12 }"
+      param_str: "{\'images_and_labels_file\': \'/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images/dress_texture_train_list.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':12 }"
       }
   include {phase: TRAIN}
 }
