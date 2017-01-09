@@ -306,4 +306,5 @@ if __name__ == "__main__":
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer)
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname,label_layer=label_layer,estimate_layer=estimate_layer,
+            solverstate=solverstate)
