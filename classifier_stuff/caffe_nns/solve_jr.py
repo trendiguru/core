@@ -111,7 +111,9 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         copycmd = 'cp '+testproto + ' ' + outdir
         subprocess.call(copycmd,shell=True)
     #copy this file too
-    copycmd = 'cp solve.py '  + outdir
+    copycmd = 'cp solve_jr.py '  + outdir
+    #if name o fthis file keeps changing we can use
+    # os.path.realpath(__file__)  which gives name of currently running file
     subprocess.call(copycmd,shell=True)
 
 
