@@ -186,6 +186,7 @@ if __name__ == "__main__":
 ###############
 #vars to change
 ###############
+    # solverstate should be None if i don't want to start from the middle of some specific training
     solverstate = '/data/yonatan/yonatan_files/dress_texture_classifier/resnet152_caffemodels_hydra_05_01_17/caffe_resnet152_snapshot_texture_10_categories_hydra_iter_5000.solverstate'
     weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
     solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152_solver.prototxt'
@@ -205,4 +206,4 @@ if __name__ == "__main__":
 ####################
 
     dosolve(weights,solverproto,testproto,type=type,steps_per_iter=steps_per_iter,n_iter=n_iter,n_loops=n_loops,n_tests=n_tests,
-          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname)
+          cat=cat,classlabels=classlabels,baremetal_hostname=baremetal_hostname, solverstate=solverstate)
