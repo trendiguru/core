@@ -23,7 +23,7 @@ array_success_without = np.array([])
 array_failure_without = np.array([])
 
 ## style ##
-text_file = open("/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images/dress_texture_train_list.txt", "r")
+text_file = open("/data/yonatan/yonatan_files/dress_texture_classifier/dress_texture_images/dress_texture_test_list.txt", "r")
 
 MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152-deploy.prototxt"
 PRETRAINED = "/data/yonatan/yonatan_files/dress_texture_classifier/resnet152_caffemodels_hydra_05_01_17/caffe_resnet152_snapshot_texture_10_categories_hydra_iter_2500.caffemodel"
