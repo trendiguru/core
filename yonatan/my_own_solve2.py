@@ -186,7 +186,7 @@ if __name__ == "__main__":
 ###############
 #vars to change
 ###############
-    solverstate = None
+    solverstate = '/data/yonatan/yonatan_files/dress_texture_classifier/resnet152_caffemodels_hydra_05_01_17/caffe_resnet152_snapshot_texture_10_categories_hydra_iter_5000.solverstate'
     weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
     solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152_solver.prototxt'
     testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_dress_texture/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
