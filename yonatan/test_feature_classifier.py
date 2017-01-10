@@ -23,7 +23,7 @@ array_success_without = np.array([])
 array_failure_without = np.array([])
 
 ## style ##
-text_file = open("/data/yonatan/yonatan_files/collar_classifier/collar_images/collar_test_list.txt", "r")
+text_file = open("/data/yonatan/yonatan_files/collar_classifier/collar_images/collar_cv_list.txt", "r")
 
 MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152-deploy.prototxt"
 PRETRAINED = "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra_iter_5000.caffemodel"
