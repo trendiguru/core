@@ -685,8 +685,10 @@ def write_deepfashion_hydra_map_to_file():
     :return:
     '''
     mapping = deepfashion_to_tg_hydra()
-    with open('/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt','w'):
-        json.dump(mapping)
+    mapfile = '/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt'
+    Utils.ensure_file(mapfile)
+    with open(mapfile,'w') as fp:
+        json.dump(mapping,fp)
 
 def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/'):
     '''

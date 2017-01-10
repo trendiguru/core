@@ -48,7 +48,9 @@ def deepfashion_to_db(attribute_file='/data/jeremy/image_dbs/deep_fashion/catego
     bbox_files = [bboxline.split()[0] for bboxline in bboxlines ]
 
 #    hydra_cats_for_deepfashion_folders = create_nn_imagelsts.deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img')
-    hydra_cats_for_deepfashion_folders=json.load('/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt')
+    with open('/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt','r') as fpx:
+        hydra_cats_for_deepfashion_folders=json.load(fpx)
+        fpx.close()
 
     hydra_cats_dirsonly = [dummy[0] for dummy in hydra_cats_for_deepfashion_folders]
 
