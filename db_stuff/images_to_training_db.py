@@ -1,99 +1,159 @@
+"""
+put image sets into our db systematically keeping as much relevant data as poss.
+e.g. for deep fashion, i will save data like this:
+{ u'image_height': 4275,
+ u'image_width': 2606,
+ u'items': [{u'bb': [x, y, w, h], u'category': u'dress','attributes': [['pleated', 'fabric'], ['print', 'texture']]}]
+ u'url': u'https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/img/folder/6966.jpg',
+}
+where the categories are from the hydra categories (constants.hydra_cats)
+
+"""
+
 __author__ = 'jeremy'
-from trendi.yonatan import yonatan_constants
-from trendi import Utils
 import cv2
 import numpy as np
+import os
+import json
+
+from trendi.yonatan import yonatan_constants
+from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
+from trendi import Utils
+from trendi import constants
 
 def deepfashion_to_db(attribute_file='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/list_attr_img.txt',
                         bbox_file='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/list_bbox.txt',
- #                       bucket='https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/',
-                        bucket = 'gs://tg-training/deep_fashion/',
+                        bucket='https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/',
+ #                       bucket = 'gs://tg-training/deep_fashion/',
                         use_visual_output=True):
-
-    '''  takes deepfashion list of bbs and attrs, and images in bucket.
-    puts bb, attr, and link to file on bucket into db
-    apparently mogno / pymongo creates the _id field so i dont have to
-    :return:
-
     '''
+    takes deepfashion lists of bbs and attrs, and images in bucket.
+    puts bb, attr, and link to file on bucket into db
+    :param attribute_file:
+    :param bbox_file:
+    :param bucket:
+    :param use_visual_output:
+    :return:
+    '''
+
     with open(attribute_file,'r') as fp:
-        lines = fp.readlines()
-        for line in lines[2:]:  #1st line is # of files, 2nd line describes fields 
-            attribute_list = []
-            #print line
-            path = line.split()[0]
-            vals = [int(i)+1 for i in line.split()[1:]]  #the vals are -1, 1 so add 1 to get 0, 2
-            non_zero_idx = np.nonzero(vals)
-            #print non_zero_idx
-            for i in range(len(non_zero_idx[0])):
-                #print yonatan_constants.attribute_type_dict[str(non_zero_idx[0][i])]
-                attribute_list.append(yonatan_constants.attribute_type_dict[str(non_zero_idx[0][i])])
-            print('attributes:'+str(attribute_list))
-            url = bucket+path
-            print('url:'+str(url))
-            if use_visual_output:
-                img_arr = Utils.get_cv2_img_array(url)
-                cv2.imshow(str(attribute_list),img_arr)
-                cv2.waitKey()
+        attrlines = fp.readlines()
+        attrlines = attrlines[2:] #1st line is # of files, 2nd line describes fields
+        fp.close()
+    with open(bbox_file,'r') as fp2:
+        bboxlines = fp2.readlines()
+        bboxlines = bboxlines[2:]  #1st line is # of files, 2nd line describes fields
+        fp2.close()
 
+    bbox_files = [bboxline.split()[0] for bboxline in bboxlines ]
 
-        return
+#    hydra_cats_for_deepfashion_folders = create_nn_imagelsts.deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img')
+    with open('/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt','r') as fpx:
+        hydra_cats_for_deepfashion_folders=json.load(fpx)
+        fpx.close()
 
-    imgfiles = [f for f in os.listdir(dir_of_images) if os.path.isfile(os.path.join(dir_of_images,f)) and f[-4:]=='.jpg' or f[-5:]=='.jpeg' ]
-    for imgfile in imgfiles:
-        corresponding_bbfile=imgfile.split('photo_')[1]
-        corresponding_bbfile=corresponding_bbfile.split('.jpg')[0]
-        corresponding_bbfile = corresponding_bbfile + '.txt'
-        full_filename = os.path.join(dir_of_bbfiles,corresponding_bbfile)
-        print('img {} bbfile {} full {}'.format(imgfile,corresponding_bbfile,full_filename))
-        full_imgname = os.path.join(dir_of_images,imgfile)
-        img_arr = cv2.imread(full_imgname)
-        h,w = img_arr.shape[0:2]
-#            master_bb.write(full_filename+' '+str(w)+' ' +str(h)+'\n')
+    hydra_cats_dirsonly = [dummy[0] for dummy in hydra_cats_for_deepfashion_folders]
+
+#    print(hydra_cats_for_deepfashion_folders[0])
+#    print(hydra_cats_dirsonly[0])
+#    print(attrlines[0])
+#    print(bboxlines[0])
+    db = constants.db
+#    cursor = db.training_images.find()
+    for line in attrlines:
+        bbox = None
+        hydra_cat = None
         info_dict = {}
-        info_dict['url'] = full_imgname
-        info_dict['image_width'] = w
-        info_dict['image_height'] = h
-        items = []
-        with open(full_filename,'r+') as fp:
-            n_boxes = 0
-            for line in fp:
-                item_dict = {}
-                cv2.imwrite
-                n_boxes += 1
-             #   line = str(category_number)+' '+str(  dark_bb[0])[0:n_digits]+' '+str(dark_bb[1])[0:n_digits]+' '+str(dark_bb[2])[0:n_digits]+' '+str(dark_bb[3])[0:n_digits] + '\n'
-                vals = [int(s) if s.isdigit() else float(s) for s in line.split()]
-                classno = vals[0]
-                item_dict['category'] = tamara_berg_categories[classno]
-                bb = [vals[1],vals[2],vals[3],vals[4]]
-                print('classno {} ({}) bb {} imfile {} n_boxes {}'.format(classno,item_dict['category'],bb,imgfile,n_boxes))
-#                bb = convert_dark_to_xywh((w,h),dark_bb)
-                item_dict['bb'] = bb
-        #         if use_visual_output:
-        #             cv2.rectangle(img_arr, (bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[int(255.0/10*classno),100,100],thickness=10)
-        #             #resize to avoid giant images
-        #             dest_height = 200
-        #             dest_width = int(float(dest_height)/h*w)
-        # #            print('h {} w{} destw {} desth {}'.format(h,w,dest_width,dest_height))
-        #             factor = float(h)/dest_width
-        #             newx = int(bb[0]*factor)
-        #             newy = int(bb[0]*factor)
-        #             im2 = cv2.resize(img_arr,(dest_width,dest_height))
-        #             cv2.putText(im2,tamara_berg_categories[classno], (newx+1,newy+5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, [int(255.0/10*classno),100,100],3)
-        #
-        #             cv2.imshow(imgfile,im2)
-        #             cv2.waitKey(100)
-                items.append(item_dict)
-            # cv2.destroyAllWindows()
-        #fp.close()
-        info_dict['items'] = items
+        info_dict['items'] = []
+        #raw_input('ret to cont')
+        attribute_list = []
+        #print line
+        path = line.split()[0]
+        vals = [int(i)+1 for i in line.split()[1:]]  #the vals are -1, 1 so add 1 to get 0, 2
+        non_zero_idx = np.nonzero(vals)
+        print('nonzero idx:'+str(non_zero_idx))
+        for i in range(len(non_zero_idx[0])):
+            #print yonatan_constants.attribute_type_dict[str(non_zero_idx[0][i])]
+            attribute_list.append(yonatan_constants.attribute_type_dict[str(non_zero_idx[0][i])])
+        print('attributes:'+str(attribute_list))
+        url = bucket+path
+        info_dict['items'].append({'attributes':attribute_list})
+        print('url:'+str(url))
+        try:
+            bbox_index = bbox_files.index(path)  #there is prob a better way to search here than building another list
+            bbox = [int(x) for x in bboxlines[bbox_index].split()[1:]]
+            print('bbox '+str(bbox)+' line '+str(bboxlines[bbox_index]))
+            #deepfashion bbox is x1 x2 y1 y2, convert to x y w h
+            bbox_tg = [bbox[0],bbox[1],bbox[2]-bbox[0],bbox[3]-bbox[1]]
+            info_dict['items'][0]['bb']=bbox_tg
+        except ValueError:
+            print(path+' is not in bboxfile list')
+        try:
+            folder_only = path.replace('img/','') #the paths from attr_file (and bbfile) have img/folder not just folder
+            folder_only = os.path.dirname(folder_only)
+            hydra_category_index = hydra_cats_dirsonly.index(folder_only)
+            hydra_cat = hydra_cats_for_deepfashion_folders[hydra_category_index][1]
+            print('hydracat '+str(hydra_cat)+' line '+str(hydra_cats_for_deepfashion_folders[hydra_category_index]))
+            info_dict['items'][0]['category']=hydra_cat
+        except ValueError:
+            print(folder_only+' is not in hydracat list')
+        img_arr = Utils.get_cv2_img_array(url)
+        if img_arr is None:
+            print('WARNING could not get '+url)
+        else:
+            h,w = img_arr.shape[0:2]
+            if use_visual_output:
+                if bbox is not None:
+                    cv2.rectangle(img_arr,(bbox_tg[0],bbox_tg[1]),(bbox_tg[0]+bbox_tg[2],bbox_tg[1]+bbox_tg[3]),color=[255,0,0],thickness=5)
+                cv2.imshow('deepfashion',img_arr)
+                cv2.waitKey()
+            info_dict['image_width'] = w
+            info_dict['image_height'] = h
+
+        info_dict['url'] = url
+
+#        info_dict['items'] = items
         print('db entry:'+str(info_dict))
-        ack = db.training_images.insert_one(info_dict)
+        ack = db.training_images_deepfashion.insert_one(info_dict)
         print('ack:'+str(ack.acknowledged))
 
-'''   db.training_images.find_one_and_update({'person_id': person_id},
-                                              {'$set': {'gender': gender, 'status': 'done'}})
-    image = db.genderator.find_one_and_update({'status': 'fresh'},
-                                                  {'$set' : {'status': 'busy'}},
-                                                  return_document=pymongo.ReturnDocument.AFTER)
+def nextfun():
+    pass
+
+'''
+for deep fashion, i will save data like this:
+where the categories are from the hydra categories (constants.hydra_cats)
+
+{ 'image_source':'deep_fashion',
+ u'image_height': 4275,
+ u'image_width': 2606,
+ u'items': [{u'bb': [669, 726, 1453, 2295], u'category': u'dress'}],
+ u'url': u'https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/img/folder/6966.jpg',
+}
+
+
+fyi , filipino data is like this
+
+ {u'a': 100,
+ u'already_seen_image_level': 3,
+ u'image_height': 4275,
+ u'image_width': 2606,
+ u'items': [{u'category': u'dress'},
+  {u'category': u'eyewear'},
+  {u'category': u'footwear'},
+  {u'bb': [669, 726, 1453, 2295], u'category': u'dress'},
+  {u'category': u'eyewear'},
+  {u'category': u'footwear'}],
+ u'mask_url': u'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/masks/photo_16966.txt',
+ u'selections': [u'true', u'false', u'false'],
+ u'url': u'https://tg-training.storage.googleapis.com/tamara_berg_street2shop_dataset/images/photo_16966.jpg',
+ u'user_name': [u'nobody',
+  u'jeremy',
+  u'nobody',
+  u'jeremy',
+  u'philipines4']}
+
+
+
+
 '''
