@@ -6,6 +6,7 @@ import random
 import logging
 import sys
 from shutil import copyfile
+import json
 
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
@@ -676,6 +677,16 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
                   #ambiguous (more thn one cat still) so dont add to list
 
     return all_cats
+
+def write_deepfashion_hydra_map_to_file():
+    '''
+    write the map between deepfashion folders and hydra cats to a file since this is needed for putting into db
+    (cant do this on azure machines as they dont have db access from with docker , dont ask)
+    :return:
+    '''
+    mapping = deepfashion_to_tg_hydra()
+    with open('/data/jeremy/image_dbs/labels/deepfashion_to_hydra_map.txt','w'):
+        json.dump(mapping)
 
 def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/'):
     '''
