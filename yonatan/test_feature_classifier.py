@@ -26,7 +26,7 @@ array_failure_without = np.array([])
 text_file = open("/data/yonatan/yonatan_files/collar_classifier/collar_images/collar_test_list.txt", "r")
 
 MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_hydra_collar_type/ResNet-152-deploy.prototxt"
-PRETRAINED = "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra_iter_2500.caffemodel"
+PRETRAINED = "/data/yonatan/yonatan_files/collar_classifier/resnet152_caffemodels_hydra_27_12_16/caffe_resnet152_snapshot_collar_10_categories_hydra_iter_5000.caffemodel"
 
 caffe.set_device(int(sys.argv[1]))
 # caffe.set_device(1)
