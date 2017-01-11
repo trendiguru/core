@@ -690,9 +690,10 @@ def write_deepfashion_hydra_map_to_file():
     with open(mapfile,'w') as fp:
         json.dump(mapping,fp)
 
-def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/'):
+def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/labels/hydra'):
     '''
-    generate label file (line like: /path/to/file.jpg category ) using the deep fashion cats put into the hydra_cats lists
+    generate label file (lines like: /path/to/file.jpg class_no )
+    using the deep fashion cats (from folder names) put into the hydra_cats lists
     does not overwrite the label files so delete if necessary before running
     :param folderpath:
     :param labelfile_dir:
@@ -714,10 +715,11 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
     overall_populations = [[] for dummy in range(len(constants.hydra_cats))]
     for i in range(len(constants.hydra_cats)):   #iterate over category lists - whole_body, upper_cover etc
         catlist = constants.hydra_cats[i]
-        labelfile_name = constants.hydra_cat_listlabels[i]+'_labels.txt'
+        labelfile_name = os.path.join(labelfile_dir,constants.hydra_cat_listlabels[i]+'_positive_labels.txt')
         Utils.ensure_file(labelfile_name)
         positives=[[] for dummy in range(len(catlist))]  #keep these positives for use as negatives against other cats
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
+        #just did this using the fully-labelled tamara-berg filipino images as I couldnt figure any other way to do it
         populations = [0 for dummy in range(len(catlist))] #
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
         raw_input('ret to cont')
@@ -921,18 +923,7 @@ def negatives_for_hydra(web_prefix='https://tg-training.storage.googleapis.com',
                 logging.debug('not useful as negative for '+str(cat_list))
             cats_i += 1
         #raw_input('ret to cont')
-#            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
-#            print('catsfile:'+catsfile)
-#            with open(catsfile,'a') as fp:
-#                if votelist[i]==0:
-#                     line = str(full_path) + ' 0 \n'
-#                     print line
-#                     fp.write(line)
-#                 if votelist[i] >= 2:
-#                     line = str(full_path) + ' 1 \n'
-#                     print line
-#                     fp.write(line)
-#                 fp.close()
+
 
 
 
