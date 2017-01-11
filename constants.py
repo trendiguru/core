@@ -492,7 +492,7 @@ hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjam
              [None,'bag'],   #extra stuff
              [None,'belt'],   #extra stuff
              [None,'sarong'],  #extra stuff
-             [None,'relevant_image'] #has clothing and isnt cropped too badly
+             [None,'relevant_image'], #has clothing and isnt cropped too badly
               [None,'full_body']] #has most of a person
 
 
