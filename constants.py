@@ -276,6 +276,7 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
                           'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
+#These are the currently used cats for the multilabelled images from the tamara berg db.
 #removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
 #25 cats
 web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
@@ -490,8 +491,16 @@ hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjam
              [None,'boots','shoes','sandals'],  #footwear
              [None,'bag'],[None,'belt'],[None,'sarong']] #extra stuff
 
+#in web_tool_categories_v2 but not in hydra_cats:
+#['eyewear', 'footwear', 'hat','top','bracelet','necklace','earrings','watch' ]
+
 hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps',
                         'footwear','bag','belt','sarong']
+
+#we have multi-labelled tamara berg photos which can be used as negatives (we know if something is NOT there since we
+# know all of what IS there.  Preference
+hydra_cat_negatives = []
+
 
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
@@ -506,8 +515,6 @@ pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
 #all their images are in folders with at least one of those 50 cats
-#things missing from this list are same in our system namely:
-#blazer, blouse ,button-down, cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.,coat
 #button-down is not a cat but listed in their list of cats (dress or blouse or shirt always appears w. button-down)
 #halter also appears always w. a real cat like dress or top so no translation
 #flannel is generally a shirt unless it appears with 'skirt' or 'dress' so watch out for that one

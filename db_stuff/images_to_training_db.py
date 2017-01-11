@@ -124,11 +124,10 @@ def nextfun():
 for deep fashion, i will save data like this:
 where the categories are from the hydra categories (constants.hydra_cats)
 
-{ 'image_source':'deep_fashion',
- u'image_height': 4275,
+{ u'image_height': 4275,
  u'image_width': 2606,
- u'items': [{u'bb': [669, 726, 1453, 2295], u'category': u'dress'}],
- u'url': u'https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/img/folder/6966.jpg',
+ u'items': [{u'bb': [x, y, w, h], u'category': u'dress','attributes': [['pleated', 'fabric'], ['print', 'texture']]}]
+ u'url': u'https://tg-training.storage.googleapis.com/deep_fashion/category_and_attribute_prediction/img/Sheer_Pleated-Front_Blouse/img_00000001.jpg',
 }
 
 

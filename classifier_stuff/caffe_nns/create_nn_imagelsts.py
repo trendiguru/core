@@ -749,7 +749,6 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
 
-
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
     copy dirs from deep fashion into yonatan's training dirs
@@ -811,6 +810,67 @@ def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/dat
                     #raw_input('ret to cont')
             raw_input('ret to cont')
         print('populations: {} '.format(populations))
+
+def negatives_for_hydra():
+    '''
+    Create negatives for the hydra cats using the multilabelled images from tamara berg
+    (labels in constants.web_tool_categories_v2, data in db.training_images)
+    make one negatives file for each outer hydra cat
+    :return:
+    '''
+    toplevel_cats = constants.hydra_cats
+    negatives = [[] for i in range(len(toplevel_cats))]
+    db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs done')
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        if not os.path.exists(full_path):
+            print('file '+full_path+' does not exist, skipping')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        for i in range(len(votelist)):
+            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
+            print('catsfile:'+catsfile)
+            with open(catsfile,'a') as fp:
+                if votelist[i]==0:
+                    line = str(full_path) + ' 0 \n'
+                    print line
+                    fp.write(line)
+                if votelist[i] >= 2:
+                    line = str(full_path) + ' 1 \n'
+                    print line
+                    fp.write(line)
+                fp.close()
 
 
 
