@@ -533,7 +533,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
 
 def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
-    generate list of folders and corresponding categories from our list (map is using constants.deep_dashion_to_trendi_map)
+    generate list of deepfashion folders and corresponding categories from our list (map is using constants.deep_fashion_to_trendi_map)
     :param folderpath: folder of deep fashion folders
     :return: list of tuples [(dir1,cat1),(dir2,cat2),...]
     '''
@@ -741,8 +741,8 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                         positives[j].append(files)
                         for file in files:
                             file_path = os.path.join(full_path,file)
-                            fp.write(file_path+' '+str(cat_index))
-                            logging.debug('wrote "{} {}" for file {} cat {}\n'.format(file_path,cat_index,file,cat_index))  #add no-cr
+                            fp.write(file_path+'\t'+str(cat_index)+'\n')
+                            logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
                             populations[cat_index]+=1
                         #raw_input('ret to cont')
         overall_populations[i] = populations
