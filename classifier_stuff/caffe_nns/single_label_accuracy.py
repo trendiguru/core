@@ -366,7 +366,6 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
             g.write('netname:'+netname+'\n<br>')
         g.close()
 
-
 def write_confmat_to_html(htmlname,confmat,classlabels):
     with open(htmlname,'a') as g:
         confmat_rows = confmat.shape[0]

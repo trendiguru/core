@@ -489,17 +489,23 @@ hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjam
              [None,'shorts','skirt'], #lower_cover_short
              [None,'shawl','scarf'], #wraps
              [None,'boots','shoes','sandals'],  #footwear
-             [None,'bag'],[None,'belt'],[None,'sarong']] #extra stuff
+             [None,'bag'],   #extra stuff
+             [None,'belt'],   #extra stuff
+             [None,'sarong'],  #extra stuff
+             [None,'relevant_image'] #has clothing and isnt cropped too badly
+              [None,'full_body']] #has most of a person
+
 
 #in web_tool_categories_v2 but not in hydra_cats:
 #['eyewear', 'footwear', 'hat','top','bracelet','necklace','earrings','watch' ]
 
+#web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+#                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+#                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
+
 hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps',
                         'footwear','bag','belt','sarong']
 
-#we have multi-labelled tamara berg photos which can be used as negatives (we know if something is NOT there since we
-# know all of what IS there.  Preference
-hydra_cat_negatives = []
 
 
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
@@ -554,6 +560,7 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
 
 # these are the fashionista db cats in order , e.g. the mask will have 1 for null (bkgnd) and 56 for skin
 #the first '' value is to keep mask=1 -> null, mask=2->tights etc
+#these were originally pixel level labels.
 fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt',
                           'purse','boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans',
                           'leggings','scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks',

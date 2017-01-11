@@ -811,20 +811,27 @@ def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/dat
             raw_input('ret to cont')
         print('populations: {} '.format(populations))
 
-def negatives_for_hydra():
+def negatives_for_hydra(web_prefix='https://tg-training.storage.googleapis.com',
+                        img_dir_prefix='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                        neg_dir='/data/jeremy/image_dbs/labels/hydra'):
     '''
     Create negatives for the hydra cats using the multilabelled images from tamara berg
     (labels in constants.web_tool_categories_v2, data in db.training_images)
     make one negatives file for each outer hydra cat
+    SPECIAL CASES
+    there are no 'undies' (bra/panties/babydolls) in the multilabelled data
+    negatives for those can just be everything in ml data
+    multilabel footwear - shouldnt be used as neg for the hydra footwear (boots/shoes/sandals)
+    multilabel top - dont use as neg for hydra 'shirt'
     :return:
     '''
     toplevel_cats = constants.hydra_cats
-    negatives = [[] for i in range(len(toplevel_cats))]
     db = constants.db
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    for i in range(n_done):
+    #loop over docs in db
+    for doc_count in range(n_done):
         document = cursor.next()
         if not 'already_seen_image_level' in document:
             print('no votes for this doc')
@@ -833,17 +840,20 @@ def negatives_for_hydra():
             print('not enough votes for this doc')
             continue
         url = document['url']
-        filename = os.path.basename(url)
-        full_path = os.path.join(image_dir,filename)
+        full_path  = url.replace(web_prefix,img_dir_prefix)
+        full_path  = full_path.replace('tamara_berg_street2shop_dataset/images/','')
+
+
         if not os.path.exists(full_path):
-            print('file '+full_path+' does not exist, skipping')
-            continue
-        items_list = document['items'] #
+            print('WARNING file '+full_path+' does not exist, but not skipping')
+            #continue
+        items_list = document['items']
         if items_list is None:
             print('no items in doc')
             continue
-        print('items:'+str(items_list))
+        logging.debug('items:'+str(items_list))
         votelist = [0]*len(constants.web_tool_categories_v2)
+        #loop over items in doc
         for item in items_list:
             cat = item['category']
             if cat in constants.web_tool_categories_v2:
@@ -856,21 +866,73 @@ def negatives_for_hydra():
                 print('unrecognized cat')
                 continue
             votelist[index] += 1
-            print('item:'+str(cat) +' votes:'+str(votelist[index]))
-        print('votes:'+str(votelist))
-        for i in range(len(votelist)):
-            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
-            print('catsfile:'+catsfile)
-            with open(catsfile,'a') as fp:
-                if votelist[i]==0:
-                    line = str(full_path) + ' 0 \n'
-                    print line
-                    fp.write(line)
-                if votelist[i] >= 2:
-                    line = str(full_path) + ' 1 \n'
-                    print line
-                    fp.write(line)
-                fp.close()
+           # print('item:'+str(cat) +' votes:'+str(votelist[index]))
+
+        print('doc '+str(doc_count)+ ' votes:'+str(votelist))
+        nonzero_items={}
+        for dummy in range(len(votelist)):
+            if votelist[dummy]>0:
+                nonzero_items[constants.web_tool_categories_v2[dummy]]=votelist[dummy]
+        print('nonzero items:'+str(nonzero_items))
+        #loop over possible roles as negative
+        cats_i = 0
+        for cat_list in constants.hydra_cats:
+            logging.debug('trying catlist {}'.format(cat_list))
+            useful_as_negative = True
+            for cat in cat_list: #these are the  individual hydra cats
+                if cat in constants.web_tool_categories_v2:
+                    cat_index = constants.web_tool_categories_v2.index(cat)
+                    if votelist[cat_index]!=0:
+                        useful_as_negative = False
+                        print('not useful due to {} with {} votes'.format(cat,votelist[cat_index]))
+                        break
+                    else:
+                        logging.debug('possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+                else:
+                # special cases where multilabel tag doesnt match hydra tag
+                    #1. footwear
+                    logging.debug('did not find {} in web_tool_cats_v2'.format(cat))
+                    if cat in [ 'boots','shoes','sandals']:
+                        cat_index = constants.web_tool_categories_v2.index('footwear')
+                        if votelist[cat_index] != 0:
+                            useful_as_negative = False
+                            print('footwear:not useful due to footwear with {} votes'.format(votelist[cat_index]))
+                            break
+                        else:
+                            logging.debug('footwear:possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+                    #2 top
+                    elif cat in ['tee','button-down','blouse','polo','henley','tube','tank']:
+                        cat_index = constants.web_tool_categories_v2.index('top')
+                        if votelist[cat_index] != 0:
+                            useful_as_negative = False
+                            print('shirt:not useful due to top with {} votes'.format(votelist[cat_index]))
+                            break
+                        else:
+                            logging.debug('shirt:possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+
+            if useful_as_negative:
+                print('useful as negative for '+str(cat_list))
+                filename = os.path.join(neg_dir,constants.hydra_cat_listlabels[cats_i]+'_negatives.txt')
+                with open(filename,'a') as fp:
+                    fp.write(full_path+'\t'+ str(0)+'\n')
+                    fp.close()
+         #       print('wrote {} to {}'.format(full_path+'\t'+str(0),filename))
+            else:
+                logging.debug('not useful as negative for '+str(cat_list))
+            cats_i += 1
+        #raw_input('ret to cont')
+#            catsfile = os.path.join(catsfile_dir,constants.web_tool_categories_v2[i]+'_filipino_labels.txt')
+#            print('catsfile:'+catsfile)
+#            with open(catsfile,'a') as fp:
+#                if votelist[i]==0:
+#                     line = str(full_path) + ' 0 \n'
+#                     print line
+#                     fp.write(line)
+#                 if votelist[i] >= 2:
+#                     line = str(full_path) + ' 1 \n'
+#                     print line
+#                     fp.write(line)
+#                 fp.close()
 
 
 
@@ -934,7 +996,8 @@ if __name__ == "__main__": #
         inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
 
 #    deepfashion_to_tg_hydra()
-    generate_deep_fashion_hydra_labelfiles()
+#    generate_deep_fashion_hydra_labelfiles()
+    negatives_for_hydra()
 
         #useful script - change all photos to photos_250x250
 #!/usr/bin/env bash
