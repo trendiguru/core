@@ -491,9 +491,9 @@ hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjam
              [None,'boots','shoes','sandals'],  #footwear
              [None,'bag'],   #extra stuff
              [None,'belt'],   #extra stuff
-             [None,'sarong'],  #extra stuff
-             [None,'relevant_image'], #has clothing and isnt cropped too badly
-              [None,'full_body']] #has most of a person
+             [None,'sarong']]  #extra stuff
+        #     [None,'relevant_image'], #has clothing and isnt cropped too badly
+        #      [None,'full_body']] #has most of a person
 
 
 #in web_tool_categories_v2 but not in hydra_cats:
