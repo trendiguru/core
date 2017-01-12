@@ -214,13 +214,17 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
             cat = item['category']
             if cat==desired_cat:
                 votes_for_item+=1
-        print('votes:'+str(votes_for_item))
+        n_items = 0
         if votes_for_item>=2:
+            print('votes:'+str(votes_for_item))
+            n_items += 1
             with open(catsfile,'a') as fp:
                 line = str(full_path) + '\t'+str(desired_index)+'\n'
                 print line
                 fp.write(line)
                 fp.close()
+        print('number of matches found:'+str(n_items))
+        return n_items
 
 def positives_from_tbdb_for_hydra_cats():
     for type in constants.hydra_cats:
