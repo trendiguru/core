@@ -420,6 +420,8 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
     print('n_instances {}'.format(n_instances))
     if randomize:
         random.shuffle(lines)
+    if n_instances == {}:
+        return
     n = 0
     cats_used = [k for k,v in n_instances.iteritems()]
     n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to max val
