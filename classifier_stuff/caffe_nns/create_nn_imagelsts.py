@@ -175,13 +175,16 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
-def one_class_positives_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = '/data/jeremy/image_dbs/labels',cat='suit',cat_index=6):
+def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
+                                           desired_cat='suit',desired_index=6):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
     if n_votes[cat] = n_voters put that image in positives for cat
     '''
     db = constants.db
+    print('attempting db connection')
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
@@ -206,37 +209,18 @@ def one_class_positives_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tam
             print('no items in doc')
             continue
         print('items:'+str(items_list))
-        votelist = [0]*len(constants.web_tool_categories_v2)
+        votes_for_item = 0
         for item in items_list:
             cat = item['category']
-            if cat in constants.web_tool_categories_v2:
-                index = constants.web_tool_categories_v2.index(cat)
-            elif cat in constants.tamara_berg_to_web_tool_dict:
-                print('old cat being translated')
-                cat = constants.tamara_berg_to_web_tool_dict[cat]
-                index = constants.web_tool_categories.index(cat)
-            else:
-                print('unrecognized cat')
-                continue
-            votelist[index] += 1
-            print('item:'+str(cat) +' votes:'+str(votelist[index]))
-        print('votes:'+str(votelist))
-        if cat in constants.web_tool_categories_v2:
-            vote_index = constants.web_tool_categories_v2.index(cat)
-        else:
-            print('cat {} not found in webtool labels {}'.format(cat,constants.web_tool_categories_v2))
-            return
-        with open(catsfile,'a') as fp:
-#done write negatives
-#            if votelist[vote_index]>=0:
-#                line = str(full_path) + '\t'+str(cat_index)+'\n'
-#                print line
-#                fp.write(line)
-            if votelist[vote_index] >= 2:
-                line = str(full_path) + '\t'+str(cat_index)+'\n'
+            if cat==desired_cat:
+                votes_for_item+=1
+        print('votes:'+str(votes_for_item))
+        if votes_for_item>=2:
+            with open(catsfile,'a') as fp:
+                line = str(full_path) + '\t'+str(desired_index)+'\n'
                 print line
                 fp.write(line)
-            fp.close()
+                fp.close()
 
 def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
     '''
