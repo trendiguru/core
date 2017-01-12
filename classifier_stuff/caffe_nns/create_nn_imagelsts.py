@@ -411,7 +411,10 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
         for line in lines:
             path = line.split()[0]
             cat = int(line.split()[1])
-            n_instances[cat]+=1
+            if cat in n_instances:
+                n_instances[cat]+=1
+            else:
+                n_instances[cat] = 1
         fp.close()
 
     print('n_instances {}'.format(n_instances))
