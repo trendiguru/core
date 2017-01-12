@@ -398,15 +398,14 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         for line in negs:
             fp.write(line)
 
-def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False,randomize=False):
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False):
     '''
     file lines are of the form /path/to/file class_number
+    analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
     :param filename:
     :return:
     '''
-    if not n_cats:
-        n_cats = len(constants.web_tool_categories_v2)
-    n_instances = [0]*n_cats
+    n_instances = {}
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -419,17 +418,19 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
     if randomize:
         random.shuffle(lines)
     n = 0
+    cats_used = [k for k,v in n_instances.iteritems()]
+    n_cats = np.max(cats_used)
     n_encountered = [0]*n_cats
-    if visual_output:
-        for line in lines:
-            n = n + 1
-            print line
-            path = line.split()[0]
-            cat = int(line.split()[1])
-            n_encountered[cat]+=1
-            print(str(n)+' images seen, totals:'+str(n_encountered))
+    for line in lines:
+        n = n + 1
+        print line
+        path = line.split()[0]
+        cat = int(line.split()[1])
+        n_encountered[cat]+=1
+        print(str(n)+' images seen, totals:'+str(n_encountered))
 #            im = Image.open(path)
 #            im.show()
+        if visual_output:
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
