@@ -424,18 +424,18 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
     cats_used = [k for k,v in n_instances.iteritems()]
     n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to max val
     n_encountered = [0]*n_cats
-    for line in lines:
-        n = n + 1
-        print line
-        path = line.split()[0]
-        cat = int(line.split()[1])
-        n_encountered[cat]+=1
-        print(str(n)+' images seen, totals:'+str(n_encountered))
-#            im = Image.open(path)
-#            im.show()
-        if visual_output:
-            img_arr = cv2.imread(path)
-            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+    if visual_output:
+        for line in lines:
+            n = n + 1
+            print line
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            n_encountered[cat]+=1
+            print(str(n)+' images seen, totals:'+str(n_encountered))
+    #            im = Image.open(path)
+    #            im.show()
+                img_arr = cv2.imread(path)
+                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
