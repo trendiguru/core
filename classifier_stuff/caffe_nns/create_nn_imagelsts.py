@@ -422,7 +422,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
         random.shuffle(lines)
     n = 0
     cats_used = [k for k,v in n_instances.iteritems()]
-    n_cats = np.max(cats_used)
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to max val
     n_encountered = [0]*n_cats
     for line in lines:
         n = n + 1
