@@ -188,7 +188,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    catsfile = os.path.join(catsfile_dir,cat+'_positives.txt')
+    catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
     print('catsfile:'+catsfile)
     for i in range(n_done):
         document = cursor.next()
