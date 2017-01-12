@@ -434,8 +434,8 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
             print(str(n)+' images seen, totals:'+str(n_encountered))
     #            im = Image.open(path)
     #            im.show()
-                img_arr = cv2.imread(path)
-                imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
