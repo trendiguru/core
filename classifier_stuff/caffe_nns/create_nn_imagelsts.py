@@ -227,6 +227,7 @@ def positives_from_tbdb_for_hydra_cats():
         index = 0
         for cat in type:
             if cat is None:
+                index += 1
                 continue
             print('doing cat {} index {}'.format(cat,index))
             raw_input('ret to cont')
