@@ -208,7 +208,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
         if items_list is None:
             print('no items in doc')
             continue
-        print('items:'+str(items_list))
+#        print('items:'+str(items_list))
         votes_for_item = 0
         for item in items_list:
             cat = item['category']
@@ -221,6 +221,17 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 print line
                 fp.write(line)
                 fp.close()
+
+def positives_from_tbdb_for_hydra_cats():
+    for type in constants.hydra_cats:
+        index = 0
+        for cat in type:
+            if cat is None:
+                continue
+            print('doing cat {} index {}'.format(cat,index))
+            raw_input('ret to cont')
+            one_class_positives_from_multilabel_db(desired_cat=cat,desired_index=index)
+            index += 1
 
 def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
     '''
