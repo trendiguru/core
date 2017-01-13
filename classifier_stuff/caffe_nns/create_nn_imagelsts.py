@@ -7,6 +7,7 @@ import logging
 import sys
 from shutil import copyfile
 import json
+import shutil
 
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
@@ -180,8 +181,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                                            desired_cat='suit',desired_index=6):
     '''
     read multilabel db.
-    if n_votes[cat] = 0 put that image in negatives for cat.
-    if n_votes[cat] = n_voters put that image in positives for cat
+    if n_votes[cat] >= 2, put that image in positives for cat
     '''
     db = constants.db
     print('attempting db connection')
@@ -366,7 +366,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
         outfile = os.path.join(dir,'labelfile.txt')
     with open(outfile,'a') as fp:
         for f in files:
-            line = f + ' '+str(class_number)
+            line = f + '\t'+str(class_number)
             print line
             fp.write(line+'\n')
             i+=1
@@ -398,7 +398,7 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         for line in negs:
             fp.write(line)
 
-def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False):
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
     '''
     file lines are of the form /path/to/file class_number
     analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
@@ -424,7 +424,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
         return
     n = 0
     cats_used = [k for k,v in n_instances.iteritems()]
-    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to max val
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to get max
     n_encountered = [0]*n_cats
     if visual_output:
         for line in lines:
@@ -438,6 +438,79 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
     #            im.show()
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+                print('(d)elete (c)lose anything else keeps')
+                indir = os.path.dirname(path)
+                parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+                curdir = os.path.split(indir)[1]
+                print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+                if k == ord('d'):
+                    newdir = curdir+'_removed'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                elif k == ord('c'):
+                    newdir = curdir+'_needwork'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                else:
+                    newdir = curdir+'_kept'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
+    '''
+    look at images in dir , remove at will
+    :param dir:
+    :param curate: move checked images to '_kept' dir and deleted to '_removed'
+    :return:
+    '''
+    files = [f for f in os.listdir(dir)]
+    n=1
+
+    for file in files:
+        print('file {} of {} {}'.format(n,len(files),file))
+        filepath = os.path.join(dir,file)
+        img_arr = cv2.imread(filepath)
+        if img_arr is None:
+            print('got no img for '+filepath)
+            continue
+        img_arr = imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=False)
+        cv2.imshow('img',img_arr)
+        k=cv2.waitKey(0)
+        if curate:  #move selected to dir_removed, move rest to dir_kept
+            print('(d)elete, anything else keeps')
+#            parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+#            curdir = os.path.split(indir)[1]
+#            print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+            if k == ord('d'):
+                newdir = 'removed'
+                dest_dir = os.path.join(dir,newdir)
+                print('REMOVING moving {}\nto {}'.format(filepath,dest_dir))
+                Utils.ensure_dir(dest_dir)
+                shutil.move(filepath,dest_dir)
+            else:
+                newdir = 'kept'
+                dest_dir = os.path.join(dir,newdir)
+                Utils.ensure_dir(dest_dir)
+                if add_jpg:
+                    file=file+'.jpg'
+                if remove_parens:
+                    newfile = file.replace('(','').replace(')','')
+                    dest_dir = os.path.join(dest_dir,newfile)
+                print('KEEPING moving {}\nto {}'.format(filepath,dest_dir))
+                shutil.move(filepath,dest_dir)
+
+
+        n = n + 1
+
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
