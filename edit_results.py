@@ -268,7 +268,7 @@ def build_new_person(image, face, products_collection, method):
             mask = seg_res['mask']
             if person['segmentation_method'] == 'pd':
                 labels = seg_res['label_dict']
-                final_mask = pipeline.after_pd_conclusions(mask, labels, person['face'])
+                final_mask = pipeline.after_pd_conclusions(mask, labels, person['face']
             else:
                 labels = constants.ultimate_21_dict
                 final_mask = pipeline.after_nn_conclusions(mask, labels, person['face'])
@@ -292,3 +292,18 @@ def bulid_new_item(category, item_mask, collection, image, gender):
     fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod)
     item = {'similar_results': {collection: results}, 'category': category, 'fp': fp}
     return item
+  
+#-------------------------- TESTS ------------------------
+                                                           
+def test_add_item():
+    from trendi import edit_results
+    from trendi.constants import db
+    from trendi import page_results
+    import re
+    
+    im = "586b7ae5603c0b2d4c6ab3d6"
+    per = "586b7b47603c0b2d3e2af6e8"
+    cat = "dress"
+    pid = db.users.find_one({'email': re.compile(".*stylebook.*")})['pid']
+    coll = page_results.get_collection_from_ip_and_pid(None, pid)
+    add_item(im, per, cat, coll)
