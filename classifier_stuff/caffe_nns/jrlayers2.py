@@ -489,6 +489,8 @@ class JrMultilabel(caffe.Layer):
         self.regression = params.get('regression',False)
         self.scale = params.get('scale',False)
         self.save_visual_output = params.get('save_visual_output',False)
+        self.equalize_category_populations = params.get('equalize_categories',True)
+        self.max_category_index = params.get('max_category_index',True)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',20)
@@ -497,7 +499,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_max_noise_level = params.get('augment_max_noise_level',0)
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
-        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
+        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)x
         self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
@@ -544,7 +546,6 @@ class JrMultilabel(caffe.Layer):
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
    #         print('imgs:'+str(self.images_and_labels_list))
-            time.sleep(10)
             if self.images_and_labels_list is None or len(self.images_and_labels_list)==0:
                 print('COULD NOT FIND ANYTHING IN  IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT FIND ANYTHING IN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
@@ -555,6 +556,7 @@ class JrMultilabel(caffe.Layer):
     #build list of files
             good_img_files = []
             good_label_vecs = []
+            max_cat_index=0
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
@@ -570,6 +572,7 @@ class JrMultilabel(caffe.Layer):
                         logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
                         continue
                 label_vec = np.array(label_vec)
+                max_cat_index=np.max([max_cat_index,np.max(label_vec)]) #abandoning automatic calc of max cat index since also have to do it for lmdb
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
   #                  print('length 1 label')
@@ -631,6 +634,19 @@ class JrMultilabel(caffe.Layer):
 #                vals = y.split() #in the meantime lmdb cant handle multilabel
             self.n_labels = 1
             print('lmdb label {} length {} datashape {}'.format(y,self.n_labels,flat_x.shape))
+            #populate label_vecs to allow even distribution of examples
+            self.label_vecs = []
+            for dummy in range(self.n_files):
+                try:
+                    str_id = '{:08}'.format(dummy)
+                    raw_datum = self.txn.get(str_id.encode('ascii'))
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.ParseFromString(raw_datum)
+                    y = datum.label
+                    self.label_vecs.append(y)
+                except:
+                    print('error getting record {} from db'.format(dummy))
+                    break
 
         self.idx = 0
         # randomization: seed and pick
@@ -658,7 +674,23 @@ class JrMultilabel(caffe.Layer):
         print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
-
+        if self.equalize_category_populations == True:
+            self.category_population_percentages = [1.0/self.max_category_index for i in range(self.max_category_index+1)]
+        elif self.equalize_category_populations != False:
+            self.category_population_percentages = self.equalize_category_populations
+        #get examples into distinct lists one for each category
+        #self.label_vecs is the categories in ordered list by idx
+        #so convert that to several lists of idx's, one per category
+        if self.equalize_category_populations != False:
+            idx_per_cat = {}
+            for idx in range(self.n_files)
+                label = self.label_vecs[idx]
+                if not label in idx_per_cat:
+                    idx_per_cat[label]=[idx]
+                else:
+                    idx_per_cat[label].append(idx)
+            self.idx_per_cat_lengths = [len(idx_per_cat[k]) for k in idx_per_cat]
+            print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
 
     def reshape(self, bottom, top):
         pass
