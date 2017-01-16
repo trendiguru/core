@@ -683,7 +683,7 @@ class JrMultilabel(caffe.Layer):
         #so convert that to several lists of idx's, one per category
         if self.equalize_category_populations != False:
             idx_per_cat = {}
-            for idx in range(self.n_files)
+            for idx in range(self.n_files):
                 label = self.label_vecs[idx]
                 if not label in idx_per_cat:
                     idx_per_cat[label]=[idx]
