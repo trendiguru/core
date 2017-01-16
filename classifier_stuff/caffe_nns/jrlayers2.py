@@ -675,10 +675,6 @@ class JrMultilabel(caffe.Layer):
         print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
-        if self.equalize_category_populations == True:
-            self.category_population_percentages = [1.0/self.max_category_index for i in range(self.max_category_index+1)]
-        elif self.equalize_category_populations != False:
-            self.category_population_percentages = self.equalize_category_populations
         #get examples into distinct lists one for each category
         #self.label_vecs is the categories in ordered list by idx
         #so convert that to several lists of idx's, one per category
@@ -691,9 +687,18 @@ class JrMultilabel(caffe.Layer):
                 else:
                     self.idx_per_cat[label].append(idx)
             self.idx_per_cat_lengths = [len(self.idx_per_cat[k]) for k in self.idx_per_cat]
-            print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
-            print('pops:'+str(self.idx_per_cat))
             raw_input('ret to cont')
+            self.n_seen_per_category = np.zeros(self.max_category_index)
+            self.max_category_index = max([k for k in self.idx_per_cat])
+            print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
+            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
+
+            if self.equalize_category_populations == True:
+                self.category_population_percentages = [1.0/self.max_category_index for i in range(self.max_category_index+1)]
+            else:  #user explicitly gave list of desired percentages
+                self.category_population_percentages = self.equalize_category_populations
+            print('desired population percentages:'+str(self.category_population_percentages))
+            self.category_populations_seen = [0 for dummy in range(self.max_category_index)]
 
     def reshape(self, bottom, top):
         pass
@@ -766,6 +771,15 @@ class JrMultilabel(caffe.Layer):
         dt_tot = time.time() - self.analysis_time
         self.analysis_time=time.time()
         while(1):
+            if self.equalize_category_populations:
+                actual_fractions_seen = self.category_populations_seen/np.sum(self.category_populations_seen)
+                diff = self.category_population_percentages - actual_fractions_seen
+                worst_off = np.argmin(diff)
+                print('most distant {} diff {}'.format(worst_off,diff))
+                n_examples = len(self.idx_per_cat[worst_off])
+                self.idx = np.random.randint(0,n_examples)
+                raw_input('ret to cont')
+
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
  #           if self.images_dir:
