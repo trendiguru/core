@@ -700,7 +700,7 @@ class JrMultilabel(caffe.Layer):
                 self.category_population_percentages = self.equalize_category_populations
             print('desired population percentages:'+str(self.category_population_percentages))
             #populations = 1 is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
-            self.category_populations_seen = [1 for dummy in range(self.max_category_index)]
+            self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
 
     def reshape(self, bottom, top):
         pass
