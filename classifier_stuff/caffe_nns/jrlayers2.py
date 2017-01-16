@@ -792,7 +792,7 @@ class JrMultilabel(caffe.Layer):
             label_vec = self.label_vecs[self.idx]
  #           if self.images_dir:
  #               filename=os.path.join(self.images_dir,filename)
-            #print('the imagefile:'+filename+' index:'+str(idx))
+            print('the imagefile:'+filename+' label '+str(label_vec)+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename)+' ; trying next')
                 self.next_idx()   #bad file, goto next
