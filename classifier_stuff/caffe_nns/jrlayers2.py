@@ -736,7 +736,15 @@ class JrMultilabel(caffe.Layer):
 ##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
-        if self.random_pick:
+        if self.equalize_category_populations:
+            actual_fractions_seen = self.category_populations_seen/np.sum(self.category_populations_seen)
+            diff = self.category_population_percentages - actual_fractions_seen
+            self.worst_off = np.argmin(diff)
+            print('most distant {}\ndiff {}\npops {}'.format(self.worst_off,diff,self.category_populations_seen))
+            n_examples = len(self.idx_per_cat[self.worst_off])
+            self.idx = self.idx_pre_cat[self.worst_off][np.random.randint(0,n_examples)]
+            raw_input('idx: {} ret to cont'.format(self.idx))
+        elif self.random_pick:
 #            self.idx = random.randint(0, len(self.imagefiles)-1)
             self.idx = random.randint(0, self.n_files-1)
             logging.debug('next idx='+str(self.idx))
@@ -773,14 +781,6 @@ class JrMultilabel(caffe.Layer):
         dt_tot = time.time() - self.analysis_time
         self.analysis_time=time.time()
         while(1):
-            if self.equalize_category_populations:
-                actual_fractions_seen = self.category_populations_seen/np.sum(self.category_populations_seen)
-                diff = self.category_population_percentages - actual_fractions_seen
-                worst_off = np.argmin(diff)
-                print('most distant {} diff {}'.format(worst_off,diff))
-                n_examples = len(self.idx_per_cat[worst_off])
-                self.idx = np.random.randint(0,n_examples)
-                raw_input('ret to cont')
 
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
@@ -912,6 +912,9 @@ class JrMultilabel(caffe.Layer):
               ' tout '+str(round(dt_out,3))+
               ' ttot '+str(round(dt_tot,3)))
 
+        if self.equalize_category_populations:
+#            cat_of_image_seen = self.idx
+            self.category_populations_seen[self.worst_off]+=1
 
         return filename, out_, label_vec
 
