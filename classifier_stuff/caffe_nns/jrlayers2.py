@@ -664,14 +664,17 @@ class JrMultilabel(caffe.Layer):
         if self.augment_crop_size is not None and self.augment_images is True:
             top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
+            print('dba')
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
+            print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
+            print('dbc')
         print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
@@ -738,7 +741,8 @@ class JrMultilabel(caffe.Layer):
 
     def next_idx(self):
         if self.equalize_category_populations:
-            actual_fractions_seen = np.divide(self.category_populations_seen,np.sum(self.category_populations_seen))
+            actual_fractions_seen = np.divide([float(dummy) for dummy in self.category_populations_seen],
+                                              np.sum(self.category_populations_seen))
             diff = self.category_population_percentages - actual_fractions_seen
             self.worst_off = np.argmin(diff)
             print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
