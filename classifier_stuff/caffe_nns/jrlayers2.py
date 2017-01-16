@@ -656,10 +656,10 @@ class JrMultilabel(caffe.Layer):
             self.idx = random.randint(0, self.n_files-1)
 #        if self.random_pick:
 #            random.shuffle(self.images_and_labels_list)
-        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        print('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         spinner = spinning_cursor()
-        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        print('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         if self.augment_crop_size is not None and self.augment_images is True:
             top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
@@ -695,11 +695,11 @@ class JrMultilabel(caffe.Layer):
             print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
 
             if self.equalize_category_populations == True:
-                self.category_population_percentages = [1.0/self.max_category_index for i in range(self.max_category_index+1)]
+                self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
             print('desired population percentages:'+str(self.category_population_percentages))
-            #populations = 1 is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
+            #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
             self.worst_off = 0
 
@@ -741,7 +741,8 @@ class JrMultilabel(caffe.Layer):
             actual_fractions_seen = self.category_populations_seen/np.sum(self.category_populations_seen)
             diff = self.category_population_percentages - actual_fractions_seen
             self.worst_off = np.argmin(diff)
-            print('most distant {}\ndiff {}\npops {}'.format(self.worst_off,diff,self.category_populations_seen))
+            print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
+                                            actual_fractions_seen,self.category_populations_seen))
             n_examples = len(self.idx_per_cat[self.worst_off])
             self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
             raw_input('idx: {} ret to cont'.format(self.idx))
