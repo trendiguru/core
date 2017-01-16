@@ -522,6 +522,7 @@ class JrMultilabel(caffe.Layer):
         self.idx = 0
         self.images_processed = 0
         self.analysis_time = time.time()
+        self.analysis_time_out = time.time()
         self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
@@ -691,6 +692,7 @@ class JrMultilabel(caffe.Layer):
                     idx_per_cat[label].append(idx)
             self.idx_per_cat_lengths = [len(idx_per_cat[k]) for k in idx_per_cat]
             print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
+            print('pops:'+str(self.idx_per_cat))
             raw_input('ret to cont')
 
     def reshape(self, bottom, top):
@@ -747,10 +749,6 @@ class JrMultilabel(caffe.Layer):
         #print('forward end')
         self.counter += 1
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
-        dt = time.time() - self.analysis_time
-        dN = self.images_processed - self.previous_images_processed
-        print(str(self.counter)+' fwd passes, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
-        self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -765,6 +763,8 @@ class JrMultilabel(caffe.Layer):
         - transpose to channel x height x width order
         """
         #print('load_image_and_label start')
+        dt_tot = time.time() - self.analysis_time
+        self.analysis_time=time.time()
         while(1):
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
@@ -886,6 +886,17 @@ class JrMultilabel(caffe.Layer):
                 out_=out_/255.0
             else:
                 out_=out_/self.scale
+        dN = self.images_processed - self.previous_images_processed
+        dt_in = time.time()-self.analysis_time
+        dt_out = time.time()-self.analysis_time_out
+        self.analysis_time_out = time.time()
+        print(str(self.counter)+' fwd passes, '+str(self.images_processed)+
+              ' images processed, dN/dt='+str(round(float(dN)/dt_tot,3))+
+              ' tin '+str(round(dt_in,3))+
+              ' tout '+str(round(dt_out,3))+
+              ' ttot '+str(round(dt_tot,3)))
+
+
         return filename, out_, label_vec
 
     def load_image_and_label_from_lmdb(self,idx=None):
