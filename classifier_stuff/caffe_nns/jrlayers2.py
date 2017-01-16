@@ -743,7 +743,7 @@ class JrMultilabel(caffe.Layer):
         if self.equalize_category_populations:
             actual_fractions_seen = np.divide([float(dummy) for dummy in self.category_populations_seen],
                                               np.sum(self.category_populations_seen))
-            diff = self.category_population_percentages - actual_fractions_seen
+            diff = actual_fractions_seen - self.category_population_percentages
             self.worst_off = np.argmin(diff)
             print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
                                             actual_fractions_seen,self.category_populations_seen))
