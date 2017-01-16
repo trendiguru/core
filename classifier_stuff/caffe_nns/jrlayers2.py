@@ -683,14 +683,14 @@ class JrMultilabel(caffe.Layer):
         #self.label_vecs is the categories in ordered list by idx
         #so convert that to several lists of idx's, one per category
         if self.equalize_category_populations != False:
-            idx_per_cat = {}
+            self.idx_per_cat = {}
             for idx in range(self.n_files):
                 label = self.label_vecs[idx]
-                if not label in idx_per_cat:
-                    idx_per_cat[label]=[idx]
+                if not label in self.idx_per_cat:
+                    self.idx_per_cat[label]=[idx]
                 else:
-                    idx_per_cat[label].append(idx)
-            self.idx_per_cat_lengths = [len(idx_per_cat[k]) for k in idx_per_cat]
+                    self.idx_per_cat[label].append(idx)
+            self.idx_per_cat_lengths = [len(self.idx_per_cat[k]) for k in self.idx_per_cat]
             print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
             print('pops:'+str(self.idx_per_cat))
             raw_input('ret to cont')
