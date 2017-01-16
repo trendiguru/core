@@ -4,8 +4,8 @@ import sys
 from matplotlib import pyplot as plt
 
 def grabcut(img, rect):
-    # img = cv2.imread('messi5.jpg')
-    # img = cv2.imread(sys.argv[1])
+
+    img = cv2.imread(img)
 
     # rect = (50,50,450,290)
     # rect = sys.argv[2]
