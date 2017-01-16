@@ -3,11 +3,11 @@ import cv2
 import sys
 from matplotlib import pyplot as plt
 
-def grabcut(img, rect):
+def grabcut(img):
 
     img = cv2.imread(img)
 
-    # rect = (50,50,450,290)
+    rect = [5,5,8,7]
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2],np.uint8)
