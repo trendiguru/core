@@ -615,7 +615,7 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(1)
+            time.sleep(.1)
 
     #use lmdb
         elif self.lmdb is not None:
@@ -701,6 +701,7 @@ class JrMultilabel(caffe.Layer):
             print('desired population percentages:'+str(self.category_population_percentages))
             #populations = 1 is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
+            self.worst_off = 0
 
     def reshape(self, bottom, top):
         pass
