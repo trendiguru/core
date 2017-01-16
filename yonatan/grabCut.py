@@ -7,7 +7,7 @@ def grabcut(img):
 
     img = cv2.imread(img)
 
-    rect = [5,5,8,7]
+    rect = (5,5,8,7)
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2],np.uint8)
