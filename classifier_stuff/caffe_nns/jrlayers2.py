@@ -743,7 +743,7 @@ class JrMultilabel(caffe.Layer):
             self.worst_off = np.argmin(diff)
             print('most distant {}\ndiff {}\npops {}'.format(self.worst_off,diff,self.category_populations_seen))
             n_examples = len(self.idx_per_cat[self.worst_off])
-            self.idx = self.idx_pre_cat[self.worst_off][np.random.randint(0,n_examples)]
+            self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
             raw_input('idx: {} ret to cont'.format(self.idx))
         elif self.random_pick:
 #            self.idx = random.randint(0, len(self.imagefiles)-1)
