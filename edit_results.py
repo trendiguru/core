@@ -7,7 +7,6 @@ from . import Utils, pipeline, constants, find_similar_mongo
 from .page_results import genderize
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
-from .paperdoll import neurodoll_falcon_client as nd
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'image_urls': 1,
@@ -153,7 +152,7 @@ def add_item(image_id, person_id, category, collection):
         return False
     # NEURODOLL WITH CATEGORY
     labels = constants.ultimate_21_dict
-    seg_res = nd.pd(image, labels[category])
+    seg_res = neurodoll_falcon_client.pd(image, labels[category])
     if not seg_res['success']:
         return False
     item_mask = 255 * np.array(seg_res['mask'] > np.median(seg_res['mask']), dtype=np.uint8)
