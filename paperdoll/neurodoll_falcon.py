@@ -32,7 +32,7 @@ class PaperResource:
         category_index = req.get_param('categoryIndex')
         if category_index:
             print('got req for category index '+str(category_index))
-            category_index = category_index and int(category_index)
+            category_index = int(category_index)
 
         threshold = req.get_param('threshold')
         if threshold:
@@ -41,34 +41,25 @@ class PaperResource:
         get_multilabel_results = req.get_param('getMultilabelResults')
         if get_multilabel_results:
             print('got req for multi:'+str(get_multilabel_results))
-            get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
-        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
+            get_multilabel_results = get_multilabel_results in ["true", "True", True]
 
         get_combined_results = req.get_param('getCombinedResults')
-        if get_combined_results is not False:
+        if get_combined_results in ["true", "True", True]:
             print('got req for  combined:'+str(get_combined_results))
             get_combined_results = True
 
         get_layer_output = req.get_param('getLayerOutput')
         if get_layer_output:
             print('got req for layer output:'+str(get_layer_output))
-#        if get_layer_output == "true" or get_layer_output == "True" or get_layer_output == True:
-#            get_layer_output = 'myfc7'
 
         get_all_graylevels = req.get_param('getAllGrayLevels')
-        if get_all_graylevels == "true" or get_all_graylevels == "True" or get_all_graylevels == True:
+        if get_all_graylevels in ["true", "True", True]:
             print('got req for all graylevels:'+str(get_all_graylevels))
             get_all_graylevels = True
 
         get_category_graylevel = req.get_param('getCategoryGraylevel')
         if get_category_graylevel:
             print('got req for graylevel:'+str(get_category_graylevel))
-        #get_multilabel_results = get_multilabel_results == "true" or get_multilabel_results == "True" or get_multilabel_results == True
-        # get_multilabel_results = True if get_multilabel_results in ["true", "True", True] else False
-
-#        get_yolo_results = req.get_param('getYolo')
-#        print('get yolo:'+str(get_yolo_results))
-#        get_yolo_results = get_yolo_results == "true" or get_yolo_results == "True" or get_yolo_results == True
 
         ret = {"success": False}
 

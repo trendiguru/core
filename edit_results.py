@@ -7,7 +7,6 @@ from . import Utils, pipeline, constants, find_similar_mongo
 from .page_results import genderize
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
-from .paperdoll import neurodoll_falcon_client as nd
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'image_urls': 1,
@@ -153,7 +152,7 @@ def add_item(image_id, person_id, category, collection):
         return False
     # NEURODOLL WITH CATEGORY
     labels = constants.ultimate_21_dict
-    seg_res = nd.pd(image, labels[category])
+    seg_res = neurodoll_falcon_client.pd(image, labels[category])
     if not seg_res['success']:
         return False
     item_mask = 255 * np.array(seg_res['mask'] > np.median(seg_res['mask']), dtype=np.uint8)
@@ -293,3 +292,18 @@ def bulid_new_item(category, item_mask, collection, image, gender):
     fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod)
     item = {'similar_results': {collection: results}, 'category': category, 'fp': fp}
     return item
+  
+#-------------------------- TESTS ------------------------
+                                                           
+def test_add_item():
+    from trendi import edit_results
+    from trendi.constants import db
+    from trendi import page_results
+    import re
+    
+    im = "586b7ae5603c0b2d4c6ab3d6"
+    per = "586b7b47603c0b2d3e2af6e8"
+    cat = "dress"
+    pid = db.users.find_one({'email': re.compile(".*stylebook.*")})['pid']
+    coll = page_results.get_collection_from_ip_and_pid(None, pid)
+    add_item(im, per, cat, coll)
