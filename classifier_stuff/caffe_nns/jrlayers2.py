@@ -675,6 +675,7 @@ class JrMultilabel(caffe.Layer):
         print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
+        #EQUALIZE CATEGORY POPULATIONS STUFF
         #get examples into distinct lists one for each category
         #self.label_vecs is the categories in ordered list by idx
         #so convert that to several lists of idx's, one per category
@@ -698,7 +699,8 @@ class JrMultilabel(caffe.Layer):
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
             print('desired population percentages:'+str(self.category_population_percentages))
-            self.category_populations_seen = [0 for dummy in range(self.max_category_index)]
+            #populations = 1 is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
+            self.category_populations_seen = [1 for dummy in range(self.max_category_index)]
 
     def reshape(self, bottom, top):
         pass
