@@ -7,6 +7,7 @@ import logging
 import sys
 from shutil import copyfile
 import json
+import shutil
 
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
@@ -21,6 +22,7 @@ from trendi.features import config
 def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
     for tamara berg cats
+    todo - put in consistency check , ie make sure at least 2 votes for 'yes' and  0 votes for 'no' as in binary_pos_and_neg_from_multilabel_db
     :param image_dir:
     :param catsfile:
     :return:
@@ -174,6 +176,68 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
                     fp.write(line)
                 fp.close()
 
+def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
+                                           desired_cat='suit',desired_index=6):
+    '''
+    read multilabel db.
+    if n_votes[cat] >= 2, put that image in positives for cat
+    '''
+    db = constants.db
+    print('attempting db connection')
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs done')
+    catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
+    print('catsfile:'+catsfile)
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        url = document['url']
+        filename = os.path.basename(url)
+        full_path = os.path.join(image_dir,filename)
+        if not os.path.exists(full_path):
+            print('file '+full_path+' does not exist, skipping')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+#        print('items:'+str(items_list))
+        votes_for_item = 0
+        for item in items_list:
+            cat = item['category']
+            if cat==desired_cat:
+                votes_for_item+=1
+        n_items = 0
+        if votes_for_item>=2:
+            print('votes:'+str(votes_for_item))
+            n_items += 1
+            with open(catsfile,'a') as fp:
+                line = str(full_path) + '\t'+str(desired_index)+'\n'
+                print line
+                fp.write(line)
+                fp.close()
+        print('number of matches found:'+str(n_items))
+        return n_items
+
+def positives_from_tbdb_for_hydra_cats():
+    for type in constants.hydra_cats:
+        index = 0
+        for cat in type:
+            if cat is None:
+                index += 1
+                continue
+            print('doing cat {} index {}'.format(cat,index))
+            raw_input('ret to cont')
+            one_class_positives_from_multilabel_db(desired_cat=cat,desired_index=index)
+            index += 1
+
 def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
     '''
     read multilabel db.
@@ -302,7 +366,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
         outfile = os.path.join(dir,'labelfile.txt')
     with open(outfile,'a') as fp:
         for f in files:
-            line = f + ' '+str(class_number)
+            line = f + '\t'+str(class_number)
             print line
             fp.write(line+'\n')
             i+=1
@@ -334,27 +398,33 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         for line in negs:
             fp.write(line)
 
-def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=None,visual_output=False,randomize=False):
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
     '''
     file lines are of the form /path/to/file class_number
+    analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
     :param filename:
     :return:
     '''
-    if not n_cats:
-        n_cats = len(constants.web_tool_categories_v2)
-    n_instances = [0]*n_cats
+    n_instances = {}
     with open(filename,'r') as fp:
         lines = fp.readlines()
         for line in lines:
             path = line.split()[0]
             cat = int(line.split()[1])
-            n_instances[cat]+=1
+            if cat in n_instances:
+                n_instances[cat]+=1
+            else:
+                n_instances[cat] = 1
         fp.close()
 
     print('n_instances {}'.format(n_instances))
     if randomize:
         random.shuffle(lines)
+    if n_instances == {}:
+        return
     n = 0
+    cats_used = [k for k,v in n_instances.iteritems()]
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to get max
     n_encountered = [0]*n_cats
     if visual_output:
         for line in lines:
@@ -364,10 +434,85 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',n_cats=N
             cat = int(line.split()[1])
             n_encountered[cat]+=1
             print(str(n)+' images seen, totals:'+str(n_encountered))
-#            im = Image.open(path)
-#            im.show()
+    #            im = Image.open(path)
+    #            im.show()
             img_arr = cv2.imread(path)
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+                print('(d)elete (c)lose anything else keeps')
+                indir = os.path.dirname(path)
+                parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+                curdir = os.path.split(indir)[1]
+                print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+                if k == ord('d'):
+                    newdir = curdir+'_removed'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                elif k == ord('c'):
+                    newdir = curdir+'_needwork'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                else:
+                    newdir = curdir+'_kept'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
+    '''
+    better version at imutils.image_chooser
+    look at images in dir , remove at will
+    :param dir:
+    :param curate: move checked images to '_kept' dir and deleted to '_removed'
+    :return:
+    '''
+    files = [f for f in os.listdir(dir)]
+    n=1
+
+    for file in files:
+        print('file {} of {} {}'.format(n,len(files),file))
+        filepath = os.path.join(dir,file)
+        img_arr = cv2.imread(filepath)
+        if img_arr is None:
+            print('got no img for '+filepath)
+            continue
+ #       img_arr = imutils.resize_to_max_sidelength(img_arr, max_sidelength=1000,use_visual_output=False)
+        img_arr_resized = imutils.resize_keep_aspect(img_arr,output_size=(500,500),use_visual_output=False)
+        cv2.imshow('img',img_arr_resized)
+        k=cv2.waitKey(0)
+        if curate:  #move selected to dir_removed, move rest to dir_kept
+            print('(d)elete, anything else keeps')
+#            parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+#            curdir = os.path.split(indir)[1]
+#            print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+            if k == ord('d'):
+                newdir = 'removed'
+                dest_dir = os.path.join(dir,newdir)
+                print('REMOVING moving {}\nto {}'.format(filepath,dest_dir))
+                Utils.ensure_dir(dest_dir)
+                shutil.move(filepath,dest_dir)
+            else:
+                newdir = 'kept'
+                dest_dir = os.path.join(dir,newdir)
+                Utils.ensure_dir(dest_dir)
+                if add_jpg:
+                    file=file+'.jpg'
+                if remove_parens:
+                    newfile = file.replace('(','').replace(')','')
+                    dest_dir = os.path.join(dest_dir,newfile)
+                print('KEEPING moving {}\nto {}'.format(filepath,dest_dir))
+                shutil.move(filepath,dest_dir)
+
+
+        n = n + 1
+
 
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
@@ -533,7 +678,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
 
 def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
-    generate list of folders and corresponding categories from our list (map is using constants.deep_dashion_to_trendi_map)
+    generate list of deepfashion folders and corresponding categories from our list (map is using constants.deep_fashion_to_trendi_map)
     :param folderpath: folder of deep fashion folders
     :return: list of tuples [(dir1,cat1),(dir2,cat2),...]
     '''
@@ -690,9 +835,10 @@ def write_deepfashion_hydra_map_to_file():
     with open(mapfile,'w') as fp:
         json.dump(mapping,fp)
 
-def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/'):
+def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/labels/hydra'):
     '''
-    generate label file (line like: /path/to/file.jpg category ) using the deep fashion cats put into the hydra_cats lists
+    generate label file (lines like: /path/to/file.jpg class_no )
+    using the deep fashion cats (from folder names) put into the hydra_cats lists
     does not overwrite the label files so delete if necessary before running
     :param folderpath:
     :param labelfile_dir:
@@ -714,10 +860,11 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
     overall_populations = [[] for dummy in range(len(constants.hydra_cats))]
     for i in range(len(constants.hydra_cats)):   #iterate over category lists - whole_body, upper_cover etc
         catlist = constants.hydra_cats[i]
-        labelfile_name = constants.hydra_cat_listlabels[i]+'_labels.txt'
+        labelfile_name = os.path.join(labelfile_dir,constants.hydra_cat_listlabels[i]+'_positive_labels.txt')
         Utils.ensure_file(labelfile_name)
         positives=[[] for dummy in range(len(catlist))]  #keep these positives for use as negatives against other cats
         #this will take some thinking since the positives can contain multiple cats...maybe need the multilabel db
+        #just did this using the fully-labelled tamara-berg filipino images as I couldnt figure any other way to do it
         populations = [0 for dummy in range(len(catlist))] #
         print('doing categories in '+str(constants.hydra_cat_listlabels[i])+' cats:'+str(catlist))
         raw_input('ret to cont')
@@ -739,8 +886,8 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
                         positives[j].append(files)
                         for file in files:
                             file_path = os.path.join(full_path,file)
-                            fp.write(file_path+' '+str(cat_index))
-                            logging.debug('wrote "{} {}" for file {} cat {}\n'.format(file_path,cat_index,file,cat_index))  #add no-cr
+                            fp.write(file_path+'\t'+str(cat_index)+'\n')
+                            logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
                             populations[cat_index]+=1
                         #raw_input('ret to cont')
         overall_populations[i] = populations
@@ -748,7 +895,6 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
 
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
-
 
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
@@ -812,6 +958,118 @@ def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/dat
             raw_input('ret to cont')
         print('populations: {} '.format(populations))
 
+def negatives_for_hydra(web_prefix='https://tg-training.storage.googleapis.com',
+                        img_dir_prefix='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                        neg_dir='/data/jeremy/image_dbs/labels/hydra'):
+    '''
+    Create negatives for the hydra cats using the multilabelled images from tamara berg
+    (labels in constants.web_tool_categories_v2, data in db.training_images)
+    make one negatives file for each outer hydra cat
+    SPECIAL CASES
+    there are no 'undies' (bra/panties/babydolls) in the multilabelled data
+    negatives for those can just be everything in ml data
+    multilabel footwear - shouldnt be used as neg for the hydra footwear (boots/shoes/sandals)
+    multilabel top - dont use as neg for hydra 'shirt'
+    :return:
+    '''
+    toplevel_cats = constants.hydra_cats
+    db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs done')
+    #loop over docs in db
+    for doc_count in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        url = document['url']
+        full_path  = url.replace(web_prefix,img_dir_prefix)
+        full_path  = full_path.replace('tamara_berg_street2shop_dataset/images/','')
+
+
+        if not os.path.exists(full_path):
+            print('WARNING file '+full_path+' does not exist, but not skipping')
+            #continue
+        items_list = document['items']
+        if items_list is None:
+            print('no items in doc')
+            continue
+        logging.debug('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        #loop over items in doc
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+           # print('item:'+str(cat) +' votes:'+str(votelist[index]))
+
+        print('doc '+str(doc_count)+ ' votes:'+str(votelist))
+        nonzero_items={}
+        for dummy in range(len(votelist)):
+            if votelist[dummy]>0:
+                nonzero_items[constants.web_tool_categories_v2[dummy]]=votelist[dummy]
+        print('nonzero items:'+str(nonzero_items))
+        #loop over possible roles as negative
+        cats_i = 0
+        for cat_list in constants.hydra_cats:
+            logging.debug('trying catlist {}'.format(cat_list))
+            useful_as_negative = True
+            for cat in cat_list: #these are the  individual hydra cats
+                if cat in constants.web_tool_categories_v2:
+                    cat_index = constants.web_tool_categories_v2.index(cat)
+                    if votelist[cat_index]!=0:
+                        useful_as_negative = False
+                        print('not useful due to {} with {} votes'.format(cat,votelist[cat_index]))
+                        break
+                    else:
+                        logging.debug('possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+                else:
+                # special cases where multilabel tag doesnt match hydra tag
+                    #1. footwear
+                    logging.debug('did not find {} in web_tool_cats_v2'.format(cat))
+                    if cat in [ 'boots','shoes','sandals']:
+                        cat_index = constants.web_tool_categories_v2.index('footwear')
+                        if votelist[cat_index] != 0:
+                            useful_as_negative = False
+                            print('footwear:not useful due to footwear with {} votes'.format(votelist[cat_index]))
+                            break
+                        else:
+                            logging.debug('footwear:possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+                    #2 top
+                    elif cat in ['tee','button-down','blouse','polo','henley','tube','tank']:
+                        cat_index = constants.web_tool_categories_v2.index('top')
+                        if votelist[cat_index] != 0:
+                            useful_as_negative = False
+                            print('shirt:not useful due to top with {} votes'.format(votelist[cat_index]))
+                            break
+                        else:
+                            logging.debug('shirt:possibly useful even due to {} with {} votes'.format(cat,votelist[cat_index]))
+
+            if useful_as_negative:
+                print('useful as negative for '+str(cat_list))
+                filename = os.path.join(neg_dir,constants.hydra_cat_listlabels[cats_i]+'_negatives.txt')
+                with open(filename,'a') as fp:
+                    fp.write(full_path+'\t'+ str(0)+'\n')
+                    fp.close()
+         #       print('wrote {} to {}'.format(full_path+'\t'+str(0),filename))
+            else:
+                logging.debug('not useful as negative for '+str(cat_list))
+            cats_i += 1
+        #raw_input('ret to cont')
+
+
 
 
 if __name__ == "__main__": #
@@ -874,7 +1132,8 @@ if __name__ == "__main__": #
         inspect_pixlevel_textfile(dir+'images_and_labelsfile_test.txt')
 
 #    deepfashion_to_tg_hydra()
-    generate_deep_fashion_hydra_labelfiles()
+#    generate_deep_fashion_hydra_labelfiles()
+    negatives_for_hydra()
 
         #useful script - change all photos to photos_250x250
 #!/usr/bin/env bash

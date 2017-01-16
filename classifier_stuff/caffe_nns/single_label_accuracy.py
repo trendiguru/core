@@ -213,11 +213,15 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
     confmat = check_accuracy(net,n_classes, n_tests=n_tests,label_layer=label_layer,estimate_layer=estimate_layer)
     open_html(htmlname,testproto,caffemodel,netname=netname,classlabels=classlabels) #
     write_confmat_to_html(htmlname,confmat,classlabels=classlabels)
+    acc_list = []
     for i in range(n_classes):
         p,r,a = precision_recall_accuracy(confmat,i)
+        acc_list.append(a)
         write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
     close_html(htmlname)
-    return a
+    accs = np.array(acc_list)
+    mean_acc = np.mean(accs)
+    return mean_acc
 
 def precision_recall_accuracy(confmat,class_to_analyze):
     npconfmat = np.array(confmat)
@@ -361,7 +365,6 @@ def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_t
         if netname is not None:
             g.write('netname:'+netname+'\n<br>')
         g.close()
-
 
 def write_confmat_to_html(htmlname,confmat,classlabels):
     with open(htmlname,'a') as g:

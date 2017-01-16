@@ -276,6 +276,7 @@ tamara_berg_improved_categories = ['background','belt','dress','eyewear','footwe
 tamara_berg_categories = ['bag', 'belt', 'dress', 'eyewear', 'footwear', 'hat', 'legging', 'outerwear', 'pants','skirts',
                           'top', 'skin', 'background']   # orig t.b. cats don't have skin or bg
 
+#These are the currently used cats for the multilabelled images from the tamara berg db.
 #removed blazer and added 'overalls','sweatshirt', 'bracelet','necklace','earrings','watch',
 #25 cats
 web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
@@ -479,8 +480,8 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
 hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
-              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
-             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel
+              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              [None,'coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
              [None,'cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
              [None,'tee','button-down','blouse','polo','henley','tube','tank'], #upper under - tops - button is buttons all the way down but not a blouse
@@ -488,10 +489,24 @@ hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjam
              [None,'shorts','skirt'], #lower_cover_short
              [None,'shawl','scarf'], #wraps
              [None,'boots','shoes','sandals'],  #footwear
-             [None,'bag'],[None,'belt'],[None,'sarong']] #extra stuff
+             [None,'bag'],   #extra stuff
+             [None,'belt'],   #extra stuff
+             [None,'sarong']]  #extra stuff
+        #     [None,'relevant_image'], #has clothing and isnt cropped too badly
+        #      [None,'full_body']] #has most of a person
+
+
+#in web_tool_categories_v2 but not in hydra_cats:
+#['eyewear', 'footwear', 'hat','top','bracelet','necklace','earrings','watch' ]
+
+#web_tool_categories_v2 = ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
+#                     'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
+#                    'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
 hydra_cat_listlabels = ['whole_body','undies','upper_cover','upper_middle','upper_under','lower_long','lower_short','wraps',
                         'footwear','bag','belt','sarong']
+
+
 
 pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
@@ -506,8 +521,6 @@ pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
 #all their images are in folders with at least one of those 50 cats
-#things missing from this list are same in our system namely:
-#blazer, blouse ,button-down, cardigan,henley, jacket,poncho, sweater, tank, tee, jeans, sarong, shorts,skirt,dress, jumpsuit,robe.,coat
 #button-down is not a cat but listed in their list of cats (dress or blouse or shirt always appears w. button-down)
 #halter also appears always w. a real cat like dress or top so no translation
 #flannel is generally a shirt unless it appears with 'skirt' or 'dress' so watch out for that one
@@ -547,6 +560,7 @@ caffe_relevant_strings = ['hoopskirt', 'jean', 'blue_jean', 'denim', 'jersey', '
 
 # these are the fashionista db cats in order , e.g. the mask will have 1 for null (bkgnd) and 56 for skin
 #the first '' value is to keep mask=1 -> null, mask=2->tights etc
+#these were originally pixel level labels.
 fashionista_categories = ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt',
                           'purse','boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans',
                           'leggings','scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks',
