@@ -499,7 +499,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_max_noise_level = params.get('augment_max_noise_level',0)
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
-        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)x
+        self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
         self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
@@ -691,6 +691,7 @@ class JrMultilabel(caffe.Layer):
                     idx_per_cat[label].append(idx)
             self.idx_per_cat_lengths = [len(idx_per_cat[k]) for k in idx_per_cat]
             print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
+            raw_input('ret to cont')
 
     def reshape(self, bottom, top):
         pass
