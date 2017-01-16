@@ -691,7 +691,7 @@ class JrMultilabel(caffe.Layer):
                 else:
                     self.idx_per_cat[label].append(idx)
             self.idx_per_cat_lengths = [len(self.idx_per_cat[k]) for k in self.idx_per_cat]
-            raw_input('ret to cont')
+#            raw_input('ret to cont')
             self.n_seen_per_category = np.zeros(self.max_category_index)
             self.max_category_index = max([k for k in self.idx_per_cat])
             print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
@@ -745,11 +745,12 @@ class JrMultilabel(caffe.Layer):
                                               np.sum(self.category_populations_seen))
             diff = actual_fractions_seen - self.category_population_percentages
             self.worst_off = np.argmin(diff)
-            print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
-                                            actual_fractions_seen,self.category_populations_seen))
+            #print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
+            #                                actual_fractions_seen,self.category_populations_seen))
+            print('populations seen: {}'.format(self.category_populations_seen))
             n_examples = len(self.idx_per_cat[self.worst_off])
             self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
-            raw_input('idx: {} ret to cont'.format(self.idx))
+            #raw_input('idx: {} ret to cont'.format(self.idx))
         elif self.random_pick:
 #            self.idx = random.randint(0, len(self.imagefiles)-1)
             self.idx = random.randint(0, self.n_files-1)
