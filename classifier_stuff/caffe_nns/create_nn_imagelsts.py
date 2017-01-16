@@ -467,6 +467,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
 
 def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
     '''
+    better version at imutils.image_chooser
     look at images in dir , remove at will
     :param dir:
     :param curate: move checked images to '_kept' dir and deleted to '_removed'
@@ -482,8 +483,9 @@ def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
         if img_arr is None:
             print('got no img for '+filepath)
             continue
-        img_arr = imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=False)
-        cv2.imshow('img',img_arr)
+ #       img_arr = imutils.resize_to_max_sidelength(img_arr, max_sidelength=1000,use_visual_output=False)
+        img_arr_resized = imutils.resize_keep_aspect(img_arr,output_size=(500,500),use_visual_output=False)
+        cv2.imshow('img',img_arr_resized)
         k=cv2.waitKey(0)
         if curate:  #move selected to dir_removed, move rest to dir_kept
             print('(d)elete, anything else keeps')

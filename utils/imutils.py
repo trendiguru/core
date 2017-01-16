@@ -8,6 +8,7 @@ import cv2
 import hashlib
 import shutil
 import logging
+import time
 logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
 # So this file can be imported on servers where joblib is not installed
@@ -89,7 +90,8 @@ def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,
         Utils.ensure_dir(multiple_dir)
         image_chooser(actual_source,actual_dest,removed_dir=removed_dir,relabel_dir=relabel_dir,multiple_dir=multiple_dir)
 
-def image_chooser(source_dir,dest_dir,removed_dir=None,relabel_dir=None,multiple_dir=None):
+def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,multiple_dir=None,ensure_jpg_suffix=True,remove_parens=True):
+
     print('starting image chooser source {} dest {}'.format(source_dir,dest_dir))
     if removed_dir is None:
         removed_dir = os.path.join(source_dir,'removed')
@@ -97,6 +99,8 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,relabel_dir=None,multiple
         relabel_dir = os.path.join(source_dir,'mislabelled')
     if multiple_dir is None:
         multiple_dir = os.path.join(source_dir,'multiple_items')
+    if dest_dir is None:
+        dest_dir = os.path.join(source_dir,'kept')
     Utils.ensure_dir(removed_dir)
     Utils.ensure_dir(multiple_dir)
     Utils.ensure_dir(relabel_dir)
@@ -108,71 +112,89 @@ def image_chooser(source_dir,dest_dir,removed_dir=None,relabel_dir=None,multiple
         print('no files in '+source_dir)
         return
     i = -1
+    elapsed_time=0
+    tpi = 1
+    alpha = 0.9
+    time_done=time.time()
     while i < n-1 : #to allow undo need to manipulate index which doesnt work with iterator
         i = i + 1
         a_file = only_files[i]
         fullname = os.path.join(source_dir,a_file)
+        if ensure_jpg_suffix:
+            if a_file[-4:]!='.jpg':
+                a_file=a_file+'.jpg'
+        if remove_parens:
+            a_file = a_file.replace('(','').replace(')','')
+
         img_arr = cv2.imread(fullname)
-        if img_arr is not None:
-            shape = img_arr.shape
-            resized = img_arr
-            h,w = img_arr.shape[0:2]
-            if h>200:
-                resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
-                print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
-            print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+')')
-            print('(q)uit (d)elete (k)eep (r)elabel (m)ultiple items (u)ndo')
-            cv2.imshow('img',resized)
-            while(1):
+
+        if img_arr is  None:
+            print('trouble gettting image '+fullname)
+            continue
+        shape = img_arr.shape
+#            resized = img_arr
+        resized = resize_keep_aspect(img_arr,output_size=(500,500))
+        h,w = img_arr.shape[0:2]
+##            if h>200:
+#               resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
+#               print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
+        print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+')')
+        print('(q)uit (d)elete (k)eep (r)elabel (m)ultiple items (u)ndo tpi {}'.format(tpi))
+        winname = a_file
+        cv2.imshow(winname,resized)
+
+        while(1):
+            k = cv2.waitKey(0)
+
+                # q to stop
+            if k==ord('q'):
+                print('quitting')
+                sys.exit('quitting since you pressed q')
+            elif k==ord('d'):  # normally -1 returned,so don't print it
+#                print('removing '+a_file+' to '+removed_dir)
+                dest_fullname = os.path.join(removed_dir,a_file)
+                print('removing {}\nto {} '.format(fullname,dest_fullname))
+                shutil.move(fullname, dest_fullname)
+                prev_moved_to = dest_fullname
+                prev_moved_from = fullname
+                break
+            elif k== ord('k'):
+#                print('keeping '+a_file+' in '+dest_dir)
+                dest_fullname = os.path.join(dest_dir,a_file)
+                print('keeping {}\nto {} '.format(fullname,dest_fullname))
+                shutil.move(fullname, dest_fullname)
+                prev_moved_to = dest_fullname
+                prev_moved_from = fullname
+                break
+            elif k== ord('r'):
+                dest_fullname = os.path.join(relabel_dir,a_file)
+                print('relabelling {}\nto {} '.format(fullname,dest_fullname))
+                shutil.move(fullname, dest_fullname)
+                prev_moved_to = dest_fullname
+                prev_moved_from = fullname
+                break
+            elif k== ord('m'):
+#                print('reprocessing '+a_file+' in '+reprocess_dir)
+                dest_fullname = os.path.join(multiple_dir,a_file)
+                print('multiple, moving {}\nto {} '.format(fullname,dest_fullname))
+                shutil.move(fullname, dest_fullname)
+                prev_moved_to = dest_fullname
+                prev_moved_from = fullname
+                break
+            elif k== ord('u'):
+#                print('reprocessing '+a_file+' in '+reprocess_dir)
+                print('undo')
+                shutil.move(prev_moved_to,prev_moved_from)
+                i = i - 2
+                break
+            else:
                 k = cv2.waitKey(0)
-                    # q to stop
-                if k==ord('q'):
-                    print('quitting')
-                    sys.exit('quitting since you pressed q')
-                elif k==ord('d'):  # normally -1 returned,so don't print it
-    #                print('removing '+a_file+' to '+removed_dir)
-                    print('removing to '+str(removed_dir))
-                    dest_fullname = os.path.join(removed_dir,a_file)
-                    shutil.move(fullname, dest_fullname)
-                    prev_moved_to = dest_fullname
-                    prev_moved_from = fullname
-                    break
-                elif k== ord('k'):
-    #                print('keeping '+a_file+' in '+dest_dir)
-                    print('keeping in '+str(dest_dir))
-                    dest_fullname = os.path.join(dest_dir,a_file)
-                    shutil.move(fullname, dest_fullname)
-                    prev_moved_to = dest_fullname
-                    prev_moved_from = fullname
-                    break
-                elif k== ord('r'):
-    #                print('reprocessing '+a_file+' in '+reprocess_dir)
-                    print('relabel-moving to '+str(relabel_dir))
-                    dest_fullname = os.path.join(relabel_dir,a_file)
-                    shutil.move(fullname, dest_fullname)
-                    prev_moved_to = dest_fullname
-                    prev_moved_from = fullname
-                    break
-                elif k== ord('m'):
-    #                print('reprocessing '+a_file+' in '+reprocess_dir)
-                    print('multiple items-moving to '+str(multiple_dir))
-                    dest_fullname = os.path.join(multiple_dir,a_file)
-                    shutil.move(fullname, dest_fullname)
-                    prev_moved_to = dest_fullname
-                    prev_moved_from = fullname
-                    break
-                elif k== ord('u'):
-    #                print('reprocessing '+a_file+' in '+reprocess_dir)
-                    print('undo')
-                    shutil.move(prev_moved_to,prev_moved_from)
-                    i = i - 2
-                    break
-                else:
-                    k = cv2.waitKey(0)
-                    print('unident key')
-                    #add 'back' option
-        else:
-            print('trouble opening image '+str(fullname))
+                print('unident key')
+                #add 'back' option
+        elapsed_time = time.time()-time_done
+        tpi = alpha*tpi+(1-alpha)*elapsed_time
+        time_done=time.time()
+        cv2.destroyWindow(winname)
 
 def image_stats_from_dir(dirname):
     only_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
@@ -298,19 +320,22 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
     '''
     h,w,c = img_arr.shape
     if h>w:
-        if h>max_sidelength:
-            new_h = max_sidelength
-            new_w = int(w*float(max_sidelength)/h)
-            img_arr=cv2.resize(img_arr,(new_w,new_h))
-        else:  #longest side is still under limit , show orig without resize
-            pass
+        #if h>max_sidelength:
+
+        new_h = max_sidelength
+        new_w = int(w*float(max_sidelength)/h)
+        img_arr=cv2.resize(img_arr,(new_w,new_h))
+        print('h '+img_arr.shape)
+       # else:  #longest side is still under limit , show orig without resize
+       #     pass
     else:
-        if w>max_sidelength:
-            new_w = max_sidelength
-            new_h = int(h*float(max_sidelength)/w)
-            img_arr=cv2.resize(img_arr,(new_w,new_h))
-        else:  #longest side is still under limit , show orig without resize
-            pass
+     #   if w>max_sidelength:
+        new_w = max_sidelength
+        new_h = int(h*float(max_sidelength)/w)
+        img_arr=cv2.resize(img_arr,(new_w,new_h))
+        print('w '+img_arr.shape)
+     #   else:  #longest side is still under limit , show orig without resize
+     #       pass
     if (use_visual_output):
         cv2.imshow('image',img_arr)
         cv2.waitKey(0)
@@ -1273,6 +1298,8 @@ if __name__ == "__main__":
         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
  #   kill_the_missing(sourcedir, targetdir)
+
+    image_chooser('/data/jeremy/image_dbs/tg/google/pijamas - Google Search_files')
 
     output_file = 'resized.jpg'
     img_arr = cv2.imread(infile)

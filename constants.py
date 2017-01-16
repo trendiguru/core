@@ -480,8 +480,8 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
 hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
-              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body
-             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel
+              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              [None,'coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
              [None,'cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
              [None,'tee','button-down','blouse','polo','henley','tube','tank'], #upper under - tops - button is buttons all the way down but not a blouse
