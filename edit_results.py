@@ -268,7 +268,7 @@ def build_new_person(image, face, products_collection, method):
             mask = seg_res['mask']
             if person['segmentation_method'] == 'pd':
                 labels = seg_res['label_dict']
-                final_mask = pipeline.after_pd_conclusions(mask, labels, person['face']
+                final_mask = pipeline.after_pd_conclusions(mask, labels, person['face'])
             else:
                 labels = constants.ultimate_21_dict
                 final_mask = pipeline.after_nn_conclusions(mask, labels, person['face'])
