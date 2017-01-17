@@ -694,8 +694,8 @@ class JrMultilabel(caffe.Layer):
 #            raw_input('ret to cont')
             self.n_seen_per_category = np.zeros(self.max_category_index)
             self.max_category_index = max([k for k in self.idx_per_cat])
-            print('idx-per_cat lengths:'+str(self.idx_per_cat_lengths))
-            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
+            print('image populations per category:'+str(self.idx_per_cat_lengths))
+#            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
 
             if self.equalize_category_populations == True:
                 self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
@@ -705,6 +705,9 @@ class JrMultilabel(caffe.Layer):
             #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
             self.worst_off = 0
+
+        self.start_time=time.time()
+
 
     def reshape(self, bottom, top):
         pass
@@ -732,6 +735,8 @@ class JrMultilabel(caffe.Layer):
             self.label = all_labels
             self.previous_images_processed = self.images_processed
             self.images_processed += self.batch_size
+
+
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -912,9 +917,10 @@ class JrMultilabel(caffe.Layer):
         dN = self.images_processed - self.previous_images_processed
         dt_in = time.time()-self.analysis_time
         dt_out = time.time()-self.analysis_time_out
+        total_elapsed_time = time.time() - self.start_time
         self.analysis_time_out = time.time()
         print(str(self.counter)+' fwd passes, '+str(self.images_processed)+
-              ' images processed, dN/dt='+str(round(float(dN)/dt_tot,3))+
+              ' images processed, dN/dt='+str(round(float(self.images_processed)/total_elapsed_time,3))+
               ' tin '+str(round(dt_in,3))+
               ' tout '+str(round(dt_out,3))+
               ' ttot '+str(round(dt_tot,3)))
