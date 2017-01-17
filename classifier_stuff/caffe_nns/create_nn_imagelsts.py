@@ -920,7 +920,7 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
         for dc in dirs_and_cats:
             if dc[1] == cat:
                 print('dir,cat:')+str(dc)
-                full_path = os.path.join(folderpath,dir)
+                full_path = os.path.join(folderpath,dc[0])
                 files = os.listdir(full_path)
                 for file in files:
                     file_path = os.path.join(full_path,file)
