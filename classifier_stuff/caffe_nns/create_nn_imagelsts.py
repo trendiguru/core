@@ -917,7 +917,7 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
         labelfile_name = cat+'_positives.txt'
     print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name+' folderpath '+folderpath)
     Utils.ensure_file(labelfile_name)
-    with open(labelfile_name,'wa') as fp:
+    with open(labelfile_name,'a') as fp:
         for dc in dirs_and_cats:
             if dc[1] == cat:
                 print('dir,cat:')+str(dc)
