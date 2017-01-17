@@ -9,7 +9,7 @@ from shutil import copyfile
 import json
 import shutil
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 
 from trendi import constants
@@ -927,7 +927,7 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
                     fp.write(file_path+'\t'+str(cat_index)+'\n')
                     logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
                     pops+=1
-                    raw_input('ret to cont')
+                raw_input('ret to cont')
         print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
 
 
