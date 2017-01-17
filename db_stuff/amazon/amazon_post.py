@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from time import sleep, time
-
+from tqdm import tqdm
 from ..general.db_utils import log2file, print_error, thearchivedoorman, progress_bar, refresh_similar_results
 from rq import Queue
 import pymongo
@@ -153,9 +153,9 @@ def update_plus_size_collection(gender, categories, cc='US', skip_refresh=False)
     amazon = db[amazon_name].find(no_cursor_timeout=True)
     amazon_total = amazon.count()
     inserted = 0
-    for x, item in enumerate(amazon):
-        if x % 100 == 0:
-            print('%d/%d' % (x, amazon_total))
+    for item in tqdm(amazon):
+        # if x % 100 == 0:
+        #     print('%d/%d' % (x, amazon_total))
         idx = item['id']
         # check if already exists in plus collection
         exists = amaze.count({'id': idx})
