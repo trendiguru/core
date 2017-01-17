@@ -290,7 +290,9 @@ def build_new_person(image, face, products_collection, method):
 
 
 def build_new_item(category, item_mask, collections, image, gender):
-    collections = [collections] if isinstance(collections, basestring)
+    if isinstance(collections, basestring):
+        collections = [collections]
+      
     item = {'similar_results': {}, 'category': category}
     fp = None
     for collection in collections:
