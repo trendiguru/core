@@ -341,22 +341,48 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
         cv2.waitKey(0)
     return img_arr
 
-def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',careful_with_the_labels=False):
-    files = [ f for f in os.listdir(dir) if filefilter in f]
+def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',
+                           careful_with_the_labels=False,recursive=False):
+    '''
+    you can avoid use of filter by specifying filefilter=''
+    :param dir:
+    :param outdir:
+    :param overwrite:
+    :param output_size:
+    :param use_visual_output:
+    :param filefilter:
+    :param careful_with_the_labels:
+    :param recursive:
+    :return:
+    '''
+    if recursive:
+        allfiles = []
+        for root,dirs,files in os.walk(dir):
+            path = root.split(os.sep)
+#            print('root {}\ndirs {} '.format(root,dirs))
+            allfiles = allfiles + [os.path.join(root,f) for f in files if filefilter in f]
+ #       raw_input('ret to cont')
+        files = allfiles
+    else:
+        files = [ os.path.join(dir,f) for f in os.listdir(dir) if filefilter in f]
     print(str(len(files))+' files in '+dir)
     for file in files:
-        fullname = os.path.join(dir,file)
+#        fullname = os.path.join(dir,file)
         if overwrite:
-            newname = fullname
+            newname = file
         else:
+            filebase = os.path.basename(file)
+            basedir = os.path.dirname(file)
+#            print('file {}\nbase {}\nalone {}'.format(file,basedir,filebase))
             if outdir:
                 Utils.ensure_dir(outdir)
-                newname = os.path.join(outdir,file)
+                newname = os.path.join(outdir,filebase)
             else:
-                newname = file.split(filefilter)[0]+'_resized'+filefilter
-                newname = os.path.join(dir,newname)
-        print('infile:{} desired size:{} outfile {}'.format(fullname,output_size,newname))
-        resize_keep_aspect(fullname, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
+                newname = filebase.split(filefilter)[0]+'_'+str(output_size[0])+'x'+str(output_size[1])+filefilter
+                newname = os.path.join(basedir,newname)
+        print('infile:{}\ndesired size:{}\noutfile {}'.format(file,output_size,newname))
+#        raw_input('ret to cont')
+        resize_keep_aspect(file, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
 
 def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False, copy_edge_pixeles=False):
     '''
