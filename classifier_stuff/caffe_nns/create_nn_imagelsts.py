@@ -901,7 +901,7 @@ def deep_fashion_multiple_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fas
     for cat,ind in zip(cats,cat_indices):
         deep_fashion_single_cat_labels(folderpath=folderpath,labelfile_name=labelfile_name,cat=cat,cat_index=ind)
 
-def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_name='/data/jeremy/image_dbs/labels/hydra/dress',cat='dress',cat_index=1):
+def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_name='/data/jeremy/image_dbs/labels/hydra/dress',cat='dress',cat_index=1,lookfor='250x250'):
     '''
     generate label file (lines like: /path/to/file.jpg class_no )
     using given cat (from folder names) put into desired cat_index
@@ -922,6 +922,7 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
                 print('dir,cat:')+str(dc)
                 full_path = os.path.join(folderpath,dc[0])
                 files = os.listdir(full_path)
+                files = [f for f in files if lookfor in f]
                 for file in files:
                     file_path = os.path.join(full_path,file)
                     fp.write(file_path+'\t'+str(cat_index)+'\n')
