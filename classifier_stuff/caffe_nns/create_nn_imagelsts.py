@@ -896,7 +896,8 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
 
-def deep_fashion_multiple_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_name='/data/jeremy/image_dbs/labels/hydra/skirt_v_dress_df.txt',cats=['skirt','dress'],cat_indices=[0,1]):
+def deep_fashion_multiple_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',
+                                     labelfile_name='/data/jeremy/image_dbs/labels/hydra/skirt_v_dress_df.txt',cats=['skirt','dress'],cat_indices=[0,1]):
     for cat,ind in zip(cats,cat_indices):
         deep_fashion_single_cat_labels(folderpath=folderpath,labelfile_name=labelfile_name,cat=cat,cat_index=ind)
 
@@ -913,7 +914,7 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
     pops = 0
     if labelfile_name is None:
         labelfile_name = cat+'_positives.txt'
-    print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name)
+    print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name+' folderpath '+folderpath)
     Utils.ensure_file(labelfile_name)
     with open(labelfile_name,'wa') as fp:
         for dc in dirs_and_cats:
