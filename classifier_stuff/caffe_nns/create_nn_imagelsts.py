@@ -896,6 +896,41 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
 
+def deep_fashion_multiple_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/labels/hydra',cat='dress',cat_index=1):
+
+
+def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_dir='/data/jeremy/image_dbs/labels/hydra',labelfile_name=None,cat='dress',cat_index=1):
+    '''
+    generate label file (lines like: /path/to/file.jpg class_no )
+    using given cat (from folder names) put into desired cat_index
+    does not overwrite the label files so delete if necessary before running
+    :param folderpath:
+    :param labelfile_dir:
+    :return:
+    '''
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    pops = 0
+    print('len dirs_and_cats:'+str(len(dirs_and_cats)))
+    if labelfile_name is None:
+        labelfile_name = cat+'_positives.txt'
+    full_labelfile = os.path.join(labelfile_dir,labelfile_name)
+    print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name)
+    Utils.ensure_file(full_labelfile)
+    with open(full_labelfile,'wa') as fp:
+    for dc in dirs_and_cats:
+        if dc[1] == cat:
+            print('dir,cat:')+str(dc)
+            full_path = os.path.join(folderpath,dir)
+            files = os.listdir(full_path)
+            for file in files:
+                file_path = os.path.join(full_path,file)
+                fp.write(file_path+'\t'+str(cat_index)+'\n')
+                logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
+                pops+=1
+                raw_input('ret to cont')
+        print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
+
+
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
     copy dirs from deep fashion into yonatan's training dirs
