@@ -7,7 +7,6 @@ from . import Utils, pipeline, constants, find_similar_mongo
 from .page_results import genderize
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
-from .paperdoll import neurodoll_falcon_client as nd
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'image_urls': 1,
@@ -153,13 +152,15 @@ def add_item(image_id, person_id, category, collection):
         return False
     # NEURODOLL WITH CATEGORY
     labels = constants.ultimate_21_dict
-    seg_res = nd.pd(image, labels[category])
+    seg_res = neurodoll_falcon_client.pd(image, labels[category])
     if not seg_res['success']:
         return False
     item_mask = 255 * np.array(seg_res['mask'] > np.median(seg_res['mask']), dtype=np.uint8)
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
-    new_item = bulid_new_item(category, item_mask, collection, image, person['gender'])
+    # Assume this person has at least one item...
+    collections = person["items"][0]["similar_results"].keys()
+    new_item = build_new_item(category, item_mask, collections, image, person['gender'])
     # UPDATE THE DB DOCUMENT
     res = db.images.update_one({'people._id': person_id}, {'$push': {'people.$.items': new_item}})
     return bool(res.modified_count)
@@ -284,12 +285,36 @@ def build_new_person(image, face, products_collection, method):
                     category = constants.paperdoll_paperdoll_men[pd_category]
                 else:
                     category = pd_category
-                person['items'].append(bulid_new_item(category, item_mask, products_collection, image, person['gender']))
+                person['items'].append(build_new_item(category, item_mask, products_collection, image, person['gender']))
         return person
 
 
-def bulid_new_item(category, item_mask, collection, image, gender):
-    prod = collection + '_' + gender
-    fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod)
-    item = {'similar_results': {collection: results}, 'category': category, 'fp': fp}
+def build_new_item(category, item_mask, collections, image, gender):
+    if isinstance(collections, basestring):
+        collections = [collections]
+      
+    item = {'similar_results': {}, 'category': category}
+    fp = None
+    for collection in collections:
+        prod = collection + '_' + gender
+        # fp is initially none, so find_top_n calculates it, then next time when it has a value, it gets used.
+        fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod, fingerprint=fp)
+        item["similar_results"][collections] = results
+        item["fp"] = fp
+    
     return item
+  
+#-------------------------- TESTS ------------------------
+                                                           
+def test_add_item():
+    from trendi import edit_results
+    from trendi.constants import db
+    from trendi import page_results
+    import re
+    
+    im = "586b7ae5603c0b2d4c6ab3d6"
+    per = "586b7b47603c0b2d3e2af6e8"
+    cat = "dress"
+    pid = db.users.find_one({'email': re.compile(".*stylebook.*")})['pid']
+    coll = page_results.get_collection_from_ip_and_pid(None, pid)
+    add_item(im, per, cat, coll)

@@ -489,6 +489,8 @@ class JrMultilabel(caffe.Layer):
         self.regression = params.get('regression',False)
         self.scale = params.get('scale',False)
         self.save_visual_output = params.get('save_visual_output',False)
+        self.equalize_category_populations = params.get('equalize_categories',True)
+        self.max_category_index = params.get('max_category_index',True)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
         self.augment_max_offset_x = params.get('augment_max_offset_x',20)
@@ -520,6 +522,7 @@ class JrMultilabel(caffe.Layer):
         self.idx = 0
         self.images_processed = 0
         self.analysis_time = time.time()
+        self.analysis_time_out = time.time()
         self.previous_images_processed=0
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
@@ -544,7 +547,6 @@ class JrMultilabel(caffe.Layer):
                 return
             self.images_and_labels_list = open(self.images_and_labels_file, 'r').read().splitlines()
    #         print('imgs:'+str(self.images_and_labels_list))
-            time.sleep(10)
             if self.images_and_labels_list is None or len(self.images_and_labels_list)==0:
                 print('COULD NOT FIND ANYTHING IN  IMAGES/LABELS FILE '+str(self.images_and_labels_file))
                 logging.debug('COULD NOT FIND ANYTHING IN IMAGES/LABELS FILE '+str(self.images_and_labels_file))
@@ -555,6 +557,7 @@ class JrMultilabel(caffe.Layer):
     #build list of files
             good_img_files = []
             good_label_vecs = []
+            max_cat_index=0
             for line in self.images_and_labels_list:
                 imgfilename = line.split()[0]
                 vals = line.split()[1:]
@@ -570,6 +573,7 @@ class JrMultilabel(caffe.Layer):
                         logging.debug('error:'+str(sys.exc_info()[0])+' , skipping line')
                         continue
                 label_vec = np.array(label_vec)
+                max_cat_index=np.max([max_cat_index,np.max(label_vec)]) #abandoning automatic calc of max cat index since also have to do it for lmdb
                 self.n_labels = len(label_vec)
                 if self.n_labels == 1:
   #                  print('length 1 label')
@@ -611,7 +615,7 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(1)
+            time.sleep(.1)
 
     #use lmdb
         elif self.lmdb is not None:
@@ -631,6 +635,19 @@ class JrMultilabel(caffe.Layer):
 #                vals = y.split() #in the meantime lmdb cant handle multilabel
             self.n_labels = 1
             print('lmdb label {} length {} datashape {}'.format(y,self.n_labels,flat_x.shape))
+            #populate label_vecs to allow even distribution of examples
+            self.label_vecs = []
+            for dummy in range(self.n_files):
+                try:
+                    str_id = '{:08}'.format(dummy)
+                    raw_datum = self.txn.get(str_id.encode('ascii'))
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.ParseFromString(raw_datum)
+                    y = datum.label
+                    self.label_vecs.append(y)
+                except:
+                    print('error getting record {} from db'.format(dummy))
+                    break
 
         self.idx = 0
         # randomization: seed and pick
@@ -639,25 +656,57 @@ class JrMultilabel(caffe.Layer):
             self.idx = random.randint(0, self.n_files-1)
 #        if self.random_pick:
 #            random.shuffle(self.images_and_labels_list)
-        logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        print('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         spinner = spinning_cursor()
-        logging.debug('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
+        print('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         if self.augment_crop_size is not None and self.augment_images is True:
             top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
+            print('dba')
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
+            print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
+            print('dbc')
         print('size for shaping (final img size):'+str(self.size_for_shaping))
         top[1].reshape(self.batch_size, self.n_labels)
 
+        #EQUALIZE CATEGORY POPULATIONS STUFF
+        #get examples into distinct lists one for each category
+        #self.label_vecs is the categories in ordered list by idx
+        #so convert that to several lists of idx's, one per category
+        if self.equalize_category_populations != False:
+            self.idx_per_cat = {}
+            for idx in range(self.n_files):
+                label = self.label_vecs[idx]
+                if not label in self.idx_per_cat:
+                    self.idx_per_cat[label]=[idx]
+                else:
+                    self.idx_per_cat[label].append(idx)
+            self.idx_per_cat_lengths = [len(self.idx_per_cat[k]) for k in self.idx_per_cat]
+#            raw_input('ret to cont')
+            self.n_seen_per_category = np.zeros(self.max_category_index)
+            self.max_category_index = max([k for k in self.idx_per_cat])
+            print('image populations per category:'+str(self.idx_per_cat_lengths))
+#            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
+
+            if self.equalize_category_populations == True:
+                self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
+            else:  #user explicitly gave list of desired percentages
+                self.category_population_percentages = self.equalize_category_populations
+            print('desired population percentages:'+str(self.category_population_percentages))
+            #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
+            self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
+            self.worst_off = 0
+
+        self.start_time=time.time()
 
 
     def reshape(self, bottom, top):
@@ -686,6 +735,8 @@ class JrMultilabel(caffe.Layer):
             self.label = all_labels
             self.previous_images_processed = self.images_processed
             self.images_processed += self.batch_size
+
+
         ## reshape tops to fit (leading 1 is for batch dimension)
  #       top[0].reshape(1, *self.data.shape)
  #       top[1].reshape(1, *self.label.shape)
@@ -694,7 +745,18 @@ class JrMultilabel(caffe.Layer):
 ##       the above just shows objects , top[0].shape is an object apparently
 
     def next_idx(self):
-        if self.random_pick:
+        if self.equalize_category_populations:
+            actual_fractions_seen = np.divide([float(dummy) for dummy in self.category_populations_seen],
+                                              np.sum(self.category_populations_seen))
+            diff = actual_fractions_seen - self.category_population_percentages
+            self.worst_off = np.argmin(diff)
+            #print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
+            #                                actual_fractions_seen,self.category_populations_seen))
+            print('populations seen: {}'.format(self.category_populations_seen))
+            n_examples = len(self.idx_per_cat[self.worst_off])
+            self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
+            #raw_input('idx: {} ret to cont'.format(self.idx))
+        elif self.random_pick:
 #            self.idx = random.randint(0, len(self.imagefiles)-1)
             self.idx = random.randint(0, self.n_files-1)
             logging.debug('next idx='+str(self.idx))
@@ -714,10 +776,6 @@ class JrMultilabel(caffe.Layer):
         #print('forward end')
         self.counter += 1
    #     print('data shape {} labelshape {} label {} '.format(self.data.shape,self.label.shape,self.label))
-        dt = time.time() - self.analysis_time
-        dN = self.images_processed - self.previous_images_processed
-        print(str(self.counter)+' fwd passes, '+str(self.images_processed)+' images processed, dN/dt='+str(round(float(dN)/dt,3)))
-        self.analysis_time=time.time()
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -732,12 +790,15 @@ class JrMultilabel(caffe.Layer):
         - transpose to channel x height x width order
         """
         #print('load_image_and_label start')
+        dt_tot = time.time() - self.analysis_time
+        self.analysis_time=time.time()
         while(1):
+
             filename = self.imagefiles[self.idx]
             label_vec = self.label_vecs[self.idx]
  #           if self.images_dir:
  #               filename=os.path.join(self.images_dir,filename)
-            #print('the imagefile:'+filename+' index:'+str(idx))
+            print('the imagefile:'+filename+' label '+str(label_vec)+' index:'+str(idx))
             if not(os.path.isfile(filename)):
                 print('NOT A FILE:'+str(filename)+' ; trying next')
                 self.next_idx()   #bad file, goto next
@@ -853,6 +914,21 @@ class JrMultilabel(caffe.Layer):
                 out_=out_/255.0
             else:
                 out_=out_/self.scale
+        dN = self.images_processed - self.previous_images_processed
+        dt_in = time.time()-self.analysis_time
+        dt_out = time.time()-self.analysis_time_out
+        total_elapsed_time = time.time() - self.start_time
+        self.analysis_time_out = time.time()
+        print(str(self.counter)+' fwd passes, '+str(self.images_processed)+
+              ' images processed, dN/dt='+str(round(float(self.images_processed)/total_elapsed_time,3))+
+              ' tin '+str(round(dt_in,3))+
+              ' tout '+str(round(dt_out,3))+
+              ' ttot '+str(round(dt_tot,3)))
+
+        if self.equalize_category_populations:
+#            cat_of_image_seen = self.idx
+            self.category_populations_seen[self.worst_off]+=1
+
         return filename, out_, label_vec
 
     def load_image_and_label_from_lmdb(self,idx=None):
