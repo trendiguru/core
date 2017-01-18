@@ -158,7 +158,9 @@ def add_item(image_id, person_id, category, collection):
     item_mask = 255 * np.array(seg_res['mask'] > np.median(seg_res['mask']), dtype=np.uint8)
     person = [pers for pers in image_obj['people'] if pers['_id'] == person_id][0]
     # BUILD ITEM WITH MASK {fp, similar_results, category}
-    new_item = bulid_new_item(category, item_mask, collection, image, person['gender'])
+    # Assume this person has at least one item...
+    collections = person["items"][0]["similar_results"].keys()
+    new_item = build_new_item(category, item_mask, collections, image, person['gender'])
     # UPDATE THE DB DOCUMENT
     res = db.images.update_one({'people._id': person_id}, {'$push': {'people.$.items': new_item}})
     return bool(res.modified_count)
@@ -283,14 +285,23 @@ def build_new_person(image, face, products_collection, method):
                     category = constants.paperdoll_paperdoll_men[pd_category]
                 else:
                     category = pd_category
-                person['items'].append(bulid_new_item(category, item_mask, products_collection, image, person['gender']))
+                person['items'].append(build_new_item(category, item_mask, products_collection, image, person['gender']))
         return person
 
 
-def bulid_new_item(category, item_mask, collection, image, gender):
-    prod = collection + '_' + gender
-    fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod)
-    item = {'similar_results': {collection: results}, 'category': category, 'fp': fp}
+def build_new_item(category, item_mask, collections, image, gender):
+    if isinstance(collections, basestring):
+        collections = [collections]
+      
+    item = {'similar_results': {}, 'category': category}
+    fp = None
+    for collection in collections:
+        prod = collection + '_' + gender
+        # fp is initially none, so find_top_n calculates it, then next time when it has a value, it gets used.
+        fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod, fingerprint=fp)
+        item["similar_results"][collection] = results
+        item["fp"] = fp
+    
     return item
   
 #-------------------------- TESTS ------------------------
