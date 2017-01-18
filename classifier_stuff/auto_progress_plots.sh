@@ -12,6 +12,11 @@ nvidia-smi > $nvidname
 scp $nvidname root@104.155.22.95:/var/www/results/gpu_statii/$nvidname;
 
 
+####
+#all the below is now obsolete - the plots are now produced on extremeli from the loss/acc data file.
+#the only thing  left to do on  servers is report nvidia usage
+####
+
 #produce the plots from any logfile updated in last 100 minutes
 oldstyle=0
 if [ $oldstyle -eq 1 ];

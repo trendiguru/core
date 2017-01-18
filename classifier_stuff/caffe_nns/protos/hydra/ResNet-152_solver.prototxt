@@ -8,7 +8,7 @@ average_loss: 20
 weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 10
-snapshot: 10000
+snapshot: 5000
 snapshot_prefix: "mynet"
 test_initialization: false
 solver_mode : GPU

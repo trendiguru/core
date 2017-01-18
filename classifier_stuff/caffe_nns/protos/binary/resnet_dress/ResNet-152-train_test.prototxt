@@ -7120,6 +7120,13 @@ layer {
 }
 
 layer {
+	bottom: "fc2"
+	top: "estimate"
+	name: "estimate"
+	type: "Softmax"
+}
+
+layer {
   name: "accuracy"
   type: "Accuracy"
   bottom: "fc2"
