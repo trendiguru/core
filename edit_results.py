@@ -299,7 +299,7 @@ def build_new_item(category, item_mask, collections, image, gender):
         prod = collection + '_' + gender
         # fp is initially none, so find_top_n calculates it, then next time when it has a value, it gets used.
         fp, results = find_similar_mongo.find_top_n_results(image, item_mask, 100, category, prod, fingerprint=fp)
-        item["similar_results"][collections] = results
+        item["similar_results"][collection] = results
         item["fp"] = fp
     
     return item
