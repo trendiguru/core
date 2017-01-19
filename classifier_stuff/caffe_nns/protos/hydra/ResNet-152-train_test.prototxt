@@ -7723,6 +7723,15 @@ layer {
 	name: "fc2_0_relu"
 	type: "ReLU"
 }
+
+layer {
+	name: "drop_fc2_0"
+	type: "Dropout"
+	bottom: "fc2_0"
+	top: "fc2_0"
+	dropout_param { dropout_ratio: 0.5 }
+}
+
 layer {
 	bottom: "fc2_0"
 	top: "fc3_0"
