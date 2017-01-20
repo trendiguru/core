@@ -453,6 +453,8 @@ def lossplot(input_filename,netinfo='',logy=True):
     testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
     lbl = '$trainacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
     ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
+    miny = np.min(accuracy)*0.9
+    ax2.set_ylim(miny,1)
 
   if len(testaccuracies)>2:
     ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g',markersize=msize)
@@ -463,6 +465,8 @@ def lossplot(input_filename,netinfo='',logy=True):
     testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
     lbl = '$testacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
     ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
+    miny2 = np.min(testaccuracies)*0.9
+    ax2.set_ylim(min(miny,miny2),1)
 
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="tr.precision")
