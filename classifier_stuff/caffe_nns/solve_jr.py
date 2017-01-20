@@ -286,7 +286,8 @@ if __name__ == "__main__":
 ###############
 #ResNet-101-deploy.prototxt  ResNet-101-train_test.prototxt  ResNet-101_solver.prototxt  snapshot  solve.py
     solverstate = None
-    base_dir = '/data/jeremy/caffenets/binary/resnet101_dress_try1/'
+    #base_dir = '/data/jeremy/caffenets/binary/resnet101_dress_try1/'
+    base_dir = os.path.dirname(os.path.realpath(__file__))
     weights =  '/data/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
     solverproto = base_dir + 'ResNet-101_solver.prototxt'
     testproto = base_dir + 'ResNet-101-train_test.prototxt'

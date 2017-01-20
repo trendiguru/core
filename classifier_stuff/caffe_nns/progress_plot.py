@@ -250,8 +250,11 @@ def parse_logfile(output_filename,logy=True):
     plt.legend(bbox_to_anchor=(0.1, 0.05,0.5, 0.1), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
-    plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = train_net+test_net+'\n'
+    title = net_name
+    if len(title)>60:
+      title=title[:50]+'\n'+title[51:]
+    plt.title(title,fontsize=9)
+    subtitle = dt.isoformat()
     if type is not '':
       subtitle = subtitle+'type:'+type
     if base_lr is not '':

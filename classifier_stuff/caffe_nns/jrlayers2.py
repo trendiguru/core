@@ -661,6 +661,8 @@ class JrMultilabel(caffe.Layer):
         spinner = spinning_cursor()
         print('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
+        #size_for_shaping is the actual final image size. Image gets resized to new_size if it exists, and cropped
+        #to augment_crop_size if that exists. So size_for_shaping = augment_cropsize if that exists, otherwise new_size
         if self.augment_crop_size is not None and self.augment_images is True:
             top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
@@ -671,6 +673,7 @@ class JrMultilabel(caffe.Layer):
             print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
+            raw_input('ret to cont')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
@@ -816,6 +819,7 @@ class JrMultilabel(caffe.Layer):
                 if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
+                    raw_input('ret to cont' )
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
 ##                     print('new shape '+str(in_.shape))
 
