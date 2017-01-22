@@ -757,8 +757,8 @@ class JrMultilabel(caffe.Layer):
                                               np.sum(self.category_populations_seen))
             diff = self.category_population_percentages - actual_fractions_seen
             self.worst_off = np.argmax(diff)
-            print('desired {}\nmost distant {}\ndiff {}\nactual {}'.format(self.category_population_percentages,self.worst_off,diff,
-                                            actual_fractions_seen))
+#            print('desired {}\nmost distant {}\ndiff {}\nactual {}'.format(self.category_population_percentages,self.worst_off,diff,
+#                                            actual_fractions_seen))
             print('populations seen: {}'.format(self.category_populations_seen))
             n_examples = len(self.idx_per_cat[self.worst_off])
             self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
