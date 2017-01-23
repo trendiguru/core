@@ -161,7 +161,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('collection {} has {} items'.format(collection,count))
         cats = db[collection].distinct('categories')
         print('categories: '+str(cats))
-        image_size_levels = ['Small','Medium','Original','Best','Large','Xlarge']
+        image_size_levels = ['Small','Medium','Original','Large','Xlarge','Best']
         size_level=len(image_size_levels)-1
         for cat in cats:
             cursor = db[collection].find({'categories':cat})
@@ -187,10 +187,10 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                 incoming_size = img_arr.shape[0:2]
                 if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
                     size_level=max(size_level-1,0)
-                    print('adjusting size level down to '+size_level)
+                    print('adjusting size level down to '+str(size_level))
                 if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]:
                     size_level=min(size_level+1,len(image_size_levels)-1)
-                    print('adjusting size level up to '+size_level)
+                    print('adjusting size level up to '+str(size_level))
                 if resize is not None:
                     img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
                 if dl:
