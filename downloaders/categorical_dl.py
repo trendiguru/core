@@ -140,9 +140,9 @@ def exhaustive_search(category):
             print('no items....')
             continue
         print('collection {} has {} items'.format(collection,count))
-        cats = db.collection.distinct({'categories'})
+        cats = db[collection].distinct({'categories'})
         print('categories: '+str(cats))
-        cursor = db.collection.find({'categories':category})
+        cursor = db[collection].find({'categories':category})
         count = cursor.count()
         print('category {} has {} items'.format(category,count))
 
