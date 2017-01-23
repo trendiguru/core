@@ -133,7 +133,8 @@ def exhaustive_search(category):
     collections = db.collection_names()
     for collection in collections:
         print('checking collection '+str(collection))
-        cursor = db.collection.find()
+#        cursor = db.collection.find() #wont work since collceiton is a string
+        cursor = db[collection].find()
         count = cursor.count()
         if count == 0:
             print('no items....')
