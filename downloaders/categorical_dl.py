@@ -162,8 +162,6 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('collection {} has {} items'.format(collection,count))
         cats = db[collection].distinct('categories')
         print('categories: '+str(cats))
-        image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
-        size_level=len(image_size_levels)-1
         jobs=[]
         for cat in cats:
             if parallel:
@@ -182,6 +180,8 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
     doc = cursor.next()
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
+    image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
+    size_level=len(image_size_levels)-1
     for i in tqdm(range(count)):
 #            while doc is not None:
 #                print('doc:'+str(doc))
