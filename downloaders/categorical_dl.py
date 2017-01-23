@@ -179,6 +179,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                         print('{} in images'.format(image_size_levels[size_level]))
                         img_url = doc['images'][image_size_levels[size_level]]
                         break
+                    size_level-=1
                 if img_url == None:
                     print('couldnt get image of any size (level ='+str(size_level))
                     continue
