@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hashlib
 import time
+import pymongo
 
 
 from trendi import constants
@@ -134,8 +135,20 @@ def find_products_by_category(category_id):
     return cursor
 
 
-def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256)):
-    db = constants.db
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True):
+    '''
+    if you set the environment vars right then no need for in_docker
+    :param dl:
+    :param dl_dir:
+    :param use_visual_output:
+    :param resize:
+    :param in_docker:
+    :return:
+    '''
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
     collections = db.collection_names()
     for collection in collections:
         print('checking collection '+str(collection))
