@@ -12,12 +12,17 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import hashlib
+import time
+
+
 from trendi import constants
 from trendi.constants import db
 from trendi.constants import redis_conn
 import trendi.Utils as Utils
 import trendi.background_removal as background_removal
 from trendi.find_similar_mongo import get_all_subcategories
+from trendi.utils import imutils
 
 # download_images_q = Queue('download_images', connection=redis_conn)  # no args implies the default queue
 logging.basicConfig(level=logging.WARNING)
@@ -128,7 +133,8 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
-def exhaustive_search(category):
+
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256)):
     db = constants.db
     collections = db.collection_names()
     for collection in collections:
@@ -140,11 +146,56 @@ def exhaustive_search(category):
             print('no items....')
             continue
         print('collection {} has {} items'.format(collection,count))
-        cats = db[collection].distinct({'categories'})
+        cats = db[collection].distinct('categories')
         print('categories: '+str(cats))
-        cursor = db[collection].find({'categories':category})
-        count = cursor.count()
-        print('category {} has {} items'.format(category,count))
+        for cat in cats:
+            cursor = db[collection].find({'categories':cat})
+            count = cursor.count()
+            print('category {} has {} items'.format(cat,count))
+            doc = cursor.next()
+            while doc is not None:
+#                print('doc:'+str(doc))
+                if not 'images' in doc:
+                    print('no images field in doc')
+                    continue
+                if 'Xlarge' in doc['images']:
+                    print(' XLARGE in images')
+                    img_url = doc['images']['XLarge']
+                elif 'Best' in doc['images']:
+                    print('Best in images')
+                    img_url = doc['images']['Best']
+                elif 'Large' in doc['images']:
+                    print('Large in images')
+                    img_url = doc['images']['Large']
+                elif 'Original' in doc['images']:
+                    print('original in images')
+                    img_url = doc['images']['Original']
+                elif 'Medium' in doc['images']:
+                    print('medium in images')
+                    img_url = doc['images']['Medium']
+                else:
+                    print('no large best or xlarge in images '+str(doc['images']))
+                    continue
+                img_arr = Utils.get_cv2_img_array(img_url)
+                if resize is not None:
+                    img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
+                if dl:
+                    if not 'id' in doc:
+                        hash = hashlib.sha1()
+                        hash.update(str(time.time()))
+                        id =  str(hash.hexdigest()[:10])
+                        print('doc has no id, using random {}'.format(rand))
+                    else:
+                        id = str(doc['id'])
+                    save_dir = os.path.join(dl_dir,collection.lower())
+                    Utils.ensure_dir(save_dir)
+                    save_name = os.path.join(save_dir,id+'.jpg')
+                    print('saving to '+str(save_name))
+                    cv2.imwrite(save_name,img_arr)
+                if use_visual_output:
+                    cv2.imshow('img',img_arr)
+                    cv2.waitKey(10)
+                doc = cursor.next()
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
     for thedb in ['ShopStye_Female','ShopStyle_Male','amazon_US_Male','amazon_DE_Female',
