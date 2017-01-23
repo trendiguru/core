@@ -161,6 +161,8 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('collection {} has {} items'.format(collection,count))
         cats = db[collection].distinct('categories')
         print('categories: '+str(cats))
+        image_size_levels = ['Small','Medium','Original','Best','Large','Xlarge']
+        size_level=len(image_size_levels)-1
         for cat in cats:
             cursor = db[collection].find({'categories':cat})
             count = cursor.count()
@@ -171,24 +173,22 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                 if not 'images' in doc:
                     print('no images field in doc')
                     continue
-                if 'Xlarge' in doc['images']:
-                    print(' XLARGE in images')
-                    img_url = doc['images']['XLarge']
-                elif 'Best' in doc['images']:
-                    print('Best in images')
-                    img_url = doc['images']['Best']
-                elif 'Large' in doc['images']:
-                    print('Large in images')
-                    img_url = doc['images']['Large']
-                elif 'Original' in doc['images']:
-                    print('original in images')
-                    img_url = doc['images']['Original']
-                elif 'Medium' in doc['images']:
-                    print('medium in images')
-                    img_url = doc['images']['Medium']
-                else:
-                    print('no large best or xlarge in images '+str(doc['images']))
+                img_url=None
+                while img_url==None and size_level>=0:
+                    if image_size_levels[size_level] in doc['images']:
+                        print('{} in images'.format(image_size_levels[size_level]))
+                        img_url = doc['images'][image_size_levels[size_level]]
+                        break
+                if img_url == None:
+                    print('couldnt get image of any size (level ='+str(size_level))
                     continue
+                incoming_size = img_url.shape[0:2]
+                if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
+                    size_level=max(size_level-1,0)
+                    print('adjusting size level down to '+size_level)
+                if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]:
+                    size_level=min(size_level+1,len(image_size_levels)-1)
+                    print('adjusting size level up to '+size_level)
                 img_arr = Utils.get_cv2_img_array(img_url)
                 if resize is not None:
                     img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
