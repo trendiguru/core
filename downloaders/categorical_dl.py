@@ -17,6 +17,7 @@ import time
 import pymongo
 
 
+
 from trendi import constants
 from trendi.constants import db
 from trendi.constants import redis_conn
@@ -145,6 +146,9 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
     :param in_docker:
     :return:
     '''
+    #no need for this other than here and will cause problems elssewhere
+    from tqdm import tqdm
+
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
@@ -168,8 +172,12 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
             count = cursor.count()
             print('category {} has {} items'.format(cat,count))
             doc = cursor.next()
-            while doc is not None:
+            for i in tqdm(range(count)):
+#            while doc is not None:
 #                print('doc:'+str(doc))
+                if doc is None:
+                    print('got none doc')
+                    continue
                 if not 'images' in doc:
                     print('no images field in doc')
                     continue
