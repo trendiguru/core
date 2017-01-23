@@ -189,6 +189,8 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                         id = str(doc['id'])
                     save_dir = os.path.join(dl_dir,collection.lower())
                     Utils.ensure_dir(save_dir)
+                    save_dir = os.path.join(save_dir,cat.lower())
+                    Utils.ensure_dir(save_dir)
                     save_name = os.path.join(save_dir,id+'.jpg')
                     print('saving to '+str(save_name))
                     cv2.imwrite(save_name,img_arr)
