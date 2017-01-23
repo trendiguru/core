@@ -183,14 +183,14 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                 if img_url == None:
                     print('couldnt get image of any size (level ='+str(size_level))
                     continue
-                incoming_size = img_url.shape[0:2]
+                img_arr = Utils.get_cv2_img_array(img_url)
+                incoming_size = img_arr.shape[0:2]
                 if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
                     size_level=max(size_level-1,0)
                     print('adjusting size level down to '+size_level)
                 if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]:
                     size_level=min(size_level+1,len(image_size_levels)-1)
                     print('adjusting size level up to '+size_level)
-                img_arr = Utils.get_cv2_img_array(img_url)
                 if resize is not None:
                     img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
                 if dl:
