@@ -173,7 +173,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
                 if not 'images' in doc:
                     print('no images field in doc')
                     continue
-                print('images:'+str(doc['images']))
+#                print('images:'+str(doc['images']))
                 img_url=None
                 while img_url==None and size_level>=0:
                     if image_size_levels[size_level] in doc['images']:
