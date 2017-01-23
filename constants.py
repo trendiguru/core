@@ -139,8 +139,7 @@ neurodooll_queuename = 'neurodoll'
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
-                         port=int(os.getenv("MONGO_PORT", "27017"))).mydb
+db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),port=int(os.getenv("MONGO_PORT", "27017"))).mydb
 
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")

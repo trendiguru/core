@@ -205,6 +205,9 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             print('couldnt get image of any size (level ='+str(size_level))
             continue
         img_arr = Utils.get_cv2_img_array(img_url)
+        if img_arr is None:
+            print('WARNING!! did not get image from '+str(img_url))
+            continue
         incoming_size = img_arr.shape[0:2]
         if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
             size_level=max(size_level-1,0)
