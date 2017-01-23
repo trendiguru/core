@@ -161,7 +161,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('collection {} has {} items'.format(collection,count))
         cats = db[collection].distinct('categories')
         print('categories: '+str(cats))
-        image_size_levels = ['Small','Medium','Large','Xlarge','Original','Best']
+        image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
         size_level=len(image_size_levels)-1
         for cat in cats:
             cursor = db[collection].find({'categories':cat})
