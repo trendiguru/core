@@ -128,6 +128,29 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
+def exhaustive_search(category):
+    db = constants.db
+    collections = db.collection_names()
+    for collection in collections:
+        print('checking collection '+str(collection))
+        cursor = db.collection.find()
+        count = cursor.count()
+        if count == 0:
+            print('no items....')
+            continue
+        print('collection {} has {} items'.format(collection,count))
+        cats = db.collection.distinct({'categories'})
+        print('categories: '+str(cats))
+        cursor = db.collection.find({'categories':category})
+        count = cursor.count()
+        print('category {} has {} items'.format(category,count))
+
+def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
+    for thedb in ['ShopStye_Female','ShopStyle_Male','amazon_US_Male','amazon_DE_Female',
+                  'amaze_Male','Amazon_US_Female_archive']:
+        c = db.thedb.find({"categories":category})
+
+#db.ShopStyle_Female.distinct("categories")
 
 def enqueue_for_download(q, iterable, feature_name, category_id, max_images=100000):
     job_results = []
@@ -433,3 +456,30 @@ if __name__ == '__main__':
 
 #db.collection_names
 #ShopStyle Men, Women
+#shopstyle amazon ebay from most to least accurate
+#c = db.ShopStyle_Female.find({"categories":"dress"})
+
+#db.ShopStyle_Female.distinct("categories")
+'''Out[58]:
+[u'blazer',
+ u'blouse',
+ u'cardigan',
+ u'coat',
+ u'dress',
+ u'jacket',
+ u'jeans',
+ u'leggings',
+ u'pants',
+ u'shirt',
+ u'shorts',
+ u'skirt',
+ u'suit',
+ u'sweater',
+ u'sweatshirt',
+ u't-shirt',
+ u'tights',
+ u'top',
+ u'vest',
+ u'vests']
+
+'''''
