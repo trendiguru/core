@@ -15,9 +15,9 @@ import requests
 import dlib
 # from ..utils import imutils
 # import yonatan_classifier
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
+# import matplotlib as mpl
+# mpl.use('Agg')
+# import matplotlib.pyplot as plt
 
 
 detector = dlib.get_frontal_face_detector()
