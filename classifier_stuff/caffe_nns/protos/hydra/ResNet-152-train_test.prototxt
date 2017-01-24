@@ -8,7 +8,7 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
+      param_str: "{\'equalize_categories\':[.10,.18,.6,.6,.6,.6,.6,.6,.6,.6,.6,.6,.6,.6], \'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_balanced_train_250x250.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':13 }"
       }
   include {phase: TRAIN}
 }
@@ -7723,6 +7723,15 @@ layer {
 	name: "fc2_0_relu"
 	type: "ReLU"
 }
+
+layer {
+	name: "drop_fc2_0"
+	type: "Dropout"
+	bottom: "fc2_0"
+	top: "fc2_0"
+	dropout_param { dropout_ratio: 0.5 }
+}
+
 layer {
 	bottom: "fc2_0"
 	top: "fc3_0"

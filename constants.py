@@ -61,6 +61,8 @@ products_per_ip_pid = {'default':
                                  {'default': 'amazon_US'},
                        "Y8Y4jENvaJ2Lsklz":
                                  {'default': 'ebay_US'},
+                       "2Ldy4i23piqQG73n":
+                                 {'default': 'shopstyle_DE'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'stylebook.de': 'amazon_DE', 'recruit-lifestyle.co.jp': 'recruit'}
@@ -139,8 +141,7 @@ neurodooll_queuename = 'neurodoll'
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
-                         port=int(os.getenv("MONGO_PORT", "27017"))).mydb
+db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),port=int(os.getenv("MONGO_PORT", "27017"))).mydb
 
 #db = pymongo.MongoClient(host="mongodb1-instance-1").mydb
 #redis_conn = Redis(host="redis1-redis-1-vm")
@@ -479,23 +480,25 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
 
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
-hydra_cats = [[None,'dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
-              'womens_swimwear_bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
-             [None,'bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
-             [None,'coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
-             [None,'cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
-             [None,'tee','button-down','blouse','polo','henley','tube','tank'], #upper under - tops - button is buttons all the way down but not a blouse
-             [None,'jeans','pants','stocking','legging','socks'], #lower_cover_long
-             [None,'shorts','skirt'], #lower_cover_short
-             [None,'shawl','scarf'], #wraps
-             [None,'boots','shoes','sandals'],  #footwear
-             [None,'bag'],   #extra stuff
-             [None,'belt'],   #extra stuff
-             [None,'sarong']]  #extra stuff
+hydra_cats = [['None','dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
+              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+             ['None','bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
+             ['None','coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
+             ['None','cardigan','sweatshirt','hoodie','sweater','vest','poncho'], #upper middle. vest could actually be with sweater...
+             ['None','t-shirt','button-down','blouse','polo','henley','tube','tanktop'], #upper under - tops - button is buttons all the way down but not a blouse
+             ['None','jeans','pants','stockings','leggings','socks'], #lower_cover_long
+             ['None','shorts','skirt'], #lower_cover_short
+             ['None','shawl','scarf'], #wraps
+             ['None','boots','shoes','sandals'],  #footwear
+             ['None','bag'],   #extra stuff
+             ['None','belt'],   #extra stuff
+             ['None','sarong']]  #extra stuff
         #     [None,'relevant_image'], #has clothing and isnt cropped too badly
         #      [None,'full_body']] #has most of a person
 
-
+#made minor chages to hydra_cats for more overlap with mongodbs
+# legging->leggings, stocking->stockings, tee->t-shirt, tank-tanktop, womens_swimwear_bikini->bikini
+#items in db not in hydra: tights, top, swimsuit.
 #in web_tool_categories_v2 but not in hydra_cats:
 #['eyewear', 'footwear', 'hat','top','bracelet','necklace','earrings','watch' ]
 

@@ -9,7 +9,7 @@ from shutil import copyfile
 import json
 import shutil
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 from PIL import Image
 
 from trendi import constants
@@ -513,7 +513,6 @@ def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
 
         n = n + 1
 
-
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
     for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
@@ -895,6 +894,42 @@ def generate_deep_fashion_hydra_labelfiles(folderpath='/data/jeremy/image_dbs/de
 
     #do negatives using positives of everythin else
     #possibly skew this towards hardest-to-differentiate (closest) cats e.g. more dresses as negs for skirts and vice versa
+
+def deep_fashion_multiple_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',
+                                     labelfile_name='/data/jeremy/image_dbs/labels/hydra/skirt_v_dress_df.txt',cats=['skirt','dress'],cat_indices=[0,1]):
+    for cat,ind in zip(cats,cat_indices):
+        deep_fashion_single_cat_labels(folderpath=folderpath,labelfile_name=labelfile_name,cat=cat,cat_index=ind)
+        raw_input('ret to cont')
+
+def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img',labelfile_name='/data/jeremy/image_dbs/labels/hydra/dress',cat='dress',cat_index=1,lookfor='250x250'):
+    '''
+    generate label file (lines like: /path/to/file.jpg class_no )
+    using given cat (from folder names) put into desired cat_index
+    does not overwrite the label files so delete if necessary before running
+    :param folderpath:
+    :param labelfile_dir:
+    :return:
+    '''
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    pops = 0
+    if labelfile_name is None:
+        labelfile_name = cat+'_positives.txt'
+    print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name+' folderpath '+folderpath)
+    Utils.ensure_file(labelfile_name)
+    with open(labelfile_name,'a') as fp:
+        for dc in dirs_and_cats:
+            if dc[1] == cat:
+                print('dir,cat:')+str(dc)
+                full_path = os.path.join(folderpath,dc[0])
+                files = os.listdir(full_path)
+                files = [f for f in files if lookfor in f]
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    fp.write(file_path+'\t'+str(cat_index)+'\n')
+                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
+                    pops+=1
+        #        raw_input('ret to cont')
+        print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
 
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''

@@ -219,9 +219,10 @@ def single_label_acc(caffemodel,testproto,net=None,label_layer='label',estimate_
         acc_list.append(a)
         write_pra_to_html(htmlname,p,r,a,i,classlabels[i])
     close_html(htmlname)
-    accs = np.array(acc_list)
-    mean_acc = np.mean(accs)
-    return mean_acc
+#    accs = np.array(acc_list)
+#    mean_acc = np.mean(accs)
+    acc = overall_acc_from_confmat(confmat)
+    return acc
 
 def precision_recall_accuracy(confmat,class_to_analyze):
     npconfmat = np.array(confmat)
@@ -236,6 +237,14 @@ def precision_recall_accuracy(confmat,class_to_analyze):
     accuracy = float(tp+tn)/(tp+fp+tn+fn)
     print('prec {} recall {} acc {}'.format(precision,recall,accuracy))
     return precision, recall, accuracy
+
+def overall_acc_from_confmat(confmat):
+    npconfmat = np.array(confmat)
+    tr = np.trace(npconfmat)
+    sumall = np.sum(npconfmat)
+    acc = float(tr)/sumall
+    print('trace {} all {} acc {}'.format(tr,sumall,acc))
+    return acc
 
 def normalized_confmat(confmat):
     npconfmat = np.array(confmat)

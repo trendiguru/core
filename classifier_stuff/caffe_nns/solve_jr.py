@@ -233,7 +233,7 @@ def expfunc(x,asymptote,timeconst,x0):
 def fit_points_exp(xlist,ylist):
     p0 = {'asymptote':0.8,'timeconst':2000,'y0':0.7}
     p0 = [0.8,2000,0]
-    popt,pcov = curve_fit(expfunc, xlist, ylist,p0=p0, sigma=None, absolute_sigma=False)
+    popt,pcov = curve_fit(expfunc, xlist, ylist,p0=p0)
     print('popt {} pcov {}'.format(popt,pcov))
     n_timeconstants = xlist[-1]/popt[1]  #last time point / timeconst
     return(popt,n_timeconstants)
@@ -286,7 +286,8 @@ if __name__ == "__main__":
 ###############
 #ResNet-101-deploy.prototxt  ResNet-101-train_test.prototxt  ResNet-101_solver.prototxt  snapshot  solve.py
     solverstate = None
-    base_dir = '/data/jeremy/caffenets/binary/resnet101_dress_try1/'
+    #base_dir = '/data/jeremy/caffenets/binary/resnet101_dress_try1/'
+    base_dir = os.path.dirname(os.path.realpath(__file__))
     weights =  '/data/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
     solverproto = base_dir + 'ResNet-101_solver.prototxt'
     testproto = base_dir + 'ResNet-101-train_test.prototxt'
