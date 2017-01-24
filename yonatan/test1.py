@@ -42,7 +42,7 @@ def find_face_dlib(image, max_num_of_faces=10):
     start = time.time()
     # faces = detector(image, 1)
 
-    dets, scores, idx = detector.run(image, 1, 1)
+    dets, scores, idx = detector.run(image, 1)
     for i, d in enumerate(dets):
         print("Detection {}, score: {}, face_type:{}".format(
             d, scores[i], idx[i]))
