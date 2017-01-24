@@ -13,7 +13,7 @@ import urllib
 import skimage
 import requests
 import dlib
-# from ..utils import imutils
+from ..utils import imutils
 # import yonatan_classifier
 # import matplotlib as mpl
 # mpl.use('Agg')
@@ -81,7 +81,7 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
+    full_image = imutils.resize_keep_aspect(full_image, output_size=(300, 300))
 
     # faces = background_removal.find_face_dlib(full_image)
 
