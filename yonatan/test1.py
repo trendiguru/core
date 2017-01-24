@@ -89,8 +89,8 @@ def theDetector(url_or_np_array):
     height, width, channels = full_image.shape
 
     for i in range(0, len(faces)):
-        print "faces[i]: {0}".format(faces[i])
-        x, y, w, h = faces[i]
+        print "faces[i]: {0}".format(faces[0])
+        x, y, w, h = faces[0]
 
         if x > width or x + w > width or y > height or y + h > height:
             print "\nface out of image boundaries\n"
