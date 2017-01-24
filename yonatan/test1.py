@@ -40,10 +40,16 @@ detector = dlib.get_frontal_face_detector()
 
 def find_face_dlib(image, max_num_of_faces=10):
     start = time.time()
-    faces = detector(image, 1)
+    # faces = detector(image, 1)
+
+    dets, scores, idx = detector.run(image, 1, -1)
+    for i, d in enumerate(dets):
+        print("Detection {}, score: {}, face_type:{}".format(
+            d, scores[i], idx[i]))
+
+
     print("Done in %.3f s." % (time.time() - start))
 
-    print faces
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
