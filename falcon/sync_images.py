@@ -94,6 +94,7 @@ class Images(object):
             raise falcon.HTTPMissingParam('imageUrl')
 
         products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
+        print "on_get: products_collection {0}".format(products)
         
         start = time.time()
         ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)

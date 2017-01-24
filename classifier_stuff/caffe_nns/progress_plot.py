@@ -250,8 +250,11 @@ def parse_logfile(output_filename,logy=True):
     plt.legend(bbox_to_anchor=(0.1, 0.05,0.5, 0.1), loc='lower center',
             mode="expand", borderaxespad=0.) #bbox_to_anchor=(0., 1.02, 1., .102), #ncol=2,
     dt=datetime.datetime.today()
-    plt.title(net_name+' '+dt.isoformat(),fontsize=10)
-    subtitle = train_net+test_net+'\n'
+    title = net_name
+    if len(title)>60:
+      title=title[:50]+'\n'+title[51:]
+    plt.title(title,fontsize=9)
+    subtitle = dt.isoformat()
     if type is not '':
       subtitle = subtitle+'type:'+type
     if base_lr is not '':
@@ -313,6 +316,9 @@ def parse_logfile(output_filename,logy=True):
   savename = output_filename+'.png'
   plt.savefig(savename)
   #plt.show()
+
+def fit_exp2(x, y_inf,tau,x_0):
+    return y_inf*(1-np.exp(np.divide((x_0-x),tau)))
 
 def fit_exp(x, k,a, b, x0):
     return k*np.exp(np.multiply(a,x-x0)) + b
@@ -422,24 +428,52 @@ def lossplot(input_filename,netinfo='',logy=True):
 
 #plot loss
   if logy:
-    ax1.semilogy(n_iters, losses,'s', label="tr.loss", markeredgecolor='r',markerfacecolor='None')
+    ax1.semilogy(n_iters, losses,'s', label="tr.loss", markeredgecolor='r',markerfacecolor='None',markersize=2)
     if len(testlosses)>2:
-      ax1.semilogy(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
-  else:
-    ax1.plot(n_iters, losses,'r.', label="tr.loss",markeredgecolor='r',markerfacecolor='None')
-    if len(testlosses)>2:
-      ax1.plot(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r')
-#    ax1.plot(0,0,'r.',label='loss')
+      ax1.semilogy(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r',markersize=2)
 
+#      return(popt,n_timeconstants)
+
+  else:
+    ax1.plot(n_iters, losses,'r.', label="tr.loss",markeredgecolor='r',markerfacecolor='None',markersize=2)
+    if len(testlosses)>2:
+      ax1.plot(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r',markersize=2)
+
+##plot accuracy
+
+  msize=4
   if len(accuracy)>2 and len(accuracy) == len(n_iters):
-    ax2.plot(n_iters, accuracy,'o', label='tr.accuracy', markeredgecolor='g',markerfacecolor='None')
+    ax2.plot(n_iters, accuracy,'o', label='tr.accuracy', markeredgecolor='g',markerfacecolor='None',markersize=msize)
     ax2.set_ylabel("accuracy")
+
+    p0 = [0.9,2000,0] #asymptote tau x0
+    popt,pcov = curve_fit(fit_exp2, n_iters, accuracy,p0=p0)
+    n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
+    print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
+    testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
+    lbl = '$trainacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+    ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
+    miny = np.min(accuracy)*0.9
+    ax2.set_ylim(miny,1)
+
   if len(testaccuracies)>2:
-    ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g')
+    ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g',markersize=msize)
+    p0 = [0.9,2000,0]
+    popt,pcov = curve_fit(fit_exp2, n_iters, testaccuracies,p0=p0)
+    n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
+    print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
+    testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
+    lbl = '$testacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+    ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
+    miny2 = np.min(testaccuracies)*0.9
+    ax2.set_ylim(min(miny,miny2),1)
+
   if len(precision)>2 and len(precision) == len(n_iters):
     ax2.plot(n_iters, precision,'b3', label="tr.precision")
   if len(recall)>2 and len(recall) == len(n_iters):
     ax2.plot(n_iters, recall,'r4', label="tr.recall")
+
+
 
 #plot test data
 
@@ -449,6 +483,7 @@ def lossplot(input_filename,netinfo='',logy=True):
   plt.suptitle(netinfo)
   ax1.legend(loc='lower left')
   ax2.legend(loc='lower right')
+
 
   output_filename = input_filename[:-4] + '.png'
   print('saving plot of loss from file '+input_filename+' to file '+output_filename)

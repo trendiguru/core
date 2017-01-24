@@ -661,16 +661,23 @@ class JrMultilabel(caffe.Layer):
         spinner = spinning_cursor()
         print('self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
+        #size_for_shaping is the actual final image size. Image gets resized to new_size if it exists, and cropped
+        #to augment_crop_size if that exists. So size_for_shaping = augment_cropsize if that exists, otherwise new_size
         if self.augment_crop_size is not None and self.augment_images is True:
             top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
             print('dba')
+            if self.new_size is None:
+                logging.warning('WARNING!!! got no size for self.newsize, using 250x250 resize and and  crop '+str(self.augment_crop_size))
+                raw_input('ret to cont')
+                self.new_size=(250,250)
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
             print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
+            raw_input('ret to cont')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
@@ -748,10 +755,10 @@ class JrMultilabel(caffe.Layer):
         if self.equalize_category_populations:
             actual_fractions_seen = np.divide([float(dummy) for dummy in self.category_populations_seen],
                                               np.sum(self.category_populations_seen))
-            diff = actual_fractions_seen - self.category_population_percentages
-            self.worst_off = np.argmin(diff)
-            #print('most distant {}\ndiff {}\nactual {}\npops {}'.format(self.worst_off,diff,
-            #                                actual_fractions_seen,self.category_populations_seen))
+            diff = self.category_population_percentages - actual_fractions_seen
+            self.worst_off = np.argmax(diff)
+#            print('desired {}\nmost distant {}\ndiff {}\nactual {}'.format(self.category_population_percentages,self.worst_off,diff,
+#                                            actual_fractions_seen))
             print('populations seen: {}'.format(self.category_populations_seen))
             n_examples = len(self.idx_per_cat[self.worst_off])
             self.idx = self.idx_per_cat[self.worst_off][np.random.randint(0,n_examples)]
@@ -816,6 +823,7 @@ class JrMultilabel(caffe.Layer):
                 if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
+                    raw_input('ret to cont' )
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
 ##                     print('new shape '+str(in_.shape))
 

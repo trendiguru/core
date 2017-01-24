@@ -513,7 +513,6 @@ def inspect_dir(dir,curate=True,remove_parens=True,add_jpg=True):
 
         n = n + 1
 
-
 def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
     '''
     for 'multi-hot' labels of the form 0 0 1 0 0 1 0 1
@@ -931,7 +930,6 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
                     pops+=1
         #        raw_input('ret to cont')
         print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
-
 
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
