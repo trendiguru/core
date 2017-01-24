@@ -42,7 +42,12 @@ def find_face_dlib(image, max_num_of_faces=10):
     start = time.time()
     # faces = detector(image, 1)
 
-    faces, scores, idx = detector.run(image, 1, -1)
+    ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
+    ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
+
+    faces, scores, idx = detector.run(image, 1)
+
+
     for i, d in enumerate(faces):
         print("Detection {}, score: {}, face_type:{}".format(
             d, scores[i], idx[i]))
