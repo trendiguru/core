@@ -49,7 +49,7 @@ def find_face_dlib(image, max_num_of_faces=10):
         return {'are_faces': False, 'faces': []}
     #final_faces = choose_faces(image, faces, max_num_of_faces)
     print "number of faces: {0}\n".format(len(faces))
-    print faces
+    print faces[0]
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
