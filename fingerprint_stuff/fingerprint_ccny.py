@@ -545,7 +545,7 @@ params=get_params(options)
 
 #    Python: cv2.setTrackbarPos(trackbarname, winname, pos)-> None
 
-while(0):
+while(1):
 
     params=get_params(options)
 #    blur_kernelsize=params["blur_kernelsize"]
@@ -556,7 +556,7 @@ while(0):
     print('params:'+str(params))
     unwrinkled=unwrinkle(img_array,params)
     cv2.imshow('image',unwrinkled)
-    k = cv2.waitKey(1) & 0xFF
+    k = cv2.waitKey(0) & 0xFF
     if k == 27:
         break
     cv2.imshow('original',img_array)

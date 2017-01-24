@@ -63,10 +63,10 @@ class ShopStyleDownloader:
         else:
             self.gender = 'Male'
             self.relevant = shopstyle_constants.shopstyle_relevant_items_Male
-        self.status = self.db.download_status
-        self.status_full_path = "collections." + self.collection_name + ".status"
-        self.notes_full_path = "collections." + self.collection_name + ".notes"
-        self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
+        # self.status = self.db.download_status
+        # self.status_full_path = "collections." + self.collection_name + ".status"
+        # self.notes_full_path = "collections." + self.collection_name + ".notes"
+        # self.status.update_one({"date":self.current_dl_date},{"$set":{self.status_full_path: "Working"}})
         self.country_code = cc
         if cc == 'DE':
             self.BASE_URL = BASE_URL_part1+"de/api/v2/"
@@ -89,7 +89,7 @@ class ShopStyleDownloader:
         self.wait_for()
         end_time = time.time()
         total_time = (end_time - start_time)/3600
-        self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
+        # self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
         self.collection.delete_many({'fingerprint': {"$exists": False}})
         # self.theArchiveDoorman()
 
@@ -482,7 +482,7 @@ def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Shopstyle Download @@@')
     parser.add_argument('-c', '--countrycode', default="US", dest= "country_code",
                         help='country code - currently only US or DE allowed')
-    parser.add_argument('-g', '--gender', dest= "gender",
+    parser.add_argument('-g', '--gender', dest="gender",
                         help='specify which gender to download. (Female or Male - case sensitive)', required=True)
     args = parser.parse_args()
     return args
@@ -495,7 +495,6 @@ if __name__ == "__main__":
     if gen in ['Female', 'Male'] and country_code in ["US", "DE"]:
         col_name = "shopstyle_" + country_code
         col = col_name + "_" + gen
-
     else:
         print("bad input - gender should be only Female or Male (case sensitive)")
         sys.exit(1)
