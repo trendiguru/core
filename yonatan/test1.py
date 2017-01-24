@@ -100,4 +100,3 @@ def theDetector(url_or_np_array):
         # cv2.putText(full_image,'{:.3f}'.format(score),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
-
