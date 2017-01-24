@@ -13,8 +13,8 @@ import urllib
 import skimage
 import requests
 import dlib
-from ..utils import imutils
-import yonatan_classifier
+# from ..utils import imutils
+# import yonatan_classifier
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
