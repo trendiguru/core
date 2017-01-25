@@ -500,7 +500,8 @@ def fix_shopstyle_nadav(download_dir='./'):
 
 
 def print_logging_info(msg):
-    print msg
+    print(msg)
+
 
 # hackety hack
 logging.info = print_logging_info
