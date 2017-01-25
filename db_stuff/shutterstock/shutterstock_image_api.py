@@ -43,7 +43,7 @@ global_end = (today.year, today.month, today.day)
 print('### SHUTTERSTOCK API IMAGE SCRAPER ###')
 print('fill in the following fields:')
 query_filter ={'query': raw_input('query by:'),
-               'and_queries' :[],
+               'and_queries': [],
                'not_queries': []}
 
 query_and_flag = True
@@ -114,7 +114,7 @@ def req_wrapper(req):
 def build_req_string(req_start, req_mid, start_date, end_date, per_page=1, page=1):
     start_str = build_date_string(start_date)
     end_str = build_date_string(end_date)
-    dates_string = '&added_date_start={}&added_date_end={}'.format( start_str, end_str)
+    dates_string = '&added_date_start={}&added_date_end={}'.format(start_str, end_str)
     pages = 'per_page={}&page={}'.format(per_page, page)
     req_final = req_start + pages + req_mid + dates_string
     return req_final
@@ -128,9 +128,9 @@ def divide_dates(pair):
     pair1 = (start_date, mid_date)
     if mid_date == start_date:
         if mid_date[1] < 12 and mid_date[1] < end_date[1]:
-            mid_date[1] += 1
+            mid_date =(mid_date[0], mid_date[1] + 1, mid_date[2])
         elif mid_date[2] < 28 and mid_date[2] < end_date[2]:
-            mid_date[1] += 2
+            mid_date = (mid_date[0], mid_date[1], mid_date[2] + 1)
         else:
             pair1 = ()
 
@@ -141,7 +141,7 @@ def divide_dates(pair):
     return pair1, pair2
 
 
-def build_date_pairs(req_start,req_mid, start_date, end_date):
+def build_date_pairs(req_start, req_mid, start_date, end_date):
     dates_list = []
     date_candidates = [(start_date, end_date)]
 
@@ -169,10 +169,10 @@ def build_req_parts(main_query, advance_query):
     for notQuery in main_query['not_queries']:
         q = '%20'.join(notQuery.split())
         req_query += '%20NOT%20{}'.format(q)
-    for key in advance_query.keys():
-        req_query += '&{}={}'.format(key, advance_query[key])
+    for k in advance_query.keys():
+        req_query += '&{}={}'.format(k, advance_query[k])
 
-    date_pairs = build_date_pairs(req_body,req_query, global_start, global_end)
+    date_pairs = build_date_pairs(req_body, req_query, global_start, global_end)
 
     return req_body, req_query, date_pairs
 
@@ -191,7 +191,7 @@ for dp in tqdm(date_list):
         data = response['data']
         for item in data:
             idx = item['id']
-            id_exists = db[collection_name].count({'id':idx})
+            id_exists = db[collection_name].count({'id': idx})
             if id_exists:
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assests']['preview']['url'],
@@ -209,6 +209,10 @@ for dp in tqdm(date_list):
             break
 
         sleep(1)
+
+
+
+
 
 
 
