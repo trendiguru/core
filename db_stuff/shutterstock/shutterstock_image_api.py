@@ -147,7 +147,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
     date_candidates = [(start_date, end_date)]
 
     while len(date_candidates):
-        pair = date_candidates.pop()
+        pair = date_candidates[0]
         tmp_req = build_req_string(req_start, req_mid, *pair)
         if req_wrapper(tmp_req)[1] < 2000:
             dates_list.append(pair)
@@ -157,6 +157,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
                 date_candidates.append(pair1)
             if len(pair2) and pair2 not in date_candidates:
                 date_candidates.append(pair2)
+        date_candidates.pop(0)
 
     return dates_list
 
