@@ -209,19 +209,6 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
         if img_url == None:
             print('couldnt get image of any size (level ='+str(size_level))
             continue
-        img_arr = Utils.get_cv2_img_array(img_url)
-        if img_arr is None:
-            print('WARNING!! did not get image from '+str(img_url))
-            continue
-        incoming_size = img_arr.shape[0:2]
-        if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
-            size_level=max(size_level-1,0)
-            print('adjusting size level down to '+str(size_level))
-        if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]: #size smaller than needed
-            size_level=min(size_level+1,len(image_size_levels)-1)
-            print('adjusting size level up to '+str(size_level))
-        if resize is not None:
-            img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
         if dl:
             if not 'id' in doc:
                 hash = hashlib.sha1()
@@ -236,10 +223,31 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             Utils.ensure_dir(save_dir)
             save_name = os.path.join(save_dir,id+'.jpg')
             print('saving to '+str(save_name))
-            cv2.imwrite(save_name,img_arr)
+
+        img_arr = Utils.get_cv2_img_array(img_url)
+        if img_arr is None:
+            print('WARNING!! did not get image from '+str(img_url))
+            continue
+        incoming_size = img_arr.shape[0:2]
+        if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
+            size_level=max(size_level-1,0)
+            print('adjusting size level down to '+str(size_level))
+        if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]: #size smaller than needed
+            size_level=min(size_level+1,len(image_size_levels)-1)
+            print('adjusting size level up to '+str(size_level))
+        if resize is not None:
+            img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
+
         if use_visual_output:
             cv2.imshow('img',img_arr)
             cv2.waitKey(10)
+        if dl:
+            if dont_overwrite:
+                if not os.exists(save_name):
+                    cv2.imwrite(save_name,img_arr)
+            else:
+                cv2.imwrite(save_name,img_arr)
+
         doc = cursor.next()
 
 
