@@ -15,36 +15,71 @@
 
 # download log will be saved to /home/developer/download.log
 #1 0 * * * date >> /home/developer/yonti/download.log 2>&1
+
 #1 0 * * * python -m trendi.db_stuff.general.dl_status -m create >> /home/developer/yonti/download.log 2>&1
+
 #10 * * * * python -m trendi.db_stuff.general.dl_status -m check
-#25 * * * * python -m trendi.db_stuff.general.dl_status -m check
-#40 * * * * python -m trendi.db_stuff.general.dl_status -m check
-#55 * * * * python -m trendi.db_stuff.general.dl_status -m check
+
 2 0 * * * echo "daily clean up - restarting all fingerprinters and ebay workers" >> /home/developer/yonti/download.log 2>&1
-#2 0 * * * sudo rm -r /tmp/fingerprint* >> /home/developer/yonti/download.log 2>&1
+
+2 0 * * * sudo rm -r /tmp/fingerprint* >> /home/developer/yonti/download.log 2>&1
+
 #2 0 * * * sudo rm -r /tmp/ebay_worker* >> /home/developer/yonti/download.log 2>&1
+
 #3 0 * * * sudo supervisorctl stop all; sudo restart supervisor >> /home/developer/yonti/download.log 2>&1
+
 #15 0 * * * sudo restart supervisor >> /home/developer/yonti/download.log 2>&1
-#4 0 * * * echo "shopstyle US Female download started at 00:05 am" >> /home/developer/yonti/download.log 2>&1
-#5 0 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n ShopStyle -g Female > /home/developer/yonti/ShopStyle_US_Female.log 2>&1
+
+4 0 * * 0 echo "shopstyle US Female download started at sunday 00:05 am" >> /home/developer/yonti/download.log 2>&1
+
+5 0 * * 0 python -m trendi.db_stuff.shopstyle.shopstyle_download -c US -g Female > /home/developer/yonti/ShopStyle_US_Female.log 2>&1
+
+4 0 * * 2 echo "shopstyle US Male download started at tuesday 00:05 am" >> /home/developer/yonti/download.log 2>&1
+
+5 0 * * 2 python -m trendi.db_stuff.shopstyle.shopstyle_download -c US -g Male > /home/developer/yonti/ShopStyle_US_Male.log 2>&1
+
+4 12 * * 3 echo "shopstyle DE Female download started at wendsday 12:05 am" >> /home/developer/yonti/download.log 2>&1
+
+5 12 * * 3 python -m trendi.db_stuff.shopstyle.shopstyle_download -c DE -g Female > /home/developer/yonti/ShopStyle_DE_Female.log 2>&1
+
+4 12 * * 5 echo "shopstyle DE Male download started at friday 12:05 pm" >> /home/developer/yonti/download.log 2>&1
+
+5 12 * * 5 python -m trendi.db_stuff.shopstyle.shopstyle_download -c DE -g Male > /home/developer/yonti/ShopStyle_DE_Male.log 2>&1
+
 #4 0 * * * echo "shopstyle KR Female download started at 03:00 am" >> /home/developer/yonti/download.log 2>&1
+
 #5 0 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Female > /home/developer/yonti/ShopStyle_KR_Female.log 2>&1
+
 #59 5 * * * echo "shopstyle US Male download started at 06:00 am" >> /home/developer/yonti/download.log 2>&1
+
 #0 6 * * * python -m trendi.db_stuff.shopstyle_download -n ShopStyle -g Male > /home/developer/yonti/ShopStyle_US_Male.log 2>&1
+
 #59 3 * * * echo "shopstyle KR Male download started at 09:00 am" >> /home/developer/yonti/download.log 2>&1
+
 #0 4 * * * python -m trendi.db_stuff.shopstyle.shopstyle_download -n GangnamStyle -g Male > /home/developer/yonti/ShopStyle_KR_Male.log 2>&1
+
 #59 11 * * * echo "ebay dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
+
 #0 12 * * * python -m trendi.db_stuff.ebay_API > /home/developer/yonti/EBAY.log 2>&1
+
 #59 11 * * * echo "recruit dl started at 12:00 am" >> /home/developer/yonti/download.log 2>&1
+
 #0 12 * * * python -m trendi.db_stuff.recruit.recruit_API > /home/developer/yonti/recruit.log 2>&1
+
 #10 0 * * 0 echo "AMAZON LOG" >> /home/developer/yonti/amazon_status.log 2>&1
+
 #0 0 * * 0 date >> /home/developer/yonti/amazon_status.log 2>&1
+
 #0 20 * * * echo "amazon daily update" >> /home/developer/yonti/download.log 2>&1
+
 #10 20 * * * python -m trendi.db_stuff.amazon.amazon_download -d  > /home/developer/yonti/amazon_daily.log 2>&1
+
 #30 * * * * python -m trendi.db_stuff.amazon.amazon_download -u  > /home/developer/yonti/amazon_hourly.log 2>&1
+
 #15 * * * * python -m trendi.db_stuff.amazon.amazon_download -u -c DE > /home/developer/yonti/amazon_hourly.log 2>&1
 
 #14 0 * * 3 echo "amazon female dl started at wendsday" >> /home/developer/yonti/download.log 2>&1
+
 #15 0 * * 3 python -m trendi.db_stuff.amazon_API -g Female -f  > /home/developer/yonti/amazon_female.log 2>&1
 
 
