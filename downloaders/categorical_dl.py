@@ -137,7 +137,7 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
-def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude='yonatan',min_items=1000):
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude=['yonatan','temp'],min_items=1000):
     '''
     if you set the environment vars right then no need for in_docker
     :param dl:
@@ -152,11 +152,8 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
         db = constants.db
-    collections = db.collection_names()
+    collections = filter(lambda coll: not any([term in coll for term in exclude]), db.collection_names())
     for collection in collections:
-        if exclude in collection:
-            print('excluding {} as it contains {}'.format(collection,exclude))
-            continue
         print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
         cursor = db[collection].find()
