@@ -198,9 +198,9 @@ for dp in tqdm(date_list):
             id_exists = db[collection_name].find_one({'id': idx})
             if id_exists is None:
                 doc = {'id': item["id"],
-                       'images': {'XLarge': item['assests']['preview']['url'],
-                                  'Large': item['assests']['large_thuimb']['url'],
-                                  'Small': item['assests']['small_thumb']['url'],
+                       'images': {'XLarge': item['assets']['preview']['url'],
+                                  'Large': item['assets']['large_thuimb']['url'],
+                                  'Small': item['assets']['small_thumb']['url'],
                                   'aspect_ratio': item['aspect']},
                        'description': item['description'],
                        'category': category,
