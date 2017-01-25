@@ -195,8 +195,14 @@ for dp in tqdm(date_list):
         data = response['data']
         for item in data:
             idx = item['id']
+            if any(x for x in ['assets', 'aspect', 'description'] if x not in item.keys()):
+                continue
+            if any(x for x in ['preview', 'large_thumb', 'small_thumb'] if x not in item['assets'].keys()):
+                continue
             id_exists = db[collection_name].find_one({'id': idx})
+
             if id_exists is None:
+
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assets']['preview']['url'],
                                   'Large': item['assets']['large_thumb']['url'],
