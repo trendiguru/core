@@ -160,9 +160,9 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
             dates_list.append(pair)
         else:
             pair1, pair2 = divide_dates(pair)
-            if len(pair1):
+            if len(pair1) and pair1 not in date_candidates:
                 date_candidates.append(pair1)
-            if len(pair2):
+            if len(pair2) and pair2 not in date_candidates:
                 date_candidates.append(pair2)
 
     return dates_list
