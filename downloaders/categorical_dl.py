@@ -169,6 +169,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('categories: '+str(cats))
         jobs=[]
         for cat in cats:
+            time.sleep(0.1)
             if parallel:
     #            p = multiprocessing.Pool(30)
  #               p.map(simple_cat_dl, args=(cats,vargs)
