@@ -223,7 +223,6 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             Utils.ensure_dir(save_dir)
             save_name = os.path.join(save_dir,id+'.jpg')
             print('saving to '+str(save_name))
-
         img_arr = Utils.get_cv2_img_array(img_url)
         if img_arr is None:
             print('WARNING!! did not get image from '+str(img_url))
@@ -241,9 +240,9 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
         if use_visual_output:
             cv2.imshow('img',img_arr)
             cv2.waitKey(10)
-        if dl:
+        if dl: #this is actually pointless, the idea was to save the get_cv2_img_array
             if dont_overwrite:
-                if not os.exists(save_name):
+                if not os.path.exists(save_name):
                     cv2.imwrite(save_name,img_arr)
             else:
                 cv2.imwrite(save_name,img_arr)
