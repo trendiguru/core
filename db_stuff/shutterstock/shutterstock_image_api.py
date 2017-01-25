@@ -56,7 +56,7 @@ while query_and_flag:
 
 query_not_flag = True
 while query_not_flag:
-    tmp_not = raw_input(' and Not by: (leave blank and enter to stop)')
+    tmp_not = raw_input('and Not by: (leave blank and enter to stop)')
     if len(tmp_not) < 2:
         query_not_flag = False
     else:
@@ -67,7 +67,7 @@ advanced_filter = {}
 if advanced:
     gender = raw_input('filter by gender: (female/male/no)')
     if gender in ['female', 'male']:
-        advanced['people_gender'] = gender
+        advanced_filter['people_gender'] = gender
 
     age = raw_input('filter by gender: (y/n)') == 'y'
     if age:
@@ -75,8 +75,8 @@ if advanced:
         for x,a in enumerate(age_lookuptable):
             print('{}. {}'.format(x, a))
         people_age = int(raw_input(''))
-        if 0 < people_age < 10 :
-            advanced['people_age'] = age_lookuptable[people_age]
+        if 0 < people_age < 10:
+            advanced_filter['people_age'] = age_lookuptable[people_age]
 
     ethnicity = raw_input('filter by people ethnicity? (y/n)') == 'y'
     if ethnicity:
@@ -84,8 +84,8 @@ if advanced:
         for x,a in enumerate(ethnicity_lookuptable):
             print('{}. {}'.format(x, a))
         people_ethnicity = int(raw_input(''))
-        if 0 < people_ethnicity < 16 :
-            advanced['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
+        if 0 < people_ethnicity < 16:
+            advanced_filter['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
 
 collection_name = raw_input('collection name: (either existing or new)')
 if collection_name not in db.collection_names():
