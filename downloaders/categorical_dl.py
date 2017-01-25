@@ -216,7 +216,7 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 hash = hashlib.sha1()
                 hash.update(str(time.time()))
                 id =  str(hash.hexdigest()[:10])
-                print('doc has no id, using random {}'.format(rand))
+                print('doc has no id, using random {}'.format(id))
             else:
                 id = str(doc['id'])
             save_dir = os.path.join(dl_dir,collection.lower())
