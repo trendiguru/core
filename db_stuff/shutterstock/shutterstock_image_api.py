@@ -199,7 +199,7 @@ for dp in tqdm(date_list):
             if id_exists is None:
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assets']['preview']['url'],
-                                  'Large': item['assets']['large_thuimb']['url'],
+                                  'Large': item['assets']['large_thumb']['url'],
                                   'Small': item['assets']['small_thumb']['url'],
                                   'aspect_ratio': item['aspect']},
                        'description': item['description'],
