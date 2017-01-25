@@ -1,7 +1,7 @@
 from requests import get
 from trendi.constants import db
 from tqdm import tqdm
-import xmltodict
+import json
 from datetime import datetime
 from time import sleep
 
@@ -72,8 +72,8 @@ if advanced:
     age = raw_input('filter by age: (y/n)') == 'y'
     if age:
         print ('insert the age index:')
-        for x,a in enumerate(age_lookuptable):
-            print('{}. {}'.format(x, a))
+        for x in age_lookuptable:
+            print('{}. {}'.format(x, age_lookuptable[x]))
         people_age = int(raw_input(''))
         if 0 < people_age < 10:
             advanced_filter['people_age'] = age_lookuptable[people_age]
@@ -81,8 +81,8 @@ if advanced:
     ethnicity = raw_input('filter by people ethnicity? (y/n) ') == 'y'
     if ethnicity:
         print ('insert the ethnicity index:')
-        for x,a in enumerate(ethnicity_lookuptable):
-            print('{}. {}'.format(x, a))
+        for x in ethnicity_lookuptable:
+            print('{}. {}'.format(x, ethnicity_lookuptable[x]))
         people_ethnicity = int(raw_input(''))
         if 0 < people_ethnicity < 16:
             advanced_filter['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
@@ -103,7 +103,7 @@ def req_wrapper(req):
     if res.status_code != 200:
         raise Warning('request denied!\nreq => {}'.format(req))
 
-    res_dict = dict(xmltodict.parse(res.text))
+    res_dict = json.loads(res.text)
     if 'total_count' not in res_dict.keys():
         raise Warning('No total_count!\nreq => {}'.format(req))
 
