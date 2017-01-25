@@ -342,7 +342,7 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
     return img_arr
 
 def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',
-                           careful_with_the_labels=False,recursive=False):
+                           careful_with_the_labels=False,recursive=False,kill_parens=True):
     '''
     you can avoid use of filter by specifying filefilter=''
     :param dir:
@@ -380,6 +380,9 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
             else:
                 newname = filebase.split(filefilter)[0]+'_'+str(output_size[0])+'x'+str(output_size[1])+filefilter
                 newname = os.path.join(basedir,newname)
+        if kill_parens:
+            newname=newname.replace('(','')
+            newname=newname.replace(')','')
         print('infile:{}\ndesired size:{}\noutfile {}'.format(file,output_size,newname))
 #        raw_input('ret to cont')
         resize_keep_aspect(file, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
