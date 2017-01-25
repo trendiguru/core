@@ -61,6 +61,8 @@ products_per_ip_pid = {'default':
                                  {'default': 'amazon_US'},
                        "Y8Y4jENvaJ2Lsklz":
                                  {'default': 'ebay_US'},
+                       "2Ldy4i23piqQG73n":
+                                 {'default': 'shopstyle_DE'}
                        }
 products_per_site = {'default': 'amazon_US', 'fashionseoul.com': 'GangnamStyle', 'fazz.co': 'amazon_US',
                      'stylebook.de': 'amazon_DE', 'recruit-lifestyle.co.jp': 'recruit'}
