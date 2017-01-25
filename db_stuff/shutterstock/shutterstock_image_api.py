@@ -125,22 +125,15 @@ def build_req_string(req_start, req_mid, start_date, end_date, per_page=1, page=
 
 def divide_dates(pair):
     start_date, end_date = pair
-    start_year, start_month, start_day = start_date
-    end_year, end_month, end_day = end_date
-    mid_date = ((end_year+start_year)/2, (end_month+start_month)/2, (end_day+start_day)/2)
+
+    a = datetime(*start_date)
+    b = datetime(*end_date)
+    mid = a + (b - a)/2
+    mid_date = (mid.year, mid.month, mid.day)
+
     pair1 = (start_date, mid_date)
     if mid_date == start_date:
-        print (mid_date)
-        if mid_date[1] < 12 and mid_date[1] < end_date[1]+1:
-            mid_date = (mid_date[0], mid_date[1] + 1, mid_date[2])
-            pair1 = (start_date, mid_date)
-
-        elif mid_date[2] < 28 and mid_date[2] < end_date[2]+1:
-
-            pair1 = (start_date, mid_date)
-            mid_date = (mid_date[0], mid_date[1], mid_date[2] + 1)
-        else:
-            pair1 = ()
+        pair1 = ()
 
     pair2 = (mid_date, end_date)
     if mid_date == end_date:
