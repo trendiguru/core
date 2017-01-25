@@ -148,10 +148,10 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
 
     while len(date_candidates):
         pair = date_candidates[0]
-        print pair
         tmp_req = build_req_string(req_start, req_mid, *pair)
         if req_wrapper(tmp_req)[1] < 2000:
             dates_list.append(pair)
+            print (pair)
         else:
             pair1, pair2 = divide_dates(pair)
             if len(pair1) and pair1 not in date_candidates:
@@ -179,9 +179,9 @@ def build_req_parts(main_query, advance_query):
 
     return req_body, req_query, date_pairs
 
-print ('wait...')
+print ('curating the dates pairs for the queries')
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-# print (date_list)
+
 category = query_filter['query']
 
 for dp in tqdm(date_list):
