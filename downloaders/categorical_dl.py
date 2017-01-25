@@ -248,9 +248,11 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                     cv2.imwrite(save_name,img_arr)
             else:
                 cv2.imwrite(save_name,img_arr)
-
-        doc = cursor.next()
-
+        try:
+            doc = cursor.next()
+        except:
+            print('error in next doc')
+            continue
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
     for thedb in ['ShopStye_Female','ShopStyle_Male','amazon_US_Male','amazon_DE_Female',
