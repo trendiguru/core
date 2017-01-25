@@ -381,7 +381,7 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
                 newname = filebase.split(filefilter)[0]+'_'+str(output_size[0])+'x'+str(output_size[1])+filefilter
                 newname = os.path.join(basedir,newname)
         if kill_parens:
-            newname=newname.replace('(','')
+            newname=newname.replace('(','') #
             newname=newname.replace(')','')
         print('infile:{}\ndesired size:{}\noutfile {}'.format(file,output_size,newname))
 #        raw_input('ret to cont')
