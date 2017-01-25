@@ -1,5 +1,5 @@
 from requests import get
-from ....constants import db
+from trendi.constants import db
 from tqdm import tqdm
 import xmltodict
 from datetime import datetime
