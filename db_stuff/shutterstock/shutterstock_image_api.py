@@ -152,7 +152,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
     while len(date_candidates):
         pair = date_candidates.pop()
         tmp_req = build_req_string(req_start, req_mid, *pair)
-        if req_wrapper(tmp_req)[1] > 2000:
+        if req_wrapper(tmp_req)[1] < 2000:
             dates_list.append(pair)
         else:
             pair1, pair2 = divide_dates(pair)
@@ -208,6 +208,7 @@ for dp in tqdm(date_list):
                        'and': {x: i for x, i in enumerate(query_filter['and_queries'])},
                        'not': {y: j for y, j in enumerate(query_filter['not_queries'])},
                        'advanced': {k: advanced_filter[k] for k in advanced_filter.keys()}}
+                print doc
                 db[collection_name].insert_one(doc)
 
         if page_number*500 > count:
