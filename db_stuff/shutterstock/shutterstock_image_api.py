@@ -111,7 +111,6 @@ def req_wrapper(req):
         raise Warning('No total_count!\nreq => {}'.format(req))
 
     total_count = int(res_dict['total_count'])
-    print total_count
     return res_dict, total_count
 
 
@@ -197,7 +196,7 @@ for dp in tqdm(date_list):
         for item in data:
             idx = item['id']
             id_exists = db[collection_name].find_one({'id': idx})
-            if id_exists is not None:
+            if id_exists is None:
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assests']['preview']['url'],
                                   'Large': item['assests']['large_thuimb']['url'],
