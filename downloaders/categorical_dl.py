@@ -185,12 +185,11 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
     print('category {} has {} items'.format(cat,count))
     if count<min_items:
         print('too few items ({} < {}'.format(count,min_items))
-    doc = cursor.next()
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
     image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
     size_level=len(image_size_levels)-1
-    for i in tqdm(range(count)):
+    for doc in tqdm(cursor):
 #            while doc is not None:
 #                print('doc:'+str(doc))
         if doc is None:
@@ -207,7 +206,7 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 img_url = doc['images'][image_size_levels[size_level]]
                 break
             else:
-                print('no {} in images'.format(image_size_levels[size_level]))
+                print('NO {} in images'.format(image_size_levels[size_level]))
             size_level-=1
         if img_url == None:
             print('couldnt get image of any size (level ='+str(size_level))
@@ -249,11 +248,7 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                     cv2.imwrite(save_name,img_arr)
             else:
                 cv2.imwrite(save_name,img_arr)
-        try:
-            doc = cursor.next()
-        except:
-            print('error in next doc')
-            continue
+
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
     for thedb in ['ShopStye_Female','ShopStyle_Male','amazon_US_Male','amazon_DE_Female',
