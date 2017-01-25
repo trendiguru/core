@@ -154,6 +154,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
     for collection in collections:
         if exclude in collection:
             print('excluding {} as it contains {}'.format(collection,exclude))
+            continue
         print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
         cursor = db[collection].find()
