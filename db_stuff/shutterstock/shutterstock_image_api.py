@@ -90,6 +90,7 @@ if advanced:
             print ('you choose {}'.format(ethnicity_lookuptable[people_ethnicity]))
 
 collection_name = raw_input('collection name: (either existing or new) ')
+
 if collection_name not in db.collection_names():
     for key in ['id', 'category']:
         db[collection_name].create_index(key, background=True)
@@ -110,7 +111,7 @@ def req_wrapper(req):
         raise Warning('No total_count!\nreq => {}'.format(req))
 
     total_count = int(res_dict['total_count'])
-    print res_dict
+    print total_count
     return res_dict, total_count
 
 
@@ -191,11 +192,12 @@ for dp in tqdm(date_list):
 
         if 'data' not in response.keys():
             raise Warning('No data!\nreq => {}'.format(request))
+
         data = response['data']
         for item in data:
             idx = item['id']
-            id_exists = db[collection_name].count({'id': idx})
-            if id_exists:
+            id_exists = db[collection_name].find_one({'id': idx})
+            if len(id_exists):
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assests']['preview']['url'],
                                   'Large': item['assests']['large_thuimb']['url'],
