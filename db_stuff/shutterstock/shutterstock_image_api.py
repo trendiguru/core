@@ -65,11 +65,11 @@ while query_not_flag:
 advanced = raw_input('do you want advanced people filters? (y/n) ') == 'y'
 advanced_filter = {}
 if advanced:
-    gender = raw_input('filter by gender: (female/male/no)')
+    gender = raw_input('filter by gender: (female/male/no) ')
     if gender in ['female', 'male']:
         advanced_filter['people_gender'] = gender
 
-    age = raw_input('filter by gender: (y/n)') == 'y'
+    age = raw_input('filter by age: (y/n)') == 'y'
     if age:
         print ('insert the age index:')
         for x,a in enumerate(age_lookuptable):
@@ -78,7 +78,7 @@ if advanced:
         if 0 < people_age < 10:
             advanced_filter['people_age'] = age_lookuptable[people_age]
 
-    ethnicity = raw_input('filter by people ethnicity? (y/n)') == 'y'
+    ethnicity = raw_input('filter by people ethnicity? (y/n) ') == 'y'
     if ethnicity:
         print ('insert the ethnicity index:')
         for x,a in enumerate(ethnicity_lookuptable):
@@ -87,7 +87,7 @@ if advanced:
         if 0 < people_ethnicity < 16:
             advanced_filter['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
 
-collection_name = raw_input('collection name: (either existing or new)')
+collection_name = raw_input('collection name: (either existing or new) ')
 if collection_name not in db.collection_names():
     for key in ['id', 'category']:
         db[collection_name].create_index(key, background=True)
