@@ -130,9 +130,9 @@ def divide_dates(pair):
     mid_date = ((end_year+start_year)/2, (end_month+start_month)/2, (end_day+start_day)/2)
     pair1 = (start_date, mid_date)
     if mid_date == start_date:
-        if mid_date[1] < 12 and mid_date[1] < end_date[1]:
-            mid_date =(mid_date[0], mid_date[1] + 1, mid_date[2])
-        elif mid_date[2] < 28 and mid_date[2] < end_date[2]:
+        if mid_date[1] < 12 and mid_date[1] < end_date[1]+1:
+            mid_date = (mid_date[0], mid_date[1] + 1, mid_date[2])
+        elif mid_date[2] < 28 and mid_date[2] < end_date[2]+1:
             mid_date = (mid_date[0], mid_date[1], mid_date[2] + 1)
         else:
             pair1 = ()
