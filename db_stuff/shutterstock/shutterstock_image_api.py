@@ -179,9 +179,9 @@ def build_req_parts(main_query, advance_query):
 
     return req_body, req_query, date_pairs
 
-
+print ('wait...')
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-print (date_list)
+# print (date_list)
 category = query_filter['query']
 
 for dp in tqdm(date_list):
@@ -207,7 +207,7 @@ for dp in tqdm(date_list):
                        'and': {x: i for x, i in enumerate(query_filter['and_queries'])},
                        'not': {y: j for y, j in enumerate(query_filter['not_queries'])},
                        'advanced': {k: advanced_filter[k] for k in advanced_filter.keys()}}
-                print doc
+                # print doc
                 db[collection_name].insert_one(doc)
 
         if page_number*500 > count:
