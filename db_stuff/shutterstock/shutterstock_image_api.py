@@ -110,6 +110,7 @@ def req_wrapper(req):
         raise Warning('No total_count!\nreq => {}'.format(req))
 
     total_count = int(res_dict['total_count'])
+    print res_dict
     return res_dict, total_count
 
 
