@@ -135,7 +135,7 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
-def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True):
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude='yonatan',min_items=1000):
     '''
     if you set the environment vars right then no need for in_docker
     :param dl:
@@ -152,6 +152,8 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         db = constants.db
     collections = db.collection_names()
     for collection in collections:
+        if exclude in collection:
+            print('excluding {} as it contains {}'.format(collection,exclude))
         print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
         cursor = db[collection].find()
@@ -173,10 +175,12 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
             else:
                 simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
 
-def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256)):
+def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
     cursor = db[collection].find({'categories':cat})
     count = cursor.count()
     print('category {} has {} items'.format(cat,count))
+    if count<min_items:
+        print('too few items ({} < {}'.format(count,min_items))
     doc = cursor.next()
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
