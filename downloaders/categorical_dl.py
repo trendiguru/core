@@ -206,7 +206,8 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 print('NO {} in images'.format(image_size_levels[size_level]))
             size_level-=1
         if img_url == None:
-            print('couldnt get image of any size (level ='+str(size_level))
+            print('couldnt get image of any size (level ='+str(size_level)+' url:'+str(url))
+            print('images:'+str(doc['images']))
             continue
         if dl:
             if not 'id' in doc:
