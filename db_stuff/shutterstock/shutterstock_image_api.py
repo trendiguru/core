@@ -49,7 +49,7 @@ query_filter ={'query': raw_input('query by:'),
 query_and_flag = True
 while query_and_flag:
     tmp_and = raw_input('And by: (leave blank and enter to stop)')
-    if len(tmp_and):
+    if len(tmp_and) < 2:
         query_and_flag = False
     else:
         query_filter['and_queries'].append(tmp_and)
@@ -57,7 +57,7 @@ while query_and_flag:
 query_not_flag = True
 while query_not_flag:
     tmp_not = raw_input(' and Not by: (leave blank and enter to stop)')
-    if len(tmp_not):
+    if len(tmp_not) < 2:
         query_not_flag = False
     else:
         query_filter['not_queries'].append(tmp_not)
