@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__ = 'jeremy'
 import os
 import logging
@@ -135,7 +137,7 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
-def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True):
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude='yonatan',min_items=1000):
     '''
     if you set the environment vars right then no need for in_docker
     :param dl:
@@ -152,6 +154,9 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         db = constants.db
     collections = db.collection_names()
     for collection in collections:
+        if exclude in collection:
+            print('excluding {} as it contains {}'.format(collection,exclude))
+            continue
         print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
         cursor = db[collection].find()
@@ -164,6 +169,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('categories: '+str(cats))
         jobs=[]
         for cat in cats:
+            time.sleep(0.1)
             if parallel:
     #            p = multiprocessing.Pool(30)
  #               p.map(simple_cat_dl, args=(cats,vargs)
@@ -173,16 +179,17 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
             else:
                 simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
 
-def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256)):
+def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
     cursor = db[collection].find({'categories':cat})
     count = cursor.count()
     print('category {} has {} items'.format(cat,count))
-    doc = cursor.next()
+    if count<min_items:
+        print('too few items ({} < {}'.format(count,min_items))
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
     image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
     size_level=len(image_size_levels)-1
-    for i in tqdm(range(count)):
+    for doc in tqdm(cursor):
 #            while doc is not None:
 #                print('doc:'+str(doc))
         if doc is None:
@@ -195,15 +202,29 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
         img_url=None
         while img_url==None and size_level>=0:
             if image_size_levels[size_level] in doc['images']:
-                print('{} in images'.format(image_size_levels[size_level]))
+                print('{} in images'.format(image_size_levels[size_level]),end='')
                 img_url = doc['images'][image_size_levels[size_level]]
                 break
             else:
-                print('no {} in images'.format(image_size_levels[size_level]))
+                print('NO {} in images'.format(image_size_levels[size_level]))
             size_level-=1
         if img_url == None:
             print('couldnt get image of any size (level ='+str(size_level))
             continue
+        if dl:
+            if not 'id' in doc:
+                hash = hashlib.sha1()
+                hash.update(str(time.time()))
+                id =  str(hash.hexdigest()[:10])
+                print('doc has no id, using random {}'.format(id))
+            else:
+                id = str(doc['id'])
+            save_dir = os.path.join(dl_dir,collection.lower())
+            Utils.ensure_dir(save_dir)
+            save_dir = os.path.join(save_dir,cat.lower())
+            Utils.ensure_dir(save_dir)
+            save_name = os.path.join(save_dir,id+'.jpg')
+            print('saving to '+str(save_name),end='')
         img_arr = Utils.get_cv2_img_array(img_url)
         if img_arr is None:
             print('WARNING!! did not get image from '+str(img_url))
@@ -217,25 +238,16 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             print('adjusting size level up to '+str(size_level))
         if resize is not None:
             img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
-        if dl:
-            if not 'id' in doc:
-                hash = hashlib.sha1()
-                hash.update(str(time.time()))
-                id =  str(hash.hexdigest()[:10])
-                print('doc has no id, using random {}'.format(rand))
-            else:
-                id = str(doc['id'])
-            save_dir = os.path.join(dl_dir,collection.lower())
-            Utils.ensure_dir(save_dir)
-            save_dir = os.path.join(save_dir,cat.lower())
-            Utils.ensure_dir(save_dir)
-            save_name = os.path.join(save_dir,id+'.jpg')
-            print('saving to '+str(save_name))
-            cv2.imwrite(save_name,img_arr)
+
         if use_visual_output:
             cv2.imshow('img',img_arr)
             cv2.waitKey(10)
-        doc = cursor.next()
+        if dl: #this is actually pointless, the idea was to save the get_cv2_img_array
+            if dont_overwrite:
+                if not os.path.exists(save_name):
+                    cv2.imwrite(save_name,img_arr)
+            else:
+                cv2.imwrite(save_name,img_arr)
 
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
@@ -486,7 +498,8 @@ def fix_shopstyle_nadav(download_dir='./'):
 
 
 def print_logging_info(msg):
-    print msg
+    print(msg)
+
 
 # hackety hack
 logging.info = print_logging_info
