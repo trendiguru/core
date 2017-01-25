@@ -77,6 +77,7 @@ if advanced:
         people_age = int(raw_input(''))
         if 0 < people_age < 10:
             advanced_filter['people_age'] = age_lookuptable[people_age]
+            print ('you choose {}'.format(age_lookuptable[people_age]))
 
     ethnicity = raw_input('filter by people ethnicity? (y/n) ') == 'y'
     if ethnicity:
@@ -86,6 +87,7 @@ if advanced:
         people_ethnicity = int(raw_input(''))
         if 0 < people_ethnicity < 16:
             advanced_filter['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
+            print ('you choose {}'.format(ethnicity_lookuptable[people_ethnicity]))
 
 collection_name = raw_input('collection name: (either existing or new) ')
 if collection_name not in db.collection_names():
@@ -178,7 +180,7 @@ def build_req_parts(main_query, advance_query):
 
 
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-
+print (date_list)
 category = query_filter['query']
 
 for dp in tqdm(date_list):
