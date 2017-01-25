@@ -77,6 +77,7 @@ if advanced:
         people_age = int(raw_input(''))
         if 0 < people_age < 10:
             advanced_filter['people_age'] = age_lookuptable[people_age]
+            print ('you choose {}'.format(age_lookuptable[people_age]))
 
     ethnicity = raw_input('filter by people ethnicity? (y/n) ') == 'y'
     if ethnicity:
@@ -86,8 +87,10 @@ if advanced:
         people_ethnicity = int(raw_input(''))
         if 0 < people_ethnicity < 16:
             advanced_filter['people_ethnicity'] = ethnicity_lookuptable[people_ethnicity]
+            print ('you choose {}'.format(ethnicity_lookuptable[people_ethnicity]))
 
 collection_name = raw_input('collection name: (either existing or new) ')
+
 if collection_name not in db.collection_names():
     for key in ['id', 'category']:
         db[collection_name].create_index(key, background=True)
@@ -148,7 +151,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
     while len(date_candidates):
         pair = date_candidates.pop()
         tmp_req = build_req_string(req_start, req_mid, *pair)
-        if req_wrapper(tmp_req)[1] > 2000:
+        if req_wrapper(tmp_req)[1] < 2000:
             dates_list.append(pair)
         else:
             pair1, pair2 = divide_dates(pair)
@@ -178,7 +181,7 @@ def build_req_parts(main_query, advance_query):
 
 
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-
+print (date_list)
 category = query_filter['query']
 
 for dp in tqdm(date_list):
@@ -188,11 +191,12 @@ for dp in tqdm(date_list):
 
         if 'data' not in response.keys():
             raise Warning('No data!\nreq => {}'.format(request))
+
         data = response['data']
         for item in data:
             idx = item['id']
-            id_exists = db[collection_name].count({'id': idx})
-            if id_exists:
+            id_exists = db[collection_name].find_one({'id': idx})
+            if id_exists is None:
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assests']['preview']['url'],
                                   'Large': item['assests']['large_thuimb']['url'],
@@ -203,6 +207,7 @@ for dp in tqdm(date_list):
                        'and': {x: i for x, i in enumerate(query_filter['and_queries'])},
                        'not': {y: j for y, j in enumerate(query_filter['not_queries'])},
                        'advanced': {k: advanced_filter[k] for k in advanced_filter.keys()}}
+                print doc
                 db[collection_name].insert_one(doc)
 
         if page_number*500 > count:
