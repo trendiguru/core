@@ -197,7 +197,7 @@ for dp in tqdm(date_list):
         for item in data:
             idx = item['id']
             id_exists = db[collection_name].find_one({'id': idx})
-            if len(id_exists):
+            if id_exists is not None:
                 doc = {'id': item["id"],
                        'images': {'XLarge': item['assests']['preview']['url'],
                                   'Large': item['assests']['large_thuimb']['url'],
