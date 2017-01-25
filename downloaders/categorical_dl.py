@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__ = 'jeremy'
 import os
 import logging
@@ -200,7 +202,7 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
         img_url=None
         while img_url==None and size_level>=0:
             if image_size_levels[size_level] in doc['images']:
-                print('{} in images'.format(image_size_levels[size_level]))
+                print('{} in images'.format(image_size_levels[size_level]),end='',flush=True)
                 img_url = doc['images'][image_size_levels[size_level]]
                 break
             else:
@@ -222,7 +224,7 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             save_dir = os.path.join(save_dir,cat.lower())
             Utils.ensure_dir(save_dir)
             save_name = os.path.join(save_dir,id+'.jpg')
-            print('saving to '+str(save_name))
+            print('saving to '+str(save_name),end='',flush=True)
         img_arr = Utils.get_cv2_img_array(img_url)
         if img_arr is None:
             print('WARNING!! did not get image from '+str(img_url))
