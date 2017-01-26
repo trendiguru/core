@@ -53,7 +53,7 @@ def get_image_obj_for_editor(image_url, image_id=None):
         for item in person['items']:
             for prod_coll in item['similar_results'].keys():
                 for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
-                    product = db[prod_coll + '_' + person['gender']].find_one({'_id': result['_id']}, product_projection)
+                    product = db[prod_coll + '_' + person['gender']].find_one({'id': result['id']}, product_projection)
                     result.update(product)
                 item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
                 
