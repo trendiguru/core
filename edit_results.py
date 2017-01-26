@@ -4,7 +4,7 @@ import bson
 import datetime
 import numpy as np
 from . import Utils, pipeline, constants, find_similar_mongo
-from .page_results import genderize
+from .page_results import genderize, load_similar_results
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
 
@@ -20,6 +20,24 @@ EDITOR_PROJECTION = {'image_id': 1,
                      'people.items.category': 1,
                      'people.items.similar_results': 1}
 
+product_projection = {
+        'image.sizes.XLarge.url': 1,
+        'images.XLarge': 1,
+        'images.Medium': 1,
+        'clickUrl': 1,
+        #'retailer': 1,
+        #'currency': 1,
+        'brand': 1,
+        # 'brand.localizedName': 1,
+        #'description': 1,
+        'price.price': 1,
+        'price.currency': 1,
+        #'categories': 1,
+        'shortDescription': 1,
+        '_id': 1,
+        'id': 1
+    }
+
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
@@ -29,13 +47,12 @@ def get_image_obj_for_editor(image_url, image_id=None):
     # TODO - what happen if the image is in db.irrelevant
     # if not sparse:
 
-    # for person in sparse['people']:
-    #     for item in person['items']:
-    #         for prod_coll in item['similar_results'].keys():
-    #             for result in item['similar_results'][prod_coll]:
-    #                 product = db[prod_coll+'_'+person['gender']].find_one({'id': result['id']})
-    #                 result['price'] = product['price']
-    #                 result['brand'] = product['brand']
+    for person in sparse['people']:
+        for item in person['items']:
+            for prod_coll in item['similar_results'].keys():
+                for result in item['similar_results'][prod_coll]:
+                    product = db[prod_coll + '_' + person['gender']].find_one({'id': result['id']}, product_projection)
+                    result.update(product)
     return sparse
 
 
