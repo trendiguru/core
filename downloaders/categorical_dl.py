@@ -191,7 +191,6 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
     size_level=len(image_size_levels)-1
     attempts=0
     succesful_dl=0
-    no_image=0
     unsuccesful_dl=0
     no_doc=0
     no_images=0
@@ -251,7 +250,9 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                     continue
             if img_arr is None:
                 print('WARNING!! did not get image from '+str(img_url))
+                unsuccesful_dl = 1
                 continue
+            succesful_dl+=1
             incoming_size = img_arr.shape[0:2]
             if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
                 size_level=max(size_level-1,0)
@@ -265,16 +266,16 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             if use_visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(10)
-            else:
-                cv2.imwrite(save_name,img_arr)
+            cv2.imwrite(save_name,img_arr)
         else:
             print('doc not being saved')
+        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'
+              .format(attempts,count,succesful_dl,unsuccesful_dl,no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
     dict=
-    {   'cat':cat,
+        {'cat':cat,
         'collection':collection,
         'attempts':attempts,
         'succesful_dl',succesful_dl,
-        'no_image',no_image,
         'unsuccesful_dl',unsuccesful_dl,
         'no_doc',no_doc,
         'no_images',no_images,
