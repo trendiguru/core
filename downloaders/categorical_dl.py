@@ -147,34 +147,37 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
     :param in_docker:
     :return:
     '''
-
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
         db = constants.db
     collections = filter(lambda coll: not any([term in coll for term in exclude]), db.collection_names())
     for collection in collections:
-        print('checking collection '+str(collection))
+        dl_collection(collection,db,parallel=parallel)
+
+def dl_collection(collection,db,parallel=True):
+    print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
-        cursor = db[collection].find()
-        count = cursor.count()
-        if count == 0:
-            print('no items....')
-            continue
-        print('collection {} has {} items'.format(collection,count))
-        cats = db[collection].distinct('categories')
-        print('categories: '+str(cats))
-        jobs=[]
-        for cat in cats:
-            time.sleep(0.1)
-            if parallel:
-    #            p = multiprocessing.Pool(30)
- #               p.map(simple_cat_dl, args=(cats,vargs)
-                p = multiprocessing.Process(target=simple_cat_dl,args=(cat,collection,db,dl,dl_dir,use_visual_output,resize))
-                jobs.append(p)
-                p.start()
-            else:
-                simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
+    cursor = db[collection].find()
+    count = cursor.count()
+    if count == 0:
+        print('no items....')
+        return
+    print('collection {} has {} items'.format(collection,count))
+    cats = db[collection].distinct('categories')
+    print('categories: '+str(cats))
+    jobs=[]
+    for cat in cats:
+        time.sleep(0.1)
+        if parallel:
+#            p = multiprocessing.Pool(30)
+#               p.map(simple_cat_dl, args=(cats,vargs)
+            p = multiprocessing.Process(target=simple_cat_dl,args=(cat,collection,db,dl,dl_dir,use_visual_output,resize))
+            jobs.append(p)
+            p.start()
+        else:
+            simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
+
 
 def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
     cursor = db[collection].find({'categories':cat})
