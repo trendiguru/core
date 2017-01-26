@@ -151,7 +151,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
         db = constants.db
-    collections = filter(lambda coll: not any([term in coll for term in exclude]), db.collection_names())
+    collections = filter(lambda coll: not any([term in coll.lower() for term in exclude]), db.collection_names())
     for collection in collections:
         dl_collection(collection,db,parallel=parallel)
 
