@@ -275,13 +275,13 @@ def simple_cat_dl(thecat,collection,db,dl=True,dl_dir='./',use_visual_output=Fal
     dict={'cat':thecat,
         'collection':collection,
         'attempts':attempts,
-        'succesful_dl',succesful_dl,
-        'unsuccesful_dl',unsuccesful_dl,
-        'no_doc',no_doc,
-        'no_images',no_images,
-        'no_known_size',no_known_size,
-        'n_hashed_names',n_hashed_names,
-        'n_already_dl',n_already_dl}
+        'succesful_dl':succesful_dl,
+        'unsuccesful_dl':unsuccesful_dl,
+        'no_doc':no_doc,
+        'no_images':no_images,
+        'no_known_size':no_known_size,
+        'n_hashed_names':n_hashed_names,
+        'n_already_dl':n_already_dl}
 
 
     with open('dbdata.txt','a') as fp:
