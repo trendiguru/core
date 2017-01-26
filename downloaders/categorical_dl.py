@@ -137,7 +137,7 @@ def find_products_by_category(category_id):
                                                                     category=category_id))
     return cursor
 
-def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude='yonatan',min_items=1000):
+def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),in_docker=True,parallel=True,exclude=['yonatan','temp'],min_items=1000):
     '''
     if you set the environment vars right then no need for in_docker
     :param dl:
@@ -152,11 +152,8 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
         db = constants.db
-    collections = db.collection_names()
+    collections = filter(lambda coll: not any([term in coll for term in exclude]), db.collection_names())
     for collection in collections:
-        if exclude in collection:
-            print('excluding {} as it contains {}'.format(collection,exclude))
-            continue
         print('checking collection '+str(collection))
 #        cursor = db.collection.find() #wont work since collceiton is a string
         cursor = db[collection].find()
@@ -169,6 +166,7 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
         print('categories: '+str(cats))
         jobs=[]
         for cat in cats:
+            time.sleep(0.1)
             if parallel:
     #            p = multiprocessing.Pool(30)
  #               p.map(simple_cat_dl, args=(cats,vargs)
@@ -184,12 +182,11 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
     print('category {} has {} items'.format(cat,count))
     if count<min_items:
         print('too few items ({} < {}'.format(count,min_items))
-    doc = cursor.next()
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
     image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
     size_level=len(image_size_levels)-1
-    for i in tqdm(range(count)):
+    for doc in tqdm(cursor):
 #            while doc is not None:
 #                print('doc:'+str(doc))
         if doc is None:
@@ -206,10 +203,11 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 img_url = doc['images'][image_size_levels[size_level]]
                 break
             else:
-                print('no {} in images'.format(image_size_levels[size_level]))
+                print('NO {} in images'.format(image_size_levels[size_level]))
             size_level-=1
         if img_url == None:
-            print('couldnt get image of any size (level ='+str(size_level))
+            print('couldnt get image of any size (level ='+str(size_level)+' url:'+str(url))
+            print('images:'+str(doc['images']))
             continue
         if dl:
             if not 'id' in doc:
@@ -248,8 +246,6 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                     cv2.imwrite(save_name,img_arr)
             else:
                 cv2.imwrite(save_name,img_arr)
-
-        doc = cursor.next()
 
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
