@@ -269,8 +269,11 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             cv2.imwrite(save_name,img_arr)
         else:
             print('doc not being saved')
-        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'
-              .format(attempts,count,succesful_dl,unsuccesful_dl,no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
+        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'.format(
+            attempts,count,succesful_dl,unsuccesful_dl,
+            no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
+    print('finished')
+
     dict={'cat':cat,
         'collection':collection,
         'attempts':attempts,
