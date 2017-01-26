@@ -179,10 +179,10 @@ def dl_collection(collection,db,parallel=True):
             simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
 
 
-def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
-    cursor = db[collection].find({'categories':cat})
+def simple_cat_dl(thecat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
+    cursor = db[collection].find({'categories':thecat})
     count = cursor.count()
-    print('category {} has {} items'.format(cat,count))
+    print('category {} has {} items'.format(thecat,count))
     if count<min_items:
         print('too few items ({} < {}'.format(count,min_items))
     #no need for this other than here and will cause problems elssewhere
@@ -269,12 +269,10 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
             cv2.imwrite(save_name,img_arr)
         else:
             print('doc not being saved')
-        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'.format(
-            attempts,count,succesful_dl,unsuccesful_dl,
-            no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
-    print('finished')
+        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'.format(attempts,count,succesful_dl,unsuccesful_dl,no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
 
-    dict={'cat':cat,
+    print('finished')
+    dict={'cat':thecat,
         'collection':collection,
         'attempts':attempts,
         'succesful_dl',succesful_dl,
@@ -284,6 +282,8 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
         'no_known_size',no_known_size,
         'n_hashed_names',n_hashed_names,
         'n_already_dl',n_already_dl}
+
+
     with open('dbdata.txt','a') as fp:
         json.dump(dict,fp,indent=4)
 
