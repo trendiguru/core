@@ -1,3 +1,4 @@
+import traceback
 import falcon
 from jaweson import json, msgpack
 from .. import edit_results, page_results, constants
@@ -42,7 +43,7 @@ class Editor(object):
                 ret['data'] = edit_results.get_latest_images(amount, user_filter=USER_FILTER)
                 ret['ok'] = True
         except Exception as e:
-            ret['error'] = str(e)
+            ret['error'] = traceback.format_exc()
         resp.status = falcon.HTTP_200
         resp.body = json_util.dumps(ret)
 
@@ -66,7 +67,7 @@ class Editor(object):
             else:
                 ret['ok'] = edit_results.cancel_image(path_args["image_id"])
         except Exception as e:
-            ret['error'] = str(e)
+            ret['error'] = traceback.format_exc()
         resp.status = falcon.HTTP_200
         resp.body = json_util.dumps(ret)
 
@@ -83,7 +84,7 @@ class Editor(object):
                                                          path_args["results_collection"],
                                                          data)
         except Exception as e:
-            ret['error'] = str(e)
+            ret['error'] = traceback.format_exc()
         resp.status = falcon.HTTP_200
         resp.body = json_util.dumps(ret)
 
@@ -99,7 +100,7 @@ class Editor(object):
                                                                           path_args["person_id"],
                                                                           gender)
         except Exception as e:
-            ret['error'] = str(e)
+            ret['error'] = traceback.format_exc()
         resp.status = falcon.HTTP_200
         resp.body = json_util.dumps(ret)
 
@@ -130,7 +131,7 @@ class Editor(object):
                                                              products_collection,
                                                              'pd')
         except Exception as e:
-            ret['error'] = str(e)
+            ret['error'] = traceback.format_exc()
         resp.status = falcon.HTTP_200
         resp.body = json_util.dumps(ret)
 

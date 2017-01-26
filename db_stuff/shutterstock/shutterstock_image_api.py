@@ -125,21 +125,14 @@ def build_req_string(req_start, req_mid, start_date, end_date, per_page=1, page=
 
 def divide_dates(pair):
     start_date, end_date = pair
-    start_year, start_month, start_day = start_date
-    end_year, end_month, end_day = end_date
-    mid_date = ((end_year+start_year)/2, (end_month+start_month)/2, (end_day+start_day)/2)
-    pair1 = (start_date, mid_date)
-    if mid_date == start_date:
-        if mid_date[1] < 12 and mid_date[1] < end_date[1]:
-            mid_date =(mid_date[0], mid_date[1] + 1, mid_date[2])
-        elif mid_date[2] < 28 and mid_date[2] < end_date[2]:
-            mid_date = (mid_date[0], mid_date[1], mid_date[2] + 1)
-        else:
-            pair1 = ()
 
+    a = datetime(*start_date)
+    b = datetime(*end_date)
+    mid = a + (b - a)/2
+    mid_date = (mid.year, mid.month, mid.day)
+
+    pair1 = (start_date, mid_date)
     pair2 = (mid_date, end_date)
-    if mid_date == start_date:
-        pair2 = ()
 
     return pair1, pair2
 
@@ -149,16 +142,21 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
     date_candidates = [(start_date, end_date)]
 
     while len(date_candidates):
-        pair = date_candidates.pop()
+        pair = date_candidates[0]
         tmp_req = build_req_string(req_start, req_mid, *pair)
-        if req_wrapper(tmp_req)[1] < 2000:
+        if pair[0] == pair[1] and pair not in dates_list:
             dates_list.append(pair)
+            print (pair)
+        elif req_wrapper(tmp_req)[1] < 2000 and pair not in dates_list:
+            dates_list.append(pair)
+            print (pair)
         else:
             pair1, pair2 = divide_dates(pair)
-            if len(pair1):
+            if pair1 not in date_candidates and pair1 not in dates_list:
                 date_candidates.append(pair1)
-            if len(pair2):
+            if pair2 not in date_candidates and pair1 not in dates_list:
                 date_candidates.append(pair2)
+        date_candidates.pop(0)
 
     return dates_list
 
@@ -179,9 +177,9 @@ def build_req_parts(main_query, advance_query):
 
     return req_body, req_query, date_pairs
 
-
+print ('curating the dates pairs for the queries')
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-print (date_list)
+
 category = query_filter['query']
 
 for dp in tqdm(date_list):
@@ -195,19 +193,25 @@ for dp in tqdm(date_list):
         data = response['data']
         for item in data:
             idx = item['id']
+            if any(x for x in ['assets', 'aspect', 'description'] if x not in item.keys()):
+                continue
+            if any(x for x in ['preview', 'large_thumb', 'small_thumb'] if x not in item['assets'].keys()):
+                continue
             id_exists = db[collection_name].find_one({'id': idx})
+
             if id_exists is None:
+
                 doc = {'id': item["id"],
-                       'images': {'XLarge': item['assests']['preview']['url'],
-                                  'Large': item['assests']['large_thuimb']['url'],
-                                  'Small': item['assests']['small_thumb']['url'],
+                       'images': {'XLarge': item['assets']['preview']['url'],
+                                  'Large': item['assets']['large_thumb']['url'],
+                                  'Small': item['assets']['small_thumb']['url'],
                                   'aspect_ratio': item['aspect']},
                        'description': item['description'],
                        'category': category,
                        'and': {x: i for x, i in enumerate(query_filter['and_queries'])},
                        'not': {y: j for y, j in enumerate(query_filter['not_queries'])},
                        'advanced': {k: advanced_filter[k] for k in advanced_filter.keys()}}
-                print doc
+                # print doc
                 db[collection_name].insert_one(doc)
 
         if page_number*500 > count:
