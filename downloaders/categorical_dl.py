@@ -236,7 +236,7 @@ def simple_cat_dl(thecat,collection,db,dl=True,dl_dir='./',use_visual_output=Fal
                 id = str(doc['id'])
             save_dir = os.path.join(dl_dir,collection.lower())
             Utils.ensure_dir(save_dir)
-            save_dir = os.path.join(save_dir,cat.lower())
+            save_dir = os.path.join(save_dir,thecat.lower())
             Utils.ensure_dir(save_dir)
             save_name = os.path.join(save_dir,id+'.jpg')
             print('saving to '+str(save_name),end='')
