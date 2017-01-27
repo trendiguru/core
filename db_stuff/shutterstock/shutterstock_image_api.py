@@ -180,9 +180,9 @@ def build_req_parts(main_query, advance_query):
     for k in advance_query.keys():
         req_query += '&{}={}'.format(k, advance_query[k])
 
-    date_pairs, total = build_date_pairs(req_body, req_query, global_start, global_end)
+    date_pairs = build_date_pairs(req_body, req_query, global_start, global_end)
 
-    return req_body, req_query, date_pairs, total
+    return req_body, req_query, date_pairs
 
 print ('curating the dates pairs for the queries')
 reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
