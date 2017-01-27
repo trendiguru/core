@@ -212,8 +212,8 @@ for dp in tqdm(date_list):
                                   'aspect_ratio': item['aspect']},
                        'description': item['description'],
                        'category': category,
-                       'and': {x: i for x, i in enumerate(query_filter['and_queries'])},
-                       'not': {y: j for y, j in enumerate(query_filter['not_queries'])},
+                       'and': {str(x): i for x, i in enumerate(query_filter['and_queries'])},
+                       'not': {str(y): j for y, j in enumerate(query_filter['not_queries'])},
                        'advanced': {k: advanced_filter[k] for k in advanced_filter.keys()}}
                 # print doc
                 db[collection_name].insert_one(doc)
