@@ -140,10 +140,14 @@ def divide_dates(pair):
 def build_date_pairs(req_start, req_mid, start_date, end_date):
     dates_list = []
     date_candidates = [(start_date, end_date)]
-
+    total_items = 0
+    total_flag = True
     while len(date_candidates):
         pair = date_candidates[0]
         tmp_req = build_req_string(req_start, req_mid, *pair)
+        if total_flag:
+            total_items = req_wrapper(tmp_req)[1]
+            total_flag = False
         if pair[0] == pair[1] and pair not in dates_list:
             dates_list.append(pair)
             print (pair)
@@ -158,7 +162,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
                 date_candidates.append(pair2)
         date_candidates.pop(0)
 
-    return dates_list
+    return dates_list, total_items
 
 
 def build_req_parts(main_query, advance_query):
@@ -173,13 +177,13 @@ def build_req_parts(main_query, advance_query):
     for k in advance_query.keys():
         req_query += '&{}={}'.format(k, advance_query[k])
 
-    date_pairs = build_date_pairs(req_body, req_query, global_start, global_end)
+    date_pairs, total = build_date_pairs(req_body, req_query, global_start, global_end)
 
-    return req_body, req_query, date_pairs
+    return req_body, req_query, date_pairs, total
 
 print ('curating the dates pairs for the queries')
-reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-
+reqBody, reqQuery, date_list, total_count = build_req_parts(query_filter, advanced_filter)
+print ('found ~{} relevant imgs'.format(total_count))
 category = query_filter['query']
 
 for dp in tqdm(date_list):
