@@ -4,9 +4,11 @@ import bson
 import datetime
 import numpy as np
 from . import Utils, pipeline, constants, find_similar_mongo
-from .page_results import genderize
+from .page_results import genderize, load_similar_results
 from .constants import db, q1
 from .paperdoll import pd_falcon_client, neurodoll_falcon_client
+
+MAX_RESULTS = 30
 
 EDITOR_PROJECTION = {'image_id': 1,
                      'image_urls': 1,
@@ -20,6 +22,24 @@ EDITOR_PROJECTION = {'image_id': 1,
                      'people.items.category': 1,
                      'people.items.similar_results': 1}
 
+product_projection = {
+        'image.sizes.XLarge.url': 1,
+        'images.XLarge': 1,
+        'images.Medium': 1,
+        'clickUrl': 1,
+        #'retailer': 1,
+        #'currency': 1,
+        'brand': 1,
+        # 'brand.localizedName': 1,
+        #'description': 1,
+        'price.price': 1,
+        'price.currency': 1,
+        #'categories': 1,
+        'shortDescription': 1,
+        '_id': 1,
+        'id': 1
+    }
+
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
@@ -29,13 +49,15 @@ def get_image_obj_for_editor(image_url, image_id=None):
     # TODO - what happen if the image is in db.irrelevant
     # if not sparse:
 
-    # for person in sparse['people']:
-    #     for item in person['items']:
-    #         for prod_coll in item['similar_results'].keys():
-    #             for result in item['similar_results'][prod_coll]:
-    #                 product = db[prod_coll+'_'+person['gender']].find_one({'id': result['id']})
-    #                 result['price'] = product['price']
-    #                 result['brand'] = product['brand']
+    for person in sparse['people']:
+        for item in person['items']:
+            for prod_coll in item['similar_results'].keys():
+                for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
+                    product = db[prod_coll + '_' + person['gender']].find_one({'id': result['id']}, product_projection)
+                    if product: 
+                      result.update(product)
+                item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
+                
     return sparse
 
 
@@ -211,6 +233,8 @@ def add_result(image_id, person_id, item_category, results_collection, new_resul
         results = item['similar_results'][results_collection]
         # new_result['id'] = db[results_collection+'_'+person['gender']].find_one({'images.XLarge': new_result['images']['XLarge']})['id']
         new_result['id'] = str(bson.ObjectId())
+        new_result['price'] = {'price': 'Click to See Price'}
+        new_result['brand'] = 'Best Match'
         results.insert(0, new_result)
         db.images.replace_one({'image_id': image_id}, image_obj)
         return True

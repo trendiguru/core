@@ -348,7 +348,7 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
+def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg',recursive=False):
     '''
     take a dir and add the files therein to a text file with lines like:
     /path/to/file class_number
@@ -357,10 +357,18 @@ def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg'):
     :param outfile : write to this file.  Appends, doesn't overwrite
     :return:
     '''
-    if filter:
-        files=[os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    if recursive:
+        allfiles = []
+        for root,dirs,files in os.walk(dir):
+            path = root.split(os.sep)
+#            print('root {}\ndirs {} '.format(root,dirs))
+            allfiles = allfiles + [os.path.join(root,f) for f in files]
+ #       raw_input('ret to cont')
+        files = allfiles
     else:
-        files=[os.path.join(dir,f) for f in os.listdir(dir)]
+        allfiles = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    if filter:
+        files=[f for f in allfiles if filter in f]
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')

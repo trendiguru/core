@@ -147,53 +147,67 @@ def exhaustive_search(dl=True,dl_dir='./',use_visual_output=False,resize=(256,25
     :param in_docker:
     :return:
     '''
-
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
         db = constants.db
-    collections = filter(lambda coll: not any([term in coll for term in exclude]), db.collection_names())
+    collections = filter(lambda coll: not any([term in coll.lower() for term in exclude]), db.collection_names())
     for collection in collections:
-        print('checking collection '+str(collection))
-#        cursor = db.collection.find() #wont work since collceiton is a string
-        cursor = db[collection].find()
-        count = cursor.count()
-        if count == 0:
-            print('no items....')
-            continue
-        print('collection {} has {} items'.format(collection,count))
-        cats = db[collection].distinct('categories')
-        print('categories: '+str(cats))
-        jobs=[]
-        for cat in cats:
-            time.sleep(0.1)
-            if parallel:
-    #            p = multiprocessing.Pool(30)
- #               p.map(simple_cat_dl, args=(cats,vargs)
-                p = multiprocessing.Process(target=simple_cat_dl,args=(cat,collection,db,dl,dl_dir,use_visual_output,resize))
-                jobs.append(p)
-                p.start()
-            else:
-                simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
+        dl_collection(collection,db,parallel=parallel)
 
-def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
-    cursor = db[collection].find({'categories':cat})
+def dl_collection(collection,db,parallel=True):
+    print('checking collection '+str(collection))
+#        cursor = db.collection.find() #wont work since collceiton is a string
+    cursor = db[collection].find()
     count = cursor.count()
-    print('category {} has {} items'.format(cat,count))
+    if count == 0:
+        print('no items....')
+        return
+    print('collection {} has {} items'.format(collection,count))
+    cats = db[collection].distinct('categories')
+    print('categories: '+str(cats))
+    jobs=[]
+    for cat in cats:
+        time.sleep(0.1)
+        if parallel:
+#            p = multiprocessing.Pool(30)
+#               p.map(simple_cat_dl, args=(cats,vargs)
+            p = multiprocessing.Process(target=simple_cat_dl,args=(cat,collection,db,dl,dl_dir,use_visual_output,resize))
+            jobs.append(p)
+            p.start()
+        else:
+            simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256))
+
+
+def simple_cat_dl(thecat,collection,db,dl=True,dl_dir='./',use_visual_output=False,resize=(256,256),min_items=1000,dont_overwrite=True):
+    cursor = db[collection].find({'categories':thecat})
+    count = cursor.count()
+    print('category {} has {} items'.format(thecat,count))
     if count<min_items:
         print('too few items ({} < {}'.format(count,min_items))
     #no need for this other than here and will cause problems elssewhere
     from tqdm import tqdm
     image_size_levels = ['Small','Medium','Large','XLarge','Original','Best']
     size_level=len(image_size_levels)-1
+    attempts=0
+    succesful_dl=0
+    unsuccesful_dl=0
+    no_doc=0
+    no_images=0
+    no_known_size=0
+    n_hashed_names=0
+    n_already_dl=0
     for doc in tqdm(cursor):
 #            while doc is not None:
 #                print('doc:'+str(doc))
+        attempts+=1
         if doc is None:
             print('got none doc')
+            no_doc+=1
             continue
         if not 'images' in doc:
             print('no images field in doc')
+            no_images+=1
             continue
 #                print('images:'+str(doc['images']))
         img_url=None
@@ -206,8 +220,10 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 print('NO {} in images'.format(image_size_levels[size_level]))
             size_level-=1
         if img_url == None:
-            print('couldnt get image of any size (level ='+str(size_level)+' url:'+str(url))
+            print('couldnt get image of any size (level ='+str(size_level)+' url:'+str(img_url))
             print('images:'+str(doc['images']))
+            no_known_size += 1
+            raw_input('ret to cont')
             continue
         if dl:
             if not 'id' in doc:
@@ -215,37 +231,61 @@ def simple_cat_dl(cat,collection,db,dl=True,dl_dir='./',use_visual_output=False,
                 hash.update(str(time.time()))
                 id =  str(hash.hexdigest()[:10])
                 print('doc has no id, using random {}'.format(id))
+                n_hashed_names +=1
             else:
                 id = str(doc['id'])
             save_dir = os.path.join(dl_dir,collection.lower())
             Utils.ensure_dir(save_dir)
-            save_dir = os.path.join(save_dir,cat.lower())
+            save_dir = os.path.join(save_dir,thecat.lower())
             Utils.ensure_dir(save_dir)
             save_name = os.path.join(save_dir,id+'.jpg')
             print('saving to '+str(save_name),end='')
-        img_arr = Utils.get_cv2_img_array(img_url)
-        if img_arr is None:
-            print('WARNING!! did not get image from '+str(img_url))
-            continue
-        incoming_size = img_arr.shape[0:2]
-        if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
-            size_level=max(size_level-1,0)
-            print('adjusting size level down to '+str(size_level))
-        if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]: #size smaller than needed
-            size_level=min(size_level+1,len(image_size_levels)-1)
-            print('adjusting size level up to '+str(size_level))
-        if resize is not None:
-            img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
-
-        if use_visual_output:
-            cv2.imshow('img',img_arr)
-            cv2.waitKey(10)
-        if dl: #this is actually pointless, the idea was to save the get_cv2_img_array
             if dont_overwrite:
-                if not os.path.exists(save_name):
+                if not os.path.exists(save_name): #get image unless its alreadyhere
+                    img_arr = Utils.get_cv2_img_array(img_url)
                     cv2.imwrite(save_name,img_arr)
-            else:
-                cv2.imwrite(save_name,img_arr)
+                else:
+                    print('image {} exists'.format(save_name))
+                    n_already_dl +=1
+                    continue
+            if img_arr is None:
+                print('WARNING!! did not get image from '+str(img_url))
+                unsuccesful_dl = 1
+                continue
+            succesful_dl+=1
+            incoming_size = img_arr.shape[0:2]
+            if incoming_size[0]>2*resize[0] and incoming_size[1]>2*resize[1]: #size way bigger than needed
+                size_level=max(size_level-1,0)
+                print('adjusting size level down to '+str(size_level))
+            if incoming_size[0]<resize[0] or incoming_size[1]<resize[1]: #size smaller than needed
+                size_level=min(size_level+1,len(image_size_levels)-1)
+                print('adjusting size level up to '+str(size_level))
+            if resize is not None:
+                img_arr = imutils.resize_keep_aspect(img_arr,output_size=resize)
+
+            if use_visual_output:
+                cv2.imshow('img',img_arr)
+                cv2.waitKey(10)
+            cv2.imwrite(save_name,img_arr)
+        else:
+            print('doc not being saved')
+        print('attempts {}/{} success {} un {} no_images {} nodoc {} nosize {} nhash {} n_already {}'.format(attempts,count,succesful_dl,unsuccesful_dl,no_images,no_doc,no_known_size,n_hashed_names,n_already_dl))
+
+    print('finished')
+    dict={'cat':thecat,
+        'collection':collection,
+        'attempts':attempts,
+        'succesful_dl':succesful_dl,
+        'unsuccesful_dl':unsuccesful_dl,
+        'no_doc':no_doc,
+        'no_images':no_images,
+        'no_known_size':no_known_size,
+        'n_hashed_names':n_hashed_names,
+        'n_already_dl':n_already_dl}
+
+
+    with open('dbdata.txt','a') as fp:
+        json.dump(dict,fp,indent=4)
 
 
 def simple_kw_find(category,db='ShopStyle_Female',check_all_dbs=True):
