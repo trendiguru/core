@@ -90,6 +90,9 @@ if advanced:
             print ('you choose {}'.format(ethnicity_lookuptable[people_ethnicity]))
 
 collection_name = raw_input('collection name: (either existing or new) ')
+if len(collection_name) < 2:
+    collection_name = 'shutterstock_{}'.format(query_filter['query'])
+    print ('collection name is {}'.format(collection_name))
 
 if collection_name not in db.collection_names():
     for key in ['id', 'category']:
@@ -140,13 +143,13 @@ def divide_dates(pair):
 def build_date_pairs(req_start, req_mid, start_date, end_date):
     dates_list = []
     date_candidates = [(start_date, end_date)]
-    total_items = 0
     total_flag = True
     while len(date_candidates):
         pair = date_candidates[0]
         tmp_req = build_req_string(req_start, req_mid, *pair)
         if total_flag:
             total_items = req_wrapper(tmp_req)[1]
+            print ('found ~{} relevant imgs'.format(total_items))
             total_flag = False
         if pair[0] == pair[1] and pair not in dates_list:
             dates_list.append(pair)
@@ -162,7 +165,7 @@ def build_date_pairs(req_start, req_mid, start_date, end_date):
                 date_candidates.append(pair2)
         date_candidates.pop(0)
 
-    return dates_list, total_items
+    return dates_list
 
 
 def build_req_parts(main_query, advance_query):
@@ -182,8 +185,7 @@ def build_req_parts(main_query, advance_query):
     return req_body, req_query, date_pairs, total
 
 print ('curating the dates pairs for the queries')
-reqBody, reqQuery, date_list, total_count = build_req_parts(query_filter, advanced_filter)
-print ('found ~{} relevant imgs'.format(total_count))
+reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
 category = query_filter['query']
 
 for dp in tqdm(date_list):
