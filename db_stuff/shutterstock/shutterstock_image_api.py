@@ -97,9 +97,9 @@ def query_once():
     return col_name, query_filter, advanced_filter
 
 
-def collection_stuff(col_name):
+def collection_stuff(col_name,currentquery):
     if len(col_name) < 2:
-        col_name = 'shutterstock_{}'.format(query_filter['query'])
+        col_name = 'shutterstock_{}'.format(currentquery)
         print ('collection name is {}'.format(col_name))
 
     if col_name not in db.collection_names():
@@ -200,7 +200,7 @@ def scrap_query(query_filter, advanced_filter, col_name=''):
     print ('curating the dates pairs for the queries')
     reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
     category = query_filter['query']
-    collection_name = collection_stuff(col_name)
+    collection_name = collection_stuff(col_name, category)
 
     for dp in tqdm(date_list):
         for page_number in range(1, 5):
@@ -250,7 +250,7 @@ if __name__ == "__main__":
         while query_many_flag:
             tmp_query = raw_input('query #{} by: (leave blank and enter to stop) '.format(many_counter))
             if len(tmp_query) < 2:
-                query_not_flag = False
+                query_many_flag = False
             else:
                 query_list.append(tmp_query)
                 many_counter += 1
@@ -258,8 +258,8 @@ if __name__ == "__main__":
         for query in query_list:
             try:
                 queryFilter = {'query': query,
-                                'and_queries': [],
-                                'not_queries': []}
+                               'and_queries': [],
+                               'not_queries': []}
 
                 advancedFilter = {}
                 scrap_query(queryFilter, advancedFilter)
