@@ -199,7 +199,7 @@ def scrap_query(query_filter, advanced_filter, col_name=''):
 
     print ('curating the dates pairs for the queries')
     reqBody, reqQuery, date_list = build_req_parts(query_filter, advanced_filter)
-    category = query_filter['query']
+    category = '_'.join(query_filter['query'].split())
     collection_name = collection_stuff(col_name, category)
 
     for dp in tqdm(date_list):
