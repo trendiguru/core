@@ -22,8 +22,8 @@ def grabcut(url_or_np_array):
     else:
         return None
 
-
-    rect = (1,2,3,4)
+    print "image.shape: {0}".format(img.shape)
+    rect = img.shape
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2] ,np.uint8)
