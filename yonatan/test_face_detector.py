@@ -84,11 +84,19 @@ def theDetector(url_or_np_array):
             print "\nface out of image boundaries\n"
             return None
 
+
+        if faces["are_faces"]:
+            if len(faces['faces']) == 1:
+                full_image = full_image[y + h:, :]  # Crop the face from the image
+                # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+            else:
+                continue
+
         # face_image = full_image[y: y + h, x: x + w]
 
-        cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+        # cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
+        #
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
