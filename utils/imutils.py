@@ -355,14 +355,8 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
     :param recursive:
     :return:
     '''
-    if recursive:
-        allfiles = []
-        for root,dirs,files in os.walk(dir):
-            path = root.split(os.sep)
-#            print('root {}\ndirs {} '.format(root,dirs))
-            allfiles = allfiles + [os.path.join(root,f) for f in files if filefilter in f]
- #       raw_input('ret to cont')
-        files = allfiles
+
+
     else:
         files = [ os.path.join(dir,f) for f in os.listdir(dir) if filefilter in f]
     print(str(len(files))+' files in '+dir)
