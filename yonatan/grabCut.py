@@ -32,10 +32,10 @@ def grabcut(url_or_np_array):
     bgdModel = np.zeros((1 ,65) ,np.float64)
     fgdModel = np.zeros((1 ,65) ,np.float64)
 
-    cv2.grabCut(img ,mask ,rect ,bgdModel ,fgdModel ,3 ,cv2.GC_INIT_WITH_RECT)
+    cv2.grabCut(img ,mask ,rect ,bgdModel ,fgdModel ,5 ,cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
-    img = img* mask2[:, :, np.newaxis]
+    without_bg_img = img* mask2[:, :, np.newaxis]
 
     print "type(img): {0}".format(type(img))
 
@@ -49,7 +49,7 @@ def grabcut(url_or_np_array):
     # plt.imshow(img),plt.colorbar(),plt.show()
     # cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", img)
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
     print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
     # return img
 
