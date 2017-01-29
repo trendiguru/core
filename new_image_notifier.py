@@ -14,7 +14,7 @@ def notify_new_image(query):
     except:
         pass
     
-    send_message("{0}\n{1}".format(joke, message))
+    send_message(message)
 
 def send_message(msg):
     payload = {"text": msg}
