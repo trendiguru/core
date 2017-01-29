@@ -22,6 +22,7 @@ import shutil
 import yonatan_constants
 import dlib
 import requests
+import grabCut
 
 detector = dlib.get_frontal_face_detector()
 
@@ -141,21 +142,20 @@ def preparing_data_from_db(argv):
                 print "not a good image"
                 continue
 
-
-
-
-
-
-
             # # if there's a head, cut it of
             faces = find_face_dlib(fresh_image)
 
+            x, y, w, h = faces['faces'][0]
+
             if faces["are_faces"]:
                 if len(faces['faces']) == 1:
-                    fresh_image = fresh_image[faces["faces"][0][3]:, :]  # Crop the face from the image
+                    fresh_image = fresh_image[y + h:, :]  # Crop the face from the image
                     # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
                 else:
                     continue
+
+
+            grabCut.grabcut(fresh_image)
 
             clear background and take BB of the remines
 

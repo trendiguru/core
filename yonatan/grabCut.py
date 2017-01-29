@@ -7,7 +7,7 @@ def grabcut(img):
 
     img = cv2.imread(img)
 
-    rect = (5,5,8,7)
+    rect = img.shape
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2],np.uint8)
@@ -22,4 +22,7 @@ def grabcut(img):
     img = img*mask2[:,:,np.newaxis]
 
     # plt.imshow(img),plt.colorbar(),plt.show()
-    cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
+    # cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
+
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", img)
+    # return img
