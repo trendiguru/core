@@ -22,7 +22,7 @@ def grabcut(url_or_np_array):
     else:
         return None
 
-    print "image.shape: {0}".format(img.shape)
+    print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
     rect = (0, 0, img.shape[0], img.shape[1])
     # rect = sys.argv[2]
 
