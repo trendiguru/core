@@ -360,8 +360,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
     if recursive:
         allfiles = []
         for root,dirs,files in os.walk(dir):
-            path = root.split(os.sep)
-#            print('root {}\ndirs {} '.format(root,dirs))
+            #path = root.split(os.sep)
+            print('root {}'.format(root))
             allfiles = allfiles + [os.path.join(root,f) for f in files]
  #       raw_input('ret to cont')
         files = allfiles
