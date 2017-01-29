@@ -23,7 +23,7 @@ def grabcut(url_or_np_array):
         return None
 
     print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
-    rect = (0, 0, img.shape[1] + 1, img.shape[0] - 1)
+    rect = (0, 0, img.shape[1] - 1, img.shape[0] - 1)
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2] ,np.uint8)
@@ -32,7 +32,7 @@ def grabcut(url_or_np_array):
     fgdModel = np.zeros((1 ,65) ,np.float64)
 
 
-    cv2.grabCut(img ,mask ,rect ,bgdModel ,fgdModel ,5 ,cv2.GC_INIT_WITH_RECT)
+    cv2.grabCut(img ,mask ,rect ,bgdModel ,fgdModel ,7 ,cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
     img = img* mask2[:, :, np.newaxis]
