@@ -8,7 +8,8 @@ import requests
 # 
 #     img = cv2.imread(img)
 
-def grabCut(url_or_np_array):
+
+def grabcut(url_or_np_array):
 
     print "Starting the face detector testing!"
     # check if i get a url (= string) or np.ndarray
