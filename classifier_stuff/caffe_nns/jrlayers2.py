@@ -524,6 +524,7 @@ class JrMultilabel(caffe.Layer):
         self.analysis_time = time.time()
         self.analysis_time_out = time.time()
         self.previous_images_processed=0
+        self.default_newsize=(256,256)
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -668,9 +669,9 @@ class JrMultilabel(caffe.Layer):
             self.size_for_shaping = self.augment_crop_size
             print('dba')
             if self.new_size is None:
-                logging.warning('WARNING!!! got no size for self.newsize, using 250x250 resize and and  crop '+str(self.augment_crop_size))
+                logging.warning('WARNING!!! got no size for self.newsize, using '+self.default_newsize+' resize and and  crop '+str(self.augment_crop_size))
                 raw_input('ret to cont')
-                self.new_size=(250,250)
+                self.new_size=self.default_newsize
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
