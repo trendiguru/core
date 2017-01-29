@@ -2,10 +2,24 @@ import numpy as np
 import cv2
 import sys
 from matplotlib import pyplot as plt
+import requests
 
-def grabcut(img):
+# def grabcut(img):
+# 
+#     img = cv2.imread(img)
 
-    img = cv2.imread(img)
+def grabCut(url_or_np_array):
+
+    print "Starting the face detector testing!"
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        # img = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        img = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        img = url_or_np_array
+    else:
+        return None
 
     rect = img.shape
     # rect = sys.argv[2]
