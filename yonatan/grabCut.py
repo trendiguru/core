@@ -39,7 +39,7 @@ def grabcut(url_or_np_array):
 
     print "type(img): {0}".format(type(img))
 
-    i, j = np.where(img)
+    i, j = np.where(mask2)
     indices = np.meshgrid(np.arange(min(i), max(i) + 1),
                           np.arange(min(j), max(j) + 1),
                           indexing='ij')
