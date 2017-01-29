@@ -7,7 +7,7 @@ JOKE_URL = "http://api.icndb.com/jokes/random"
 
 def notify_new_image(query):
     im = db.images.find_one(query, {"image_urls":1, "page_urls":1, "domain":1})
-    message = "{Also, there's a new <{0}|image> on <{1}|{2}>".format(im["image_urls"][-1], im["page_urls"][-1], im.get("domain", "page"))
+    message = "Also, there's a new <{0}|image> on <{1}|{2}>".format(im["image_urls"][-1], im["page_urls"][-1], im.get("domain", "page"))
     try:
         joke = requests.get(JOKE_URL).json()["value"]["joke"]
         message = "{0}\n{1}".format(joke, message)
