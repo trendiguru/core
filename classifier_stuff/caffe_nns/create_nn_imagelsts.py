@@ -367,7 +367,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
                 newfiles = [f for f in newfiles if filefilter in f]
             if pathfilter:
                 newfiles = [f for f in newfiles if pathfilter in f]
-            print('root {} {} newfiles '.format(root,len(newfiles)))
+            if len(newfiles)>0:
+                print('root {} {} newfiles '.format(root,len(newfiles)))
             allfiles += newfiles
  #       raw_input('ret to cont')
     else:
