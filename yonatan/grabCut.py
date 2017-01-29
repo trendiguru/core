@@ -37,9 +37,11 @@ def grabcut(url_or_np_array):
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
     img = img* mask2[:, :, np.newaxis]
 
+    print "type(img): {0}".format(type(img))
+
     i, j = np.where(img)
-    indices = np.meshgrid(np.arange(min(i), max(i)),
-                          np.arange(min(j), max(j)),
+    indices = np.meshgrid(np.arange(min(i), max(i) + 1),
+                          np.arange(min(j), max(j) + 1),
                           indexing='ij')
     sub_image = img[indices]
 
