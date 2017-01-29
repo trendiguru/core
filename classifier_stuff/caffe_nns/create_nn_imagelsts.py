@@ -362,27 +362,32 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
         for root,dirs,files in os.walk(dir):
             #path = root.split(os.sep)
             print('root {}'.format(root))
-            allfiles = allfiles + [os.path.join(root,f) for f in files]
+            newfiles = [os.path.join(root,f) for f in files]
+            if filefilter:
+                newfiles = [f for f in newfiles if filefilter in f]
+            if pathfilter:
+                newfiles = [f for f in newfiles if pathfilter in f]
+            print('root {} {} newfiles '.format(root,len(newfiles)))
+            allfiles += newfiles
  #       raw_input('ret to cont')
-        files = allfiles
     else:
         allfiles = [os.path.join(dir,f) for f in os.listdir(dir)]
-    if filefilter:
-        files=[f for f in allfiles if filefilter in f]
-    if pathfilter:
-        files=[f for f in allfiles if pathfilter in f]
+        if filefilter:
+            allfiles=[f for f in allfiles if filefilter in f]
+        if pathfilter:
+            allfiles=[f for f in allfiles if pathfilter in f]
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
     with open(outfile,'a') as fp:
-        for f in files:
+        for f in allfiles:
             line = f + '\t'+str(class_number)
             print line
             fp.write(line+'\n')
             i+=1
         fp.close()
-    print('added {} files to {} with class {}'.format(len(files),outfile,class_number))
-    print('used {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
+    print('added {} files to {} with class {}'.format(len(allfiles),outfile,class_number))
+    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
