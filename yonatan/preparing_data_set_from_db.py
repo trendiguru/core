@@ -21,6 +21,7 @@ import argparse
 import shutil
 import yonatan_constants
 import dlib
+import requests
 
 detector = dlib.get_frontal_face_detector()
 
@@ -121,28 +122,54 @@ def preparing_data_from_db(argv):
 
             link_to_image = value[0][i]['images']['XLarge']
 
-            fresh_image = url_to_image(link_to_image)
+            # fresh_image = url_to_image(link_to_image)
+            # if fresh_image is None:
+            #     continue
+
+            # check if i get a url (= string) or np.ndarray
+            if isinstance(link_to_image, basestring):
+                # full_image = url_to_image(url_or_np_array)
+                response = requests.get(link_to_image)  # download
+                fresh_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+            elif type(link_to_image) == np.ndarray:
+                fresh_image = link_to_image
+            else:
+                return None
+
+            # checks if the face coordinates are inside the image
             if fresh_image is None:
+                print "not a good image"
                 continue
 
 
-            # # only take the dresses images that with person in it
-            # faces = background_removal.find_face_dlib(fresh_image)
-            #
-            # if not faces["are_faces"]:
-            #     print "didn't find any faces"
-            #     continue
+
+
+
+
+
+            # # if there's a head, cut it of
+            faces = find_face_dlib(fresh_image)
+
+            if faces["are_faces"]:
+                if len(faces['faces']) == 1:
+                    fresh_image = fresh_image[faces["faces"][0][3]:, :]  # Crop the face from the image
+                    # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+                else:
+                    continue
+
+            clear background and take BB of the remines
+
 
 
             # Resize it.
             #resized_image = cv2.resize(fresh_image, (width, height))
-            resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (224, 224))
+            # resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (224, 224))
 
             image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
 
             print i
 
-            cv2.imwrite(os.path.join(working_path, image_file_name), resized_image)
+            cv2.imwrite(os.path.join(working_path, image_file_name), fresh_image)
             #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
             print working_path
