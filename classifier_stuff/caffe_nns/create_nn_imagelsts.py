@@ -355,6 +355,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
     :param dir:
     :param class_number: assign all files this class #
     :param outfile : write to this file.  Appends, doesn't overwrite
+    :pathfilter - list of required terms in path e..g male and swimsuit
+    :path_antifilter - list of terms that cant occur in path e.g female
     :return:
     '''
     if recursive:
@@ -366,7 +368,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
             if filefilter:
                 newfiles = [f for f in newfiles if filefilter in f]
             if pathfilter:
-                newfiles = [f for f in newfiles if pathfilter in f]
+#                newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
+                newfiles = filter(lambda f: all([term in f for term in pathfilter]), newfiles)
             if path_antifilter:
                 newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
             if len(newfiles)>0:
