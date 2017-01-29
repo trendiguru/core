@@ -9,7 +9,7 @@ from shutil import copyfile
 import json
 import shutil
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 from PIL import Image
 
 from trendi import constants
@@ -361,7 +361,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
         allfiles = []
         for root,dirs,files in os.walk(dir):
             #path = root.split(os.sep)
-            print('root {}'.format(root))
+#            print('root {}'.format(root))
             newfiles = [os.path.join(root,f) for f in files]
             if filefilter:
                 newfiles = [f for f in newfiles if filefilter in f]
@@ -382,7 +382,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
     with open(outfile,'a') as fp:
         for f in allfiles:
             line = f + '\t'+str(class_number)
-            print line
+            logging.debug(line)
             fp.write(line+'\n')
             i+=1
         fp.close()
