@@ -87,7 +87,7 @@ def theDetector(url_or_np_array):
 
         if faces["are_faces"]:
             if len(faces['faces']) == 1:
-                full_image = full_image[faces["faces"][0][3]:, :]  # Crop the face from the image
+                full_image = full_image[y + h:, :]  # Crop the face from the image
                 # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
             else:
                 continue
