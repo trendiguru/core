@@ -22,8 +22,9 @@ def grabcut(url_or_np_array):
     else:
         return None
 
-    print "image.shape: {0}".format(img.shape)
-    rect = img.shape
+    print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
+    rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
+    ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
 
     mask = np.zeros(img.shape[:2] ,np.uint8)
@@ -31,15 +32,24 @@ def grabcut(url_or_np_array):
     bgdModel = np.zeros((1 ,65) ,np.float64)
     fgdModel = np.zeros((1 ,65) ,np.float64)
 
-
     cv2.grabCut(img ,mask ,rect ,bgdModel ,fgdModel ,5 ,cv2.GC_INIT_WITH_RECT)
 
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
-    img = img* mask2[:, :, np.newaxis]
+    without_bg_img = img* mask2[:, :, np.newaxis]
+
+    print "type(img): {0}".format(type(img))
+
+    i, j = np.where(mask2)
+    indices = np.meshgrid(np.arange(min(i), max(i) + 1),
+                          np.arange(min(j), max(j) + 1),
+                          indexing='ij')
+    sub_image = img[indices]
+
 
     # plt.imshow(img),plt.colorbar(),plt.show()
     # cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", img)
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
     # return img
 
