@@ -150,9 +150,13 @@ def preparing_data_from_db(argv):
                 full_image = full_image[y + h:, :]  # Crop the face from the image
                 # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
             else:
+                print "more than one face"
                 continue
 
         cropped_image = grabCut.grabcut(full_image)
+
+        if not cropped_image:
+            continue
 
 
         # Resize it.
