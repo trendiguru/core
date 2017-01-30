@@ -1,3 +1,5 @@
+from gevent import monkey
+monkey.patch_all()
 import traceback
 import pymongo
 import bson
@@ -42,6 +44,30 @@ product_projection = {
 
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
+
+def get_image_obj_for_editor_fast(image_url, image_id=None):
+    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
+    sparse = db.images.find_one(query, EDITOR_PROJECTION)
+    # TODO - what happen if the image is in db.irrelevant
+    # if not sparse:
+
+    products
+    for person in sparse['people']:
+        for item in person['items']:
+            for prod_coll in item['similar_results'].keys():
+                result_ids = [result['id'] for result in item['similar_results'][prod_coll][:MAX_RESULTS]]
+                products = list(db[prod_coll + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
+                for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
+                    for product in products:
+                        if product["id"] is result["id"]:
+                            result.update(product)
+                            break
+                    products.remove(product)
+                      
+                item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
+                
+    return sparse
+
 
 def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
