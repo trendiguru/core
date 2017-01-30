@@ -61,7 +61,7 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
                 while products:
                     product = products.pop()
                     for result in similar_results:
-                        if product["id"] is result["id"]:
+                        if product["id"] == result["id"]:
                             result.update(product)
                             break
             
