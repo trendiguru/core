@@ -32,7 +32,6 @@ def cv2_image_to_caffe(image):
 
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
-    print faces
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
@@ -172,6 +171,9 @@ def preparing_data_from_db(argv):
         cv2.imwrite(os.path.join('/data/dress_detector/images', image_file_name), cropped_image)
         #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
+
+    np.array(images).dump(open('/data/dress_detector/images.npy', 'wb'))
+    np.array(boxes).dump(open('/data/dress_detector/boxes.npy', 'wb'))
 
     #text_file.flush()
 
