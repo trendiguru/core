@@ -120,7 +120,7 @@ def preparing_data_from_db(argv):
 
     counter = 0
 
-    for i in range(9838, dresses.count()):
+    for i in range(1, dresses.count()):
         #if i > num_of_each_category:
          #   break
 
