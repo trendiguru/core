@@ -51,7 +51,6 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
     # TODO - what happen if the image is in db.irrelevant
     # if not sparse:
 
-    products
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll in item['similar_results'].keys():
