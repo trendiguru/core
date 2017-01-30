@@ -1,5 +1,5 @@
-import gevent, gevent.monkey
-gevent.monkey.patch_all()
+# import gevent, gevent.monkey
+# gevent.monkey.patch_all()
 import traceback
 import pymongo
 import bson
@@ -45,7 +45,7 @@ product_projection = {
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
-def get_image_obj_for_editor_fast(image_url, image_id=None):
+def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
     
@@ -66,44 +66,45 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
                             break
             
     return sparse
+#
+# These were tested but slower: gevent: 1.33s, old: 10s, new (in use): 1.08s.
+#
+# def get_image_obj_for_editor_gevent(image_url, image_id=None):
+#     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
+#     sparse = db.images.find_one(query, EDITOR_PROJECTION)
+
+#     for person in sparse['people']:
+#         for item in person['items']:
+#             for prod_coll_name, similar_results in item['similar_results'].iteritems():
+#                 item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
+#                 greenlets = [gevent.spawn(enrich_result, result, db[prod_coll_name + '_' + person['gender']])
+#                             for result in similar_results]
+#                 gevent.joinall(greenlets)
+
+#     return sparse
 
 
-def get_image_obj_for_editor_gevent(image_url, image_id=None):
-    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
-    sparse = db.images.find_one(query, EDITOR_PROJECTION)
-
-    for person in sparse['people']:
-        for item in person['items']:
-            for prod_coll_name, similar_results in item['similar_results'].iteritems():
-                item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
-                greenlets = [gevent.spawn(enrich_result, result, db[prod_coll_name + '_' + person['gender']])
-                            for result in similar_results]
-                gevent.joinall(greenlets)
-
-    return sparse
-
-
-def enrich_result(result, collection_object, projection=product_projection):
-    product = collection_object.find_one({'id': result['id']}, projection)
-    if product:
-        result.update(product)
+# def enrich_result(result, collection_object, projection=product_projection):
+#     product = collection_object.find_one({'id': result['id']}, projection)
+#     if product:
+#         result.update(product)
     
 
-def get_image_obj_for_editor(image_url, image_id=None):
-    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
-    sparse = db.images.find_one(query, EDITOR_PROJECTION)
-    # TODO - what happen if the image is in db.irrelevant
-    # if not sparse:
+# def get_image_obj_for_editor_old(image_url, image_id=None):
+#     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
+#     sparse = db.images.find_one(query, EDITOR_PROJECTION)
+#     # TODO - what happen if the image is in db.irrelevant
+#     # if not sparse:
 
-    for person in sparse['people']:
-        for item in person['items']:
-            for prod_coll_name, similar_results in item['similar_results'].iteritems():
-                # This is necessary to persists the slicing of similar_results
-                item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
-                for result in similar_results:
-                    enrich_result(result, db[prod_coll_name + '_' + person['gender']])
+#     for person in sparse['people']:
+#         for item in person['items']:
+#             for prod_coll_name, similar_results in item['similar_results'].iteritems():
+#                 # This is necessary to persists the slicing of similar_results
+#                 item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
+#                 for result in similar_results:
+#                     enrich_result(result, db[prod_coll_name + '_' + person['gender']])
 
-    return sparse
+#     return sparse
 
 
 def cancel_image(image_id):
