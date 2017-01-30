@@ -11,7 +11,6 @@ import requests
 
 def grabcut(url_or_np_array):
 
-    print "Starting the face detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         # img = url_to_image(url_or_np_array)
@@ -23,7 +22,6 @@ def grabcut(url_or_np_array):
         print "couldn't open the image"
         return None
 
-    print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
     rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
     ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
@@ -38,7 +36,7 @@ def grabcut(url_or_np_array):
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
     without_bg_img = img* mask2[:, :, np.newaxis]
 
-    print "type(img): {0}".format(type(img))
+    # print "type(img): {0}".format(type(img))
 
     i, j = np.where(mask2)
     indices = np.meshgrid(np.arange(min(i), max(i) + 1),
