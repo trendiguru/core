@@ -155,7 +155,7 @@ def preparing_data_from_db(argv):
 
         cropped_image = grabCut.grabcut(full_image)
 
-        if not cropped_image:
+        if cropped_image is None:
             continue
 
 
