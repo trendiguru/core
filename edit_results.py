@@ -1,5 +1,5 @@
-from gevent import monkey
-monkey.patch_all()
+import gevent
+gevent.monkey.patch_all()
 import traceback
 import pymongo
 import bson
@@ -48,25 +48,47 @@ product_projection = {
 def get_image_obj_for_editor_fast(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
     sparse = db.images.find_one(query, EDITOR_PROJECTION)
-    # TODO - what happen if the image is in db.irrelevant
-    # if not sparse:
-
+    
     for person in sparse['people']:
         for item in person['items']:
-            for prod_coll in item['similar_results'].keys():
-                result_ids = [result['id'] for result in item['similar_results'][prod_coll][:MAX_RESULTS]]
-                products = list(db[prod_coll + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
-                for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
-                    for product in products:
+            for prod_coll_name, similar_results in item['similar_results'].iteritems():
+                # We want to go get more info for each of these results.
+                # We'll do it as a batch using $in so it's faster. First get all the ids
+                result_ids = [result['id'] for result in similar_results[:MAX_RESULTS]]
+                products = list(db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
+                print "products length: {0}".format(len(products))
+                while products:
+                    product = products.pop()
+                    for result in similar_results:
                         if product["id"] is result["id"]:
                             result.update(product)
                             break
-                    products.remove(product)
-                      
-                item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
+                                   
+                similar_results = similar_results[:MAX_RESULTS]
                 
     return sparse
 
+
+def get_image_obj_for_editor_gevent(image_url, image_id=None):
+    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
+    sparse = db.images.find_one(query, EDITOR_PROJECTION)
+
+    for person in sparse['people']:
+        for item in person['items']:
+            for prod_coll, similar_results in item['similar_results'].iteritems():
+                greenlets = [gevent.spawn(enrich_result, result, db[prod_coll + '_' + person['gender']])
+                            for result in similar_results[:MAX_RESULTS]]
+                greenlets.joinall()
+                similar_results = similar_results[:MAX_RESULTS]
+                
+    return sparse
+
+
+def enrich_result(result, collection_object, projection=product_projection):
+    product = collection_pbject.find_one({'id': result['id']}, projection)
+    if product:
+        result.update(product)
+    
 
 def get_image_obj_for_editor(image_url, image_id=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
@@ -80,7 +102,7 @@ def get_image_obj_for_editor(image_url, image_id=None):
                 for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
                     product = db[prod_coll + '_' + person['gender']].find_one({'id': result['id']}, product_projection)
                     if product: 
-                      result.update(product)
+                        result.update(product)
                 item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
                 
     return sparse
