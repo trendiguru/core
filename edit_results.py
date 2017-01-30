@@ -56,7 +56,7 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
                 # We'll do it as a batch using $in so it's faster. First get all the ids
                 result_ids = [result['id'] for result in similar_results[:MAX_RESULTS]]
                 products = list(db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
-                print "products length: {0}".format(len(products))
+                
                 while products:
                     product = products.pop()
                     for result in similar_results:
@@ -85,7 +85,7 @@ def get_image_obj_for_editor_gevent(image_url, image_id=None):
 
 
 def enrich_result(result, collection_object, projection=product_projection):
-    product = collection_pbject.find_one({'id': result['id']}, projection)
+    product = collection_object.find_one({'id': result['id']}, projection)
     if product:
         result.update(product)
     
