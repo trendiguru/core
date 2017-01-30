@@ -165,7 +165,7 @@ def preparing_data_from_db(argv):
 
         image_file_name = 'dress-' + str(i) + '.jpg'
 
-        line_in_list_images = 'io.imread(/data/dress_detector/images_test/' + image_file_name
+        line_in_list_images = 'io.imread(/data/dress_detector/images/' + image_file_name
         line_in_list_boxes = '([dlib.rectangle(left=0, top=0, right=' + str(cropped_image.shape[1]) + ', bottom=' + str(cropped_image.shape[0]) + ')])'
 
         images.append(line_in_list_images)
@@ -173,7 +173,7 @@ def preparing_data_from_db(argv):
 
         print counter
 
-        cv2.imwrite(os.path.join('/data/dress_detector/images_test', image_file_name), cropped_image)
+        cv2.imwrite(os.path.join('/data/dress_detector/images', image_file_name), cropped_image)
         #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
         counter += 1
