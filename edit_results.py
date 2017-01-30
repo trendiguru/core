@@ -78,7 +78,7 @@ def get_image_obj_for_editor_gevent(image_url, image_id=None):
             for prod_coll, similar_results in item['similar_results'].iteritems():
                 greenlets = [gevent.spawn(enrich_result, result, db[prod_coll + '_' + person['gender']])
                             for result in similar_results[:MAX_RESULTS]]
-                greenlets.joinall()
+                gevent.joinall(greenlets)
                 similar_results = similar_results[:MAX_RESULTS]
                 
     return sparse
