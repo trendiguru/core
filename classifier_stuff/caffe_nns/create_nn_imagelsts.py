@@ -8,6 +8,7 @@ import sys
 from shutil import copyfile
 import json
 import shutil
+import pymongo
 
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
@@ -118,13 +119,19 @@ def consistency_check_multilabel_db():
 
 #binary lists generated so far (9.10.16)
 #dress
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
-    if n_votes[cat] = n_voters put that image in positives for cat
+    if n_votes[cat] >= 2 put that image in positives for cat
     '''
     db = constants.db
+
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
@@ -348,7 +355,7 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=None,path_antifilter=None,recursive=False):
+def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter=None,path_antifilter=None,recursive=False):
     '''
     take a dir and add the files therein to a text file with lines like:
     /path/to/file class_number
@@ -367,9 +374,9 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
             newfiles = [os.path.join(root,f) for f in files]
             if filefilter:
                 newfiles = [f for f in newfiles if filefilter in f]
-            if pathfilter:
+            if path_filter:
 #                newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
-                newfiles = filter(lambda f: all([term in f for term in pathfilter]), newfiles)
+                newfiles = filter(lambda f: all([term in f for term in path_filter]), newfiles)
             if path_antifilter:
                 newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
             if len(newfiles)>0:
@@ -380,8 +387,10 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',pathfilter=
         allfiles = [os.path.join(dir,f) for f in os.listdir(dir)]
         if filefilter:
             allfiles=[f for f in allfiles if filefilter in f]
-        if pathfilter:
-            allfiles=[f for f in allfiles if pathfilter in f]
+        if path_filter:
+            allfiles = filter(lambda f: all([term in f for term in path_filter]), allfiles)
+        if path_antifilter:
+            allfiles = filter(lambda f: not any([term in f for term in path_antifilter]), allfiles)
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
