@@ -123,6 +123,8 @@ def preparing_data_from_db(argv):
         #if i > num_of_each_category:
          #   break
 
+        counter = 0
+
         link_to_image = dresses[i]['images']['XLarge']
 
         # check if i get a url (= string) or np.ndarray
@@ -166,14 +168,18 @@ def preparing_data_from_db(argv):
         images.append(line_in_list_images)
         boxes.append(line_in_list_boxes)
 
-        print i
+        print counter
 
         cv2.imwrite(os.path.join('/data/dress_detector/images', image_file_name), cropped_image)
         #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
+        counter += 1
+
 
     np.array(images).dump(open('/data/dress_detector/images.npy', 'wb'))
     np.array(boxes).dump(open('/data/dress_detector/boxes.npy', 'wb'))
+
+    print "number of bad images: {0}".format(i - counter)
 
     #text_file.flush()
 
