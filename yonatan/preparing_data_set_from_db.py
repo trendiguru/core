@@ -6,8 +6,8 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from .. import background_removal, utils, constants
-from ..utils import imutils
+# from .. import background_removal, utils, constants
+# from ..utils import imutils
 import cv2
 import sys
 import argparse
