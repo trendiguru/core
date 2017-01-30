@@ -52,7 +52,7 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll_name, similar_results in item['similar_results'].iteritems():
-                similar_results = similar_results[:MAX_RESULTS]
+                item['similar_results'][prod_coll] = similar_results = similar_results[:MAX_RESULTS]
                 # We want to go get more info for each of these results.
                 # We'll do it as a batch using $in so it's faster. First get all the ids
                 result_ids = [result['id'] for result in similar_results]
@@ -75,7 +75,7 @@ def get_image_obj_for_editor_gevent(image_url, image_id=None):
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll, similar_results in item['similar_results'].iteritems():
-                similar_results = similar_results[:MAX_RESULTS]
+                item['similar_results'][prod_coll] = similar_results = similar_results[:MAX_RESULTS]
                 greenlets = [gevent.spawn(enrich_result, result, db[prod_coll + '_' + person['gender']])
                             for result in similar_results]
                 gevent.joinall(greenlets)
@@ -98,7 +98,8 @@ def get_image_obj_for_editor(image_url, image_id=None):
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll, similar_results in item['similar_results'].iteritems():
-                similar_results = similar_results[:MAX_RESULTS]
+                # This is necessary to persists the slicing of similar_results
+                item['similar_results'][prod_coll] = similar_results = similar_results[:MAX_RESULTS]
                 for result in similar_results:
                     enrich_result(result, db[prod_coll + '_' + person['gender']])
 
