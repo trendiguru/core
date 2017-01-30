@@ -33,6 +33,7 @@
 import os
 import sys
 import glob
+import numpy as np
 
 import dlib
 from skimage import io
@@ -152,6 +153,12 @@ boxes_img2 = ([dlib.rectangle(left=154, top=46, right=228, bottom=121),
 # And then you aggregate those lists of boxes into one big list and then call
 # train_simple_object_detector().
 boxes = [boxes_img1, boxes_img2]
+
+images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
+boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+
+images = images_array.tolist()
+boxes = boxes_array.tolist()
 
 detector2 = dlib.train_simple_object_detector(images, boxes, options)
 # We could save this detector to disk by uncommenting the following.
