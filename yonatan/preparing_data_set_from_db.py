@@ -118,12 +118,11 @@ def preparing_data_from_db(argv):
     images = []
     boxes = []
 
+    counter = 0
 
     for i in range(1, dresses.count()):
         #if i > num_of_each_category:
          #   break
-
-        counter = 0
 
         link_to_image = dresses[i]['images']['XLarge']
 
