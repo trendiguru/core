@@ -20,6 +20,7 @@ def grabcut(url_or_np_array):
     elif type(url_or_np_array) == np.ndarray:
         img = url_or_np_array
     else:
+        print "couldn't open the image"
         return None
 
     print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
@@ -47,9 +48,9 @@ def grabcut(url_or_np_array):
 
 
     # plt.imshow(img),plt.colorbar(),plt.show()
-    # cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
-    # return img
+    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
+    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
+
+    return sub_image
 

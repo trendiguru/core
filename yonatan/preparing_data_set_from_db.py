@@ -30,19 +30,6 @@ def cv2_image_to_caffe(image):
     return skimage.img_as_float(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).astype(np.float32)
 
 
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-    resp = urllib.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    if image.size == 0:
-        print url
-        return None
-    new_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-    # return the image
-    return new_image
-
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
     print faces
@@ -60,14 +47,20 @@ def preparing_data_from_db(argv):
     parser.add_argument(
         "input_file",
         help="the argument should be one of those:"
-             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve"
+             "\ndress_sleeve\ndress_length\nmen_shirt_sleeve\npants_length\nwomen_shirt_sleeve\nyonatan_dresses_test"
     )
 
     # if i run this function on braini2:
     # db = constants.db
 
     # if i run this function on brainik80a:
-    db = pymongo.MongoClient().mydb
+    # db = pymongo.MongoClient().mydb
+
+    # if in_docker:
+    db = pymongo.MongoClient('localhost', port=27017).mydb
+
+    # else:
+    # db = constants.db
 
     args = parser.parse_args()
 
@@ -91,90 +84,96 @@ def preparing_data_from_db(argv):
     elif args.input_file == 'women_shirt_sleeve':
         dictionary = yonatan_constants.women_shirt_sleeve_dict
 
+    # dress_doorman #
+    elif args.input_file == 'yonatan_dresses_test':
+        dresses = db.yonatan_dresses_test.find()
+
     else:
         print "wrong input!"
-        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve',
-                                                                                     'dress_length', 'men_shirt_sleeve',                                                                           'pants_length',
-                                                                                     'women_shirt_sleeve')
+        print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve', 'dress_length', 'men_shirt_sleeve', 'pants_length', 'women_shirt_sleeve', 'yonatan_dresses_test')
         return
 
+    ## for all but dress_doorman ##
+    # for key, value in dictionary.iteritems():
+    #
+    #     working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+    #
+    #     if os.path.isdir(working_path):
+    #         if not os.listdir(working_path):
+    #             print '\nfolder is empty'
+    #         else:
+    #             print "deleting directory content"
+    #             shutil.rmtree(working_path)
+    #             os.mkdir(working_path)
+    #     else:
+    #         print "creating new directory"
+    #         os.mkdir(working_path)
+    #
+    #     #text_file = open("all_dresses_" + key + "_list.txt", "w")
+    #     for i in range(1, value[0].count()):
+    #         #if i > num_of_each_category:
+    #          #   break
+    #
+    #         link_to_image = value[0][i]['images']['XLarge']
 
-    num_of_each_category = 900
+    images = []
+    boxes = []
 
-    for key, value in dictionary.iteritems():
 
-        working_path = '/home/yonatan/resized_db_' + args.input_file + '_' + key
+    for i in range(1, dresses.count()):
+        #if i > num_of_each_category:
+         #   break
 
-        if os.path.isdir(working_path):
-            if not os.listdir(working_path):
-                print '\nfolder is empty'
-            else:
-                print "deleting directory content"
-                shutil.rmtree(working_path)
-                os.mkdir(working_path)
+        link_to_image = dresses[i]['images']['XLarge']
+
+        # check if i get a url (= string) or np.ndarray
+        if isinstance(link_to_image, basestring):
+            # full_image = url_to_image(url_or_np_array)
+            response = requests.get(link_to_image)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        elif type(link_to_image) == np.ndarray:
+            full_image = link_to_image
         else:
-            print "creating new directory"
-            os.mkdir(working_path)
+            continue
 
-        #text_file = open("all_dresses_" + key + "_list.txt", "w")
-        for i in range(1, value[0].count()):
-            #if i > num_of_each_category:
-             #   break
+        # checks if the face coordinates are inside the image
+        if full_image is None:
+            print "not a good image"
+            continue
 
-            link_to_image = value[0][i]['images']['XLarge']
+        # # if there's a head, cut it of
+        faces = find_face_dlib(full_image)
 
-            # fresh_image = url_to_image(link_to_image)
-            # if fresh_image is None:
-            #     continue
-
-            # check if i get a url (= string) or np.ndarray
-            if isinstance(link_to_image, basestring):
-                # full_image = url_to_image(url_or_np_array)
-                response = requests.get(link_to_image)  # download
-                fresh_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-            elif type(link_to_image) == np.ndarray:
-                fresh_image = link_to_image
+        if faces["are_faces"]:
+            if len(faces['faces']) == 1:
+                x, y, w, h = faces['faces'][0]
+                full_image = full_image[y + h:, :]  # Crop the face from the image
+                # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
             else:
-                return None
-
-            # checks if the face coordinates are inside the image
-            if fresh_image is None:
-                print "not a good image"
                 continue
 
-            # # if there's a head, cut it of
-            faces = find_face_dlib(fresh_image)
-
-            x, y, w, h = faces['faces'][0]
-
-            if faces["are_faces"]:
-                if len(faces['faces']) == 1:
-                    fresh_image = fresh_image[y + h:, :]  # Crop the face from the image
-                    # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
-                else:
-                    continue
+        cropped_image = grabCut.grabcut(full_image)
 
 
-            grabCut.grabcut(fresh_image)
+        # Resize it.
+        #resized_image = cv2.resize(full_image, (width, height))
+        # resized_image = imutils.resize_keep_aspect(full_image, output_size = (224, 224))
 
-            clear background and take BB of the remines
+        image_file_name = 'dress-' + str(i) + '.jpg'
+
+        line_in_list_images = 'io.imread(/data/dress_detector/images/' + image_file_name
+        line_in_list_boxes = '([dlib.rectangle(left=0, top=0, right=' + str(cropped_image.shape[1]) + ', bottom=' + str(cropped_image.shape[0]) + ')])'
+
+        images.append(line_in_list_images)
+        boxes.append(line_in_list_boxes)
+
+        print i
+
+        cv2.imwrite(os.path.join('/data/dress_detector/images', image_file_name), cropped_image)
+        #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
 
-
-            # Resize it.
-            #resized_image = cv2.resize(fresh_image, (width, height))
-            # resized_image = imutils.resize_keep_aspect(fresh_image, output_size = (224, 224))
-
-            image_file_name = key + '_' + args.input_file + '-' + str(i) + '.jpg'
-
-            print i
-
-            cv2.imwrite(os.path.join(working_path, image_file_name), fresh_image)
-            #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
-
-            print working_path
-
-        #text_file.flush()
+    #text_file.flush()
 
 
 if __name__ == '__main__':
