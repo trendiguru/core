@@ -1,4 +1,4 @@
-import gevent
+import gevent, gevent.monkey
 gevent.monkey.patch_all()
 import traceback
 import pymongo
