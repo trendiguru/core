@@ -22,6 +22,10 @@ def grabcut(url_or_np_array):
         print "couldn't open the image"
         return None
 
+    if img.shape[0] < 25 or img.shape[1] < 15:
+        print "image too small for grabcut"
+        return None
+
     rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
     ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
