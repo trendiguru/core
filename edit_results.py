@@ -52,9 +52,10 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll_name, similar_results in item['similar_results'].iteritems():
+                similar_results = similar_results[:MAX_RESULTS]
                 # We want to go get more info for each of these results.
                 # We'll do it as a batch using $in so it's faster. First get all the ids
-                result_ids = [result['id'] for result in similar_results[:MAX_RESULTS]]
+                result_ids = [result['id'] for result in similar_results]
                 products = list(db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
                 
                 while products:
@@ -63,9 +64,7 @@ def get_image_obj_for_editor_fast(image_url, image_id=None):
                         if product["id"] is result["id"]:
                             result.update(product)
                             break
-                                   
-                similar_results = similar_results[:MAX_RESULTS]
-                
+            
     return sparse
 
 
@@ -76,11 +75,11 @@ def get_image_obj_for_editor_gevent(image_url, image_id=None):
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll, similar_results in item['similar_results'].iteritems():
-                greenlets = [gevent.spawn(enrich_result, result, db[prod_coll + '_' + person['gender']])
-                            for result in similar_results[:MAX_RESULTS]]
-                gevent.joinall(greenlets)
                 similar_results = similar_results[:MAX_RESULTS]
-                
+                greenlets = [gevent.spawn(enrich_result, result, db[prod_coll + '_' + person['gender']])
+                            for result in similar_results]
+                gevent.joinall(greenlets)
+
     return sparse
 
 
@@ -98,13 +97,11 @@ def get_image_obj_for_editor(image_url, image_id=None):
 
     for person in sparse['people']:
         for item in person['items']:
-            for prod_coll in item['similar_results'].keys():
-                for result in item['similar_results'][prod_coll][:MAX_RESULTS]:
-                    product = db[prod_coll + '_' + person['gender']].find_one({'id': result['id']}, product_projection)
-                    if product: 
-                        result.update(product)
-                item['similar_results'][prod_coll] = item['similar_results'][prod_coll][:MAX_RESULTS]
-                
+            for prod_coll, similar_results in item['similar_results'].iteritems():
+                similar_results = similar_results[:MAX_RESULTS]
+                for result in similar_results:
+                    enrich_result(result, db[prod_coll + '_' + person['gender']])
+
     return sparse
 
 
