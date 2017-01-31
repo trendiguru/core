@@ -15,6 +15,7 @@ import sys
 # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # ch.setFormatter(formatter)
 # root.addHandler(ch)
+
 USER_FILTER = 'stylebook'
 db = constants.db
 
@@ -42,11 +43,17 @@ class Editor(object):
                 # user_filter = req.USER
                 ret['data'] = edit_results.get_latest_images(amount, user_filter=USER_FILTER)
                 ret['ok'] = True
+            
+            assert ret['ok']
+            resp.status = falcon.HTTP_200
+        
         except Exception as e:
             ret['error'] = traceback.format_exc()
-        resp.status = falcon.HTTP_200
+            resp.status = falcon.HTTP_400
+        
         resp.body = json_util.dumps(ret)
-
+        
+    
     def on_delete(self, req, resp, **path_args):
         logging.debug("ON_DELETE {0}".format(str(path_args)))
         ret = {'ok': False, 'data': {}}
@@ -66,10 +73,15 @@ class Editor(object):
                                                        path_args["person_id"])
             else:
                 ret['ok'] = edit_results.cancel_image(path_args["image_id"])
+            
+            assert ret['ok']
+            resp.status = falcon.HTTP_200
+            
         except Exception as e:
             ret['error'] = traceback.format_exc()
-        resp.status = falcon.HTTP_200
-        resp.body = json_util.dumps(ret)
+            resp.status = falcon.HTTP_400
+        
+        resp.body = json_util.dumps(ret)        
 
     def on_put(self, req, resp, **path_args):
         ret = {'ok': False, 'data': {}}
@@ -83,9 +95,13 @@ class Editor(object):
                                                          path_args["item_category"],
                                                          path_args["results_collection"],
                                                          data)
+            assert ret['ok']
+            resp.status = falcon.HTTP_202 # Accepted
+        
         except Exception as e:
             ret['error'] = traceback.format_exc()
-        resp.status = falcon.HTTP_200
+            resp.status = falcon.HTTP_400
+        
         resp.body = json_util.dumps(ret)
 
     def on_patch(self, req, resp, **path_args):
@@ -98,10 +114,13 @@ class Editor(object):
                 gender = data['gender'] if 'gender' in data.keys() else data['data']
                 ret["ok"] = edit_results.change_gender_and_rebuild_person(path_args["image_id"],
                                                                           path_args["person_id"],
-                                                                          gender)
+                                                                              gender)
+            assert ret['ok']
+            resp.status = falcon.HTTP_202 # Accepted
         except Exception as e:
             ret['error'] = traceback.format_exc()
-        resp.status = falcon.HTTP_200
+            resp.status = falcon.HTTP_400
+        
         resp.body = json_util.dumps(ret)
 
     def on_post(self, req, resp, **path_args):
@@ -130,9 +149,13 @@ class Editor(object):
                                                              data['faces'],
                                                              products_collection,
                                                              'pd')
+            assert ret['ok']
+            resp.status = falcon.HTTP_201 # Created
+        
         except Exception as e:
             ret['error'] = traceback.format_exc()
-        resp.status = falcon.HTTP_200
+            resp.status = falcon.HTTP_400
+        
         resp.body = json_util.dumps(ret)
 
 

@@ -11,7 +11,6 @@ import requests
 
 def grabcut(url_or_np_array):
 
-    print "Starting the face detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         # img = url_to_image(url_or_np_array)
@@ -20,9 +19,13 @@ def grabcut(url_or_np_array):
     elif type(url_or_np_array) == np.ndarray:
         img = url_or_np_array
     else:
+        print "couldn't open the image"
         return None
 
-    print "image.shape: {0}\nimage.shape[0]: {1}\nimage.shape[1]: {2}".format(img.shape, img.shape[0], img.shape[1])
+    if img.shape[0] < 25 or img.shape[1] < 15:
+        print "image too small for grabcut"
+        return None
+
     rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
     ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
@@ -37,9 +40,14 @@ def grabcut(url_or_np_array):
     mask2 = np.where(( mask ==2 ) |( mask ==0) ,0 ,1).astype('uint8')
     without_bg_img = img* mask2[:, :, np.newaxis]
 
-    print "type(img): {0}".format(type(img))
+    # print "type(img): {0}".format(type(img))
 
     i, j = np.where(mask2)
+
+    if not i.size or not j.size:
+        print "bad grabcut"
+        return None
+
     indices = np.meshgrid(np.arange(min(i), max(i) + 1),
                           np.arange(min(j), max(j) + 1),
                           indexing='ij')
@@ -47,9 +55,9 @@ def grabcut(url_or_np_array):
 
 
     # plt.imshow(img),plt.colorbar(),plt.show()
-    # cv2.imwrite("/data/yonatan/yonatan_files/grabcut_image.jpg", img)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
-    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
-    # return img
+    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
+    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
+
+    return sub_image
 
