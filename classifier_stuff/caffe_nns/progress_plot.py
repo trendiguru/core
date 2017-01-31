@@ -312,7 +312,7 @@ def parse_logfile(output_filename,logy=True):
             ax1.plot(training_iterations,fit_y,linestyle='--',color='r',linewidth=2)
             a_str = str.format('{0:.2e}', a)
             st = 'y='+str(round(b,2))+'+'+str(round(k,2))+'log('+a_str+'(x-'+str(round(x0,2))+')'
-            ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=12)
+            ax1.text(training_iterations[0], middley*1.2, r'$'+st+'$', fontsize=8)
   savename = output_filename+'.png'
   plt.savefig(savename)
   #plt.show()
@@ -481,8 +481,8 @@ def lossplot(input_filename,netinfo='',logy=True):
   ax1.set_ylabel("loss")
   plt.title(input_filename)
   plt.suptitle(netinfo)
-  ax1.legend(loc='lower left')
-  ax2.legend(loc='lower right')
+  ax1.legend(loc='lower left',fontsize=8)
+  ax2.legend(loc='lower right',fontsize=8)
 
 
   output_filename = input_filename[:-4] + '.png'

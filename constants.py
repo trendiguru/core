@@ -328,7 +328,16 @@ binary_caffemodels = [
 'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
-#
+
+#this is a list of stuff that is generally not ok to use as negatives for a given positive
+bad_negs_for_pos={'dress':['socks','leggings']}
+
+flat_hydra=['dress','suit','overalls','tracksuit', 'sarong','robe','pyjamas','womens_swimwear_nonbikini','bikini',
+ 'lingerie','mens_swimwear' 'mens_underwear','jumpsuit', 'bra', 'panties', 'babydoll', 'coat', 'jacket',
+ 'blazer', 'cardigan', 'sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho', 't-shirt', 'button-down',
+ 'blouse', 'polo', 'henley', 'tube', 'tanktop', 'jeans', 'pants', 'stockings', 'leggings', 'socks', 'shorts',
+ 'skirt', 'shawl', 'scarf', 'boots', 'shoes', 'sandals', 'bag', 'belt', 'sarong']
+
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
@@ -522,6 +531,7 @@ pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
 pixlevel3_lower_cover_short = ['shorts','skirt']
 pixlevel3_wraparwounds = ['shawl','scarf']
 pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
+
 
 
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats

@@ -117,6 +117,11 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
+def binary_pos_and_neg_for_all(cats=[i for l in constants.hydra_cats for i in l]):
+    print(cats)
+
+
+
 #binary lists generated so far (9.10.16)
 #dress
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
@@ -125,7 +130,6 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tama
     if n_votes[cat] = 0 put that image in negatives for cat.
     if n_votes[cat] >= 2 put that image in positives for cat
     '''
-    db = constants.db
 
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
@@ -232,6 +236,57 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 fp.close()
         print('number of matches found:'+str(n_items))
         return n_items
+
+def analyze_negs_filipino_db(labels=constants.multilabel_categories_v2,in_docker=True):
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs done')
+    fellow_positives = [  [0 for i in len(constants.web_tool_categories_v2)]  for j in len(constants.web_tool_categories_v2)]
+    fellow_negatives = [  [0 for i in len(constants.web_tool_categories_v2)]  for j in len(constants.web_tool_categories_v2)]
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        for i in range(len(votelist)):
+            cat = constants.web_tool_categories_v2[i]
+            for j in range(len(votelist)):
+                if votelist[i]==0:
+                    fellow_negatives[i]+=1
+
+                if votelist[i] >= 2:
+                    fellow_positives[i]+=1
+
+#votes [2 1 0 0 2]
+#cat 0 fellow_pos : [[100 10 . . .][
+#cat 0 fellow_neg : [100 1
 
 def positives_from_tbdb_for_hydra_cats():
     for type in constants.hydra_cats:
