@@ -74,7 +74,7 @@ def preparing_data_from_db(argv):
 
     counter = 0
 
-    irrelevant_text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
+    # irrelevant_text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 
     for i in range(1, irrelevant.count()):
         #if i > num_of_each_category:
