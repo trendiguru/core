@@ -85,7 +85,11 @@ def preparing_data_from_db(argv):
         # check if i get a url (= string) or np.ndarray
         if isinstance(link_to_image, basestring):
             # full_image = url_to_image(url_or_np_array)
-            response = requests.get(link_to_image)  # download
+            try:
+                response = requests.get(link_to_image)  # download
+            except:
+                print "couldn't open link"
+                continue
             full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
         elif type(link_to_image) == np.ndarray:
             full_image = link_to_image
