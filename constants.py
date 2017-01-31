@@ -328,7 +328,54 @@ binary_caffemodels = [
 'res101_binary_watch_iter_64000.caffemodel',
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
-#
+
+#these are lists of things  that are generally not ok to use as negatives for a given positive (all pos from hydra_cats)
+#ie things that can realistically be worn together
+#warning this all assumes a single person per image, which we have never really verified
+#also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
+bad_negs_for_pos={'dress':['socks','cardigan','stockings','scarf','footwear','bag','belt','eyewear'],
+                  'suit':['socks','vest','blazer','stockings','top','scarf','footwear','bag','belt','eyewear'],
+                  'overalls':['socks','scarf','footwear','top','bag','belt','eyewear'],
+                  'tracksuit':['socks','scarf','footwear','top','bag','belt','eyewear'],
+                  'sarong':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
+                  'robe':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
+                  'pyjamas':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
+                  'womens_swimwear_nonbikini':['footwear','eyewear','sarong'],
+                  'bikini':['footwear','eyewear','sarong'],
+                  'lingerie':['footwear','eyewear','top'], #maybe also top
+                  'mens_swimwear':['footwear','eyewear','sarong'],
+                  'mens_underwear':['footwear','eyewear','top'],
+                  'jumpsuit':['footwear','eyewear','top','sweatshirt'],  #maybe jumpsuit excludes top?
+                  'bra':['pants','socks'],
+                  'panties':['top','socks'],
+                  'babydoll':['top','socks'],
+                  'coat':['top','sweater'],
+
+                  }
+
+flat_hydra=['dress','suit','overalls','tracksuit', 'sarong','robe','pyjamas','womens_swimwear_nonbikini','bikini',
+ 'lingerie','mens_swimwear' 'mens_underwear','jumpsuit', 'bra', 'panties', 'babydoll', 'coat', 'jacket',
+ 'blazer', 'cardigan', 'sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho', 't-shirt', 'button-down',
+ 'blouse', 'polo', 'henley', 'tube', 'tanktop', 'jeans', 'pants', 'stockings', 'leggings', 'socks', 'shorts',
+ 'skirt', 'shawl', 'scarf', 'boots', 'shoes', 'sandals', 'bag', 'belt']
+#more: top, hat, footwear, eyewear
+
+#this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
+similar_cats = [['shirt','top','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
+                ['footwear','boots','shoes','sandals','heels'],
+                ['pants','jeans'],
+,               ['leggings','stockings','socks'],
+                ['swimwear','bikini','mens_swimwear','womens_swimwear_nonbikini'],
+                ['pyjamas','pijamas','pjs'],
+                ['eyewear','glasses','sunglasses','shades'],
+                ['sweatshirt','hoodie'],
+                ['sweater','cardigan'],
+                ['bra','panties','lingerie','babydoll']]
+
+#synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
+synonymous_cats = {'womens_swimwear_nonbikini',['women\'s swimwear']}
+
+
 
 tamara_berg_to_web_tool = [0, 1, 5, 6, 7, 8, 14, 4, 11, 13, 17, None, None]
 tamara_berg_to_web_tool_dict = {'bag':'bag','belt':'belt','dress':'dress','eyewear':'eyewear','footwear':'footwear',
@@ -371,7 +418,6 @@ binary_cats = ['belt -conveyor -boxing -heavyweight','bikini','blazer -jeep -Jee
                'overalls','pants', 'ring', 'scarf', 'shorts', 'skirt', 'stocking', 'suit', 'sweater',
                'sweatshirt','swimwear AND man -bikini -woman -girl','shirt', 'watch']
 
-synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
 exclude_terms_for_binary_cats = [['conveyor','boxing','heavyweight'],None,['jeep','chevy','chevrolet','silverado','car'],['island'],['island'],['animal','cat','dog','doctor'],['animal','fox','wolf'],None,
                                  None,None,None,None,None,['coat','suit']]
 
@@ -482,7 +528,7 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
 
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
-hydra_cats = [['None','dress','suit','overalls','tracksuit','sarong','robe','pyjamas','womens_swimwear_nonbikini',
+hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
               'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              ['None','bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              ['None','coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
@@ -522,6 +568,7 @@ pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
 pixlevel3_lower_cover_short = ['shorts','skirt']
 pixlevel3_wraparwounds = ['shawl','scarf']
 pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
+
 
 
 #deep fashion categories_and_attributes list_category_cloth.txt (list of 50 cats) map to our cats
