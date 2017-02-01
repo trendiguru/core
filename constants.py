@@ -335,7 +335,7 @@ binary_caffemodels = [
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
                 ['footwear','boots','shoes','sandals','heels'],
                 ['pants','jeans'],
-,               ['leggings','stockings','socks'],
+                ['leggings','stockings','socks'],
                 ['swimwear','bikini','mens_swimwear','womens_swimwear_nonbikini'],
                 ['pyjamas','pijamas','pjs'],
                 ['eyewear','glasses','sunglasses','shades'],
