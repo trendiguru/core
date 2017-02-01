@@ -64,7 +64,7 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
+    # full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
 
     # faces = background_removal.find_face_dlib(full_image)
 
@@ -75,8 +75,6 @@ def theDetector(url_or_np_array):
         return None
 
     height, width, channels = full_image.shape
-
-    print(full_image.shape)
 
     for i in range(0, len(faces['faces'])):
 
@@ -95,21 +93,21 @@ def theDetector(url_or_np_array):
         #
         # face_image = full_image[y: y + h, x: x + w]
 
-        # if full_image.shape[0] - (y + h) >= 5 * h:
-        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
-        #
-        # if full_image.shape[0] - (y + h) >= 6 * h:
-        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
-        #
-        # if full_image.shape[0] - (y + h) >= 7 * h:
-        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
-        #
-        # if full_image.shape[0] - (y + h) >= 8 * h:
-        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
+        if full_image.shape[0] - (y + h) >= 5 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+
+        if full_image.shape[0] - (y + h) >= 6 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+
+        if full_image.shape[0] - (y + h) >= 7 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+
+        if full_image.shape[0] - (y + h) >= 8 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
-        # font = cv2.FONT_HERSHEY_SIMPLEX
-        # cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
