@@ -76,6 +76,8 @@ def theDetector(url_or_np_array):
 
     height, width, channels = full_image.shape
 
+    print(full_image.shape)
+
     for i in range(0, len(faces['faces'])):
 
         x, y, w, h = faces['faces'][i]
