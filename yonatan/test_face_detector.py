@@ -93,17 +93,17 @@ def theDetector(url_or_np_array):
         #
         # face_image = full_image[y: y + h, x: x + w]
 
-        if full_image.shape[0] - (y + h) >= 5 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
-
-        if full_image.shape[0] - (y + h) >= 6 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
-
-        if full_image.shape[0] - (y + h) >= 7 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
-
-        if full_image.shape[0] - (y + h) >= 8 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
+        # if full_image.shape[0] - (y + h) >= 5 * h:
+        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+        #
+        # if full_image.shape[0] - (y + h) >= 6 * h:
+        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+        #
+        # if full_image.shape[0] - (y + h) >= 7 * h:
+        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+        #
+        # if full_image.shape[0] - (y + h) >= 8 * h:
+        #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
