@@ -382,7 +382,7 @@ bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accesso
                   'tracksuit':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group],
                   'sarong':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
                   'robe':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
-                  'pyjamas':[sock_group,'slippers'] #foootwear prob limited to slippers,acessories ti
+                  'pyjamas':[sock_group,'slippers'], #foootwear prob limited to slippers,acessories ti
                   'womens_swimwear_nonbikini':[footwear_group,'sarong'],
                   'lingerie':[footwear_group], #maybe also top
                   'bikini':[footwear_group,'sarong'],
