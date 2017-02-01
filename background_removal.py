@@ -117,6 +117,8 @@ def choose_faces(image, faces_list, max_num_of_faces):
         return relevant_faces
 
 
+
+
 def face_is_relevant(image, face):
     x, y, w, h = face
     # threshold = face + 4 faces down = 5 faces
@@ -128,6 +130,8 @@ def face_is_relevant(image, face):
         return True
     else:
         return False
+
+    # and (image.shape[0] - (h * 5)) > (y + h) \ # if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h)
 
 
 def is_skin_color(face_ycrcb):
