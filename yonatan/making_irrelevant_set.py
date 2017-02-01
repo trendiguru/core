@@ -86,7 +86,7 @@ def preparing_data_from_db(argv):
         if isinstance(link_to_image, basestring):
             # full_image = url_to_image(url_or_np_array)
             try:
-                response = requests.get(link_to_image)  # download
+                response = requests.get(link_to_image, timeout=10)  # download
                 full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
             except:
                 print "couldn't open link"
