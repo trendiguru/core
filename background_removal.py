@@ -120,6 +120,12 @@ def choose_faces(image, faces_list, max_num_of_faces):
 
 
 def face_is_relevant(image, face):
+    # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
+    # image relevant if:
+    # - h > 5% from the full image height
+    # - h < 25% from the full image height
+    # - all face (height wise) is above the middle of the image
+    # - skin pixels (according to our constants values) are more than third of all the face pixels
     x, y, w, h = face
     # threshold = face + 4 faces down = 5 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
@@ -135,6 +141,8 @@ def face_is_relevant(image, face):
 
 
 def is_skin_color(face_ycrcb):
+    # return True if skin pixels (according to our constants values) are more
+    # than third of all the face pixels
     h, w, d = face_ycrcb.shape
     if not w*h:
         return False
