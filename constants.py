@@ -329,39 +329,10 @@ binary_caffemodels = [
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
-#these are lists of things  that are generally not ok to use as negatives for a given positive (all pos from hydra_cats)
-#ie things that can realistically be worn together
-#warning this all assumes a single person per image, which we have never really verified
-#also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
-bad_negs_for_pos={'dress':['socks','cardigan','stockings','scarf','footwear','bag','belt','eyewear'],
-                  'suit':['socks','vest','blazer','stockings','top','scarf','footwear','bag','belt','eyewear'],
-                  'overalls':['socks','scarf','footwear','top','bag','belt','eyewear'],
-                  'tracksuit':['socks','scarf','footwear','top','bag','belt','eyewear'],
-                  'sarong':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
-                  'robe':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
-                  'pyjamas':['socks','scarf','footwear','top','bag','belt','swimwear','eyewear'],
-                  'womens_swimwear_nonbikini':['footwear','eyewear','sarong'],
-                  'bikini':['footwear','eyewear','sarong'],
-                  'lingerie':['footwear','eyewear','top'], #maybe also top
-                  'mens_swimwear':['footwear','eyewear','sarong'],
-                  'mens_underwear':['footwear','eyewear','top'],
-                  'jumpsuit':['footwear','eyewear','top','sweatshirt'],  #maybe jumpsuit excludes top?
-                  'bra':['pants','socks'],
-                  'panties':['top','socks'],
-                  'babydoll':['top','socks'],
-                  'coat':['top','sweater'],
 
-                  }
-
-flat_hydra=['dress','suit','overalls','tracksuit', 'sarong','robe','pyjamas','womens_swimwear_nonbikini','bikini',
- 'lingerie','mens_swimwear' 'mens_underwear','jumpsuit', 'bra', 'panties', 'babydoll', 'coat', 'jacket',
- 'blazer', 'cardigan', 'sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho', 't-shirt', 'button-down',
- 'blouse', 'polo', 'henley', 'tube', 'tanktop', 'jeans', 'pants', 'stockings', 'leggings', 'socks', 'shorts',
- 'skirt', 'shawl', 'scarf', 'boots', 'shoes', 'sandals', 'bag', 'belt']
-#more: top, hat, footwear, eyewear
 
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
-similar_cats = [['shirt','top','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
+similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
                 ['footwear','boots','shoes','sandals','heels'],
                 ['pants','jeans'],
 ,               ['leggings','stockings','socks'],
@@ -370,10 +341,74 @@ similar_cats = [['shirt','top','t-shirt', 'button-down', 'blouse', 'polo', 'henl
                 ['eyewear','glasses','sunglasses','shades'],
                 ['sweatshirt','hoodie'],
                 ['sweater','cardigan'],
-                ['bra','panties','lingerie','babydoll']]
+                ['bra','panties','lingerie','babydoll'],
+                ['coat', 'jacket','blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #took cardigan out here and listed separately w. sweater
+    ]
+
 
 #synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
-synonymous_cats = {'womens_swimwear_nonbikini',['women\'s swimwear']}
+#these are EXACT SYNONYMS for searches-different spellings and totally (or almost-totally) synonymous terms
+synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],
+                    ['leggings','stockings'],
+                    ['pyjamas','pijamas','pjs'],
+                    ['eyewear','glasses','sunglasses','shades'],
+                    ['t-shirt','tshirt','tee shirt','teeshirt'],
+                    ['vest','vests']
+                   ]
+
+#roughly speaking the main hydra cats
+whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pyjamas','jumpsuit']
+swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
+undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
+upper_cover_group = ['coat', 'jacket']
+upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
+upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
+lower_long_group = ['jeans', 'pants']
+lower_short_group = ['skirt','shorts']
+sock_group = ['leggings','stockings','socks']
+accessories_group = ['bag','belt','eyewear']
+footwear_group = ['footwear','boots','shoes','sandals']
+wrappy_things_group = ['shawl','scarf']
+eyewear_group = ['eyewear','glasses','sunglasses','shades']
+
+#these are lists of things  that are generally NOT ok to use as negatives for a given positive (all pos from hydra_cats)
+#ie things that can realistically be worn together - so everthing else, CAN (probably) be used as negs - this should be checked
+#warning this all assumes a single person per image, which we have never really verified
+#also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
+#eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
+bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan'], #maybe sweater also
+                  'suit':[sock_group,upper_under_group,'vest',footwear_group,accessories_group],
+                  'overalls':[sock_group,upper_under_group,footwear_group,accessories_group],
+                  'tracksuit':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group],
+                  'sarong':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'robe':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'pyjamas':[sock_group,'slippers'] #foootwear prob limited to slippers,acessories ti
+                  'womens_swimwear_nonbikini':[footwear_group,'sarong'],
+                  'lingerie':[footwear_group], #maybe also top
+                  'bikini':[footwear_group,'sarong'],
+                  'mens_swimwear':[footwear_group,eyewear_group,'sarong'],
+                  'mens_underwear':[footwear_group,eyewear_group,upper_under_group],
+                  'jumpsuit':[footwear_group,eyewear_group,upper_under_group,accessories_group],  #maybe jumpsuit excludes top?
+                  'bra':[lower_long_group,sock_group],
+                  'panties':[upper_under_group,sock_group],
+                  'babydoll':[upper_under_group,sock_group],
+                  'coat':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'jacket':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'blazer':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'cardigan':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group,sock_group,'dress','skirt'],
+                  'sweater':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,'skirt'],
+                  'sweatshirt':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'hoodie':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'vest':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'poncho':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group],
+                  'top':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  't-shirt':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
+                  'jeans':[accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
+                  'pants':[accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
+                  'stockings':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
+                  'leggings':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
+                  'socks':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress']
+                  }
 
 
 
