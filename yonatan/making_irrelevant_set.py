@@ -72,11 +72,11 @@ def preparing_data_from_db(argv):
         print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve', 'dress_length', 'men_shirt_sleeve', 'pants_length', 'women_shirt_sleeve', 'yonatan_dresses_test')
         return
 
-    counter = 2170
+    counter = 16239
 
     irrelevant_text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 
-    for i in range(2171, irrelevant.count()):
+    for i in range(16239, irrelevant.count()):
         #if i > num_of_each_category:
          #   break
 
