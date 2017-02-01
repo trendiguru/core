@@ -30,7 +30,7 @@ def find_face_dlib(image, max_num_of_faces=10):
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    faces, scores, idx = detector.run(image, 1)
+    faces, scores, idx = detector.run(image, 1, -1)
 
     for i, d in enumerate(faces):
         print("Detection {}, score: {}, face_type:{}".format(
