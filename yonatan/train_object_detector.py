@@ -70,7 +70,7 @@ options.add_left_right_image_flips = False
 # few different C values and see what works best for your data.
 options.C = 5
 # Tell the code how many CPU cores your computer has for the fastest training.
-options.num_threads = 4
+options.num_threads = 7
 options.be_verbose = True
 
 
