@@ -350,14 +350,13 @@ similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henl
 #these are EXACT SYNONYMS for searches-different spellings and totally (or almost-totally) synonymous terms
 synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],
                     ['leggings','stockings'],
-                    ['pyjamas','pijamas','pjs'],
+                    ['pajamas','pyjamas','pijamas','pjs'],
                     ['eyewear','glasses','sunglasses','shades'],
                     ['t-shirt','tshirt','tee shirt','teeshirt'],
-                    ['vest','vests']
-                   ]
+                    ['vest','vests']   ]
 
 #roughly speaking the main hydra cats
-whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pyjamas','jumpsuit']
+whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pajamas','jumpsuit']
 swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
 undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
 upper_cover_group = ['coat', 'jacket']
@@ -501,7 +500,7 @@ paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
 
 #lingerie -> babydoll, not a bra or panties
 
-pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pyjamas' ]
+pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pajamas' ]
 pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
 pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
 pixlevel3_upper_under = ['shirt']  #nite this is intead of top
@@ -595,7 +594,8 @@ flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','women
              'belt',   #extra stuff
              'sarong']  #extra stuff
 
-hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
+
+hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pajamas','womens_swimwear_nonbikini',
               'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              ['None','bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              ['None','coat','jacket','blazer'], #upper cover (need middle and cover e.g since coat can be w. sweater)
@@ -661,7 +661,7 @@ deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket
                               'chinos':'pants','culottes':'pants','cutoffs':'shorts','gauchos':'None','jeggings':'jeans',
                               'jodhpurs':'pants','joggers':'pants','leggings':'legging','sweatpants':'pants','sweatshorts':'shorts',
                               'trunks':'mens_swimwear','caftan':'dress','cape':None,'coverup':'robe','kaftan':'robe',
-                              'kimono':'robe','nightdress':None,'onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
+                              'kimono':'robe','nightdress':None,'pajama':'pajamas','onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
                               'blouse':'blouse','cardigan':'cardigan','henley':'henley','jacket':'jacket','poncho':'poncho',
                               'sweater':'sweater','tank':'tank','tee':'tee','jeans':'jeans','sarong':'sarong',
                               'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe','hoodie':'hoodie'}
