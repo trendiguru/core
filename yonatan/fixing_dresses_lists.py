@@ -33,40 +33,58 @@ boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
 images_old = images_array.tolist()
 boxes_old = boxes_array.tolist()
 
+sum_w = 0
+sum_h = 0
+
 for i in range(len(boxes_old)):
 
-    if i > 1000:
-        break
+    # if i > 1000:
+    #     break
 
     coordinates = re.findall('\\d+', boxes_old[i])
 
-    line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
+    # line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
+    #
+    # boxes_new.append(line_in_list_boxes)
 
-    boxes_new.append(line_in_list_boxes)
+    w = int(coordinates[2]) - int(coordinates[0])
+    h = int(coordinates[3]) - int(coordinates[1])
+
+    if w < 20 or h < 20:
+        print "BB too small"
+        continue
+
+    sum_w += w
+    sum_h += h
 
     print i
 
-np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
+average_w = sum_w / (i + 1)
+average_h = sum_h / (i + 1)
+
+print "average_w: {0}\naverage_h: {1}".format(average_w, average_h)
+
+# np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
 print "Done with boxes_new!!"
 
 
-for j in range(len(images_old)):
-
-    if j > 1000:
-        break
-
-    image_num = re.findall('\\d+', images_old[j])
-
-    image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
-
-    line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
-
-    images_new.append(line_in_list_images)
-
-    print j
-
-np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
-print "Done with images_new!!"
+# for j in range(len(images_old)):
+#
+#     if j > 1000:
+#         break
+#
+#     image_num = re.findall('\\d+', images_old[j])
+#
+#     image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
+#
+#     line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
+#
+#     images_new.append(line_in_list_images)
+#
+#     print j
+#
+# np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
+# print "Done with images_new!!"
 
 # text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 #
