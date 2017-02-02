@@ -41,7 +41,7 @@ for i in range(len(boxes_old)):
     # if i > 1000:
     #     break
 
-    coordinates = re.findall('\\d+', boxes_old[i])
+    coordinates = int(re.findall('\\d+', boxes_old[i]))
 
     # line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
     #
