@@ -904,6 +904,21 @@ def flatten_list(l):
             flatlist.append(sublist)
     return flatlist
 
+def give_me_a_list_of_synonyms(category,synonym_lists=constants.synonymous_cats):
+    '''
+    this takes a synonymlist of list and returns the relevant list if any
+    synonym list is
+#    synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],
+ #                   ['leggings','stockings'] ... ]
+    :param category:
+    :return:
+    '''
+
+    for l in synonym_lists:
+        if category in l:
+            return l
+    return [category]  #no list available so return just the category itself
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()

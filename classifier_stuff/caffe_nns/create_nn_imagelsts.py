@@ -189,14 +189,11 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
 
     print('bad negs for cat {}:\n{}'.format(cat,dont_use_these_neg_cats))
     print
-    negative_shouldnt_be_used_flag = False
     for potential_negative in allcats:
+        negative_shouldnt_be_used_flag = False
         if potential_negative == cat:
             continue #dont kill the cat under consideration
-        if potential_negative in constants.synonymous_cats:
-            pot_neg_synonyms = constants.synonymous_cats[potential_negative]
-        else:
-            pot_neg_synonyms = [potential_negative]
+        pot_neg_synonyms = Utils.give_me_a_list_of_synonyms(potential_negative,constants.synonymous_cats)
         print('potential neg synonyms:'+str(pot_neg_synonyms))
         for potential_negative_synonym in pot_neg_synonyms:
             if potential_negative_synonym in dont_use_these_neg_cats:
@@ -204,7 +201,7 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
                 negative_shouldnt_be_used_flag = True
                 break
         if negative_shouldnt_be_used_flag:
-            logging.debug('negative {} shold not be used'.format(potential_negative_synonym))
+            logging.info('negative {} shold not be used'.format(potential_negative_synonym))
             continue
         print('not negged and therefore useful as negative for {}:{}'.format(cat,potential_negative))
         for d_and_c in dirs_and_cats:
@@ -215,16 +212,134 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
             if cat_for_dir in pot_neg_synonyms: #this directory is a category of interest
                 full_path = os.path.join(folderpath,d_and_c[0])
                 files = os.listdir(full_path)
-                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0]),cat,len(files))
+#                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0],cat,len(files)))
                 for file in files:
                     file_path = os.path.join(full_path,file)
                     negatives.append(file_path)
 #                    fp.write(file_path+'\t'+str(cat_index)+'\n')
 #                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
             else:
+#                logging.info('catfordir {} not in pot_neg_syn {}'.format(cat_for_dir,pot_neg_synonyms))
                 pass
-#                logging.debug('catfordir {} not in pot_neg_syn {}'.format(cat_for_dir,pot_neg_synonyms))
         print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
+        raw_input('ret to cont')
+    print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
+    return positives, negatives
+
+
+def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
+    cats_and_dirs = []
+    subdirs = [name for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
+
+    for dir in subdirs:
+        subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
+        for subsubdir in subsubdirs:
+            print('subsubdir:'+subsubdir)
+            cat_for_dir = None
+            for cat in cats:
+                if cat in subsubdir:
+                    cat_for_dir = cat
+                    break
+            if cat_for_dir is None:
+                print('could not get cat for dir '+str(subsubdir))
+            else:
+                full_dirpath = os.path.join(dir,subsubdir)
+                cats_and_dirs.append([full_dirpath,cat_for_dir])
+                print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
+    print('cats and dirs ')
+    print cats_and_dirs
+
+def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo'):
+    '''
+    #3. mongo db images - again use constants.bad_negs
+    these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
+    :param cats:
+    :return:
+    '''
+
+    if cat is 'None' or cat is None:
+        logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
+        return
+
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
+    print('looking for cats:'+str(cat))
+
+    #do positives
+    positives = []
+    if cat in constants.synonymous_cats:
+        cat_synonyms = constants.synonymous_cats[cat]
+    else:
+        cat_synonyms=[cat]
+    print('category {} synonyms {}'.format(cat,cat_synonyms))
+    for d_and_c in dirs_and_cats:
+        cat_for_dir = d_and_c[1]
+        if cat_for_dir is None:
+            logging.info('none cat for dc {}'.format(d_and_c))
+            continue
+        print('checking dir/cat {}'.format(d_and_c))
+        for catsyn in cat_synonyms:
+            if catsyn in cat_for_dir: #this directory is a category of interest for positives
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    logging.debug('file {} cat {}'.format(file_path,catsyn))  #add no-cr
+                    positives.append(file_path)
+            break  #no need to go thru rest of the synonyms.
+    print('found {} positives for cat {} (using sysnonyms {})'.format(len(positives),cat,cat_synonyms))
+
+    #do negatives
+    negatives = []
+    if cat in  constants.bad_negs_for_pos:
+        dont_use_these_neg_cats = constants.bad_negs_for_pos[cat]
+        dont_use_these_neg_cats=Utils.flatten_list(dont_use_these_neg_cats)
+    else:
+        logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
+        return positives,negatives
+
+    print('bad negs for cat {}:\n{}'.format(cat,dont_use_these_neg_cats))
+    print
+    for potential_negative in allcats:
+        negative_shouldnt_be_used_flag = False
+        if potential_negative == cat:
+            continue #dont kill the cat under consideration
+        pot_neg_synonyms = Utils.give_me_a_list_of_synonyms(potential_negative,constants.synonymous_cats)
+        print('potential neg synonyms:'+str(pot_neg_synonyms))
+        for potential_negative_synonym in pot_neg_synonyms:
+            if potential_negative_synonym in dont_use_these_neg_cats:
+                print('potential neg {} negged '.format(potential_negative_synonym))
+                negative_shouldnt_be_used_flag = True
+                break
+        if negative_shouldnt_be_used_flag:
+            logging.info('negative {} shold not be used'.format(potential_negative_synonym))
+            continue
+        print('not negged and therefore useful as negative for {}:{}'.format(cat,potential_negative))
+        for d_and_c in dirs_and_cats:
+            cat_for_dir = d_and_c[1]
+            if cat_for_dir is None:
+                print('none cat for dc {}'.format(d_and_c))
+                continue
+            if cat_for_dir in pot_neg_synonyms: #this directory is a category of interest
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+#                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0],cat,len(files)))
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    negatives.append(file_path)
+#                    fp.write(file_path+'\t'+str(cat_index)+'\n')
+#                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
+            else:
+#                logging.info('catfordir {} not in pot_neg_syn {}'.format(cat_for_dir,pot_neg_synonyms))
+                pass
+        print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
+        raw_input('ret to cont')
     print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
     return positives, negatives
 
