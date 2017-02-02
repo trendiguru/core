@@ -117,6 +117,10 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
 
         print file
 
-np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
+# np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
+#
+# np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
 
-np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
+np.save('/data/dress_detector/boxes_small_set_save', boxes_new)
+
+np.save('/data/dress_detector/images_small_set_save', images_new)
