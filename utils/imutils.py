@@ -437,7 +437,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         except:
             e = sys.exc_info()[0]
             logging.warning('error on resizing {} to {} error:{}'.format(input_file_or_np_arr.shape,output_size,e))
-            raw_input('ret to cont')
+ #           raw_input('ret to cont')
             return
  #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
@@ -457,7 +457,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         except:
             e = sys.exc_info()[0]
             logging.warning('error on resizing {} to {} error:{}'.format(input_file_or_np_arr.shape,output_size,e))
-            raw_input('ret to cont')
+#            raw_input('ret to cont')
             return
 
         height_offset = (outheight - new_height) / 2

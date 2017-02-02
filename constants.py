@@ -375,7 +375,7 @@ eyewear_group = ['eyewear','glasses','sunglasses','shades']
 #warning this all assumes a single person per image, which we have never really verified
 #also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
 #eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
-bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan'], #maybe sweater also
+bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater'],
                   'suit':['socks',upper_under_group,'vest',footwear_group,accessories_group],
                   'overalls':['socks',upper_under_group,footwear_group,accessories_group],
                   'tracksuit':['socks',wrappy_things_group,footwear_group,upper_under_group,accessories_group],
@@ -661,7 +661,7 @@ deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket
                               'chinos':'pants','culottes':'pants','cutoffs':'shorts','gauchos':'None','jeggings':'jeans',
                               'jodhpurs':'pants','joggers':'pants','leggings':'legging','sweatpants':'pants','sweatshorts':'shorts',
                               'trunks':'mens_swimwear','caftan':'dress','cape':None,'coverup':'robe','kaftan':'robe',
-                              'kimono':'robe','nightdress':None,'pajama':'pajamas','onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
+                              'kimono':'dress','nightdress':None,'pajama':'pajamas','onesie':None,'romper':'jumpsuit','shirt_dress':'dress',
                               'blouse':'blouse','cardigan':'cardigan','henley':'henley','jacket':'jacket','poncho':'poncho',
                               'sweater':'sweater','tank':'tank','tee':'tee','jeans':'jeans','sarong':'sarong',
                               'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe','hoodie':'hoodie'}
