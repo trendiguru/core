@@ -44,11 +44,12 @@ for i in range(len(boxes_old)):
     print i
 
 np.array(boxes_new).dump(open('/data/dress_detector/boxes_new.npy', 'wb'))
+print "Done with boxes_new!!"
 
 
 for j in range(len(images_old)):
 
-    image_num = re.findall('\\d+', images_old[i])
+    image_num = re.findall('\\d+', images_old[j])
 
     image_file_name = 'dress-' + str(image_num) + '.jpg'
 
@@ -59,3 +60,4 @@ for j in range(len(images_old)):
     print j
 
 np.array(images_new).dump(open('/data/dress_detector/images_new.npy', 'wb'))
+print "Done with images_new!!"
