@@ -404,7 +404,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         logging.warning('got a bad image')
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
-    if inheight < 2 or inwidth < 2 : #1-pixel wide or high images cant be resized
+    if inheight < 2 or inwidth < 2 : #1-pixel wide or high images cant be resized. actually just failed on a 6x7756 image->256x256...
         logging.warning('got a zero height or width imge {}'.format(input_file_or_np_arr.shape))
         return
     outheight, outwidth = output_size[:]
@@ -432,7 +432,13 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     if out_ar < in_ar:  #resize height to output height and fill left/right
         factor = float(inheight)/outheight
         new_width = int(float(inwidth) / factor)
-        resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
+        try:
+            resized_img = cv2.resize(input_file_or_np_arr, (new_width, outheight))
+        except:
+            e = sys.exc_info()[0]
+            logging.warning('error on resizing {} to {} error:{}'.format(input_file_or_np_arr.shape,output_size,e))
+            raw_input('ret to cont')
+            return
  #       print('<resize size:'+str(resized_img.shape)+' desired width:'+str(outwidth)+' orig width resized:'+str(new_width))
         width_offset = (outwidth - new_width ) / 2
         logging.debug('output ar<  input ar , width padding around '+str(width_offset)+ ' to '+str(width_offset+new_width))
