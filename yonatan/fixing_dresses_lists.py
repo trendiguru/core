@@ -35,6 +35,9 @@ boxes_old = boxes_array.tolist()
 
 for i in range(len(boxes_old)):
 
+    if i > 1000:
+        break
+
     coordinates = re.findall('\\d+', boxes_old[i])
 
     line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
@@ -43,11 +46,14 @@ for i in range(len(boxes_old)):
 
     print i
 
-np.array(boxes_new).dump(open('/data/dress_detector/boxes_new.npy', 'wb'))
+np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
 print "Done with boxes_new!!"
 
 
 for j in range(len(images_old)):
+
+    if j > 1000:
+        break
 
     image_num = re.findall('\\d+', images_old[j])
 
@@ -59,7 +65,7 @@ for j in range(len(images_old)):
 
     print j
 
-np.array(images_new).dump(open('/data/dress_detector/images_new.npy', 'wb'))
+np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
 print "Done with images_new!!"
 
 # text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
