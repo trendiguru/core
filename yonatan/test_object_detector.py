@@ -20,31 +20,31 @@ from ..utils import imutils
 # import matplotlib.pyplot as plt
 
 
-detector = dlib.get_frontal_face_detector()
+# detector = dlib.get_frontal_face_detector()
 dress_detector = dlib.simple_object_detector("/data/detector2.svm")
 
 
-def find_face_dlib(image, max_num_of_faces=10):
+def find_dress_dlib(image, max_num_of_faces=10):
     start = time.time()
 
     ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    faces, scores, idx = detector.run(image, 1)
+    dresses, scores, idx = dress_detector.run(image, 1)
 
-    for i, d in enumerate(faces):
+    for i, d in enumerate(dresses):
         print("Detection {}, score: {}, face_type:{}".format(
             d, scores[i], idx[i]))
 
     print("Done in %.3f s." % (time.time() - start))
 
-    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
-    if not len(faces):
-        return {'are_faces': False, 'faces': []}
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(dresses)]
+    if not len(dresses):
+        return {'are_dresses': False, 'dresses': []}
     #final_faces = choose_faces(image, faces, max_num_of_faces)
-    print "number of faces: {0}\n".format(len(faces))
-    return {'are_faces': len(faces) > 0, 'faces': faces, 'scores': scores}
+    print "number of faces: {0}\n".format(len(dresses))
+    return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
 
 
 def theDetector(url_or_np_array):
@@ -69,46 +69,38 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    faces = find_face_dlib(full_image, 10)
+    dresses = find_dress_dlib(full_image)
 
-    if not faces["are_faces"]:
-        print "didn't find any faces"
+    if not dresses["are_dresses"]:
+        print "didn't find any dresses"
         return None
 
     height, width, channels = full_image.shape
 
-    for i in range(0, len(faces['faces'])):
+    for i in range(0, len(dresses['dresses'])):
 
-        x, y, w, h = faces['faces'][i]
+        x, y, w, h = dresses['dresses'][i]
 
         if x > width or x + w > width or y > height or y + h > height:
-            print "\nface out of image boundaries\n"
+            print "\ndress out of image boundaries\n"
             return None
 
-        # if faces["are_faces"]:
-        #     if len(faces['faces']) == 1:
-        #         full_image = full_image[y + h:, :]  # Crop the face from the image
-        #         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
-        #     else:
-        #         continue
-        #
-        # face_image = full_image[y: y + h, x: x + w]
 
-        if full_image.shape[0] - (y + h) >= 5 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+    # if full_image.shape[0] - (y + h) >= 5 * h:
+    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+    #
+    # if full_image.shape[0] - (y + h) >= 6 * h:
+    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+    #
+    # if full_image.shape[0] - (y + h) >= 7 * h:
+    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+    #
+    # if full_image.shape[0] - (y + h) >= 8 * h:
+    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
 
-        if full_image.shape[0] - (y + h) >= 6 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+    cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
-        if full_image.shape[0] - (y + h) >= 7 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(full_image,'{:.3f}'.format(dresses['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
-        if full_image.shape[0] - (y + h) >= 8 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
-
-        cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
-
-    print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_testing.jpg", full_image)
