@@ -5,7 +5,7 @@ from scipy.ndimage import zoom
 from skimage.transform import resize
 import os
 import caffe
-from trendi import background_removal, utils, constants
+from trendi.utils import imutils
 # from ..utils import imutils
 import cv2
 import sys
@@ -83,7 +83,7 @@ for j in range(len(images_old)):
 
     full_image = cv2.imread('/data/dress_detector/images/' + image_file_name)
 
-    resized_image = utils.imutils.resize_keep_aspect(full_image, output_size=(150, 345))
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(150, 345))
 
     cv2.imwrite(os.path.join('/data/dress_detector/resized_images', image_file_name), resized_image)
 
