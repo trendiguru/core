@@ -404,7 +404,13 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         logging.warning('got a bad image')
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
+    if inheight == 0 or inwidth == 0:
+        logging.warning('got a zero height or width imge {}'.format(input_file_or_np_arr.shape))
+        return
     outheight, outwidth = output_size[:]
+    if outheight == 0 or outwidth == 0:
+        logging.warning('got a zero height or resize request {}'.format(output_size))
+        return
     if inheight==outheight and inwidth==outwidth:
         logging.info('resize not needed , in {}x{} out {}x{}'.format(inheight,inwidth,outheight,outwidth))
         return input_file_or_np_arr
