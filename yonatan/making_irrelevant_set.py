@@ -72,11 +72,11 @@ def preparing_data_from_db(argv):
         print "the argument should be one of those:\n{0}\n{1}\n{2}\n{3}\n{4}".format('dress_sleeve', 'dress_length', 'men_shirt_sleeve', 'pants_length', 'women_shirt_sleeve', 'yonatan_dresses_test')
         return
 
-    counter = 0
+    counter = 16239
 
     irrelevant_text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 
-    for i in range(1, irrelevant.count()):
+    for i in range(16239, irrelevant.count()):
         #if i > num_of_each_category:
          #   break
 
@@ -86,11 +86,11 @@ def preparing_data_from_db(argv):
         if isinstance(link_to_image, basestring):
             # full_image = url_to_image(url_or_np_array)
             try:
-                response = requests.get(link_to_image)  # download
+                response = requests.get(link_to_image, timeout=10)  # download
+                full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
             except:
                 print "couldn't open link"
                 continue
-            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
         elif type(link_to_image) == np.ndarray:
             full_image = link_to_image
         else:
@@ -124,15 +124,15 @@ if __name__ == '__main__':
 
 
 
-irrelevant = db.irrelevant_images.find().distinct('image_hash')
-
-test = db.irrelevant_images.aggregate([{"$group" : {'_id' : "$image_hash"}}])
-list = list(test)
-len(list)
-
-
-for i in range(0, irrelevant.count()):
-    for j in range(0, len(list)):
-        if irrelevant[i]['_id'] == list[j]:
-            counter += 1
-            print counter
+# irrelevant = db.irrelevant_images.find().distinct('image_hash')
+#
+# test = db.irrelevant_images.aggregate([{"$group" : {'_id' : "$image_hash"}}])
+# list = list(test)
+# len(list)
+#
+#
+# for i in range(0, irrelevant.count()):
+#     for j in range(0, len(list)):
+#         if irrelevant[i]['_id'] == list[j]:
+#             counter += 1
+#             print counter
