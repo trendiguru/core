@@ -576,8 +576,25 @@ pixlevel_categories_v2_in_fashionista_augmented = [0,1,2,3,4,5,6,7,8,9,
                                                      23,24,25,26,28,29,30,33,35,39,
                                                      42,44,45,46]
 
+
+snorb=3
+
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
+flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
+              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+             'bra','panties','babydoll' , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
+             'coat','jacket','blazer', #upper cover (need middle and cover e.g since coat can be w. sweater)
+             'cardigan','sweatshirt','hoodie','sweater','vest','poncho', #upper middle. vest could actually be with sweater...
+             't-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
+             'jeans','pants','stockings','leggings','socks', #lower_cover_long
+             'shorts','skirt', #lower_cover_short
+             'shawl','scarf', #wraps
+             'boots','shoes','sandals',  #footwear
+             'bag',
+             'belt',   #extra stuff
+             'sarong']  #extra stuff
+
 hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
               'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit'],  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              ['None','bra','panties','babydoll'] , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
@@ -593,22 +610,6 @@ hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pyjamas','wo
              ['None','sarong']]  #extra stuff
 
 
-flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
-              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
-             'bra','panties','babydoll' , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
-             'coat','jacket','blazer', #upper cover (need middle and cover e.g since coat can be w. sweater)
-             'cardigan','sweatshirt','hoodie','sweater','vest','poncho', #upper middle. vest could actually be with sweater...
-             't-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
-             'jeans','pants','stockings','leggings','socks', #lower_cover_long
-             'shorts','skirt', #lower_cover_short
-             'shawl','scarf', #wraps
-             'boots','shoes','sandals',  #footwear
-             'bag',
-             'belt',   #extra stuff
-             'sarong']  #extra stuff
-
-        #     [None,'relevant_image'], #has clothing and isnt cropped too badly
-        #      [None,'full_body']] #has most of a person
 
 #made minor chages to hydra_cats for more overlap with mongodbs
 # legging->leggings, stocking->stockings, tee->t-shirt, tank-tanktop, womens_swimwear_bikini->bikini

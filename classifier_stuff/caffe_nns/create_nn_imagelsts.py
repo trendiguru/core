@@ -119,8 +119,7 @@ def consistency_check_multilabel_db():
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
 
-
-def binary_pos_and_neg_deepfashion(cats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+def binary_pos_and_neg_deepfashion(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
@@ -130,36 +129,93 @@ def binary_pos_and_neg_deepfashion(cats=constants.flat_hydra_cats,folderpath='/d
     :param cats:
     :return:
     '''
-    print('looking for cats:'+str(cats))
     dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
-    for cat in cats:
-        if cat is 'None':
-            continue
-        if cat in  constants.bad_negs_for_pos:
-            neg_cats = constants.bad_negs_for_pos[cat]
-            neg_cats=Utils.flatten_list(neg_cats)
-        else:
-            logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
-            continue
-        print('bad negs for cat {}:\n{}'.format(cat,neg_cats))
-        print
-        negative_is_no_good_flag = False
-        for potential_negative in cats:
-            if potential_negative == cat:
-                continue #dont kill the cat under consideration
-            if potential_negative in constants.synonymous_cats:
-                pot_neg_synonyms = constants.synonymous_cats[potential_negative]
-            else:
-                pot_neg_synonyms = [potential_negative]
-            for potential_negative_synonym in pot_neg_synonyms:
-                if potential_negative_synonym in neg_cats:
-                    print('potential neg {} negged '.format(potential_negative_synonym))
-                    negative_is_no_good_flag = True
-                    break
-            if negative_is_no_good_flag:
-                break
-            print('not negged and therefore usefula as negative for {}:{}'.format(cat,potential_negative))
+    print('looking for cats:'+str(cats))
 
+    for cat in cats:
+        positives,negatives = binary_pos_and_neg_deepfashion_onecat(cat,allcats=allcats,folderpath=folderpath)
+
+def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+    '''
+    #1. tamarab berg - generates pos and neg per class
+        assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
+    #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
+    #3. mongo db images - again use constants.bad_negs
+    (#4. google open images)
+    :param cats:
+    :return:
+    '''
+
+    if cat is 'None' or cat is None:
+        logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
+        return
+
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
+    print('looking for cats:'+str(cat))
+
+    #do positives
+    positives = []
+    if cat in constants.synonymous_cats:
+        cat_synonyms = constants.synonymous_cats[cat]
+    else:
+        cat_synonyms=[cat]
+    print('category {} synonyms {}'.format(cat,cat_synonyms))
+    for d_and_c in dirs_and_cats:
+        cat_for_dir = d_and_c[1]
+        print('checking dir/cat {}'.format(d_and_c))
+        for catsyn in cat_synonyms:
+            if catsyn in cat_for_dir: #this directory is a category of interest for positives
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+                positives.append(files)
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    logging.debug('file {} cat {}'.format(full_path,catsyn))  #add no-cr
+            break  #no need to go thru rest of the synonyms.
+    print('found {} positives for cat {} (using sysnonym {})'.format(len(positives),cat,catsyn))
+
+    #do negatives
+    negatives = []
+    if cat in  constants.bad_negs_for_pos:
+        neg_cats = constants.bad_negs_for_pos[cat]
+        neg_cats=Utils.flatten_list(neg_cats)
+    else:
+        logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
+        return positives,negatives
+
+    print('bad negs for cat {}:\n{}'.format(cat,neg_cats))
+    print
+    negative_shouldnt_be_used_flag = False
+    for potential_negative in allcats:
+        if potential_negative == cat:
+            continue #dont kill the cat under consideration
+        if potential_negative in constants.synonymous_cats:
+            pot_neg_synonyms = constants.synonymous_cats[potential_negative]
+        else:
+            pot_neg_synonyms = [potential_negative]
+        for potential_negative_synonym in pot_neg_synonyms:
+            if potential_negative_synonym in neg_cats:
+                print('potential neg {} negged '.format(potential_negative_synonym))
+                negative_shouldnt_be_used_flag = True
+                break
+        if negative_shouldnt_be_used_flag:
+            continue
+        print('not negged and therefore useful as negative for {}:{}'.format(cat,potential_negative))
+        for d_and_c in dirs_and_cats:
+            cat_for_dir = d_and_c[1]
+            if cat_for_dir in pot_neg_synonyms: #this directory is a category of interest
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0]),cat,len(files))
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    negatives.append(file_path)
+#                    fp.write(file_path+'\t'+str(cat_index)+'\n')
+#                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
+        print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
+    print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
+    return positives, negatives
 
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
