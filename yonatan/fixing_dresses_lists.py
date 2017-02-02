@@ -106,7 +106,7 @@ sum_h = 0
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
 
-        line_in_list_boxes = ([dlib.rectangle(0, 0, 149, 344)])
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
         boxes_new.append(line_in_list_boxes)
 
