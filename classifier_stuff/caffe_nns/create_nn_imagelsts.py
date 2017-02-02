@@ -9,6 +9,7 @@ from shutil import copyfile
 import json
 import shutil
 import pymongo
+import itertools
 
 logging.basicConfig(level=logging.INFO)
 from PIL import Image
@@ -117,13 +118,49 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_for_all(cats=[i for l in constants.hydra_cats for i in l]):
-    print(cats)
 
 
+def binary_pos_and_neg_deepfashion(cats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+    '''
+    #1. tamarab berg - generates pos and neg per class
+        assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
+    #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
+    #3. mongo db images - again use constants.bad_negs
+    (#4. google open images)
+    :param cats:
+    :return:
+    '''
+    print('looking for cats:'+str(cats))
+    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    for cat in cats:
+        if cat is 'None':
+            continue
+        if cat in  constants.bad_negs_for_pos:
+            neg_cats = constants.bad_negs_for_pos[cat]
+            neg_cats=Utils.flatten_list(neg_cats)
+        else:
+            logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
+            continue
+        print('bad negs for cat {}:\n{}'.format(cat,neg_cats))
+        print
+        negative_is_no_good_flag = False
+        for potential_negative in cats:
+            if potential_negative == cat:
+                continue #dont kill the cat under consideration
+            if potential_negative in constants.synonymous_cats:
+                pot_neg_synonyms = constants.synonymous_cats[potential_negative]
+            else:
+                pot_neg_synonyms = [potential_negative]
+            for potential_negative_synonym in pot_neg_synonyms:
+                if potential_negative_synonym in neg_cats:
+                    print('potential neg {} negged '.format(potential_negative_synonym))
+                    negative_is_no_good_flag = True
+                    break
+            if negative_is_no_good_flag:
+                break
+            print('not negged and therefore usefula as negative for {}:{}'.format(cat,potential_negative))
 
-#binary lists generated so far (9.10.16)
-#dress
+
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
     read multilabel db.
@@ -773,7 +810,7 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
         for k,v in constants.deep_fashion_to_trendi_map.iteritems():
             if k.lower() in dir.lower():
                 if 'velveteen' in dir.lower() and k.lower=='tee': #'velveteen tee' will  get skipped
-                    print('skipping dir {} cat {}'.format(dir,k))
+                    logging.info('skipping dir {} cat {}'.format(dir,k))
                     continue
                 else:
                     cats_found.append((dir,v))
@@ -786,13 +823,13 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
         #take care of all the cases where multiple cats are found....yeesh
         cats_found.sort(key=len)
         if len(cats_found)==2 :
-            print('dir {} 2 matching cats:{}'.format(dir,cats_found))
+            logging.info('dir {} 2 matching cats:{}'.format(dir,cats_found))
             if cats_found[0][1]==cats_found[1][1]:
 #                print('matching cats')
                 cats_found=[(dir,cats_found[0][1])]
-                print('final disposition:'+str(cats_found))
+                logging.info('final disposition:'+str(cats_found))
             else:
-                print('nonmatching cats')
+#                print('nonmatching cats')
 
                 if cats_found[0][1]=='tank' and cats_found[1][1]=='dress':
                     cats_found=[(dir,'dress')]
@@ -888,23 +925,23 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
                 cats_found=[(dir,'dress')]
             elif cats_found[1][1]=='dress' and cats_found[2][1] == 'henley':
                 cats_found=[(dir,'dress')]
-            elif  cats_found[0][1]==cats_found[1][1]and cats_found[1][1]==cats_found[2][1]:
+            elif cats_found[0][1]==cats_found[1][1]and cats_found[1][1]==cats_found[2][1]:
                 cats_found=[(dir,cats_found[0][1])]
             elif cats_found[0][1]=='button-down' and cats_found[1][1] == 'dress':
                 cats_found=[(dir,'dress')]
 
             if len(cats_found)==1:
-                print('final disposition:'+str(cats_found))
+                logging.info('final disposition:'+str(cats_found))
             else:
-                print('NONFINAL disposition:'+str(cats_found))
+                logging.info('NONFINAL disposition:'+str(cats_found))
 
         if len(cats_found)==1:
-            print('unambiguous! '+str(cats_found))
+            logging.info('unambiguous! '+str(cats_found))
             all_cats.append(cats_found[0])  #add unambiguous cat to list
         else:
-            print('AMBIGUOUS!!:'+str(cats_found))
+            logging.debug('AMBIGUOUS!!:'+str(cats_found))
                   #ambiguous (more thn one cat still) so dont add to list
-
+    print('tot length '+str(len(all_cats)))
     return all_cats
 
 def write_deepfashion_hydra_map_to_file():
@@ -1001,20 +1038,25 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
         labelfile_name = cat+'_positives.txt'
     print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name+' folderpath '+folderpath)
     Utils.ensure_file(labelfile_name)
-    with open(labelfile_name,'a') as fp:
-        for dc in dirs_and_cats:
-            if dc[1] == cat:
-                print('dir,cat:')+str(dc)
-                full_path = os.path.join(folderpath,dc[0])
-                files = os.listdir(full_path)
-                files = [f for f in files if lookfor in f]
-                for file in files:
-                    file_path = os.path.join(full_path,file)
-                    fp.write(file_path+'\t'+str(cat_index)+'\n')
-                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
-                    pops+=1
+    linelist = []
+    for dc in dirs_and_cats:
+        if dc[1] == cat:
+            print('dir,cat:')+str(dc)
+            full_path = os.path.join(folderpath,dc[0])
+            files = os.listdir(full_path)
+            files = [f for f in files if lookfor in f]
+            for file in files:
+                file_path = os.path.join(full_path,file)
+                line = file_path+'\t'+str(cat_index)+'\n'
+                linelist.append(line)
+                if labelfile_name:
+                    with open(labelfile_name,'a') as fp:
+                        fp.write(line)
+                logging.debug('line {} for file {} cat {}'.format(line,file,cat_index))  #add no-cr
+                pops+=1
         #        raw_input('ret to cont')
         print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
+        return(linelist)
 
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
@@ -1253,7 +1295,9 @@ if __name__ == "__main__": #
 
 #    deepfashion_to_tg_hydra()
 #    generate_deep_fashion_hydra_labelfiles()
-    negatives_for_hydra()
+#    negatives_for_hydra()
+
+    binary_pos_and_neg_for_all()
 
         #useful script - change all photos to photos_250x250
 #!/usr/bin/env bash
