@@ -404,7 +404,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
         logging.warning('got a bad image')
         return
     inheight, inwidth = input_file_or_np_arr.shape[0:2]
-    if inheight == 0 or inwidth == 0:
+    if inheight < 2 or inwidth < 2 : #1-pixel wide or high images cant be resized
         logging.warning('got a zero height or width imge {}'.format(input_file_or_np_arr.shape))
         return
     outheight, outwidth = output_size[:]
