@@ -94,7 +94,9 @@ images = images_array.tolist()
 boxes = boxes_array.tolist()
 
 detector2 = dlib.train_simple_object_detector(images, boxes, options)
+print "Done training!"
 detector2.save('/data/detector2.svm')
+print "Done saving!"
 
 # We can look at the HOG filter we learned.  It should look like a face.  Neat!
 win_det = dlib.image_window()
