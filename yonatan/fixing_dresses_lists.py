@@ -50,6 +50,10 @@ for i in range(len(boxes_old)):
     w = int(coordinates[2]) - int(coordinates[0])
     h = int(coordinates[3]) - int(coordinates[1])
 
+    if w < 20 or h < 20:
+        print "BB too small"
+        continue
+
     sum_w += w
     sum_h += h
 
