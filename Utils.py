@@ -893,6 +893,16 @@ def get_person_bb_from_face(face, image_shape):
     p_y2 = int(round(min(image_shape[0], y + p_height)))
     return [p_x1, p_y1, p_x2, p_y2]
 
+def flatten_list(l):
+    flatlist = []
+    for sublist in l:
+        if isinstance(sublist,list):
+            flattened  = flatten_list(sublist)
+ #           print('flattened sublist:'+str(flattened))
+            flatlist = flatlist + flattened
+        else:
+            flatlist.append(sublist)
+    return flatlist
 
 if __name__ == '__main__':
     print('starting')
