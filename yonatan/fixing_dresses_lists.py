@@ -24,40 +24,50 @@ import requests
 import grabCut
 import re
 
-images_new = []
-boxes_new = []
+# images_new = []
+# boxes_new = []
+#
+# images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
+# boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+#
+# images_old = images_array.tolist()
+# boxes_old = boxes_array.tolist()
+#
+# for i in range(len(boxes_old)):
+#
+#     coordinates = re.findall('\\d+', boxes_old[i])
+#
+#     line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
+#
+#     boxes_new.append(line_in_list_boxes)
+#
+#     print i
+#
+# np.array(boxes_new).dump(open('/data/dress_detector/boxes_new.npy', 'wb'))
+# print "Done with boxes_new!!"
+#
+#
+# for j in range(len(images_old)):
+#
+#     image_num = re.findall('\\d+', images_old[j])
+#
+#     image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
+#
+#     line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
+#
+#     images_new.append(line_in_list_images)
+#
+#     print j
+#
+# np.array(images_new).dump(open('/data/dress_detector/images_new.npy', 'wb'))
+# print "Done with images_new!!"
 
-images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
-boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 
-images_old = images_array.tolist()
-boxes_old = boxes_array.tolist()
+for root, dirs, files in os.walk('/data/irrelevant/images'):
+    for file in files:
 
-for i in range(len(boxes_old)):
+        text_file.write('/data/irrelevant/images/' + file + ' 0\n')
 
-    coordinates = re.findall('\\d+', boxes_old[i])
+text_file.flush()
 
-    line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
-
-    boxes_new.append(line_in_list_boxes)
-
-    print i
-
-np.array(boxes_new).dump(open('/data/dress_detector/boxes_new.npy', 'wb'))
-print "Done with boxes_new!!"
-
-
-for j in range(len(images_old)):
-
-    image_num = re.findall('\\d+', images_old[j])
-
-    image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
-
-    line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
-
-    images_new.append(line_in_list_images)
-
-    print j
-
-np.array(images_new).dump(open('/data/dress_detector/images_new.npy', 'wb'))
-print "Done with images_new!!"
