@@ -106,7 +106,7 @@ sum_h = 0
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
 
-        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 149, 344)])
 
         boxes_new.append(line_in_list_boxes)
 
@@ -114,6 +114,8 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
         line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
 
         images_new.append(line_in_list_images)
+
+        print file
 
 np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
 
