@@ -41,14 +41,14 @@ for i in range(len(boxes_old)):
     # if i > 1000:
     #     break
 
-    coordinates = int(re.findall('\\d+', boxes_old[i]))
+    coordinates = re.findall('\\d+', boxes_old[i])
 
     # line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
     #
     # boxes_new.append(line_in_list_boxes)
 
-    w = coordinates[2] - coordinates[0]
-    h = coordinates[3] - coordinates[1]
+    w = int(coordinates[2]) - int(coordinates[0])
+    h = int(coordinates[3]) - int(coordinates[1])
 
     sum_w += w
     sum_h += h
