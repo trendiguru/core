@@ -37,7 +37,7 @@ for i in range(len(boxes_old)):
 
     coordinates = re.findall('\\d+', boxes_old[i])
 
-    line_in_list_boxes = ([dlib.rectangle(coordinates[0], coordinates[1], coordinates[2], coordinates[3])])
+    line_in_list_boxes = ([dlib.rectangle(int(coordinates[0]), int(coordinates[1]), int(coordinates[2]), int(coordinates[3]))])
 
     boxes_new.append(line_in_list_boxes)
 
