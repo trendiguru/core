@@ -228,18 +228,29 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
 
 
 def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
     cats_and_dirs = []
-    for dir in os.listdir(folderpath):
-        cat_for_dir = None
-        for cat in cats:
-            if cat in dir:
-                cat_for_dir = cat
-                break
-        if cat_for_dir is None:
-            print('could not get cat for dir '+str(dir))
-        else:
-            cats_and_dirs.append([dir,cat_for_dir])
-            print('cat for {} is {}'.format(dir,cat_for_dir))
+    subdirs = [name for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
+
+    for dir in subdirs:
+        subsubdirs = os.listdir(dir)
+        for subsubdir in subsubdirs:
+            cat_for_dir = None
+            for cat in cats:
+                if cat in subsubdir:
+                    cat_for_dir = cat
+                    break
+            if cat_for_dir is None:
+                print('could not get cat for dir '+str(subsubdir))
+            else:
+                full_dirpath = os.path.join(dir,subsubdir)
+                cats_and_dirs.append([full_dirpath,cat_for_dir])
+                print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
     print('cats and dirs ')
     print cats_and_dirs
 
