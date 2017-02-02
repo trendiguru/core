@@ -39,6 +39,9 @@ import dlib
 from skimage import io
 
 
+images_new = []
+boxes_new = []
+
 # In this example we are going to train a face detector based on the small
 # faces dataset in the examples/faces directory.  This means you need to supply
 # the path to this faces folder as a command line argument so we will know
@@ -86,14 +89,30 @@ options.be_verbose = True
 # # dlib.
 # dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
 
+for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
+    for file in files:
 
-images_array = np.load('/data/dress_detector/images_small_set_save.npy')
-boxes_array = np.load('/data/dress_detector/boxes_small_set_save.npy')
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
-images = images_array.tolist()
-boxes = boxes_array.tolist()
+        boxes_new.append(line_in_list_boxes)
 
-detector2 = dlib.train_simple_object_detector(images, boxes, options)
+
+        line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
+
+        images_new.append(line_in_list_images)
+
+        print file
+
+
+
+
+# images_array = np.load('/data/dress_detector/images_small_set_save.npy')
+# boxes_array = np.load('/data/dress_detector/boxes_small_set_save.npy')
+#
+# images = images_array.tolist()
+# boxes = boxes_array.tolist()
+
+detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
 detector2.save('/data/detector2.svm')
 print "Done saving!"
