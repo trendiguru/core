@@ -452,7 +452,14 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     else:   #resize width to output width and fill top/bottom
         factor = float(inwidth)/outwidth
         new_height = int(float(inheight) / factor)
-        resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
+        try:
+            resized_img = cv2.resize(input_file_or_np_arr, (outwidth, new_height))
+        except:
+            e = sys.exc_info()[0]
+            logging.warning('error on resizing {} to {} error:{}'.format(input_file_or_np_arr.shape,output_size,e))
+            raw_input('ret to cont')
+            return
+
         height_offset = (outheight - new_height) / 2
         logging.debug('output ar >=  input ar , height padding around '+str(height_offset)+' to '+str(height_offset+new_height))
         output_img[height_offset:height_offset+new_height,:] = resized_img[:,:]
