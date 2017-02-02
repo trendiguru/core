@@ -87,11 +87,11 @@ options.be_verbose = True
 # dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
 
 
-images_array = np.load('/data/dress_detector/images_small_set_save.npy')
-boxes_array = np.load('/data/dress_detector/boxes_small_set_save.npy')
+images = np.load('/data/dress_detector/images_small_set_save.npy')
+boxes = np.load('/data/dress_detector/boxes_small_set_save.npy')
 
-images = images_array.tolist()
-boxes = boxes_array.tolist()
+# images = images_array.tolist()
+# boxes = boxes_array.tolist()
 
 detector2 = dlib.train_simple_object_detector(images, boxes, options)
 print "Done training!"
