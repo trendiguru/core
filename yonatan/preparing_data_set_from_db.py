@@ -166,7 +166,7 @@ def preparing_data_from_db(argv):
 
         image_file_name = 'dress-' + str(i) + '.jpg'
 
-        line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name + ')'
+        line_in_list_images = 'io.imread(/data/dress_detector/images/' + image_file_name + ')'
         line_in_list_boxes = '([dlib.rectangle(left=0, top=0, right=' + str(cropped_image.shape[1]) + ', bottom=' + str(cropped_image.shape[0]) + ')])'
 
         images.append(line_in_list_images)
