@@ -238,6 +238,7 @@ def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.f
     subdirs = [name for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
 
     for dir in subdirs:
+        print('dir:'+dir)
         subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
         for subsubdir in subsubdirs:
             print('subsubdir:'+subsubdir)
