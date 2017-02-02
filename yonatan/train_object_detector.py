@@ -70,7 +70,7 @@ options.add_left_right_image_flips = False
 # few different C values and see what works best for your data.
 options.C = 5
 # Tell the code how many CPU cores your computer has for the fastest training.
-options.num_threads = 4
+options.num_threads = 12
 options.be_verbose = True
 
 
@@ -87,14 +87,16 @@ options.be_verbose = True
 # dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
 
 
-images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
-boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+images_array = np.load(open('/data/dress_detector/images_small_set.npy', 'rb'))
+boxes_array = np.load(open('/data/dress_detector/boxes_small_set.npy', 'rb'))
 
 images = images_array.tolist()
 boxes = boxes_array.tolist()
 
 detector2 = dlib.train_simple_object_detector(images, boxes, options)
-detector2.save('detector2.svm')
+print "Done training!"
+detector2.save('/data/detector2.svm')
+print "Done saving!"
 
 # We can look at the HOG filter we learned.  It should look like a face.  Neat!
 win_det = dlib.image_window()
@@ -160,42 +162,42 @@ print("\nTraining accuracy: {}".format(
 
 
 
-# Finally, note that you don't have to use the XML based input to
-# train_simple_object_detector().  If you have already loaded your training
-# images and bounding boxes for the objects then you can call it as shown
-# below.
-
-# You just need to put your images into a list.
-images = [io.imread(faces_folder + '/2008_002506.jpg'),
-          io.imread(faces_folder + '/2009_004587.jpg')]
-# Then for each image you make a list of rectangles which give the pixel
-# locations of the edges of the boxes.
-boxes_img1 = ([dlib.rectangle(left=329, top=78, right=437, bottom=186),
-               dlib.rectangle(left=224, top=95, right=314, bottom=185),
-               dlib.rectangle(left=125, top=65, right=214, bottom=155)])
-boxes_img2 = ([dlib.rectangle(left=154, top=46, right=228, bottom=121),
-               dlib.rectangle(left=266, top=280, right=328, bottom=342)])
-# And then you aggregate those lists of boxes into one big list and then call
-# train_simple_object_detector().
-boxes = [boxes_img1, boxes_img2]
-
-images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
-boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
-
-images = images_array.tolist()
-boxes = boxes_array.tolist()
-
-detector2 = dlib.train_simple_object_detector(images, boxes, options)
-# We could save this detector to disk by uncommenting the following.
-detector2.save('detector2.svm')
-
-# Now let's look at its HOG filter!
-win_det.set_image(detector2)
-dlib.hit_enter_to_continue()
-
-# Note that you don't have to use the XML based input to
-# test_simple_object_detector().  If you have already loaded your training
-# images and bounding boxes for the objects then you can call it as shown
-# below.
-print("\nTraining accuracy: {}".format(
-    dlib.test_simple_object_detector(images, boxes, detector2)))
+# # Finally, note that you don't have to use the XML based input to
+# # train_simple_object_detector().  If you have already loaded your training
+# # images and bounding boxes for the objects then you can call it as shown
+# # below.
+#
+# # You just need to put your images into a list.
+# images = [io.imread(faces_folder + '/2008_002506.jpg'),
+#           io.imread(faces_folder + '/2009_004587.jpg')]
+# # Then for each image you make a list of rectangles which give the pixel
+# # locations of the edges of the boxes.
+# boxes_img1 = ([dlib.rectangle(left=329, top=78, right=437, bottom=186),
+#                dlib.rectangle(left=224, top=95, right=314, bottom=185),
+#                dlib.rectangle(left=125, top=65, right=214, bottom=155)])
+# boxes_img2 = ([dlib.rectangle(left=154, top=46, right=228, bottom=121),
+#                dlib.rectangle(left=266, top=280, right=328, bottom=342)])
+# # And then you aggregate those lists of boxes into one big list and then call
+# # train_simple_object_detector().
+# boxes = [boxes_img1, boxes_img2]
+#
+# images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
+# boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+#
+# images = images_array.tolist()
+# boxes = boxes_array.tolist()
+#
+# detector2 = dlib.train_simple_object_detector(images, boxes, options)
+# # We could save this detector to disk by uncommenting the following.
+# detector2.save('detector2.svm')
+#
+# # Now let's look at its HOG filter!
+# win_det.set_image(detector2)
+# dlib.hit_enter_to_continue()
+#
+# # Note that you don't have to use the XML based input to
+# # test_simple_object_detector().  If you have already loaded your training
+# # images and bounding boxes for the objects then you can call it as shown
+# # below.
+# print("\nTraining accuracy: {}".format(
+#     dlib.test_simple_object_detector(images, boxes, detector2)))
