@@ -10,9 +10,9 @@ import argparse
 import glob
 import time
 import urllib
-import skimage
 import requests
 import dlib
+from skimage import io
 from ..utils import imutils
 # import yonatan_classifier
 # import matplotlib as mpl
@@ -31,20 +31,42 @@ def find_dress_dlib(image, max_num_of_faces=10):
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    dresses, scores, idx = dress_detector.run(image, 1)
+    # dresses, scores, idx = dress_detector.run(image, 1)
 
-    for i, d in enumerate(dresses):
-        print("Detection {}, score: {}, face_type:{}".format(
-            d, scores[i], idx[i]))
+    win_det = dlib.image_window()
+    win_det.set_image(dress_detector)
 
-    print("Done in %.3f s." % (time.time() - start))
+    dlib.hit_enter_to_continue()
 
-    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(dresses)]
-    if not len(dresses):
-        return {'are_dresses': False, 'dresses': []}
-    #final_faces = choose_faces(image, faces, max_num_of_faces)
-    print "number of faces: {0}\n".format(len(dresses))
-    return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
+    print("Showing detections on the images in the faces folder...")
+    win = dlib.image_window()
+    for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
+        print("Processing file: {}".format(f))
+        img = io.imread(f)
+        dets = dress_detector(img)
+        print("Number of faces detected: {}".format(len(dets)))
+        for k, d in enumerate(dets):
+            print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
+                k, d.left(), d.top(), d.right(), d.bottom()))
+
+        win.clear_overlay()
+        win.set_image(img)
+        win.add_overlay(dets)
+        dlib.hit_enter_to_continue()
+
+
+    # for i, d in enumerate(dresses):
+    #     print("Detection {}, score: {}, face_type:{}".format(
+    #         d, scores[i], idx[i]))
+    #
+    # print("Done in %.3f s." % (time.time() - start))
+    #
+    # faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(dresses)]
+    # if not len(dresses):
+    #     return {'are_dresses': False, 'dresses': []}
+    # #final_faces = choose_faces(image, faces, max_num_of_faces)
+    # print "number of faces: {0}\n".format(len(dresses))
+    # return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
 
 
 def theDetector(url_or_np_array):
