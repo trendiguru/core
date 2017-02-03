@@ -33,7 +33,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # dresses, scores, idx = dress_detector.run(image, 1)
 
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     dets = dress_detector(image)
 
@@ -106,7 +106,7 @@ def theDetector(url_or_np_array):
     dets = find_dress_dlib(full_image)
 
     for d in dets:
-        print "d: {0}, d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d, d.left(), d.top()), (d.right(), d.bottom())
+        print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
         cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
