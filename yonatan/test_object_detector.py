@@ -37,12 +37,10 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     if dets is None:
         print "no dress!!"
-
-    for d in dets:
-        cv2.rectangle(image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 2)
-
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", image)
-
+        return None
+    else:
+        print "great success!"
+        return dets
 
         # win_det = dlib.image_window()
     # win_det.set_image(dress_detector)
@@ -102,7 +100,12 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    dresses = find_dress_dlib(full_image)
+    dets = find_dress_dlib(full_image)
+
+    for d in dets:
+        cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
