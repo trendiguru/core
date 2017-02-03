@@ -105,6 +105,8 @@ def theDetector(url_or_np_array):
 
     dets = find_dress_dlib(full_image)
 
+    print dets[0]
+
     for d in dets:
         print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
         cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
