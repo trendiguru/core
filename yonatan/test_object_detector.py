@@ -33,6 +33,8 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # dresses, scores, idx = dress_detector.run(image, 1)
 
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
     dets = dress_detector(image)
 
     if dets is None:
