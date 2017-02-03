@@ -35,7 +35,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     dets = dress_detector(image)
 
-    print "dets: {0}".format(dets)
+    print "dets: {0}, dets[0]: {1}".format(dets, dets[0])
 
     # win_det = dlib.image_window()
     # win_det.set_image(dress_detector)
