@@ -103,6 +103,7 @@ def theDetector(url_or_np_array):
     dets = find_dress_dlib(full_image)
 
     for d in dets:
+        print "d: {0}, d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d, d.left(), d.top()), (d.right(), d.bottom())
         cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
