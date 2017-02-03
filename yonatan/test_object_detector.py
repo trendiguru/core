@@ -42,6 +42,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
         return None
     else:
         print "great success!"
+        print len(dets)
         return dets
 
         # win_det = dlib.image_window()
