@@ -105,7 +105,7 @@ def theDetector(url_or_np_array):
 
     dets = find_dress_dlib(full_image)
 
-    for i in len(dets):
+    for i in range(0, len(dets)):
         print dets[i]
 
     for d in dets:
