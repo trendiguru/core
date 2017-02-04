@@ -481,29 +481,29 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
     n_done = cursor.count()
     print(str(n_done)+' docs in db')
     for i in range(n_done):
-        document = cursor.next()
-        if not 'already_seen_image_level' in document:
-            print('no votes for this doc')
-            continue
-        if document['already_seen_image_level']<2:
-            print('not enough votes for this doc')
-            continue
-        url = document['url']
-        filename = os.path.basename(url)
-        full_path = os.path.join(image_dir,filename)
-        if not os.path.exists(full_path):
-            print('file '+full_path+' does not exist, skipping')
-            continue
-        items_list = document['items'] #
-        if items_list is None:
-            print('no items in doc')
-            continue
-        print('items:'+str(items_list))
-        votelist = [0]*len(constants.web_tool_categories_v2)
-        catsfile = os.path.join(catsfile_dir,'all_clothes_tb.txt')
-        n_positives=0
-        positives_list=[]
         with open(catsfile,'a') as fp:
+            document = cursor.next()
+            if not 'already_seen_image_level' in document:
+                print('no votes for this doc')
+                continue
+            if document['already_seen_image_level']<2:
+                print('not enough votes for this doc')
+                continue
+            url = document['url']
+            filename = os.path.basename(url)
+            full_path = os.path.join(image_dir,filename)
+            if not os.path.exists(full_path):
+                print('file '+full_path+' does not exist, skipping')
+                continue
+            items_list = document['items'] #
+            if items_list is None:
+                print('no items in doc')
+                continue
+            print('items:'+str(items_list))
+            votelist = [0]*len(constants.web_tool_categories_v2)
+            catsfile = os.path.join(catsfile_dir,'all_clothes_tb.txt')
+            n_positives=0
+            positives_list=[]
             for item in items_list:
                 cat = item['category']
                 if cat in constants.web_tool_categories_v2:
@@ -522,9 +522,10 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
                     print('item:'+str(cat) +' votes:'+str(votelist[index])+' ' +line)
                     n_positives+=1
                     positives_list.append(full_path)
-            fp.close()
-        print('tot positives:'+str(n_positives))
-        return positives_list
+                    break
+    fp.close()
+    print('tot positives:'+str(n_positives))
+    return positives_list
 
 def analyze_negs_filipino_db(labels=constants.multilabel_categories_v2,in_docker=True):
     if in_docker:
