@@ -461,7 +461,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
 
 def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',
-                                           ,desired_index=1,in_docker=True):
+                                           desired_index=1,in_docker=True):
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives file - so all images with clothes should get into labelfile once
@@ -517,9 +517,9 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
                     continue
                 votelist[index] += 1
                 if votelist[index] >=2:
-                    line = str(full_path) + ' 1 \n'
+                    line = str(full_path) + '\t'+str(desired_index)+'\n'
                     fp.write(line)
-                    print('item:'+str(cat) +' votes:'+str(votelist[index]))
+                    print('item:'+str(cat) +' votes:'+str(votelist[index])+' ' +line)
                     n_positives+=1
                     positives_list.append(full_path)
             fp.close()
