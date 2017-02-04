@@ -10,9 +10,9 @@ import argparse
 import glob
 import time
 import urllib
-import skimage
 import requests
 import dlib
+from skimage import io
 from ..utils import imutils
 # import yonatan_classifier
 # import matplotlib as mpl
@@ -31,20 +31,54 @@ def find_dress_dlib(image, max_num_of_faces=10):
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    dresses, scores, idx = dress_detector.run(image, 1)
+    # dresses, scores, idx = dress_detector.run(image, 1)
 
-    for i, d in enumerate(dresses):
-        print("Detection {}, score: {}, face_type:{}".format(
-            d, scores[i], idx[i]))
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    print("Done in %.3f s." % (time.time() - start))
+    dets = dress_detector(image)
 
-    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(dresses)]
-    if not len(dresses):
-        return {'are_dresses': False, 'dresses': []}
-    #final_faces = choose_faces(image, faces, max_num_of_faces)
-    print "number of faces: {0}\n".format(len(dresses))
-    return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
+    if dets is None:
+        print "no dress!!"
+        return None
+    else:
+        print "great success!"
+        print len(dets)
+        return dets
+
+        # win_det = dlib.image_window()
+    # win_det.set_image(dress_detector)
+    #
+    # dlib.hit_enter_to_continue()
+    #
+    # print("Showing detections on the images in the faces folder...")
+    # win = dlib.image_window()
+    # for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
+    #     print("Processing file: {}".format(f))
+    #     img = io.imread(f)
+    #     dets = dress_detector(img)
+    #     print("Number of faces detected: {}".format(len(dets)))
+    #     for k, d in enumerate(dets):
+    #         print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
+    #             k, d.left(), d.top(), d.right(), d.bottom()))
+    #
+    #     win.clear_overlay()
+    #     win.set_image(img)
+    #     win.add_overlay(dets)
+    #     dlib.hit_enter_to_continue()
+
+
+    # for i, d in enumerate(dresses):
+    #     print("Detection {}, score: {}, face_type:{}".format(
+    #         d, scores[i], idx[i]))
+    #
+    # print("Done in %.3f s." % (time.time() - start))
+    #
+    # faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(dresses)]
+    # if not len(dresses):
+    #     return {'are_dresses': False, 'dresses': []}
+    # #final_faces = choose_faces(image, faces, max_num_of_faces)
+    # print "number of faces: {0}\n".format(len(dresses))
+    # return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
 
 
 def theDetector(url_or_np_array):
@@ -69,38 +103,47 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    dresses = find_dress_dlib(full_image)
+    dets = find_dress_dlib(full_image)
 
-    if not dresses["are_dresses"]:
-        print "didn't find any dresses"
-        return None
+    for i in range(0, len(dets)):
+        print dets[i]
 
-    height, width, channels = full_image.shape
+    for d in dets:
+        print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
+        cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    for i in range(0, len(dresses['dresses'])):
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
 
-        x, y, w, h = dresses['dresses'][i]
-
-        if x > width or x + w > width or y > height or y + h > height:
-            print "\ndress out of image boundaries\n"
-            return None
-
-
-    # if full_image.shape[0] - (y + h) >= 5 * h:
-    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+    # if not dresses["are_dresses"]:
+    #     print "didn't find any dresses"
+    #     return None
     #
-    # if full_image.shape[0] - (y + h) >= 6 * h:
-    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+    # height, width, channels = full_image.shape
     #
-    # if full_image.shape[0] - (y + h) >= 7 * h:
-    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+    # for i in range(0, len(dresses['dresses'])):
     #
-    # if full_image.shape[0] - (y + h) >= 8 * h:
-    #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
-
-    cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
-
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(full_image,'{:.3f}'.format(dresses['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
-
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_testing.jpg", full_image)
+    #     x, y, w, h = dresses['dresses'][i]
+    #
+    #     if x > width or x + w > width or y > height or y + h > height:
+    #         print "\ndress out of image boundaries\n"
+    #         return None
+    #
+    #
+    # # if full_image.shape[0] - (y + h) >= 5 * h:
+    # #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+    # #
+    # # if full_image.shape[0] - (y + h) >= 6 * h:
+    # #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+    # #
+    # # if full_image.shape[0] - (y + h) >= 7 * h:
+    # #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+    # #
+    # # if full_image.shape[0] - (y + h) >= 8 * h:
+    # #     cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
+    #
+    # cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
+    #
+    # font = cv2.FONT_HERSHEY_SIMPLEX
+    # cv2.putText(full_image,'{:.3f}'.format(dresses['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+    #
+    # print cv2.imwrite("/data/yonatan/linked_to_web/dress_testing.jpg", full_image)
