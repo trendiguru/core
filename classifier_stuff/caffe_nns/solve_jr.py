@@ -289,8 +289,8 @@ if __name__ == "__main__":
     #base_dir = '/data/jeremy/caffenets/binary/resnet101_dress_try1/'
     base_dir = os.path.dirname(os.path.realpath(__file__))
     weights =  '/data/jeremy/caffenets/binary/ResNet-101-model.caffemodel'
-    solverproto = base_dir + 'ResNet-101_solver.prototxt'
-    testproto = base_dir + 'ResNet-101-train_test.prototxt'
+    solverproto = os.path.join(base_dir,'ResNet-101_solver.prototxt')
+    testproto = os.path.join(base_dir,'ResNet-101-train_test.prototxt')
     type='single_label'
     #type='multilabel'
     #type='pixlevel'
