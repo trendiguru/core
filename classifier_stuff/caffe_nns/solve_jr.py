@@ -208,10 +208,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             with open(loss_outputname,'a+') as f:
                 f.write('test\t'+str(int(time.time()))+'\t'+str(tot_iters)+'\t'+str(testloss)+'\t'+str(acc)+'\n')
                 f.close()
-            params,n_timeconstants = fit_points_exp(iter_list,accuracy_list)
-            print('fit: asymptote {} tau {} x0 {} t/tau {}'.format(params[0],params[1],params[2],n_timeconstants))
-            if n_timeconstants > 10 and tot_iters>10000:  #on a long tail
-                return params,n_timeconstants
+#            params,n_timeconstants = fit_points_exp(iter_list,accuracy_list)
+#            print('fit: asymptote {} tau {} x0 {} t/tau {}'.format(params[0],params[1],params[2],n_timeconstants))
+##            if n_timeconstants > 10 and tot_iters>10000:  #on a long tail
+ #               return params,n_timeconstants
 
         with open(loss_outputname,'a+') as f:
             f.write(str(int(time.time()))+'\t'+s2)

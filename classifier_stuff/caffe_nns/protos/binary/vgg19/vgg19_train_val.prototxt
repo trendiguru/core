@@ -460,7 +460,7 @@ layer {
   bottom: "myfc8"
   bottom: "label"
   top: "loss"
-  include: { phase: TRAIN }
+ # include: { phase: TRAIN }
 }
 layer {
   name: "estimate"
@@ -468,7 +468,7 @@ layer {
   bottom: "myfc8"
 #  bottom: "label"
   top: "estimate"
-  include: { phase: TEST }
+#  include: { phase: TEST }
 }
 layer {
   name: "accuracy"
