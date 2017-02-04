@@ -85,7 +85,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
 def theDetector(url_or_np_array):
 
-    print "Starting the face detector testing!"
+    print "Starting the dress detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         #full_image = url_to_image(url_or_np_array)
@@ -109,6 +109,8 @@ def theDetector(url_or_np_array):
 
     for i in range(0, len(dets)):
         print dets[i]
+        print dets[i][0]
+        print dets[i](0)
 
     for d in dets:
         print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
