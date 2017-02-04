@@ -500,7 +500,7 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
             if items_list is None:
                 print('no items in doc')
                 continue
-            print('items:'+str(items_list))
+            #print('items:'+str(items_list))
             votelist = [0]*len(constants.web_tool_categories_v2)
             n_positives=0
             positives_list=[]
