@@ -376,7 +376,7 @@ eyewear_group = ['eyewear','glasses','sunglasses','shades']
 #also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
 #eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
 bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater'],
-                  'suit':['socks',upper_under_group,'vest',footwear_group,accessories_group],
+                  'suit':['socks','shirt','button-down','top','vest','shoes','footwear',accessories_group],
                   'overalls':['socks',upper_under_group,footwear_group,accessories_group],
                   'tracksuit':['socks',wrappy_things_group,footwear_group,upper_under_group,accessories_group],
                   'sarong':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],

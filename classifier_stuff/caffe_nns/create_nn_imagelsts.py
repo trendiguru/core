@@ -119,7 +119,7 @@ def consistency_check_multilabel_db():
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
 
-def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
@@ -135,13 +135,14 @@ def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath=
     for cat in cats:
         positives,negatives = binary_pos_and_neg_deepfashion_onecat(cat,allcats=allcats,folderpath=folderpath)
 
-def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
     #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
-    #3. mongo db images - again use constants.bad_negs
-    (#4. google open images)
+    #3. mongo db images - again use constants.bad_negs.
+    (#4. google open images) - this can prob be combined with #3 since both those have
+    'normal' (tg) class names in the folders
     :param cats:
     :return:
     '''
@@ -226,8 +227,7 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
     print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
     return positives, negatives
 
-
-def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
     '''
     the mongo dbs are downloaded as a folder per db, with subfolders for the categories
     :param folderpath:
@@ -236,7 +236,6 @@ def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.f
     '''
     cats_and_dirs = []
     subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
-
     for dir in subdirs:
         print('dir:'+dir)
         subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
@@ -257,11 +256,12 @@ def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.f
 #    print cats_and_dirs
     return cats_and_dirs
 
-
 def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo'):
     '''
-    #3. mongo db images - again use constants.bad_negs
-    these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
+    #3. mongo db images - again use constants.bad_negs.
+    (#4. google open images) - this can prob be combined with #3 since both those have
+    'normal' (tg) class names in the folders     these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
+    and the google ones are in folders like /swimsuit_men/kept
     :param cats:
     :return:
     '''
@@ -270,7 +270,7 @@ def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folder
         logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
         return
 
-    dirs_and_cats = mongo_to_tg_hydra(folderpath=folderpath,cats = allcats)
+    dirs_and_cats = dir_of_dirs_to_tg_hydra(folderpath=folderpath,cats = allcats)
     print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
     print('looking for cats:'+str(cat))
 
@@ -465,6 +465,8 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives file - so all images with clothes should get into labelfile once
+    useful for relevant/irrelevant, prob nothing else
+    consider putting naked ppl into the irrelevants...
     '''
 
     print('attempting db connection')
