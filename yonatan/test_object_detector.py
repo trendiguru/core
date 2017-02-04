@@ -109,7 +109,7 @@ def theDetector(url_or_np_array):
 
     for i in range(0, len(dets)):
         print dets[i]
-        print dets[i].left()
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top()), (dets[i].right(), dets[i].bottom())
 
     for d in dets:
         print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
