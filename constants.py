@@ -376,7 +376,7 @@ eyewear_group = ['eyewear','glasses','sunglasses','shades']
 #also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
 #eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
 bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater'],
-                  'suit':['socks',upper_under_group,'vest',footwear_group,accessories_group],
+                  'suit':['socks','shirt','button-down','top','vest','shoes','footwear',accessories_group],
                   'overalls':['socks',upper_under_group,footwear_group,accessories_group],
                   'tracksuit':['socks',wrappy_things_group,footwear_group,upper_under_group,accessories_group],
                   'sarong':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
@@ -580,13 +580,16 @@ snorb=3
 
 #the idea is each sublist is of mutually exclusive items (except bra/panties/babydoll)
 #None means None of the following , ie not a dress or suit or overalls etc.
+#i am adding some courses cats here as a prophylactic step backwards, namely:
+#shirt, swimwear, top,tights  - this is for the sake of mongo labelfiles.
+#ultimately all that should get put into a db and the cat will have course and fine
 flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
-              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit','swimwear',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              'bra','panties','babydoll' , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              'coat','jacket','blazer', #upper cover (need middle and cover e.g since coat can be w. sweater)
              'cardigan','sweatshirt','hoodie','sweater','vest','poncho', #upper middle. vest could actually be with sweater...
-             't-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
-             'jeans','pants','stockings','leggings','socks', #lower_cover_long
+             'top','shirt','t-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
+             'jeans','pants','stockings','leggings','socks', 'tights',#lower_cover_long
              'shorts','skirt', #lower_cover_short
              'shawl','scarf', #wraps
              'boots','shoes','sandals',  #footwear

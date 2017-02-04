@@ -119,7 +119,7 @@ def consistency_check_multilabel_db():
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
 
-def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
@@ -135,13 +135,14 @@ def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath=
     for cat in cats:
         positives,negatives = binary_pos_and_neg_deepfashion_onecat(cat,allcats=allcats,folderpath=folderpath)
 
-def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
+def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
     #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
-    #3. mongo db images - again use constants.bad_negs
-    (#4. google open images)
+    #3. mongo db images - again use constants.bad_negs.
+    (#4. google open images) - this can prob be combined with #3 since both those have
+    'normal' (tg) class names in the folders
     :param cats:
     :return:
     '''
@@ -226,8 +227,7 @@ def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,
     print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
     return positives, negatives
 
-
-def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
     '''
     the mongo dbs are downloaded as a folder per db, with subfolders for the categories
     :param folderpath:
@@ -236,7 +236,6 @@ def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.f
     '''
     cats_and_dirs = []
     subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
-
     for dir in subdirs:
         print('dir:'+dir)
         subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
@@ -253,13 +252,16 @@ def mongo_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.f
                 full_dirpath = os.path.join(dir,subsubdir)
                 cats_and_dirs.append([full_dirpath,cat_for_dir])
                 print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
-    print('cats and dirs ')
-    print cats_and_dirs
+    print('{} cats and dirs '+str(len(cats_and_dirs)))
+#    print cats_and_dirs
+    return cats_and_dirs
 
 def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo'):
     '''
-    #3. mongo db images - again use constants.bad_negs
-    these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
+    #3. mongo db images - again use constants.bad_negs.
+    (#4. google open images) - this can prob be combined with #3 since both those have
+    'normal' (tg) class names in the folders     these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
+    and the google ones are in folders like /swimsuit_men/kept
     :param cats:
     :return:
     '''
@@ -268,7 +270,7 @@ def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folder
         logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
         return
 
-    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
+    dirs_and_cats = dir_of_dirs_to_tg_hydra(folderpath=folderpath,cats = allcats)
     print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
     print('looking for cats:'+str(cat))
 
@@ -456,6 +458,76 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 fp.close()
         print('number of matches found:'+str(n_items))
         return n_items
+
+def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
+                                           desired_index=1,in_docker=True):
+    '''
+    read multilabel db.
+    if n_votes[cat] >= 2, put that image in positives file - so all images with clothes should get into labelfile once
+    useful for relevant/irrelevant, prob nothing else
+    consider putting naked ppl into the irrelevants...
+    '''
+
+    print('attempting db connection')
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+        #nb this can apparently be done by checking
+        #/proc/1/cgroup
+        #which has lines with 'docker' instead of starting with just /, as in
+        #1:name=systemd:/docker/85cee1c45352bc4814940e486dbcb169c17042d2b7460e4945ea6909b51a6a1b
+        #see http://stackoverflow.com/questions/20010199/determining-if-a-process-runs-inside-lxc-docker
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs in db')
+    n_positives=0
+    positives_list=[]
+    for i in range(n_done):
+        catsfile = os.path.join(catsfile_dir,'all_clothes_tb.txt')
+        with open(catsfile,'a') as fp:
+            document = cursor.next()
+            if not 'already_seen_image_level' in document:
+                print('no votes for this doc')
+                continue
+            if document['already_seen_image_level']<2:
+                print('not enough votes for this doc')
+                continue
+            url = document['url']
+            filename = os.path.basename(url)
+            full_path = os.path.join(image_dir,filename)
+            if not os.path.exists(full_path):
+                print('file '+full_path+' does not exist, skipping')
+                continue
+            items_list = document['items'] #
+            if items_list is None:
+                print('no items in doc')
+                continue
+            #print('items:'+str(items_list))
+            votelist = [0]*len(constants.web_tool_categories_v2)
+            for item in items_list:
+                cat = item['category']
+                if cat in constants.web_tool_categories_v2:
+                    index = constants.web_tool_categories_v2.index(cat)
+                elif cat in constants.tamara_berg_to_web_tool_dict:
+                    print('old cat being translated')
+                    cat = constants.tamara_berg_to_web_tool_dict[cat]
+                    index = constants.web_tool_categories.index(cat)
+                else:
+                    print('unrecognized cat')
+                    continue
+                votelist[index] += 1
+                if votelist[index] >=2:
+                    line = str(full_path) + '\t'+str(desired_index)+'\n'
+                    fp.write(line)
+                    print('item:'+str(cat) +' votes:'+str(votelist[index])+' ' +line)
+                    n_positives+=1
+                    positives_list.append(full_path)
+                    break
+    fp.close()
+    print('tot positives:'+str(n_positives))
+    return positives_list
 
 def analyze_negs_filipino_db(labels=constants.multilabel_categories_v2,in_docker=True):
     if in_docker:

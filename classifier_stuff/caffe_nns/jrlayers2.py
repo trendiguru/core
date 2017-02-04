@@ -670,7 +670,7 @@ class JrMultilabel(caffe.Layer):
             print('dba')
             if self.new_size is None:
                 logging.warning('WARNING!!! got no size for self.newsize, using '+str(self.default_newsize)+' resize and and  crop '+str(self.augment_crop_size))
-                raw_input('ret to cont')
+             #   raw_input('ret to cont')
                 self.new_size=self.default_newsize
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
@@ -678,7 +678,7 @@ class JrMultilabel(caffe.Layer):
             print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
-            raw_input('ret to cont')
+          #  raw_input('ret to cont')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
@@ -824,7 +824,7 @@ class JrMultilabel(caffe.Layer):
                 if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
-                    raw_input('ret to cont' )
+                  #  raw_input('ret to cont' )
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
 ##                     print('new shape '+str(in_.shape))
 
