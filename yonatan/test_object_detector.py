@@ -39,7 +39,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     print "image.shape: {0}".format(image.shape)
 
-    if dets is None:
+    if len(dets) == 0:
         print "no dress!!"
         return None
     else:
@@ -122,13 +122,13 @@ def theDetector(url_or_np_array):
 
     x, y, z = full_image.shape
     print (x,y,z)
-    new_x = x + 10
-    new_y = y + 10
+    new_x = x + 30
+    new_y = y + 30
 
     padded_image = np.zeros((new_x, new_y, z))
     print padded_image.shape
-    x_offset = 5
-    y_offset = 5
+    x_offset = 15
+    y_offset = 15
     padded_image[x_offset:x + x_offset, y_offset:y + y_offset, :] = full_image
 
     print "image.shape: {0}".format(padded_image.shape)
