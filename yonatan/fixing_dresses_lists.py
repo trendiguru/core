@@ -102,6 +102,7 @@ print "Done with images_new!!"
 #
 # text_file.flush()
 
+counter_bad = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
@@ -110,12 +111,19 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
 
         boxes_new.append(line_in_list_boxes)
 
+        try:
+            line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
+        except:
+            print "bad image!!"
+            counter_bad += 1
+            continue
 
-        line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
 
         images_new.append(line_in_list_images)
 
         print file
+
+print "counter_bad: {0}".format(counter_bad)
 
 # np.array(boxes_new).dump(open('/data/dress_detector/boxes_small_set.npy', 'wb'))
 #
