@@ -118,8 +118,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-
-def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
+def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
@@ -129,148 +128,41 @@ def binary_pos_and_neg_deepfashion(allcats=constants.flat_hydra_cats,folderpath=
     :param cats:
     :return:
     '''
-    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
-    print('looking for cats:'+str(cats))
+    folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+    dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
+    folderpath_mongo='/data/jeremy/image_dbs/mongo'
+    dirs_and_cats_mongo = dir_of_dirs_to_tg_hydra(folderpath=folderpath_mongo,cats = allcats)
 
-    for cat in cats:
-        positives,negatives = binary_pos_and_neg_deepfashion_onecat(cat,allcats=allcats,folderpath=folderpath)
-
-def binary_pos_and_neg_deepfashion_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'):
-    '''
-    #1. tamarab berg - generates pos and neg per class
-        assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
-    #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
-    #3. mongo db images - again use constants.bad_negs.
-    (#4. google open images) - this can prob be combined with #3 since both those have
-    'normal' (tg) class names in the folders
-    :param cats:
-    :return:
-    '''
-
-    if cat is 'None' or cat is None:
-        logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
-        return
-
-    dirs_and_cats = deepfashion_to_tg_hydra(folderpath=folderpath)
-    print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
-    print('looking for cats:'+str(cat))
-
-    #do positives
-    positives = []
-    if cat in constants.synonymous_cats:
-        cat_synonyms = constants.synonymous_cats[cat]
-    else:
-        cat_synonyms=[cat]
-    print('category {} synonyms {}'.format(cat,cat_synonyms))
-    for d_and_c in dirs_and_cats:
-        cat_for_dir = d_and_c[1]
-        if cat_for_dir is None:
-            logging.info('none cat for dc {}'.format(d_and_c))
-            continue
-        print('checking dir/cat {}'.format(d_and_c))
-        for catsyn in cat_synonyms:
-            if catsyn in cat_for_dir: #this directory is a category of interest for positives
-                full_path = os.path.join(folderpath,d_and_c[0])
-                files = os.listdir(full_path)
-                for file in files:
-                    file_path = os.path.join(full_path,file)
-                    logging.debug('file {} cat {}'.format(file_path,catsyn))  #add no-cr
-                    positives.append(file_path)
-            break  #no need to go thru rest of the synonyms.
-    print('found {} positives for cat {} (using sysnonyms {})'.format(len(positives),cat,cat_synonyms))
-
-    #do negatives
-    negatives = []
-    if cat in  constants.bad_negs_for_pos:
-        dont_use_these_neg_cats = constants.bad_negs_for_pos[cat]
-        dont_use_these_neg_cats=Utils.flatten_list(dont_use_these_neg_cats)
-    else:
-        logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
-        return positives,negatives
-
-    print('bad negs for cat {}:\n{}'.format(cat,dont_use_these_neg_cats))
-    print
-    for potential_negative in allcats:
-        negative_shouldnt_be_used_flag = False
-        if potential_negative == cat:
-            continue #dont kill the cat under consideration
-        pot_neg_synonyms = Utils.give_me_a_list_of_synonyms(potential_negative,constants.synonymous_cats)
-        print('potential neg synonyms:'+str(pot_neg_synonyms))
-        for potential_negative_synonym in pot_neg_synonyms:
-            if potential_negative_synonym in dont_use_these_neg_cats:
-                print('potential neg {} negged '.format(potential_negative_synonym))
-                negative_shouldnt_be_used_flag = True
-                break
-        if negative_shouldnt_be_used_flag:
-            logging.info('negative {} shold not be used'.format(potential_negative_synonym))
-            continue
-        print('not negged and therefore useful as negative for {}:{}'.format(cat,potential_negative))
-        for d_and_c in dirs_and_cats:
-            cat_for_dir = d_and_c[1]
-            if cat_for_dir is None:
-                print('none cat for dc {}'.format(d_and_c))
-                continue
-            if cat_for_dir in pot_neg_synonyms: #this directory is a category of interest
-                full_path = os.path.join(folderpath,d_and_c[0])
-                files = os.listdir(full_path)
-#                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0],cat,len(files)))
-                for file in files:
-                    file_path = os.path.join(full_path,file)
-                    negatives.append(file_path)
-#                    fp.write(file_path+'\t'+str(cat_index)+'\n')
-#                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
-            else:
-#                logging.info('catfordir {} not in pot_neg_syn {}'.format(cat_for_dir,pot_neg_synonyms))
-                pass
-        print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
+    for cat in allcats:
+        print('generating pos and neg for cat:'+str(cat))
+        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath_deepfashion,outfile=cat+'_pos_neg_df.txt')
+        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath_mongo,outfile=cat+'_pos_neg_mongo.txt')
+        allpositives = positives_df+positives_mongo
+        allnegatives = negatives_df+negatives_mongo
+        filename=cat+'_'+outfile
+        print('pos df {} pos mongo {} all {} neg fd {} neg mongo {} tot {} writng to {}'.format(len(positives_df),len(positives_mongo),len(allpositives),len(negatives_df),len(negatives_mongo),len(allnegatives),filename))
+        with open(filename,'a') as fp:
+            for positive in allpositives:
+                fp.write(str(positive)+'\t1\n')
+            for negative in allnegatives:
+                fp.write(str(negative)+'\t0\n')
         raw_input('ret to cont')
-    print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
-    return positives, negatives
 
-def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
     '''
-    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    given a category and list of directories with a known cat per dir , use constants.bad_negs_for_pos to determine what cant be used as negs
+    for the cat - generate negs using everything else not in bad_negs, generate pos using the cat , write to file and return lists
+    :param cat:
+    :param dirs_and_cats:
+    :param allcats:
     :param folderpath:
-    :param cats:
+    :param outfile:
     :return:
     '''
-    cats_and_dirs = []
-    subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
-    for dir in subdirs:
-        print('dir:'+dir)
-        subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
-        for subsubdir in subsubdirs:
-            print('subsubdir:'+subsubdir)
-            cat_for_dir = None
-            for cat in cats:
-                if cat in subsubdir:
-                    cat_for_dir = cat
-                    break
-            if cat_for_dir is None:
-                print('could not get cat for dir '+str(subsubdir))
-            else:
-                full_dirpath = os.path.join(dir,subsubdir)
-                cats_and_dirs.append([full_dirpath,cat_for_dir])
-                print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
-    print('{} cats and dirs '+str(len(cats_and_dirs)))
-#    print cats_and_dirs
-    return cats_and_dirs
-
-def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
-    '''
-    #3. mongo db images - again use constants.bad_negs.
-    (#4. google open images) - this can prob be combined with #3 since both those have
-    'normal' (tg) class names in the folders     these are subfolders of db folder named by db , eg. amazon_us_male/belt,coat, etc.
-    and the google ones are in folders like /swimsuit_men/kept
-    :param cats:
-    :return:
-    '''
-
     if cat is 'None' or cat is None:
         logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
         return
 
-    dirs_and_cats = dir_of_dirs_to_tg_hydra(folderpath=folderpath,cats = allcats)
     print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
     print('looking for cats:'+str(cat))
 
@@ -351,6 +243,35 @@ def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folder
             for negative in negatives:
                 fp.write(str(negative)+'\t0\n')
     return positives, negatives
+
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
+    cats_and_dirs = []
+    subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
+    for dir in subdirs:
+        print('dir:'+dir)
+        subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
+        for subsubdir in subsubdirs:
+            print('subsubdir:'+subsubdir)
+            cat_for_dir = None
+            for cat in cats:
+                if cat in subsubdir:
+                    cat_for_dir = cat
+                    break
+            if cat_for_dir is None:
+                print('could not get cat for dir '+str(subsubdir))
+            else:
+                full_dirpath = os.path.join(dir,subsubdir)
+                cats_and_dirs.append([full_dirpath,cat_for_dir])
+                print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
+    print('{} cats and dirs '+str(len(cats_and_dirs)))
+#    print cats_and_dirs
+    return cats_and_dirs
 
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
