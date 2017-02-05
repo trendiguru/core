@@ -144,8 +144,12 @@ def theDetector(url_or_np_array):
         print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
 
     for d in dets:
-        print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
-        cv2.rectangle(padded_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+        if d.left() < 0:
+            left = d.left() + 15
+        else:
+            left = d.left()
+        print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(left, d.top()), (d.right(), d.bottom())
+        cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", padded_image)
 
