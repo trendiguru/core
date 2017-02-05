@@ -35,9 +35,11 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    dets = dress_detector(image, 1, -1)
+    dets = dress_detector(image)
 
     print "image.shape: {0}".format(image.shape)
+
+    print len(dets)
 
     if len(dets) == 0:
         print "no dress!!"
@@ -133,7 +135,9 @@ def theDetector(url_or_np_array):
 
     print "image.shape: {0}".format(padded_image.shape)
 
-    dets = find_dress_dlib(full_image)
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(200, 110))
+
+    dets = find_dress_dlib(resized_image)
 
     if dets is None:
         print "Bey"

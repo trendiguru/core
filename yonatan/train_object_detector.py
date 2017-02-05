@@ -42,6 +42,9 @@ from skimage import io
 images_new = []
 boxes_new = []
 
+images_new_test = []
+boxes_new_test = []
+
 # In this example we are going to train a face detector based on the small
 # faces dataset in the examples/faces directory.  This means you need to supply
 # the path to this faces folder as a command line argument so we will know
@@ -71,10 +74,11 @@ options.add_left_right_image_flips = False
 # empirically by checking how well the trained detector works on a test set of
 # images you haven't trained on.  Don't just leave the value set at 5.  Try a
 # few different C values and see what works best for your data.
-options.C = 5
+options.C = 2000
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
+options.epsilon = 0.0001
 
 
 # training_xml_path = os.path.join(faces_folder, "training.xml")
@@ -89,6 +93,8 @@ options.be_verbose = True
 # # dlib.
 # dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
 
+
+## train set ##
 counter_bad = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
@@ -110,6 +116,30 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
         print file
 
 print "counter_bad: {0}".format(counter_bad)
+
+
+## test set ##
+counter_bad2 = 0
+
+for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
+    for file in files:
+
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
+
+        try:
+            line_in_list_images = io.imread('/data/dress_detector/resized_images_test/' + file)
+        except:
+            print "bad image!!"
+            counter_bad2 += 1
+            continue
+
+        boxes_new_test.append(line_in_list_boxes)
+
+        images_new_test.append(line_in_list_images)
+
+        print file
+
+print "counter_bad2: {0}".format(counter_bad2)
 
 
 
@@ -226,5 +256,8 @@ print "Done saving!"
 # # test_simple_object_detector().  If you have already loaded your training
 # # images and bounding boxes for the objects then you can call it as shown
 # # below.
-# print("\nTraining accuracy: {}".format(
-#     dlib.test_simple_object_detector(images, boxes, detector2)))
+print("\nTraining accuracy: {}".format(
+    dlib.test_simple_object_detector(images_new, boxes_new, detector2)))
+
+print("\nTesting accuracy: {}".format(
+    dlib.test_simple_object_detector(images_new_test, boxes_new_test, detector2)))
