@@ -118,7 +118,7 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256',outfile='pos_neg_mongo_df.txt'):
+def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
     #1. tamarab berg - generates pos and neg per class
         assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
@@ -128,7 +128,9 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,f
     :param cats:
     :return:
     '''
+    folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
     dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath)
+    folderpath='/data/jeremy/image_dbs/mongo'
     dirs_and_cats_mongo = dir_of_dirs_to_tg_hydra(folderpath=folderpath,cats = allcats)
 
     for cat in allcats:
