@@ -117,63 +117,63 @@ print "Done training!"
 detector2.save('/data/detector2.svm')
 print "Done saving!"
 
-# We can look at the HOG filter we learned.  It should look like a face.  Neat!
-win_det = dlib.image_window()
-win_det.set_image(detector2)
-
-# Now let's look at its HOG filter!
+# # We can look at the HOG filter we learned.  It should look like a face.  Neat!
+# win_det = dlib.image_window()
 # win_det.set_image(detector2)
-dlib.hit_enter_to_continue()
-
-# Note that you don't have to use the XML based input to
-# test_simple_object_detector().  If you have already loaded your training
-# images and bounding boxes for the objects then you can call it as shown
-# below.
-print("\nTraining accuracy: {}".format(
-    dlib.test_simple_object_detector(images, boxes, detector2)))
-
-
-# # Now that we have a face detector we can test it.  The first statement tests
-# # it on the training data.  It will print(the precision, recall, and then)
-# # average precision.
-# print("")  # Print blank line to create gap from previous output
-# print("Training accuracy: {}".format(
-#     dlib.test_simple_object_detector(training_xml_path, "detector.svm")))
-# # However, to get an idea if it really worked without overfitting we need to
-# # run it on images it wasn't trained on.  The next line does this.  Happily, we
-# # see that the object detector works perfectly on the testing images.
-# print("Testing accuracy: {}".format(
-#     dlib.test_simple_object_detector(testing_xml_path, "detector.svm")))
-
-
-
-
-
-# # Now let's use the detector as you would in a normal application.  First we
-# # will load it from disk.
-# detector = dlib.simple_object_detector("detector.svm")
-
-# We can look at the HOG filter we learned.  It should look like a face.  Neat!
-win_det = dlib.image_window()
-win_det.set_image(detector)
-
-# Now let's run the detector over the images in the faces folder and display the
-# results.
-print("Showing detections on the images in the faces folder...")
-win = dlib.image_window()
-for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
-    print("Processing file: {}".format(f))
-    img = io.imread(f)
-    dets = detector(img)
-    print("Number of faces detected: {}".format(len(dets)))
-    for k, d in enumerate(dets):
-        print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
-            k, d.left(), d.top(), d.right(), d.bottom()))
-
-    win.clear_overlay()
-    win.set_image(img)
-    win.add_overlay(dets)
-    dlib.hit_enter_to_continue()
+#
+# # Now let's look at its HOG filter!
+# # win_det.set_image(detector2)
+# dlib.hit_enter_to_continue()
+#
+# # Note that you don't have to use the XML based input to
+# # test_simple_object_detector().  If you have already loaded your training
+# # images and bounding boxes for the objects then you can call it as shown
+# # below.
+# print("\nTraining accuracy: {}".format(
+#     dlib.test_simple_object_detector(images, boxes, detector2)))
+#
+#
+# # # Now that we have a face detector we can test it.  The first statement tests
+# # # it on the training data.  It will print(the precision, recall, and then)
+# # # average precision.
+# # print("")  # Print blank line to create gap from previous output
+# # print("Training accuracy: {}".format(
+# #     dlib.test_simple_object_detector(training_xml_path, "detector.svm")))
+# # # However, to get an idea if it really worked without overfitting we need to
+# # # run it on images it wasn't trained on.  The next line does this.  Happily, we
+# # # see that the object detector works perfectly on the testing images.
+# # print("Testing accuracy: {}".format(
+# #     dlib.test_simple_object_detector(testing_xml_path, "detector.svm")))
+#
+#
+#
+#
+#
+# # # Now let's use the detector as you would in a normal application.  First we
+# # # will load it from disk.
+# # detector = dlib.simple_object_detector("detector.svm")
+#
+# # We can look at the HOG filter we learned.  It should look like a face.  Neat!
+# win_det = dlib.image_window()
+# win_det.set_image(detector)
+#
+# # Now let's run the detector over the images in the faces folder and display the
+# # results.
+# print("Showing detections on the images in the faces folder...")
+# win = dlib.image_window()
+# for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
+#     print("Processing file: {}".format(f))
+#     img = io.imread(f)
+#     dets = detector(img)
+#     print("Number of faces detected: {}".format(len(dets)))
+#     for k, d in enumerate(dets):
+#         print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
+#             k, d.left(), d.top(), d.right(), d.bottom()))
+#
+#     win.clear_overlay()
+#     win.set_image(img)
+#     win.add_overlay(dets)
+#     dlib.hit_enter_to_continue()
 
 
 
