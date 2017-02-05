@@ -35,9 +35,11 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    dets = dress_detector(image)
+    dets = dress_detector(image, 1, -1)
 
-    if dets is None:
+    print "image.shape: {0}".format(image.shape)
+
+    if len(dets) == 0:
         print "no dress!!"
         return None
     else:
@@ -81,9 +83,24 @@ def find_dress_dlib(image, max_num_of_faces=10):
     # return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
 
 
+def pad(array, reference, offsets):
+    """
+    array: Array to be padded
+    reference: Reference array with the desired shape
+    offsets: list of offsets (number of elements must be equal to the dimension of the array)
+    """
+    # Create an array of zeros with the reference shape
+    result = np.zeros(reference.shape)
+    # Create a list of slices from offset to offset + shape in each dimension
+    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim]) for dim in range(array.ndim)]
+    # Insert the array in the result at the specified offsets
+    result[insertHere] = array
+    return result
+
+
 def theDetector(url_or_np_array):
 
-    print "Starting the face detector testing!"
+    print "Starting the dress detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         #full_image = url_to_image(url_or_np_array)
@@ -103,16 +120,38 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
+    x, y, z = full_image.shape
+    print (x, y, z)
+    new_x = x + 30
+    new_y = y + 30
+
+    padded_image = np.zeros((new_x, new_y, z))
+    print padded_image.shape
+    x_offset = 15
+    y_offset = 15
+    padded_image[x_offset:x + x_offset, y_offset:y + y_offset, :] = full_image
+
+    print "image.shape: {0}".format(padded_image.shape)
+
     dets = find_dress_dlib(full_image)
+
+    if dets is None:
+        print "Bey"
+        return
 
     for i in range(0, len(dets)):
         print dets[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
 
     for d in dets:
-        print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
-        cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+        if d.left() < 0:
+            left = d.left() + 15
+        else:
+            left = d.left()
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\n".format(left, d.top(), d.right(), d.bottom())
+        cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing2.jpg", padded_image)
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
