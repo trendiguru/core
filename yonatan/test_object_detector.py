@@ -135,6 +135,10 @@ def theDetector(url_or_np_array):
 
     dets = find_dress_dlib(padded_image)
 
+    if dets in None:
+        print "Bey"
+        return
+
     for i in range(0, len(dets)):
         print dets[i]
         print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
