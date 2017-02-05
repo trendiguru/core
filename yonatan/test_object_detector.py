@@ -135,7 +135,9 @@ def theDetector(url_or_np_array):
 
     print "image.shape: {0}".format(padded_image.shape)
 
-    dets = find_dress_dlib(full_image)
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(200, 110))
+
+    dets = find_dress_dlib(resized_image)
 
     if dets is None:
         print "Bey"
