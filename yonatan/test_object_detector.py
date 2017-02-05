@@ -44,7 +44,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     if len(dets) == 0:
         print "no dress!!"
-        return None
+        return dets
     else:
         print "great success!"
         print len(dets)
