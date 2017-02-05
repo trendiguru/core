@@ -40,6 +40,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
     print "image.shape: {0}".format(image.shape)
 
     print len(dets)
+    print dets
 
     if len(dets) == 0:
         print "no dress!!"
