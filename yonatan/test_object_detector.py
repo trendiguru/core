@@ -170,20 +170,20 @@ def theDetector(url_or_np_array):
         print dets[i]
         print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
 
-    for i in range(0, len(dets)):
-        print dets[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(),
-                                                                    dets[i].bottom())
+    for i in range(0, len(dets2)):
+        print dets2[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets2[i].left(), dets2[i].top(), dets2[i].right(),
+                                                                    dets2[i].bottom())
 
-    for i in range(0, len(dets)):
-        print dets[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(),
-                                                                    dets[i].right(), dets[i].bottom())
+    for i in range(0, len(dets3)):
+        print dets3[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets3[i].left(), dets3[i].top(),
+                                                                    dets3[i].right(), dets3[i].bottom())
 
-    for i in range(0, len(dets)):
-        print dets[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(),
-                                                                    dets[i].right(), dets[i].bottom())
+    for i in range(0, len(dets4)):
+        print dets4[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets4[i].left(), dets4[i].top(),
+                                                                    dets4[i].right(), dets4[i].bottom())
 
     for d in dets:
         if d.left() < 0:
