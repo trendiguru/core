@@ -89,6 +89,8 @@ options.be_verbose = True
 # # dlib.
 # dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
 
+counter_bad = 0
+
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
 
@@ -96,12 +98,18 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
 
         boxes_new.append(line_in_list_boxes)
 
-
-        line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
+        try:
+            line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
+        except:
+            print "bad image!!"
+            counter_bad += 1
+            continue
 
         images_new.append(line_in_list_images)
 
         print file
+
+print "counter_bad: {0}".format(counter_bad)
 
 
 
