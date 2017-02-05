@@ -376,38 +376,38 @@ eyewear_group = ['eyewear','glasses','sunglasses','shades']
 #also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
 #eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
 bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater'],
-                  'suit':['socks','shirt','button-down','top','vest','shoes','footwear',accessories_group],
-                  'overalls':['socks',upper_under_group,footwear_group,accessories_group],
-                  'tracksuit':['socks',wrappy_things_group,footwear_group,upper_under_group,accessories_group],
-                  'sarong':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
-                  'robe':[sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
-                  'pyjamas':[sock_group,'slippers'], #foootwear prob limited to slippers,acessories ti
-                  'womens_swimwear_nonbikini':[footwear_group,'sarong'],
-                  'lingerie':[footwear_group], #maybe also top
-                  'bikini':[footwear_group,'sarong'],
-                  'mens_swimwear':[footwear_group,eyewear_group,'sarong'],
-                  'mens_underwear':[footwear_group,eyewear_group,upper_under_group],
+                  'suit':['socks','shirt','button-down','top','vest','shoes','footwear','jacket','blazer','sweater','pants',accessories_group],
+                  'overalls':['socks','jacket',upper_under_group,footwear_group,accessories_group],
+                  'tracksuit':['socks','sweatshirt','hoodie','tights',wrappy_things_group,'shoes',upper_under_group,accessories_group],
+                  'sarong':['swimwear','bikini',swimwear_group,'shorts',lower_short_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'robe':[undies_group,'shorts',upper_under_group,swimwear_group,undies_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'pyjamas':['robe',sock_group,'slippers'], #foootwear prob limited to slippers,acessories ti
+                  'womens_swimwear_nonbikini':[footwear_group,'sarong','robe'],
+                  'lingerie':[footwear_group,'robe',undies_group], #maybe also top
+                  'bikini':[footwear_group,'sarong','robe'],
+                  'mens_swimwear':['swimwear','t-shirt',footwear_group,eyewear_group,'sarong'],
+                  'mens_underwear':['robe',footwear_group,eyewear_group,upper_under_group],
                   'jumpsuit':[footwear_group,eyewear_group,upper_under_group,accessories_group],  #maybe jumpsuit excludes top?
-                  'bra':[lower_long_group,sock_group],
-                  'panties':[upper_under_group,sock_group],
-                  'babydoll':[upper_under_group,sock_group],
+                  'bra':['robe',undies_group,lower_long_group,sock_group],
+                  'panties':[undies_group,upper_under_group,sock_group,'sarong','robe'],
+                  'babydoll':[undies_group,sock_group,'sarong','robe'],
                   'coat':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
-                  'jacket':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
-                  'blazer':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
-                  'cardigan':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group,sock_group,'dress','skirt'],
-                  'sweater':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,'skirt'],
-                  'sweatshirt':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
-                  'hoodie':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
-                  'vest':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
-                  'poncho':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group],
-                  'top':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'button-down':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'blouse':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'polo':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'henley':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'tube':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'tanktop':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  't-shirt':[lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
+                  'jacket':[wrappy_things_group,'tracksuit',upper_middle_group,upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'blazer':['suit',upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'cardigan':[lower_short_group,'jacket','coat','overalls',upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group,sock_group,'dress',wrappy_things_group],
+                  'sweater':[wrappy_things_group,'button-down','vest','blazer','suit','jacket','coat','overalls',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,'skirt'], #maybe add dress
+                  'sweatshirt':['coat','jacket',undies_group,'tracksuit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'hoodie':['tracksuit','overalls','coat','jacket',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'vest':[wrappy_things_group,'suit','blazer',upper_under_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'poncho':['dress',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group],
+                  'top':['cardigan',wrappy_things_group,upper_under_group,'panties','suit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'button-down':['cardigan','top','shirt','suit','overalls',wrappy_things_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'blouse':['cardigan',wrappy_things_group,'panties','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'polo':['cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'henley':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'tube':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'tanktop':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  't-shirt':['panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
                   'shorts':[sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
                   'skirt':[sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
                   'jeans':[accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
@@ -584,18 +584,20 @@ snorb=3
 #shirt, swimwear, top,tights  - this is for the sake of mongo labelfiles.
 #ultimately all that should get put into a db and the cat will have course and fine
 flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
-              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit','swimwear',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
+              'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              'bra','panties','babydoll' , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              'coat','jacket','blazer', #upper cover (need middle and cover e.g since coat can be w. sweater)
              'cardigan','sweatshirt','hoodie','sweater','vest','poncho', #upper middle. vest could actually be with sweater...
-             'top','shirt','t-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
-             'jeans','pants','stockings','leggings','socks', 'tights',#lower_cover_long
+             't-shirt','button-down','blouse','polo','henley','tube','tanktop', #upper under - tops - button is buttons all the way down but not a blouse
+             'jeans','pants','stockings','leggings','socks',#lower_cover_long
              'shorts','skirt', #lower_cover_short
              'shawl','scarf', #wraps
              'boots','shoes','sandals',  #footwear
              'bag',
              'belt',   #extra stuff
-             'sarong']  #extra stuff
+             'sarong',
+             'shirt', 'swimwear','top', 'tights']  #extra stuff to widen the net for negatives - there should
+    #prob be specific logic for turning these cats into search terms for specific dbs
 
 
 hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pajamas','womens_swimwear_nonbikini',

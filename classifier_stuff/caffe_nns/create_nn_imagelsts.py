@@ -256,7 +256,7 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
 #    print cats_and_dirs
     return cats_and_dirs
 
-def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo'):
+def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
     '''
     #3. mongo db images - again use constants.bad_negs.
     (#4. google open images) - this can prob be combined with #3 since both those have
@@ -344,6 +344,12 @@ def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folder
         print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
         raw_input('ret to cont')
     print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
+    if outfile is not None:
+        with open(outfile,'a') as fp:
+            for positive in positives:
+                fp.write(str(positive)+'\t1\n')
+            for negative in negatives:
+                fp.write(str(negative)+'\t0\n')
     return positives, negatives
 
 def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
@@ -530,6 +536,14 @@ def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_be
     return positives_list
 
 def analyze_negs_filipino_db(labels=constants.multilabel_categories_v2,in_docker=True):
+    '''
+    TODO - finish this and verify that constants.bad_negs_for_pos is consistent with this info
+    namely this function should return what items occur togethe and with what frequency
+    anything that shows up togethe should go into constants.bad_negs_for_pos
+    :param labels:
+    :param in_docker:
+    :return:
+    '''
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
