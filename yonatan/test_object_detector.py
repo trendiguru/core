@@ -139,7 +139,7 @@ def theDetector(url_or_np_array):
     # center = (w / 2, h / 2)
     # M = cv2.getRotationMatrix2D(center, 90, 1.0)
 
-    rotate_image = np.rot90(full_image, 1, (0,1))
+    rotate_image = np.rot90(full_image, 1)
 
     # resized_image = imutils.resize_keep_aspect(full_image, output_size=(200, 110))
 
