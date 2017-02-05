@@ -121,7 +121,7 @@ def theDetector(url_or_np_array):
     # faces = background_removal.find_face_dlib(full_image)
 
     x, y, z = full_image.shape
-    print (x,y,z)
+    print (x, y, z)
     new_x = x + 30
     new_y = y + 30
 
@@ -133,7 +133,7 @@ def theDetector(url_or_np_array):
 
     print "image.shape: {0}".format(padded_image.shape)
 
-    dets = find_dress_dlib(padded_image)
+    dets = find_dress_dlib(full_image)
 
     if dets is None:
         print "Bey"
