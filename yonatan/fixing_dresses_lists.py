@@ -83,7 +83,7 @@ for j in range(len(images_old)):
 
     full_image = cv2.imread('/data/dress_detector/images/' + image_file_name)
 
-    resized_image = imutils.resize_keep_aspect(full_image, output_size=(150, 345))
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(345, 150))
 
     cv2.imwrite(os.path.join('/data/dress_detector/resized_images', image_file_name), resized_image)
 
