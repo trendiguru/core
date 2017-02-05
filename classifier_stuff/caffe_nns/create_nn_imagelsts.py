@@ -256,7 +256,7 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
 #    print cats_and_dirs
     return cats_and_dirs
 
-def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=cat+'pos_neg_mongo.txt'):
+def binary_pos_and_neg_mongo_onecat(cat,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
     '''
     #3. mongo db images - again use constants.bad_negs.
     (#4. google open images) - this can prob be combined with #3 since both those have
