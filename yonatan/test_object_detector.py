@@ -151,7 +151,7 @@ def theDetector(url_or_np_array):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\n".format(left, d.top(), d.right(), d.bottom())
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", padded_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing2.jpg", padded_image)
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
