@@ -135,9 +135,13 @@ def theDetector(url_or_np_array):
 
     print "image.shape: {0}".format(padded_image.shape)
 
-    resized_image = imutils.resize_keep_aspect(full_image, output_size=(200, 110))
+    (h, w) = full_image.shape[:2]
+    center = (w / 2, h / 2)
+    M = cv2.getRotationMatrix2D(center, 90, 1.0)
 
-    dets = find_dress_dlib(resized_image)
+    # resized_image = imutils.resize_keep_aspect(full_image, output_size=(200, 110))
+
+    dets = find_dress_dlib(M)
 
     if dets is None:
         print "Bey"
