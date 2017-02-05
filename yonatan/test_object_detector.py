@@ -170,6 +170,21 @@ def theDetector(url_or_np_array):
         print dets[i]
         print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
 
+    for i in range(0, len(dets)):
+        print dets[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(),
+                                                                    dets[i].bottom())
+
+    for i in range(0, len(dets)):
+        print dets[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(),
+                                                                    dets[i].right(), dets[i].bottom())
+
+    for i in range(0, len(dets)):
+        print dets[i]
+        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(),
+                                                                    dets[i].right(), dets[i].bottom())
+
     for d in dets:
         if d.left() < 0:
             left = d.left() + 15
