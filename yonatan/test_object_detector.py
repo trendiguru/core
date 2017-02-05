@@ -121,6 +121,7 @@ def theDetector(url_or_np_array):
     # faces = background_removal.find_face_dlib(full_image)
 
     x, y, z = full_image.shape
+    print (x,y,z)
     new_x = x + 10
     new_y = y + 10
 
