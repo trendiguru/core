@@ -120,7 +120,11 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    padded_image = np.zeros((full_image.shape[0] + 10, full_image.shape[1] + 10, full_image[2]))
+    x, y, z = full_image.shape
+    new_x = x + 10
+    new_y = y + 10
+
+    padded_image = np.zeros((new_x, new_y, z))
     x_offset = 5
     y_offset = 5
     padded_image[x_offset:full_image.shape[0] + x_offset, y_offset:full_image.shape[1] + y_offset, full_image[2]] = full_image
