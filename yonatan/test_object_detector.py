@@ -83,6 +83,21 @@ def find_dress_dlib(image, max_num_of_faces=10):
     # return {'are_dresses': len(dresses) > 0, 'dresses': dresses, 'scores': scores}
 
 
+def pad(array, reference, offsets):
+    """
+    array: Array to be padded
+    reference: Reference array with the desired shape
+    offsets: list of offsets (number of elements must be equal to the dimension of the array)
+    """
+    # Create an array of zeros with the reference shape
+    result = np.zeros(reference.shape)
+    # Create a list of slices from offset to offset + shape in each dimension
+    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim]) for dim in range(array.ndim)]
+    # Insert the array in the result at the specified offsets
+    result[insertHere] = array
+    return result
+
+
 def theDetector(url_or_np_array):
 
     print "Starting the dress detector testing!"
@@ -105,7 +120,14 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    dets = find_dress_dlib(full_image)
+    padded_image = np.zeros((full_image.shape[0] + 10, full_image.shape[1] + 10, full_image[2]))
+    x_offset = 5
+    y_offset = 5
+    padded_image[x_offset:full_image.shape[0] + x_offset, y_offset:full_image.shape[1] + y_offset, full_image[2]] = full_image
+
+    print "image.shape: {0}".format(padded_image.shape)
+
+    dets = find_dress_dlib(padded_image)
 
     for i in range(0, len(dets)):
         print dets[i]
@@ -113,9 +135,9 @@ def theDetector(url_or_np_array):
 
     for d in dets:
         print "d.left: {1}, d.top: {2}, d.right: {3}, d.bottom: {4}\n".format(d.left(), d.top()), (d.right(), d.bottom())
-        cv2.rectangle(full_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+        cv2.rectangle(padded_image, (d.left(), d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", full_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing.jpg", padded_image)
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
