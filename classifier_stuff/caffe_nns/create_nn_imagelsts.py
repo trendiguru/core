@@ -128,15 +128,15 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
     :param cats:
     :return:
     '''
-    folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
-    dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath)
-    folderpath='/data/jeremy/image_dbs/mongo'
-    dirs_and_cats_mongo = dir_of_dirs_to_tg_hydra(folderpath=folderpath,cats = allcats)
+    folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+    dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
+    folderpath_mongo='/data/jeremy/image_dbs/mongo'
+    dirs_and_cats_mongo = dir_of_dirs_to_tg_hydra(folderpath=folderpath_mongo,cats = allcats)
 
     for cat in allcats:
         print('generating pos and neg for cat:'+str(cat))
-        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath,outfile=cat+'_pos_neg_df.txt')
-        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath,outfile=cat+'_pos_neg_mongo.txt')
+        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath_deepfashion,outfile=cat+'_pos_neg_df.txt')
+        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath_mongo,outfile=cat+'_pos_neg_mongo.txt')
         allpositives = positives_df+positives_mongo
         allnegatives = negatives_df+negatives_mongo
         filename=cat+'_'+outfile
@@ -146,6 +146,7 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
                 fp.write(str(positive)+'\t1\n')
             for negative in allnegatives:
                 fp.write(str(negative)+'\t0\n')
+        raw_input('ret to cont')
 
 def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
     '''
