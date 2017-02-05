@@ -133,11 +133,11 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,f
 
     for cat in allcats:
         print('generating pos and neg for cat:'+str(cat))
-        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath,outfile=cat+'pos_neg_df.txt')
-        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath,outfile=cat+'pos_neg_mongo.txt')
+        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath,outfile=cat+'_pos_neg_df.txt')
+        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath,outfile=cat+'_pos_neg_mongo.txt')
         allpositives = positives_df+positives_mongo
         allnegatives = negatives_df+negatives_mongo
-        filename=cat+outfile
+        filename=cat+'_'+outfile
         print('pos df {} pos mongo {} all {} neg fd {} neg mongo {} tot {} writng to {}'.format(len(positives_df),len(positives_mongo),len(allpositives),len(negatives_df),len(negatives_mongo),len(allnegatives),filename))
         with open(filename,'a') as fp:
             for positive in allpositives:
