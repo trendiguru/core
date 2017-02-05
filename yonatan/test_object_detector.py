@@ -126,9 +126,10 @@ def theDetector(url_or_np_array):
     new_y = y + 10
 
     padded_image = np.zeros((new_x, new_y, z))
+    print padded_image.shape
     x_offset = 5
     y_offset = 5
-    padded_image[y_offset:y + y_offset, x_offset:x + x_offset, z] = full_image
+    padded_image[x_offset:x + x_offset, y_offset:y + y_offset, z] = full_image
 
     print "image.shape: {0}".format(padded_image.shape)
 
