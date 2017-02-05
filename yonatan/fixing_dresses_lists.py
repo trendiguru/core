@@ -93,6 +93,31 @@ np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'
 print "Done with images_new!!"
 
 
+for j in range(len(images_old)):
+
+    if j > 15000:
+        break
+
+    image_num = re.findall('\\d+', images_old[j])
+
+    image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
+
+    # line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
+    #
+    # images_new.append(line_in_list_images)
+
+    full_image = cv2.imread('/data/dress_detector/images/' + image_file_name)
+
+    resized_image = imutils.resize_keep_aspect(full_image, output_size=(345, 150))
+
+    cv2.imwrite(os.path.join('/data/dress_detector/resized_images_test', image_file_name), resized_image)
+
+    print j
+
+# np.array(images_new).dump(open('/data/dress_detector/images_small_set.npy', 'wb'))
+print "Done with images_new!!"
+
+
 # text_file = open("/data/irrelevant/irrelevant_db_images.txt", "w")
 #
 # for root, dirs, files in os.walk('/data/irrelevant/images'):
