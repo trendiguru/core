@@ -408,20 +408,20 @@ bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accesso
                   'tube':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
                   'tanktop':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
                   't-shirt':['panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
-                  'shorts':[sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
-                  'skirt':[sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
-                  'jeans':[accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
-                  'pants':[accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
-                  'stockings':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
-                  'leggings':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
-                  'socks':[upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
-                  'shawl':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
-                  'scarf':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
-                  'boots':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
-                  'shoes':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
-                  'sandals':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
-                  'bag':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,'belt','eyewear',whole_body_group],
-                  'belt':[lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,'bag','eyewear',whole_body_group],
+                  'shorts':['sarong',wrappy_things_group,'cardigan','bikini','bra','robe',sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
+                  'skirt':[wrappy_things_group,'cardigan',sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
+                  'jeans':['babydoll','bra',accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
+                  'pants':['suit','tracksuit','babydoll','bra',accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
+                  'stockings':['tights',wrappy_things_group,'sarong','shorts','leggings','dress','skirt',undies_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'], #are tights and stockings the same
+                  'leggings':['shorts','tights',upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
+                  'socks':[wrappy_things_group,lower_short_group,undies_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
+                  'shawl':[sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
+                  'scarf':[sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
+                  'boots':['cardigan',wrappy_things_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
+                  'shoes':['tights',wrappy_things_group,'cardigan',sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
+                  'sandals':[wrappy_things_group,'cardigan',undies_group,swimwear_group,'cardigan',sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
+                  'bag':[wrappy_things_group,footwear_group,sock_group,'cardigan',swimwear_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,'belt','eyewear',whole_body_group],
+                  'belt':[wrappy_things_group,footwear_group,sock_group,'cardigan',swimwear_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,'bag','eyewear',whole_body_group],
                   }
 
 
