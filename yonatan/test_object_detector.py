@@ -135,7 +135,7 @@ def theDetector(url_or_np_array):
 
     dets = find_dress_dlib(padded_image)
 
-    if dets in None:
+    if dets is None:
         print "Bey"
         return
 
