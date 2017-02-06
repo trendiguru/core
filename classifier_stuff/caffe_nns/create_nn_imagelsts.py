@@ -128,6 +128,10 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
     :param cats:
     :return:
     '''
+
+    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+    dirs_and_cats_tg = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
+
     folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
     dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
     folderpath_mongo='/data/jeremy/image_dbs/mongo'
@@ -244,7 +248,7 @@ def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants
                 fp.write(str(negative)+'\t0\n')
     return positives, negatives
 
-def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats):
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,recursive=True,filefilter=None):
     '''
     the mongo dbs are downloaded as a folder per db, with subfolders for the categories
     :param folderpath:
@@ -252,6 +256,7 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
     :return:
     '''
     cats_and_dirs = []
+
     subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
     for dir in subdirs:
         print('dir:'+dir)
@@ -269,6 +274,48 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
                 full_dirpath = os.path.join(dir,subsubdir)
                 cats_and_dirs.append([full_dirpath,cat_for_dir])
                 print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
+    print('{} cats and dirs '+str(len(cats_and_dirs)))
+#    print cats_and_dirs
+    return cats_and_dirs
+
+def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,recursive=True,filefilter=None):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
+    cats_and_dirs = []
+
+    if recursive:
+        for root,dirs,files in os.walk(folderpath):
+            #path = root.split(os.sep)
+#            print('root {}'.format(root))
+            newfiles = [os.path.join(root,f) for f in files]
+            if filefilter:
+                newfiles = [f for f in newfiles if filefilter in f]
+    else:
+        newfiles = [os.path.join(folderpath,f) for f in os.listdir(folderpath)]
+        if filefilter:
+            newfiles = [f for f in newfiles if filefilter in f]
+
+    unique_dirs = []
+    for f in newfiles:
+        if not os.path.basename(f) in unique_dirs:
+            unique_dirs.append(os.path.basename(f))
+            print  unique_dirs
+    for dir in unique_dirs:
+        print('dir:'+dir)
+        cat_for_dir = None
+        for cat in cats:
+            if cat in dir:
+                cat_for_dir = cat
+                break
+        if cat_for_dir is None:
+            print('could not get cat for dir '+str(dir))
+        else:
+            cats_and_dirs.append([dir,cat_for_dir])
+            print('cat for {} is {}'.format(dir,cat_for_dir))
     print('{} cats and dirs '+str(len(cats_and_dirs)))
 #    print cats_and_dirs
     return cats_and_dirs
