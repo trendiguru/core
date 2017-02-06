@@ -123,7 +123,7 @@ def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept
         all_filters = [path_filter,cat]
         class_number = 1
         outfile = cat+'_'+outsuffix
-        dir_to_labelfile(dir,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=None,recursive=True)
+        dir_to_labelfile(folderpath,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=None,recursive=True)
 
 def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
