@@ -119,6 +119,14 @@ def consistency_check_multilabel_db():
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
+    '''
+    take the tg positives for all cats and put into labelfiles
+    :param folderpath:
+    :param path_filter:
+    :param allcats:
+    :param outsuffix:
+    :return:
+    '''
     for cat in allcats:
         all_filters = [path_filter,cat]
         class_number = 1
