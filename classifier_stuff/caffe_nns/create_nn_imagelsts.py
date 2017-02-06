@@ -754,6 +754,9 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
+    if len(allfiles) == 0:
+        print('didnt find any files so not writing')
+        return allfiles
     with open(outfile,'a') as fp:
         for f in allfiles:
             line = f + '\t'+str(class_number)
@@ -765,6 +768,8 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
 #    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
     print('')
+    return allfiles
+
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
     '''
