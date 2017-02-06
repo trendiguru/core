@@ -103,7 +103,8 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
         line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
         try:
-            line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
+            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
+            line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
         except:
             print "bad image!!"
             counter_bad += 1
@@ -127,7 +128,8 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
         line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
         try:
-            line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
+            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
+            line_in_list_images = io.imread('/data/dress_detector/resized_images_test/' + file)
         except:
             print "bad image!!"
             counter_bad2 += 1
