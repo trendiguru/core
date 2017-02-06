@@ -248,7 +248,7 @@ def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants
                 fp.write(str(negative)+'\t0\n')
     return positives, negatives
 
-def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,recursive=True,filefilter=None):
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,filefilter=None):
     '''
     the mongo dbs are downloaded as a folder per db, with subfolders for the categories
     :param folderpath:
@@ -264,6 +264,11 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
         for subsubdir in subsubdirs:
             print('subsubdir:'+subsubdir)
             cat_for_dir = None
+            if cat in constants.synonymous_cats:
+                cat_synonyms = constants.synonymous_cats[cat]
+            else:
+                cat_synonyms=[cat]
+            print('category {} synonyms {}'.format(cat,cat_synonyms))
             for cat in cats:
                 if cat in subsubdir:
                     cat_for_dir = cat
@@ -303,14 +308,20 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
     for f in newfiles:
         if not os.path.basename(f) in unique_dirs:
             unique_dirs.append(os.path.basename(f))
-            print  unique_dirs
+            print('unique dir: '+str(os.path.basename(f)))
     for dir in unique_dirs:
         print('dir:'+dir)
         cat_for_dir = None
         for cat in cats:
-            if cat in dir:
-                cat_for_dir = cat
-                break
+            if cat in constants.synonymous_cats:
+                cat_synonyms = constants.synonymous_cats[cat]
+            else:
+                cat_synonyms=[cat]
+            print('category {} synonyms {}'.format(cat,cat_synonyms))
+            for catsyn in cat_synonyms:
+                if catsyn in dir: #this directory is a category of interest for positives
+                    cat_for_dir = cat
+                    break  #no need to go thru rest of the synonyms.
         if cat_for_dir is None:
             print('could not get cat for dir '+str(dir))
         else:
