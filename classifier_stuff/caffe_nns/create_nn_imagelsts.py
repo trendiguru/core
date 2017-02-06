@@ -131,7 +131,12 @@ def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept
         all_filters = [path_filter,cat]
         class_number = 1
         outfile = cat+'_'+outsuffix
-        dir_to_labelfile(folderpath,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=None,recursive=True)
+        path_antifilter = None
+        if cat == 'suit':
+            path_antifilter = ['tracksuit','bodysuit']
+        if cat == 'bikini':
+            path_antifilter = ['nonbikini']
+        dir_to_labelfile(folderpath,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=path_antifilter,recursive=True)
 
 def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
@@ -735,7 +740,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
             if path_antifilter:
                 newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
             if len(newfiles)>0:
-                print('root {} {} newfiles '.format(root,len(newfiles)))
+                print('root {}, {} newfiles , filter {} antifilter {}'.format(root,len(newfiles),path_filter,path_antifilter))
             allfiles += newfiles
  #       raw_input('ret to cont')
     else:
@@ -757,8 +762,9 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
             i+=1
         fp.close()
     print('added {} files to {} with class {}'.format(len(allfiles),outfile,class_number))
-    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
+#    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
+    print('')
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
     '''
