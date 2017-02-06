@@ -128,9 +128,10 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
     :param cats:
     :return:
     '''
-
-    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
-    dirs_and_cats_tg = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
+# bailing on tg images for negatives right  now since they are messy - unwanted folders etc.
+    #todo - include the tg stuff in negatives (nice to have - but 'only' 50k more negatives)
+#    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+#    dirs_and_cats_tg = os_walk_to_tg_hydra(folderpath=folderpath_deepfashion)
 
     folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
     dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
@@ -290,7 +291,7 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
     if recursive:
         for root,dirs,files in os.walk(folderpath):
             #path = root.split(os.sep)
-#            print('root {}'.format(root))
+            print('root {}'.format(root))
             newfiles = [os.path.join(root,f) for f in files]
             if filefilter:
                 newfiles = [f for f in newfiles if filefilter in f]
@@ -315,12 +316,12 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
                 if catsyn in dir: #this directory is a category of interest for positives
                     cat_for_dir = cat
                     break  #no need to go thru rest of the synonyms.
-        if cat_for_dir is None:
-            print('could not get cat for dir '+str(dir))
-        else:
-            cats_and_dirs.append([dir,cat_for_dir])
-            print('cat for {} is {}'.format(dir,cat_for_dir))
-            break
+            if cat_for_dir is None:
+                print('could not get cat for dir '+str(dir))
+            else:
+                cats_and_dirs.append([dir,cat_for_dir])
+                print('cat for {} is {}'.format(dir,cat_for_dir))
+                break
     print('{} cats and dirs '+str(len(cats_and_dirs)))
 #    print cats_and_dirs
     return cats_and_dirs
