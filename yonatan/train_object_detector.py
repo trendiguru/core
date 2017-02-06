@@ -67,18 +67,18 @@ options = dlib.simple_object_detector_training_options()
 # Since faces are left/right symmetric we can tell the trainer to train a
 # symmetric detector.  This helps it get the most value out of the training
 # data.
-options.add_left_right_image_flips = True
+options.add_left_right_image_flips = False
 # The trainer is a kind of support vector machine and therefore has the usual
 # SVM C parameter.  In general, a bigger C encourages it to fit the training
 # data better but might lead to overfitting.  You must find the best C value
 # empirically by checking how well the trained detector works on a test set of
 # images you haven't trained on.  Don't just leave the value set at 5.  Try a
 # few different C values and see what works best for your data.
-options.C = 200
+options.C = 5
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
-options.epsilon = 0.0001
+options.epsilon = 0.001
 
 
 # training_xml_path = os.path.join(faces_folder, "training.xml")
