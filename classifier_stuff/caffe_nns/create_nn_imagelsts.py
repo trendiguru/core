@@ -263,18 +263,20 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
         for subsubdir in subsubdirs:
             print('subsubdir:'+subsubdir)
             cat_for_dir = None
-            cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
-            print('category {} synonyms {}'.format(cat,cat_synonyms))
             for cat in cats:
-                if cat in subsubdir:
-                    cat_for_dir = cat
+                cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
+                print('category {} synonyms {}'.format(cat,cat_synonyms))
+                for catsyn in cat_synonyms:
+                    if catsyn in subsubdir:
+                        cat_for_dir = cat
+                        break
+                if cat_for_dir is None:
+                    print('could not get cat for dir '+str(subsubdir))
+                else:
+                    full_dirpath = os.path.join(dir,subsubdir)
+                    cats_and_dirs.append([full_dirpath,cat_for_dir])
+                    print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
                     break
-            if cat_for_dir is None:
-                print('could not get cat for dir '+str(subsubdir))
-            else:
-                full_dirpath = os.path.join(dir,subsubdir)
-                cats_and_dirs.append([full_dirpath,cat_for_dir])
-                print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
     print('{} cats and dirs '+str(len(cats_and_dirs)))
 #    print cats_and_dirs
     return cats_and_dirs
