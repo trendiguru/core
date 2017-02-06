@@ -172,10 +172,8 @@ def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants
 
     #do positives
     positives = []
-    if cat in constants.synonymous_cats:
-        cat_synonyms = constants.synonymous_cats[cat]
-    else:
-        cat_synonyms=[cat]
+    cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
+
     print('category {} synonyms {}'.format(cat,cat_synonyms))
     for d_and_c in dirs_and_cats:
         cat_for_dir = d_and_c[1]
@@ -264,10 +262,7 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
         for subsubdir in subsubdirs:
             print('subsubdir:'+subsubdir)
             cat_for_dir = None
-            if cat in constants.synonymous_cats:
-                cat_synonyms = constants.synonymous_cats[cat]
-            else:
-                cat_synonyms=[cat]
+            cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
             print('category {} synonyms {}'.format(cat,cat_synonyms))
             for cat in cats:
                 if cat in subsubdir:
@@ -306,17 +301,15 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
 
     unique_dirs = []
     for f in newfiles:
-        if not os.path.basename(f) in unique_dirs:
+        if not os.path.dirname(f) in unique_dirs:
             unique_dirs.append(os.path.dirname(f))
-            print('unique dir: '+str(os.path.basename(f)))
+            print('unique dir: '+str(os.path.dirname(f)))
+    cats_and_dirs = []
     for dir in unique_dirs:
         print('dir:'+dir)
         cat_for_dir = None
         for cat in cats:
-            if cat in constants.synonymous_cats:
-                cat_synonyms = constants.synonymous_cats[cat]
-            else:
-                cat_synonyms=[cat]
+            cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
             print('category {} synonyms {}'.format(cat,cat_synonyms))
             for catsyn in cat_synonyms:
                 if catsyn in dir: #this directory is a category of interest for positives
