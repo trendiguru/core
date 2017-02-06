@@ -100,7 +100,7 @@ counter_bad = 0
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
 
-        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
 
         try:
             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
@@ -125,7 +125,7 @@ counter_bad2 = 0
 for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
     for file in files:
 
-        line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
+        line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
 
         try:
             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
