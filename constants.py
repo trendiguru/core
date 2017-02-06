@@ -375,7 +375,7 @@ eyewear_group = ['eyewear','glasses','sunglasses','shades']
 #warning this all assumes a single person per image, which we have never really verified
 #also assuming that the  similar_cats are going to be used, to add e.g. 'tank' to 'top' and 'stockings' to 'socks'
 #eyewear group can more or less go with anything, accessories group can go with most (maybe not swimwear)
-bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater'],
+bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accessories_group,'cardigan','sweater',upper_cover_group],
                   'suit':['socks','shirt','button-down','top','vest','shoes','footwear','jacket','blazer','sweater','pants',accessories_group],
                   'overalls':['socks','jacket',upper_under_group,footwear_group,accessories_group],
                   'tracksuit':['socks','sweatshirt','hoodie','tights',wrappy_things_group,'shoes',upper_under_group,accessories_group],
