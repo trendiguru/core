@@ -37,7 +37,7 @@ import numpy as np
 
 import dlib
 from skimage import io
-
+import cv2
 
 images_new = []
 boxes_new = []
@@ -103,7 +103,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
         line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
         try:
-            line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
+            line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
         except:
             print "bad image!!"
             counter_bad += 1
@@ -127,7 +127,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
         line_in_list_boxes = ([dlib.rectangle(0, 0, 150, 345)])
 
         try:
-            line_in_list_images = io.imread('/data/dress_detector/resized_images_test/' + file)
+            line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
         except:
             print "bad image!!"
             counter_bad2 += 1
@@ -152,7 +152,7 @@ print "counter_bad2: {0}".format(counter_bad2)
 
 detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector2.save('/data/detector2.svm')
+detector2.save('/data/detector3_cv2.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
