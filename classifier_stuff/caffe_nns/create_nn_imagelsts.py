@@ -726,6 +726,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
     :path_antifilter - list of terms that cant occur in path e.g female
     :return:#
     '''
+    print('class {} filter {} antifilter {}'.format(class_number,path_filter,path_antifilter))
     if recursive:
         allfiles = []
         for root,dirs,files in os.walk(dir):

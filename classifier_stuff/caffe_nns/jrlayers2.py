@@ -616,7 +616,8 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(.1)
+            time.sleep(2) #give some time to read how many imgs in the labelfile.
+            #todo - add files per class (from create_nn_imagelsts)
 
     #use lmdb
         elif self.lmdb is not None:
