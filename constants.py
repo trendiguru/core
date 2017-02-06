@@ -585,7 +585,7 @@ snorb=3
 #i am adding some courses cats here as a prophylactic step backwards, namely:
 #shirt, swimwear, top,tights  - this is for the sake of mongo labelfiles.
 #ultimately all that should get put into a db and the cat will have course and fine
-flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pyjamas','womens_swimwear_nonbikini',
+flat_hydra_cats = ['dress','suit','overalls','tracksuit','robe','pajamas','womens_swimwear_nonbikini', #pyjamas changed to pajamas...
               'bikini','lingerie','mens_swimwear','mens_underwear','jumpsuit',  #whole body, can add wetsuit. sarong is trouble since it can occur w. bikini
              'bra','panties','babydoll' , #undies , NOT SOFTMAX - these are either/or aka multilabel. breakdown of lingerie
              'coat','jacket','blazer', #upper cover (need middle and cover e.g since coat can be w. sweater)
