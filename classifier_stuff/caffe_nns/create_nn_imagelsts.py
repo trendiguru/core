@@ -118,6 +118,13 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
+def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter=['kept'],allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
+    for cat in allcats:
+        all_filters = path_filter+cat
+        class_number = 1
+        outfile = cat+'_'+outsuffix
+        dir_to_labelfile(dir,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=None,recursive=True)
+
 def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
     #1. tamarab berg - generates pos and neg per class
@@ -132,6 +139,7 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
     #todo - include the tg stuff in negatives (nice to have - but 'only' 50k more negatives)
 #    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
 #    dirs_and_cats_tg = os_walk_to_tg_hydra(folderpath=folderpath_deepfashion)
+#todo deal with substring problem - e.g. suit is a substring of swimsuit and so swimsuit directory can get classed as suit...
 
     folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
     dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
@@ -269,6 +277,8 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
                 for catsyn in cat_synonyms:
                     if catsyn in subsubdir:
                         cat_for_dir = cat
+                        #dont break here! continue all the way and see if there are other matches, take the longest
+                        #to avoid the 'substring problem' namely suit matches jumpsuit etc
                         break
                 if cat_for_dir is None:
                     print('could not get cat for dir '+str(subsubdir))

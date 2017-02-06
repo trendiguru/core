@@ -362,8 +362,9 @@ swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
 undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
 upper_cover_group = ['coat', 'jacket']
 upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
+#put cardigan back and just use all the others specifically for dress, cuz this way cardigan has to be added to everything else
 upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
-lower_long_group = ['jeans', 'pants']
+lower_long_group = ['jeans', 'pants','tights']
 lower_short_group = ['skirt','shorts']
 sock_group = ['leggings','stockings','socks']
 accessories_group = ['bag','belt','eyewear']
@@ -380,43 +381,43 @@ bad_negs_for_pos={'dress':[sock_group,wrappy_things_group,footwear_group,accesso
                   'suit':['socks','shirt','button-down','top','vest','shoes','footwear','jacket','blazer','sweater','pants',accessories_group],
                   'overalls':['socks','jacket',upper_under_group,footwear_group,accessories_group],
                   'tracksuit':['socks','sweatshirt','hoodie','tights',wrappy_things_group,'shoes',upper_under_group,accessories_group],
-                  'sarong':['swimwear','bikini',swimwear_group,'shorts',lower_short_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
-                  'robe':[undies_group,'shorts',upper_under_group,swimwear_group,undies_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'sarong':['dress','swimwear','bikini',swimwear_group,'shorts',lower_short_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
+                  'robe':[swimwear_group,undies_group,'shorts',upper_under_group,swimwear_group,undies_group,sock_group,wrappy_things_group,footwear_group,upper_under_group,accessories_group,swimwear_group],
                   'pyjamas':['robe',sock_group,'slippers'], #foootwear prob limited to slippers,acessories ti
-                  'womens_swimwear_nonbikini':[footwear_group,'sarong','robe'],
-                  'lingerie':[footwear_group,'robe',undies_group], #maybe also top
-                  'bikini':[footwear_group,'sarong','robe'],
-                  'mens_swimwear':['swimwear','t-shirt',footwear_group,eyewear_group,'sarong'],
-                  'mens_underwear':['robe',footwear_group,eyewear_group,upper_under_group],
+                  'womens_swimwear_nonbikini':[footwear_group,'sarong','robe',accessories_group],
+                  'lingerie':[sock_group,footwear_group,'robe',undies_group], #maybe also top - actually both lingerie and bikini can be worn with top or pants...
+                  'bikini':[footwear_group,'sarong','robe',accessories_group],
+                  'mens_swimwear':['swimwear','t-shirt',footwear_group,eyewear_group,'sarong',accessories_group],
+                  'mens_underwear':['socks','robe',footwear_group,eyewear_group,upper_under_group],
                   'jumpsuit':[footwear_group,eyewear_group,upper_under_group,accessories_group],  #maybe jumpsuit excludes top?
-                  'bra':['robe',undies_group,lower_long_group,sock_group],
+                  'bra':['shorts','pants','robe',undies_group,lower_long_group,sock_group],
                   'panties':[undies_group,upper_under_group,sock_group,'sarong','robe'],
                   'babydoll':[undies_group,sock_group,'sarong','robe'],
-                  'coat':[upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
+                  'coat':['cardigan','skirt',upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
                   'jacket':[wrappy_things_group,'tracksuit',upper_middle_group,upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
                   'blazer':['suit',upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group],
                   'cardigan':[lower_short_group,'jacket','coat','overalls',upper_under_group,upper_middle_group,lower_long_group,accessories_group,footwear_group,sock_group,'dress',wrappy_things_group],
                   'sweater':[wrappy_things_group,'button-down','vest','blazer','suit','jacket','coat','overalls',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,'skirt'], #maybe add dress
-                  'sweatshirt':['coat','jacket',undies_group,'tracksuit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
-                  'hoodie':['tracksuit','overalls','coat','jacket',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
-                  'vest':[wrappy_things_group,'suit','blazer',upper_under_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'sweatshirt':[sock_group,'coat','jacket',undies_group,'tracksuit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'hoodie':[sock_group,'tracksuit','overalls','coat','jacket',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
+                  'vest':['t-shirt',wrappy_things_group,'suit','blazer',upper_under_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group],
                   'poncho':['dress',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group],
-                  'top':['cardigan',wrappy_things_group,upper_under_group,'panties','suit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'button-down':['cardigan','top','shirt','suit','overalls',wrappy_things_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'top':[undies_group,'cardigan',wrappy_things_group,upper_under_group,'panties','suit',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'button-down':[undies_group,'cardigan','top','shirt','suit','overalls',wrappy_things_group,lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
                   'blouse':['cardigan',wrappy_things_group,'panties','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'polo':['cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'henley':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'tube':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  'tanktop':['bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
-                  't-shirt':['panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
+                  'polo':['overalls',undies_group,'cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'henley':[undies_group,'bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'tube':[undies_group,'bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  'tanktop':[undies_group,'bra','panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group],
+                  't-shirt':[undies_group,'vest',upper_cover_group,'panties','mens_swimwear','swimwear','mens_underwear','overalls','cardigan','top','shirt',lower_long_group,lower_short_group,sock_group,accessories_group,footwear_group,upper_under_group,'cardigan','skirt'],
                   'shorts':['sarong',wrappy_things_group,'cardigan','bikini','bra','robe',sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
-                  'skirt':[wrappy_things_group,'cardigan',sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
+                  'skirt':['tights',wrappy_things_group,'cardigan',sock_group,accessories_group,footwear_group,upper_middle_group,upper_cover_group,upper_under_group],
                   'jeans':['babydoll','bra',accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
-                  'pants':['suit','tracksuit','babydoll','bra',accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
+                  'pants':['wrappy_things','suit','tracksuit','babydoll','bra',accessories_group,footwear_group,upper_cover_group,upper_middle_group,upper_under_group,'cardigan'],
                   'stockings':['tights',wrappy_things_group,'sarong','shorts','leggings','dress','skirt',undies_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'], #are tights and stockings the same
                   'leggings':['shorts','tights',upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
-                  'socks':[wrappy_things_group,lower_short_group,undies_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
-                  'shawl':[sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
+                  'socks':['robe',wrappy_things_group,lower_short_group,undies_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,'skirt','dress'],
+                  'shawl':['scarf',sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left? - also what the diff between shawl and scarf
                   'scarf':[sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,footwear_group,whole_body_group], #anything left?
                   'boots':['cardigan',wrappy_things_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
                   'shoes':['tights',wrappy_things_group,'cardigan',sock_group,lower_long_group,lower_short_group,upper_cover_group,upper_middle_group,upper_under_group,accessories_group,whole_body_group],
