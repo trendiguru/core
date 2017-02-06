@@ -21,7 +21,8 @@ from ..utils import imutils
 
 
 # detector = dlib.get_frontal_face_detector()
-dress_detector = dlib.simple_object_detector("/data/detector2.svm")
+# dress_detector = dlib.simple_object_detector("/data/detector2.svm")
+dress_detector = dlib.simple_object_detector("/data/detector3_cv2.svm")
 
 
 def find_dress_dlib(image, max_num_of_faces=10):
