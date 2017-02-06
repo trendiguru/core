@@ -348,7 +348,7 @@ similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henl
 
 #synonymous_cats = ['suit jacket', 'purse','winter%20coat','wearing%20earrings']
 #these are EXACT SYNONYMS for searches-different spellings and totally (or almost-totally) synonymous terms
-synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],
+synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],'one piece swimsuit','one piece swimwear'],
                     ['leggings','stockings'],
                     ['pajamas','pyjamas','pijamas','pjs'],
                     ['eyewear','glasses','sunglasses','shades'],
