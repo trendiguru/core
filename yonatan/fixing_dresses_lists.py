@@ -76,9 +76,9 @@ for j in range(len(images_old)):
 
         image_file_name = 'dress-' + str(image_num[0]) + '.jpg'
 
-        line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
+        # line_in_list_images = io.imread('/data/dress_detector/images/' + image_file_name)
 
-        images_new.append(line_in_list_images)
+        # images_new.append(line_in_list_images)
 
         full_image = cv2.imread('/data/dress_detector/images/' + image_file_name)
 
