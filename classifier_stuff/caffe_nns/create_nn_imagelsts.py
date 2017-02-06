@@ -327,6 +327,7 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
         else:
             cats_and_dirs.append([dir,cat_for_dir])
             print('cat for {} is {}'.format(dir,cat_for_dir))
+            break
     print('{} cats and dirs '+str(len(cats_and_dirs)))
 #    print cats_and_dirs
     return cats_and_dirs
