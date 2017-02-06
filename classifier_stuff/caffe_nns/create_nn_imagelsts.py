@@ -724,7 +724,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
     :param outfile : write to this file.  Appends, doesn't overwrite
     :pathfilter - list of required terms in path e..g male and swimsuit
     :path_antifilter - list of terms that cant occur in path e.g female
-    :return:
+    :return:#
     '''
     if recursive:
         allfiles = []
