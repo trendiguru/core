@@ -690,7 +690,6 @@ class JrMultilabel(caffe.Layer):
         #self.label_vecs is the categories in ordered list by idx
         #so convert that to several lists of idx's, one per category
         if self.equalize_category_populations != False:
-            print('equalize pops '+str(self.equalize_category_populations))
             self.idx_per_cat = {}
             for idx in range(self.n_files):
                 label = self.label_vecs[idx]
@@ -702,7 +701,6 @@ class JrMultilabel(caffe.Layer):
 #            raw_input('ret to cont')
             self.n_seen_per_category = np.zeros(self.max_category_index)
             self.max_category_index = max([k for k in self.idx_per_cat])
-            print('image populations per category:'+str(self.idx_per_cat_lengths))
 #            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
 
             if self.equalize_category_populations == True:
