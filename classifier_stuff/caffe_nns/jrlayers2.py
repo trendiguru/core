@@ -705,7 +705,6 @@ class JrMultilabel(caffe.Layer):
 
             if self.equalize_category_populations == True:
                 self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
-                print('percentages: '+str(self.equalize_category_population_percentages))
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
             #done - add files per class (from create_nn_imagelsts)
