@@ -616,8 +616,6 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(2) #give some time to read how many imgs in the labelfile.
-            #todo - add files per class (from create_nn_imagelsts)
 
     #use lmdb
         elif self.lmdb is not None:
@@ -692,6 +690,7 @@ class JrMultilabel(caffe.Layer):
         #self.label_vecs is the categories in ordered list by idx
         #so convert that to several lists of idx's, one per category
         if self.equalize_category_populations != False:
+            print('equalize pops '+str(self.equalize_category_populations))
             self.idx_per_cat = {}
             for idx in range(self.n_files):
                 label = self.label_vecs[idx]
@@ -708,12 +707,15 @@ class JrMultilabel(caffe.Layer):
 
             if self.equalize_category_populations == True:
                 self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
+                print('percentages: '+str(self.equalize_category_population_percentages))
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
+            #done - add files per class (from create_nn_imagelsts)
             print('desired population percentages:'+str(self.category_population_percentages))
             #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
             self.worst_off = 0
+        time.sleep(2) #give some time to read how many imgs in the labelfile.
 
         self.start_time=time.time()
 
