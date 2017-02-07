@@ -969,6 +969,77 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         with open(test_name,'w') as tefp:
             tefp.writelines(test_lines)
             tefp.close()
+    #report how many in each class
+        inspect_single_label_textfile(filename = train_name,visual_output=False,randomize=False)
+        inspect_single_label_textfile(filename = test_name,visual_output=False,randomize=False)
+
+
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
+    '''
+    file lines are of the form /path/to/file class_number
+    analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
+    :param filename:
+    :return:
+    '''
+    n_instances = {}
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            if cat in n_instances:
+                n_instances[cat]+=1
+            else:
+                n_instances[cat] = 1
+        fp.close()
+
+    print('n_instances {}'.format(n_instances))
+    if randomize:
+        random.shuffle(lines)
+    if n_instances == {}:
+        return
+    n = 0
+    cats_used = [k for k,v in n_instances.iteritems()]
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to get max
+    n_encountered = [0]*n_cats
+    if visual_output:
+        for line in lines:
+            n = n + 1
+            print line
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            n_encountered[cat]+=1
+            print(str(n)+' images seen, totals:'+str(n_encountered))
+    #            im = Image.open(path)
+    #            im.show()
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+                print('(d)elete (c)lose anything else keeps')
+                indir = os.path.dirname(path)
+                parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+                curdir = os.path.split(indir)[1]
+                print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+                if k == ord('d'):
+                    newdir = curdir+'_removed'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                elif k == ord('c'):
+                    newdir = curdir+'_needwork'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                else:
+                    newdir = curdir+'_kept'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
 
 def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=1.0,n_cats=2,outfilename=None,shuffle=True):
     '''
