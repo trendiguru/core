@@ -151,42 +151,19 @@ def theDetector(url_or_np_array):
     dets3 = find_dress_dlib(rotate_image2)
     dets4 = find_dress_dlib(resized_image)
 
-    if dets is None:
-        print "Bey1"
-        return
-
-    if dets2 is None:
-        print "Bey2"
-        return
-
-    if dets3 is None:
-        print "Bey3"
-        return
-
-    if dets4 is None:
-        print "Bey4"
-        return
-
     for i in range(0, len(dets)):
-        print "regular"
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
+        print "left: {0}, top: {1}, right: {2}, bottom: {3} -- regular".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
 
     for i in range(0, len(dets2)):
-        print "rotate90"
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets2[i].left(), dets2[i].top(), dets2[i].right(),
-                                                                    dets2[i].bottom())
+        print "left: {0}, top: {1}, right: {2}, bottom: {3} -- rotate90".format(dets2[i].left(), dets2[i].top(), dets2[i].right(), dets2[i].bottom())
 
     for i in range(0, len(dets3)):
-        print "rotate270"
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets3[i].left(), dets3[i].top(),
-                                                                    dets3[i].right(), dets3[i].bottom())
+        print "left: {0}, top: {1}, right: {2}, bottom: {3} -- rotate270".format(dets3[i].left(), dets3[i].top(), dets3[i].right(), dets3[i].bottom())
 
     for i in range(0, len(dets4)):
-        print "resize"
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets4[i].left(), dets4[i].top(),
-                                                                    dets4[i].right(), dets4[i].bottom())
+        print "left: {0}, top: {1}, right: {2}, bottom: {3} -- resize".format(dets4[i].left(), dets4[i].top(), dets4[i].right(), dets4[i].bottom())
 
-    for d in dets3:
+    for d in dets:
         if d.left() < 0:
             left = d.left() + 15
         else:
