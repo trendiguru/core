@@ -67,14 +67,14 @@ options = dlib.simple_object_detector_training_options()
 # Since faces are left/right symmetric we can tell the trainer to train a
 # symmetric detector.  This helps it get the most value out of the training
 # data.
-options.add_left_right_image_flips = True
+options.add_left_right_image_flips = False
 # The trainer is a kind of support vector machine and therefore has the usual
 # SVM C parameter.  In general, a bigger C encourages it to fit the training
 # data better but might lead to overfitting.  You must find the best C value
 # empirically by checking how well the trained detector works on a test set of
 # images you haven't trained on.  Don't just leave the value set at 5.  Try a
 # few different C values and see what works best for your data.
-options.C = 1
+options.C = 100
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
@@ -101,7 +101,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
-        if counter > 250:
+        if counter > 1000:
             print "counter: {0}".format(counter)
             break
 
@@ -133,7 +133,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
     for file in files:
-        if counter > 100:
+        if counter > 200:
             print "counter: {0}".format(counter)
             break
 
