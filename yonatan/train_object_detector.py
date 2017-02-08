@@ -74,11 +74,11 @@ options.add_left_right_image_flips = False
 # empirically by checking how well the trained detector works on a test set of
 # images you haven't trained on.  Don't just leave the value set at 5.  Try a
 # few different C values and see what works best for your data.
-options.C = 10
+options.C = 5
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
-options.epsilon = 0.01
+options.epsilon = 0.001
 
 
 # training_xml_path = os.path.join(faces_folder, "training.xml")
@@ -101,7 +101,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
-        if counter > 25:
+        if counter > 250:
             print "counter: {0}".format(counter)
             break
 
@@ -133,7 +133,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
     for file in files:
-        if counter > 25:
+        if counter > 100:
             print "counter: {0}".format(counter)
             break
 
@@ -168,7 +168,7 @@ print "counter_bad2: {0}".format(counter_bad2)
 
 detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector2.save('/data/detector4.svm')
+detector2.save('/data/detector5.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
