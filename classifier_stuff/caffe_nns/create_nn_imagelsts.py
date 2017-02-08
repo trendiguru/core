@@ -118,6 +118,26 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
+def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
+    '''
+    take the tg positives for all cats and put into labelfiles
+    :param folderpath:
+    :param path_filter:
+    :param allcats:
+    :param outsuffix:
+    :return:
+    '''
+    for cat in allcats:
+        all_filters = [path_filter,cat]
+        class_number = 1
+        outfile = cat+'_'+outsuffix
+        path_antifilter = None
+        if cat == 'suit':
+            path_antifilter = ['tracksuit','bodysuit']
+        if cat == 'bikini':
+            path_antifilter = ['nonbikini']
+        dir_to_labelfile(folderpath,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=path_antifilter,recursive=True)
+
 def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
     '''
     #1. tamarab berg - generates pos and neg per class
@@ -132,6 +152,7 @@ def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,o
     #todo - include the tg stuff in negatives (nice to have - but 'only' 50k more negatives)
 #    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
 #    dirs_and_cats_tg = os_walk_to_tg_hydra(folderpath=folderpath_deepfashion)
+#todo deal with substring problem - e.g. suit is a substring of swimsuit and so swimsuit directory can get classed as suit...
 
     folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
     dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
@@ -269,6 +290,8 @@ def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=const
                 for catsyn in cat_synonyms:
                     if catsyn in subsubdir:
                         cat_for_dir = cat
+                        #dont break here! continue all the way and see if there are other matches, take the longest
+                        #to avoid the 'substring problem' namely suit matches jumpsuit etc
                         break
                 if cat_for_dir is None:
                     print('could not get cat for dir '+str(subsubdir))
@@ -701,8 +724,9 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
     :param outfile : write to this file.  Appends, doesn't overwrite
     :pathfilter - list of required terms in path e..g male and swimsuit
     :path_antifilter - list of terms that cant occur in path e.g female
-    :return:
+    :return:#
     '''
+    print('class {} filter {} antifilter {}'.format(class_number,path_filter,path_antifilter))
     if recursive:
         allfiles = []
         for root,dirs,files in os.walk(dir):
@@ -717,7 +741,7 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
             if path_antifilter:
                 newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
             if len(newfiles)>0:
-                print('root {} {} newfiles '.format(root,len(newfiles)))
+                print('root {}, {} newfiles , filter {} antifilter {}'.format(root,len(newfiles),path_filter,path_antifilter))
             allfiles += newfiles
  #       raw_input('ret to cont')
     else:
@@ -731,6 +755,9 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
+    if len(allfiles) == 0:
+        print('didnt find any files so not writing')
+        return allfiles
     with open(outfile,'a') as fp:
         for f in allfiles:
             line = f + '\t'+str(class_number)
@@ -739,8 +766,11 @@ def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter
             i+=1
         fp.close()
     print('added {} files to {} with class {}'.format(len(allfiles),outfile,class_number))
-    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
+#    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
+    print('')
+    return allfiles
+
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
     '''
@@ -939,6 +969,77 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         with open(test_name,'w') as tefp:
             tefp.writelines(test_lines)
             tefp.close()
+    #report how many in each class
+        inspect_single_label_textfile(filename = train_name,visual_output=False,randomize=False)
+        inspect_single_label_textfile(filename = test_name,visual_output=False,randomize=False)
+
+
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
+    '''
+    file lines are of the form /path/to/file class_number
+    analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
+    :param filename:
+    :return:
+    '''
+    n_instances = {}
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            if cat in n_instances:
+                n_instances[cat]+=1
+            else:
+                n_instances[cat] = 1
+        fp.close()
+
+    print('n_instances {}'.format(n_instances))
+    if randomize:
+        random.shuffle(lines)
+    if n_instances == {}:
+        return
+    n = 0
+    cats_used = [k for k,v in n_instances.iteritems()]
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to get max
+    n_encountered = [0]*n_cats
+    if visual_output:
+        for line in lines:
+            n = n + 1
+            print line
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            n_encountered[cat]+=1
+            print(str(n)+' images seen, totals:'+str(n_encountered))
+    #            im = Image.open(path)
+    #            im.show()
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+                print('(d)elete (c)lose anything else keeps')
+                indir = os.path.dirname(path)
+                parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+                curdir = os.path.split(indir)[1]
+                print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+                if k == ord('d'):
+                    newdir = curdir+'_removed'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                elif k == ord('c'):
+                    newdir = curdir+'_needwork'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                else:
+                    newdir = curdir+'_kept'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
 
 def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=1.0,n_cats=2,outfilename=None,shuffle=True):
     '''
