@@ -78,7 +78,7 @@ options.C = 1
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
-options.epsilon = 0.001
+options.epsilon = 0.01
 
 
 # training_xml_path = os.path.join(faces_folder, "training.xml")
@@ -101,7 +101,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
-        if counter > 100:
+        if counter > 25:
             print "counter: {0}".format(counter)
             break
 
@@ -132,7 +132,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
     for file in files:
-        if counter > 100:
+        if counter > 25:
             print "counter: {0}".format(counter)
             break
 
