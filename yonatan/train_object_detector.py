@@ -74,7 +74,7 @@ options.add_left_right_image_flips = False
 # empirically by checking how well the trained detector works on a test set of
 # images you haven't trained on.  Don't just leave the value set at 5.  Try a
 # few different C values and see what works best for your data.
-options.C = 100
+options.C = 20
 # Tell the code how many CPU cores your computer has for the fastest training.
 options.num_threads = 12
 options.be_verbose = True
@@ -101,7 +101,7 @@ counter = 0
 
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
-        if counter > 1000:
+        if counter > 10000:
             print "counter: {0}".format(counter)
             break
 
