@@ -97,8 +97,13 @@ options.epsilon = 0.001
 ## train set ##
 counter_bad = 0
 
+counter = 0
+
 for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
     for file in files:
+        if counter > 100:
+            print "counter: {0}".format(counter)
+            break
 
         line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
 
@@ -115,6 +120,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
         images_new.append(line_in_list_images)
 
         print file
+        counter += 1
 
 print "counter_bad: {0}".format(counter_bad)
 
@@ -122,8 +128,13 @@ print "counter_bad: {0}".format(counter_bad)
 ## test set ##
 counter_bad2 = 0
 
+counter = 0
+
 for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
     for file in files:
+        if counter > 100:
+            print "counter: {0}".format(counter)
+            break
 
         line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
 
@@ -140,6 +151,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
         images_new_test.append(line_in_list_images)
 
         print file
+        counter += 1
 
 print "counter_bad2: {0}".format(counter_bad2)
 
@@ -154,7 +166,7 @@ print "counter_bad2: {0}".format(counter_bad2)
 
 detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector2.save('/data/detector3_cv2.svm')
+detector2.save('/data/detector4.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!

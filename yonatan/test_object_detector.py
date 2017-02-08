@@ -22,7 +22,7 @@ from ..utils import imutils
 
 # detector = dlib.get_frontal_face_detector()
 # dress_detector = dlib.simple_object_detector("/data/detector2.svm")
-dress_detector = dlib.simple_object_detector("/data/detector3_cv2.svm")
+dress_detector = dlib.simple_object_detector("/data/detector4.svm")
 
 
 def find_dress_dlib(image, max_num_of_faces=10):
@@ -146,10 +146,10 @@ def theDetector(url_or_np_array):
 
     resized_image = imutils.resize_keep_aspect(full_image, output_size=(300, 300))
 
-    dets = find_dress_dlib(rotate_image)
-    dets2 = find_dress_dlib(rotate_image2)
-    dets3 = find_dress_dlib(resized_image)
-    dets4 = find_dress_dlib(full_image)
+    dets = find_dress_dlib(full_image)
+    dets2 = find_dress_dlib(rotate_image)
+    dets3 = find_dress_dlib(rotate_image2)
+    dets4 = find_dress_dlib(resized_image)
 
     if dets is None:
         print "Bey1"
