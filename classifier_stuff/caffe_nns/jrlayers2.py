@@ -616,8 +616,6 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(2) #give some time to read how many imgs in the labelfile.
-            #todo - add files per class (from create_nn_imagelsts)
 
     #use lmdb
         elif self.lmdb is not None:
@@ -703,17 +701,18 @@ class JrMultilabel(caffe.Layer):
 #            raw_input('ret to cont')
             self.n_seen_per_category = np.zeros(self.max_category_index)
             self.max_category_index = max([k for k in self.idx_per_cat])
-            print('image populations per category:'+str(self.idx_per_cat_lengths))
 #            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
 
             if self.equalize_category_populations == True:
                 self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
+            #done - add files per class (from create_nn_imagelsts)
             print('desired population percentages:'+str(self.category_population_percentages))
             #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
             self.worst_off = 0
+        time.sleep(2) #give some time to read how many imgs in the labelfile.
 
         self.start_time=time.time()
 
