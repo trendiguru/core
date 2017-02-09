@@ -13,6 +13,7 @@ from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
 from . import kassper
+import time
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -105,15 +106,20 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
    ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
-    faces,scores,idx = detector.run(image, 1)
-#    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
-#     if not len(faces):
-#         return {'are_faces': False, 'faces': []}
-#     final_faces = choose_faces(image, faces, max_num_of_faces)
-#     return {'are_faces': len(final_faces) > 0, 'faces': final_faces}
-    print('faces {}'.format(faces))
-    print('scores {}'.format(scores))
-    print('idx {}'.format(idx))
+    faces, scores, idx = detector.run(image, 1)
+
+    for i, d in enumerate(faces):
+        print("Detection {}, score: {}, face_type:{}".format(
+            d, scores[i], idx[i]))
+
+    print("Done in %.3f s." % (time.time() - start))
+
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    #final_faces = choose_faces(image, faces, max_num_of_faces)
+    print "number of faces: {0}\n".format(len(faces))
+    return {'are_faces': len(faces) > 0, 'faces': faces, 'scores': scores}
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
