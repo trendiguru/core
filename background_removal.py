@@ -101,6 +101,7 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
     :param max_num_of_faces:
     :return:
     '''
+    start = time.time()
     if isinstance(image,basestring):
         image = Utils.get_cv2_img_array(image)
    ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
