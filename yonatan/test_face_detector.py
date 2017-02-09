@@ -85,7 +85,7 @@ def theDetector(url_or_np_array):
 
         if x > width or x + w > width or y > height or y + h > height:
             print "\nface out of image boundaries\n"
-            return None
+            continue
 
         # if faces["are_faces"]:
         #     if len(faces['faces']) == 1:
