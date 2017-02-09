@@ -356,6 +356,8 @@ def get_single_label_output(url_or_np_array,required_image_size=(227,227),output
 
 #    open_html(htmlname,testproto,caffemodel,confmat,netname,classlabels=classlabels) #
 def open_html(htmlname,proto,caffemodel,netname=None,classlabels=constants.web_tool_categories_v2):
+    if caffemodel is None:
+        caffemodel='None'
     model_base = caffemodel.replace('.caffemodel','')
     with open(htmlname,'a') as g:
         g.write('<!DOCTYPE html>')

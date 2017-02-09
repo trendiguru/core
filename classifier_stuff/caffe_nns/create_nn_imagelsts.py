@@ -8,8 +8,10 @@ import sys
 from shutil import copyfile
 import json
 import shutil
+import pymongo
+import itertools
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 from PIL import Image
 
 from trendi import constants
@@ -116,15 +118,251 @@ def consistency_check_multilabel_db():
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
-#binary lists generated so far (9.10.16)
-#dress
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './'):
+def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
+    '''
+    take the tg positives for all cats and put into labelfiles
+    :param folderpath:
+    :param path_filter:
+    :param allcats:
+    :param outsuffix:
+    :return:
+    '''
+    for cat in allcats:
+        all_filters = [path_filter,cat]
+        class_number = 1
+        outfile = cat+'_'+outsuffix
+        path_antifilter = None
+        if cat == 'suit':
+            path_antifilter = ['tracksuit','bodysuit']
+        if cat == 'bikini':
+            path_antifilter = ['nonbikini']
+        dir_to_labelfile(folderpath,class_number,outfile=outfile,filefilter='.jpg',path_filter=all_filters,path_antifilter=path_antifilter,recursive=True)
+
+def binary_pos_and_neg_deepfashion_and_mongo(allcats=constants.flat_hydra_cats,outfile='pos_neg_mongo_df.txt'):
+    '''
+    #1. tamarab berg - generates pos and neg per class
+        assume this is already done e.g. using   binary_pos_and_neg_from_multilabel_db
+    #2. deepfashion - use constants.bad_negs_for_pos to generate negs for given pos
+    #3. mongo db images - again use constants.bad_negs
+    (#4. google open images)
+    :param cats:
+    :return:
+    '''
+# bailing on tg images for negatives right  now since they are messy - unwanted folders etc.
+    #todo - include the tg stuff in negatives (nice to have - but 'only' 50k more negatives)
+#    folderpath_tg='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+#    dirs_and_cats_tg = os_walk_to_tg_hydra(folderpath=folderpath_deepfashion)
+#todo deal with substring problem - e.g. suit is a substring of swimsuit and so swimsuit directory can get classed as suit...
+
+    folderpath_deepfashion='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256'
+    dirs_and_cats_deepfashion = deepfashion_to_tg_hydra(folderpath=folderpath_deepfashion)
+    folderpath_mongo='/data/jeremy/image_dbs/mongo'
+    dirs_and_cats_mongo = dir_of_dirs_to_tg_hydra(folderpath=folderpath_mongo,cats = allcats)
+
+    for cat in allcats:
+        print('generating pos and neg for cat:'+str(cat))
+        positives_df,negatives_df = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_deepfashion,allcats=allcats,folderpath=folderpath_deepfashion,outfile=cat+'_pos_neg_df.txt')
+        positives_mongo,negatives_mongo = binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats_mongo,allcats=allcats,folderpath=folderpath_mongo,outfile=cat+'_pos_neg_mongo.txt')
+        allpositives = positives_df+positives_mongo
+        allnegatives = negatives_df+negatives_mongo
+        filename=cat+'_'+outfile
+        print('pos df {} pos mongo {} all {} neg fd {} neg mongo {} tot {} writng to {}'.format(len(positives_df),len(positives_mongo),len(allpositives),len(negatives_df),len(negatives_mongo),len(allnegatives),filename))
+        with open(filename,'a') as fp:
+            for positive in allpositives:
+                fp.write(str(positive)+'\t1\n')
+            for negative in allnegatives:
+                fp.write(str(negative)+'\t0\n')
+        raw_input('ret to cont')
+
+def binary_pos_and_neg_using_neglogic_onecat(cat,dirs_and_cats,allcats=constants.flat_hydra_cats,folderpath='/data/jeremy/image_dbs/mongo',outfile=None):
+    '''
+    given a category and list of directories with a known cat per dir , use constants.bad_negs_for_pos to determine what cant be used as negs
+    for the cat - generate negs using everything else not in bad_negs, generate pos using the cat , write to file and return lists
+    :param cat:
+    :param dirs_and_cats:
+    :param allcats:
+    :param folderpath:
+    :param outfile:
+    :return:
+    '''
+    if cat is 'None' or cat is None:
+        logging.warning('got none as a cat in binary_pos_and_neg_df_onecat')
+        return
+
+    print('got {} dirs/cats, first is {}'.format(len(dirs_and_cats),dirs_and_cats[0]))
+    print('looking for cats:'+str(cat))
+
+    #do positives
+    positives = []
+    cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
+
+    print('category {} synonyms {}'.format(cat,cat_synonyms))
+    for d_and_c in dirs_and_cats:
+        cat_for_dir = d_and_c[1]
+        if cat_for_dir is None:
+            logging.info('none cat for dc {}'.format(d_and_c))
+            continue
+        print('checking dir/cat {}'.format(d_and_c))
+        for catsyn in cat_synonyms:
+            if catsyn in cat_for_dir: #this directory is a category of interest for positives
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    logging.debug('file {} cat {}'.format(file_path,catsyn))  #add no-cr
+                    positives.append(file_path)
+            break  #no need to go thru rest of the synonyms.
+    print('found {} positives for cat {} (using sysnonyms {})'.format(len(positives),cat,cat_synonyms))
+
+    #do negatives
+    negatives = []
+    if cat in  constants.bad_negs_for_pos:
+        dont_use_these_neg_cats = constants.bad_negs_for_pos[cat]
+        dont_use_these_neg_cats=Utils.flatten_list(dont_use_these_neg_cats)
+    else:
+        logging.warning('could not find cat {} in constants.bad_negs_for_pos'.format(cat))
+        return positives,negatives
+
+    print('bad negs for cat {}:\n{}'.format(cat,dont_use_these_neg_cats))
+    print
+    for potential_negative in allcats:
+        negative_shouldnt_be_used_flag = False
+        if potential_negative == cat:
+            continue #dont kill the cat under consideration
+        pot_neg_synonyms = Utils.give_me_a_list_of_synonyms(potential_negative,constants.synonymous_cats)
+        print('potential neg synonyms:'+str(pot_neg_synonyms))
+        for potential_negative_synonym in pot_neg_synonyms:
+            if potential_negative_synonym in dont_use_these_neg_cats:
+                print('potential neg {} negged '.format(potential_negative_synonym))
+                negative_shouldnt_be_used_flag = True
+                break
+        if negative_shouldnt_be_used_flag:
+            logging.info('negative {} shold not be used'.format(potential_negative_synonym))
+            continue
+        print('not negged and therefore useful as negative for {}:{}'.format(cat,potential_negative))
+        for d_and_c in dirs_and_cats:
+            cat_for_dir = d_and_c[1]
+            if cat_for_dir is None:
+                print('none cat for dc {}'.format(d_and_c))
+                continue
+            if cat_for_dir in pot_neg_synonyms: #this directory is a category of interest
+                full_path = os.path.join(folderpath,d_and_c[0])
+                files = os.listdir(full_path)
+#                print('using dir {} as neg for cat {}, {} files '.format(d_and_c[0],cat,len(files)))
+                for file in files:
+                    file_path = os.path.join(full_path,file)
+                    negatives.append(file_path)
+#                    fp.write(file_path+'\t'+str(cat_index)+'\n')
+#                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
+            else:
+#                logging.info('catfordir {} not in pot_neg_syn {}'.format(cat_for_dir,pot_neg_synonyms))
+                pass
+        print('done with negative {}, current size {}'.format(potential_negative,len(negatives)))
+        raw_input('ret to cont')
+    print('done with all negatives, n_pos {} n_neg {}'.format(len(positives),len(negatives)))
+    if outfile is not None:
+        with open(outfile,'a') as fp:
+            for positive in positives:
+                fp.write(str(positive)+'\t1\n')
+            for negative in negatives:
+                fp.write(str(negative)+'\t0\n')
+    return positives, negatives
+
+def dir_of_dirs_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,filefilter=None):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
+    cats_and_dirs = []
+
+    subdirs = [os.path.join(folderpath, name) for name in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, name)) ]
+    for dir in subdirs:
+        print('dir:'+dir)
+        subsubdirs = [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir,name))]
+        for subsubdir in subsubdirs:
+            print('subsubdir:'+subsubdir)
+            cat_for_dir = None
+            for cat in cats:
+                cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
+                print('category {} synonyms {}'.format(cat,cat_synonyms))
+                for catsyn in cat_synonyms:
+                    if catsyn in subsubdir:
+                        cat_for_dir = cat
+                        #dont break here! continue all the way and see if there are other matches, take the longest
+                        #to avoid the 'substring problem' namely suit matches jumpsuit etc
+                        break
+                if cat_for_dir is None:
+                    print('could not get cat for dir '+str(subsubdir))
+                else:
+                    full_dirpath = os.path.join(dir,subsubdir)
+                    cats_and_dirs.append([full_dirpath,cat_for_dir])
+                    print('cat for {} is {}'.format(full_dirpath,cat_for_dir))
+                    break
+    print('{} cats and dirs '+str(len(cats_and_dirs)))
+#    print cats_and_dirs
+    return cats_and_dirs
+
+def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants.flat_hydra_cats,recursive=True,filefilter=None):
+    '''
+    the mongo dbs are downloaded as a folder per db, with subfolders for the categories
+    :param folderpath:
+    :param cats:
+    :return:
+    '''
+    cats_and_dirs = []
+
+    if recursive:
+        for root,dirs,files in os.walk(folderpath):
+            #path = root.split(os.sep)
+            print('root {}'.format(root))
+            newfiles = [os.path.join(root,f) for f in files]
+            if filefilter:
+                newfiles = [f for f in newfiles if filefilter in f]
+    else:
+        newfiles = [os.path.join(folderpath,f) for f in os.listdir(folderpath)]
+        if filefilter:
+            newfiles = [f for f in newfiles if filefilter in f]
+
+    unique_dirs = []
+    for f in newfiles:
+        if not os.path.dirname(f) in unique_dirs:
+            unique_dirs.append(os.path.dirname(f))
+            print('unique dir: '+str(os.path.dirname(f)))
+    cats_and_dirs = []
+    for dir in unique_dirs:
+        print('dir:'+dir)
+        cat_for_dir = None
+        for cat in cats:
+            cat_synonyms = Utils.give_me_a_list_of_synonyms(cat,constants.synonymous_cats)
+            print('category {} synonyms {}'.format(cat,cat_synonyms))
+            for catsyn in cat_synonyms:
+                if catsyn in dir: #this directory is a category of interest for positives
+                    cat_for_dir = cat
+                    break  #no need to go thru rest of the synonyms.
+            if cat_for_dir is None:
+                print('could not get cat for dir '+str(dir))
+            else:
+                cats_and_dirs.append([dir,cat_for_dir])
+                print('cat for {} is {}'.format(dir,cat_for_dir))
+                break
+    print('{} cats and dirs '+str(len(cats_and_dirs)))
+#    print cats_and_dirs
+    return cats_and_dirs
+
+def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
-    if n_votes[cat] = n_voters put that image in positives for cat
+    if n_votes[cat] >= 2 put that image in positives for cat
     '''
-    db = constants.db
+
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
@@ -225,6 +463,135 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 fp.close()
         print('number of matches found:'+str(n_items))
         return n_items
+
+def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
+                                           desired_index=1,in_docker=True):
+    '''
+    read multilabel db.
+    if n_votes[cat] >= 2, put that image in positives file - so all images with clothes should get into labelfile once
+    useful for relevant/irrelevant, prob nothing else
+    consider putting naked ppl into the irrelevants...
+    '''
+
+    print('attempting db connection')
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+        #nb this can apparently be done by checking
+        #/proc/1/cgroup
+        #which has lines with 'docker' instead of starting with just /, as in
+        #1:name=systemd:/docker/85cee1c45352bc4814940e486dbcb169c17042d2b7460e4945ea6909b51a6a1b
+        #see http://stackoverflow.com/questions/20010199/determining-if-a-process-runs-inside-lxc-docker
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs in db')
+    n_positives=0
+    positives_list=[]
+    for i in range(n_done):
+        catsfile = os.path.join(catsfile_dir,'all_clothes_tb.txt')
+        with open(catsfile,'a') as fp:
+            document = cursor.next()
+            if not 'already_seen_image_level' in document:
+                print('no votes for this doc')
+                continue
+            if document['already_seen_image_level']<2:
+                print('not enough votes for this doc')
+                continue
+            url = document['url']
+            filename = os.path.basename(url)
+            full_path = os.path.join(image_dir,filename)
+            if not os.path.exists(full_path):
+                print('file '+full_path+' does not exist, skipping')
+                continue
+            items_list = document['items'] #
+            if items_list is None:
+                print('no items in doc')
+                continue
+            #print('items:'+str(items_list))
+            votelist = [0]*len(constants.web_tool_categories_v2)
+            for item in items_list:
+                cat = item['category']
+                if cat in constants.web_tool_categories_v2:
+                    index = constants.web_tool_categories_v2.index(cat)
+                elif cat in constants.tamara_berg_to_web_tool_dict:
+                    print('old cat being translated')
+                    cat = constants.tamara_berg_to_web_tool_dict[cat]
+                    index = constants.web_tool_categories.index(cat)
+                else:
+                    print('unrecognized cat')
+                    continue
+                votelist[index] += 1
+                if votelist[index] >=2:
+                    line = str(full_path) + '\t'+str(desired_index)+'\n'
+                    fp.write(line)
+                    print('item:'+str(cat) +' votes:'+str(votelist[index])+' ' +line)
+                    n_positives+=1
+                    positives_list.append(full_path)
+                    break
+    fp.close()
+    print('tot positives:'+str(n_positives))
+    return positives_list
+
+def analyze_negs_filipino_db(labels=constants.multilabel_categories_v2,in_docker=True):
+    '''
+    TODO - finish this and verify that constants.bad_negs_for_pos is consistent with this info
+    namely this function should return what items occur togethe and with what frequency
+    anything that shows up togethe should go into constants.bad_negs_for_pos
+    :param labels:
+    :param in_docker:
+    :return:
+    '''
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
+    cursor = db.training_images.find()
+    n_done = cursor.count()
+    print(str(n_done)+' docs done')
+    fellow_positives = [  [0 for i in len(constants.web_tool_categories_v2)]  for j in len(constants.web_tool_categories_v2)]
+    fellow_negatives = [  [0 for i in len(constants.web_tool_categories_v2)]  for j in len(constants.web_tool_categories_v2)]
+    for i in range(n_done):
+        document = cursor.next()
+        if not 'already_seen_image_level' in document:
+            print('no votes for this doc')
+            continue
+        if document['already_seen_image_level']<2:
+            print('not enough votes for this doc')
+            continue
+        items_list = document['items'] #
+        if items_list is None:
+            print('no items in doc')
+            continue
+        print('items:'+str(items_list))
+        votelist = [0]*len(constants.web_tool_categories_v2)
+        for item in items_list:
+            cat = item['category']
+            if cat in constants.web_tool_categories_v2:
+                index = constants.web_tool_categories_v2.index(cat)
+            elif cat in constants.tamara_berg_to_web_tool_dict:
+                print('old cat being translated')
+                cat = constants.tamara_berg_to_web_tool_dict[cat]
+                index = constants.web_tool_categories.index(cat)
+            else:
+                print('unrecognized cat')
+                continue
+            votelist[index] += 1
+            print('item:'+str(cat) +' votes:'+str(votelist[index]))
+        print('votes:'+str(votelist))
+        for i in range(len(votelist)):
+            cat = constants.web_tool_categories_v2[i]
+            for j in range(len(votelist)):
+                if votelist[i]==0:
+                    fellow_negatives[i]+=1
+
+                if votelist[i] >= 2:
+                    fellow_positives[i]+=1
+
+#votes [2 1 0 0 2]
+#cat 0 fellow_pos : [[100 10 . . .][
+#cat 0 fellow_neg : [100 1
 
 def positives_from_tbdb_for_hydra_cats():
     for type in constants.hydra_cats:
@@ -348,40 +715,62 @@ def dir_of_dirs_to_labelfiles(dir_of_dirs,class_number=1):
         print('doing directory:'+str(d))
         dir_to_labelfile(d,class_number,outfile=os.path.basename(d)+'_labels.txt',filter='.jpg')
 
-def dir_to_labelfile(dir,class_number,outfile=None,filter='.jpg',recursive=False):
+def dir_to_labelfile(dir,class_number,outfile=None,filefilter='.jpg',path_filter=None,path_antifilter=None,recursive=False):
     '''
     take a dir and add the files therein to a text file with lines like:
     /path/to/file class_number
     :param dir:
     :param class_number: assign all files this class #
     :param outfile : write to this file.  Appends, doesn't overwrite
-    :return:
+    :pathfilter - list of required terms in path e..g male and swimsuit
+    :path_antifilter - list of terms that cant occur in path e.g female
+    :return:#
     '''
+    print('class {} filter {} antifilter {}'.format(class_number,path_filter,path_antifilter))
     if recursive:
         allfiles = []
         for root,dirs,files in os.walk(dir):
-            path = root.split(os.sep)
-#            print('root {}\ndirs {} '.format(root,dirs))
-            allfiles = allfiles + [os.path.join(root,f) for f in files]
+            #path = root.split(os.sep)
+#            print('root {}'.format(root))
+            newfiles = [os.path.join(root,f) for f in files]
+            if filefilter:
+                newfiles = [f for f in newfiles if filefilter in f]
+            if path_filter:
+#                newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
+                newfiles = filter(lambda f: all([term in f for term in path_filter]), newfiles)
+            if path_antifilter:
+                newfiles = filter(lambda f: not any([term in f for term in path_antifilter]), newfiles)
+            if len(newfiles)>0:
+                print('root {}, {} newfiles , filter {} antifilter {}'.format(root,len(newfiles),path_filter,path_antifilter))
+            allfiles += newfiles
  #       raw_input('ret to cont')
-        files = allfiles
     else:
-        allfiles = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-    if filter:
-        files=[f for f in allfiles if filter in f]
+        allfiles = [os.path.join(dir,f) for f in os.listdir(dir)]
+        if filefilter:
+            allfiles=[f for f in allfiles if filefilter in f]
+        if path_filter:
+            allfiles = filter(lambda f: all([term in f for term in path_filter]), allfiles)
+        if path_antifilter:
+            allfiles = filter(lambda f: not any([term in f for term in path_antifilter]), allfiles)
     i = 0
     if outfile == None:
         outfile = os.path.join(dir,'labelfile.txt')
+    if len(allfiles) == 0:
+        print('didnt find any files so not writing')
+        return allfiles
     with open(outfile,'a') as fp:
-        for f in files:
+        for f in allfiles:
             line = f + '\t'+str(class_number)
-            print line
+            logging.debug(line)
             fp.write(line+'\n')
             i+=1
         fp.close()
-    print('added {} files to {} with class {}'.format(len(files),outfile,class_number))
-    print('used {} files from dir with {} files'.format(len(files),len(os.listdir(dir))))
+    print('added {} files to {} with class {}'.format(len(allfiles),outfile,class_number))
+#    print('dir {} with {} files'.format(dir,len(os.listdir(dir))))
     print(str(i)+' images written to '+outfile+' with label '+str(class_number))
+    print('')
+    return allfiles
+
 
 def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
     '''
@@ -580,6 +969,77 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
         with open(test_name,'w') as tefp:
             tefp.writelines(test_lines)
             tefp.close()
+    #report how many in each class
+        inspect_single_label_textfile(filename = train_name,visual_output=False,randomize=False)
+        inspect_single_label_textfile(filename = test_name,visual_output=False,randomize=False)
+
+
+def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
+    '''
+    file lines are of the form /path/to/file class_number
+    analysis of avg image sizes, rgb values and other stats (per class if so desired) can be easily done here
+    :param filename:
+    :return:
+    '''
+    n_instances = {}
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            if cat in n_instances:
+                n_instances[cat]+=1
+            else:
+                n_instances[cat] = 1
+        fp.close()
+
+    print('n_instances {}'.format(n_instances))
+    if randomize:
+        random.shuffle(lines)
+    if n_instances == {}:
+        return
+    n = 0
+    cats_used = [k for k,v in n_instances.iteritems()]
+    n_cats = np.max(cats_used) + 1 # 0 is generally a cat so add 1 to get max
+    n_encountered = [0]*n_cats
+    if visual_output:
+        for line in lines:
+            n = n + 1
+            print line
+            path = line.split()[0]
+            cat = int(line.split()[1])
+            n_encountered[cat]+=1
+            print(str(n)+' images seen, totals:'+str(n_encountered))
+    #            im = Image.open(path)
+    #            im.show()
+            img_arr = cv2.imread(path)
+            imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
+            if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
+                print('(d)elete (c)lose anything else keeps')
+                indir = os.path.dirname(path)
+                parentdir = os.path.abspath(os.path.join(indir, os.pardir))
+                curdir = os.path.split(indir)[1]
+                print('in {} parent {} cur {}'.format(indir,parentdir,curdir))
+                if k == ord('d'):
+                    newdir = curdir+'_removed'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('REMOVING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                elif k == ord('c'):
+                    newdir = curdir+'_needwork'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('CLOSE so moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
+
+                else:
+                    newdir = curdir+'_kept'
+                    dest_dir = os.path.join(parentdir,newdir)
+                    Utils.ensure_dir(dest_dir)
+                    print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
+                    shutil.move(mask_filename,dest_dir)
 
 def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=1.0,n_cats=2,outfilename=None,shuffle=True):
     '''
@@ -696,26 +1156,26 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
         for k,v in constants.deep_fashion_to_trendi_map.iteritems():
             if k.lower() in dir.lower():
                 if 'velveteen' in dir.lower() and k.lower=='tee': #'velveteen tee' will  get skipped
-                    print('skipping dir {} cat {}'.format(dir,k))
+                    logging.info('skipping dir {} cat {}'.format(dir,k))
                     continue
                 else:
                     cats_found.append((dir,v))
 
-        #        print('dir {} cat {} match'.format(dir,k))
+                logging.debug('dir {} cat {} match'.format(dir,k))
             else:
-                pass
-#                print('dir {} cat {} NO match'.format(dir,k))
+                logging.debug('dir {} cat {} NO match'.format(dir,k))
+        logging.info('cats for dir {} are {}'.format(dir,cats_found))
 
         #take care of all the cases where multiple cats are found....yeesh
         cats_found.sort(key=len)
         if len(cats_found)==2 :
-            print('dir {} 2 matching cats:{}'.format(dir,cats_found))
+            logging.info('dir {} 2 matching cats:{}'.format(dir,cats_found))
             if cats_found[0][1]==cats_found[1][1]:
 #                print('matching cats')
                 cats_found=[(dir,cats_found[0][1])]
-                print('final disposition:'+str(cats_found))
+                logging.info('final disposition:'+str(cats_found))
             else:
-                print('nonmatching cats')
+#                print('nonmatching cats')
 
                 if cats_found[0][1]=='tank' and cats_found[1][1]=='dress':
                     cats_found=[(dir,'dress')]
@@ -811,23 +1271,25 @@ def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/cate
                 cats_found=[(dir,'dress')]
             elif cats_found[1][1]=='dress' and cats_found[2][1] == 'henley':
                 cats_found=[(dir,'dress')]
-            elif  cats_found[0][1]==cats_found[1][1]and cats_found[1][1]==cats_found[2][1]:
+            elif cats_found[0][1]==cats_found[1][1]and cats_found[1][1]==cats_found[2][1]:
                 cats_found=[(dir,cats_found[0][1])]
             elif cats_found[0][1]=='button-down' and cats_found[1][1] == 'dress':
                 cats_found=[(dir,'dress')]
 
             if len(cats_found)==1:
-                print('final disposition:'+str(cats_found))
+                logging.info('final disposition:'+str(cats_found))
             else:
-                print('NONFINAL disposition:'+str(cats_found))
+                logging.info('NONFINAL disposition:'+str(cats_found))
 
         if len(cats_found)==1:
-            print('unambiguous! '+str(cats_found))
+            logging.info('unambiguous! '+str(cats_found))
+            if cats_found[0][1] == None :
+                logging.warning('got a None in dep_fashion_to_tg {}'.format(cats_found))
             all_cats.append(cats_found[0])  #add unambiguous cat to list
         else:
-            print('AMBIGUOUS!!:'+str(cats_found))
+            logging.debug('AMBIGUOUS!!:'+str(cats_found))
                   #ambiguous (more thn one cat still) so dont add to list
-
+    print('tot length '+str(len(all_cats)))
     return all_cats
 
 def write_deepfashion_hydra_map_to_file():
@@ -924,20 +1386,25 @@ def deep_fashion_single_cat_labels(folderpath='/data/jeremy/image_dbs/deep_fashi
         labelfile_name = cat+'_positives.txt'
     print('len dirs_and_cats:'+str(len(dirs_and_cats))+' labelfile '+labelfile_name+' folderpath '+folderpath)
     Utils.ensure_file(labelfile_name)
-    with open(labelfile_name,'a') as fp:
-        for dc in dirs_and_cats:
-            if dc[1] == cat:
-                print('dir,cat:')+str(dc)
-                full_path = os.path.join(folderpath,dc[0])
-                files = os.listdir(full_path)
-                files = [f for f in files if lookfor in f]
-                for file in files:
-                    file_path = os.path.join(full_path,file)
-                    fp.write(file_path+'\t'+str(cat_index)+'\n')
-                    logging.debug('wrote "{} {}" for file {} cat {}'.format(file_path,cat_index,file,cat_index))  #add no-cr
-                    pops+=1
+    linelist = []
+    for dc in dirs_and_cats:
+        if dc[1] == cat:
+            print('dir,cat:')+str(dc)
+            full_path = os.path.join(folderpath,dc[0])
+            files = os.listdir(full_path)
+            files = [f for f in files if lookfor in f]
+            for file in files:
+                file_path = os.path.join(full_path,file)
+                line = file_path+'\t'+str(cat_index)+'\n'
+                linelist.append(line)
+                if labelfile_name:
+                    with open(labelfile_name,'a') as fp:
+                        fp.write(line)
+                logging.debug('line {} for file {} cat {}'.format(line,file,cat_index))  #add no-cr
+                pops+=1
         #        raw_input('ret to cont')
         print('population of {} (label {}) is {}'.format(cat,cat_index,pops))
+        return(linelist)
 
 def copy_relevant_deep_fashion_dirs_for_yonatan_features(deep_fashion_path='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
@@ -1176,7 +1643,9 @@ if __name__ == "__main__": #
 
 #    deepfashion_to_tg_hydra()
 #    generate_deep_fashion_hydra_labelfiles()
-    negatives_for_hydra()
+#    negatives_for_hydra()
+
+    binary_pos_and_neg_deepfashion_onecat('dress')
 
         #useful script - change all photos to photos_250x250
 #!/usr/bin/env bash

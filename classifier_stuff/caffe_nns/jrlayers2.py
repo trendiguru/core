@@ -524,6 +524,7 @@ class JrMultilabel(caffe.Layer):
         self.analysis_time = time.time()
         self.analysis_time_out = time.time()
         self.previous_images_processed=0
+        self.default_newsize=(256,256)
         # print('images+labelsfile {} mean {}'.format(self.images_and_labels_file,self.mean))
         # two tops: data and label
         if len(top) != 2:
@@ -615,7 +616,6 @@ class JrMultilabel(caffe.Layer):
             #print('{} images and {} labels'.format(len(self.imagefiles),len(self.label_vecs)))
             self.n_files = len(self.imagefiles)
             print(str(self.n_files)+' good files found in '+self.images_and_labels_file)
-            time.sleep(.1)
 
     #use lmdb
         elif self.lmdb is not None:
@@ -668,16 +668,16 @@ class JrMultilabel(caffe.Layer):
             self.size_for_shaping = self.augment_crop_size
             print('dba')
             if self.new_size is None:
-                logging.warning('WARNING!!! got no size for self.newsize, using 250x250 resize and and  crop '+str(self.augment_crop_size))
-                raw_input('ret to cont')
-                self.new_size=(250,250)
+                logging.warning('WARNING!!! got no size for self.newsize, using '+str(self.default_newsize)+' resize and and  crop '+str(self.augment_crop_size))
+             #   raw_input('ret to cont')
+                self.new_size=self.default_newsize
         elif self.new_size is not None:
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
             print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
-            raw_input('ret to cont')
+          #  raw_input('ret to cont')
             self.new_size = (224,224)
             top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
@@ -701,17 +701,18 @@ class JrMultilabel(caffe.Layer):
 #            raw_input('ret to cont')
             self.n_seen_per_category = np.zeros(self.max_category_index)
             self.max_category_index = max([k for k in self.idx_per_cat])
-            print('image populations per category:'+str(self.idx_per_cat_lengths))
 #            print('pops:'+str(self.idx_per_cat)+' max cat index:'+str(self.max_category_index))
 
             if self.equalize_category_populations == True:
                 self.category_population_percentages = [1.0/(self.max_category_index+1) for i in range(self.max_category_index+1)]
             else:  #user explicitly gave list of desired percentages
                 self.category_population_percentages = self.equalize_category_populations
+            #done - add files per class (from create_nn_imagelsts)
             print('desired population percentages:'+str(self.category_population_percentages))
             #populations - the initial 1 below is a white lie (they really start at 0 of course) but this way I avoid divide-by-0 on first run without checking every time
             self.category_populations_seen = [1 for dummy in range(self.max_category_index+1)]
             self.worst_off = 0
+        time.sleep(2) #give some time to read how many imgs in the labelfile.
 
         self.start_time=time.time()
 
@@ -823,7 +824,7 @@ class JrMultilabel(caffe.Layer):
                 if self.new_size is not None and (in_.shape[0] != self.new_size[0] or in_.shape[1] != self.new_size[1]):
            #         im = im.resize(self.new_size,Image.ANTIALIAS)
                     print('resizing {} from {} to {}'.format(filename, in_.shape,self.new_size))
-                    raw_input('ret to cont' )
+                  #  raw_input('ret to cont' )
                     in_ = imutils.resize_keep_aspect(in_,output_size=self.new_size)
 ##                     print('new shape '+str(in_.shape))
 

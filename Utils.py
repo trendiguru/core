@@ -893,6 +893,31 @@ def get_person_bb_from_face(face, image_shape):
     p_y2 = int(round(min(image_shape[0], y + p_height)))
     return [p_x1, p_y1, p_x2, p_y2]
 
+def flatten_list(l):
+    flatlist = []
+    for sublist in l:
+        if isinstance(sublist,list):
+            flattened  = flatten_list(sublist)
+ #           print('flattened sublist:'+str(flattened))
+            flatlist = flatlist + flattened
+        else:
+            flatlist.append(sublist)
+    return flatlist
+
+def give_me_a_list_of_synonyms(category,synonym_lists=constants.synonymous_cats):
+    '''
+    this takes a synonymlist of list and returns the relevant list if any
+    synonym list is
+#    synonymous_cats =[  ['womens_swimwear_nonbikini','women\'s swimwear'],
+ #                   ['leggings','stockings'] ... ]
+    :param category:
+    :return:
+    '''
+
+    for l in synonym_lists:
+        if category in l:
+            return l
+    return [category]  #no list available so return just the category itself
 
 if __name__ == '__main__':
     print('starting')

@@ -21,6 +21,7 @@ from ..utils import imutils
 
 
 detector = dlib.get_frontal_face_detector()
+dress_detector = dlib.simple_object_detector("/data/detector2.svm")
 
 
 def find_face_dlib(image, max_num_of_faces=10):
@@ -64,7 +65,7 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
+    # full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
 
     # faces = background_removal.find_face_dlib(full_image)
 
@@ -84,7 +85,26 @@ def theDetector(url_or_np_array):
             print "\nface out of image boundaries\n"
             return None
 
+        # if faces["are_faces"]:
+        #     if len(faces['faces']) == 1:
+        #         full_image = full_image[y + h:, :]  # Crop the face from the image
+        #         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+        #     else:
+        #         continue
+        #
         # face_image = full_image[y: y + h, x: x + w]
+
+        if full_image.shape[0] - (y + h) >= 5 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (6 * h)), (0, 255, 0), 3)
+
+        if full_image.shape[0] - (y + h) >= 6 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
+
+        if full_image.shape[0] - (y + h) >= 7 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (8 * h)), (0, 130, 130), 3)
+
+        if full_image.shape[0] - (y + h) >= 8 * h:
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
