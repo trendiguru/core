@@ -47,13 +47,10 @@ def zip_through_all_categories():
 class ShopStyleDownloader:
     def __init__(self,collection, gender, cc):
         # connect to db
-        dl_cache = collection + '_cache'
         self.db = constants.db
         self.collection_name = collection
         self.collection = self.db[collection]
         self.collection_archive = self.db[collection+'_archive']
-        self.cache = self.db[dl_cache]
-        self.cache_counter = 0
         self.categories = self.db.categories
         self.current_dl_date = str(datetime.datetime.date(datetime.datetime.now()))
         self.last_request_time = time.time()
@@ -75,11 +72,21 @@ class ShopStyleDownloader:
             self.BASE_URL = BASE_URL_part1+"com/api/v2/"
             self.BASE_URL_PRODUCTS = BASE_URL_part1 + 'com' + BASE_URL_part2
 
+        col_names = self.db.collection_names()
+        dl_cache = collection + '_cache'
+        if dl_cache not in col_names:
+            self.db.create_collection(dl_cache)
+            self.cache = self.db[dl_cache]
+            self.cache.create_index("filter_params")
+            self.cache.create_index("dl_version")
+        else:
+            self.cache = self.db[dl_cache]
+        self.cache_counter = 0
+
     def db_download(self):
-        start_time = time.time()
-        bef = self.collection.count()
-        self.cache.create_index("filter_params")
-        self.cache.create_index("dl_version")
+        # start_time = time.time()
+        # bef = self.collection.count()
+
         root_category, ancestors = self.build_category_tree()
 
         cats_to_dl = [anc["id"] for anc in ancestors]
@@ -87,11 +94,11 @@ class ShopStyleDownloader:
             self.download_category(cat)
 
         self.wait_for()
-        end_time = time.time()
-        total_time = (end_time - start_time)/3600
+        # end_time = time.time()
+        # total_time = (end_time - start_time)/3600
         # self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Finishing Up"}})
         self.collection.delete_many({'fingerprint': {"$exists": False}})
-        # self.theArchiveDoorman()
+        self.theArchiveDoorman()
 
         # dl_info = {"start_date": self.current_dl_date,
         #            "dl_duration": total_time,
@@ -104,45 +111,54 @@ class ShopStyleDownloader:
         # new_items = self.collection.find({'download_data.first_dl': self.current_dl_date}).count()
         # self.status.update_one({"date": self.current_dl_date}, {"$set": {self.status_full_path: "Done",
         #                                                                  self.notes_full_path: new_items}})
-        self.cache.delete_many({})
+        self.cache.drop()
 
     def theArchiveDoorman(self):
         # clean the archive from items older than a week
-        archivers = self.collection_archive.find()
-        y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
-        for item in archivers:
-            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
-            if days_out < 7:
-                self.collection_archive.update_one({'_id': item['_id']}, {"$set": {"status.days_out": days_out}})
-            else:
-                self.collection_archive.delete_one({'_id': item['_id']})
+        # archivers = self.collection_archive.find()
+        # y_new, m_new, d_new = map(int, self.current_dl_date.split("-"))
+        # for item in archivers:
+        #     y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        #     days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        #     if days_out < 7:
+        #         self.collection_archive.update_one({'_id': item['_id']}, {"$set": {"status.days_out": days_out}})
+        #     else:
+        #         self.collection_archive.delete_one({'_id': item['_id']})
 
         # add to the archive items which were not downloaded today but were instock yesterday
+        # notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
+        # for item in notUpdated:
+        #     self.collection.delete_one({'id': item['id']})
+        #     existing = self.collection_archive.find_one({"id": item["id"]})
+        #     if existing:
+        #         continue
+        #     y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
+        #     days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+        #     if days_out < 7:
+        #         item['status']['instock'] = False
+        #         item['status']['days_out'] = days_out
+        #         self.collection_archive.insert_one(item)
+        #
+        #
+        # # move to the archive all the items which were downloaded today but are out of stock
+        # outStockers = self.collection.find({'status.instock': False})
+        # for item in outStockers:
+        #     self.collection.delete_one({'id':item['id']})
+        #     existing = self.collection_archive.find_one({"id": item["id"]})
+        #     if existing:
+        #         continue
+        #     self.collection_archive.insert_one(item)
+        #
+        # self.collection_archive.reindex()
+
+        # delete all items which are older than a week
         notUpdated = self.collection.find({"download_data.dl_version": {"$ne": self.current_dl_date}})
+        dl_date = datetime.datetime(*[int(x) for x in self.current_dl_date.split('-')])
         for item in notUpdated:
-            self.collection.delete_one({'id': item['id']})
-            existing = self.collection_archive.find_one({"id": item["id"]})
-            if existing:
-                continue
-            y_old, m_old, d_old = map(int, item["download_data"]["dl_version"].split("-"))
-            days_out = 365 * (y_new - y_old) + 30 * (m_new - m_old) + (d_new - d_old)
+            item_dl_date = datetime.datetime(*[int(x) for x in item["download_data"]["dl_version"].split('-')])
+            days_out = dl_date - item_dl_date
             if days_out < 7:
-                item['status']['instock'] = False
-                item['status']['days_out'] = days_out
-                self.collection_archive.insert_one(item)
-
-
-        # move to the archive all the items which were downloaded today but are out of stock
-        outStockers = self.collection.find({'status.instock': False})
-        for item in outStockers:
-            self.collection.delete_one({'id':item['id']})
-            existing = self.collection_archive.find_one({"id": item["id"]})
-            if existing:
-                continue
-            self.collection_archive.insert_one(item)
-
-        self.collection_archive.reindex()
+                self.collection.delete_one({'id': item['id']})
 
     def wait_for(self):
         check = 0
