@@ -75,6 +75,8 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
+    print "faces: {0}".format(faces)
+
     height, width, channels = full_image.shape
 
     for i in range(0, len(faces['faces'])):
