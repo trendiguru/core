@@ -77,7 +77,7 @@ def theDetector(url_or_np_array):
 
     print type(faces['faces'])
 
-    faces['faces'].sort(key=lambda x: x[3])
+    faces['faces'].sort(key=lambda x: x[3], reverse=True)
 
     for i in range(0, len(faces['faces'])):
         print faces['faces'][i]
