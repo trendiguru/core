@@ -124,14 +124,26 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
+    # in faces w = h, so biggest face will have the biggest h (we could also take w)
+    biggest_face = 0
     h, w, d = image.shape
     x_origin = int(w / 2)
     y_origin = int(0.125 * h)
     if not isinstance(faces_list, list):
         faces_list = faces_list.tolist()
+        faces_list.sort(key=lambda x: x[3], reverse=True) # sort the faces from big to small according to the height (which is also the width)
     relevant_faces = []
     for face in faces_list:
         if face_is_relevant(image, face):
+            # since the list is reversed sorted, the first relevant face, will be the biggest
+            if biggest_face == 0:
+                biggest_face = face[3]
+            # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
+            # than half of the biggest face's height, if so, the current face is not relevant and also the next
+            # (which are smaller)
+            else:
+                if face[3] < 0.5 * biggest_face:
+                    break
             dx = abs(face[0] + (face[2] / 2) - x_origin)
             dy = abs(face[1] + (face[3] / 2) - y_origin)
             position = 0.6 * np.power(np.power(0.4 * dx, 2) + np.power(0.6 * dy, 2), 0.5)
@@ -155,7 +167,7 @@ def face_is_relevant(image, face):
     # - h > 5% from the full image height
     # - h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
-    # - if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h)
+    # - if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
     # - skin pixels (according to our constants values) are more than third of all the face pixels
     image_height, image_width, d = image.shape
     x, y, w, h = face
