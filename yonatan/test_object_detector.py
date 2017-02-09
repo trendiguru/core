@@ -22,7 +22,7 @@ from ..utils import imutils
 
 # detector = dlib.get_frontal_face_detector()
 # dress_detector = dlib.simple_object_detector("/data/detector2.svm")
-dress_detector = dlib.simple_object_detector("/data/detector3_cv2.svm")
+dress_detector = dlib.simple_object_detector("/data/detector5.svm")
 
 
 def find_dress_dlib(image, max_num_of_faces=10):
@@ -38,10 +38,9 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     dets = dress_detector(image)
 
-    print "image.shape: {0}".format(image.shape)
+    # print "image.shape: {0}".format(image.shape)
 
-    print len(dets)
-    print dets
+    print "number of dresses found: {0}".format(len(dets))
 
     if len(dets) == 0:
         print "no dress!!"
@@ -141,50 +140,27 @@ def theDetector(url_or_np_array):
     # center = (w / 2, h / 2)
     # M = cv2.getRotationMatrix2D(center, 90, 1.0)
 
-    rotate_image = np.rot90(full_image, 1)
-    rotate_image2 = np.rot90(full_image, 3)
+    # rotate_image = np.rot90(full_image, 1)
+    # rotate_image2 = np.rot90(full_image, 3)
+    #
+    # resized_image = imutils.resize_keep_aspect(full_image, output_size=(300, 300))
 
-    resized_image = imutils.resize_keep_aspect(full_image, output_size=(300, 300))
-
-    dets = find_dress_dlib(rotate_image)
-    dets2 = find_dress_dlib(rotate_image2)
-    dets3 = find_dress_dlib(resized_image)
-    dets4 = find_dress_dlib(full_image)
-
-    if dets is None:
-        print "Bey1"
-        return
-
-    if dets2 is None:
-        print "Bey2"
-        return
-
-    if dets3 is None:
-        print "Bey3"
-        return
-
-    if dets4 is None:
-        print "Bey4"
-        return
-
-    for i in range(0, len(dets)):
-        print dets[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
-
-    for i in range(0, len(dets2)):
-        print dets2[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets2[i].left(), dets2[i].top(), dets2[i].right(),
-                                                                    dets2[i].bottom())
-
-    for i in range(0, len(dets3)):
-        print dets3[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets3[i].left(), dets3[i].top(),
-                                                                    dets3[i].right(), dets3[i].bottom())
-
-    for i in range(0, len(dets4)):
-        print dets4[i]
-        print "left: {0}, top: {1}, right: {2}, bottom: {3}".format(dets4[i].left(), dets4[i].top(),
-                                                                    dets4[i].right(), dets4[i].bottom())
+    dets = find_dress_dlib(full_image)
+    # dets2 = find_dress_dlib(rotate_image)
+    # dets3 = find_dress_dlib(rotate_image2)
+    # dets4 = find_dress_dlib(resized_image)
+    #
+    # for i in range(0, len(dets)):
+    #     print "left: {0}, top: {1}, right: {2}, bottom: {3} -- regular".format(dets[i].left(), dets[i].top(), dets[i].right(), dets[i].bottom())
+    #
+    # for i in range(0, len(dets2)):
+    #     print "left: {0}, top: {1}, right: {2}, bottom: {3} -- rotate90".format(dets2[i].left(), dets2[i].top(), dets2[i].right(), dets2[i].bottom())
+    #
+    # for i in range(0, len(dets3)):
+    #     print "left: {0}, top: {1}, right: {2}, bottom: {3} -- rotate270".format(dets3[i].left(), dets3[i].top(), dets3[i].right(), dets3[i].bottom())
+    #
+    # for i in range(0, len(dets4)):
+    #     print "left: {0}, top: {1}, right: {2}, bottom: {3} -- resize".format(dets4[i].left(), dets4[i].top(), dets4[i].right(), dets4[i].bottom())
 
     for d in dets:
         if d.left() < 0:

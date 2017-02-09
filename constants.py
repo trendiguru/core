@@ -60,7 +60,7 @@ products_per_ip_pid = {'default':
                        "sg3SH5yif242E5jL":
                                  {'default': 'amazon_US'},
                        "Y8Y4jENvaJ2Lsklz":
-                                 {'default': 'ebay_US'},
+                                 {'default': 'shopstyle_US'},
                        "2Ldy4i23piqQG73n":
                                  {'default': 'shopstyle_DE'}
                        }
