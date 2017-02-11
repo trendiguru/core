@@ -14,6 +14,7 @@ from . import Utils
 from . import ccv_facedetector as ccv
 from . import kassper
 import time
+from functools import partial
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -158,6 +159,49 @@ def choose_faces(image, faces_list, max_num_of_faces):
         return relevant_faces
 
 
+# def choose_faces(image, faces_list, max_num_of_faces):
+#     # in faces w = h, so biggest face will have the biggest h (we could also take w)
+#     biggest_face = 0
+#     if not isinstance(faces_list, list):
+#         faces_list = faces_list.tolist()
+#
+#     faces_list.sort(key=lambda x: x[3], reverse=True)  # sort the faces from big to small according to the height (which is also the width)
+#
+#     relevant_faces = []
+#     for face in faces_list:
+#         if face_is_relevant(image, face):
+#             # since the list is reversed sorted, the first relevant face, will be the biggest
+#             if biggest_face == 0:
+#                 biggest_face = face[3]
+#             # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
+#             # than half of the biggest face's height, if so, the current face is not relevant and also the next
+#             # (which are smaller)
+#             else:
+#                 if face[3] < 0.5 * biggest_face:
+#                     break
+#
+#             relevant_faces.append(face)
+#
+#     # relevant_faces = [face for face in faces_list if face_is_relevant(image, face)]
+#
+#     if len(relevant_faces) > max_num_of_faces:
+#         score_face_local = partial(score_face, image=image)
+#         relevant_faces.sort(key=score_face_local)
+#         relevant_faces = relevant_faces[:max_num_of_faces]
+#     return relevant_faces
+
+
+def score_face(face, image):
+    image_height, image_width, d = image.shape
+    optimal_face_point = int(image_width / 2), int(0.125 * image_height)
+    optimal_face_width = 0.1 * max(image_height, image_width)
+    x, y, w, h = face
+    face_centerpoint = x + w / 2, y + h / 2
+    # This is the distance from face centerpoint to optimal centerpoint.
+    positon_score = np.linalg.norm(np.array(face_centerpoint) - np.array(optimal_face_point))
+    size_score = abs((float(w) - optimal_face_width))
+    total_score = 0.6 * positon_score + 0.4 * size_score
+    return total_score
 
 
 def face_is_relevant(image, face):
