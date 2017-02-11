@@ -222,7 +222,8 @@ def face_is_relevant(image, face):
             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 5)) > (y + h) \
-            and is_skin_color(face_ycrcb):
+            and is_skin_color(face_ycrcb) \
+            and x < 10:
         return True
     else:
         return False
