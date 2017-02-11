@@ -178,6 +178,7 @@ def choose_faces(image, faces_list, max_num_of_faces):
             # (which are smaller)
             else:
                 if face[3] < 0.5 * biggest_face:
+                    print "face too big"
                     break
 
             relevant_faces.append(face)
@@ -203,6 +204,31 @@ def score_face(face, image):
     total_score = 0.6 * positon_score + 0.4 * size_score
     return total_score
 
+#
+# def face_is_relevant(image, face):
+#     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
+#     # image relevant if:
+#     # - face bounding box is all inside the image
+#     # - h > 5% from the full image height
+#     # - h < 25% from the full image height
+#     # - all face (height wise) is above the middle of the image
+#     # - if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
+#     # - skin pixels (according to our constants values) are more than third of all the face pixels
+#     image_height, image_width, d = image.shape
+#     x, y, w, h = face
+#     # threshold = face + 5 faces down = 6 faces
+#     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+#     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
+#     if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
+#             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
+#             and y < (image.shape[0] / 2) - h \
+#             and (image.shape[0] - (h * 5)) > (y + h) \
+#             and is_skin_color(face_ycrcb):
+#         print "Trueeeee"
+#         return True
+#     else:
+#         print "Falseeee"
+#         return False
 
 def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
@@ -218,16 +244,24 @@ def face_is_relevant(image, face):
     # threshold = face + 5 faces down = 6 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
-            and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
-            and y < (image.shape[0] / 2) - h \
-            and (image.shape[0] - (h * 5)) > (y + h) \
-            and is_skin_color(face_ycrcb):
+    if (x < 0 or x + w > image_width or y < 0 or y + h > image_height):
+        print "no good: out of bounderies"
+        return False
+    elif 0.05 * image.shape[0] > h > 0.25 * image.shape[0]:
+        "no good: too small or too big"
+        return False
+    elif y > (image.shape[0] / 2) - h:
+        print "no good: image beneath the half"
+        return False
+    elif (image.shape[0] - (h * 5)) < (y + h):
+        print "no good: not enough from body"
+        return False
+    elif not is_skin_color(face_ycrcb):
+        "no good: not enough skin"
+        return False
+    else:
         print "Trueeeee"
         return True
-    else:
-        print "Falseeee"
-        return False
 
 
 def is_skin_color(face_ycrcb):
