@@ -72,6 +72,8 @@ def theDetector(url_or_np_array):
     # faces = find_face_dlib(full_image, 10)
     faces = background_removal.find_face_dlib(full_image, 4)
 
+    print "len(faces): {0}".format(len(faces['faces']))
+
     if not faces["are_faces"]:
         print "didn't find any faces"
         return None
@@ -117,6 +119,6 @@ def theDetector(url_or_np_array):
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+        # cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
