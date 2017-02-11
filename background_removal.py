@@ -224,8 +224,10 @@ def face_is_relevant(image, face):
             and (image.shape[0] - (h * 5)) > (y + h) \
             and is_skin_color(face_ycrcb) \
             and x < 10:
+        print "Trueeeee"
         return True
     else:
+        print "Falseeee"
         return False
 
 
