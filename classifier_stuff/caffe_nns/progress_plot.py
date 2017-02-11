@@ -452,7 +452,7 @@ def lossplot(input_filename,netinfo='',logy=True):
       n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
       print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
       testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-      lbl = '$trainacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      lbl = '$trainacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
       ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
     except:  #the curve_fit can sometimes fail
       e = sys.exc_info()[0]
@@ -468,7 +468,7 @@ def lossplot(input_filename,netinfo='',logy=True):
       n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
       print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
       testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-      lbl = '$testacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      lbl = '$testacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
       ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
     except:  #the curve_fit can sometimes fail
       e = sys.exc_info()[0]
