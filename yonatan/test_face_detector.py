@@ -69,11 +69,21 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    faces = find_face_dlib(full_image, 10)
+    # faces = find_face_dlib(full_image, 10)
+    faces = background_removal.find_face_dlib(full_image, 4)
+
+    print "len(faces): {0}".format(len(faces['faces']))
 
     if not faces["are_faces"]:
         print "didn't find any faces"
         return None
+
+    print type(faces['faces'])
+
+    faces['faces'].sort(key=lambda x: x[3], reverse=True)
+
+    for i in range(0, len(faces['faces'])):
+        print faces['faces'][i]
 
     height, width, channels = full_image.shape
 
@@ -83,7 +93,7 @@ def theDetector(url_or_np_array):
 
         if x > width or x + w > width or y > height or y + h > height:
             print "\nface out of image boundaries\n"
-            return None
+            continue
 
         # if faces["are_faces"]:
         #     if len(faces['faces']) == 1:
@@ -109,6 +119,6 @@ def theDetector(url_or_np_array):
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+        # cv2.putText(full_image,'{:.3f}'.format(faces['scores'][i]),(int(x), int(y + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_testing.jpg", full_image)
