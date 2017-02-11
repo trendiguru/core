@@ -73,7 +73,7 @@ def theDetector(url_or_np_array):
     print "len(faces0) without restrictions: {0}".format(len(faces0['faces']))
 
 
-    faces = background_removal.find_face_dlib(full_image, 5)
+    faces = background_removal.find_face_dlib(full_image, 3)
 
     print "len(faces): {0}".format(len(faces['faces']))
 
