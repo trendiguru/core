@@ -36,7 +36,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    dets = dress_detector(image, 0.5)
+    dets = dress_detector(image, 0)
 
     # print "image.shape: {0}".format(image.shape)
 
