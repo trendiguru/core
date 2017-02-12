@@ -156,8 +156,8 @@ class ShopStyleDownloader:
         dl_date = datetime.datetime(*[int(x) for x in self.current_dl_date.split('-')])
         for item in notUpdated:
             item_dl_date = datetime.datetime(*[int(x) for x in item["download_data"]["dl_version"].split('-')])
-            days_out = dl_date - item_dl_date
-            if days_out < 7:
+            timedelta = dl_date - item_dl_date
+            if timedelta.days < 7:
                 self.collection.delete_one({'id': item['id']})
 
     def wait_for(self):
