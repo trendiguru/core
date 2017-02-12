@@ -3,6 +3,7 @@ import falcon
 from jaweson import json, msgpack
 from .. import edit_results, page_results, constants
 from bson import json_util
+from . import temp_editor_users
 
 # Logging
 import logging
@@ -31,19 +32,24 @@ class Editor(object):
         ret = {'ok': False, 'data': {}}
         params = req.params
         try:
-            if 'image_id' in path_args:
-                ret['data'] = edit_results.get_image_obj_for_editor(None, image_id=path_args["image_id"])
-                ret['ok'] = True
-            if 'image_url' in params:
-                url = params["image_url"]
-                ret['data'] = edit_results.get_image_obj_for_editor(url)
-                ret['ok'] = True
-            elif 'last' in params:
+            if 'last' in params:
                 amount = int(params['last'])
                 # user_filter = req.USER
                 ret['data'] = edit_results.get_latest_images(amount, user_filter=USER_FILTER)
                 ret['ok'] = True
-            
+            else:
+                # Exactly one of these should have a non-None value.
+                url = params.get("image_url")
+                image_id = path_args.get("image_id")
+                if bool(url) == bool(image_id):
+                    raise ValueError("Please provide either image_url or image_id (and not both)")
+
+                collections = []
+                if not params.get("multi_collection") in [True, "True", "true"]:
+                    collections.append(temp_editor_users.USERS[user_identifier]["default_collection"])
+                ret['data'] = edit_results.get_image_obj_for_editor(url, image_id=image_id, collections)
+                ret['ok'] = True
+
             assert ret['ok']
             resp.status = falcon.HTTP_200
         

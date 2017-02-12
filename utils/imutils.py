@@ -341,7 +341,7 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
         cv2.waitKey(0)
     return img_arr
 
-def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250),use_visual_output=False,filefilter='.jpg',
+def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(256,256),use_visual_output=False,filefilter='.jpg',
                            careful_with_the_labels=False,recursive=False,kill_parens=True):
     '''
     you can avoid use of filter by specifying filefilter=''
@@ -387,7 +387,7 @@ def resize_keep_aspect_dir(dir,outdir=None,overwrite=False,output_size=(250,250)
 #        raw_input('ret to cont')
         resize_keep_aspect(file, output_file=newname, output_size = output_size,use_visual_output=use_visual_output,careful_with_the_labels=careful_with_the_labels)
 
-def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False, copy_edge_pixeles=False):
+def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (256,256),use_visual_output=False,careful_with_the_labels=False, copy_edge_pixeles=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
     :param input_file_or_np_arr:
@@ -489,7 +489,7 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (30
     return output_img
 #dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
 
-def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (300,200),use_visual_output=False,careful_with_the_labels=False):
+def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (256,256),use_visual_output=False,careful_with_the_labels=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
     :param input_file_or_np_arr:

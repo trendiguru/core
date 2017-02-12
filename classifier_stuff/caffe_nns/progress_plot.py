@@ -447,24 +447,32 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.set_ylabel("accuracy")
 
     p0 = [0.9,2000,0] #asymptote tau x0
-    popt,pcov = curve_fit(fit_exp2, n_iters, accuracy,p0=p0)
-    n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
-    print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
-    testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-    lbl = '$trainacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
-    ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
+    try:
+      popt,pcov = curve_fit(fit_exp2, n_iters, accuracy,p0=p0)
+      n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
+      print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
+      testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
+      lbl = '$trainacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
+    except:  #the curve_fit can sometimes fail
+      e = sys.exc_info()[0]
+      print("Error doing fit: %s</p>".format(e))
     miny = np.min(accuracy)*0.9
     ax2.set_ylim(miny,1)
 
   if len(testaccuracies)>2:
     ax2.plot(test_iters, testaccuracies,'o', label="testacc", markeredgecolor='g',markerfacecolor='g',markersize=msize)
-    p0 = [0.9,2000,0]
-    popt,pcov = curve_fit(fit_exp2, n_iters, testaccuracies,p0=p0)
-    n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
-    print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
-    testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-    lbl = '$testacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
-    ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
+    p0 = [0.9,2000,0] #initial guesses for fit params (0.9*(1-exp(0-iter)/2000)
+    try:
+      popt,pcov = curve_fit(fit_exp2, n_iters, testaccuracies,p0=p0,maxfev=10000)
+      n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
+      print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
+      testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
+      lbl = '$testacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
+    except:  #the curve_fit can sometimes fail
+      e = sys.exc_info()[0]
+      print("Error doing fit: %s</p>".format(e))
     miny2 = np.min(testaccuracies)*0.9
     ax2.set_ylim(min(miny,miny2),1)
 

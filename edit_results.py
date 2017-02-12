@@ -1,9 +1,6 @@
-# import gevent, gevent.monkey
-# gevent.monkey.patch_all()
 import traceback
 import pymongo
 import bson
-import datetime
 import numpy as np
 from . import Utils, pipeline, constants, find_similar_mongo
 from .page_results import genderize, load_similar_results
@@ -24,7 +21,7 @@ EDITOR_PROJECTION = {'image_id': 1,
                      'people.items.category': 1,
                      'people.items.similar_results': 1}
 
-product_projection = {
+PRODUCT_PROJECTION = {
         'image.sizes.XLarge.url': 1,
         'images.XLarge': 1,
         'images.Medium': 1,
@@ -45,18 +42,22 @@ product_projection = {
 
 # ------------------------------------------------ IMAGE-LEVEL ---------------------------------------------------------
 
-def get_image_obj_for_editor(image_url, image_id=None):
+def get_image_obj_for_editor(image_url, image_id=None, product_collections=None):
     query = {'image_id': image_id} if image_id else {'image_urls': image_url}
-    sparse = db.images.find_one(query, EDITOR_PROJECTION)
+    projection = {"people.items.similar_results.{0}".format(coll): {"$slice": MAX_RESULTS} for coll in product_collections}
+    projection.update(EDITOR_PROJECTION)
+    sparse = db.images.find_one(query, projection)
     
     for person in sparse['people']:
         for item in person['items']:
             for prod_coll_name, similar_results in item['similar_results'].iteritems():
+                # This is so changes affect the outer (returned) dict as well
+                # Relevant only when product_collections is empty/doesn't exist
                 item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
                 # We want to go get more info for each of these results.
                 # We'll do it as a batch using $in so it's faster. First get all the ids
                 result_ids = [result['id'] for result in similar_results]
-                products = list(db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, product_projection))
+                products = list(db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, PRODUCT_PROJECTION))
                 
                 while products:
                     product = products.pop()
@@ -105,6 +106,31 @@ def get_image_obj_for_editor(image_url, image_id=None):
 #                     enrich_result(result, db[prod_coll_name + '_' + person['gender']])
 
 #     return sparse
+
+def get_image_obj_default_coll(image_url, image_id=None):
+    # The idea is that this will gets as input
+    query = {'image_id': image_id} if image_id else {'image_urls': image_url}
+    sparse = db.images.find_one(query, EDITOR_PROJECTION)
+
+    for person in sparse['people']:
+        for item in person['items']:
+            for prod_coll_name, similar_results in item['similar_results'].iteritems():
+                item['similar_results'][prod_coll_name] = similar_results = similar_results[:MAX_RESULTS]
+                # We want to go get more info for each of these results.
+                # We'll do it as a batch using $in so it's faster. First get all the ids
+                result_ids = [result['id'] for result in similar_results]
+                products = list(
+                    db[prod_coll_name + '_' + person['gender']].find({'id': {'$in': result_ids}}, PRODUCT_PROJECTION))
+
+                while products:
+                    product = products.pop()
+                    for result in similar_results:
+                        if product["id"] == result["id"]:
+                            result.update(product)
+                            break
+
+    return sparse
+
 
 
 def cancel_image(image_id):
