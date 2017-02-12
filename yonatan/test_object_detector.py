@@ -167,7 +167,7 @@ def theDetector(url_or_np_array):
             left = d.left() + 15
         else:
             left = d.left()
-        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\n".format(left, d.top(), d.right(), d.bottom())
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing2.jpg", padded_image)
