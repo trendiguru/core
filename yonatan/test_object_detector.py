@@ -32,7 +32,7 @@ def find_dress_dlib(image, max_num_of_faces=10):
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    dets, scores, idx = dress_detector(image, 1, -1)
+    dets, scores, idx = dress_detector.run(image, 1)
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
