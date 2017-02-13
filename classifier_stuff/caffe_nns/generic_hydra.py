@@ -56,9 +56,17 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
 
 
 def create_new_proto(names, lastlayer, output_name):
+    '''
+    take a set of protxts, copy 1st entirely into new_proto, then copy all layers past last common layer
+    'lastlayer' into new_proto
+    :param names:
+    :param lastlayer:
+    :param output_name:
+    :return:
+    '''
     new_proto = open(output_name, 'w')
 
-    for i in names:
+    for i in len(names):
         f = open('{}.prototxt'.format(names[i]), 'r')
         if i == 0:
             for line in f:
@@ -80,17 +88,17 @@ def create_new_proto(names, lastlayer, output_name):
                     arg = '__'.join([line_parts[1], str(i)])
                     line_parts[1] = arg
                     line = ''.join(line_parts)
+                print('adding new line :'+str(line))
                 new_proto.write('{}'.format(line))
         f.close()
     new_proto.close()
     print 'prototxt ready'
 
 
-def varify_protos_vs_models(protos, models):
+def verify_protos_vs_models(protos, models):
     # check if there is equal number of files
     assert len(proto_files) == len(model_files), \
         'there is suppose to be equal number of protos and caffemodels!'
-
     # check that each file name as both prototxt & caffemodel
     names = {i: splitext(x)[0] for i, x in enumerate(protos)}
     assert all('{}.caffemodel'.format(names[n]) in models for n in names), \
@@ -123,16 +131,22 @@ if __name__ == "__main__":
     model_files = [f for f in glob.glob('*.caffemodel')]
     print('models:'+str(model_files))
     proto_files = [f for f in glob.glob('*.prototxt') if f.replace('prototxt','caffemodel') in model_files]
-    print('protos:'+str(model_files))
+    print('protos:'+str(proto_files))
 
-    nets_names = varify_protos_vs_models(proto_files, model_files)
+    nets_names = verify_protos_vs_models(proto_files, model_files)
+    print('netnames '+str(nets_names))
     new_prototxt_path = '{}/{}.prototxt'.format(output_folder, user_input.newName)
+    print('new prototxt '+str(new_prototxt_path))
+
+    #this proto has all the  layers of all nets specified
     create_new_proto(proto_files, user_input.lastCommonLayer, new_prototxt_path)
 
     first_model_path = ''.join([nets_names[0], '.caffemodel'])
     nets_names.pop(0)
     net_new = caffe.Net(new_prototxt_path, caffe.TEST, weights=first_model_path)
     net_new_layers = net_new.params.keys()
+
+    #get old model values into new caffemodel
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
         prt = ''.join([nets_names[k], '.prototxt'])
