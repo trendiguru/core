@@ -65,6 +65,8 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
+    # full_image = Utils.get_cv2_img_array(url_or_np_array)
+
     # full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
 
     # faces = background_removal.find_face_dlib(full_image)
