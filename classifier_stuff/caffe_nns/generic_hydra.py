@@ -17,6 +17,7 @@ import argparse
 import glob
 import re
 import json
+import os
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
@@ -30,6 +31,16 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
     cardigan = 'https://s-media-cache-ak0.pinimg.com/originals/4c/a0/5b/4ca05ba61e6d33b51a6f90ccc290d0da.jpg'
     jrinfer.infer_many_hydra([backpack,blazer,cardigan],proto,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),output_filter='estimate')
 
+def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',
+                    caffemodel='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt'):
+
+    backpacks_dir = '/data/jeremy/image_dbs/tg/google/backpack/kept'
+    hats_dir = '/data/jeremy/image_dbs/tg/google/hat/kept'
+    hoodies_dir = '/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256/Zip-Front_Hoodie'
+    backpacks = [os.path.join(backpacks_dir,f) for f in backpacks_dir if '.jpg' in f]
+    hats = [os.path.join(hats_dir,f) for f in hats_dir if '.jpg' in f]
+    hoodies = [os.path.join(hoodies_dir,f) for f in hoodies_dir if '.jpg' in f]
+    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),output_filter='estimate')
 
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
