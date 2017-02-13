@@ -153,9 +153,12 @@ if __name__ == "__main__":
     caffe.set_mode_gpu()
     print('gpu:'+str(user_input.gpu))
     caffe.set_device(user_input.gpu)
+    print('getting new net')
     net_new = caffe.Net(new_prototxt_path, caffe.TEST, weights=first_model_path)
+    raw_input('got new net, return to continue')
     net_new_layers = net_new.params.keys()
     #get old model values into new caffemodel
+    print('loading old values into new model')
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
         prt = ''.join([nets_names[k], '.prototxt'])
@@ -164,7 +167,13 @@ if __name__ == "__main__":
         for pr in params_to_replace:
             pr_tmp = pr[:-3]
             for i in range(len(net_new.params[pr])):
-                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
+                net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
+#                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
+
+#            dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
+
+
+
         del net_tmp
 
     net_new_path = '{}/{}.caffemodel'.format(output_folder, user_input.newName)
