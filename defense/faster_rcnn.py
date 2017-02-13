@@ -3,6 +3,7 @@ __author__ = 'jeremy'
 
 import csv
 import os
+import cv2
 
 def read_csv(filename='/data/olympics/olympicsfull.csv'):
     filename = "olympicsfull.csv"
@@ -11,9 +12,26 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
         reader = csv.DictReader(file)
         for row in reader:
             print row
+            filename = row['path']
+            im = cv2.imread(filename)
+            if im is None:
+                print('couldnt read '+filename)
+                continue
+            bb = [row["boundingBoxX"],row["boundingBoxY"],row["boundingBoxW"],row["boundingBoxH"]]
+            bb_img = im[bb[0]:bb[0]+bb[2],bb[1]+bb[3]]
+            savename = filename.replace('.jpg',str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'_')
+            cv2.imwrite(savename,bb_img)
+
+            lblname = row['description']+'_labels.txt'
+            with open(lblname,'a') as fp:
+                fp.write(savename,1)
+                fp.close()
+
             if not row['description'] in unique_descs:
                 unique_descs.append(row['description'])
                 print unique_descs
+
+
 
 def make_rcnn_trainfile(dir,filter='.jpg',trainfile='train.txt'):
     '''
