@@ -143,7 +143,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
     print(str(out)+' elapsed time:'+str(time.time()-start_time))
     return out
 
-def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),gpu=0):
+def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),gpu=0):
     '''
     start net, get a bunch of results. TODO: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:
@@ -171,7 +171,9 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
             continue
         print('infer_many_hydra working on:'+url_or_image_arr+' '+str(j)+'/'+str(len(url_or_image_arr_list)))
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        im = cv2.resize(im,dims)
+        im = imutils.resize_keep_aspect(im,output_size=orig_size)
+#        im = cv2.resize(im,dims)
+        im = imutils.center_crop(im,crop_size)
         in_ = np.array(im, dtype=np.float32)
         if len(in_.shape) != 3:
             print('got 1-chan image, skipping')

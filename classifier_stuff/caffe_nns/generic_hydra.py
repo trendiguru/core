@@ -71,6 +71,7 @@ def show_all_layers(proto,caffemodel,filter='',gpu=0):
 
 
 def create_new_proto(names, lastlayer, output_name):
+    #todo - put model name into the estimate layer name so output is unambiguous
     '''
     take a set of protxts, copy 1st entirely into new_proto, then copy all layers past last common layer
     'lastlayer' into new_proto
