@@ -166,8 +166,11 @@ if __name__ == "__main__":
         net_tmp = caffe.Net(prt, caffe.TEST, weights=cfm)
         print('loaded k: {}  model {} and proto {} '.format(k,cfm,prt))
         params_to_replace = [p for p in net_new_layers if p.endswith('__{}'.format(str(k)))]
+        print('params to replace {}'.format(params_to_replace))
+        raw_input('return to continue')
         for pr in params_to_replace:
-            pr_tmp = pr[:-3]
+#            pr_tmp = pr[:-3] #wont work with n>9
+            pr_tmp = '__'+ pr.split('__')
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
