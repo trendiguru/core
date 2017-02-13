@@ -162,7 +162,9 @@ if __name__ == "__main__":
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
         prt = ''.join([nets_names[k], '.prototxt'])
+        print('loading k: {} model {} and proto {} '.format(k,cfm,prt))
         net_tmp = caffe.Net(prt, caffe.TEST, weights=cfm)
+        print('loaded k: {}  model {} and proto {} '.format(k,cfm,prt))
         params_to_replace = [p for p in net_new_layers if p.endswith('__{}'.format(str(k)))]
         for pr in params_to_replace:
             pr_tmp = pr[:-3]
