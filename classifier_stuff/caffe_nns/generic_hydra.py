@@ -77,21 +77,21 @@ def create_new_proto(names, lastlayer, output_name):
             lastlayer_flag = False
             start_flag = False
             for line in f:
-                current_layer_is_lastlayer = False
                 if 'name' in line and lastlayer in line:
                     lastlayer_flag = True
-                    current_layer_is_lastlayer = True
+                    print('line with name and lastlayer:'+str(line))
                 if lastlayer_flag and 'layer' in line:
                     start_flag = True
                 if not start_flag or len(line) == 1:
                     continue
-                if any(n in line for n in ['name', 'bottom', 'top']) and not current_layer_is_lastlayer:
+                if lastlayer in line:
+                    print('keeping line asis'+str(line))
+                    current_layer_is_lastlayer = False
+                elif any(n in line for n in ['name', 'bottom', 'top']) and not lastlayer in line:
                     line_parts = re.split('"', line)
                     arg = '__'.join([line_parts[1], str(i)])
                     line_parts[1] = arg
                     line = ''.join(line_parts)
-                if current_layer_is_lastlayer:
-                    print('keeping line asis'+str(line))
                 print('adding new line :'+str(line))
                 new_proto.write('{}'.format(line))
         f.close()
