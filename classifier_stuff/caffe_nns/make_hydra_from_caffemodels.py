@@ -81,7 +81,7 @@ def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2=
             print('net2 {}[{}] params shape {} mean {} std {}'.format(layer,i,params2.shape,np.mean(params2),np.std(params2)))
             print('params equal ' if np.all(params1==params2) else 'params not equal')
 
-def show_all_params(proto,caffemodel):
+def show_all_params(proto,caffemodel,filter=''):
     '''
     print all params
     '''
@@ -90,7 +90,8 @@ def show_all_params(proto,caffemodel):
 #    caffe.set_device(user_input.gpu)
 
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
-    all_params = [p for p in net.params]
+    all_params = [p for p in net.params if filter in p]
+
     print('showing params ')
     print('all params in net1:'+str(all_params))
     layers_to_compare = all_params
