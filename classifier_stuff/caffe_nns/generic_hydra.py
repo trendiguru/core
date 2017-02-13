@@ -119,7 +119,10 @@ def get_user_input():
                         help='name of the last common layer', required=True)
     parser.add_argument('-o', '--output', dest="newName",
                         help='name of the new model', required=True)
+    parser.add_argument('-g', '--gpu', dest="gpu", default=0,
+                        help='name of the new model', required=False)
     args = parser.parse_args()
+    args.gpu = int(args.gpu)
     return args
 
 if __name__ == "__main__":
@@ -147,9 +150,11 @@ if __name__ == "__main__":
 
     first_model_path = ''.join([nets_names[0], '.caffemodel'])
     nets_names.pop(0)
+    caffe.set_mode_gpu()
+    print('gpu:'+str(user_input.gpu))
+    caffe.set_device(user_input.gpu)
     net_new = caffe.Net(new_prototxt_path, caffe.TEST, weights=first_model_path)
     net_new_layers = net_new.params.keys()
-
     #get old model values into new caffemodel
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
