@@ -329,7 +329,8 @@ binary_caffemodels = [
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
-
+hydra_caffemodel_and_proto = ['/data/jeremycaffenets/hydra/production/output/hydra_out.caffemodel',
+                              '/data/jeremycaffenets/hydra/production/output/hydra_out.prototxt']
 
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
