@@ -22,4 +22,5 @@ def bring_forth_the_hydra(image_array_or_url, gpu=1):
 
 if __name__ == "__main__":
     url = 'http://www.thecantoncitizen.com/wp-content/uploads/2013/08/dunkin-robbery.jpg'
-    bring_forth_the_hydra(url)
+    resp = bring_forth_the_hydra(url)
+    print(resp)
