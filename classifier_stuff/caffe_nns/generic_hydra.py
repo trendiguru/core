@@ -29,7 +29,7 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
     backpack='http://blogs.cornell.edu/sarahl/files/2014/08/Backpacks-2iot4za.jpg'
     blazer = 'http://media.brostrick.com/wp-content/uploads/2015/02/24223725/penguin-stretch-seersucker-sports-jacket-blue-for-men-2016.jpg'
     cardigan = 'https://s-media-cache-ak0.pinimg.com/originals/4c/a0/5b/4ca05ba61e6d33b51a6f90ccc290d0da.jpg'
-    jrinfer.infer_many_hydra([backpack,blazer,cardigan],proto,caffemodel,out_dir='./',output_filter='estimate')
+    jrinfer.infer_many_hydra([backpack,blazer,cardigan],proto,caffemodel,out_dir='./')
 
 def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',
                     caffemodel='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt'):
@@ -40,7 +40,7 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
     backpacks = [os.path.join(backpacks_dir,f) for f in backpacks_dir if '.jpg' in f]
     hats = [os.path.join(hats_dir,f) for f in hats_dir if '.jpg' in f]
     hoodies = [os.path.join(hoodies_dir,f) for f in hoodies_dir if '.jpg' in f]
-    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./',output_filter='estimate')
+    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./')
 
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
