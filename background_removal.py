@@ -124,41 +124,6 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
     return {'are_faces': len(faces) > 0, 'faces': faces, 'scores': scores}
 
 
-# def choose_faces(image, faces_list, max_num_of_faces):
-#     # in faces w = h, so biggest face will have the biggest h (we could also take w)
-#     biggest_face = 0
-#     h, w, d = image.shape
-#     x_origin = int(w / 2)
-#     y_origin = int(0.125 * h)
-#     if not isinstance(faces_list, list):
-#         faces_list = faces_list.tolist()
-#         faces_list.sort(key=lambda x: x[3], reverse=True) # sort the faces from big to small according to the height (which is also the width)
-#     relevant_faces = []
-#     for face in faces_list:
-#         if face_is_relevant(image, face):
-#             # since the list is reversed sorted, the first relevant face, will be the biggest
-#             if biggest_face == 0:
-#                 biggest_face = face[3]
-#             # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
-#             # than half of the biggest face's height, if so, the current face is not relevant and also the next
-#             # (which are smaller)
-#             else:
-#                 if face[3] < 0.5 * biggest_face:
-#                     break
-#             dx = abs(face[0] + (face[2] / 2) - x_origin)
-#             dy = abs(face[1] + (face[3] / 2) - y_origin)
-#             position = 0.6 * np.power(np.power(0.4 * dx, 2) + np.power(0.6 * dy, 2), 0.5)
-#             size = 0.4 * abs((float(face[2]) - 0.1 * np.amax((h, w))))
-#             face_relevance = position + size
-#             face.append(face_relevance)
-#             relevant_faces.append(face)
-#     if len(relevant_faces) > 0:
-#         sorted_list = np.array(sorted(relevant_faces, key=lambda face: face[4]), dtype=np.uint16)
-#         return sorted_list[0:min((max_num_of_faces, len(sorted_list))), 0:4]
-#     else:
-#         return relevant_faces
-
-
 def choose_faces(image, faces_list, max_num_of_faces):
     # in faces w = h, so biggest face will have the biggest h (we could also take w)
     biggest_face = 0
@@ -218,7 +183,7 @@ def face_is_relevant(image, face):
     # threshold = face + 5 faces down = 6 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if x > 0 or x + w < image_width or y > 0 or y + h < image_height \
+    if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 5)) > (y + h) \
