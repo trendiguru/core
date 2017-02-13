@@ -120,8 +120,11 @@ if __name__ == "__main__":
 
     output_folder = '/'.join([getcwd(), 'output'])
     all_files_in_dir = listdir(folder_path)
-    proto_files = [f for f in glob.glob('*.prototxt')]
     model_files = [f for f in glob.glob('*.caffemodel')]
+    print('models:'+str(model_files))
+    proto_files = [f for f in glob.glob('*.prototxt') if f.replace('prototxt','caffemodel') in model_files]
+    print('protos:'+str(model_files))
+
     nets_names = varify_protos_vs_models(proto_files, model_files)
     new_prototxt_path = '{}/{}.prototxt'.format(output_folder, user_input.newName)
     create_new_proto(proto_files, user_input.lastCommonLayer, new_prototxt_path)
