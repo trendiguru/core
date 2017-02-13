@@ -193,7 +193,7 @@ if __name__ == "__main__":
         params_to_replace = [p for p in net_new_layers if p.endswith('__{}'.format(str(k)))]
         print('params to replace {}'.format(params_to_replace))
         net_info.append([cfm,prt,params_to_replace])
-        raw_input('return to continue')
+  #      raw_input('return to continue')
         for pr in params_to_replace:
 #            pr_tmp = pr[:-3] #wont work with n>9
             pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     del net_new
     print 'DONE!'
 
-    with open('net_info','w') as fp:
-        json.dump(net_info,fp)
+    with open('net_info.txt','w') as fp:
+        json.dump(net_info,fp,indent = 4)
 
 
