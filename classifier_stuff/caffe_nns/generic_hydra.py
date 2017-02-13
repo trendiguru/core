@@ -46,6 +46,7 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
         images = [os.path.join(dir,f) for f in dir if '.jpg' in f]
         images=[backpack,blazer,cardigan]
         answers = jrinfer.infer_many_hydra(images,proto,caffemodel,out_dir='./',gpu=gpu)
+
         n_true_pos = 0
         n_false_neg = 0
         for answer in answers:
