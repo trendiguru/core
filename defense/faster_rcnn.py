@@ -17,7 +17,7 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
             if im is None:
                 print('couldnt read '+filename)
                 continue
-            bb = [row["boundingBoxX"],row["boundingBoxY"],row["boundingBoxW"],row["boundingBoxH"]]
+            bb = [row["boundingBoxX"],row["boundingBoxY"],row["boundingBoxWidth"],row["boundingBoxHight"]]
             bb_img = im[bb[0]:bb[0]+bb[2],bb[1]+bb[3]]
             savename = filename.replace('.jpg',str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'_')
             cv2.imwrite(savename,bb_img)
