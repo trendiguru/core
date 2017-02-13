@@ -170,7 +170,7 @@ if __name__ == "__main__":
         raw_input('return to continue')
         for pr in params_to_replace:
 #            pr_tmp = pr[:-3] #wont work with n>9
-            pr_tmp = '__'+ pr.split('__')[1]  #get __x part of layername__x
+            pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
