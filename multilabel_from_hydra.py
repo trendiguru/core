@@ -16,7 +16,7 @@ from trendi.utils import imutils
 from trendi import constants
 from trendi import Utils
 
-print('starting multilabel_from_hydra.py')
+print('loading net for multilabel_from_hydra.py')
 #ordered according to
 # constants.binary_classifier_categories =
 # ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
@@ -45,6 +45,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     :param mean:
     :return:
     '''
+    start_time = time.time()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     print('params:'+str(hydra_net.params))
@@ -52,7 +53,6 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     print('out layers: '+str(out_layers))
     all_outs = []
     j=0
-    start_time = time.time()
 
 
     # load image, resize, crop, subtract mean, and make dims C x H x W for Caffe
@@ -85,7 +85,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         logging.debug('output for {} is {}'.format(output_layer,one_out))
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
     logging.debug('all output:'+str(out))
-    logging.debug('elapsed time:'+str(time.time()-start_time)+' tpi '+str((time.time()-start_time)/j))
+    logging.debug('elapsed time:'+str(time.time()-start_time))
     return out
 
 
