@@ -17,8 +17,13 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
             if im is None:
                 print('couldnt read '+filename)
                 continue
-            bb = [row["boundingBoxX"],row["boundingBoxY"],row["boundingBoxWidth"],row["boundingBoxHight"]]
-            bb_img = im[bb[0]:bb[0]+bb[2],bb[1]+bb[3]]
+            x=max(0,row["boundingBoxX"])
+            y=max(0,row["boundingBoxY"])
+            x2=min(im_h,row["boundingBoxX"]+row["boundingBoxWidth"])
+            y2=min(im_w,row["boundingBoxY"]+row["boundingBoxHight"])
+            bb = [x,y,x2,y2]
+            print('bb {} x {} y {} w {} h {}'.format(bb,row["boundingBoxX"],row["boundingBoxY"],row["boundingWidth"],row["boundingHight"]))
+            bb_img = im[bb[0]:bb[2],bb[1]:bb[3]]
             savename = filename.replace('.jpg',str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'_')
             cv2.imwrite(savename,bb_img)
 
