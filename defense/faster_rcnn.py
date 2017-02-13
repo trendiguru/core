@@ -14,9 +14,11 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
             print row
             filename = row['path']
             im = cv2.imread(filename)
+
             if im is None:
                 print('couldnt read '+filename)
                 continue
+            im_h,im_w=im.shape[0:2]
             x=max(0,row["boundingBoxX"])
             y=max(0,row["boundingBoxY"])
             x2=min(im_h,row["boundingBoxX"]+row["boundingBoxWidth"])
