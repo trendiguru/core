@@ -81,6 +81,25 @@ def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2=
             print('net2 {}[{}] params shape {} mean {} std {}'.format(layer,i,params2.shape,np.mean(params2),np.std(params2)))
             print('params equal ' if np.all(params1==params2) else 'params not equal')
 
+def show_all_params(proto,caffemodel):
+    '''
+    print all params
+    '''
+
+#    caffe.set_mode_gpu()
+#    caffe.set_device(user_input.gpu)
+
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    all_params = [p for p in net.params]
+    print('showing params ')
+    print('all params in net1:'+str(all_params))
+    layers_to_compare = all_params
+    for layer in layers_to_compare:
+        for i in range(len(net.params[layer])):
+            params = net.params[layer][i].data
+            print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
+
+
 def inspect_net(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
     conv1 = net.params['conv1'][0].data
