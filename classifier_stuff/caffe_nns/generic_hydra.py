@@ -39,7 +39,12 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
             '/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256/Quilted_Bomber_Jacket']
     correct_indices = [0,6,7] #backpack, hat, jacket
     for dir,correct_index in zip(dirs,correct_indices):
+
+        backpack='http://blogs.cornell.edu/sarahl/files/2014/08/Backpacks-2iot4za.jpg'
+        blazer = 'http://media.brostrick.com/wp-content/uploads/2015/02/24223725/penguin-stretch-seersucker-sports-jacket-blue-for-men-2016.jpg'
+        cardigan = 'https://s-media-cache-ak0.pinimg.com/originals/4c/a0/5b/4ca05ba61e6d33b51a6f90ccc290d0da.jpg'
         images = [os.path.join(dir,f) for f in dir if '.jpg' in f]
+        images=[backpack,blazer,cardigan]
         answers = jrinfer.infer_many_hydra(images,proto,caffemodel,out_dir='./',gpu=gpu)
         n_true_pos = 0
         n_false_neg = 0
