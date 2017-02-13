@@ -66,7 +66,7 @@ def create_new_proto(names, lastlayer, output_name):
     for i in range(len(names)):#
 #        f = open('{}.prototxt'.format(names[i]), 'r')
         f = open(names[i], 'r')
-        print('getting layers from {}'.format(names[i]))
+        print('getting layers from layer {} {}'.format(i,names[i]))
         if i == 0:
             print('copying entire net')
             for line in f:
