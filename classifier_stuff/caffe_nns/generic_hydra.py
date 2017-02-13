@@ -63,7 +63,7 @@ def create_new_proto(names, lastlayer, output_name):
     '''
     new_proto = open(output_name, 'w')
 
-    for i in range(len(names)):
+    for i in range(len(names)):#
 #        f = open('{}.prototxt'.format(names[i]), 'r')
         f = open(names[i], 'r')
         print('getting layers from {}'.format(names[i]))
