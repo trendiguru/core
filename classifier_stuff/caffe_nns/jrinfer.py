@@ -143,8 +143,7 @@ def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,
     print(str(out)+' elapsed time:'+str(time.time()-start_time))
     return out
 
-def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=None,output_filter='',
-                     mean=(104.0,116.7,122.7),gpu=0):
+def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),gpu=0):
     '''
     start net, get a bunch of results. TODO: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:
@@ -159,10 +158,10 @@ def infer_many_hydra(url_or_image_arr_list,prototxt,caffemodel,out_dir='./',dims
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
     net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
-    out_layers = output_layers or [l for l in net.params if output_filter in l]
+    print('params:'+str(net.params))
+    out_layers = net.outputs
     print('out layers: '+str(out_layers))
     all_outs = []
-    all_outs2=[]
     j=0
     start_time = time.time()
     for url_or_image_arr in url_or_image_arr_list:
