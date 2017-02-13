@@ -332,6 +332,26 @@ binary_caffemodels = [
 hydra_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
                               '/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt']
 
+hydra_heads =  ["backpack_hydra_iter_2000",
+        "blazer_h_iter_15000.",
+        "cardigan_binary_h_iter_20000",
+        "cardigan_binary_h_iter_25000",
+        "coat_binary_h_iter_50000",
+        "dress_hydra_iter_50000",
+        "hat_hydra_iter_5000",
+        "jacket_binary_h_iter_50000",
+        "jeans_binary_h_iter_10000",
+       "lingerie_binary_h_iter_50000",
+        "pants_hydra_iter_10000",
+        "relevant_irrelevant_iter_10000",
+        "shorts_binary_h_iter_30000_charles",
+        "shorts_binary_h_iter_50000",
+        "skirt_binary_h_iter_50000",
+        "sweater_binary_h_iter_50000",
+        "sweatshirt_binary_h_iter_14000",
+       "sweatshirt_binary_h_iter_16000",
+       "top_hydra_iter_25000" ]
+
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
                 ['footwear','boots','shoes','sandals','heels'],

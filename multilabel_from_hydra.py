@@ -53,7 +53,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     print('out layers: '+str(out_layers))
     all_outs = []
     j=0
-
+    output_names = constants.hydra_heads
 
     # load image, resize, crop, subtract mean, and make dims C x H x W for Caffe
     im = Utils.get_cv2_img_array(url_or_image_arr)
@@ -78,14 +78,19 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     hydra_net.blobs['data'].data[...] = in_
     # run net and take argmax for prediction
     hydra_net.forward()
-    out = []
+    out = {}
+    i = 0
     for output_layer in out_layers:
         one_out = hydra_net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
-        out.append(copy.copy(one_out)) #the copy is required - if you dont do it then out gets over-written with each new one_out
-        logging.debug('output for {} is {}'.format(output_layer,one_out))
+        second_neuron = copy.copy(one_out[1])
+        name = out_layers[i]
+        out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
+        logging.debug('output for {} is {}'.format(output_layer,second_neuron))
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
+        i=i+1
     logging.debug('all output:'+str(out))
     logging.debug('elapsed time:'+str(time.time()-start_time))
+
     return out
 
 
