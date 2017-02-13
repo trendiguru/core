@@ -16,6 +16,7 @@ from os.path import join as path_join
 import argparse
 import glob
 import re
+import json
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
@@ -150,9 +151,12 @@ if __name__ == "__main__":
     output_folder = '/'.join([getcwd(), 'output'])
     all_files_in_dir = listdir(folder_path)
     model_files = [f for f in glob.glob('*.caffemodel')]
+    model_files.sort()
     print('models:'+str(model_files))
     proto_files = [f for f in glob.glob('*.prototxt') if f.replace('prototxt','caffemodel') in model_files]
+    proto_files.sort()
     print('protos:'+str(proto_files))
+
 
     nets_names = verify_protos_vs_models(proto_files, model_files)
     print('netnames '+str(nets_names))
@@ -173,6 +177,13 @@ if __name__ == "__main__":
     net_new_layers = net_new.params.keys()
     #get old model values into new caffemodel
     print('loading old values into new model')
+
+    #get first net info
+    net_tmp = caffe.Net(proto_files[0], caffe.TEST, weights=first_model_path)
+    first_net_fc_layers = [l for l in net_tmp.params if 'fc' in l]
+    net_info = [[proto_files[0],first_model_path,first_net_fc_layers]]
+    del net_tmp
+
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
         prt = ''.join([nets_names[k], '.prototxt'])
@@ -181,6 +192,7 @@ if __name__ == "__main__":
         print('loaded k: {}  model {} and proto {} '.format(k,cfm,prt))
         params_to_replace = [p for p in net_new_layers if p.endswith('__{}'.format(str(k)))]
         print('params to replace {}'.format(params_to_replace))
+        net_info.append([cfm,prt,params_to_replace])
         raw_input('return to continue')
         for pr in params_to_replace:
 #            pr_tmp = pr[:-3] #wont work with n>9
@@ -203,5 +215,7 @@ if __name__ == "__main__":
     del net_new
     print 'DONE!'
 
+    with open('net_info','w') as fp:
+        json.dump(net_info,fp)
 
 
