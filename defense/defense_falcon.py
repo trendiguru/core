@@ -13,7 +13,7 @@ class HydraResource:
         print "Loaded Resource"
 
 
-    def on_get(self, req, resp):
+    def on_get(self, req, resp): #
         """Handles GET requests"""
         quote = {
             'quote': 'just work already ',
