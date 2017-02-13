@@ -30,7 +30,7 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
             bb = [x,y,x2,y2]
             print('im_w {} im_h {} bb {} x {} y {} w {} h {}'.format(im_w,im_h,bb,bbx,bby,bbw,bbh))
             bb_img = im[bb[0]:bb[2],bb[1]:bb[3]]
-            savename = filename.replace('.jpg',str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'_')
+            savename = filename.replace('.jpg',str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'.jpg')
             cv2.imwrite(savename,bb_img)
 
             lblname = row['description']+'_labels.txt'
