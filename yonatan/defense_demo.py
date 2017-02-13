@@ -30,16 +30,58 @@ NETS = {'vgg16': ('VGG16',
         'zf': ('ZF',
                   'ZF_faster_rcnn_final.caffemodel')}
 
+gpu_id = 1
+cpu_mode = False
+demo_net = 'vgg16'
+
+cfg.TEST.HAS_RPN = True  # Use RPN for proposals
+
+prototxt = os.path.join(cfg.MODELS_DIR, NETS[demo_net][0],
+                        'faster_rcnn_alt_opt', 'faster_rcnn_test.pt')
+caffemodel = os.path.join(cfg.DATA_DIR, 'faster_rcnn_models',
+                          NETS[demo_net][1])
+
+if not os.path.isfile(caffemodel):
+    raise IOError(('{:s} not found.\nDid you run ./data/script/'
+                   'fetch_faster_rcnn_models.sh?').format(caffemodel))
+
+if cpu_mode:
+    caffe.set_mode_cpu()
+else:
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu_id)
+    cfg.GPU_ID = gpu_id
+net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+
+print '\n\nLoaded network {:s}'.format(caffemodel)
+
+
+def theDetector(url_or_np_array):
+
+    print "Starting the Demo!"
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
+    else:
+        return None
+
+    if full_image is None:
+        print "not a good image"
+        return None
+
+    demo(net, "/data/yonatan/linked_to_web/testing_1.jpg", full_image, 1)
+
 
 def demo(net, image_name, image_data=0, link=0):
     """Detect object classes in an image using pre-computed object proposals."""
 
     # Load the demo image
-    if link:
-        im = image_data
-    else:
-        im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
-        im = cv2.imread(im_file)
+    im = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+
 
     # Detect all object classes and regress object bounds
     timer = Timer()
@@ -84,62 +126,62 @@ def demo(net, image_name, image_data=0, link=0):
     print cv2.imwrite(image_name, im)
 
 
-def parse_args():
-    """Parse input arguments."""
-    parser = argparse.ArgumentParser(description='Faster R-CNN demo')
+# def parse_args():
+#     """Parse input arguments."""
+#     parser = argparse.ArgumentParser(description='Faster R-CNN demo')
+#
+#     parser.add_argument('--linkToImage', dest='picture', help='paste a link to picture',
+#                         default='default')
+#
+#     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
+#                         default=1, type=int)
+#     parser.add_argument('--cpu', dest='cpu_mode',
+#                         help='Use CPU mode (overrides --gpu)',
+#                         action='store_true')
+#     parser.add_argument('--net', dest='demo_net', help='Network to use [vgg16]',
+#                         choices=NETS.keys(), default='vgg16')
+#
+#     args = parser.parse_args()
+#
+#     return args
 
-    parser.add_argument('--linkToImage', dest='picture', help='paste a link to picture',
-                        default='default')
+# if __name__ == '__main__':
+#     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
+#
+#     args = parse_args()
+#
+#     prototxt = os.path.join(cfg.MODELS_DIR, NETS[args.demo_net][0],
+#                             'faster_rcnn_alt_opt', 'faster_rcnn_test.pt')
+#     caffemodel = os.path.join(cfg.DATA_DIR, 'faster_rcnn_models',
+#                               NETS[args.demo_net][1])
+#
+#     if not os.path.isfile(caffemodel):
+#         raise IOError(('{:s} not found.\nDid you run ./data/script/'
+#                        'fetch_faster_rcnn_models.sh?').format(caffemodel))
+#
+#     if args.cpu_mode:
+#         caffe.set_mode_cpu()
+#     else:
+#         caffe.set_mode_gpu()
+#         caffe.set_device(args.gpu_id)
+#         cfg.GPU_ID = args.gpu_id
+#     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+#
+#     print '\n\nLoaded network {:s}'.format(caffemodel)
 
-    parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=1, type=int)
-    parser.add_argument('--cpu', dest='cpu_mode',
-                        help='Use CPU mode (overrides --gpu)',
-                        action='store_true')
-    parser.add_argument('--net', dest='demo_net', help='Network to use [vgg16]',
-                        choices=NETS.keys(), default='vgg16')
-
-    args = parser.parse_args()
-
-    return args
-
-if __name__ == '__main__':
-    cfg.TEST.HAS_RPN = True  # Use RPN for proposals
-
-    args = parse_args()
-
-    prototxt = os.path.join(cfg.MODELS_DIR, NETS[args.demo_net][0],
-                            'faster_rcnn_alt_opt', 'faster_rcnn_test.pt')
-    caffemodel = os.path.join(cfg.DATA_DIR, 'faster_rcnn_models',
-                              NETS[args.demo_net][1])
-
-    if not os.path.isfile(caffemodel):
-        raise IOError(('{:s} not found.\nDid you run ./data/script/'
-                       'fetch_faster_rcnn_models.sh?').format(caffemodel))
-
-    if args.cpu_mode:
-        caffe.set_mode_cpu()
-    else:
-        caffe.set_mode_gpu()
-        caffe.set_device(args.gpu_id)
-        cfg.GPU_ID = args.gpu_id
-    net = caffe.Net(prototxt, caffemodel, caffe.TEST)
-
-    print '\n\nLoaded network {:s}'.format(caffemodel)
-
-    if args.picture:
-        if isinstance(args.picture, basestring):
-            print "I'm in!!!!"
-            response = requests.get(args.picture)  # download
-            link_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-            demo(net, "/data/yonatan/linked_to_web/testing_1.jpg", link_image, 1)
-        else:
-            print "bad link!"
-    else:
-        im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
-                '001763.jpg', '004545.jpg']
-        for im_name in im_names:
-            print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-            print 'Demo for data/demo/{}'.format(im_name)
-            demo(net, im_name)
+    # if args.picture:
+    #     if isinstance(args.picture, basestring):
+    #         print "I'm in!!!!"
+    #         response = requests.get(args.picture)  # download
+    #         link_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    #         demo(net, "/data/yonatan/linked_to_web/testing_1.jpg", link_image, 1)
+    #     else:
+    #         print "bad link!"
+    # else:
+    #     im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
+    #             '001763.jpg', '004545.jpg']
+    #     for im_name in im_names:
+    #         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    #         print 'Demo for data/demo/{}'.format(im_name)
+    #         demo(net, im_name)
 
