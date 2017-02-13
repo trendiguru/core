@@ -40,7 +40,7 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
     backpacks = [os.path.join(backpacks_dir,f) for f in backpacks_dir if '.jpg' in f]
     hats = [os.path.join(hats_dir,f) for f in hats_dir if '.jpg' in f]
     hoodies = [os.path.join(hoodies_dir,f) for f in hoodies_dir if '.jpg' in f]
-    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),output_filter='estimate')
+    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./',output_filter='estimate')
 
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
