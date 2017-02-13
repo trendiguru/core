@@ -87,7 +87,7 @@ def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
 
     caffe.set_mode_gpu()
-    caffe.set_device(user_input.gpu)
+    caffe.set_device(gpu)
 
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
     all_params = [p for p in net.params if filter in p]
