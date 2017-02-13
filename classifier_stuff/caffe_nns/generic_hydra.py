@@ -171,6 +171,8 @@ if __name__ == "__main__":
         for pr in params_to_replace:
 #            pr_tmp = pr[:-3] #wont work with n>9
             pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
+
+            print('copying values from {} to {} '.format(pr_tmp,params))
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
