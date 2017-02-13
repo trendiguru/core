@@ -34,13 +34,22 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
 def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',
                     caffemodel='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',gpu=0):
 
-    backpacks_dir = '/data/jeremy/image_dbs/tg/google/backpack/kept'
-    hats_dir = '/data/jeremy/image_dbs/tg/google/hat/kept'
-    hoodies_dir = '/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256/Zip-Front_Hoodie'
-    backpacks = [os.path.join(backpacks_dir,f) for f in backpacks_dir if '.jpg' in f]
-    hats = [os.path.join(hats_dir,f) for f in hats_dir if '.jpg' in f]
-    hoodies = [os.path.join(hoodies_dir,f) for f in hoodies_dir if '.jpg' in f]
-    jrinfer.infer_many_hydra([backpacks,hats,hoodies],proto,caffemodel,out_dir='./',gpu=gpu)
+    dirs = ['/data/jeremy/image_dbs/tg/google/backpack/kept',
+            '/data/jeremy/image_dbs/tg/google/hat/kept',
+            '/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256/Quilted_Bomber_Jacket']
+    correct_indices = [0,6,7] #backpack, hat, jacket
+    for dir,correct_index in zip(dirs,correct_indices):
+        images = [os.path.join(dir,f) for f in dir if '.jpg' in f]
+        answers = jrinfer.infer_many_hydra(images,proto,caffemodel,out_dir='./',gpu=gpu)
+        n_true_pos = 0
+        n_false_neg = 0
+        for answer in answers:
+            output_of_interest = answer[correct_index]
+            if answer[1]> answer[0]:
+                n_true_pos += 1
+            else:
+                n_false_neg += 1
+        print('true pos {} false neg {} approx.acc {}'.format(n_true_pos,n_false_neg,float(n_true_pos/(n_true_pos+n_false_neg))))
 
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
