@@ -19,37 +19,51 @@ import re
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
-# def copy_net_params(params_new, params_base):
-#     for pr in params_base.keys():
-#         print('param key {} len new {} len base {}'.format(pr,params_new[pr].shape,params_base[pr].shape))
-#         assert(params_new[pr].shape==params_base[pr].shape)
-# #possibly:
-#         # params_new[pr] = params_base[pr]
-# #or even
-#         #params_new = params_base
-#         for i in range(len(params_new[pr])):
-#             print('param {} weightshape {}'.format(i,params_new[pr][i].data.shape,params_base[pr][i].data.shape))
-#             params_new[pr][i].data = params_base[pr][i].data
-#     return params_new
-#
-# def copy_layer_params(dest_net,dest_layer,source_net,source_layer):
-#     assert(dest_net[dest_layer].shape==source_net[source_layer].shape)
-#     print('copying suorcce layer {} to dest layer {}'.format(source_layer,dest_layer))
-#
-#     for i in range(len(source_net.params[source_layer])):
-#         print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net[dest_layer][i].data.shape,source_layer,i,source_net[source_layer][i].data.shape))
-#         dest_net.params[dest_layer][0].data = source_net.params[source_layer][0].data
-#
-#     return dest_layer
-
-
-
 def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
     #pants, shirt, dress
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
             'http://getabhi.com/image/cache/catalog/BARCODE:%20324BNZ61RBLUE/2-800x800.jpg',
             'http://myntra.myntassets.com/images/style/properties/Belle-Fille-Black-Maxi-Dress_e3e65039ce204cefb7590fc8ec10f1e9_images.jpg']
-    jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
+    jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),mean=(104.0,116.7,122.7),output_filter='estimate')
+
+
+def show_all_params(proto,caffemodel,filter='',gpu=0):
+    '''
+    print all params
+    '''
+
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    all_params = [p for p in net.params if filter in p]
+
+    print('showing params ')
+    print('all params in net1:'+str(all_params))
+    layers_to_compare = all_params
+    for layer in layers_to_compare:
+        for i in range(len(net.params[layer])):
+            params = net.params[layer][i].data
+            print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
+
+def show_all_layers(proto,caffemodel,filter='',gpu=0):
+    '''
+    print all params
+    '''
+
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    all_params = [p for p in net.layers if filter in p]
+
+    print('showing params ')
+    print('all params in net1:'+str(all_params))
+    layers_to_compare = all_params
+    for layer in layers_to_compare:
+        for i in range(len(net.params[layer])):
+            params = net.params[layer][i].data
+            print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
 
 
 def create_new_proto(names, lastlayer, output_name):
@@ -172,7 +186,7 @@ if __name__ == "__main__":
 #            pr_tmp = pr[:-3] #wont work with n>9
             pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
 
-            print('copying values from {} to {} '.format(pr_tmp,params))
+            print('copying values from {} to {} '.format(pr_tmp,pr))
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
