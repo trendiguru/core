@@ -49,23 +49,23 @@ def find_face_dlib(image, max_num_of_faces=10):
 
 def theDetector(url_or_np_array):
 
-    # print "Starting the face detector testing!"
-    # # check if i get a url (= string) or np.ndarray
-    # if isinstance(url_or_np_array, basestring):
-    #     #full_image = url_to_image(url_or_np_array)
-    #     response = requests.get(url_or_np_array)  # download
-    #     full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    # elif type(url_or_np_array) == np.ndarray:
-    #     full_image = url_or_np_array
-    # else:
-    #     return None
-    #
-    # #checks if the face coordinates are inside the image
-    # if full_image is None:
-    #     print "not a good image"
-    #     return None
+    print "Starting the face detector testing!"
+    # check if i get a url (= string) or np.ndarray
+    if isinstance(url_or_np_array, basestring):
+        #full_image = url_to_image(url_or_np_array)
+        response = requests.get(url_or_np_array)  # download
+        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+    elif type(url_or_np_array) == np.ndarray:
+        full_image = url_or_np_array
+    else:
+        return None
 
-    full_image = Utils.get_cv2_img_array(url_or_np_array)
+    #checks if the face coordinates are inside the image
+    if full_image is None:
+        print "not a good image"
+        return None
+
+    # full_image = Utils.get_cv2_img_array(url_or_np_array)
 
     # full_image = imutils.resize_keep_aspect(full_image, output_size=(500, 500))
 
