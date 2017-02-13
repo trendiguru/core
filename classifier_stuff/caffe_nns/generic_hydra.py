@@ -89,8 +89,8 @@ def create_new_proto(names, lastlayer, output_name):
                     current_layer_is_lastlayer = False
                 elif any(n in line for n in ['name', 'bottom', 'top']) and not lastlayer in line:
                     line_parts = re.split('"', line)
-                    arg = '__'.join([line_parts[1], str(i)])
-                    line_parts[1] = arg
+                    arg = '__'.join([line_parts[1], str(i)]) #add __n to layer name
+                    line_parts[1] = '"'+arg+'"'   #need to keep layer name in quotes in prototxt
                     line = ''.join(line_parts)
                 print('adding new line :'+str(line))
                 new_proto.write('{}'.format(line))
