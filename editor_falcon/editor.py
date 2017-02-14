@@ -47,7 +47,7 @@ class Editor(object):
                 collections = []
                 if not params.get("multi_collection") in [True, "True", "true"]:
                     collections.append(temp_editor_users.USERS[user_identifier]["default_collection"])
-                ret['data'] = edit_results.get_image_obj_for_editor(url, image_id=image_id, collections)
+                ret['data'] = edit_results.get_image_obj_for_editor(url, image_id=image_id, product_collections=collections)
                 ret['ok'] = True
 
             assert ret['ok']
