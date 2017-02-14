@@ -73,15 +73,25 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 1)
+    #demo(full_image)
+    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 0)
 
 
 def demo(image_name, image_data=0, link=0):
     """Detect object classes in an image using pre-computed object proposals."""
 
     # Load the demo image
-    im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
-    im = cv2.imread(im_file)
+    #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+    #im = cv2.imread(im_file)
+
+    if link:
+        im = image_data
+    else:
+        # im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+        im = cv2.imread(image_name)
+
+
+    #im = image_name
 
     # Detect all object classes and regress object bounds
     timer = Timer()
@@ -94,7 +104,7 @@ def demo(image_name, image_data=0, link=0):
     # Visualize detections for each class
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
-    for cls_ind, cls in enumerate(DEFENSE_CLASSES[1:]):
+    for cls_ind, cls in enumerate(CLASSES[1:]):
         cls_ind += 1 # because we skipped background
         cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
         cls_scores = scores[:, cls_ind]
@@ -123,5 +133,8 @@ def demo(image_name, image_data=0, link=0):
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
-    print cv2.imwrite(image_name, im)
+            if class_name == 'person':
+                print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+                print bbox
 
+    print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
