@@ -40,6 +40,7 @@ class HydraResource:
                 ret["success"] = True
             else:
                 ret["error"] = "No output from mlb"
+#            self.write_log(url,output)
 
         except Exception as e:
             traceback.print_exc()
@@ -48,6 +49,12 @@ class HydraResource:
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
+
+    def write_log(self,url,output):
+        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt','a') as fp:
+            output['url']=url
+            json.dump(output,fp,indent=4)
+            fp.write()
 
 
 api = falcon.API()

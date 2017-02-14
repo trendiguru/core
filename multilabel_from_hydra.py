@@ -5,7 +5,9 @@ import caffe
 import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
+import random
+import string
+import json
 import numpy as np
 import urllib
 import time
@@ -33,7 +35,8 @@ print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
 hydra_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
-def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),gpu=1):
+def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),
+                     gpu=1,save_data=True,save_path='/data/jeremy/hydra/production/saves'):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:
@@ -65,6 +68,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     print('img  size:'+str(im.shape))
     im = imutils.resize_keep_aspect(im,output_size=orig_size)
     im = imutils.center_crop(im,crop_size)
+
     in_ = np.array(im, dtype=np.float32)
     if len(in_.shape) != 3:
         print('got 1-chan image, skipping')
@@ -90,6 +94,22 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         i=i+1
     logging.debug('all output:'+str(out))
     logging.debug('elapsed time:'+str(time.time()-start_time))
+
+    if save_data:
+        if isinstance(url_or_image_arr,basestring):
+            filename=url_or_image_arr.replace('http://','').replace('/','_')+'.jpg'
+        else:
+            n_chars=6
+            filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
+        Utils.ensure_dir(save_path)
+        imgname=os.path.join(save_path,filename)
+        cv2.imwrite(imgname,im)
+        out['imgname']=filename
+        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt','a') as fp:
+            output['url']=url
+            json.dump(output,fp,indent=4)
+            fp.write()
+
 
     return out
 
