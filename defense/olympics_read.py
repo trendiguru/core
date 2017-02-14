@@ -6,7 +6,7 @@ import os
 import cv2
 
 def read_csv(filename='/data/olympics/olympicsfull.csv'):
-    filename = "olympicsfull.csv"
+    #filename = "olympicsfull.csv"
     unique_descs=[]
     with open(filename, "rb") as file:
         reader = csv.DictReader(file)
