@@ -6,8 +6,13 @@ import os
 import cv2
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confidence_threshold=0.9):
+    ''''
+    ok the bbx, bby , bbwidth, bbight are in % of image dims, and bbwidth/hight are not width/hight but
+    rather x2,y2 of the bb
+    '''
     #filename = "olympicsfull.csv"
     unique_descs=[]
+    all_bbs=[]
     with open(csvfile, "rb") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -22,17 +27,29 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confi
             print row
 
             im_h,im_w=im.shape[0:2]
-            bbx=int(row["boundingBoxX"])
-            bby=int(row["boundingBoxY"])
-            bbw=int(row["boundingBoxWidth"])
-            bbh=int(row["boundingBoxHight"])
+            factor = 1
+            dx = int(float(im_w)/factor)
+            dy = int(float(im_h)/factor)
+            im = cv2.resize(im,(dx,dy))
+            im_h,im_w=im.shape[0:2]
+            bbx=int(row["boundingBoxX"])*im_w/100
+            bby=int(row["boundingBoxY"])*im_h/100
+            bbw=int(row["boundingBoxWidth"]) #* (im_w-bbx)/100
+            bbh=int(row["boundingBoxHight"]) #* (im_h-bby)/100
+            bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
+            bby2=int(row["boundingBoxHight"])*im_h/100 #* (im_h-bby)/100
             x=max(0,bbx)
             y=max(0,bby)
             x2=min(im_h,bbx+bbw)
             y2=min(im_w,bby+bbh)
-            bb = [x,y,x2-x,y2-y]
+            bb = [x,y,bbw,bbh]
+            bb = [x,y,bbx2-bbx,bby2-bby]
+            all_bbs.append(bb)
+            if bb[2]==0 or bb[3] == 0 :
+                print('got 0 width or height')
+                continue
             object = row['description']
-            print('im_w {} im_h {} bb {} object {}'.format(im_w,im_h,bb,object))
+            print('im_w {} im_h {} bb {} object {} bbx {} bby {}'.format(im_w,im_h,bb,object,row['boundingBoxX'],row['boundingBoxY']))
             bb_img = im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             savename = filename.replace('.jpg','_'+str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'.jpg')
             if visual_output:
