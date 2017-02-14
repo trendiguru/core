@@ -51,10 +51,9 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     start_time = time.time()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    print('params:'+str(hydra_net.params))
+#    print('params:'+str(hydra_net.params))
     out_layers = hydra_net.outputs
-    print('out layers: '+str(out_layers))
-    all_outs = []
+#    print('out layers: '+str(out_layers))
     j=0
     output_names = constants.hydra_heads
 
@@ -105,6 +104,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         imgname=os.path.join(save_path,filename)
         cv2.imwrite(imgname,im)
         out['imgname']=filename
+        print('output dict:'+str(out))
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
             json.dump(out,fp,indent=4)
