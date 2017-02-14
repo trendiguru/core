@@ -107,7 +107,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         out['imgname']=filename
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
-            output['url']=url
+            output['filename']=filename
             json.dump(output,fp,indent=4)
             fp.write()
         print('wrote image to {} and output text to {}'.format(imgname,textfile))
