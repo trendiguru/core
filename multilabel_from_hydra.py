@@ -86,8 +86,8 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     for output_layer in out_layers:
         one_out = hydra_net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
         second_neuron = copy.copy(one_out[1])
-        second_neuron = float(second_neuron)
-        print('type:'+str(type(second_neuron)))
+        second_neuron = round(float(second_neuron),3)
+  #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
         out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
         logging.debug('output for {} is {}'.format(output_layer,second_neuron))
@@ -110,7 +110,6 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
             json.dump(out,fp,indent=4)
-            fp.write()
             fp.close()
         print('wrote image to {} and output text to {}'.format(imgname,textfile))
 
