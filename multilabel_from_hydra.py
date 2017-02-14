@@ -36,7 +36,7 @@ hydra_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
 def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),
-                     gpu=1,save_data=True,save_path='/data/jeremy/hydra/production/saves'):
+                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves'):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:
@@ -106,7 +106,6 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         imgname=os.path.join(save_path,filename)
         cv2.imwrite(imgname,im)
         out['imgname']=filename
-        print('output dict:'+str(out))
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
             json.dump(out,fp,indent=4)
