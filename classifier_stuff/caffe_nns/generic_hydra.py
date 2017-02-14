@@ -16,43 +16,88 @@ from os.path import join as path_join
 import argparse
 import glob
 import re
+import json
+import os
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
-# def copy_net_params(params_new, params_base):
-#     for pr in params_base.keys():
-#         print('param key {} len new {} len base {}'.format(pr,params_new[pr].shape,params_base[pr].shape))
-#         assert(params_new[pr].shape==params_base[pr].shape)
-# #possibly:
-#         # params_new[pr] = params_base[pr]
-# #or even
-#         #params_new = params_base
-#         for i in range(len(params_new[pr])):
-#             print('param {} weightshape {}'.format(i,params_new[pr][i].data.shape,params_base[pr][i].data.shape))
-#             params_new[pr][i].data = params_base[pr][i].data
-#     return params_new
-#
-# def copy_layer_params(dest_net,dest_layer,source_net,source_layer):
-#     assert(dest_net[dest_layer].shape==source_net[source_layer].shape)
-#     print('copying suorcce layer {} to dest layer {}'.format(source_layer,dest_layer))
-#
-#     for i in range(len(source_net.params[source_layer])):
-#         print('dest layer {}[{}] shape {} source layer {}[{}] shape  {}'.format(dest_layer,i,dest_net[dest_layer][i].data.shape,source_layer,i,source_net[source_layer][i].data.shape))
-#         dest_net.params[dest_layer][0].data = source_net.params[source_layer][0].data
-#
-#     return dest_layer
-
-
-
-def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
+def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel',gpu=0):
     #pants, shirt, dress
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
             'http://getabhi.com/image/cache/catalog/BARCODE:%20324BNZ61RBLUE/2-800x800.jpg',
             'http://myntra.myntassets.com/images/style/properties/Belle-Fille-Black-Maxi-Dress_e3e65039ce204cefb7590fc8ec10f1e9_images.jpg']
-    jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
+    backpack='http://blogs.cornell.edu/sarahl/files/2014/08/Backpacks-2iot4za.jpg'
+    blazer = 'http://media.brostrick.com/wp-content/uploads/2015/02/24223725/penguin-stretch-seersucker-sports-jacket-blue-for-men-2016.jpg'
+    cardigan = 'https://s-media-cache-ak0.pinimg.com/originals/4c/a0/5b/4ca05ba61e6d33b51a6f90ccc290d0da.jpg'
+    jrinfer.infer_many_hydra([backpack,blazer,cardigan],proto,caffemodel,out_dir='./',gpu=gpu)
+
+def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',
+                    caffemodel='/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt',gpu=0):
+
+    dirs = ['/data/jeremy/image_dbs/tg/google/backpack/kept',
+            '/data/jeremy/image_dbs/tg/google/hat/kept',
+            '/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img_256x256/Quilted_Bomber_Jacket']
+    correct_indices = [0,6,7] #backpack, hat, jacket
+    for dir,correct_index in zip(dirs,correct_indices):
+
+        backpack='http://blogs.cornell.edu/sarahl/files/2014/08/Backpacks-2iot4za.jpg'
+        blazer = 'http://media.brostrick.com/wp-content/uploads/2015/02/24223725/penguin-stretch-seersucker-sports-jacket-blue-for-men-2016.jpg'
+        cardigan = 'https://s-media-cache-ak0.pinimg.com/originals/4c/a0/5b/4ca05ba61e6d33b51a6f90ccc290d0da.jpg'
+        images = [os.path.join(dir,f) for f in dir if '.jpg' in f]
+        images=[backpack,blazer,cardigan]
+        answers = jrinfer.infer_many_hydra(images,proto,caffemodel,out_dir='./',gpu=gpu)
+
+        n_true_pos = 0
+        n_false_neg = 0
+        for answer in answers:
+            output_of_interest = answer[correct_index]
+            if answer[1]> answer[0]:
+                n_true_pos += 1
+            else:
+                n_false_neg += 1
+        print('true pos {} false neg {} approx.acc {}'.format(n_true_pos,n_false_neg,float(n_true_pos/(n_true_pos+n_false_neg))))
+
+def show_all_params(proto,caffemodel,filter='',gpu=0):
+    '''
+    print all params
+    '''
+
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    all_params = [p for p in net.params if filter in p]
+
+    print('showing params ')
+    print('all params in net1:'+str(all_params))
+    layers_to_compare = all_params
+    for layer in layers_to_compare:
+        for i in range(len(net.params[layer])):
+            params = net.params[layer][i].data
+            print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
+
+def show_all_layers(proto,caffemodel,filter='',gpu=0):
+    '''
+    print all params
+    '''
+
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+
+    net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    all_params = [p for p in net.layers if filter in p]
+
+    print('showing params ')
+    print('all params in net1:'+str(all_params))
+    layers_to_compare = all_params
+    for layer in layers_to_compare:
+        for i in range(len(net.params[layer])):
+            params = net.params[layer][i].data
+            print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
 
 
 def create_new_proto(names, lastlayer, output_name):
+    #todo - put model name into the estimate layer name so output is unambiguous
     '''
     take a set of protxts, copy 1st entirely into new_proto, then copy all layers past last common layer
     'lastlayer' into new_proto
@@ -136,9 +181,12 @@ if __name__ == "__main__":
     output_folder = '/'.join([getcwd(), 'output'])
     all_files_in_dir = listdir(folder_path)
     model_files = [f for f in glob.glob('*.caffemodel')]
+    model_files.sort()
     print('models:'+str(model_files))
     proto_files = [f for f in glob.glob('*.prototxt') if f.replace('prototxt','caffemodel') in model_files]
+    proto_files.sort()
     print('protos:'+str(proto_files))
+
 
     nets_names = verify_protos_vs_models(proto_files, model_files)
     print('netnames '+str(nets_names))
@@ -159,6 +207,13 @@ if __name__ == "__main__":
     net_new_layers = net_new.params.keys()
     #get old model values into new caffemodel
     print('loading old values into new model')
+
+    #get first net info
+    net_tmp = caffe.Net(proto_files[0], caffe.TEST, weights=first_model_path)
+    first_net_fc_layers = [l for l in net_tmp.params if 'fc' in l]
+    net_info = [[proto_files[0],first_model_path,first_net_fc_layers]]
+    del net_tmp
+
     for k in nets_names:
         cfm = ''.join([nets_names[k], '.caffemodel'])
         prt = ''.join([nets_names[k], '.prototxt'])
@@ -167,12 +222,13 @@ if __name__ == "__main__":
         print('loaded k: {}  model {} and proto {} '.format(k,cfm,prt))
         params_to_replace = [p for p in net_new_layers if p.endswith('__{}'.format(str(k)))]
         print('params to replace {}'.format(params_to_replace))
-        raw_input('return to continue')
+        net_info.append([cfm,prt,params_to_replace])
+  #      raw_input('return to continue')
         for pr in params_to_replace:
 #            pr_tmp = pr[:-3] #wont work with n>9
             pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
 
-            print('copying values from {} to {} '.format(pr_tmp,params))
+            print('copying values from {} to {} '.format(pr_tmp,pr))
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
@@ -189,5 +245,7 @@ if __name__ == "__main__":
     del net_new
     print 'DONE!'
 
+    with open('net_info.txt','w') as fp:
+        json.dump(net_info,fp,indent = 4)
 
 

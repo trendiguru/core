@@ -325,7 +325,8 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
         new_h = max_sidelength
         new_w = int(w*float(max_sidelength)/h)
         img_arr=cv2.resize(img_arr,(new_w,new_h))
-        print('h '+img_arr.shape)
+        print('hshape ')
+        print(img_arr.shape)
        # else:  #longest side is still under limit , show orig without resize
        #     pass
     else:
@@ -333,7 +334,8 @@ def resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
         new_w = max_sidelength
         new_h = int(h*float(max_sidelength)/w)
         img_arr=cv2.resize(img_arr,(new_w,new_h))
-        print('w '+img_arr.shape)
+        print('shape')
+        print(img_arr.shape)
      #   else:  #longest side is still under limit , show orig without resize
      #       pass
     if (use_visual_output):

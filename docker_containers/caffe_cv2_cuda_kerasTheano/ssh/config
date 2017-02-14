@@ -1,6 +1,0 @@
-# ssh/config
-# Git keys
-host bitbucket.com
-     user git
-#     port 2200
-     identityfile /home/testuser/.ssh/id_rsa

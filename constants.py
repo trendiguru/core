@@ -34,7 +34,7 @@ weights_per_category = {'dress': {'color': 0.6, 'sleeve_length': 0.1, 'length': 
                         'other': {'color': 1}}
 
 products_per_ip_pid = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
+                                 {'default': 'shopstyle_US', 'US': 'shopstyle_US', 'KR': 'GangnamStyle', 'DE': 'shopstyle_DE'},
                        'fashionseoul':
                                  {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
@@ -48,17 +48,17 @@ products_per_ip_pid = {'default':
                        'xuSiNIs695acaHPE':
                                  {'default': 'amaze'},
                        "Rob's Shelter":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "robsdemartino@yahoo.it":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "6nGzEP7cp5s957P4":
                                  {'default': 'shopstyle_DE'},
                        "2DqGp6fum7jiv2B6":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "sg3SH5yif242E5jL":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "Y8Y4jENvaJ2Lsklz":
                                  {'default': 'shopstyle_US'},
                        "2Ldy4i23piqQG73n":
@@ -329,7 +329,28 @@ binary_caffemodels = [
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
+hydra_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
+                              '/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt']
 
+hydra_heads =  ["backpack_hydra_iter_2000",
+        "blazer_h_iter_15000.",
+        "cardigan_binary_h_iter_20000",
+        "cardigan_binary_h_iter_25000",
+        "coat_binary_h_iter_50000",
+        "dress_hydra_iter_50000",
+        "hat_hydra_iter_5000",
+        "jacket_binary_h_iter_50000",
+        "jeans_binary_h_iter_10000",
+       "lingerie_binary_h_iter_50000",
+        "pants_hydra_iter_10000",
+        "relevant_irrelevant_iter_10000",
+        "shorts_binary_h_iter_30000_charles",
+        "shorts_binary_h_iter_50000",
+        "skirt_binary_h_iter_50000",
+        "sweater_binary_h_iter_50000",
+        "sweatshirt_binary_h_iter_14000",
+       "sweatshirt_binary_h_iter_16000",
+       "top_hydra_iter_25000" ]
 
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
