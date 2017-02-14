@@ -35,7 +35,7 @@ def read_csv(filename='/data/olympics/olympicsfull.csv'):
 
             lblname = row['description']+'_labels.txt'
             with open(lblname,'a') as fp:
-                line = savename+'\t'+'1'
+                line = savename+'\t'+'1'+'\n'
                 fp.write(line)
                 fp.close()
 
