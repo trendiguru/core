@@ -105,11 +105,12 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         imgname=os.path.join(save_path,filename)
         cv2.imwrite(imgname,im)
         out['imgname']=filename
-        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt','a') as fp:
+        textfile = os.path.join(save_path,'output.txt')
+        with open(textfile,'a') as fp:
             output['url']=url
             json.dump(output,fp,indent=4)
             fp.write()
-
+        print('wrote image to {} and output text to {}'.format(imgname,textfile))
 
     return out
 
