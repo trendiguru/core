@@ -68,11 +68,11 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    faces = find_face_dlib(full_image, 10)
+    faces0 = find_face_dlib(full_image, 10)
     print "len(faces0) without restrictions: {0}".format(len(faces0['faces']))
 
 
-    faces0 = background_removal.find_face_dlib(full_image, 5)
+    faces = background_removal.find_face_dlib(full_image, 5)
 
     print "len(faces): {0}".format(len(faces['faces']))
 
@@ -89,9 +89,9 @@ def theDetector(url_or_np_array):
 
     height, width, channels = full_image.shape
 
-    for i in range(0, len(faces['faces'])):
+    for i in range(0, len(faces0['faces'])):
 
-        x, y, w, h = faces['faces'][i]
+        x, y, w, h = faces0['faces'][i]
 
         if x > width or x + w > width or y > height or y + h > height:
             print "\nface out of image boundaries\n"
