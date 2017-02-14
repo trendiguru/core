@@ -24,7 +24,7 @@ class HydraResource:
         print "Reached on_post"
         gpu = req.get_param('gpu')
         ret = {"success": False}
-
+#
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
