@@ -29,7 +29,9 @@ class HydraResource:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
             print('data:'+str(data))
-            img = data.get("image")
+#            img = data.get("image")
+            img = data['name']
+            print('img:'+str(img))
 
             output = multilabel_from_hydra.get_hydra_output(img)
             ret["output"] = output
