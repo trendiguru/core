@@ -104,6 +104,8 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
             filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
         Utils.ensure_dir(save_path)
         imgname=os.path.join(save_path,filename)
+        if imgname[:-4] != '.jpg':
+            imgname = imgname + '.jpg'
         cv2.imwrite(imgname,im)
         out['imgname']=filename
         textfile = os.path.join(save_path,'output.txt')
