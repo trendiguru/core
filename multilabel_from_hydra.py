@@ -5,7 +5,9 @@ import caffe
 import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
+import random
+import string
+import json
 import numpy as np
 import urllib
 import time
@@ -33,7 +35,8 @@ print('deployproto {} caffemodel {}'.format(deployproto,caffemodel))
 hydra_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
-def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),gpu=1):
+def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),
+                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves'):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:
@@ -48,10 +51,9 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     start_time = time.time()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
-    print('params:'+str(hydra_net.params))
+#    print('params:'+str(hydra_net.params))
     out_layers = hydra_net.outputs
-    print('out layers: '+str(out_layers))
-    all_outs = []
+#    print('out layers: '+str(out_layers))
     j=0
     output_names = constants.hydra_heads
 
@@ -65,6 +67,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     print('img  size:'+str(im.shape))
     im = imutils.resize_keep_aspect(im,output_size=orig_size)
     im = imutils.center_crop(im,crop_size)
+
     in_ = np.array(im, dtype=np.float32)
     if len(in_.shape) != 3:
         print('got 1-chan image, skipping')
@@ -83,6 +86,8 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     for output_layer in out_layers:
         one_out = hydra_net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
         second_neuron = copy.copy(one_out[1])
+        second_neuron = round(float(second_neuron),3)
+  #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
         out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
         logging.debug('output for {} is {}'.format(output_layer,second_neuron))
@@ -90,6 +95,24 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         i=i+1
     logging.debug('all output:'+str(out))
     logging.debug('elapsed time:'+str(time.time()-start_time))
+
+    if save_data:
+        if isinstance(url_or_image_arr,basestring):
+            filename=url_or_image_arr.replace('http://','').replace('/','_')
+        else:
+            n_chars=6
+            filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
+        Utils.ensure_dir(save_path)
+        imgname=os.path.join(save_path,filename)
+        if imgname[:-4] != '.jpg':
+            imgname = imgname + '.jpg'
+        cv2.imwrite(imgname,im)
+        out['imgname']=filename
+        textfile = os.path.join(save_path,'output.txt')
+        with open(textfile,'a') as fp:
+            json.dump(out,fp,indent=4)
+            fp.close()
+        print('wrote image to {} and output text to {}'.format(imgname,textfile))
 
     return out
 
