@@ -34,7 +34,7 @@ weights_per_category = {'dress': {'color': 0.6, 'sleeve_length': 0.1, 'length': 
                         'other': {'color': 1}}
 
 products_per_ip_pid = {'default':
-                                 {'default': 'amazon_US', 'US': 'amazon_US', 'KR': 'GangnamStyle', 'DE': 'amazon_DE'},
+                                 {'default': 'shopstyle_US', 'US': 'shopstyle_US', 'KR': 'GangnamStyle', 'DE': 'shopstyle_DE'},
                        'fashionseoul':
                                  {'default': 'GangnamStyle', 'KR': 'GangnamStyle'},
                        '5767jA8THOn2J0DD':
@@ -48,17 +48,17 @@ products_per_ip_pid = {'default':
                        'xuSiNIs695acaHPE':
                                  {'default': 'amaze'},
                        "Rob's Shelter":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "robsdemartino@yahoo.it":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "mz1_ND":
                                  {'default': 'amazon_US', 'US': 'amazon_US'},
                        "6nGzEP7cp5s957P4":
                                  {'default': 'shopstyle_DE'},
                        "2DqGp6fum7jiv2B6":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "sg3SH5yif242E5jL":
-                                 {'default': 'amazon_US'},
+                                 {'default': 'shopstyle_US'},
                        "Y8Y4jENvaJ2Lsklz":
                                  {'default': 'shopstyle_US'},
                        "2Ldy4i23piqQG73n":
