@@ -30,7 +30,8 @@ class HydraResource:
             data = req.stream.read()
             print('data:'+str(data))
 #            img = data.get("image")
-            img = data['name']
+#            img = data['name']
+            img = data.split('"')[1]
             print('img:'+str(img))
 
             output = multilabel_from_hydra.get_hydra_output(img)
