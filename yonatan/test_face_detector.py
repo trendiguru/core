@@ -107,7 +107,7 @@ def theDetector(url_or_np_array):
         # face_image = full_image[y: y + h, x: x + w]
 
         if full_image.shape[0] - (y + h) >= 4.5 * h:
-            cv2.rectangle(full_image, (x, y + h), (x + w, y + (5.5 * h)), (0, 255, 0), 3)
+            cv2.rectangle(full_image, (x, y + h), (x + w, y + int(5.5 * h)), (0, 255, 0), 3)
 
         if full_image.shape[0] - (y + h) >= 6 * h:
             cv2.rectangle(full_image, (x, y + h), (x + w, y + (7 * h)), (0, 0, 255), 3)
