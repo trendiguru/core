@@ -13,6 +13,8 @@ from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
 from . import kassper
+import time
+from functools import partial
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -100,58 +102,89 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
     :param max_num_of_faces:
     :return:
     '''
+    start = time.time()
+    if isinstance(image,basestring):
+        image = Utils.get_cv2_img_array(image)
    ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
-    faces,scores,idx = detector.run(image, 1)
-#    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
-#     if not len(faces):
-#         return {'are_faces': False, 'faces': []}
-#     final_faces = choose_faces(image, faces, max_num_of_faces)
-#     return {'are_faces': len(final_faces) > 0, 'faces': final_faces}
-    print('faces {}'.format(faces))
-    print('scores {}'.format(scores))
-    print('idx {}'.format(idx))
+    faces, scores, idx = detector.run(image, 1)
+
+    for i, d in enumerate(faces):
+        print("Detection {}, score: {}, face_type:{}".format(
+            d, scores[i], idx[i]))
+
+    print("Done in %.3f s." % (time.time() - start))
+
+    faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    if not len(faces):
+        return {'are_faces': False, 'faces': []}
+    #final_faces = choose_faces(image, faces, max_num_of_faces)
+    print "number of faces: {0}\n".format(len(faces))
+    return {'are_faces': len(faces) > 0, 'faces': faces, 'scores': scores}
 
 
 def choose_faces(image, faces_list, max_num_of_faces):
-    h, w, d = image.shape
-    x_origin = int(w / 2)
-    y_origin = int(0.125 * h)
+    # in faces w = h, so biggest face will have the biggest h (we could also take w)
+    biggest_face = 0
     if not isinstance(faces_list, list):
         faces_list = faces_list.tolist()
+
+    faces_list.sort(key=lambda x: x[3], reverse=True)  # sort the faces from big to small according to the height (which is also the width)
+
     relevant_faces = []
     for face in faces_list:
         if face_is_relevant(image, face):
-            dx = abs(face[0] + (face[2] / 2) - x_origin)
-            dy = abs(face[1] + (face[3] / 2) - y_origin)
-            position = 0.6 * np.power(np.power(0.4 * dx, 2) + np.power(0.6 * dy, 2), 0.5)
-            size = 0.4 * abs((float(face[2]) - 0.1 * np.amax((h, w))))
-            face_relevance = position + size
-            face.append(face_relevance)
+            # since the list is reversed sorted, the first relevant face, will be the biggest
+            if biggest_face == 0:
+                biggest_face = face[3]
+            # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
+            # than half of the biggest face's height, if so, the current face is not relevant and also the next
+            # (which are smaller)
+            else:
+                if face[3] < 0.5 * biggest_face:
+                    break
+
             relevant_faces.append(face)
-    if len(relevant_faces) > 0:
-        sorted_list = np.array(sorted(relevant_faces, key=lambda face: face[4]), dtype=np.uint16)
-        return sorted_list[0:min((max_num_of_faces, len(sorted_list))), 0:4]
-    else:
-        return relevant_faces
+
+    # relevant_faces = [face for face in faces_list if face_is_relevant(image, face)]
+
+    if len(relevant_faces) > max_num_of_faces:
+        score_face_local = partial(score_face, image=image)
+        relevant_faces.sort(key=score_face_local)
+        relevant_faces = relevant_faces[:max_num_of_faces]
+    return relevant_faces
 
 
+def score_face(face, image):
+    image_height, image_width, d = image.shape
+    optimal_face_point = int(image_width / 2), int(0.125 * image_height)
+    optimal_face_width = 0.1 * max(image_height, image_width)
+    x, y, w, h = face
+    face_centerpoint = x + w / 2, y + h / 2
+    # This is the distance from face centerpoint to optimal centerpoint.
+    positon_score = np.linalg.norm(np.array(face_centerpoint) - np.array(optimal_face_point))
+    size_score = abs((float(w) - optimal_face_width))
+    total_score = 0.6 * positon_score + 0.4 * size_score
+    return total_score
 
 
 def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
     # image relevant if:
+    # - face bounding box is all inside the image
     # - h > 5% from the full image height
     # - h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
-    # - if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h)
+    # - if we see enough from the body - at least 5 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
     # - skin pixels (according to our constants values) are more than third of all the face pixels
+    image_height, image_width, d = image.shape
     x, y, w, h = face
-    # threshold = face + 4 faces down = 5 faces
+    # threshold = face + 5 faces down = 6 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
+    if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
+            and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 5)) > (y + h) \
             and is_skin_color(face_ycrcb):

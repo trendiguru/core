@@ -32,11 +32,11 @@ def find_dress_dlib(image, max_num_of_faces=10):
     ## faces, scores, idx = detector.run(image, 1, 1) - gives less results, doesn't show the lowest confidence percentage results ##
     ## i can get only the faces locations with: faces = detector(image, 1) ##
 
-    # dresses, scores, idx = dress_detector.run(image, 1)
+    # dets, scores, idx = dress_detector(image, 1)
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    dets = dress_detector(image)
+    dets = dress_detector(image, 0)
 
     # print "image.shape: {0}".format(image.shape)
 
@@ -167,7 +167,7 @@ def theDetector(url_or_np_array):
             left = d.left() + 15
         else:
             left = d.left()
-        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\n".format(left, d.top(), d.right(), d.bottom())
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing2.jpg", padded_image)

@@ -320,6 +320,13 @@ def parse_logfile(output_filename,logy=True):
 def fit_exp2(x, y_inf,tau,x_0):
     return y_inf*(1-np.exp(np.divide((x_0-x),tau)))
 
+def fit_exp3(x, y_0,tau,y_inf):
+  eps=10**-10
+  x=x+eps
+  tau=tau+eps
+  return (y_0-y_inf)*np.exp(np.divide(-x,tau)) + y_inf
+
+
 def fit_exp(x, k,a, b, x0):
     return k*np.exp(np.multiply(a,x-x0)) + b
 
@@ -432,6 +439,31 @@ def lossplot(input_filename,netinfo='',logy=True):
     if len(testlosses)>2:
       ax1.semilogy(test_iters, testlosses,'s', label="testloss",markeredgecolor='r',markerfacecolor='r',markersize=2)
 
+#plot fit to loss
+    try:
+      p0 = [2,2000,.001] #y0 tau y_inf
+      print('fit ex3 po'+str(p0))
+      y=fit_exp3(10,2,2000,0.1)
+      print('fit ex3 1 y='+str(y)+' len iters '+str(len(n_iters))+' len losses '+str(len(losses)))
+      popt,pcov = curve_fit(fit_exp3, n_iters, losses,p0=p0)
+      print('fit ex3 2')
+      n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
+      print('fit ex3 3 popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
+      y=fit_exp3(10,popt[0],popt[1],popt[2])
+      print('fit ex3 3.5 y='+str(y))
+      testfit = fit_exp3(n_iters,popt[0],popt[1],popt[2])
+      print('fit ex3 4 testfit ok')
+      lbl = '$loss = {y_0-y_inf}(exp(-x/{tau}))+y_inf$'.format(y_0=round(popt[0],3),y_inf=int(popt[2]),tau=int(popt[1]))
+      print('fit ex3 5 ok')
+      ax1.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='red',markeredgecolor='None',markerfacecolor='None')
+      print('fit ex3 6 ax1 ok')
+    except:  #the curve_fit can sometimes fail
+      e = sys.exc_info()[0]
+      print("Error doing fit:{}".format(e))
+    miny = np.min(accuracy)*0.9
+    ax2.set_ylim(miny,1)
+
+
 #      return(popt,n_timeconstants)
 
   else:
@@ -446,13 +478,13 @@ def lossplot(input_filename,netinfo='',logy=True):
     ax2.plot(n_iters, accuracy,'o', label='tr.accuracy', markeredgecolor='g',markerfacecolor='None',markersize=msize)
     ax2.set_ylabel("accuracy")
 
-    p0 = [0.9,2000,0] #asymptote tau x0
     try:
+      p0 = [0.9,2000,0] #asymptote tau x0
       popt,pcov = curve_fit(fit_exp2, n_iters, accuracy,p0=p0)
       n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
       print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
       testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-      lbl = '$trainacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      lbl = '$trainacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
       ax2.plot(n_iters,testfit,label=lbl, linestyle='dashed',color='green',markeredgecolor='None',markerfacecolor='None')
     except:  #the curve_fit can sometimes fail
       e = sys.exc_info()[0]
@@ -468,7 +500,7 @@ def lossplot(input_filename,netinfo='',logy=True):
       n_timeconstants = n_iters[-1]/popt[1]  #last time point / timeconst
       print('popt {} pcov {} n_tau {}'.format(popt,pcov,n_timeconstants))
       testfit = fit_exp2(n_iters,popt[0],popt[1],popt[2])
-      lbl = '$testacc = {y_inf}exp(({x0}-x)/{tau})$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
+      lbl = '$testacc = {y_inf}(1-exp(({x0}-x)/{tau}))$'.format(y_inf=round(popt[0],3),x0=-int(popt[2]),tau=int(popt[1]))
       ax2.plot(n_iters,testfit,label=lbl, linestyle='solid',color='green',markeredgecolor='None',markerfacecolor='None')
     except:  #the curve_fit can sometimes fail
       e = sys.exc_info()[0]

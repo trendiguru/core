@@ -106,7 +106,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
             break
 
         # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = [dlib.rectangle(2, 2, 98, 228)]
+        line_in_list_boxes = [dlib.rectangle(left=2, top=2, right=98, bottom=228)]
 
         try:
             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
@@ -138,7 +138,7 @@ for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
             break
 
         # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = [dlib.rectangle(2, 2, 98, 228)]
+        line_in_list_boxes = ([dlib.rectangle(left=2, top=2, right=98, bottom=228)])
 
         try:
             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)

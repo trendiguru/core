@@ -1013,6 +1013,9 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
     #            im = Image.open(path)
     #            im.show()
             img_arr = cv2.imread(path)
+            if img_arr is None:
+                logging.warning('could not read '+str(path))
+                continue
             imutils.resize_to_max_sidelength(img_arr, max_sidelength=250,use_visual_output=True)
             if cut_the_crap:  #move selected to dir_removed, move rest to dir_kept
                 print('(d)elete (c)lose anything else keeps')
