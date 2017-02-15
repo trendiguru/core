@@ -87,7 +87,7 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         return None
 
     if full_image is None:
-        print "not a good image"
+        print "not a good image"#
         return None
 
     #demo(full_image)
