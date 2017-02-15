@@ -108,6 +108,8 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
             json.dump(detections,fp,indent=4)
             fp.close()
         print('wrote image to {} and output text to {}'.format(imgname,textfile))
+
+    print('the dettections are:'+str(detections))
     return detections #
 
 def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
