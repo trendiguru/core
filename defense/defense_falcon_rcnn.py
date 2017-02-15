@@ -1,9 +1,14 @@
 import traceback
 import falcon
+import os
 #this file has to go in the rcnn folder
 import rcnn_demo
 
 from jaweson import json, msgpack
+
+print('falcon is coming form '+str(falcon.__file__))
+base_dir = os.path.dirname(os.path.realpath(__file__))
+print('current_dir is '+str(base_dir))
 
 print "Done with imports"
 
