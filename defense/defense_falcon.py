@@ -3,7 +3,7 @@ import falcon
 print(falcon.__file__)
 from .. import multilabel_from_hydra
 import requests
-import Utils
+from .. import Utils
 
 from jaweson import json, msgpack
 
