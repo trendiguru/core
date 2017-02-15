@@ -8,6 +8,14 @@ See README.md for installation instructions before running.
 """
 import matplotlib as mpl
 mpl.use('Agg')
+
+
+#where does system think this link is - at link location or where link points to
+import os
+print('falcon is coming form '+str(falcon.__file__))
+base_dir = os.path.dirname(os.path.realpath(__file__))
+print('current_dir is '+str(base_dir))
+
 import _init_paths
 from fast_rcnn.config import cfg
 from fast_rcnn.test import im_detect
