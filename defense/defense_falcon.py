@@ -50,8 +50,10 @@ class HydraResource:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
 
-        resp.data = msgpack.dumps(ret)
-        resp.content_type = 'application/x-msgpack'
+#        resp.data = msgpack.dumps(ret)
+#        resp.content_type = 'application/x-msgpack'
+        resp.data = json.dumps(ret)
+        resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
 
     def write_log(self,url,output):
