@@ -36,8 +36,8 @@ class HydraResource:
 #            img = data.split('"')[1]
             img = data
             print('url:'+str(img))
-            img_arr=Utils.get_cv2_img_array(img)
-            frcnn_output =  self.get_fcrnn_output(self,img)
+ #           img_arr=Utils.get_cv2_img_array(img)
+#            frcnn_output =  self.get_fcrnn_output(self,img)
             output = multilabel_from_hydra.get_hydra_output(img)
             ret["output"] = output
             if ret["output"] is not None:
