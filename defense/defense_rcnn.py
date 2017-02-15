@@ -178,6 +178,9 @@ def dominant_colors(img_arr,n_components=2):
     :param img_arr: this is a subimage (orig image cropped to a bb)
     :return:
     '''
+    if img_arr is None:
+        print('got non arr in dominant_colors')
+        return None
     hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
     hue = hsv[:,:,0]
     hist = np.bincount(hue.ravel(),minlength=180) #hue goes to max 180
