@@ -50,6 +50,7 @@ class FrcnnResource:
             img = data.split('"')[1]
             print('img:'+str(img))
             output = defense_rcnn.detect_frcnn(img)
+            print('frcnn output:'+str(output))
             ret["output"] = output
             if ret["output"] is not None:
                 ret["success"] = True
