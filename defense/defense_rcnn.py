@@ -1,4 +1,4 @@
-__author__ = 'whoever made rcnn and yonatan'
+__author__ = 'whoever made rcnn and yonatan and now jeremy'
 #!/usr/bin/env python
 
 """
@@ -20,10 +20,13 @@ from fast_rcnn.config import cfg
 from fast_rcnn.test import im_detect
 from fast_rcnn.nms_wrapper import nms
 from utils.timer import Timer
+import string
+import json
 import numpy as np
 import caffe, os, sys, cv2
 import argparse
 import requests
+import random
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -64,16 +67,22 @@ net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
 print '\n\nLoaded network {:s}'.format(caffemodel)
 
-
-def theDetector(url_or_np_array):
-
-    print "Starting the Demo!"
+def detect_frcnn(url_or_np_array,save_data=1,filename=None):
+    print "detect_frcnn started"
     # check if i get a url (= string) or np.ndarray
-    if isinstance(url_or_np_array, basestring):
+    if filename:
+        full_image = cv2.imread(filename)
+        url = 'from_file'
+    elif isinstance(url_or_np_array, basestring):
         response = requests.get(url_or_np_array)  # download
         full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        filename=url_or_np_array.replace('https://','').replace('http://','').replace('/','_')
+        url = url_or_np_array
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
+        n_chars=6
+        filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
+        url = 'from_img_arr'
     else:
         return None
 
@@ -82,35 +91,37 @@ def theDetector(url_or_np_array):
         return None
 
     #demo(full_image)
-    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 1)
+    detections,img_arr = do_detect_frcnn(full_image)
+    if save_data:
+        save_path='./'
+        imgname=os.path.join(save_path,filename)
+        if imgname[:-4] != '.jpg':
+            imgname = imgname + '.jpg'
+        cv2.imwrite(imgname,full_image)
+        detections.append(filename)
+        detections.append(url)
+        textfile = os.path.join(save_path,'output.txt')
+        with open(textfile,'a') as fp:
+            json.dump(detections,fp,indent=4)
+            fp.close()
+        print('wrote image to {} and output text to {}'.format(imgname,textfile))
+    return detections
 
-
-def demo(image_name, image_data=0, link=0):
+def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
     """Detect object classes in an image using pre-computed object proposals."""
 
-    # Load the demo image
-    #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
-    #im = cv2.imread(im_file)
-
-    if link:
-        im = image_data
-    else:
-        #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
-        im = cv2.imread(image_name)
-
     person_bbox = []
+    relevant_bboxes = []
 
     # Detect all object classes and regress object bounds
     timer = Timer()
     timer.tic()
-    scores, boxes = im_detect(net, im)
+    scores, boxes = im_detect(net, img_arr)
     timer.toc()
     print ('Detection took {:.3f}s for '
            '{:d} object proposals').format(timer.total_time, boxes.shape[0])
 
     # Visualize detections for each class
-    CONF_THRESH = 0.8
-    NMS_THRESH = 0.3
     for cls_ind, cls in enumerate(CLASSES[1:]):
         cls_ind += 1 # because we skipped background
         cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
@@ -122,15 +133,14 @@ def demo(image_name, image_data=0, link=0):
 #        vis_detections(im, cls, dets, thresh=CONF_THRESH)
 
         class_name = cls
-        thresh = 0.6
 
         """Draw detected bounding boxes."""
-        inds = np.where(dets[:, -1] >= thresh)[0]
+        inds = np.where(dets[:, -1] >= conf_thresh)[0]
         if len(inds) == 0:
             continue
 
         for i in inds:
-            bbox = dets[i, :4]
+            bbox = [int(a) for a in dets[i, :4]]
             score = dets[i, -1]
 
             print "class name: {0}, score: {1}".format(class_name, score)
@@ -140,15 +150,11 @@ def demo(image_name, image_data=0, link=0):
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
-            if class_name == 'person':
-	        print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
-                print bbox
-                person_bbox.append(bbox)
-
+            if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
+                print('class {} bbox {} '.format(class_name,bbox))
+                relevant_bboxes.append([class_name,bbox])
         # person_bbox = person_bbox.tolist()
 
-    print "person_bbox: {0}".format(person_bbox)
-    print "person_bbox[0]: {0}".format(person_bbox[0])
-    print "person_bbox[0][0]: {0}".format(person_bbox[0][0])
-
+    print("relevant boxes: {}".format(relevant_bboxes))
     print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
+    return relevant_bboxes
