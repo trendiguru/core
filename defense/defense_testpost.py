@@ -17,7 +17,8 @@ def bring_forth_the_hydra(image_array_or_url, gpu=1):
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
     print('params coming into hydra:'+str(params))
-    data = msgpack.dumps({"image": image_array_or_url})
+#    data = msgpack.dumps({"image": image_array_or_url})
+    data = {"image": image_array_or_url}
     resp = requests.post(CLASSIFIER_ADDRESS, data=data, params=params)
     return msgpack.loads(resp.content)
 
@@ -29,7 +30,8 @@ def secure_the_homeland(image_array_or_url, gpu=1):
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
     print('params coming into hls:'+str(params))
-    data = msgpack.dumps({"image": image_array_or_url})
+ #   data = msgpack.dumps({"image": image_array_or_url})
+    data = {"image": image_array_or_url}
     resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
     print('response  to poster:'+str(resp.content))
     return resp.content
