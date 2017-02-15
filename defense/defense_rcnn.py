@@ -67,7 +67,7 @@ net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
 print '\n\nLoaded network {:s}'.format(caffemodel)
 
-def detect_frcnn(url_or_np_array,save_data=1,filename=None):
+def detect_frcnn(url_or_np_array,save_data=True,filename=None):
     print "detect_frcnn started"
     # check if i get a url (= string) or np.ndarray
     if filename:
@@ -158,3 +158,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
     print("relevant boxes: {}".format(relevant_bboxes))
     print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
     return relevant_bboxes
+
+if __name__ == "__main__":
+    url = 'http://media.gettyimages.com/videos/market-street-teeming-with-people-and-group-of-security-officers-in-video-id123273695?s=640x640'
+    detect_frcnn(url)
