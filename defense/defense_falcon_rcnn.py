@@ -70,8 +70,10 @@ class FrcnnResource:
             traceback.print_exc()
             ret["error_hydra"] = traceback.format_exc()
 
-        resp.data = msgpack.dumps(ret)
-        resp.content_type = 'application/x-msgpack'
+#        resp.data = msgpack.dumps(ret)
+#        resp.content_type = 'application/x-msgpack'
+        resp.data = ret
+#        resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
 
     def write_log(self,url,output):
