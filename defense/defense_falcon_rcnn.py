@@ -18,6 +18,7 @@ print('current_dir is '+str(base_dir))
 
 print "Done with imports"
 
+HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/frcnn"
 #what is the frcnn referring to - maybe its the thing at the end of file
 #namely, api.add_route('/frcnn/', HydraResource())
@@ -79,9 +80,11 @@ class FrcnnResource:
 
     def get_hydra_output(self,url):
             #should be changed to sending img. array
-        data = msgpack.dumps({"image": url})
+#        data = msgpack.dumps({"image": url})
+        data = url
         params = {}
-        resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
+        print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
+        resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
         print('response from fcrnn:'+str(resp.content))
         return (resp.content)
 
