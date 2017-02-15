@@ -33,10 +33,10 @@ class HydraResource:
             print('data coming into hydra:'+str(data))
 #            img = data.get("image")
 #            img = data['name']
-            img = data.split('"')[1]
-            print('img:'+str(img))
-
-            img_arr=Utils.
+#            img = data.split('"')[1]
+            img = data
+            print('url:'+str(img))
+            img_arr=Utils.get_cv2_img_array(img)
             frcnn_output =  self.get_fcrnn_output(self,img)
             output = multilabel_from_hydra.get_hydra_output(img)
             ret["output"] = output
