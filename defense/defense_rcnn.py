@@ -159,8 +159,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
         # person_bbox = person_bbox.tolist()
 
 
-    print("relevant boxes: {}".format(relevant_bboxes))
-    print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
+    print("answer:".format(relevant_bboxes))
     return relevant_bboxes
 
 def dominant_colors(img_arr,n_components=2):
@@ -175,7 +174,9 @@ def dominant_colors(img_arr,n_components=2):
     gmix = mixture.GMM(n_components=n_components, covariance_type='full')
     gmix.fit(hist)
     print gmix
-    print gmix.means_
+    print('covars:'+str(gmix.covars_))
+    print('means:'+str(gmix.means_))
+
 ##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
 #	ax = plt.gca()
 #	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
