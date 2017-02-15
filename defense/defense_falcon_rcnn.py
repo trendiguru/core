@@ -65,7 +65,7 @@ class FrcnnResource:
 
         print('done with frcnn now doing hydra')
         try:
-            self.get_hydra_output(self,img)
+            self.get_hydra_output(img)
         except Exception as e:
             traceback.print_exc()
             ret["error_hydra"] = traceback.format_exc()
@@ -73,7 +73,8 @@ class FrcnnResource:
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
         resp.data = ret
-        resp.content_type = 'text/plain'
+#        resp.content_type = 'text/plain'
+        resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
 
     def write_log(self,url,output):
