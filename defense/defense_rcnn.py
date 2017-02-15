@@ -27,6 +27,8 @@ import caffe, os, sys, cv2
 import argparse
 import requests
 import random
+from sklearn import mixture
+
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -134,7 +136,6 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
 
         class_name = cls
 
-        """Draw detected bounding boxes."""
         inds = np.where(dets[:, -1] >= conf_thresh)[0]
         if len(inds) == 0:
             continue
@@ -142,22 +143,47 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
         for i in inds:
             bbox = [int(a) for a in dets[i, :4]]
             score = dets[i, -1]
-
             print "class name: {0}, score: {1}".format(class_name, score)
 
-            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
-
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+#        """Draw detected bounding boxes."""
+#            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
+#            font = cv2.FONT_HERSHEY_SIMPLEX
+ #           cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
             if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
                 print('class {} bbox {} '.format(class_name,bbox))
                 relevant_bboxes.append([class_name,bbox])
+            cropped_arr = img_arr[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
+            colors = dominant_colors(cropped_arr)
+            print colors
         # person_bbox = person_bbox.tolist()
+
 
     print("relevant boxes: {}".format(relevant_bboxes))
     print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
     return relevant_bboxes
+
+def dominant_colors(img_arr,n_components=2):
+    '''
+    :param img_arr: this is a subimage (orig image cropped to a bb)
+    :return:
+    '''
+    hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
+    hue = hsv[:,:,0]
+    hist = np.bincount(hue.ravel(),minlength=256)
+    print('hist:'+str(hist))
+    gmix = mixture.GMM(n_components=n_components, covariance_type='full')
+    gmix.fit(hist)
+    print gmix
+    print gmix.means_
+##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
+#	ax = plt.gca()
+#	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
+#	plt.show()
+
+    return None
+
+
 
 if __name__ == "__main__":
     url = 'http://media.gettyimages.com/videos/market-street-teeming-with-people-and-group-of-security-officers-in-video-id123273695?s=640x640'
