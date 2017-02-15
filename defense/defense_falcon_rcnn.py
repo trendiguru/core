@@ -53,7 +53,7 @@ class FrcnnResource:
             print('frcnn output:'+str(output))
             ret["output"] = output
             if ret["output"] is not None:
-                ret["success"] = True
+                ret["supersuccess"] = True
             else:
                 ret["error_frcnn"] = "No output from rcnn"
             print('done with frcnn')
