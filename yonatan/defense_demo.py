@@ -74,7 +74,7 @@ def theDetector(url_or_np_array):
         return None
 
     #demo(full_image)
-    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 0)
+    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 1)
 
 
 def demo(image_name, image_data=0, link=0):
@@ -87,11 +87,8 @@ def demo(image_name, image_data=0, link=0):
     if link:
         im = image_data
     else:
-        # im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+        #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
         im = cv2.imread(image_name)
-
-
-    #im = image_name
 
     # Detect all object classes and regress object bounds
     timer = Timer()
@@ -126,15 +123,72 @@ def demo(image_name, image_data=0, link=0):
             bbox = dets[i, :4]
             score = dets[i, -1]
 
+            if class_name == 'person':
+                # print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+                # print bbox
+                bagpack, handbag, hat = dummy_function()
+
+                shirt_color = find_if_shirt_blue_or_red(im, bbox)
+
+            if bagpack:
+                class_name += "_with_bagpack"
+
+            if handbag:
+                class_name += "_with_handbag"
+
+            if hat:
+                class_name += "_with_hat"
+
+            if shirt_color == "red":
+                class_name += "_with_red_top"
+            elif shirt_color == "blue":
+                class_name += "_with_blue_top"
+            else:
+                class_name += "_without_red_or_blue_top"
+
             print "class name: {0}, score: {1}".format(class_name, score)
 
-            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 3)
 
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
-
-            if class_name == 'person':
-                print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
-                print bbox
+            cv2.putText(im, '{:s} {:.3f}'.format(class_name, score), (int(bbox[0]), int(bbox[1] + 18)), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
+
+
+def find_if_shirt_blue_or_red(image, bbox):
+
+    threshold = 0.33
+
+    # define BGR boundaries
+    lower_red = np.array([0, 0, 112], dtype="uint8")
+    upper_red = np.array([97, 105, 255], dtype="uint8")
+
+    lower_blue = np.array([102, 0, 0], dtype="uint8")
+    upper_blue = np.array([255, 104, 123], dtype="uint8")
+
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+
+    person = image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+
+    shirt_bbox = person[w/3:2*w/3, 2*h/9:4*h/9]
+
+    mask_red = cv2.inRange(shirt_bbox, lower_red, upper_red)
+
+    if cv2.countNonZero(mask_red) / float(h * w) > threshold:
+        return "red"
+
+    mask_blue = cv2.inRange(shirt_bbox, lower_blue, upper_blue)
+
+    if cv2.countNonZero(mask_blue) / float(h * w) > threshold:
+        return "blue"
+
+    return None
+
+
+def dummy_function():
+
+
+    # bagpack, handbag, hat are binaries
+    return bagpack, handbag, hat
