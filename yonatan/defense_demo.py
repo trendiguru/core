@@ -126,7 +126,7 @@ def demo(image_name, image_data=0, link=0):
             if class_name == 'person':
                 # print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
                 # print bbox
-                bagpack, handbag, hat = dummy_function()
+                bagpack, handbag, hat = dummy_function(im, bbox)
 
                 shirt_color = find_if_shirt_blue_or_red(im, bbox)
 
@@ -187,7 +187,7 @@ def find_if_shirt_blue_or_red(image, bbox):
     return None
 
 
-def dummy_function():
+def dummy_function(image, bbox):
 
 
     # bagpack, handbag, hat are binaries
