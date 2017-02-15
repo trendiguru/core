@@ -153,8 +153,19 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
                 print('class {} bbox {} '.format(class_name,bbox))
                 relevant_bboxes.append([class_name,bbox])
-            cropped_arr = img_arr[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
+            margin_percent = 0.3  #remove this percent of orig. box size
+            top_x,top_y,top_w,top_h = [bbox[0],bbox[1],bbox[2],int(bbox[3]/2)]
+
+            extra_pixels_h = margin_percent*top_h/2
+            extra_pixels_w = margin_percent*top_w/2
+            top_bb_smallified = [top_x+extra_pixels_w,top_y+extra_pixels_h,int(top_w*(1-margin_percent)),int(top_w*(1-margin_percent))]
+            print('topbb {} {} {} {} small {} percent {}'.format(top_x,top_y,top_w,top_h,top_bb_smallified,margin_percent))
+            cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[1]+top_bb_smallified[3],
+                          top_bb_smallified[0]:top_bb_smallified[0]+top_bb_smallified[2]]
+
             colors = dominant_colors(cropped_arr)
+#            bottom_bb = [bbox[0],bbox[1]+bbox[3]/2,bbox[2],int(bbox[3]/2)]
+
             print colors
         # person_bbox = person_bbox.tolist()
 
@@ -169,7 +180,7 @@ def dominant_colors(img_arr,n_components=2):
     '''
     hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
     hue = hsv[:,:,0]
-    hist = np.bincount(hue.ravel(),minlength=256)
+    hist = np.bincount(hue.ravel(),minlength=180) #hue goes to max 180
     print('hist:'+str(hist))
     gmix = mixture.GMM(n_components=n_components, covariance_type='full')
     gmix.fit(hist)
@@ -177,11 +188,32 @@ def dominant_colors(img_arr,n_components=2):
     print('covars:'+str(gmix.covars_))
     print('means:'+str(gmix.means_))
 
+    avg_sat = np.mean(hsv[:,:,1])
+    avg_val = np.mean(hsv[:,:,2])
+    print('avg sat {} avg val {}'.format(avg_sat,avg_val))
+
+    if avg_sat < 127 or avg_val < 127:
+        return None
 ##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
 #	ax = plt.gca()
 #	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
 #	plt.show()
-
+    relevant_colors = []
+    relevant_covars = []
+    relevant_color_names = []
+    color_bounds = [n*32+16 for n in range(8)]
+    color_names = ['red','yellow','green','aqua','blue','purple']
+    for c in range(n_components):
+        mean =gmix.means_[c]
+        covar =gmix.covars_[c]
+        if mean < 0 or mean > 180 or covar > 180:
+            continue
+        color = [mean>color_bounds[i] and mean<color_bounds[i+1] for i in range(len(color_bounds))]
+        color_ind = np.nonzero(color)[0]
+        color_name = color_names[color_ind]
+        relevant_colors.append[mean]
+        relevant_covars.append[covar]
+        relevant_color_names.append(color_name)
     return None
 
 
