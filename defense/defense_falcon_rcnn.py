@@ -55,12 +55,14 @@ class FrcnnResource:
                 ret["success"] = True
             else:
                 ret["error_frcnn"] = "No output from rcnn"
+            print('done with frcnn')
 #            self.write_log(url,output)
 
         except Exception as e:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
 
+        print('done with frcnn now doing hydra')
         try:
             self.get_hydra_output(self,img)
         except Exception as e:
