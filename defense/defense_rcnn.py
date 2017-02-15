@@ -12,7 +12,6 @@ mpl.use('Agg')
 
 #where does system think this link is - at link location or where link points to
 import os
-print('falcon is coming form '+str(falcon.__file__))
 base_dir = os.path.dirname(os.path.realpath(__file__))
 print('current_dir is '+str(base_dir))
 
