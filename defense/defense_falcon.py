@@ -23,14 +23,14 @@ class HydraResource:
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
-        print "Reached on_post"
+        print "Reached hydra on_post"
         gpu = req.get_param('gpu')
         ret = {"success": False}
 #
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
-            print('data:'+str(data))
+            print('data coming into hydra:'+str(data))
 #            img = data.get("image")
 #            img = data['name']
             img = data.split('"')[1]

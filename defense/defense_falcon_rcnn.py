@@ -44,7 +44,7 @@ class FrcnnResource:
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
-            print('data:'+str(data))
+            print('data coming into frcnn:'+str(data))
 #            img = data.get("image")
 #            img = data['name']
             img = data.split('"')[1]
