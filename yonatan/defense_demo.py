@@ -24,7 +24,7 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-DEFENSE_CLASSES = ('__background__', 'bicycle', 'bus', 'car', 'motorbike', 'person')
+DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person')
 
 NETS = {'vgg16': ('VGG16',
                   'VGG16_faster_rcnn_final.caffemodel'),
@@ -62,8 +62,12 @@ def theDetector(url_or_np_array):
     print "Starting the Demo!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        try:
+            response = requests.get(url_or_np_array)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        except:
+            print "Bad link"
+            return None
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
@@ -114,6 +118,9 @@ def demo(image_name, image_data=0, link=0):
         class_name = cls
         thresh = 0.6
 
+        if not class_name in tuple(DEFENSE_CLASSES):
+            continue
+
         """Draw detected bounding boxes."""
         inds = np.where(dets[:, -1] >= thresh)[0]
         if len(inds) == 0:
@@ -130,23 +137,23 @@ def demo(image_name, image_data=0, link=0):
 
                 shirt_color = find_if_shirt_blue_or_red(im, bbox)
 
-            if bagpack:
-                class_name += "_with_bagpack"
+                if bagpack:
+                    class_name += "_with_bagpack"
+                if handbag:
+                    class_name += "_with_handbag"
+                if hat:
+                    class_name += "_with_hat"
 
-            if handbag:
-                class_name += "_with_handbag"
-
-            if hat:
-                class_name += "_with_hat"
-
-            if shirt_color == "red":
-                class_name += "_with_red_top"
-            elif shirt_color == "blue":
-                class_name += "_with_blue_top"
-            else:
-                class_name += "_without_red_or_blue_top"
+                if shirt_color == "red":
+                    class_name += "_with_red_top"
+                elif shirt_color == "blue":
+                    class_name += "_with_blue_top"
+                # else:
+                #     class_name += "_without_red_or_blue_top"
 
             print "class name: {0}, score: {1}".format(class_name, score)
+
+            class_name = "person"
 
             cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 3)
 
@@ -158,7 +165,7 @@ def demo(image_name, image_data=0, link=0):
 
 def find_if_shirt_blue_or_red(image, bbox):
 
-    threshold = 0.33
+    threshold = 0.10
 
     # define BGR boundaries
     lower_red = np.array([0, 0, 112], dtype="uint8")
@@ -172,16 +179,19 @@ def find_if_shirt_blue_or_red(image, bbox):
 
     person = image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
 
-    shirt_bbox = person[w/3:2*w/3, 2*h/9:4*h/9]
+    shirt_bbox = person[bbox[0] + w/3:bbox[0] + 2*w/3, bbox[1] + 4*h/9:bbox[1] + 6*h/9]
+
+    w_bbox = (bbox[0] + 2*w/3) - (bbox[0] + w/3)
+    h_bbox = (bbox[1] + 6*h/9) - (bbox[1] + 4*h/9)
 
     mask_red = cv2.inRange(shirt_bbox, lower_red, upper_red)
 
-    if cv2.countNonZero(mask_red) / float(h * w) > threshold:
+    if cv2.countNonZero(mask_red) / float(h_bbox * w_bbox) > threshold:
         return "red"
 
     mask_blue = cv2.inRange(shirt_bbox, lower_blue, upper_blue)
 
-    if cv2.countNonZero(mask_blue) / float(h * w) > threshold:
+    if cv2.countNonZero(mask_blue) / float(h_bbox * w_bbox) > threshold:
         return "blue"
 
     return None
@@ -189,6 +199,7 @@ def find_if_shirt_blue_or_red(image, bbox):
 
 def dummy_function(image, bbox):
 
+    bagpack, handbag, hat = 0, 0, 0
 
     # bagpack, handbag, hat are binaries
     return bagpack, handbag, hat
