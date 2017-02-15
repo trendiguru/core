@@ -53,12 +53,18 @@ class FrcnnResource:
             if ret["output"] is not None:
                 ret["success"] = True
             else:
-                ret["error"] = "No output from rcnn"
+                ret["error_frcnn"] = "No output from rcnn"
 #            self.write_log(url,output)
 
         except Exception as e:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
+
+        try:
+            self.get_hydra_output(self,img)
+        except Exception as e:
+            traceback.print_exc()
+            ret["error_hydra"] = traceback.format_exc()
 
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
@@ -70,6 +76,14 @@ class FrcnnResource:
             json.dump(output,fp,indent=4)
             fp.write()
 
+
+    def get_hydra_output(self,url):
+            #should be changed to sending img. array
+        data = msgpack.dumps({"image": url})
+        params = {}
+        resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
+        print('response from fcrnn:'+str(resp.content))
+        return (resp.content)
 
 
 api = falcon.API()

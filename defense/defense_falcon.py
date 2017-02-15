@@ -60,12 +60,6 @@ class HydraResource:
             json.dump(output,fp,indent=4)
             fp.write()
 
-    def get_fcrnn_output(self,url):
-        data = msgpack.dumps({"image": url})
-        params = {}
-        resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
-        print('response from fcrnn:'+str(resp.content))
-        return (resp.content)
 
 
 
