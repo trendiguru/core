@@ -31,7 +31,9 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     print('params coming into hls:'+str(params))
     data = msgpack.dumps({"image": image_array_or_url})
     resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
-    return msgpack.loads(resp.content)
+    print('response  to poster 'str(resp.content))
+    return resp.content
+#    return msgpack.loads(resp.content)
 
 
 if __name__ == "__main__":
