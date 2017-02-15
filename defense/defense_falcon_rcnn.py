@@ -1,3 +1,8 @@
+#run this like:
+#gunicorn -b :8082 -w 1 -k gevent -n hls --timeout 120 trendi.defense.defense_falcon_rcnn:api
+#assuming the docker was started with port 8082 specified e.g.
+#nvidia-docker run -it -v /data:/data -p 8082:8082 --name frcnn eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
+
 import traceback
 import falcon
 import os
@@ -14,9 +19,10 @@ print('current_dir is '+str(base_dir))
 print "Done with imports"
 
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/frcnn"
-#what is the frcnn referring to
+#what is the frcnn referring to - maybe its the thing at the end of file
+#namely, api.add_route('/frcnn/', HydraResource())
 
-class HydraResource:
+class FrcnnResource:
     def __init__(self):
         print "Loaded Resource"
 
@@ -68,6 +74,6 @@ class HydraResource:
 
 api = falcon.API()
 #api.add_route('/mlb3/', HydraResource())
-api.add_route('/hydra/', HydraResource())
+api.add_route('/frcnn/', FrcnnResource())
 #send post request to http://ip-of-server/hydra
 #make sure to run docker container with -p
