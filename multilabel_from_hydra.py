@@ -98,16 +98,19 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
 
     if save_data:
         if isinstance(url_or_image_arr,basestring):
-            filename=url_or_image_arr.replace('http://','').replace('/','_')
+            filename=url_or_image_arr.replace('https://','').replace('http://','').replace('/','_')
+            url = url_or_image_arr
         else:
             n_chars=6
             filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
+            url = 'not_from_url'
         Utils.ensure_dir(save_path)
         imgname=os.path.join(save_path,filename)
         if imgname[:-4] != '.jpg':
             imgname = imgname + '.jpg'
         cv2.imwrite(imgname,im)
         out['imgname']=filename
+        out['url']=url
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
             json.dump(out,fp,indent=4)
