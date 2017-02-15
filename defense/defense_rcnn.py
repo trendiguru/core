@@ -156,8 +156,8 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             margin_percent = 0.3  #remove this percent of orig. box size
             top_x,top_y,top_w,top_h = [bbox[0],bbox[1],bbox[2],int(bbox[3]/2)]
 
-            extra_pixels_h = margin_percent*top_h/2
-            extra_pixels_w = margin_percent*top_w/2
+            extra_pixels_h = int(margin_percent*top_h/2)
+            extra_pixels_w = int(margin_percent*top_w/2)
             top_bb_smallified = [top_x+extra_pixels_w,top_y+extra_pixels_h,int(top_w*(1-margin_percent)),int(top_w*(1-margin_percent))]
             print('topbb {} {} {} {} small {} percent {}'.format(top_x,top_y,top_w,top_h,top_bb_smallified,margin_percent))
             cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[1]+top_bb_smallified[3],
