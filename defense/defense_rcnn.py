@@ -93,7 +93,8 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         return None
 
     #demo(full_image)
-    detections,img_arr = do_detect_frcnn(full_image)
+    detections = do_detect_frcnn(full_image)
+
     if save_data:
         save_path='./'
         imgname=os.path.join(save_path,filename)
@@ -146,9 +147,9 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             print "class name: {0}, score: {1}".format(class_name, score)
 
 #        """Draw detected bounding boxes."""
-#            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
-#            font = cv2.FONT_HERSHEY_SIMPLEX
- #           cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+            cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(img_arr,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
             if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
                 print('class {} bbox {} '.format(class_name,bbox))
@@ -158,8 +159,9 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
 
             extra_pixels_h = int(margin_percent*top_h/2)
             extra_pixels_w = int(margin_percent*top_w/2)
-            top_bb_smallified = [top_x+extra_pixels_w,top_y+extra_pixels_h,int(top_w*(1-margin_percent)),int(top_w*(1-margin_percent))]
+            top_bb_smallified = [top_x+extra_pixels_w,top_y+extra_pixels_h,int(top_w*(1-margin_percent)),int(top_h*(1-margin_percent))]
             print('topbb {} {} {} {} small {} percent {}'.format(top_x,top_y,top_w,top_h,top_bb_smallified,margin_percent))
+            cv2.rectangle(img_arr,(top_bb_smallified[0],top_bb_smallified[1]),(top_bb_smallified[2],top_bb_smallified[3]),(100,255,0),3)
             cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[1]+top_bb_smallified[3],
                           top_bb_smallified[0]:top_bb_smallified[0]+top_bb_smallified[2]]
 
@@ -169,7 +171,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             print colors
         # person_bbox = person_bbox.tolist()
 
-
+    cv2.imwrite('testout.jpg',img_arr)
     print("answer:".format(relevant_bboxes))
     return relevant_bboxes
 
@@ -178,10 +180,28 @@ def dominant_colors(img_arr,n_components=2):
     :param img_arr: this is a subimage (orig image cropped to a bb)
     :return:
     '''
+
     if img_arr is None:
         print('got non arr in dominant_colors')
         return None
+
+
+
     hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
+    if hsv is None:
+        print('some prob with hsv')
+        return None
+
+    try:
+        avg_sat = np.mean(hsv[:,:,1])
+        avg_val = np.mean(hsv[:,:,2])
+        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
+
+        if avg_sat < 127 or avg_val < 127:
+            return None
+    except:
+        print('problem calculating sat or val')
+
     hue = hsv[:,:,0]
     hist = np.bincount(hue.ravel(),minlength=180) #hue goes to max 180
     print('hist:'+str(hist))
@@ -191,12 +211,7 @@ def dominant_colors(img_arr,n_components=2):
     print('covars:'+str(gmix.covars_))
     print('means:'+str(gmix.means_))
 
-    avg_sat = np.mean(hsv[:,:,1])
-    avg_val = np.mean(hsv[:,:,2])
-    print('avg sat {} avg val {}'.format(avg_sat,avg_val))
 
-    if avg_sat < 127 or avg_val < 127:
-        return None
 ##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
 #	ax = plt.gca()
 #	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
