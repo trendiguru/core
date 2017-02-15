@@ -73,7 +73,7 @@ class FrcnnResource:
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
         resp.data = ret
-#        resp.content_type = 'application/x-msgpack'
+        resp.content_type = 'text/plain'
         resp.status = falcon.HTTP_200
 
     def write_log(self,url,output):
