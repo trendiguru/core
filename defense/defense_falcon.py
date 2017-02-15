@@ -2,6 +2,8 @@ import traceback
 import falcon
 print(falcon.__file__)
 from .. import multilabel_from_hydra
+import requests
+import Utils
 
 from jaweson import json, msgpack
 
@@ -34,6 +36,8 @@ class HydraResource:
             img = data.split('"')[1]
             print('img:'+str(img))
 
+            img_arr=Utils.
+            frcnn_output =  self.get_fcrnn_output(self,img)
             output = multilabel_from_hydra.get_hydra_output(img)
             ret["output"] = output
             if ret["output"] is not None:
@@ -55,6 +59,14 @@ class HydraResource:
             output['url']=url
             json.dump(output,fp,indent=4)
             fp.write()
+
+    def get_fcrnn_output(self,url):
+        data = msgpack.dumps({"image": url})
+        params = {}
+        resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
+        print('response from fcrnn:'+str(resp.content))
+        return (resp.content)
+
 
 
 api = falcon.API()
