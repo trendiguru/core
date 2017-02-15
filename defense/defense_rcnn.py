@@ -27,6 +27,8 @@ import caffe, os, sys, cv2
 import argparse
 import requests
 import random
+from sklearn import mixture
+
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -87,11 +89,12 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         return None
 
     if full_image is None:
-        print "not a good image"
+        print "not a good image"#
         return None
 
     #demo(full_image)
-    detections,img_arr = do_detect_frcnn(full_image)
+    detections = do_detect_frcnn(full_image)
+
     if save_data:
         save_path='./'
         imgname=os.path.join(save_path,filename)
@@ -105,7 +108,7 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
             json.dump(detections,fp,indent=4)
             fp.close()
         print('wrote image to {} and output text to {}'.format(imgname,textfile))
-    return detections
+    return detections #
 
 def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
     """Detect object classes in an image using pre-computed object proposals."""
@@ -134,7 +137,6 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
 
         class_name = cls
 
-        """Draw detected bounding boxes."""
         inds = np.where(dets[:, -1] >= conf_thresh)[0]
         if len(inds) == 0:
             continue
@@ -142,22 +144,97 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
         for i in inds:
             bbox = [int(a) for a in dets[i, :4]]
             score = dets[i, -1]
-
             print "class name: {0}, score: {1}".format(class_name, score)
 
-            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
-
+#        """Draw detected bounding boxes."""
+            cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+            cv2.putText(img_arr,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
 
             if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
                 print('class {} bbox {} '.format(class_name,bbox))
                 relevant_bboxes.append([class_name,bbox])
+            margin_percent = 0.3  #remove this percent of orig. box size
+            top_x,top_y,top_w,top_h = [bbox[0],bbox[1],bbox[2],int(bbox[3]/2)]
+
+            extra_pixels_h = int(margin_percent*top_h/2)
+            extra_pixels_w = int(margin_percent*top_w/2)
+            top_bb_smallified = [top_x+extra_pixels_w,top_y+extra_pixels_h,int(top_w*(1-margin_percent)),int(top_h*(1-margin_percent))]
+            print('topbb {} {} {} {} small {} percent {}'.format(top_x,top_y,top_w,top_h,top_bb_smallified,margin_percent))
+            cv2.rectangle(img_arr,(top_bb_smallified[0],top_bb_smallified[1]),(top_bb_smallified[2],top_bb_smallified[3]),(100,255,0),3)
+            cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[1]+top_bb_smallified[3],
+                          top_bb_smallified[0]:top_bb_smallified[0]+top_bb_smallified[2]]
+
+            colors = dominant_colors(cropped_arr)
+#            bottom_bb = [bbox[0],bbox[1]+bbox[3]/2,bbox[2],int(bbox[3]/2)]
+
+            print colors
         # person_bbox = person_bbox.tolist()
 
-    print("relevant boxes: {}".format(relevant_bboxes))
-    print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
+    cv2.imwrite('testout.jpg',img_arr)
+    print("answer:".format(relevant_bboxes))
     return relevant_bboxes
+
+def dominant_colors(img_arr,n_components=2):
+    '''
+    :param img_arr: this is a subimage (orig image cropped to a bb)
+    :return:
+    '''
+
+    if img_arr is None:
+        print('got non arr in dominant_colors')
+        return None
+
+
+
+    hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
+    if hsv is None:
+        print('some prob with hsv')
+        return None
+
+    try:
+        avg_sat = np.mean(hsv[:,:,1])
+        avg_val = np.mean(hsv[:,:,2])
+        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
+
+        if avg_sat < 127 or avg_val < 127:
+            return None
+    except:
+        print('problem calculating sat or val')
+
+    hue = hsv[:,:,0]
+    hist = np.bincount(hue.ravel(),minlength=180) #hue goes to max 180
+    print('hist:'+str(hist))
+    gmix = mixture.GMM(n_components=n_components, covariance_type='full')
+    gmix.fit(hist)
+    print gmix
+    print('covars:'+str(gmix.covars_))
+    print('means:'+str(gmix.means_))
+
+
+##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
+#	ax = plt.gca()
+#	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
+#	plt.show()
+    relevant_colors = []
+    relevant_covars = []
+    relevant_color_names = []
+    color_bounds = [n*32+16 for n in range(8)]
+    color_names = ['red','yellow','green','aqua','blue','purple']
+    for c in range(n_components):
+        mean =gmix.means_[c]
+        covar =gmix.covars_[c]
+        if mean < 0 or mean > 180 or covar > 180:
+            continue
+        color = [mean>color_bounds[i] and mean<color_bounds[i+1] for i in range(len(color_bounds))]
+        color_ind = np.nonzero(color)[0]
+        color_name = color_names[color_ind]
+        relevant_colors.append[mean]
+        relevant_covars.append[covar]
+        relevant_color_names.append(color_name)
+    return None
+
+
 
 if __name__ == "__main__":
     url = 'http://media.gettyimages.com/videos/market-street-teeming-with-people-and-group-of-security-officers-in-video-id123273695?s=640x640'
