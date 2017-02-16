@@ -28,6 +28,7 @@ import argparse
 import requests
 import random
 from sklearn import mixture
+import copy
 
 
 CLASSES = ('__background__',
@@ -101,7 +102,7 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         if imgname[:-4] != '.jpg':
             imgname = imgname + '.jpg'
         cv2.imwrite(imgname,full_image)
-        save_this = detections.copy()
+        save_this = copy.copy(detections)
         save_this.append(filename)
         save_this.append(url)
         textfile = os.path.join(save_path,'output.txt')
