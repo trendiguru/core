@@ -78,7 +78,7 @@ class FrcnnResource:
                 print('item:'+str(item))
                 cat = item["object"]
                 print('category:'+str(cat))
-                if cat == "person":
+              #  if cat == "person":
                 if 1:
                     x1,y1,x2,y2 = item["bbox"] #these are x1y1x2y2
                     cropped_image = img_arr[y1:y2,x1:x2]
