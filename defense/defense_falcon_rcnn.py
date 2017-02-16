@@ -51,6 +51,8 @@ class FrcnnResource:
 
             data = req.get_param('name')
             print('data coming into frcnn:'+str(data))
+            data2 = req.get_param('body')
+            print('body coming into frcnn:'+str(data2))
             url = data.get("url")
 #            img = data['name']
 #            url = data.split('"')[1]
