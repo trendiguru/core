@@ -172,6 +172,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
                 crop_name = 'out_cropped'+str(i)+'.jpg'
                 cv2.imwrite(crop_name,cropped_arr)
                 copycmd = 'cp '+crop_name + ' ' + extremeli_dir
+                print('doing command '+str(copycmd))
                 subprocess.call(copycmd,shell=True)
 
                 colors = dominant_colors(cropped_arr)
@@ -187,6 +188,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
 
     cv2.imwrite('hlsout.jpg',img_arr)
     copycmd = 'cp hlsout.jpg ' + extremeli_dir
+    print('doing command '+str(copycmd))
     subprocess.call(copycmd,shell=True)
     print("answer:{}".format(relevant_bboxes))
     return relevant_bboxes
