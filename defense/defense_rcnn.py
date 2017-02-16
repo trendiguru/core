@@ -208,7 +208,7 @@ def dominant_colors(img_arr,n_components=2):
         avg_val = np.mean(hsv[:,:,2])
         print('avg sat {} avg val {}'.format(avg_sat,avg_val))
 
-        if avg_sat < 127 or avg_val < 127:
+        if avg_sat < 150 or avg_val < 150:
             return None
     except:
         print('problem calculating sat or val')
