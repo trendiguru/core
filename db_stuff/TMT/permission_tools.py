@@ -32,7 +32,7 @@ def remove_collection_from_user(username):
     current_cols = db.trendi_mongo_users.find_one({'name': username})['collections']
     print ('current user cols:')
     for x, col in enumerate(current_cols):
-        print ('%d. %s'.format(x,col))
+        print ('{}. {}'.format(x,col))
 
     print ('which collections to delete? (for ex. 1,2,5)')
     cols = raw_input('')
