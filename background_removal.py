@@ -181,7 +181,7 @@ def face_is_relevant(image, face):
     # - skin pixels (according to our constants values) are more than third of all the face pixels
     image_height, image_width, d = image.shape
     x, y, w, h = face
-    face_image = image[y:y + h, x:x + w, :]
+    face_image = image[y:y + h, x:x + w]
     gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
