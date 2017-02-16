@@ -6,6 +6,8 @@
 import traceback
 import falcon
 import os
+import cv2
+import numpy as np
 #this file has to go in the rcnn folder
 import defense_rcnn
 import requests
@@ -48,9 +50,13 @@ class FrcnnResource:
             print('data coming into frcnn:'+str(data))
 #            img = data.get("image")
 #            img = data['name']
-            img = data.split('"')[1]
-            print('img:'+str(img))
-            output = defense_rcnn.detect_frcnn(img)
+            url = data.split('"')[1]
+            print('url:'+str(url))
+            response = requests.get(url)  # download
+            img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+
+
+            output = defense_rcnn.detect_frcnn(img_arr)
             print('frcnn output:'+str(output))
             ret["output"] = output
             if ret["output"] is not None:
@@ -64,9 +70,12 @@ class FrcnnResource:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
 
+
+    #get hydra results
         print('done with frcnn now doing hydra')
         try:
-            hydra_output = self.get_hydra_output(img)
+            for
+            hydra_output = self.get_hydra_output(img_arr)
         except Exception as e:
             print('exception calling hydrqa')
             traceback.print_exc()
