@@ -24,7 +24,7 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person')
+DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person','tvmonitor','train','bottle','chair')
 
 NETS = {'vgg16': ('VGG16',
                   'VGG16_faster_rcnn_final.caffemodel'),
