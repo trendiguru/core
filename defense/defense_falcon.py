@@ -42,7 +42,7 @@ class HydraResource:
             if isinstance(img,basestring):
                 print('url coming to hydra falcon:'+str(img))
             else:
-                print('img arr into hydra falcon size:'+img.shape)
+                print('img arr into hydra falcon size:'+str(img.shape))
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
             output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
