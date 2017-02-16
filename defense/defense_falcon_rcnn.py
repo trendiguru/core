@@ -40,14 +40,16 @@ class FrcnnResource:
 
     def on_post(self, req, resp):
         print "Reached on_post"
-        gpu = req.get_param('gpu')
+        gpu = req.body.get_param('gpu')
         ret = {"success": False}
         ret_hydra = {"success":False}
     #
         try:
 #            data = msgpack.loads(req.stream.read())
 #            data = req.stream.read()
-            data = req.data
+            print('req:'+str(req))
+
+            data = req.body.data
             print('data coming into frcnn:'+str(data))
             url = data.get("url")
 #            img = data['name']
