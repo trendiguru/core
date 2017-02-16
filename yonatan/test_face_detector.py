@@ -118,7 +118,7 @@ def theDetector(url_or_np_array):
         if full_image.shape[0] - (y + h) >= 8 * h:
             cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
 
-        cv2.rectangle(full_image, (int(full_image.shape[1] * 0.05), int(full_image.shape[0] * 0.05)), int((full_image.shape[1] * 0.95), int(full_image.shape[0] * 0.95)), (0, 0, 255), 3)
+        cv2.rectangle(full_image, (int(full_image.shape[1] * 0.05), int(full_image.shape[0] * 0.05)), (int(full_image.shape[1] * 0.95), int(full_image.shape[0] * 0.95)), (0, 0, 255), 3)
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
