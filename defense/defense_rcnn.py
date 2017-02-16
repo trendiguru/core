@@ -101,11 +101,12 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         if imgname[:-4] != '.jpg':
             imgname = imgname + '.jpg'
         cv2.imwrite(imgname,full_image)
-      #  detections.append(filename)
-     #   detections.append(url)
+        save_this = detections.copy()
+        save_this.append(filename)
+        save_this.append(url)
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
-            json.dump(detections,fp,indent=4)
+            json.dump(save_this,fp,indent=4)
             fp.close()
         print('wrote image to {} and output text to {}'.format(imgname,textfile))
 
