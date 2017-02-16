@@ -118,7 +118,7 @@ class FrcnnResource:
         print('response from hydra:'+str(resp.content))
         return resp.content
 
-api = falcon.API()
+api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
 api.add_route('/frcnn/', FrcnnResource())
 #send post request to http://ip-of-server/hydra
