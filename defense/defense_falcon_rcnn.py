@@ -40,7 +40,8 @@ class FrcnnResource:
         print "Reached on_post"
         gpu = req.get_param('gpu')
         ret = {"success": False}
-#
+        ret_hydra = {"success":False}
+    #
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
@@ -65,14 +66,18 @@ class FrcnnResource:
 
         print('done with frcnn now doing hydra')
         try:
-            self.get_hydra_output(img)
+            hydra_output = self.get_hydra_output(img)
         except Exception as e:
+            print('exception calling hydrqa')
             traceback.print_exc()
-            ret["error_hydra"] = traceback.format_exc()
+            ret_hydra["error_hydra"] = traceback.format_exc()
+        ret_total = ret.copy()
+        ret_total.update(ret_hydra)
+        print('total ret:'+str(ret_total))
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
-        resp.data = ret
+        resp.data = ret_total
 #        resp.content_type = 'text/plain'
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
@@ -91,9 +96,8 @@ class FrcnnResource:
         params = {}
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
-        print('response from fcrnn:'+str(resp.content))
-        return (resp.content)
-
+        print('response from hydra:'+str(resp.content))
+        return resp.content
 
 api = falcon.API()
 #api.add_route('/mlb3/', HydraResource())
