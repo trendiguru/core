@@ -33,7 +33,7 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_dlib(image, 4)
+    faces_dict = find_face_dlib(image, 3)
     # faces_dict = find_face_cascade(image, 10)
     # if len(faces_dict['faces']) == 0:
     #     faces_dict = find_face_ccv(image, 10)
@@ -138,11 +138,11 @@ def choose_faces(image, faces_list, max_num_of_faces):
             # since the list is reversed sorted, the first relevant face, will be the biggest
             if biggest_face == 0:
                 biggest_face = face[3]
-            # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
-            # than half of the biggest face's height, if so, the current face is not relevant and also the next
+            # in case the current face is not the biggest relevant one, i'm going to check if its height (= wight) * 1.6 smaller
+            # than the biggest face's height, if so, the current face is not relevant and also the next
             # (which are smaller)
             else:
-                if face[3] < 0.5 * biggest_face:
+                if 1.6 * face[3] < biggest_face:
                     break
 
             relevant_faces.append(face)
