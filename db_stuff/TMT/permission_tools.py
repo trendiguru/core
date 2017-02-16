@@ -9,7 +9,7 @@ def raw_input_plus(msg):
 
 
 def add_collection_to_user(username):
-    current_cols = db.trendi_mongo_users.find_one({'name': username})['collections']
+    current_cols = get_current_cols(username)
 
     col_list = []
     print ('col adding loop - leave blank to break')
@@ -19,7 +19,7 @@ def add_collection_to_user(username):
         col_list.append(col)
         continue_flag, col = raw_input_plus('enter additional collection name: ')
 
-    new_cols = current_cols
+    new_cols = current_cols[:]
     for collection in col_list:
         if collection not in new_cols:
             new_cols.append(collection)
