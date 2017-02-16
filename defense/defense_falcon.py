@@ -55,7 +55,7 @@ class HydraResource:
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
-        resp.data = json.dumps(ret)
+        resp.data = json.dumps(ret) #maybe dump instead of dumps?
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
 
