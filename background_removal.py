@@ -192,7 +192,7 @@ def face_is_relevant(image, face):
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
             and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
-            and variance_of_laplacian(gray_face) > 100 \
+            and variance_of_laplacian(gray_face) > 120 \
             and is_skin_color(face_ycrcb):
         return True
     else:
