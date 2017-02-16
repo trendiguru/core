@@ -94,7 +94,7 @@ class FrcnnResource:
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
-        resp.data = output
+        resp.data = ret
 #        resp.content_type = 'text/plain'
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
