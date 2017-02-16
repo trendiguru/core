@@ -7,6 +7,7 @@ See README.md for installation instructions before running.
 """
 import matplotlib as mpl
 mpl.use('Agg')
+import _init_paths
 from fast_rcnn.config import cfg
 from fast_rcnn.test import im_detect
 from fast_rcnn.nms_wrapper import nms
@@ -23,7 +24,7 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-# relevant categories: 'bus', 'car', 'horse', 'motorbike', 'person', 'bicycle'
+DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person')
 
 NETS = {'vgg16': ('VGG16',
                   'VGG16_faster_rcnn_final.caffemodel'),
@@ -61,9 +62,12 @@ def theDetector(url_or_np_array):
     print "Starting the Demo!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        try:
+            response = requests.get(url_or_np_array)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        except:
+            print "Bad link"
+            return None
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
@@ -73,15 +77,22 @@ def theDetector(url_or_np_array):
         print "not a good image"
         return None
 
-    demo(net, "/data/yonatan/linked_to_web/testing_1.jpg", full_image, 1)
+    #demo(full_image)
+    demo("/data/yonatan/linked_to_web/testing_2.jpg", full_image, 1)
 
 
-def demo(net, image_name, image_data=0, link=0):
+def demo(image_name, image_data=0, link=0):
     """Detect object classes in an image using pre-computed object proposals."""
 
     # Load the demo image
-    im = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+    #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+    #im = cv2.imread(im_file)
 
+    if link:
+        im = image_data
+    else:
+        #im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
+        im = cv2.imread(image_name)
 
     # Detect all object classes and regress object bounds
     timer = Timer()
@@ -105,7 +116,10 @@ def demo(net, image_name, image_data=0, link=0):
 #        vis_detections(im, cls, dets, thresh=CONF_THRESH)
 
         class_name = cls
-        thresh = 0.25
+        thresh = 0.6
+
+        if not class_name in tuple(DEFENSE_CLASSES):
+            continue
 
         """Draw detected bounding boxes."""
         inds = np.where(dets[:, -1] >= thresh)[0]
@@ -116,72 +130,76 @@ def demo(net, image_name, image_data=0, link=0):
             bbox = dets[i, :4]
             score = dets[i, -1]
 
+            if class_name == 'person':
+                # print int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+                # print bbox
+                bagpack, handbag, hat = dummy_function(im, bbox)
+
+                shirt_color = find_if_shirt_blue_or_red(im, bbox)
+
+                if bagpack:
+                    class_name += "_with_bagpack"
+                if handbag:
+                    class_name += "_with_handbag"
+                if hat:
+                    class_name += "_with_hat"
+
+                if shirt_color == "red":
+                    class_name += "_with_red_top"
+                elif shirt_color == "blue":
+                    class_name += "_with_blue_top"
+                # else:
+                #     class_name += "_without_red_or_blue_top"
+
             print "class name: {0}, score: {1}".format(class_name, score)
 
-            cv2.rectangle(im,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
+            class_name = "person"
+
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 3)
 
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(im,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 1,(0,255,0),2,cv2.LINE_AA)
+            cv2.putText(im, '{:s} {:.3f}'.format(class_name, score), (int(bbox[0]), int(bbox[1] + 18)), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-    print cv2.imwrite(image_name, im)
+    print cv2.imwrite("/data/yonatan/linked_to_web/testing_2.jpg", im)
 
 
-# def parse_args():
-#     """Parse input arguments."""
-#     parser = argparse.ArgumentParser(description='Faster R-CNN demo')
-#
-#     parser.add_argument('--linkToImage', dest='picture', help='paste a link to picture',
-#                         default='default')
-#
-#     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-#                         default=1, type=int)
-#     parser.add_argument('--cpu', dest='cpu_mode',
-#                         help='Use CPU mode (overrides --gpu)',
-#                         action='store_true')
-#     parser.add_argument('--net', dest='demo_net', help='Network to use [vgg16]',
-#                         choices=NETS.keys(), default='vgg16')
-#
-#     args = parser.parse_args()
-#
-#     return args
+def find_if_shirt_blue_or_red(image, bbox):
 
-# if __name__ == '__main__':
-#     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
-#
-#     args = parse_args()
-#
-#     prototxt = os.path.join(cfg.MODELS_DIR, NETS[args.demo_net][0],
-#                             'faster_rcnn_alt_opt', 'faster_rcnn_test.pt')
-#     caffemodel = os.path.join(cfg.DATA_DIR, 'faster_rcnn_models',
-#                               NETS[args.demo_net][1])
-#
-#     if not os.path.isfile(caffemodel):
-#         raise IOError(('{:s} not found.\nDid you run ./data/script/'
-#                        'fetch_faster_rcnn_models.sh?').format(caffemodel))
-#
-#     if args.cpu_mode:
-#         caffe.set_mode_cpu()
-#     else:
-#         caffe.set_mode_gpu()
-#         caffe.set_device(args.gpu_id)
-#         cfg.GPU_ID = args.gpu_id
-#     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
-#
-#     print '\n\nLoaded network {:s}'.format(caffemodel)
+    threshold = 0.10
 
-    # if args.picture:
-    #     if isinstance(args.picture, basestring):
-    #         print "I'm in!!!!"
-    #         response = requests.get(args.picture)  # download
-    #         link_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-    #         demo(net, "/data/yonatan/linked_to_web/testing_1.jpg", link_image, 1)
-    #     else:
-    #         print "bad link!"
-    # else:
-    #     im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
-    #             '001763.jpg', '004545.jpg']
-    #     for im_name in im_names:
-    #         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-    #         print 'Demo for data/demo/{}'.format(im_name)
-    #         demo(net, im_name)
+    # define BGR boundaries
+    lower_red = np.array([0, 0, 112], dtype="uint8")
+    upper_red = np.array([97, 105, 255], dtype="uint8")
 
+    lower_blue = np.array([102, 0, 0], dtype="uint8")
+    upper_blue = np.array([255, 104, 123], dtype="uint8")
+
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+
+    person = image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+
+    shirt_bbox = person[bbox[0] + w/3:bbox[0] + 2*w/3, bbox[1] + 4*h/9:bbox[1] + 6*h/9]
+
+    w_bbox = (bbox[0] + 2*w/3) - (bbox[0] + w/3)
+    h_bbox = (bbox[1] + 6*h/9) - (bbox[1] + 4*h/9)
+
+    mask_red = cv2.inRange(shirt_bbox, lower_red, upper_red)
+
+    if cv2.countNonZero(mask_red) / float(h_bbox * w_bbox) > threshold:
+        return "red"
+
+    mask_blue = cv2.inRange(shirt_bbox, lower_blue, upper_blue)
+
+    if cv2.countNonZero(mask_blue) / float(h_bbox * w_bbox) > threshold:
+        return "blue"
+
+    return None
+
+
+def dummy_function(image, bbox):
+
+    bagpack, handbag, hat = 0, 0, 0
+
+    # bagpack, handbag, hat are binaries
+    return bagpack, handbag, hat

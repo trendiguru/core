@@ -321,11 +321,10 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
         return False
     ret = False
     for person in image_obj['people']:
-        if person['_id'] == person_id:
-            ret = 'found person'
+        # TODO make sure all product ids are of the same type
+        if str(person['_id']) == str(person_id):
             for item in person['items']:
                 if item['category'] == item_category:
-                    ret = 'found_item'
                     for result in item['similar_results'][results_collection]:
                         if result['id'] == result_id:
                             item['similar_results'][results_collection].remove(result)

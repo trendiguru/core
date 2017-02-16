@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+
+    <script>
+
+function msg()
+{
+    var CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
+    var msgpack = require("msgpack-lite");
+    var firstname = document.getElementById('firstname').value;
+    var lastname = document.getElementById('lastname').value;
+    // encode from JS Object to MessagePack (Buffer)
+
+    console.log(firstname,lastname)
+    var buffer = msgpack.encode({firstname: firstname,lastname:lastname});
+    // decode from MessagePack (Buffer) to JS Object
+    var data = msgpack.decode(buffer); // => {"foo": "bar"}
+
+
+
+    $.post(CLASSIFIER_ADDRESS,data,
+    function(data,status)
+    {
+        alert("Data: " + data + "\nStatus: " + status);
+    }  );
+
+}
+
+
+</script>
+</head>
+<body>
+
+<button>Send an HTTP POST request to a page and get the result back</button>
+
+<form id="name" action="" onsubmit="msg">
+  First name:<br>
+  <input type="text" id="firstname" value="firstname" ><br>
+  Last name:<br>
+  <input type="text" id="lastname" value="lastname">
+</form>
+
+</body>
+</html>
+
+
