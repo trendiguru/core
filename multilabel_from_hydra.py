@@ -36,10 +36,10 @@ hydra_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
 def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),
-                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves'):
+                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves',detection_threshold=0.9):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
-    :param url_or_image_arr_list:
+    :param url_or_image_arr_list:#
     :param prototxt:
     :param caffemodel:
     :param out_dir:
@@ -89,7 +89,8 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         second_neuron = round(float(second_neuron),3)
   #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
-        out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
+        if second_neuron > detection_threshold:
+            out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
         logging.debug('output for {} is {}'.format(output_layer,second_neuron))
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         i=i+1
@@ -98,14 +99,19 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
 
     if save_data:
         if isinstance(url_or_image_arr,basestring):
-            filename=url_or_image_arr.replace('http://','').replace('/','_')
+            filename=url_or_image_arr.replace('https://','').replace('http://','').replace('/','_')
+            url = url_or_image_arr
         else:
             n_chars=6
             filename = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n_chars))+'.jpg'
+            url = 'not_from_url'
         Utils.ensure_dir(save_path)
         imgname=os.path.join(save_path,filename)
+        if imgname[:-4] != '.jpg':
+            imgname = imgname + '.jpg'
         cv2.imwrite(imgname,im)
-        out['imgname']=filename
+    #    out['imgname']=filename
+        out['url']=url
         textfile = os.path.join(save_path,'output.txt')
         with open(textfile,'a') as fp:
             json.dump(out,fp,indent=4)
