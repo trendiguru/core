@@ -222,11 +222,11 @@ def variance_of_laplacian(image):
     # compute the Laplacian of the image and then return the focus
     # measure, which is simply the variance of the Laplacian
     try:
-        laplacian = cv2.Laplacian(image, cv2.CV_64F)
+        blurry = cv2.Laplacian(image, cv2.CV_64F).var()
     except:
         return False
 
-    return laplacian.var()
+    return blurry
 
 
 def average_bbs(bb1, bb2):
