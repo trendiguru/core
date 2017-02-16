@@ -54,7 +54,7 @@ class FrcnnResource:
             print('frcnn output:'+str(output))
             ret["output"] = output
             if ret["output"] is not None:
-                ret["supersuccess"] = True
+                ret["success"] = True
             else:
                 ret["error_frcnn"] = "No output from rcnn"
             print('done with frcnn')
@@ -70,14 +70,15 @@ class FrcnnResource:
         except Exception as e:
             print('exception calling hydrqa')
             traceback.print_exc()
-            ret_hydra["error_hydra"] = traceback.format_exc()
-        ret_total = ret.copy()
-        ret_total.update(ret_hydra)
-        print('total ret:'+str(ret_total))
+            hydra_output["error_hydra"] = traceback.format_exc()
+        all_output = output.copy()
+        all_output.update(hydra_output)
+        print('total out:'+str(all_output))
+        ret["output"] = all_output
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
-        resp.data = ret_total
+        resp.data = all_output
 #        resp.content_type = 'text/plain'
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
