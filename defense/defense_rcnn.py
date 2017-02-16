@@ -172,8 +172,8 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
                 crop_name = 'out_cropped'+str(i)+'.jpg'
                 cv2.imwrite(crop_name,cropped_arr)
                 copycmd = 'scp '+crop_name + ' ' + extremeli_dir
-                print('doing command '+str(copycmd))
-                subprocess.call(copycmd,shell=True)
+                print('not doing command '+str(copycmd)+' because its too slow')
+           #     subprocess.call(copycmd,shell=True)
 
                 colors = dominant_colors(cropped_arr)
                 if colors is not None:
