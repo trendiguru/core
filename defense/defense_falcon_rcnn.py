@@ -40,7 +40,7 @@ class FrcnnResource:
 
     def on_post(self, req, resp):
         print "Reached on_post"
-        gpu = req.body.get_param('gpu')
+        gpu = req.get_param('gpu')
         ret = {"success": False}
         ret_hydra = {"success":False}
     #
@@ -49,8 +49,14 @@ class FrcnnResource:
 #            data = req.stream.read()
             print('req:'+str(req))
 
-            data = req.body.data
+            data = req.get_param('name')
             print('data coming into frcnn:'+str(data))
+            data2 = req.get_param('body')
+            print('body coming into frcnn:'+str(data2))
+            data = req.get_param('name')
+            print('data coming into frcnn:'+str(data))
+            data2 = req.get_param('url')
+            print('body coming into frcnn:'+str(data2))
             url = data.get("url")
 #            img = data['name']
 #            url = data.split('"')[1]
@@ -132,6 +138,6 @@ class FrcnnResource:
 
 api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
-api.add_route('/hls/', FrcnnResource())
+api.add_route('/hls/', FrcnnResource())  #
 #send post request to http://ip-of-server/hydra
 #make sure to run docker container with -p
