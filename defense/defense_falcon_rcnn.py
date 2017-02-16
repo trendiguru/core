@@ -21,7 +21,7 @@ print('current_dir is '+str(base_dir))
 print "Done with imports"
 
 HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/frcnn"
+FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
 #what is the frcnn referring to - maybe its the thing at the end of file
 #namely, api.add_route('/frcnn/', HydraResource())
 
@@ -128,6 +128,6 @@ class FrcnnResource:
 
 api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
-api.add_route('/frcnn/', FrcnnResource())
+api.add_route('/hls/', FrcnnResource())
 #send post request to http://ip-of-server/hydra
 #make sure to run docker container with -p
