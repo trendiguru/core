@@ -1,4 +1,4 @@
-from constants import db
+from ...constants import db
 
 
 def raw_input_plus(msg):
