@@ -40,7 +40,7 @@ class FrcnnResource:
 
     def on_post(self, req, resp):
         print "Reached on_post"
-        gpu = req.body.get_param('gpu')
+        gpu = req.get_param('gpu')
         ret = {"success": False}
         ret_hydra = {"success":False}
     #
@@ -49,7 +49,7 @@ class FrcnnResource:
 #            data = req.stream.read()
             print('req:'+str(req))
 
-            data = req.body.data
+            data = req.get_param('data')
             print('data coming into frcnn:'+str(data))
             url = data.get("url")
 #            img = data['name']
