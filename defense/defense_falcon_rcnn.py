@@ -77,13 +77,14 @@ class FrcnnResource:
             for item in output:
                 print('item:'+str(item))
                 cat = item["object"]
+                print('category:'+str(cat))
                 if cat is "person":
                     x1,y1,x2,y2 = item["bbox"] #these are x1y1x2y2
 
                     cropped_image = img_arr[y1:y2,x1:x2]
                     hydra_output = self.get_hydra_output(cropped_image)
         except Exception as e:
-            print('exception calling hydrqa')
+            print('exception calling hydra')
             traceback.print_exc()
             hydra_output["error_hydra"] = traceback.format_exc()
 #        all_output = output.copy()
@@ -93,7 +94,7 @@ class FrcnnResource:
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
-        resp.data = all_output
+        resp.data = output
 #        resp.content_type = 'text/plain'
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
