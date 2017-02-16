@@ -39,7 +39,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
                      gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves',detection_threshold=0.9):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
-    :param url_or_image_arr_list:
+    :param url_or_image_arr_list:#
     :param prototxt:
     :param caffemodel:
     :param out_dir:
