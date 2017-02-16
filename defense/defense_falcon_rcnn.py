@@ -85,6 +85,9 @@ class FrcnnResource:
                     cropped_image = img_arr[y1:y2,x1:x2]
                     print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                     hydra_output = self.get_hydra_output(cropped_image)
+                    if hydra_output is not {}:
+                        print('adding details from hydra '+str(hydra_output))
+                        item['details'] = hydra_output
         except Exception as e:
             print('exception calling hydra {}'.format(e))
             traceback.print_exc()
@@ -116,7 +119,7 @@ class FrcnnResource:
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
         print('response from hydra:'+str(resp.content))
-        return resp.content
+        return resp.content['output']
 
 api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())

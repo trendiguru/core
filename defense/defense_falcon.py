@@ -45,11 +45,12 @@ class HydraResource:
                 print('img arr into hydra falcon size:'+str(img.shape))
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
-            output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
-            if "sweater_binary_h_iter_50000" in output:
-                del output["sweater_binary_h_iter_50000"]
+            hydra_output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
+            if "sweater_binary_h_iter_50000" in hydra_output:
+                del hydra_output["sweater_binary_h_iter_50000"]
+            del hydra_output["url"] #dont need this , its an array anyway lately
 
-            ret["output"] = output
+            ret["output"] = hydra_output
             if ret["output"] is not None:
                 ret["success"] = True
             else:
