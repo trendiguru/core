@@ -118,8 +118,9 @@ class FrcnnResource:
         params = {}
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
-        print('response from hydra:'+str(resp.content))
-        return resp.content['output']
+        dict = json.loads(resp)
+        print('response from hydra:'+str(dict))
+        return dict['output']
 
 api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
