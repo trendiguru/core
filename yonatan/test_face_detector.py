@@ -52,9 +52,12 @@ def theDetector(url_or_np_array):
     print "Starting the face detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        try:
+            response = requests.get(url_or_np_array)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        except:
+            print "Bad link!"
+            return None
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
