@@ -71,9 +71,9 @@ def theDetector(url_or_np_array):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    faces = find_face_dlib(full_image, 10)
+    faces0 = find_face_dlib(full_image, 10)
 
-    faces0 = background_removal.find_face_dlib(full_image, 5)
+    faces = background_removal.find_face_dlib(full_image, 5)
 
     print "len(faces0) without restrictions: {0}".format(len(faces0['faces']))
     print "len(faces): {0}".format(len(faces['faces']))
@@ -82,12 +82,12 @@ def theDetector(url_or_np_array):
         print "didn't find any faces"
         return None
 
-    print type(faces['faces'])
+    # print type(faces['faces'])
 
     faces['faces'].sort(key=lambda x: x[3], reverse=True)
 
-    for i in range(0, len(faces['faces'])):
-        print faces['faces'][i]
+    # for i in range(0, len(faces['faces'])):
+    #     print faces['faces'][i]
 
     height, width, channels = full_image.shape
 
