@@ -29,7 +29,7 @@ import requests
 import random
 from sklearn import mixture
 import copy
-
+import subprocess
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -117,7 +117,7 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
 
 def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
     """Detect object classes in an image using pre-computed object proposals."""
-
+    extremeli_dir = 'root@104.155.22.95:/var/www/results/hls/'
     person_bbox = []
     relevant_bboxes = []
 
@@ -168,8 +168,11 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
                 cv2.rectangle(img_arr,(top_bb_smallified[0],top_bb_smallified[1]),(top_bb_smallified[2],top_bb_smallified[3]),(100,255,0),3)
                 cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[3],
                               top_bb_smallified[0]:top_bb_smallified[2]]
-                cv2.imwrite('out_cropped'+str(i)+'.jpg',cropped_arr)
-                cv2.imwrite('out_'+str(i)+'.jpg',img_arr)
+
+                crop_name = 'out_cropped'+str(i)+'.jpg'
+                cv2.imwrite(crop_name,cropped_arr)
+                copycmd = 'cp '+crop_name + ' ' + extremeli_dir
+                subprocess.call(copycmd,shell=True)
 
                 colors = dominant_colors(cropped_arr)
                 if colors is not None:
@@ -182,7 +185,9 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
 
         # person_bbox = person_bbox.tolist()
 
-    cv2.imwrite('testout.jpg',img_arr)
+    cv2.imwrite('hlsout.jpg',img_arr)
+    copycmd = 'cp hlsout.jpg ' + extremeli_dir
+    subprocess.call(copycmd,shell=True)
     print("answer:{}".format(relevant_bboxes))
     return relevant_bboxes
 
