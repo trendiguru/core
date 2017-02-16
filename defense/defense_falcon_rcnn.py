@@ -119,7 +119,7 @@ class FrcnnResource:
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
         print('resp:'+str(resp))
-        print('type;'+type(resp))
+        print('type;'+str(type(resp)))
         print('resp:'+str(resp.content))
         print('type;'+type(resp.content))
         dict = json.loads(resp.content)
