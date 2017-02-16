@@ -74,6 +74,7 @@ class FrcnnResource:
     #get hydra results
         print('done with frcnn now doing hydra')
         try:
+            hydra_output={}
             for item in output:
                 print('item:'+str(item))
                 cat = item["object"]
@@ -110,14 +111,14 @@ class FrcnnResource:
     def get_hydra_output(self,url):
             #should be changed to sending img. array
 #        data = msgpack.dumps({"image": url})
-        data = {"image":url}
+        data = json.dumps({"image":url})
         params = {}
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
         print('response from hydra:'+str(resp.content))
         return resp.content
 
-api = falcon.API()
+api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
 api.add_route('/frcnn/', FrcnnResource())
 #send post request to http://ip-of-server/hydra
