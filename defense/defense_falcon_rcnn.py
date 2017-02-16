@@ -96,7 +96,7 @@ class FrcnnResource:
         params = {}
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
-        if ["sweater_binary_h_iter_50000"] in resp.content:
+        if "sweater_binary_h_iter_50000" in resp.content:
             del resp.content["sweater_binary_h_iter_50000"]
         print('response from hydra:'+str(resp.content))
         return resp.content
