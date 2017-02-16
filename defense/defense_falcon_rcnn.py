@@ -110,7 +110,7 @@ class FrcnnResource:
     def get_hydra_output(self,url):
             #should be changed to sending img. array
 #        data = msgpack.dumps({"image": url})
-        data = {"image":url}
+        data = json.dumps(){"image":url})
         params = {}
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data, params=params)
