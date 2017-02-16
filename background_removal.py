@@ -173,8 +173,7 @@ def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
     # face relevant if:
     # - face bounding box is all inside the image
-    # - h > 5% from the full image height
-    # - h < 25% from the full image height
+    # - h > 5% from the full image height and h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
     # - if we see enough from the body - at least 4.7 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
     # - face inside border of 6% from each side of the right and left of the full image
