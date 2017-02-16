@@ -177,9 +177,13 @@ def face_is_relevant(image, face):
     # - all face (height wise) is above the middle of the image
     # - if we see enough from the body - at least 4.7 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
     # - face inside border of 6% from each side of the right and left of the full image
+    # - face have to be with blurry > 100
     # - skin pixels (according to our constants values) are more than third of all the face pixels
     image_height, image_width, d = image.shape
     x, y, w, h = face
+    face_image = image[y:y + h, x:x + w, :]
+    gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
+    print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
@@ -188,6 +192,7 @@ def face_is_relevant(image, face):
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
             and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
+            and variance_of_laplacian(gray_face) > 210 \
             and is_skin_color(face_ycrcb):
         return True
     else:
@@ -207,6 +212,12 @@ def is_skin_color(face_ycrcb):
             if cond:
                 num_of_skin_pixels += 1
     return num_of_skin_pixels / float(h * w) > 0.33
+
+
+def variance_of_laplacian(image):
+    # compute the Laplacian of the image and then return the focus
+    # measure, which is simply the variance of the Laplacian
+    return cv2.Laplacian(image, cv2.CV_64F).var()
 
 
 def average_bbs(bb1, bb2):
