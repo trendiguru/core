@@ -183,6 +183,10 @@ def face_is_relevant(image, face):
     x, y, w, h = face
     face_image = image[y:y + h, x:x + w, :]
     gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
+    try:
+        blurry = variance_of_laplacian(gray_face)
+    except:
+        return False
     print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
@@ -192,7 +196,7 @@ def face_is_relevant(image, face):
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
             and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
-            and variance_of_laplacian(gray_face) > 210 \
+            and blurry > 210 \
             and is_skin_color(face_ycrcb):
         return True
     else:
