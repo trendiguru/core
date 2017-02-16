@@ -183,10 +183,10 @@ def face_is_relevant(image, face):
     x, y, w, h = face
     face_image = image[y:y + h, x:x + w, :]
     gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
-    try:
-        blurry = variance_of_laplacian(gray_face)
-    except:
-        return False
+    # try:
+    #     blurry = variance_of_laplacian(gray_face)
+    # except:
+    #     return False
     print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
@@ -221,7 +221,12 @@ def is_skin_color(face_ycrcb):
 def variance_of_laplacian(image):
     # compute the Laplacian of the image and then return the focus
     # measure, which is simply the variance of the Laplacian
-    return cv2.Laplacian(image, cv2.CV_64F).var()
+    try:
+        laplacian = cv2.Laplacian(image, cv2.CV_64F)
+    except:
+        return False
+
+    return laplacian.var()
 
 
 def average_bbs(bb1, bb2):
