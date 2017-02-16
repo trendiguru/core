@@ -49,7 +49,7 @@ class FrcnnResource:
 #            data = req.stream.read()
             print('req:'+str(req))
 
-            data = req.get_param('data')
+            data = req.get_param('name')
             print('data coming into frcnn:'+str(data))
             url = data.get("url")
 #            img = data['name']
