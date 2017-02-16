@@ -138,6 +138,6 @@ class FrcnnResource:
 
 api = falcon.API()#
 #api.add_route('/mlb3/', HydraResource())
-api.add_route('/hls/', FrcnnResource())
+api.add_route('/hls/', FrcnnResource())  #
 #send post request to http://ip-of-server/hydra
 #make sure to run docker container with -p
