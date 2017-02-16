@@ -33,12 +33,13 @@ class HydraResource:
             data = req.stream.read()
 #            print('data coming into hydra:'+str(data))
             print('hydra falcon')
-            img = data.get("image")
+            dict = json.loads(data)
+            img = dict.get("image")
 
 #            img = data['name']
 #            img = data.split('"')[1]
   #          img = data
-            if isinstance(data,basestring):
+            if isinstance(img,basestring):
                 print('url coming to hydra falcon:'+str(img))
             else:
                 print('img arr into hydra falcon size:'+img.shape)
