@@ -50,6 +50,9 @@ class HydraResource:
                 del hydra_output["sweater_binary_h_iter_50000"]
             if "sweatshirt_binary_h_iter_14000" in hydra_output:
                 del hydra_output["sweatshirt_binary_h_iter_14000"]
+            if "backpack_hydra_iter_2000" in hydra_output:
+                del hydra_output["backpack_hydra_iter_2000"]
+
 
             del hydra_output["url"] #dont need this , its an array anyway lately
 
