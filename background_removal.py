@@ -183,10 +183,6 @@ def face_is_relevant(image, face):
     x, y, w, h = face
     face_image = image[y:y + h, x:x + w, :]
     gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
-    # try:
-    #     blurry = variance_of_laplacian(gray_face)
-    # except:
-    #     return False
     print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
@@ -223,7 +219,7 @@ def variance_of_laplacian(image):
     # measure, which is simply the variance of the Laplacian
     try:
         blurry = cv2.Laplacian(image, cv2.CV_64F).var()
-    except:
+    except AttributeError:
         return False
 
     return blurry
