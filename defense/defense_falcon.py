@@ -36,7 +36,7 @@ class HydraResource:
 #            img = data['name']
 #            img = data.split('"')[1]
   #          img = data
-            if isinstance(data,basestring)
+            if isinstance(data,basestring):
                 print('url oming to hydra falcon:'+str(img))
             else:
                 print('img arr into hydra falcon size:'+img.shape)
