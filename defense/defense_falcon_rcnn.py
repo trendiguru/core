@@ -121,7 +121,7 @@ class FrcnnResource:
         print('resp:'+str(resp))
         print('type;'+str(type(resp)))
         print('resp:'+str(resp.content))
-        print('type;'+type(resp.content))
+        print('type;'+str(type(resp.content)))
         dict = json.loads(resp.content)
         print('response dict from hydra:'+str(dict))
         return dict['output']
