@@ -75,6 +75,7 @@ class FrcnnResource:
         print('done with frcnn now doing hydra')
         try:
             for item in output:
+                print('item:'+str(item))
                 cat = item["object"]
                 if cat is "person":
                     x1,y1,x2,y2 = item["bbox"] #these are x1y1x2y2
@@ -85,10 +86,10 @@ class FrcnnResource:
             print('exception calling hydrqa')
             traceback.print_exc()
             hydra_output["error_hydra"] = traceback.format_exc()
-        all_output = output.copy()
-        all_output.update(hydra_output)
-        print('total out:'+str(all_output))
-        ret["output"] = all_output
+#        all_output = output.copy()
+#        all_output.update(hydra_output)
+#        print('total out:'+str(all_output))
+        ret["output"] = output
 
 #        resp.data = msgpack.dumps(ret)
 #        resp.content_type = 'application/x-msgpack'
