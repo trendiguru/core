@@ -48,9 +48,9 @@ class FrcnnResource:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
             print('data coming into frcnn:'+str(data))
-#            img = data.get("image")
+            url = data.get("url")
 #            img = data['name']
-            url = data.split('"')[1]
+#            url = data.split('"')[1]
             print('url:'+str(url))
             response = requests.get(url)  # download
             img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
@@ -95,6 +95,7 @@ class FrcnnResource:
 #        all_output = output.copy()
 #        all_output.update(hydra_output)
 #        print('total out:'+str(all_output))
+
         ret["output"] = output
 
 #        resp.data = msgpack.dumps(ret)
