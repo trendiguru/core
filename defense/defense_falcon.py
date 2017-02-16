@@ -31,13 +31,15 @@ class HydraResource:
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
-            print('data coming into hydra:'+str(data))
+#            print('data coming into hydra:'+str(data))
+            print('hydra falcon')
             img = data.get("image")
+
 #            img = data['name']
 #            img = data.split('"')[1]
   #          img = data
             if isinstance(data,basestring):
-                print('url oming to hydra falcon:'+str(img))
+                print('url coming to hydra falcon:'+str(img))
             else:
                 print('img arr into hydra falcon size:'+img.shape)
  #           img_arr=Utils.get_cv2_img_array(img)
