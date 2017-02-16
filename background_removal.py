@@ -171,12 +171,13 @@ def score_face(face, image):
 
 def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
-    # image relevant if:
+    # face relevant if:
     # - face bounding box is all inside the image
     # - h > 5% from the full image height
     # - h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
     # - if we see enough from the body - at least 4.7 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
+    # - face inside border of 6% from each side of the right and left of the full image
     # - skin pixels (according to our constants values) are more than third of all the face pixels
     image_height, image_width, d = image.shape
     x, y, w, h = face
@@ -187,6 +188,7 @@ def face_is_relevant(image, face):
             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
+            and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
             and is_skin_color(face_ycrcb):
         return True
     else:
