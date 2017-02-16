@@ -4,6 +4,7 @@ print(falcon.__file__)
 from .. import multilabel_from_hydra
 import requests
 from .. import Utils
+import numpy as np
 
 from jaweson import json, msgpack
 
@@ -31,11 +32,14 @@ class HydraResource:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
             print('data coming into hydra:'+str(data))
-#            img = data.get("image")
+            img = data.get("image")
 #            img = data['name']
 #            img = data.split('"')[1]
-            img = data
-            print('url:'+str(img))
+  #          img = data
+            if isinstance(data,basestring):
+                print('url oming to hydra falcon:'+str(img))
+            else:
+                print('img arr into hydra falcon size:'+img.shape)
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
             output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
