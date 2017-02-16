@@ -321,12 +321,12 @@ def cancel_result(image_id, person_id, item_category, results_collection, result
         return False
     ret = False
     for person in image_obj['people']:
-        # TODO make sure all product ids are of the same type
-        if str(person['_id']) == str(person_id):
+        if person['_id'] == person_id:
             for item in person['items']:
                 if item['category'] == item_category:
                     for result in item['similar_results'][results_collection]:
-                        if result['id'] == result_id:
+                        # TODO make sure all product ids are of the same type
+                        if str(result['id']) == str(result_id):
                             item['similar_results'][results_collection].remove(result)
                             ret = True
     db.images.replace_one({'image_id': image_id}, image_obj)
