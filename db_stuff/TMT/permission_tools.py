@@ -37,6 +37,7 @@ def remove_collection_from_user(username):
     print ('which collections to delete? (for ex. 1,2,5)')
     cols = raw_input('')
     cols_to_remove = cols.split(',')
+    print(cols_to_remove)
     new_cols = [col for x, col in enumerate(current_cols) if str(x) not in cols_to_remove]
 
     if len(current_cols) != len(new_cols):
