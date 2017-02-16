@@ -46,7 +46,8 @@ class FrcnnResource:
     #
         try:
 #            data = msgpack.loads(req.stream.read())
-            data = req.stream.read()
+#            data = req.stream.read()
+            data = req.data
             print('data coming into frcnn:'+str(data))
             url = data.get("url")
 #            img = data['name']
