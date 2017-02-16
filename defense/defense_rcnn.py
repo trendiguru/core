@@ -38,7 +38,8 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-DEFENSE_CLASSES = ('__background__', 'bicycle', 'bus', 'car', 'motorbike', 'person')
+DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person','tvmonitor','train','bottle','chair')
+
 
 NETS = {'vgg16': ('VGG16',
                   'VGG16_faster_rcnn_final.caffemodel'),
@@ -156,7 +157,7 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img_arr,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 0.5,(0,255,0),1,cv2.LINE_AA)
 
-            if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
+            if class_name in DEFENSE_CLASSES:
                 print('class {} bbox {} '.format(class_name,bbox))
                 margin_percent = 0.3  #remove this percent of orig. box size
                 top_x1,top_y1,top_x2,top_y2 = [bbox[0],bbox[1],bbox[2],int((bbox[3]-bbox[1])/2+bbox[1])]
