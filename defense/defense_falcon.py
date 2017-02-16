@@ -48,6 +48,9 @@ class HydraResource:
             hydra_output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
             if "sweater_binary_h_iter_50000" in hydra_output:
                 del hydra_output["sweater_binary_h_iter_50000"]
+            if "sweatshirt_binary_h_iter_14000" in hydra_output:
+                del hydra_output["sweatshirt_binary_h_iter_14000"]
+
             del hydra_output["url"] #dont need this , its an array anyway lately
 
             ret["output"] = hydra_output
