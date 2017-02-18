@@ -187,7 +187,7 @@ def face_is_relevant(image, face):
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
+    if (x > 0 and x + w < image_width and y > 0 and y + h < image_height) \
             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
