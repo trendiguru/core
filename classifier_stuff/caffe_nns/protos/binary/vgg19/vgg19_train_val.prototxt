@@ -7,7 +7,8 @@ layer {
       python_param {
       module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'/data/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':30 }"
+      #70 images possible on k80 (12gb) , 131Mb / image + starting amount
+      param_str: "{\'images_and_labels_file\': \'/data/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':70 }"
       }
   include {phase: TRAIN}
 }

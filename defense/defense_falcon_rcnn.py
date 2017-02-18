@@ -87,8 +87,13 @@ class HLS:
         return detected
 
 
-    def get_hydra_output(self,url):
-        data = json.dumps({"image":url})
+    def get_hydra_output(self,subimage):
+        '''
+        get hydra details on an image
+        :param subimage: np array , e..g a crop of the original which fcrnn has found
+        :return:
+        '''
+        data = json.dumps({"image":subimage})
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
         # print('resp:'+str(resp))
