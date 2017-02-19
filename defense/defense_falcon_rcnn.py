@@ -77,7 +77,9 @@ class HLS:
         for item in detected:
             cat = item["object"]
             if cat == "person":
+                print('bbox:'+item['bbox'])
                 x1,y1,x2,y2 = item["bbox"]
+                print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
                 cropped_image = img_arr[y1:y2,x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 hydra_output = self.get_hydra_output(cropped_image)
