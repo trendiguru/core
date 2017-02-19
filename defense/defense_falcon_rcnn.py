@@ -74,10 +74,11 @@ class HLS:
     def detect(self, img_arr):
         detected = defense_rcnn.detect_frcnn(img_arr)
         # get hydra results
+        print('started defense_falcon_rcnn.detect')
         for item in detected:
             cat = item["object"]
             if cat == "person":
-                print('bbox:'+item['bbox'])
+                print('bbox:'+str(item['bbox'])+' type:'+str(type(item['bbox'])))
                 x1,y1,x2,y2 = item["bbox"]
                 print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
                 cropped_image = img_arr[y1:y2,x1:x2]
