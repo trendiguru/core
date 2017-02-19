@@ -42,6 +42,7 @@ class HLS:
 
         image_url = req.get_param("imageUrl")
         if not image_url:
+            print('get request:'+str(req))
             raise falcon.HTTPMissingParam("imageUrl")
         else:
             try:
@@ -74,10 +75,15 @@ class HLS:
     def detect(self, img_arr):
         detected = defense_rcnn.detect_frcnn(img_arr)
         # get hydra results
+        print('started defense_falcon_rcnn.detect')
         for item in detected:
             cat = item["object"]
             if cat == "person":
+                print('bbox:'+str(item['bbox'])+' type:'+str(type(item['bbox'])))
                 x1,y1,x2,y2 = item["bbox"]
+                print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
+                print('img arr type:'+str(type(img_arr)))
+                print('img arr shape:'+str((img_arr.shape)))
                 cropped_image = img_arr[y1:y2,x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 hydra_output = self.get_hydra_output(cropped_image)
