@@ -173,7 +173,7 @@ def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
     # face relevant if:
     # - face bounding box is all inside the image
-    # - h > 5% from the full image height and h < 25% from the full image height
+    # - h > 7% from the full image height and h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
     # - if we see enough from the body - at least 4.7 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
     # - face inside border of 6% from each side of the right and left of the full image
@@ -188,7 +188,7 @@ def face_is_relevant(image, face):
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
     if (x > 0 and x + w < image_width and y > 0 and y + h < image_height) \
-            and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
+            and 0.07 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
             and (image.shape[0] - (h * 4.7)) > (y + h) \
             and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
