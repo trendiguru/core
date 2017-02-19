@@ -31,8 +31,10 @@ def secure_the_homeland(image_array_or_url, gpu=1):
         #params = params={"categoryIndex": category_index} if category_index else None
     print('params coming into hls:'+str(params))
  #   data = msgpack.dumps({"image": image_array_or_url})
-    data = {"image": image_array_or_url}
-    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
+    data_dict = {"image": image_array_or_url}
+    dumped_data = json.dumps(data_dict)
+    print('secure_the_homeland looking for a response from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data, params=params)
     print('response  to poster:'+str(resp.content))
     return resp.content
 #    return msgpack.loads(resp.content)

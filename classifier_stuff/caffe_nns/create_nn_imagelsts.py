@@ -21,7 +21,7 @@ from trendi.yonatan import yonatan_constants
 from trendi.features import config
 
 
-def write_cats_from_db_to_textfile(image_dir='/home/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
+def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
     for tamara berg cats
     todo - put in consistency check , ie make sure at least 2 votes for 'yes' and  0 votes for 'no' as in binary_pos_and_neg_from_multilabel_db
@@ -351,7 +351,7 @@ def os_walk_to_tg_hydra(folderpath='/data/jeremy/image_dbs/mongo',cats=constants
 #    print cats_and_dirs
     return cats_and_dirs
 
-def binary_pos_and_neg_from_multilabel_db(image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
+def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',catsfile_dir = './',in_docker=True):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -605,7 +605,7 @@ def positives_from_tbdb_for_hydra_cats():
             one_class_positives_from_multilabel_db(desired_cat=cat,desired_index=index)
             index += 1
 
-def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/home/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
+def create_class_a_vs_class_b_file_from_multilabel_db(index_a,index_b,image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',outfile=None,labels=constants.web_tool_categories_v2,skip_missing_files=False):
     '''
     read multilabel db.
     if n_votes[cat] = 0 put that image in negatives for cat.
@@ -1625,7 +1625,7 @@ if __name__ == "__main__": #
          'watch_filipino_labels.txt',
          'womens_swimwear_bikini_filipino_labels.txt',
          'womens_swimwear_nonbikini_filipino_labels.txt']
-    dir = '/home/jeremy/image_dbs/tamara_berg_street_to_shop/todo/'
+    dir = '/data/jeremy/image_dbs/tamara_berg_street_to_shop/todo/'
     x = [os.path.join(dir,f) for f in os.listdir(dir) if '.txt' in f]
     x.sort()
     for f in x:
