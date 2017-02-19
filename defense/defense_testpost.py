@@ -30,6 +30,9 @@ def secure_the_homeland(image_array_or_url, gpu=1):
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
     print('params coming into hls:'+str(params))
+
+
+    #try POST
  #   data = msgpack.dumps({"image": image_array_or_url})
     data_dict = {"image": image_array_or_url}
     dumped_data = json.dumps(data_dict)
@@ -38,6 +41,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     print('response  to POST:'+str(resp.content))
     print resp.content
 
+    #try GET
     data_dict = {"imageUrl": image_array_or_url}
     dumped_data = json.dumps(data_dict)
     print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
