@@ -14,6 +14,7 @@ mpl.use('Agg')
 import os
 base_dir = os.path.dirname(os.path.realpath(__file__))
 print('current_dir is '+str(base_dir))
+extremeli_dir = 'root@104.155.22.95:/var/www/results/hls/' #send results w. bboxes here
 
 import _init_paths
 from fast_rcnn.config import cfg
@@ -29,7 +30,7 @@ import requests
 import random
 from sklearn import mixture
 import copy
-
+import subprocess
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -38,7 +39,8 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-DEFENSE_CLASSES = ('__background__', 'bicycle', 'bus', 'car', 'motorbike', 'person')
+DEFENSE_CLASSES = ('bicycle', 'bus', 'car', 'motorbike', 'person','tvmonitor','train','bottle','chair')
+
 
 NETS = {'vgg16': ('VGG16',
                   'VGG16_faster_rcnn_final.caffemodel'),
@@ -70,7 +72,7 @@ net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
 print '\n\nLoaded network {:s}'.format(caffemodel)
 
-def detect_frcnn(url_or_np_array,save_data=True,filename=None):
+def detect_frcnn(url_or_np_array,save_data=False,filename=None):
     print "detect_frcnn started"
     # check if i get a url (= string) or np.ndarray
     if filename:
@@ -94,7 +96,7 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
         return None
 
     #demo(full_image)
-    detections = do_detect_frcnn(full_image)
+    detections = do_detect_frcnn(full_image,draw_rects_and_save=save_data)
 
     if save_data:
         save_path='./'
@@ -114,9 +116,8 @@ def detect_frcnn(url_or_np_array,save_data=True,filename=None):
     print('the dettections are:'+str(detections))
     return detections #
 
-def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
+def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3,draw_rects_and_save=False):
     """Detect object classes in an image using pre-computed object proposals."""
-
     person_bbox = []
     relevant_bboxes = []
 
@@ -152,23 +153,28 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
             print "class name: {0}, score: {1}".format(class_name, score)
 
 #        """Draw detected bounding boxes."""
-            cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(img_arr,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 0.5,(0,255,0),1,cv2.LINE_AA)
 
-            if class_name in ['person', 'bicycle',  'boat', 'bus', 'car',  'motorbike']:
+            if class_name in DEFENSE_CLASSES:
                 print('class {} bbox {} '.format(class_name,bbox))
-                margin_percent = 0.3  #remove this percent of orig. box size
+                margin_percent = 0.3  #remove this percent of orig. box size to get smaller boxes for main color detection
                 top_x1,top_y1,top_x2,top_y2 = [bbox[0],bbox[1],bbox[2],int((bbox[3]-bbox[1])/2+bbox[1])]
                 extra_pixels_h = int(margin_percent*(top_y2-top_y1)/2)
                 extra_pixels_w = int(margin_percent*(top_x2-top_x1)/2)
                 top_bb_smallified = [top_x1+extra_pixels_w,top_y1+extra_pixels_h,top_x2-extra_pixels_w,top_y2-extra_pixels_h]
                 print('topbb {} {} {} {} small {} percent {}'.format(top_x1,top_y1,top_x2,top_y2,top_bb_smallified,margin_percent))
-                cv2.rectangle(img_arr,(top_bb_smallified[0],top_bb_smallified[1]),(top_bb_smallified[2],top_bb_smallified[3]),(100,255,0),3)
                 cropped_arr = img_arr[top_bb_smallified[1]:top_bb_smallified[3],
                               top_bb_smallified[0]:top_bb_smallified[2]]
-                cv2.imwrite('out_cropped'+str(i)+'.jpg',cropped_arr)
-                cv2.imwrite('out_'+str(i)+'.jpg',img_arr)
+
+                if draw_rects_and_save:
+                    cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[2],bbox[3]),(255,0,0),3)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    cv2.putText(img_arr,'{:s} {:.3f}'.format(class_name, score),(int(bbox[0]), int(bbox[1] + 18)), font, 0.5,(0,255,0),1,cv2.LINE_AA)
+                    cv2.rectangle(img_arr,(top_bb_smallified[0],top_bb_smallified[1]),(top_bb_smallified[2],top_bb_smallified[3]),(100,255,0),3)
+                    crop_name = 'out_cropped'+str(i)+'.jpg'
+                    cv2.imwrite(crop_name,cropped_arr)
+                    copycmd = 'scp '+crop_name + ' ' + extremeli_dir
+#                    print('doing command '+str(copycmd)+' because its too slow')
+#                    subprocess.call(copycmd,shell=True)
 
                 colors = dominant_colors(cropped_arr)
                 if colors is not None:
@@ -177,11 +183,13 @@ def do_detect_frcnn(img_arr,conf_thresh=0.8,NMS_THRESH=0.3):
                 else:
                     relevant_bboxes.append({'object':class_name,'bbox':bbox,'confidence':round(float(score),3)})
 #                print('relevant:'+str(relevant_bboxes))
-    #            bottom_bb = [bbox[0],bbox[1]+bbox[3]/2,bbox[2],int(bbox[3]/2)]
 
-        # person_bbox = person_bbox.tolist()
+    if draw_rects_and_save:
+        cv2.imwrite('hlsout.jpg',img_arr)
+        copycmd = 'scp hlsout.jpg ' + extremeli_dir
+        print('doing command '+str(copycmd))
+        subprocess.call(copycmd,shell=True)
 
-    cv2.imwrite('testout.jpg',img_arr)
     print("answer:{}".format(relevant_bboxes))
     return relevant_bboxes
 
@@ -195,8 +203,6 @@ def dominant_colors(img_arr,n_components=2):
         print('got non arr in dominant_colors')
         return None
 
-
-
     hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
     if hsv is None:
         print('some prob with hsv')
@@ -206,12 +212,13 @@ def dominant_colors(img_arr,n_components=2):
         avg_sat = np.mean(hsv[:,:,1])
         avg_val = np.mean(hsv[:,:,2])
         print('avg sat {} avg val {}'.format(avg_sat,avg_val))
-
-        if avg_sat < 127 or avg_val < 127:
+        if avg_sat < 150 or avg_val < 150: #these are stabs in the dark and should be checked
             return None
     except:
         print('problem calculating sat or val')
 
+#take the hue histogram and break it into asum of gaussians, the main colors
+#are the centers of those gaussians if they are pronounced enough (small enough variance)
     hue = hsv[:,:,0]
     hist = np.bincount(hue.ravel(),minlength=180) #hue goes to max 180
 #    print('hist:'+str(hist))
@@ -220,12 +227,6 @@ def dominant_colors(img_arr,n_components=2):
 #    print gmix
     print('covars:'+str(gmix.covars_))
     print('means:'+str(gmix.means_))
-
-
-##	colors = ['r' if i==0 else 'g' for i in gmix.predict(samples)]
-#	ax = plt.gca()
-#	ax.scatter(samples[:,0], samples[:,1], c=colors, alpha=0.8)
-#	plt.show()
     relevant_colors = []
     relevant_covars = []
     relevant_color_names = []

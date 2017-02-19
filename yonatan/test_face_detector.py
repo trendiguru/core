@@ -52,9 +52,12 @@ def theDetector(url_or_np_array):
     print "Starting the face detector testing!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        try:
+            response = requests.get(url_or_np_array)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        except:
+            print "Bad link!"
+            return None
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
@@ -69,23 +72,22 @@ def theDetector(url_or_np_array):
     # faces = background_removal.find_face_dlib(full_image)
 
     faces0 = find_face_dlib(full_image, 10)
-    print "len(faces0) without restrictions: {0}".format(len(faces0['faces']))
-
 
     faces = background_removal.find_face_dlib(full_image, 5)
 
+    print "len(faces0) without restrictions: {0}".format(len(faces0['faces']))
     print "len(faces): {0}".format(len(faces['faces']))
 
     if not faces["are_faces"]:
         print "didn't find any faces"
         return None
 
-    print type(faces['faces'])
+    # print type(faces['faces'])
 
     faces['faces'].sort(key=lambda x: x[3], reverse=True)
 
-    for i in range(0, len(faces['faces'])):
-        print faces['faces'][i]
+    # for i in range(0, len(faces['faces'])):
+    #     print faces['faces'][i]
 
     height, width, channels = full_image.shape
 
@@ -117,6 +119,8 @@ def theDetector(url_or_np_array):
 
         if full_image.shape[0] - (y + h) >= 8 * h:
             cv2.rectangle(full_image, (x, y + h), (x + w, y + (9 * h)), (130, 0, 130), 3)
+
+        cv2.rectangle(full_image, (int(full_image.shape[1] * 0.05), int(full_image.shape[0] * 0.05)), (int(full_image.shape[1] * 0.95), int(full_image.shape[0] * 0.95)), (0, 0, 255), 3)
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 

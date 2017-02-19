@@ -33,7 +33,7 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "for face in image_is_relevant(image).faces:"
     """
     Relevance = collections.namedtuple('relevance', 'is_relevant faces')
-    faces_dict = find_face_dlib(image, 4)
+    faces_dict = find_face_dlib(image, 3)
     # faces_dict = find_face_cascade(image, 10)
     # if len(faces_dict['faces']) == 0:
     #     faces_dict = find_face_ccv(image, 10)
@@ -138,11 +138,11 @@ def choose_faces(image, faces_list, max_num_of_faces):
             # since the list is reversed sorted, the first relevant face, will be the biggest
             if biggest_face == 0:
                 biggest_face = face[3]
-            # in case the current face is not the biggest relevant one, i'm going to check if its height smaller
-            # than half of the biggest face's height, if so, the current face is not relevant and also the next
+            # in case the current face is not the biggest relevant one, i'm going to check if its height (= wight) * 1.6 smaller
+            # than the biggest face's height, if so, the current face is not relevant and also the next
             # (which are smaller)
             else:
-                if face[3] < 0.5 * biggest_face:
+                if 1.6 * face[3] < biggest_face:
                     break
 
             relevant_faces.append(face)
@@ -171,22 +171,28 @@ def score_face(face, image):
 
 def face_is_relevant(image, face):
     # (x,y) - left upper coordinates of the face, h - height of face, w - width of face
-    # image relevant if:
+    # face relevant if:
     # - face bounding box is all inside the image
-    # - h > 5% from the full image height
-    # - h < 25% from the full image height
+    # - h > 5% from the full image height and h < 25% from the full image height
     # - all face (height wise) is above the middle of the image
-    # - if we see enough from the body - at least 4.5 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
+    # - if we see enough from the body - at least 4.7 "faces" (long) beneath the end of the face (y + h) - we'will need to delete this condition when we'll know to handle top part of body by its own
+    # - face inside border of 6% from each side of the right and left of the full image
+    # - face have to be with blurry > 100
     # - skin pixels (according to our constants values) are more than third of all the face pixels
     image_height, image_width, d = image.shape
     x, y, w, h = face
-    # threshold = face + 4.5 faces down = 5.5 faces
+    face_image = image[y:y + h, x:x + w, :]
+    gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
+    print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
+    # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]
-    if (x > 0 or x + w < image_width or y > 0 or y + h < image_height) \
+    if (x > 0 and x + w < image_width and y > 0 and y + h < image_height) \
             and 0.05 * image.shape[0] < h < 0.25 * image.shape[0] \
             and y < (image.shape[0] / 2) - h \
-            and (image.shape[0] - (h * 4.5)) > (y + h) \
+            and (image.shape[0] - (h * 4.7)) > (y + h) \
+            and (0.06 * image.shape[1] < x and 0.94 * image.shape[1] > (x + w)) \
+            and variance_of_laplacian(gray_face) > 225 \
             and is_skin_color(face_ycrcb):
         return True
     else:
@@ -206,6 +212,17 @@ def is_skin_color(face_ycrcb):
             if cond:
                 num_of_skin_pixels += 1
     return num_of_skin_pixels / float(h * w) > 0.33
+
+
+def variance_of_laplacian(image):
+    # compute the Laplacian of the image and then return the focus
+    # measure, which is simply the variance of the Laplacian
+    try:
+        blurry = cv2.Laplacian(image, cv2.CV_64F).var()
+    except AttributeError:
+        return False
+
+    return blurry
 
 
 def average_bbs(bb1, bb2):

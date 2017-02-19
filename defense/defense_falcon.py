@@ -31,22 +31,32 @@ class HydraResource:
         try:
 #            data = msgpack.loads(req.stream.read())
             data = req.stream.read()
-            print('data coming into hydra:'+str(data))
-            img = data.get("image")
+#            print('data coming into hydra:'+str(data))
+            print('hydra falcon')
+            dict = json.loads(data)
+            img = dict.get("image")
+
 #            img = data['name']
 #            img = data.split('"')[1]
   #          img = data
-            if isinstance(data,basestring):
-                print('url oming to hydra falcon:'+str(img))
+            if isinstance(img,basestring):
+                print('url coming to hydra falcon:'+str(img))
             else:
-                print('img arr into hydra falcon size:'+img.shape)
+                print('img arr into hydra falcon size:'+str(img.shape))
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
-            output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
-            if "sweater_binary_h_iter_50000" in output:
-                del output["sweater_binary_h_iter_50000"]
+            hydra_output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
+            if "sweater_binary_h_iter_50000" in hydra_output:
+                del hydra_output["sweater_binary_h_iter_50000"]
+            if "sweatshirt_binary_h_iter_14000" in hydra_output:
+                del hydra_output["sweatshirt_binary_h_iter_14000"]
+            if "backpack_hydra_iter_2000" in hydra_output:
+                del hydra_output["backpack_hydra_iter_2000"]
 
-            ret["output"] = output
+
+            del hydra_output["url"] #dont need this , its an array anyway lately
+
+            ret["output"] = hydra_output
             if ret["output"] is not None:
                 ret["success"] = True
             else:
