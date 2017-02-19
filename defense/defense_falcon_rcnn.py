@@ -42,6 +42,7 @@ class HLS:
 
         image_url = req.get_param("imageUrl")
         if not image_url:
+            print('get request:'+str(req))
             raise falcon.HTTPMissingParam("imageUrl")
         else:
             try:
