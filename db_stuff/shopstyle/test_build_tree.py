@@ -61,8 +61,9 @@ def new_method():
     for child_idx, parent in enumerate(parent_ids):
         if parent == root_category:
             ancestors.append(category_list[child_idx])
-        parent_idx = category_ids.index(parent)
-        category_list[parent_idx]['childrenIds'].append(category_list[child_idx]['id'])
+        if category_ids.__contains__(parent):
+            parent_idx = category_ids.index(parent)
+            category_list[parent_idx]['childrenIds'].append(category_list[child_idx]['id'])
 
     # let's get some numbers in there - get a histogram for each ancestor
     for anc in ancestors:
