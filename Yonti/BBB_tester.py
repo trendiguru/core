@@ -8,21 +8,25 @@ displayAll = presents entries & result on the same image
 """
 
 import cv2
-
-import background_removal
+import numpy as np
 import BBB
 
-# choosing a test image : manually or direct path
-# testImage = background_removal.get_image()
-imgpath = '/Users/yonatanlevin/Downloads/test1.jpg'
-testImage = cv2.imread(imgpath)
-Img, ratio = background_removal.standard_resize(testImage, 400)
 
-clone = Img.copy()
-tmpList = []
-selectflag = False
-selectlist = []
-
+def standard_resize(image, max_side):
+    original_w = image.shape[1]
+    original_h = image.shape[0]
+    if image.shape[0] < max_side and image.shape[1] < max_side:
+        return image, 1
+    aspect_ratio = float(np.amax((original_w, original_h))/float(np.amin((original_h, original_w))))
+    resize_ratio = float(float(np.amax((original_w, original_h))) / max_side)
+    if original_w >= original_h:
+        new_w = max_side
+        new_h = max_side/aspect_ratio
+    else:
+        new_h = max_side
+        new_w = max_side/aspect_ratio
+    resized_image = cv2.resize(image, (int(new_w), int(new_h)))
+    return resized_image, resize_ratio
 
 def displayAll(bestBB, listOf3):
     for l in listOf3:
@@ -78,7 +82,14 @@ def generate_BB(Img):
 
     return tmpList
 
+imgpath = '/Users/yonatanlevin/Downloads/test1.jpg'
+testImage = cv2.imread(imgpath)
+Img, ratio = standard_resize(testImage, 400)
 
+clone = Img.copy()
+tmpList = []
+selectflag = False
+selectlist = []
 listOf3couples = []
 listOf3 = []
 
