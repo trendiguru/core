@@ -42,9 +42,9 @@ def secure_the_homeland(image_array_or_url, gpu=1):
  #    print('response  to POST:'+str(resp.content))
  #    print resp.content
 
-    #try GET json dump (not dumps)
+    #try GET json dumps
     data_dict = {"imageUrl": image_array_or_url}
-    dumped_data = json.dump(data_dict)
+    dumped_data = json.dumps(data_dict)
     print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
     print('params: '+str(data_dict))
     resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
