@@ -4,7 +4,7 @@ from ...constants import db
 BASE_URL = "http://api.shopstyle.com/api/v2/"
 PID = "uid900-25284470-95"
 categories = db.categories
-last_request_time = time.time()
+last_request_time = time()
 
 
 def old_method():
