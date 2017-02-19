@@ -20,6 +20,7 @@ for root, dirs, files in os.walk(path):
     for file in files:
 
         if not file.endswith(".png"):
+            print "not a png file"
             continue
 
         labeled_image = cv2.imread(os.path.join(root, file))
@@ -29,6 +30,10 @@ for root, dirs, files in os.walk(path):
         if is_dress:
             dress_counter += 1
             dress_list.append(file)
+            print "found dress!"
+
+        else:
+            print "no dress!"
 
 
 
