@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 
 from jaweson import msgpack
 import requests
-
+import json
 #
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
 CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
@@ -30,12 +30,45 @@ def secure_the_homeland(image_array_or_url, gpu=1):
         params = None #not sure if this is necesary but the original line (below) made it happen
         #params = params={"categoryIndex": category_index} if category_index else None
     print('params coming into hls:'+str(params))
- #   data = msgpack.dumps({"image": image_array_or_url})
-    data = {"image": image_array_or_url}
-    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=data, params=params)
-    print('response  to poster:'+str(resp.content))
-    return resp.content
-#    return msgpack.loads(resp.content)
+
+
+    #try POST
+ # #   data = msgpack.dumps({"image": image_array_or_url})
+ #    data_dict = {"image": image_array_or_url}
+ #    dumped_data = json.dumps(data_dict)
+ #    print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
+ #    print('data: '+str(data_dict))
+ #    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
+ #    print('response  to POST:'+str(resp.content))
+ #    print resp.content
+
+    #try GET json dumps
+    data_dict = {"imageUrl": image_array_or_url}
+    dumped_data = json.dumps(data_dict)
+    print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    print('params: '+str(data_dict))
+    resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
+    print('response  to GET:'+str(resp.content))
+    print resp.content
+
+    #try POST msgpack
+ #
+    # data_dict = {"image": image_array_or_url}
+    # dumped_data = msgpack.dumps(data_dict)
+    # print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    # print('data: '+str(data_dict))
+    # resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
+    # print('response  to POST:'+str(resp.content))
+    # print resp.content
+
+    #try GET msgpack
+    data_dict = {"imageUrl": image_array_or_url}
+    dumped_data = msgpack.dumps(data_dict)
+    print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    print('params: '+str(data_dict))
+    resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
+    print('response  to GET:'+str(resp.content))
+    print resp.content
 
 
 if __name__ == "__main__":

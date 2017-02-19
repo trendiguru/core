@@ -499,19 +499,12 @@ missing_from_v2_compared_to_binary_cats = [ 'blazer',  'gloves', 'lingerie', 'ri
 #                         'jeans','pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini',
 #                       'womens_swimwear_nonbikini','overalls','sweatshirt', 'bracelet','necklace','earrings','watch' ]
 
-
 paperdoll_whole_body = ['bodysuit', 'dress', 'jumper', 'suit', 'romper', 'intimate']
 paperdoll_upper = ['blazer', 'cape', 'jacket', 't-shirt', 'blouse', 'cardigan', 'shirt', 'coat', 'top', 'bra',
                    'sweater', 'vest', 'sweatshirt']
 paperdoll_lower = ['pants', 'stockings', 'jeans', 'tights', 'leggings', 'shorts', 'skirt']
 paperdoll_shoes = ['pumps', 'wedges', 'flats', 'clogs', 'shoes', 'boots', 'heels', 'loafers', 'sandals', 'sneakers']
 paperdoll_accessories = ['tie', 'purse', 'hat', 'sunglasses', 'bag', 'belt']
-
-
-
-
-
-
 
 #these are ideally mutully exclusive , e.g you only have lower_cover_short OR lower_cover_long
 #this isnt totally necessary tho, the relaxed requirement is that similar looking stuff goes into
@@ -636,8 +629,6 @@ hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pajamas','wo
              ['None','bag'],   #extra stuff
              ['None','belt'],   #extra stuff
              ['None','sarong']]  #extra stuff
-
-
 
 #made minor chages to hydra_cats for more overlap with mongodbs
 # legging->leggings, stocking->stockings, tee->t-shirt, tank-tanktop, womens_swimwear_bikini->bikini

@@ -90,7 +90,7 @@ def image_chooser_dir_of_dirs(dir_of_dirs,dest_dir,removed_dir=None,filter=None,
         Utils.ensure_dir(multiple_dir)
         image_chooser(actual_source,actual_dest,removed_dir=removed_dir,relabel_dir=relabel_dir,multiple_dir=multiple_dir)
 
-def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,multiple_dir=None,ensure_jpg_suffix=True,remove_parens=True):
+def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,multiple_dir=None,ensure_jpg_suffix=True,remove_parens=True,display_size=(700,700)):
 
     print('starting image chooser source {} dest {}'.format(source_dir,dest_dir))
     if removed_dir is None:
@@ -116,6 +116,8 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
     tpi = 1
     alpha = 0.9
     time_done=time.time()
+    n_deleted = 0
+    n_kept = 1 #white lie to avoid /0
     while i < n-1 : #to allow undo need to manipulate index which doesnt work with iterator
         i = i + 1
         a_file = only_files[i]
@@ -133,17 +135,17 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
             continue
         shape = img_arr.shape
 #            resized = img_arr
-        resized = resize_keep_aspect(img_arr,output_size=(500,500))
+        resized = resize_keep_aspect(img_arr,output_size=display_size)
         h,w = img_arr.shape[0:2]
 ##            if h>200:
 #               resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
 #               print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
-        print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+')')
+        print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+') kept:'+str(n_kept)+' deleted:'+str(n_deleted)+' %'+str(100*float(n_deleted)/n_kept))
         print('(q)uit (d)elete (k)eep (r)elabel (m)ultiple items (u)ndo tpi {}'.format(tpi))
         winname = a_file
-        cv2.imshow(winname,resized)
 
         while(1):
+            cv2.imshow(winname,resized)
             k = cv2.waitKey(0)
 
                 # q to stop
@@ -157,6 +159,7 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
                 shutil.move(fullname, dest_fullname)
                 prev_moved_to = dest_fullname
                 prev_moved_from = fullname
+                n_deleted = n_deleted + 1
                 break
             elif k== ord('k'):
 #                print('keeping '+a_file+' in '+dest_dir)
@@ -165,6 +168,7 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
                 shutil.move(fullname, dest_fullname)
                 prev_moved_to = dest_fullname
                 prev_moved_from = fullname
+                n_kept = n_kept + 1
                 break
             elif k== ord('r'):
                 dest_fullname = os.path.join(relabel_dir,a_file)
