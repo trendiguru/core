@@ -791,9 +791,11 @@ def copy_negatives(filename = 'tb_cats_from_webtool.txt',outfile =  None):
         fp.close()
     print('n_negatives {}'.format(len(negs)))
 
-    with open(outfile,'w') as fp:
-        for line in negs:
-            fp.write(line)
+    if filename:
+        with open(outfile,'w') as fp:
+            for line in negs:
+                fp.write(line)
+    return negs
 
 def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
     '''
