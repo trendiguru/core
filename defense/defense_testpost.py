@@ -38,7 +38,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     print('response  to poster:'+str(resp.content))
     return resp.content
 #    return msgpack.loads(resp.content)
-#
+##
 
 if __name__ == "__main__":
     url = 'http://www.thecantoncitizen.com/wp-content/uploads/2013/08/dunkin-robbery.jpg'
