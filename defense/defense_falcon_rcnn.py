@@ -81,6 +81,7 @@ class HLS:
                 print('bbox:'+str(item['bbox'])+' type:'+str(type(item['bbox'])))
                 x1,y1,x2,y2 = item["bbox"]
                 print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
+                print('img arr type:'+type(img_arr))
                 cropped_image = img_arr[y1:y2,x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 hydra_output = self.get_hydra_output(cropped_image)
