@@ -37,6 +37,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     data_dict = {"image": image_array_or_url}
     dumped_data = json.dumps(data_dict)
     print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    print('data: '+str(data_dict))
     resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
     print('response  to POST:'+str(resp.content))
     print resp.content
@@ -45,6 +46,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     data_dict = {"imageUrl": image_array_or_url}
     dumped_data = json.dumps(data_dict)
     print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    print('params: '+str(data_dict))
     resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
     print('response  to GET:'+str(resp.content))
     print resp.content
