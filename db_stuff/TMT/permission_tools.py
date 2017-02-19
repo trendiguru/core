@@ -25,7 +25,7 @@ def add_collection_to_user(username):
             new_cols.append(collection)
 
     if len(current_cols) != len(new_cols):
-        db.trendi_mongo_users.update_one({'name': username}, {'$set':{'collections': new_cols}})
+        db.trendi_mongo_users.update_one({'name': username}, {'$set': {'collections': new_cols}})
 
 
 def get_current_cols(username):
