@@ -25,7 +25,7 @@ for root, dirs, files in os.walk(path):
 
         labeled_image = cv2.imread(os.path.join(root, file))
 
-        is_dress = np.any(labeled_image == 14)  # 14 is the pixel value represents a dress
+        is_dress = np.any(labeled_image == 56)  # 14 is the pixel value represents a dress
 
         if is_dress:
             dress_counter += 1
@@ -34,6 +34,8 @@ for root, dirs, files in os.walk(path):
 
         else:
             print "no dress!"
+
+print "number of dresses: {0}".format(dress_counter)
 
 
 
