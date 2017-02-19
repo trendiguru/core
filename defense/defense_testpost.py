@@ -34,7 +34,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     data_dict = {"image": image_array_or_url}
     dumped_data = json.dumps(data_dict)
     print('secure_the_homeland looking for a response from '+str(FRCNN_CLASSIFIER_ADDRESS))
-    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data, params=params)
+    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
     print('response  to poster:'+str(resp.content))
     return resp.content
 #    return msgpack.loads(resp.content)
