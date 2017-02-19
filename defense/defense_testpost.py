@@ -33,18 +33,18 @@ def secure_the_homeland(image_array_or_url, gpu=1):
 
 
     #try POST
- #   data = msgpack.dumps({"image": image_array_or_url})
-    data_dict = {"image": image_array_or_url}
-    dumped_data = json.dumps(data_dict)
-    print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
-    print('data: '+str(data_dict))
-    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
-    print('response  to POST:'+str(resp.content))
-    print resp.content
+ # #   data = msgpack.dumps({"image": image_array_or_url})
+ #    data_dict = {"image": image_array_or_url}
+ #    dumped_data = json.dumps(data_dict)
+ #    print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
+ #    print('data: '+str(data_dict))
+ #    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
+ #    print('response  to POST:'+str(resp.content))
+ #    print resp.content
 
-    #try GET
+    #try GET json dump (not dumps)
     data_dict = {"imageUrl": image_array_or_url}
-    dumped_data = json.dumps(data_dict)
+    dumped_data = json.dump(data_dict)
     print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
     print('params: '+str(data_dict))
     resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
@@ -53,13 +53,13 @@ def secure_the_homeland(image_array_or_url, gpu=1):
 
     #try POST msgpack
  #
-    data_dict = {"image": image_array_or_url}
-    dumped_data = msgpack.dumps(data_dict)
-    print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
-    print('data: '+str(data_dict))
-    resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
-    print('response  to POST:'+str(resp.content))
-    print resp.content
+    # data_dict = {"image": image_array_or_url}
+    # dumped_data = msgpack.dumps(data_dict)
+    # print('secure_the_homeland looking for a response to POST from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    # print('data: '+str(data_dict))
+    # resp = requests.post(FRCNN_CLASSIFIER_ADDRESS, data=dumped_data)
+    # print('response  to POST:'+str(resp.content))
+    # print resp.content
 
     #try GET msgpack
     data_dict = {"imageUrl": image_array_or_url}
