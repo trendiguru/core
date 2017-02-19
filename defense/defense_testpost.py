@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 
 from jaweson import msgpack
 import requests
-
+import json
 #
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
 CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
