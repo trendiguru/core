@@ -24,7 +24,7 @@ for root, dirs, files in os.walk(path):
             print "not a png file"
             continue
 
-        labeled_image = cv2.imread(os.path.join(root, file))
+        labeled_image = cv2.imread(os.path.join(root, file), 0)  # the zero is for
 
         is_dress = np.any(labeled_image == dress_pixel_value)
 
@@ -38,7 +38,7 @@ for root, dirs, files in os.walk(path):
         else:
             print "no dress!"
 
-print "number of dresses: {0}".format(dress_counter)
+print "number of dresses: {0}\ndress_list: {1}".format(dress_counter, dress_list)
 
 
 
