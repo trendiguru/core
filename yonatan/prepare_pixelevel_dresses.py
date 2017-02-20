@@ -39,6 +39,7 @@ for root, dirs, files in os.walk(path):
             print "no dress!"
 
 print "number of dresses: {0}\ndress_list: {1}".format(dress_counter, dress_list)
+print "dress_list[447]: {}".format(dress_list[447])
 
 
 
