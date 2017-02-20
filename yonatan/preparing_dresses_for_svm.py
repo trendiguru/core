@@ -142,7 +142,7 @@ def preparing_data_from_db(argv):
             print "not a good image"
             continue
 
-        # # if there's a head, cut it of
+        # # if there's a head, cut it off
         faces = find_face_dlib(full_image)
 
         if faces["are_faces"]:
