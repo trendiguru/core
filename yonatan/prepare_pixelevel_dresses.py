@@ -10,9 +10,9 @@ from skimage import io
 import cv2
 
 
-path = "/data/jeremy/image_dbs/pixlevel_images/pixlevel_fullsize_labels_v3"
+path = "/data/jeremy/image_dbs/pixlevel_images/pixlevel_fullsize_labels_fashionista_augmented_categories"
 
-dress_pixel_value = 7  # 13 is the pixel value represents a dress
+dress_pixel_value = 15  # 13 is the pixel value represents a dress
 dress_counter = 0
 dress_list = []
 
@@ -101,3 +101,5 @@ print "number of dresses: {0}\ndress_list: {1}".format(dress_counter, dress_list
 # True
 #
 #
+
+
