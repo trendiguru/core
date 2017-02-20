@@ -13,7 +13,7 @@ import numpy as np
 import defense_rcnn
 import requests
 
-from jaweson import json, msgpack
+from jaweson import json #, msgpack
 
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
@@ -33,12 +33,12 @@ class HLS:
 
     def on_get(self, req, resp): #
         """Handles GET requests"""
-        if req.client_accepts_msgpack or "msgpack" in req.content_type:
-            serializer = msgpack
-            resp.content_type = "application/x-msgpack"
-        else:
-            serializer = json
-            resp.content_type = "application/json"
+        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
+        #     serializer = msgpack
+        #     resp.content_type = "application/x-msgpack"
+        # else:
+        serializer = json
+        resp.content_type = "application/json"
 
         image_url = req.get_param("imageUrl")
         if not image_url:
@@ -56,12 +56,12 @@ class HLS:
 
 
     def on_post(self, req, resp):
-        if req.client_accepts_msgpack or "msgpack" in req.content_type:
-            serializer = msgpack
-            resp.content_type = "application/x-msgpack"
-        else:
-            serializer = json
-            resp.content_type = "application/json"
+        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
+        #     serializer = msgpack
+        #     resp.content_type = "application/x-msgpack"
+        # else:
+        serializer = json
+        resp.content_type = "application/json"
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
@@ -87,19 +87,19 @@ class HLS:
                 cropped_image = img_arr[y1:y2,x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 hydra_output = self.get_hydra_output(cropped_image)
-                if hydra_output is not {}:
+                if hydra_output:
                     item['details'] = hydra_output
 
         return detected
 
 
-    def get_hydra_output(self,subimage):
+    def get_hydra_output(self, subimage):
         '''
         get hydra details on an image
         :param subimage: np array , e..g a crop of the original which fcrnn has found
         :return:
         '''
-        data = json.dumps({"image":subimage})
+        data = json.dumps({"image": subimage})
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
         resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
         # print('resp:'+str(resp))
