@@ -14,7 +14,7 @@ def get_pd_results():
     print('resp:'+str(resp))
 
 
-def dl_images(source_filter='stylebook',dl_dir='/data/jeremy/image_dbs/golden/',in_docker=True):
+def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/image_dbs/golden/',in_docker=True):
     '''
     dl everything in the images db, on the assumption that these are the  most relevant to test our answers to
     :return:
@@ -25,11 +25,11 @@ def dl_images(source_filter='stylebook',dl_dir='/data/jeremy/image_dbs/golden/',
     else:
         db = constants.db
 
-    all = db.images.find()
+    all = db.images.find({'domain':source_domain})
     doc = all.next()
     while doc is not None:
         url=doc['image_urls'][0]
-        if source_filter in url[0]:
+        if text_filter in url[0]:
             print url
             Utils.get_cv2_img_array(url,convert_url_to_local_filename=True,download=True,download_directory=dl_dir)
         else:
