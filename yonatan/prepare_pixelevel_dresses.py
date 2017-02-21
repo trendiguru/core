@@ -38,10 +38,12 @@ for root, dirs, files in os.walk(path):
             copy_dress = dress_and_zeros.copy()
 
             derp, contours, hierarchy = cv2.findContours(copy_dress, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-            x, y, w, h = cv2.boundingRect(contours[0])
+            cnts = max(contours, key=cv2.contourArea)
 
-            if len(contours) != 1:
-                print "length og contours is : {0}".format(len(contours))
+            x, y, w, h = cv2.boundingRect(cnts)
+
+            # if len(contours) != 1:
+            #     print "length of contours is : {0}".format(len(contours))
 
             if dress_counter % 20 == 0:
                 print cv2.imwrite("/data/yonatan/linked_to_web/full_image_" + str(dress_counter) + ".jpg", labeled_image)
