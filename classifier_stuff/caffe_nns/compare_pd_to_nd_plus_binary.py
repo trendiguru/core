@@ -14,7 +14,7 @@ def get_pd_results():
     print('resp:'+str(resp))
 
 
-def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/image_dbs/golden/',in_docker=True):
+def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/image_dbs/golden/',in_docker=True,visual_output=False):
     '''
     dl everything in the images db, on the assumption that these are the  most relevant to test our answers to
     :return:
@@ -36,4 +36,4 @@ def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/i
             print('skipping '+url)
 
     #move the images with more than one person
-    imutils.do_for_all_files_in_dir(imutils.one_person_per_image,'/data/jeremy/image_dbs/golden/')
+    imutils.do_for_all_files_in_dir(imutils.one_person_per_image,'/data/jeremy/image_dbs/golden/',visual_output=False)
