@@ -55,7 +55,8 @@ def divide_collection_to_small_collections(col_name, new_size):
     new_collections_count = count/new_size
 
     for i in xrange(new_collections_count):
-        items = collection.find().skip(i*new_size).limit(new_size)
+        items_cursor = collection.find().skip(i*new_size).limit(new_size)
+        items_list = [item for item in items_cursor]
         new_collection_name = '{}_batch#{}'.format(col_name, i)
-        db[new_collection_name].insert_many(items)
+        db[new_collection_name].insert_many(items_list)
 
