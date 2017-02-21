@@ -82,8 +82,9 @@ def new_method():
     return root_category, ancestors
 
 
-def delayed_requests_get(self, url, params):
+def delayed_requests_get(url, params):
+    global last_request_time
     sleep_time = max(0, 0.1 - (time() - last_request_time))
     sleep(sleep_time)
-    self.last_request_time = time()
+    last_request_time = time()
     return requests.get(url, params=params)
