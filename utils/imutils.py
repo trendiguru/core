@@ -11,6 +11,7 @@ import logging
 import time
 logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
+import shutil
 # So this file can be imported on servers where joblib is not installed
 try:
     from joblib import Parallel,delayed
@@ -21,8 +22,10 @@ import socket
 import copy
 from trendi import constants
 import matplotlib.pyplot as plt
-import shutil
+import subprocess
 import inspect
+
+from trendi import background_removal
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -1309,6 +1312,39 @@ def img_dir_to_html(img_dir,filter='.jpg',htmlname=None):
         f.write('</HTML>\n')
         f.close()
 
+def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
+    '''
+    why didnt i do this a year ago
+    applies a function onto a dir of jpgs
+    '''
+    print(kwargs)
+    print(**kwargs)
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    for f in files:
+        some_function(f,**kwargs)
+
+def one_person_per_image(image,save_dir='multiple_people'):
+    if isinstance(image,basestring):
+#        imgname = image.replace('https://','').replace('http://','').replace('/','_') #conver url to name
+        imgname = image
+    else:
+        imgname = 'test.jpg'
+    img_arr = Utils.get_cv2_img_array(image)
+    faces = background_removal.find_face_dlib_with_scores(img_arr)
+    print(faces)
+    if 'scores' in faces and 'faces' in faces:
+        for score,bbox in zip(faces['scores'],faces['faces']):
+            print('score {} bbox {}'.format(score,bbox))
+            cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),color=(255,255,0),thickness=2)
+        if len(faces['scores'])>1:
+            multiples_dir = os.path.join(os.path.dirname(image),save_dir)
+            Utils.ensure_dir(multiples_dir)
+            savename = os.path.join(multiples_dir,os.path.basename(imgname))
+            print('more than one face found, moving {} to {}'.format(image,savename))
+            mvcmd = 'mv '+imgname+' '+savename
+            subprocess.call(mvcmd,shell=True)
+        cv2.imshow('image',img_arr)
+        cv2.waitKey(100)
 
 
 host = socket.gethostname()
