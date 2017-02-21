@@ -27,14 +27,13 @@ def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/i
 
     all = db.images.find({'domain':source_domain})
     doc = all.next()
-    while doc is not None:
+    for doc in all:
         url=doc['image_urls'][0]
         if text_filter in url[0]:
             print url
             Utils.get_cv2_img_array(url,convert_url_to_local_filename=True,download=True,download_directory=dl_dir)
         else:
             print('skipping '+url)
-        doc = all.next()
 
     #move the images with more than one person
     imutils.do_for_all_files_in_dir(imutils.one_person_per_image,'/data/jeremy/image_dbs/golden/')
