@@ -48,15 +48,19 @@ def remove_collection_from_user(username):
         db.trendi_mongo_users.update_one({'name': username}, {'$set': {'collections': new_cols}})
 
 
-def divide_collection_to_small_collections(col_name, new_size):
+def divide_collection_to_small_collections(col_name, new_size, username):
     collection = db[col_name]
     count = collection.count()
 
-    new_collections_count = count/new_size
+    new_collections_count = count/new_size + 1
+
+    current_cols = get_current_cols(username)
 
     for i in xrange(new_collections_count):
         items_cursor = collection.find().skip(i*new_size).limit(new_size)
         items_list = [item for item in items_cursor]
         new_collection_name = '{}_batch#{}'.format(col_name, i)
         db[new_collection_name].insert_many(items_list)
+        current_cols.append(new_collection_name)
 
+    db.trendi_mongo_users.update_one({'name': username}, {'$set': {'collections': current_cols}})
