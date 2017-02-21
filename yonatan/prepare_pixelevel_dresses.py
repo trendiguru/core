@@ -24,7 +24,7 @@ for root, dirs, files in os.walk(path):
             print "not a png file"
             continue
 
-        labeled_image = cv2.imread(os.path.join(root, file), 0)  # the zero is for
+        labeled_image = cv2.imread(os.path.join(root, file), 0)  # the zero is for making sure it's one layer
 
         is_dress = np.any(labeled_image == dress_pixel_value)
 
@@ -34,6 +34,18 @@ for root, dirs, files in os.walk(path):
             print "found dress!"
 
             dress_and_zeros = np.where(labeled_image != dress_pixel_value, 0, labeled_image)
+
+            copy_dress = dress_and_zeros.copy()
+
+            derp, contours, hierarchy = cv2.findContours(copy_dress, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            x, y, w, h = cv2.boundingRect(contours[0])
+
+            if len(contours) != 1:
+                print "length og contours is : {0}".format(len(contours))
+
+            if dress_counter % 20 == 0:
+                print cv2.imwrite("/data/yonatan/linked_to_web/full_image_" + str(dress_counter) + ".jpg", labeled_image)
+                print cv2.imwrite("/data/yonatan/linked_to_web/just_dress_" + str(dress_counter) + ".jpg", dress_and_zeros[y:y+h, x:x+w]*10)
 
         else:
             print "no dress!"
