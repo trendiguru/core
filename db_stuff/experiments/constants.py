@@ -6,7 +6,7 @@ MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 fingerprint_version = 792015  # DayMonthYear
 
-shopstyle_relevant_items_Female = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
+shopstyle_relevant_items_Female = ['womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
                                    'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                                    'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans',
                                    'stretch-jeans', 'womens-tops', 'button-front-tops', 'camisole-tops',
@@ -21,7 +21,7 @@ shopstyle_relevant_items_Female = ['women', 'womens-clothes', 'womens-suits', 's
                                    'leather-and-suede-coats', 'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
                                    'leggings', 'tights']
 
-shopstyle_relevant_items_Male = ['men', 'mens-clothes', 'mens-belts', 'mens-jackets', 'mens-denim-jacket',
+shopstyle_relevant_items_Male = ['mens-clothes', 'mens-belts', 'mens-jackets', 'mens-denim-jacket',
                                  'mens-jeans', 'mens-bootcut-jeans', 'mens-low-rise-jeans', 'mens-distressed-jeans',
                                  'mens-slim-jeans', 'mens-relaxed-jeans', 'mens-loose-jeans', 'mens-straight-leg-jeans',
                                  'mens-leather-and-suede-coats', 'mens-overcoats-and-trenchcoats', 'mens-wool-coats',

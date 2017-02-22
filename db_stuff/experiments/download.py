@@ -270,22 +270,24 @@ def process_product(product):
             product["status"]["days_out"] = 1
         elif status_new is True and status_old is False:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$set': {'status.days_out': 0,
-                                                'status.instock': True}})
+                                          {'$set': {'status.days_out': 0,
+                                                    'status.instock': True}})
             product["status"]["days_out"] = 0
         else:
             pass
 
         if product_in_collection["download_data"]["fp_version"] == constants.fingerprint_version:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
-            return False
+                                          {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
 
         else:
             product["status"]["instock"] = status_new
             GLOBALS.collection.delete_one({'_id': product_in_collection['_id']})
             prod = shopstyle_converter(product, GLOBALS.gender)
-            return insert_and_fingerprint(prod)
+            if prod is not None:
+                return insert_and_fingerprint(prod)
+
+        return False
 
 
 def insert_and_fingerprint(product):
