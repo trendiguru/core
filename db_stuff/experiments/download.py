@@ -45,7 +45,7 @@ class Query:
         if type(category) is str:
             self.obj_id = None
             self.category_name = category
-            self.count = 0
+            self.count = 3 * constants.MAX_SET_SIZE
             self.fls = []
             self.sort = None
             self.offset = 0
@@ -155,7 +155,7 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
         queries = [query]
 
     for current_query in queries:
-        query_list, add_filters = enqueue_or_add_filters(query_list, current_query,hist_filter_idx)
+        query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
 
         if add_filters:
             query_list = recursive_hist(cat, current_query, hist_filter_idx+1, query_list)
@@ -165,7 +165,8 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
 
 def create_query_list():
     top_category = GLOBALS.relevant[0]
-    query_list = recursive_hist(top_category, Query(top_category), -1, [])
+    top_query = Query(top_category)
+    query_list = recursive_hist(top_category, top_query, -1, [])
 
     list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
@@ -392,3 +393,4 @@ pseudo code:
     2.5 remove old items (archive)
     2.6 annoy/nmslib
 '''
+
