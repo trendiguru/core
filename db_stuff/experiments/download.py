@@ -121,7 +121,7 @@ def make_new_candidate_list(cat, query, histogram_filter):
     response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
     rsp = response.json()
     prefix = rsp['metadata'].get("histograms")[0].get("prefix")
-    hist_name = histogram_filter.toLower() + 'Histogram'
+    hist_name = histogram_filter.lower() + 'Histogram'
     hist = rsp[hist_name]
     queries = []
     for entry in hist:
