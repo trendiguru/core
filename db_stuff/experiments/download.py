@@ -16,7 +16,7 @@ from .generic_dictionary import shopstyle_converter
 from ..annoy_dir.fanni import plantForests4AllCategories
 from ..general.db_utils import refresh_similar_results
 
-SHOPSTYLE_Q = Queue('shopstyle_fp', connection=redis_conn)
+SHOPSTYLE_Q = Queue('fingerprinter4db', connection=redis_conn)
 
 
 class Globals:
