@@ -1,12 +1,12 @@
 
 PID = "uid900-25284470-95"
-FILTERS = ["Price", "Color", "Discount", "Brand", "Retailer", "Size"]
+FILTERS = ["Price", "Color", "Discount", "Brand", "Retailer", "Size", "Category"]
 MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
 fingerprint_version = 792015  # DayMonthYear
 
-shopstyle_relevant_items_Female = ['womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
+shopstyle_relevant_items_Female = ['women', 'womens-clothes', 'womens-suits', 'shorts', 'blazers', 'tees-and-tshirts',
                                    'jeans', 'bootcut-jeans', 'classic-jeans', 'cropped-jeans', 'distressed-jeans',
                                    'flare-jeans', 'relaxed-jeans', 'skinny-jeans', 'straight-leg-jeans',
                                    'stretch-jeans', 'womens-tops', 'button-front-tops', 'camisole-tops',
@@ -21,16 +21,16 @@ shopstyle_relevant_items_Female = ['womens-suits', 'shorts', 'blazers', 'tees-an
                                    'leather-and-suede-coats', 'puffer-coats', 'raincoats-and-trenchcoats', 'wool-coats',
                                    'leggings', 'tights']
 
-shopstyle_relevant_items_Male = ['mens-belts', 'mens-jackets', 'mens-denim-jacket', 'mens-suits', 'mens-dress-pants',
+shopstyle_relevant_items_Male = ['men', 'mens-clothes', 'mens-belts', 'mens-jackets', 'mens-denim-jacket',
                                  'mens-jeans', 'mens-bootcut-jeans', 'mens-low-rise-jeans', 'mens-distressed-jeans',
                                  'mens-slim-jeans', 'mens-relaxed-jeans', 'mens-loose-jeans', 'mens-straight-leg-jeans',
                                  'mens-leather-and-suede-coats', 'mens-overcoats-and-trenchcoats', 'mens-wool-coats',
                                  'mens-pants', 'mens-cargo-pants', 'mens-casual-pants', 'mens-chinos-and-khakis',
-                                 'mens-shirts', 'mens-dress-shirts', 'mens-longsleeve-shirts', 'mens-shortsleeve-shirts',
-                                 'mens-polo-shirts', 'mens-tees-and-tshirts', 'mens-shorts',
-                                 'mens-sweaters', 'mens-sweatshirts', 'mens-cashmere-sweaters', 'mens-cardigan-sweaters',
+                                 'mens-shirts', 'mens-dress-shirts', 'mens-longsleeve-shirts', 'mens-cardigan-sweaters',
+                                 'mens-polo-shirts', 'mens-tees-and-tshirts', 'mens-shorts', 'mens-shortsleeve-shirts',
+                                 'mens-sweaters', 'mens-sweatshirts', 'mens-cashmere-sweaters',
                                  'mens-crewneck-sweaters', 'mens-turleneck-sweaters', 'mens-v-neck-sweaters',
-                                 'mens-half-zip-sweaters', 'mens-vests']
+                                 'mens-half-zip-sweaters', 'mens-vests', 'mens-suits', 'mens-dress-pants',]
 
 shopstyle_paperdoll_female = {'belts': 'belt',
                              'bootcut-jeans': 'jeans',
