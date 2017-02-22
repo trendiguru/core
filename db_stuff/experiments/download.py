@@ -121,10 +121,11 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
 def make_new_candidate_list(cat, query, histogram_filter_idx):
     histogram_filter = constants.FILTERS[histogram_filter_idx]
     parameters = {"pid": constants.PID, "filters": histogram_filter, "cat": query.category_name}
-    fls = 0
+    fls = []
     if len(query.fls) > 0:
         parameters['fl'] = query.fls
         fls = query.fls
+
     if len(query.fls) > 1:
         print query.fls
 
