@@ -74,7 +74,6 @@ class Query:
 
     def class_2_dict(self):
         return {'category_name': self.category_name,
-                'children': self.children,
                 'count': self.count,
                 'fls': self.fls,
                 'sort': self.sort,
@@ -84,7 +83,6 @@ class Query:
     def dict_2_class(self, cat_dict):
         self.obj_id = cat_dict['_id']
         self.category_name = cat_dict['category_name']
-        self.children = cat_dict['children']
         self.count = cat_dict['count']
         self.fls = cat_dict['fls']
         self.sort = cat_dict['sort']
