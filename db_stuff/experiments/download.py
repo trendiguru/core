@@ -120,6 +120,7 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
 
 def make_new_candidate_list(query, histogram_filter_idx):
     histogram_filter = constants.FILTERS[histogram_filter_idx]
+    print histogram_filter_idx
     parameters = {"pid": constants.PID, "filters": histogram_filter, "cat": query.category_name}
     fls = []
     if len(query.fls) > 0:
@@ -143,7 +144,6 @@ def make_new_candidate_list(query, histogram_filter_idx):
             tmp_query = Query(query.category_name, fls[:])
             tmp_query.add_fls(prefix+idx)
         elif idx in GLOBALS.relevant:
-            print idx
             tmp_query = Query(idx, fls[:])
         else:
             continue
