@@ -45,6 +45,7 @@ class Query:
         if cat_dict['_id'] is None:
             self.obj_id = None
             self.category_name = cat_dict['id']
+            self.children = cat_dict['children']
             self.count = cat_dict['count']
             self.fls = []
             self.sort = None
@@ -71,6 +72,7 @@ class Query:
 
     def class_2_dict(self):
         return {'category_name': self.category_name,
+                'children': self.children,
                 'count': self.count,
                 'fls': self.fls,
                 'sort': self.sort,
@@ -80,6 +82,7 @@ class Query:
     def dict_2_class(self, cat_dict):
         self.obj_id = cat_dict['_id']
         self.category_name = cat_dict['category_name']
+        self.children = cat_dict['children']
         self.count = cat_dict['count']
         self.fls = cat_dict['fls']
         self.sort = cat_dict['sort']
@@ -114,28 +117,37 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
         return list_of_current_queries, True
 
 
-def make_new_candidate_list(cat, query, histogram_filter):
+def make_new_candidate_list(cat, query, histogram_filter_idx):
+    histogram_filter = constants.FILTERS[histogram_filter_idx]
     parameters = {"pid": constants.PID, "filters": histogram_filter, "cat": query.category_name}
-    if len(query.fls)>0:
+
+    if len(query.fls) > 0:
         parameters['fl'] = query.fls
+
     response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
     rsp = response.json()
-    prefix = rsp['metadata'].get("histograms")[0].get("prefix")
+    if histogram_filter is not 'Category':
+        prefix = rsp['metadata'].get("histograms")[0].get("prefix")
     hist_name = histogram_filter.lower() + 'Histogram'
     hist = rsp[hist_name]
+
     queries = []
     for entry in hist:
-        tmp_query = Query(cat)
         idx = entry['id']
+        if histogram_filter is not 'Category':
+            tmp_query = Query(cat)
+            tmp_query.add_fls(prefix + idx)
+        else:
+            tmp_query = Query(idx)
         tmp_query.count = entry['count']
-        tmp_query.add_fls(prefix+idx)
         queries.append(tmp_query)
+
     return queries
 
 
 def recursive_hist(cat, query, hist_filter_idx, query_list):
     if hist_filter_idx > -1:
-        queries = make_new_candidate_list(cat, query, constants.FILTERS[hist_filter_idx])
+        queries = make_new_candidate_list(cat, query, hist_filter_idx)
     else:
         queries = [query]
 
@@ -143,20 +155,14 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
         query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
 
         if add_filters:
-            query_list = recursive_hist(cat, current_query, hist_filter_idx+1, query_list)
+            query_list = recursive_hist(cat, current_query, hist_filter_idx + 1, query_list)
 
     return query_list
 
 
 def create_query_list():
-    all_categories = build_category_tree()
-    relevant_categories = [cat for cat in all_categories if cat['id'] in GLOBALS.relevant]
-
-    query_list = []
-    for cat in relevant_categories:
-        # print ('started querying {} at {}'.format(cat['id'], datetime.now().replace(microsecond=0)))
-        query = Query(cat)
-        query_list = recursive_hist(cat, query, -1, query_list)
+    top_category = GLOBALS.relevant[0]
+    query_list = recursive_hist(top_category, Query(top_category), -1, [])
 
     list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
@@ -173,7 +179,7 @@ def build_category_tree():
     # now i loop over the list locally and only in the end insert the updated category list to the mongo
     # i changed it because the old method used to make many calls to the db that are unnecessary
     # tested it and they both take about the same time with slight advantage toward the new code
-    # print ('started build_category_tree at {}'.format(datetime.now().replace(microsecond=0)))
+
     parameters = {"pid": constants.PID, "filters": "Category"}
 
     # download all categories
@@ -186,18 +192,20 @@ def build_category_tree():
     category_ids = []
     parent_ids = []
     ancestors = []
-    for cat in category_list:
+    relevant_categories = [cat for cat in category_list if cat['id'] in GLOBALS.relevant]
+    for cat in relevant_categories:
         category_ids.append(cat['id'])
         parent_ids.append(cat['parentId'])
-        cat['childrenIds'] = []
+        cat['children'] = []
         cat['count'] = 0
         cat['_id'] = None
+
     for child_idx, parent in enumerate(parent_ids):
         if parent == root_category:
-            ancestors.append(category_list[child_idx])
+            ancestors.append(relevant_categories[child_idx])
         if category_ids.__contains__(parent):
             parent_idx = category_ids.index(parent)
-            category_list[parent_idx]['childrenIds'].append(category_list[child_idx]['id'])
+            relevant_categories[parent_idx]['children'].append(relevant_categories[child_idx]['id'])
 
     # let's get some numbers in there - get a histogram for each ancestor
     for anc in ancestors:
@@ -206,9 +214,9 @@ def build_category_tree():
         hist = response.json()["categoryHistogram"]
         for cat in hist:
             cat_idx = category_ids.index(cat['id'])
-            category_list[cat_idx]['count'] = cat['count']
+            relevant_categories[cat_idx]['count'] = cat['count']
 
-    return category_list
+    return relevant_categories, ancestors
 
 
 def download_query(query):
@@ -249,24 +257,24 @@ def process_product(product):
         status_old = product_in_collection["status"]["instock"]
         if status_new is False and status_old is False:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$inc': {'status.days_out': 1}})
+                                          {'$inc': {'status.days_out': 1}})
             product["status"]["days_out"] = product_in_collection["status"]["days"] + 1
         elif status_new is False and status_old is True:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$set': {'status.days_out': 1,
-                                                'status.instock': False}})
+                                          {'$set': {'status.days_out': 1,
+                                                    'status.instock': False}})
             product["status"]["days_out"] = 1
         elif status_new is True and status_old is False:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$set': {'status.days_out': 0,
-                                                'status.instock': True}})
+                                          {'$set': {'status.days_out': 0,
+                                                    'status.instock': True}})
             product["status"]["days_out"] = 0
         else:
             pass
 
         if product_in_collection["download_data"]["fp_version"] == constants.fingerprint_version:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                       {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
+                                          {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
             return False
 
         else:
@@ -277,7 +285,6 @@ def process_product(product):
 
 
 def insert_and_fingerprint(product):
-
     while SHOPSTYLE_Q.count > redis_limit:
         print ("Q full - stolling")
         sleep(600)
@@ -319,7 +326,7 @@ def process_cmd_inputs():
 
     if args.gender in ['Female', 'Male'] and args.country_code in ["US", "DE"]:
         args.collection_name = "shopstyle_{}_{}".format(args.country_code, args.gender)
-        # print ("@@@ Shopstyle Download @@@\nyou choose to update the " + args.collection_name + " collection")
+        print ("@@@ Shopstyle Download @@@\n you choose to update the " + args.collection_name + " collection")
     else:
         assert "bad input - gender should be only Female or Male (case sensitive)"
     return args
@@ -335,9 +342,6 @@ if __name__ == '__main__':
 
     current_category = ''
     for shopstyleQuery in tqdm.tqdm(shopstyleQueries):
-        # if shopstyleQuery.category_name != current_category:
-        #     current_category = shopstyleQuery.category_name
-        #     print ('started downloading {} at {}'.format(current_category, datetime.now().replace(microsecond=0)))
         download_query(shopstyleQuery)
 
     GLOBALS.collection.delete_many({'fingerprint': {"$exists": False}})
