@@ -31,9 +31,10 @@ class Globals:
         self.gender = args.gender
         if args.gender == 'Female':
             self.relevant = constants.shopstyle_relevant_items_Female
+            self.top_category = 'womens-clothes'
         else:
             self.relevant = constants.shopstyle_relevant_items_Male
-
+            self.top_category = 'mens-clothes'
         self.country_code = args.country_code
         self.BASE_URL = "http://api.shopstyle.com/api/v2/"
         if args.country_code == 'DE':
@@ -124,6 +125,9 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     if len(query.fls) > 0:
         parameters['fl'] = query.fls
 
+    if len(query.fls) > 1:
+        print query.fls
+
     response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
     rsp = response.json()
     if histogram_filter is not 'Category':
@@ -164,9 +168,8 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
 
 
 def create_query_list():
-    top_category = GLOBALS.relevant[0]
-    top_query = Query(top_category, [])
-    query_list = recursive_hist(top_category, top_query, -1, [])
+    top_query = Query(GLOBALS.top_category, [])
+    query_list = recursive_hist(GLOBALS.top_category, top_query, -1, [])
 
     list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
@@ -253,7 +256,8 @@ def process_product(product):
 
     if product_in_collection is None:
         product = shopstyle_converter(product, GLOBALS.gender)
-        return insert_and_fingerprint(product)
+        if product is not None:
+            return insert_and_fingerprint(product)
 
     else:
         # case 2: the product was found in our db, and maybe should be modified
@@ -283,10 +287,11 @@ def process_product(product):
         else:
             product["status"]["instock"] = status_new
             GLOBALS.collection.delete_one({'_id': product_in_collection['_id']})
-            prod = shopstyle_converter(product, GLOBALS.gender)
-            if prod is not None:
-                return insert_and_fingerprint(prod)
-        return False
+            product = shopstyle_converter(product, GLOBALS.gender)
+            if product is not None:
+                return insert_and_fingerprint(product)
+
+    return False
 
 
 def insert_and_fingerprint(product):
@@ -394,3 +399,4 @@ pseudo code:
     2.5 remove old items (archive)
     2.6 annoy/nmslib
 '''
+
