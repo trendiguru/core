@@ -1,6 +1,6 @@
 
 PID = "uid900-25284470-95"
-FILTERS = ["Price", "Color", "Discount", "Brand", "Retailer", "Size", "Category"]
+FILTERS = ["Category", "Price", "Color", "Discount", "Brand", "Retailer", "Size"]
 MAX_RESULTS_PER_PAGE = 50
 MAX_OFFSET = 5000
 MAX_SET_SIZE = MAX_OFFSET + MAX_RESULTS_PER_PAGE
