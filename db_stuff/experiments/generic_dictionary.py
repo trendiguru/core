@@ -1,4 +1,4 @@
-import shopstyle
+from . import constants
 
 
 def shopstyle_converter(product, gender):
@@ -8,11 +8,11 @@ def shopstyle_converter(product, gender):
     tmp = [i["id"] for i in product["categories"]]
 
     if gender is 'Female':
-        relevant = shopstyle.constants.shopstyle_relevant_items_Female
-        converter = shopstyle.constants.shopstyle_paperdoll_female
+        relevant = constants.shopstyle_relevant_items_Female
+        converter = constants.shopstyle_paperdoll_female
     else:
-        relevant = shopstyle.constants.shopstyle_relevant_items_Male
-        converter = shopstyle.constants.shopstyle_paperdoll_male
+        relevant = constants.shopstyle_relevant_items_Male
+        converter = constants.shopstyle_paperdoll_male
 
     cat = [cat for cat in tmp if cat in relevant]
     if len(cat) == 0:
