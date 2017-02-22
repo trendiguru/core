@@ -7,6 +7,8 @@ import json
 import gevent
 from rq import Queue
 import tqdm
+import copy
+
 # our libs
 from .master_constants import db, redis_conn, redis_limit
 import constants
@@ -106,13 +108,15 @@ def get_query_list():
 
 def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_index):
     if candidate_query.count < constants.MAX_SET_SIZE:
-        candidate_query.set_max_offset(take_of_offset=50)
-        list_of_current_queries.append(candidate_query)
+        tmp_query = copy.deepcopy(candidate_query)
+        tmp_query.set_max_offset(take_of_offset=50)
+        list_of_current_queries.append(tmp_query)
         return list_of_current_queries, False
     elif candidate_query.count < 2 * constants.MAX_SET_SIZE or filter_index > 5:
         for boolean in [False, True]:
-            candidate_query.add_sort(hi2lo=boolean)
-            list_of_current_queries.append(candidate_query)
+            tmp_query = copy.deepcopy(candidate_query)
+            tmp_query.add_sort(hi2lo=boolean)
+            list_of_current_queries.append(tmp_query)
         return list_of_current_queries, False
     else:
         return list_of_current_queries, True
