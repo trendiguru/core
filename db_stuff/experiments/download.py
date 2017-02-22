@@ -41,18 +41,20 @@ class Globals:
 
 
 class Query:
-    def __init__(self, cat_dict):
-        if cat_dict['_id'] is None:
+    def __init__(self, category):
+        if type(category) is str:
             self.obj_id = None
-            self.category_name = cat_dict['id']
-            self.children = cat_dict['children']
-            self.count = cat_dict['count']
+            self.category_name = category
+            self.count = 0
             self.fls = []
             self.sort = None
             self.offset = 0
             self.max_offset = 5000
+        elif type(category) is dict:
+            self.dict_2_class(category)
+
         else:
-            self.dict_2_class(cat_dict)
+            assert 'bad QueryClass input - expected str/dict but got {}'.format(type(category))
 
     def add_sort(self, hi2lo=False):
         if hi2lo:
@@ -137,8 +139,10 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
         if histogram_filter is not 'Category':
             tmp_query = Query(cat)
             tmp_query.add_fls(prefix + idx)
-        else:
+        elif idx in GLOBALS.relevant:
             tmp_query = Query(idx)
+        else:
+            continue
         tmp_query.count = entry['count']
         queries.append(tmp_query)
 
@@ -173,50 +177,50 @@ def create_query_list():
     return query_list
 
 
-def build_category_tree():
-    # the old version used to push the category_list immediately to the mongo and then loop and update_one
-    # both for the childrenIds and the count
-    # now i loop over the list locally and only in the end insert the updated category list to the mongo
-    # i changed it because the old method used to make many calls to the db that are unnecessary
-    # tested it and they both take about the same time with slight advantage toward the new code
-
-    parameters = {"pid": constants.PID, "filters": "Category"}
-
-    # download all categories
-    category_list_response = requests.get(GLOBALS.BASE_URL + "categories", params=parameters)
-    category_list_response_json = category_list_response.json()
-    root_category = category_list_response_json["metadata"]["root"]["id"]
-    category_list = category_list_response_json["categories"]
-
-    # find all the children
-    category_ids = []
-    parent_ids = []
-    ancestors = []
-    relevant_categories = [cat for cat in category_list if cat['id'] in GLOBALS.relevant]
-    for cat in relevant_categories:
-        category_ids.append(cat['id'])
-        parent_ids.append(cat['parentId'])
-        cat['children'] = []
-        cat['count'] = 0
-        cat['_id'] = None
-
-    for child_idx, parent in enumerate(parent_ids):
-        if parent == root_category:
-            ancestors.append(relevant_categories[child_idx])
-        if category_ids.__contains__(parent):
-            parent_idx = category_ids.index(parent)
-            relevant_categories[parent_idx]['children'].append(relevant_categories[child_idx]['id'])
-
-    # let's get some numbers in there - get a histogram for each ancestor
-    for anc in ancestors:
-        parameters["cat"] = anc["id"]
-        response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
-        hist = response.json()["categoryHistogram"]
-        for cat in hist:
-            cat_idx = category_ids.index(cat['id'])
-            relevant_categories[cat_idx]['count'] = cat['count']
-
-    return relevant_categories, ancestors
+# def build_category_tree():
+#     # the old version used to push the category_list immediately to the mongo and then loop and update_one
+#     # both for the childrenIds and the count
+#     # now i loop over the list locally and only in the end insert the updated category list to the mongo
+#     # i changed it because the old method used to make many calls to the db that are unnecessary
+#     # tested it and they both take about the same time with slight advantage toward the new code
+#
+#     parameters = {"pid": constants.PID, "filters": "Category"}
+#
+#     # download all categories
+#     category_list_response = requests.get(GLOBALS.BASE_URL + "categories", params=parameters)
+#     category_list_response_json = category_list_response.json()
+#     root_category = category_list_response_json["metadata"]["root"]["id"]
+#     category_list = category_list_response_json["categories"]
+#
+#     # find all the children
+#     category_ids = []
+#     parent_ids = []
+#     ancestors = []
+#     relevant_categories = [cat for cat in category_list if cat['id'] in GLOBALS.relevant]
+#     for cat in relevant_categories:
+#         category_ids.append(cat['id'])
+#         parent_ids.append(cat['parentId'])
+#         cat['children'] = []
+#         cat['count'] = 0
+#         cat['_id'] = None
+#
+#     for child_idx, parent in enumerate(parent_ids):
+#         if parent == root_category:
+#             ancestors.append(relevant_categories[child_idx])
+#         if category_ids.__contains__(parent):
+#             parent_idx = category_ids.index(parent)
+#             relevant_categories[parent_idx]['children'].append(relevant_categories[child_idx]['id'])
+#
+#     # let's get some numbers in there - get a histogram for each ancestor
+#     for anc in ancestors:
+#         parameters["cat"] = anc["id"]
+#         response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
+#         hist = response.json()["categoryHistogram"]
+#         for cat in hist:
+#             cat_idx = category_ids.index(cat['id'])
+#             relevant_categories[cat_idx]['count'] = cat['count']
+#
+#     return relevant_categories, ancestors
 
 
 def download_query(query):
