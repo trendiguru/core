@@ -172,7 +172,7 @@ def build_category_tree():
     # now i loop over the list locally and only in the end insert the updated category list to the mongo
     # i changed it because the old method used to make many calls to the db that are unnecessary
     # tested it and they both take about the same time with slight advantage toward the new code
-    print ('started build_category_tree at {}'.format(current_category, datetime.now().replace(microsecond=0)))
+    print ('started build_category_tree at {}'.format(datetime.now().replace(microsecond=0)))
     parameters = {"pid": constants.PID, "filters": "Category"}
 
     # download all categories
