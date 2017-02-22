@@ -154,6 +154,7 @@ def create_query_list():
 
     query_list = []
     for cat in relevant_categories:
+        print ('started querying {} at {}'.format(cat, datetime.now().replace(microsecond=0)))
         query = Query(cat)
         query_list = recursive_hist(cat, query, -1, query_list)
 
@@ -329,8 +330,11 @@ if __name__ == '__main__':
     GLOBALS = Globals(cmdArgs)
 
     shopstyleQueries = get_query_list()
-
+    current_category = ''
     for shopstyleQuery in shopstyleQueries:
+        if shopstyleQuery.category_name != current_category:
+            current_category = shopstyleQuery.category_name
+            print ('started downloading {} at {}'.format(current_category, datetime.now().replace(microsecond=0)))
         download_query(shopstyleQuery)
 
     GLOBALS.collection.delete_many({'fingerprint': {"$exists": False}})
