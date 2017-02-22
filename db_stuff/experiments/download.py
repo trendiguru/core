@@ -125,6 +125,9 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     if len(query.fls) > 0:
         parameters['fl'] = query.fls
 
+    if len(query.fls) > 1:
+        print query.fls
+
     response = delayed_requests_get('{}products/histogram'.format(GLOBALS.BASE_URL), parameters)
     rsp = response.json()
     if histogram_filter is not 'Category':
