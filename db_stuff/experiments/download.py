@@ -120,7 +120,6 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
 
 def make_new_candidate_list(query, histogram_filter_idx):
     histogram_filter = constants.FILTERS[histogram_filter_idx]
-    print histogram_filter_idx
     parameters = {"pid": constants.PID, "filters": histogram_filter, "cat": query.category_name}
     fls = []
     if len(query.fls) > 0:
@@ -162,7 +161,7 @@ def recursive_hist(query, hist_filter_idx, query_list):
 
     for current_query in queries:
         query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
-
+        print current_query.category_name
         if add_filters:
             query_list = recursive_hist(current_query, hist_filter_idx+1, query_list)
 
