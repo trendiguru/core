@@ -53,7 +53,7 @@ class Query:
         else:
             self.dict_2_class(cat_dict)
 
-    def sort(self, hi2lo=False):
+    def add_sort(self, hi2lo=False):
         if hi2lo:
             self.sort = 'PriceHiLo'
             self.set_max_offset()
@@ -107,7 +107,7 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
         return list_of_current_queries, False
     elif candidate_query.count < 2 * constants.MAX_SET_SIZE or filter_index > 4:
         for boolean in [False, True]:
-            candidate_query.sort(hi2lo=boolean)
+            candidate_query.add_sort(hi2lo=boolean)
             list_of_current_queries.append(candidate_query)
         return list_of_current_queries, False
     else:
@@ -140,7 +140,7 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
         queries = [query]
 
     for current_query in queries:
-        query_list, add_filters = enqueue_or_add_filters(query_list, current_query,hist_filter_idx)
+        query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
 
         if add_filters:
             query_list = recursive_hist(cat, current_query, hist_filter_idx+1, query_list)
