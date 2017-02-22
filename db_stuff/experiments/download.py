@@ -118,7 +118,7 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
         return list_of_current_queries, True
 
 
-def make_new_candidate_list(cat, query, histogram_filter_idx):
+def make_new_candidate_list(query, histogram_filter_idx):
     histogram_filter = constants.FILTERS[histogram_filter_idx]
     parameters = {"pid": constants.PID, "filters": histogram_filter, "cat": query.category_name}
     fls = []
@@ -140,7 +140,7 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     for entry in hist:
         idx = entry['id']
         if histogram_filter is not 'Category':
-            tmp_query = Query(cat, fls[:])
+            tmp_query = Query(query.category_name, fls[:])
             tmp_query.add_fls(prefix+idx)
         elif idx in GLOBALS.relevant:
             tmp_query = Query(idx, fls[:])
@@ -153,9 +153,9 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     return queries
 
 
-def recursive_hist(cat, query, hist_filter_idx, query_list):
+def recursive_hist(query, hist_filter_idx, query_list):
     if hist_filter_idx > -1:
-        queries = make_new_candidate_list(cat, query, hist_filter_idx)
+        queries = make_new_candidate_list(query, hist_filter_idx)
     else:
         queries = [query]
 
@@ -163,14 +163,14 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
         query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
 
         if add_filters:
-            query_list = recursive_hist(cat, current_query, hist_filter_idx+1, query_list)
+            query_list = recursive_hist(current_query, hist_filter_idx+1, query_list)
 
     return query_list
 
 
 def create_query_list():
     top_query = Query(GLOBALS.top_category, [])
-    query_list = recursive_hist(GLOBALS.top_category, top_query, -1, [])
+    query_list = recursive_hist(top_query, -1, [])
 
     list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
