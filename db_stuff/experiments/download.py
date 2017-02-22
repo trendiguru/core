@@ -154,12 +154,13 @@ def create_query_list():
 
     query_list = []
     for cat in relevant_categories:
-        print ('started querying {} at {}'.format(cat['id'], datetime.now().replace(microsecond=0)))
+        # print ('started querying {} at {}'.format(cat['id'], datetime.now().replace(microsecond=0)))
         query = Query(cat)
         query_list = recursive_hist(cat, query, -1, query_list)
 
+    list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
-    res = GLOBALS.shopstyle_queries.insert(query_list)
+    res = GLOBALS.shopstyle_queries.insert(list_of_dicts)
     for x, idx in res.inserted_ids:
         query_list[x].set_obj_id(idx)
 
@@ -172,7 +173,7 @@ def build_category_tree():
     # now i loop over the list locally and only in the end insert the updated category list to the mongo
     # i changed it because the old method used to make many calls to the db that are unnecessary
     # tested it and they both take about the same time with slight advantage toward the new code
-    print ('started build_category_tree at {}'.format(datetime.now().replace(microsecond=0)))
+    # print ('started build_category_tree at {}'.format(datetime.now().replace(microsecond=0)))
     parameters = {"pid": constants.PID, "filters": "Category"}
 
     # download all categories
