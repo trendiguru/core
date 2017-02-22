@@ -154,7 +154,7 @@ def create_query_list():
 
     query_list = []
     for cat in relevant_categories:
-        print ('started querying {} at {}'.format(cat, datetime.now().replace(microsecond=0)))
+        print ('started querying {} at {}'.format(cat['id'], datetime.now().replace(microsecond=0)))
         query = Query(cat)
         query_list = recursive_hist(cat, query, -1, query_list)
 
