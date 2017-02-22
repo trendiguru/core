@@ -43,8 +43,6 @@ class Globals:
 
 class Query:
     def __init__(self, category, fls):
-        print (category, type(category))
-
         if type(category) is str:
             self.obj_id = None
             self.category_name = category
@@ -145,11 +143,10 @@ def make_new_candidate_list(query, histogram_filter_idx):
             tmp_query = Query(query.category_name, fls[:])
             tmp_query.add_fls(prefix+idx)
         elif idx in GLOBALS.relevant:
-            tmp_query = Query(idx, fls[:])
+            tmp_query = Query(str(idx), fls[:])
         else:
             continue
         tmp_query.count = entry['count']
-        print tmp_query.category_name
         queries.append(tmp_query)
 
     return queries
