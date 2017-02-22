@@ -43,6 +43,8 @@ class Globals:
 
 class Query:
     def __init__(self, category, fls):
+        print (category, type(category))
+
         if type(category) is str:
             self.obj_id = None
             self.category_name = category
