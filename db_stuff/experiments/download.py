@@ -6,7 +6,7 @@ import requests
 import json
 import gevent
 from rq import Queue
-
+import tqdm
 # our libs
 from .master_constants import db, redis_conn, redis_limit
 import constants
@@ -319,7 +319,7 @@ def process_cmd_inputs():
 
     if args.gender in ['Female', 'Male'] and args.country_code in ["US", "DE"]:
         args.collection_name = "shopstyle_{}_{}".format(args.country_code, args.gender)
-        print ("@@@ Shopstyle Download @@@\n you choose to update the " + args.collection_name + " collection")
+        # print ("@@@ Shopstyle Download @@@\nyou choose to update the " + args.collection_name + " collection")
     else:
         assert "bad input - gender should be only Female or Male (case sensitive)"
     return args
@@ -330,12 +330,14 @@ if __name__ == '__main__':
     cmdArgs = process_cmd_inputs()
     GLOBALS = Globals(cmdArgs)
 
+    print ("{} Update Started at {}".format(GLOBALS.collection_name, datetime.now().replace(microsecond=0)))
     shopstyleQueries = get_query_list()
+
     current_category = ''
-    for shopstyleQuery in shopstyleQueries:
-        if shopstyleQuery.category_name != current_category:
-            current_category = shopstyleQuery.category_name
-            print ('started downloading {} at {}'.format(current_category, datetime.now().replace(microsecond=0)))
+    for shopstyleQuery in tqdm.tqdm(shopstyleQueries):
+        # if shopstyleQuery.category_name != current_category:
+        #     current_category = shopstyleQuery.category_name
+        #     print ('started downloading {} at {}'.format(current_category, datetime.now().replace(microsecond=0)))
         download_query(shopstyleQuery)
 
     GLOBALS.collection.delete_many({'fingerprint': {"$exists": False}})
@@ -347,9 +349,11 @@ if __name__ == '__main__':
         sleep(300)
     if forest_job.is_failed:
         print ('annoy plant forest failed')
+
     if GLOBALS.gender == 'Male':
         refresh_similar_results(GLOBALS.collection_name)
-    print (GLOBALS.collection_name + "Update Finished!!!")
+
+    print ("{} Update Finished at {}".format(GLOBALS.collection_name, datetime.now().replace(microsecond=0)))
 
 '''
 pseudo code:
