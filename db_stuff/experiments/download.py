@@ -160,7 +160,7 @@ def create_query_list():
 
     list_of_dicts = [query.class_2_dict() for query in query_list]
     GLOBALS.shopstyle_queries.delete_many({})
-    res = GLOBALS.shopstyle_queries.insert(list_of_dicts)
+    res = GLOBALS.shopstyle_queries.insert_many(list_of_dicts)
     for x, idx in res.inserted_ids:
         query_list[x].set_obj_id(idx)
 
