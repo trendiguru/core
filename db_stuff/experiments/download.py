@@ -147,7 +147,7 @@ def make_new_candidate_list(query, histogram_filter_idx):
         else:
             continue
         tmp_query.count = entry['count']
-
+        print tmp_query.category_name
         queries.append(tmp_query)
 
     return queries
@@ -161,7 +161,7 @@ def recursive_hist(query, hist_filter_idx, query_list):
 
     for current_query in queries:
         query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
-        print current_query.category_name
+
         if add_filters:
             query_list = recursive_hist(current_query, hist_filter_idx+1, query_list)
 
