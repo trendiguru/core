@@ -102,7 +102,7 @@ def get_query_list():
 
 def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_index):
     if candidate_query.count < constants.MAX_SET_SIZE:
-        candidate_query.set_max_offest(take_of_offset=50)
+        candidate_query.set_max_offset(take_of_offset=50)
         list_of_current_queries.append(candidate_query)
         return list_of_current_queries, False
     elif candidate_query.count < 2 * constants.MAX_SET_SIZE or filter_index > 4:
