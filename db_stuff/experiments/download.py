@@ -132,13 +132,13 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     hist = rsp[hist_name]
 
     queries = []
-    print (cat)
     for entry in hist:
         idx = entry['id']
         if histogram_filter is not 'Category':
             tmp_query = Query(cat)
             tmp_query.add_fls(prefix+idx)
         elif idx in GLOBALS.relevant:
+            print (cat, idx)
             tmp_query = Query(idx)
         else:
             continue
