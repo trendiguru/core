@@ -108,7 +108,7 @@ def enqueue_or_add_filters(list_of_current_queries, candidate_query, filter_inde
         candidate_query.set_max_offset(take_of_offset=50)
         list_of_current_queries.append(candidate_query)
         return list_of_current_queries, False
-    elif candidate_query.count < 2 * constants.MAX_SET_SIZE or filter_index > 4:
+    elif candidate_query.count < 2 * constants.MAX_SET_SIZE or filter_index > 5:
         for boolean in [False, True]:
             candidate_query.add_sort(hi2lo=boolean)
             list_of_current_queries.append(candidate_query)
@@ -132,11 +132,12 @@ def make_new_candidate_list(cat, query, histogram_filter_idx):
     hist = rsp[hist_name]
 
     queries = []
+    print (cat)
     for entry in hist:
         idx = entry['id']
         if histogram_filter is not 'Category':
             tmp_query = Query(cat)
-            tmp_query.add_fls(prefix + idx)
+            tmp_query.add_fls(prefix+idx)
         elif idx in GLOBALS.relevant:
             tmp_query = Query(idx)
         else:
@@ -154,10 +155,10 @@ def recursive_hist(cat, query, hist_filter_idx, query_list):
         queries = [query]
 
     for current_query in queries:
-        query_list, add_filters = enqueue_or_add_filters(query_list, current_query, hist_filter_idx)
+        query_list, add_filters = enqueue_or_add_filters(query_list, current_query,hist_filter_idx)
 
         if add_filters:
-            query_list = recursive_hist(cat, current_query, hist_filter_idx + 1, query_list)
+            query_list = recursive_hist(cat, current_query, hist_filter_idx+1, query_list)
 
     return query_list
 
@@ -259,24 +260,24 @@ def process_product(product):
         status_old = product_in_collection["status"]["instock"]
         if status_new is False and status_old is False:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                          {'$inc': {'status.days_out': 1}})
+                                       {'$inc': {'status.days_out': 1}})
             product["status"]["days_out"] = product_in_collection["status"]["days"] + 1
         elif status_new is False and status_old is True:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                          {'$set': {'status.days_out': 1,
-                                                    'status.instock': False}})
+                                       {'$set': {'status.days_out': 1,
+                                                'status.instock': False}})
             product["status"]["days_out"] = 1
         elif status_new is True and status_old is False:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                          {'$set': {'status.days_out': 0,
-                                                    'status.instock': True}})
+                                       {'$set': {'status.days_out': 0,
+                                                'status.instock': True}})
             product["status"]["days_out"] = 0
         else:
             pass
 
         if product_in_collection["download_data"]["fp_version"] == constants.fingerprint_version:
             GLOBALS.collection.update_one({'_id': product_in_collection["_id"]},
-                                          {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
+                                       {'$set': {'download_data.dl_version': GLOBALS.current_dl_date}})
             return False
 
         else:
@@ -287,6 +288,7 @@ def process_product(product):
 
 
 def insert_and_fingerprint(product):
+
     while SHOPSTYLE_Q.count > redis_limit:
         print ("Q full - stolling")
         sleep(600)
