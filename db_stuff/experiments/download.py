@@ -253,7 +253,8 @@ def process_product(product):
 
     if product_in_collection is None:
         product = shopstyle_converter(product, GLOBALS.gender)
-        return insert_and_fingerprint(product)
+        if product is not None:
+            return insert_and_fingerprint(product)
 
     else:
         # case 2: the product was found in our db, and maybe should be modified
@@ -283,11 +284,11 @@ def process_product(product):
         else:
             product["status"]["instock"] = status_new
             GLOBALS.collection.delete_one({'_id': product_in_collection['_id']})
-            prod = shopstyle_converter(product, GLOBALS.gender)
-            if prod is not None:
-                return insert_and_fingerprint(prod)
+            product = shopstyle_converter(product, GLOBALS.gender)
+            if product is not None:
+                return insert_and_fingerprint(product)
 
-        return False
+    return False
 
 
 def insert_and_fingerprint(product):
