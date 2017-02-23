@@ -86,6 +86,6 @@ class HYDRA_TG:
             output['url'] = url
             json.dumps(output, fp, indent=4)
             fp.write()
-
+#
 api = falcon.API()
 api.add_route('/hydra_tg/', HYDRA_TG())
