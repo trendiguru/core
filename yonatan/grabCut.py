@@ -48,15 +48,13 @@ def grabcut(url_or_np_array):
         print "bad grabcut"
         return None
 
-    print "i : {0}, j : {1}".format(i, j)
     print "min(i) : {0}, max(i) : {1}\nmin(j) : {2}, max(j) : {3}".format(min(i), max(i), min(j), max(j))
+    print "image.shape : {}".format(img.shape)
 
     indices = np.meshgrid(np.arange(min(i), max(i) + 1),
                           np.arange(min(j), max(j) + 1),
                           indexing='ij')
     sub_image = img[indices]
-
-    print "indices: {}".format(indices)
 
     # plt.imshow(img),plt.colorbar(),plt.show()
 
