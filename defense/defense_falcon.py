@@ -10,6 +10,9 @@ from jaweson import json, msgpack
 
 print "Done with imports"
 
+HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
+
 class HydraResource:
     def __init__(self):
         print "Loaded Resource"

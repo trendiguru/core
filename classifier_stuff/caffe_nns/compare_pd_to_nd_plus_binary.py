@@ -4,7 +4,7 @@ import cv2
 import pymongo
 import subprocess
 import os
-import sleep
+from time import sleep
 
 from trendi.paperdoll import pd_falcon_client
 from trendi import constants
