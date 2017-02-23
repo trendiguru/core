@@ -1323,7 +1323,7 @@ def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
     for f in files:
         some_function(f,**kwargs)
 
-def one_person_per_image(image,save_dir='multiple_people'):
+def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
 #        imgname = image.replace('https://','').replace('http://','').replace('/','_') #conver url to name
         imgname = image
@@ -1343,8 +1343,9 @@ def one_person_per_image(image,save_dir='multiple_people'):
             print('more than one face found, moving {} to {}'.format(image,savename))
             mvcmd = 'mv '+imgname+' '+savename
             subprocess.call(mvcmd,shell=True)
-        cv2.imshow('image',img_arr)
-        cv2.waitKey(100)
+        if visual_output:
+            cv2.imshow('image',img_arr)
+            cv2.waitKey(100)
 
 
 host = socket.gethostname()

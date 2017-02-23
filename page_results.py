@@ -230,8 +230,16 @@ def check_if_relevant(image_url, page_url, products_collection, method):
         db.irrelevant_images.insert_one(image_obj)
         db.labeled_irrelevant.insert_one(image_obj)
         return image_obj
-    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist(),
-                             'gender': classifier_client.get('gender', image, face=face.tolist())['gender']} for face in relevance.faces],
+    verified_faces = []
+    for face in relevance.faces:
+        face_list = face
+        if type(face) is not list:
+            face_list = face.tolist()
+        verified_faces.append(face_list)
+
+    image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face_list,
+                             'gender': classifier_client.get('gender', image, face=face_list)['gender']}
+                            for face_list in verified_faces],
                  'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
     db.iip.insert_one(image_obj)
     start_pipeline.enqueue_call(func="", args=(page_url, image_url, products_collection, method),
