@@ -48,16 +48,20 @@ def grabcut(url_or_np_array):
         print "bad grabcut"
         return None
 
+    print "i : {0}, j : {1}".format(i, j)
+    print "min(i) : {0}, max(i) : {1}\nmin(j) : {2}, max(j) : {3}".format(min(i), max(i), min(j), max(j))
+
     indices = np.meshgrid(np.arange(min(i), max(i) + 1),
                           np.arange(min(j), max(j) + 1),
                           indexing='ij')
     sub_image = img[indices]
 
+    print "indices: {}".format(indices)
 
     # plt.imshow(img),plt.colorbar(),plt.show()
 
-    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
-    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing_img.jpg", img)
+    print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing_sub_image.jpg", sub_image)
 
     return sub_image
 
