@@ -26,7 +26,7 @@ def grabcut(url_or_np_array):
         print "image too small for grabcut"
         return None
 
-    rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
+    rect = (5, 5, img.shape[1] - 5, img.shape[0] - 25)  # the -25 in the 'h' place is for the legs to be considered as background
     ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
 
