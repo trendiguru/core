@@ -34,6 +34,7 @@ import os
 import sys
 import glob
 import numpy as np
+from trendi.yonatan import preparing_data_from_db, grabCut
 
 import dlib
 from skimage import io
@@ -99,181 +100,227 @@ counter_bad = 0
 
 counter = 0
 
-for root, dirs, files in os.walk('/data/dress_detector/resized_images'):
+sum_w = 0
+sum_h = 0
+
+for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
     for file in files:
-        if counter > 10000:
-            print "counter: {0}".format(counter)
-            break
+        # if counter > 10000:
+        #     print "counter: {0}".format(counter)
+        #     break
 
-        # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = [dlib.rectangle(left=2, top=2, right=98, bottom=228)]
+        full_image = cv2.imread('/data/dress_detector/images_raw/' + file)
 
-        try:
-            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
-            line_in_list_images = io.imread('/data/dress_detector/resized_images/' + file)
-        except:
-            print "bad image!!"
-            counter_bad += 1
+        original_image = full_image.copy()
+
+        # # if there's a head, cut it off
+        faces = preparing_data_from_db.find_face_dlib(full_image)
+
+        if faces["are_faces"]:
+            if len(faces['faces']) == 1:
+                x, y, w, h = faces['faces'][0]
+                full_image = full_image[y + h:, :]  # Crop the face from the image
+                # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+            else:
+                print "more than one face"
+                continue
+
+        cropped_image = grabCut.grabcut(full_image)
+
+        if cropped_image is None:
             continue
 
-        boxes_new.append(line_in_list_boxes)
+        h, w, d = cropped_image.shape
 
-        images_new.append(line_in_list_images)
-
-        print file
-        counter += 1
-
-print "counter_bad: {0}".format(counter_bad)
-
-
-## test set ##
-counter_bad2 = 0
-
-counter = 0
-
-for root, dirs, files in os.walk('/data/dress_detector/resized_images_test'):
-    for file in files:
-        if counter > 200:
-            print "counter: {0}".format(counter)
-            break
-
-        # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = ([dlib.rectangle(left=2, top=2, right=98, bottom=228)])
-
-        try:
-            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
-            line_in_list_images = io.imread('/data/dress_detector/resized_images_test/' + file)
-        except:
-            print "bad image!!"
-            counter_bad2 += 1
+        if w < 20 or h < 20:
+            print "BB too small"
             continue
 
-        boxes_new_test.append(line_in_list_boxes)
+        sum_w += w
+        sum_h += h
 
-        images_new_test.append(line_in_list_images)
-
-        print file
         counter += 1
 
-print "counter_bad2: {0}".format(counter_bad2)
+        print "counter: {}".format(counter)
+
+average_w = sum_w / (counter + 1)
+average_h = sum_h / (counter + 1)
+
+print "average_w: {0}\naverage_h: {1}".format(average_w, average_h)
 
 
-
-
-# images_array = np.load('/data/dress_detector/images_small_set_save.npy')
-# boxes_array = np.load('/data/dress_detector/boxes_small_set_save.npy')
 #
-# images = images_array.tolist()
-# boxes = boxes_array.tolist()
-
-detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
-print "Done training!"
-detector2.save('/data/detector5.svm')
-print "Done saving!"
-
-# # We can look at the HOG filter we learned.  It should look like a face.  Neat!
-# win_det = dlib.image_window()
-# win_det.set_image(detector2)
 #
-# # Now let's look at its HOG filter!
+#
+#         # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
+#         line_in_list_boxes = [dlib.rectangle(left=2, top=2, right=98, bottom=228)]
+#
+#         try:
+#             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
+#             line_in_list_images = io.imread('/data/dress_detector/images_raw/' + file)
+#         except:
+#             print "bad image!!"
+#             counter_bad += 1
+#             continue
+#
+#         boxes_new.append(line_in_list_boxes)
+#
+#         images_new.append(line_in_list_images)
+#
+#         print file
+#         counter += 1
+#
+# print "counter_bad: {0}".format(counter_bad)
+#
+#
+# ## test set ##
+# counter_bad2 = 0
+#
+# # counter = 0
+#
+# for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
+#     for file in files:
+#         if counter > 10500:
+#             print "counter: {0}".format(counter)
+#             break
+#
+#         # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
+#         line_in_list_boxes = ([dlib.rectangle(left=2, top=2, right=98, bottom=228)])
+#
+#         try:
+#             # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
+#             line_in_list_images = io.imread('/data/dress_detector/images_raw/' + file)
+#         except:
+#             print "bad image!!"
+#             counter_bad2 += 1
+#             continue
+#
+#         boxes_new_test.append(line_in_list_boxes)
+#
+#         images_new_test.append(line_in_list_images)
+#
+#         print file
+#         counter += 1
+#
+# print "counter_bad2: {0}".format(counter_bad2)
+#
+#
+#
+#
+# # images_array = np.load('/data/dress_detector/images_small_set_save.npy')
+# # boxes_array = np.load('/data/dress_detector/boxes_small_set_save.npy')
+# #
+# # images = images_array.tolist()
+# # boxes = boxes_array.tolist()
+#
+# detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
+# print "Done training!"
+# detector2.save('/data/detector5.svm')
+# print "Done saving!"
+#
+# # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
+# # win_det = dlib.image_window()
 # # win_det.set_image(detector2)
-# dlib.hit_enter_to_continue()
+# #
+# # # Now let's look at its HOG filter!
+# # # win_det.set_image(detector2)
+# # dlib.hit_enter_to_continue()
+# #
+# # # Note that you don't have to use the XML based input to
+# # # test_simple_object_detector().  If you have already loaded your training
+# # # images and bounding boxes for the objects then you can call it as shown
+# # # below.
+# # print("\nTraining accuracy: {}".format(
+# #     dlib.test_simple_object_detector(images, boxes, detector2)))
+# #
+# #
+# # # # Now that we have a face detector we can test it.  The first statement tests
+# # # # it on the training data.  It will print(the precision, recall, and then)
+# # # # average precision.
+# # # print("")  # Print blank line to create gap from previous output
+# # # print("Training accuracy: {}".format(
+# # #     dlib.test_simple_object_detector(training_xml_path, "detector.svm")))
+# # # # However, to get an idea if it really worked without overfitting we need to
+# # # # run it on images it wasn't trained on.  The next line does this.  Happily, we
+# # # # see that the object detector works perfectly on the testing images.
+# # # print("Testing accuracy: {}".format(
+# # #     dlib.test_simple_object_detector(testing_xml_path, "detector.svm")))
+# #
+# #
+# #
+# #
+# #
+# # # # Now let's use the detector as you would in a normal application.  First we
+# # # # will load it from disk.
+# # # detector = dlib.simple_object_detector("detector.svm")
+# #
+# # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
+# # win_det = dlib.image_window()
+# # win_det.set_image(detector)
+# #
+# # # Now let's run the detector over the images in the faces folder and display the
+# # # results.
+# # print("Showing detections on the images in the faces folder...")
+# # win = dlib.image_window()
+# # for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
+# #     print("Processing file: {}".format(f))
+# #     img = io.imread(f)
+# #     dets = detector(img)
+# #     print("Number of faces detected: {}".format(len(dets)))
+# #     for k, d in enumerate(dets):
+# #         print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
+# #             k, d.left(), d.top(), d.right(), d.bottom()))
+# #
+# #     win.clear_overlay()
+# #     win.set_image(img)
+# #     win.add_overlay(dets)
+# #     dlib.hit_enter_to_continue()
 #
-# # Note that you don't have to use the XML based input to
-# # test_simple_object_detector().  If you have already loaded your training
-# # images and bounding boxes for the objects then you can call it as shown
-# # below.
+#
+#
+#
+#
+#
+#
+# # # Finally, note that you don't have to use the XML based input to
+# # # train_simple_object_detector().  If you have already loaded your training
+# # # images and bounding boxes for the objects then you can call it as shown
+# # # below.
+# #
+# # # You just need to put your images into a list.
+# # images = [io.imread(faces_folder + '/2008_002506.jpg'),
+# #           io.imread(faces_folder + '/2009_004587.jpg')]
+# # # Then for each image you make a list of rectangles which give the pixel
+# # # locations of the edges of the boxes.
+# # boxes_img1 = ([dlib.rectangle(left=329, top=78, right=437, bottom=186),
+# #                dlib.rectangle(left=224, top=95, right=314, bottom=185),
+# #                dlib.rectangle(left=125, top=65, right=214, bottom=155)])
+# # boxes_img2 = ([dlib.rectangle(left=154, top=46, right=228, bottom=121),
+# #                dlib.rectangle(left=266, top=280, right=328, bottom=342)])
+# # # And then you aggregate those lists of boxes into one big list and then call
+# # # train_simple_object_detector().
+# # boxes = [boxes_img1, boxes_img2]
+# #
+# # images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
+# # boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
+# #
+# # images = images_array.tolist()
+# # boxes = boxes_array.tolist()
+# #
+# # detector2 = dlib.train_simple_object_detector(images, boxes, options)
+# # # We could save this detector to disk by uncommenting the following.
+# # detector2.save('detector2.svm')
+# #
+# # # Now let's look at its HOG filter!
+# # win_det.set_image(detector2)
+# # dlib.hit_enter_to_continue()
+# #
+# # # Note that you don't have to use the XML based input to
+# # # test_simple_object_detector().  If you have already loaded your training
+# # # images and bounding boxes for the objects then you can call it as shown
+# # # below.
 # print("\nTraining accuracy: {}".format(
-#     dlib.test_simple_object_detector(images, boxes, detector2)))
+#     dlib.test_simple_object_detector(images_new, boxes_new, detector2)))
 #
-#
-# # # Now that we have a face detector we can test it.  The first statement tests
-# # # it on the training data.  It will print(the precision, recall, and then)
-# # # average precision.
-# # print("")  # Print blank line to create gap from previous output
-# # print("Training accuracy: {}".format(
-# #     dlib.test_simple_object_detector(training_xml_path, "detector.svm")))
-# # # However, to get an idea if it really worked without overfitting we need to
-# # # run it on images it wasn't trained on.  The next line does this.  Happily, we
-# # # see that the object detector works perfectly on the testing images.
-# # print("Testing accuracy: {}".format(
-# #     dlib.test_simple_object_detector(testing_xml_path, "detector.svm")))
-#
-#
-#
-#
-#
-# # # Now let's use the detector as you would in a normal application.  First we
-# # # will load it from disk.
-# # detector = dlib.simple_object_detector("detector.svm")
-#
-# # We can look at the HOG filter we learned.  It should look like a face.  Neat!
-# win_det = dlib.image_window()
-# win_det.set_image(detector)
-#
-# # Now let's run the detector over the images in the faces folder and display the
-# # results.
-# print("Showing detections on the images in the faces folder...")
-# win = dlib.image_window()
-# for f in glob.glob(os.path.join(faces_folder, "*.jpg")):
-#     print("Processing file: {}".format(f))
-#     img = io.imread(f)
-#     dets = detector(img)
-#     print("Number of faces detected: {}".format(len(dets)))
-#     for k, d in enumerate(dets):
-#         print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
-#             k, d.left(), d.top(), d.right(), d.bottom()))
-#
-#     win.clear_overlay()
-#     win.set_image(img)
-#     win.add_overlay(dets)
-#     dlib.hit_enter_to_continue()
-
-
-
-
-
-
-
-# # Finally, note that you don't have to use the XML based input to
-# # train_simple_object_detector().  If you have already loaded your training
-# # images and bounding boxes for the objects then you can call it as shown
-# # below.
-#
-# # You just need to put your images into a list.
-# images = [io.imread(faces_folder + '/2008_002506.jpg'),
-#           io.imread(faces_folder + '/2009_004587.jpg')]
-# # Then for each image you make a list of rectangles which give the pixel
-# # locations of the edges of the boxes.
-# boxes_img1 = ([dlib.rectangle(left=329, top=78, right=437, bottom=186),
-#                dlib.rectangle(left=224, top=95, right=314, bottom=185),
-#                dlib.rectangle(left=125, top=65, right=214, bottom=155)])
-# boxes_img2 = ([dlib.rectangle(left=154, top=46, right=228, bottom=121),
-#                dlib.rectangle(left=266, top=280, right=328, bottom=342)])
-# # And then you aggregate those lists of boxes into one big list and then call
-# # train_simple_object_detector().
-# boxes = [boxes_img1, boxes_img2]
-#
-# images_array = np.load(open('/data/dress_detector/images.npy', 'rb'))
-# boxes_array = np.load(open('/data/dress_detector/boxes.npy', 'rb'))
-#
-# images = images_array.tolist()
-# boxes = boxes_array.tolist()
-#
-# detector2 = dlib.train_simple_object_detector(images, boxes, options)
-# # We could save this detector to disk by uncommenting the following.
-# detector2.save('detector2.svm')
-#
-# # Now let's look at its HOG filter!
-# win_det.set_image(detector2)
-# dlib.hit_enter_to_continue()
-#
-# # Note that you don't have to use the XML based input to
-# # test_simple_object_detector().  If you have already loaded your training
-# # images and bounding boxes for the objects then you can call it as shown
-# # below.
-print("\nTraining accuracy: {}".format(
-    dlib.test_simple_object_detector(images_new, boxes_new, detector2)))
-
-print("\nTesting accuracy: {}".format(
-    dlib.test_simple_object_detector(images_new_test, boxes_new_test, detector2)))
+# print("\nTesting accuracy: {}".format(
+#     dlib.test_simple_object_detector(images_new_test, boxes_new_test, detector2)))
