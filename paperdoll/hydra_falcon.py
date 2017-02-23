@@ -6,11 +6,11 @@ nvidia-docker run -it -v /data:/data -p 8083:8083 --name hydra_tg eu.gcr.io/test
 """
 from __future__ import absolute_import
 import traceback
+import os
 import falcon
 print('falcon is coming form '+str(falcon.__file__))
 base_dir = os.path.dirname(os.path.realpath(__file__))
 print('current_dir is '+str(base_dir))
-import os
 import cv2
 import numpy as np
 #this file has to go in the rcnn folder
