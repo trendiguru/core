@@ -8,13 +8,19 @@ from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
 
+
 def get_pd_results():
     url = 'https://thechive.files.wordpress.com/2017/02/0c7bf9a4951ade636082e45849b01cd8.jpeg'
     resp = pd_falcon_client.pd(url)
     print('resp:'+str(resp))
 
-
-
+def get_groundtruth_for_tamaraberg_multilabel(labelfile='/data/jeremy/image_dbs/labels/labelfiles_tb/tb_cats_from_webtool_round2_train.txt',
+                                              label_cats=constants.web_tool_categories_v2):
+    with open(labelfile,'r') as fp:
+        lines = fp.readlines()
+    imgs_and_labels = [(line.split()[0],[int(i) for i in line.split()[1:]]) for line in lines]
+    print imgs_and_labels[0]
+    print(str(len(imgs_and_labels))+' images described in file '+labelfile)
 
 def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/image_dbs/golden/',in_docker=True,visual_output=False):
     '''
@@ -28,7 +34,6 @@ def dl_images(source_domain='stylebook.de',text_filter='',dl_dir='/data/jeremy/i
         db = constants.db
 
     all = db.images.find({'domain':source_domain})
-    doc = all.next()
     for doc in all:
         url=doc['image_urls'][0]
         if text_filter in url[0]:
