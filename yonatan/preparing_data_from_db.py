@@ -179,6 +179,9 @@ def preparing_data_from_db(argv):
 
             counter += 1
 
+        else:
+            continue
+
 
     # np.array(images).dump(open('/data/dress_detector/images.npy', 'wb'))
     # np.array(boxes).dump(open('/data/dress_detector/boxes.npy', 'wb'))
