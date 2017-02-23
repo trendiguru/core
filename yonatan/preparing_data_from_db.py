@@ -122,62 +122,62 @@ def preparing_data_from_db(argv):
     counter = 0
 
     for i in range(1, dresses.count()):
-        #if i > num_of_each_category:
-         #   break
 
-        link_to_image = dresses[i]['images']['XLarge']
+        if i % 10 == 0:
 
-        # check if i get a url (= string) or np.ndarray
-        if isinstance(link_to_image, basestring):
-            # full_image = url_to_image(url_or_np_array)
-            response = requests.get(link_to_image)  # download
-            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-        elif type(link_to_image) == np.ndarray:
-            full_image = link_to_image
-        else:
-            continue
+            link_to_image = dresses[i]['images']['XLarge']
 
-        # checks if the face coordinates are inside the image
-        if full_image is None:
-            print "not a good image"
-            continue
-
-        # # if there's a head, cut it off
-        faces = find_face_dlib(full_image)
-
-        if faces["are_faces"]:
-            if len(faces['faces']) == 1:
-                x, y, w, h = faces['faces'][0]
-                full_image = full_image[y + h:, :]  # Crop the face from the image
-                # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+            # check if i get a url (= string) or np.ndarray
+            if isinstance(link_to_image, basestring):
+                # full_image = url_to_image(url_or_np_array)
+                response = requests.get(link_to_image)  # download
+                full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+            elif type(link_to_image) == np.ndarray:
+                full_image = link_to_image
             else:
-                print "more than one face"
                 continue
 
-        cropped_image = grabCut.grabcut(full_image)
+            # checks if the face coordinates are inside the image
+            if full_image is None:
+                print "not a good image"
+                continue
 
-        if cropped_image is None:
-            continue
+            # # # if there's a head, cut it off
+            # faces = find_face_dlib(full_image)
+            #
+            # if faces["are_faces"]:
+            #     if len(faces['faces']) == 1:
+            #         x, y, w, h = faces['faces'][0]
+            #         full_image = full_image[y + h:, :]  # Crop the face from the image
+            #         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+            #     else:
+            #         print "more than one face"
+            #         continue
+            #
+            # cropped_image = grabCut.grabcut(full_image)
+            #
+            # if cropped_image is None:
+            #     continue
 
 
-        # Resize it.
-        #resized_image = cv2.resize(full_image, (width, height))
-        # resized_image = imutils.resize_keep_aspect(full_image, output_size = (224, 224))
+            # Resize it.
+            #resized_image = cv2.resize(full_image, (width, height))
+            # resized_image = imutils.resize_keep_aspect(full_image, output_size = (224, 224))
 
-        image_file_name = 'dress-' + str(i) + '.jpg'
+            image_file_name = 'dress-' + str(i) + '.jpg'
 
-        # line_in_list_images = 'io.imread(/data/dress_detector/images/' + image_file_name + ')'
-        # line_in_list_boxes = '([dlib.rectangle(left=0, top=0, right=' + str(cropped_image.shape[1]) + ', bottom=' + str(cropped_image.shape[0]) + ')])'
-        #
-        # images.append(line_in_list_images)
-        # boxes.append(line_in_list_boxes)
+            # line_in_list_images = 'io.imread(/data/dress_detector/images/' + image_file_name + ')'
+            # line_in_list_boxes = '([dlib.rectangle(left=0, top=0, right=' + str(cropped_image.shape[1]) + ', bottom=' + str(cropped_image.shape[0]) + ')])'
+            #
+            # images.append(line_in_list_images)
+            # boxes.append(line_in_list_boxes)
 
-        print counter
+            print counter
 
-        cv2.imwrite(os.path.join('/data/dress_detector/images', image_file_name), cropped_image)
-        #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
+            cv2.imwrite(os.path.join('/data/dress_detector/images_raw', image_file_name), full_image)
+            #text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
 
-        counter += 1
+            counter += 1
 
 
     # np.array(images).dump(open('/data/dress_detector/images.npy', 'wb'))
