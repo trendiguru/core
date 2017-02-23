@@ -61,5 +61,5 @@ def grabcut(url_or_np_array):
     print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing_img.jpg", img)
     print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing_sub_image.jpg", sub_image)
 
-    return sub_image
+    return sub_image, min(i), min(j)
 

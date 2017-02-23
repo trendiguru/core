@@ -108,127 +108,95 @@ average_w =
 average_h =
 w_h_ratio = float(average_w) / average_w
 
+break_from_main_loop = False
+
 for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
-    for file in files:
-        # if counter > 10000:
-        #     print "counter: {0}".format(counter)
-        #     break
+    if not break_from_main_loop:
+        for file in files:
+            # if counter > 10000:
+            #     print "counter: {0}".format(counter)
+            #     break
 
-        full_image = cv2.imread('/data/dress_detector/images_raw/' + file)
+            full_image = cv2.imread('/data/dress_detector/images_raw/' + file)
 
-        original_image = full_image.copy()
-        h_original, w_original, d_original = original_image.shape
+            original_image = full_image.copy()
+            h_original, w_original, d_original = original_image.shape
 
-        # # if there's a head, cut it off
-        faces = preparing_data_from_db.find_face_dlib(full_image)
+            # # if there's a head, cut it off
+            faces = preparing_data_from_db.find_face_dlib(full_image)
 
-        x_face, y_face, w_face, h_face = 0, 0, 0, 0 # default them to 0 - in case there's no face in the image
-        if faces["are_faces"]:
-            if len(faces['faces']) == 1:
-                x_face, y_face, w_face, h_face = faces['faces'][0]
-                full_image = full_image[y_face + h_face:, :]  # Crop the face from the image
-                # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
-            else:
-                print "more than one face"
+            x_face, y_face, w_face, h_face = 0, 0, 0, 0 # default them to 0 - in case there's no face in the image
+            if faces["are_faces"]:
+                if len(faces['faces']) == 1:
+                    x_face, y_face, w_face, h_face = faces['faces'][0]
+                    full_image = full_image[y_face + h_face:, :]  # Crop the face from the image
+                    # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
+                else:
+                    print "more than one face"
+                    counter_bad += 1
+                    continue
+
+            # h_gap = the gap between (y_face + h_face) to y_cropped (most high y value of cropped image)
+            # w_gap = the gap between 0 (x_original) to x_cropped (most left x value of cropped image)
+            cropped_image, h_gap, w_gap = grabCut.grabcut(full_image)
+
+            if cropped_image is None:
+                counter_bad += 1
                 continue
 
-        # need to get back also x_gap and y_gap
-        x_gap =
-        cropped_image = grabCut.grabcut(full_image)
+            h_cropped, w_cropped, d_cropped = cropped_image.shape
 
-        if cropped_image is None:
-            continue
+            if w_cropped < 50 or h_cropped < 100:
+                print "BB too small"
+                counter_bad += 1
+                continue
 
-        h_cropped, w_cropped, d_cropped = cropped_image.shape
+            # w going to stay the same, h going to be different - i'm going to chop it from bottom
+            # ratio = w / h -> h = w / ratio
+            new_h_cropped = int(w_cropped / w_h_ratio)
 
-        if w_cropped < 50 or h_cropped < 100:
-            print "BB too small"
-            continue
+            if y_face + h_face + h_gap + new_h_cropped > h_original:
+                new_h_cropped = h_original - 1
 
-        # w going to stay the same, h going to be different - i'm going to chop it from bottom
-        # ratio = w / h -> h = w / ratio
-        new_h_cropped = int(w_cropped / w_h_ratio)
+            # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
+            line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)]
 
-        # h_gap = the gap between (y_face + h_face) to y_cropped (most high y value of cropped image)
-        h_gap = "something that returns from grabcut"
+            try:
+                # line_in_list_images = cv2.imread('/data/dress_detector/images_raw/' + file)
+                line_in_list_images = io.imread('/data/dress_detector/images_raw/' + file)
+            except:
+                print "bad image!!"
+                counter_bad += 1
+                continue
 
-        if y_face + h_face + h_gap + new_h_cropped > h_original:
-            new_h_cropped = h_original - 1
-
-        line_in_list_boxes = [dlib.rectangle(left=x_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)]
-
-
-
+            counter += 1
+            print "counter: {}".format(counter)
 
 
-        sum_w += w
-        sum_h += h
+            if counter + counter_bad <= 10000:
+                boxes_new.append(line_in_list_boxes)
+                images_new.append(line_in_list_images)
+            elif 10000 < counter + counter_bad < 11000:
+                boxes_new_test.append(line_in_list_boxes)
+                images_new_test.append(line_in_list_images)
+            else:
+                print "counter: {0}, counter_bad : {1}".format(counter, counter_bad)
+                break_from_main_loop = True
+                break
 
-        counter += 1
+            sum_w += w_cropped
+            sum_h += h_cropped
 
-        print "counter: {}".format(counter)
+
+
+
+
+
 
 average_w = sum_w / (counter + 1)
 average_h = sum_h / (counter + 1)
 
 print "average_w: {0}\naverage_h: {1}".format(average_w, average_h)
-
-
-
-
-
-        # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = [dlib.rectangle(left=2, top=2, right=98, bottom=228)]
-
-        try:
-            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images/' + file)
-            line_in_list_images = io.imread('/data/dress_detector/images_raw/' + file)
-        except:
-            print "bad image!!"
-            counter_bad += 1
-            continue
-
-        boxes_new.append(line_in_list_boxes)
-
-        images_new.append(line_in_list_images)
-
-        print file
-        counter += 1
-
-print "counter_bad: {0}".format(counter_bad)
-
-
-## test set ##
-counter_bad2 = 0
-
-# counter = 0
-
-for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
-    for file in files:
-        if counter > 10500:
-            print "counter: {0}".format(counter)
-            break
-
-        # line_in_list_boxes = ([dlib.rectangle(0, 0, 100, 230)])
-        line_in_list_boxes = ([dlib.rectangle(left=2, top=2, right=98, bottom=228)])
-
-        try:
-            # line_in_list_images = cv2.imread('/data/dress_detector/resized_images_test/' + file)
-            line_in_list_images = io.imread('/data/dress_detector/images_raw/' + file)
-        except:
-            print "bad image!!"
-            counter_bad2 += 1
-            continue
-
-        boxes_new_test.append(line_in_list_boxes)
-
-        images_new_test.append(line_in_list_images)
-
-        print file
-        counter += 1
-
-print "counter_bad2: {0}".format(counter_bad2)
-
 
 
 
