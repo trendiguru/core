@@ -4,18 +4,18 @@ gunicorn -b :8083 -w 1 -k gevent -n hls --timeout 120 trendi.paperdoll.hydra_fal
 assuming the docker was started with port 8083 specified e.g.
 nvidia-docker run -it -v /data:/data -p 8083:8083 --name hydra_tg eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
-from __future__ import absolute_import
+#from __future__ import absolute_import
 import traceback
 import os
 import falcon
-print('falcon is coming form '+str(falcon.__file__))
-base_dir = os.path.dirname(os.path.realpath(__file__))
-print('current_dir is '+str(base_dir))
+# print('falcon is coming form '+str(falcon.__file__))
+# base_dir = os.path.dirname(os.path.realpath(__file__))
+# print('current_dir is '+str(base_dir))
 import cv2
 import numpy as np
 #this file has to go in the rcnn folder
 import requests
-from . import multilabel_from_hydra
+from trendi import multilabel_from_hydra
 
 from jaweson import json #, msgpack
 
