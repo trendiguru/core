@@ -138,7 +138,11 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
             # h_gap = the gap between (y_face + h_face) to y_cropped (most high y value of cropped image)
             # w_gap = the gap between 0 (x_original) to x_cropped (most left x value of cropped image)
-            cropped_image, h_gap, w_gap = grabCut.grabcut(full_image)
+            try:
+                cropped_image, h_gap, w_gap = grabCut.grabcut(full_image)
+            except:
+                counter_bad += 1
+                continue
 
             if cropped_image is None:
                 counter_bad += 1
