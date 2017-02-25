@@ -34,7 +34,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
         mask = mask[:,:,0]
 
     u21_mask = label_conversions.fashionista_to_ultimate_21(mask)
-
+    print('u21 mask:'+str())
 
     #make a legend of original mask
     before_pd_conclusions_name = os.path.join(save_dir,image_file[:-4]+'_pd.bmp')

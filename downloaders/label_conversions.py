@@ -138,7 +138,10 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
     mask = Utils.get_cv2_img_array(img_arr_or_url_or_file)
  #   mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
-        logging.warning('could not get file:'+file)
+        if isinstance(img_arr_or_url_or_file,basestring):
+            logging.warning('could not get filename/url:'+str(img_arr_or_url_or_file))
+        else:
+            logging.warning('could not get file/url')
         return None
     if len(mask.shape)==3:
         logging.warning('multichannel mask, taking chan 0')
