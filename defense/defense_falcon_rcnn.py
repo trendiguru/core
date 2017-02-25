@@ -15,14 +15,16 @@ import requests
 
 from jaweson import json #, msgpack
 
+from trendi import constants
+
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
 # print('current_dir is '+str(base_dir))
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
+HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS #"http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS #"http://13.82.136.127:8082/hls"
 #what is the frcnn referring to - maybe its the thing at the end of file
 #namely, api.add_route('/frcnn/', HydraResource())
 

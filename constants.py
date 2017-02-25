@@ -1162,3 +1162,7 @@ blacklisted_exceptions = {'xxxlarge',
                           'fashion',
                           'xxxhairsnap',
                           'kannada'}
+
+HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
+HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hydra_tg"  #as opposed to hydra which is for the hls project
