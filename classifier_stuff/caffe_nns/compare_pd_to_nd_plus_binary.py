@@ -5,6 +5,7 @@ import pymongo
 import subprocess
 import os
 from time import sleep
+import numpy as np
 
 from trendi.paperdoll import pd_falcon_client
 from trendi import constants
@@ -15,7 +16,6 @@ from trendi import neurodoll
 
 def get_pd_results(image_file):
     #use the api - so first get the image onto the web , then aim the api at it
-    url = 'https://thechive.files.wordpress.com/2017/02/0c7bf9a4951ade636082e45849b01cd8.jpeg'
     copycmd = 'scp '+image_file+'root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
@@ -32,6 +32,13 @@ def get_hydra_nd_results(image_file):
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
                                      do_graylevel_zeroing=True)
 
+def image_to_name(url_or_filename_or_img_arr):
+    if isinstance(url_or_filename_or_img_arr,basestring):
+        name = basestring.replace('https://','').replace('http://','').replace('/','_')
+    elif isinstance(url_or_filename_or_img_arr,np.ndarray):
+        name = hash(str(url_or_filename_or_img_arr))
+    print('name:'+name)
+    return name
 
 def get_groundtruth_for_tamaraberg_multilabel(labelfile='/data/jeremy/image_dbs/labels/labelfiles_tb/tb_cats_from_webtool_round2_train.txt',
                                               label_cats=constants.web_tool_categories_v2):
