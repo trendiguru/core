@@ -14,6 +14,7 @@ from trendi import  multilabel_from_hydra
 from trendi import neurodoll
 
 def get_pd_results(image_file):
+    #use the api - so first get the image onto the web , then aim the api at it
     url = 'https://thechive.files.wordpress.com/2017/02/0c7bf9a4951ade636082e45849b01cd8.jpeg'
     copycmd = 'scp '+image_file+'root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     subprocess.call(copycmd,shell=True)
