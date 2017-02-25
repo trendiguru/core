@@ -11,7 +11,7 @@ from trendi.paperdoll import pd_falcon_client
 from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
-from trendi import  multilabel_from_hydra
+from trendi import  hydra_tg_falcon_client
 from trendi import neurodoll
 
 def get_pd_results(image_file):
