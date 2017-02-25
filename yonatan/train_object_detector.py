@@ -163,6 +163,8 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
             if y_face + h_face + h_gap + new_h_cropped > h_original:
                 new_h_cropped = h_original - 1
+            else:
+                new_h_cropped += y_face + h_face + h_gap
 
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_gap + w_cropped, bottom=new_h_cropped)]
