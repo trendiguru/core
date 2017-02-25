@@ -124,10 +124,10 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
     index_conversion = [-666 for i in range(len(fashionista_categories_augmented))]
     for k,v in conversion_dictionary_strings.iteritems():
         ultimate_21_index = ultimate_21.index(k)
-        for fash_cat in v:
+        for fash_cat in v: #no need to check if the fashcat is in v since all the values here are in fashionista....
             fash_index = fashionista_categories_augmented.index(fash_cat)
 #            fash_index = constants.fashionista_categories_augmented_zero_based.index(fash_cat)
- #           print('ultimate index {} cat {} fasjh index {} cat {}'.format(ultimate_21_index,ultimate_21[ultimate_21_index],fash_index,fashionista_categories_augmented[fash_index]))
+            logging.debug('ultimate index {} cat {} fash index {} cat {}'.format(ultimate_21_index,ultimate_21[ultimate_21_index],fash_index,fashionista_categories_augmented[fash_index]))
             index_conversion[fash_index] = ultimate_21_index
 
     print(index_conversion)

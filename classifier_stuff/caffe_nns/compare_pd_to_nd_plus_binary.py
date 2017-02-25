@@ -56,7 +56,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     #pose also available , resp['pose']
     #make list of labels in ultimate_21 format
     labels = []
-    for i in len(constants.ultimate_21):
+    for i in range(len(constants.ultimate_21)):
         if i in np.unique(mask):
             labels[i] = label_dict[i]
         else:
