@@ -127,7 +127,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             # # if there's a head, cut it off
             faces = preparing_data_from_db.find_face_dlib(full_image)
 
-            x_face, y_face, w_face, h_face = 0, 0, 0, 0 # default them to 0 - in case there's no face in the image
+            x_face, y_face, w_face, h_face = 0, 0, 0, 0  # default them to 0 - in case there's no face in the image
             if faces["are_faces"]:
                 if len(faces['faces']) == 1:
                     x_face, y_face, w_face, h_face = faces['faces'][0]
@@ -166,6 +166,8 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)]
+            print "left=w_gap = {0}, top=y_face + h_face + h_gap = {1}, right=w_cropped = {2}, bottom=new_h_cropped = {3}".format(w_gap, y_face + h_face + h_gap, w_cropped, new_h_cropped)
+            print "width = {0}, height = {1}".format(w_cropped - w_gap, new_h_cropped - (y_face + h_face + h_gap))
 
             try:
                 # line_in_list_images = cv2.imread('/data/dress_detector/images_raw/' + file)
@@ -214,7 +216,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
 detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector2.save('/data/detector5.svm')
+detector2.save('/data/detector6.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
