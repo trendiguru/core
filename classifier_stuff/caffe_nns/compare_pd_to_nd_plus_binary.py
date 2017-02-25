@@ -15,7 +15,7 @@ from trendi.paperdoll import hydra_tg_falcon_client
 from trendi.paperdoll import neurodoll_falcon_client
 from trendi.utils import imutils
 from trendi import pipeline
-
+from trendi.downloaders import label_conversions
 #from trendi import neurodoll
 
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results'):
@@ -33,15 +33,21 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     if len(mask.shape) == 3:
         mask = mask[:,:,0]
 
+    u21_mask = label_conversions.fashionista_to_ultimate_21(mask)
+
+
+    #make a legend of original mask
     before_pd_conclusions_name = os.path.join(save_dir,image_file[:-4]+'_pd.bmp')
-    cv2.imwrite(before_pd_conclusions_name,mask)
+    cv2.imwrite(before_pd_conclusions_name,u21_mask)
     imutils.show_mask_with_labels(before_pd_conclusions_name,constants.fashionista_categories_augmented,save_images=True)
 
-    after_mask = pipeline.after_pd_conclusions(mask, label_dict)
+    #make a legend of mask after pd conclusions
+    after_mask = pipeline.after_pd_conclusions(u21_mask, label_dict)
     after_pd_conclusions_name = os.path.join(save_dir,image_file[:-4]+'_after_pd_conclusions.bmp')
     cv2.imwrite(after_pd_conclusions_name,after_mask)
     imutils.show_mask_with_labels(after_pd_conclusions_name,constants.fashionista_categories_augmented,save_images=True)
 
+    #send legends to extremeli
     copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name)
     subprocess.call(copycmd,shell=True)
     copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name)

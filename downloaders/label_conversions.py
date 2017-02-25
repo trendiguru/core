@@ -78,7 +78,7 @@ def fashionista_to_ultimate_21_dir(dir):
         print('new maskname:'+newname)
 #        imutils.show_mask_with_labels(newname,constants.ultimate_21,visual_output=True)
 
-def fashionista_to_ultimate_21(file):
+def fashionista_to_ultimate_21(img_arr_or_url_or_file):
     ##########warning not finished #################3
 
     ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
@@ -135,7 +135,8 @@ def fashionista_to_ultimate_21(file):
 #        if index_conversion[i] == -666:
 #            print('unmapped fashcat:'+str(i)+fashionista_categories_augmented[i])
 
-    mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
+    mask = Utils.get_cv2_img_array(img_arr_or_url_or_file)
+ #   mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
         logging.warning('could not get file:'+file)
         return None
