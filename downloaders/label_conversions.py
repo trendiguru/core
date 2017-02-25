@@ -121,7 +121,7 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
                                      }
 
 
-    index_conversion = [-666]*len(fashionista_categories_augmented)
+    index_conversion = [-666 for i in range(len(fashionista_categories_augmented))]
     for k,v in conversion_dictionary_strings.iteritems():
         ultimate_21_index = ultimate_21.index(k)
         for fash_cat in v:
@@ -135,8 +135,12 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
 #        if index_conversion[i] == -666:
 #            print('unmapped fashcat:'+str(i)+fashionista_categories_augmented[i])
 
-    mask = Utils.get_cv2_img_array(img_arr_or_url_or_file)
- #   mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
+    if isinstance(img_arr_or_url_or_file,basestring):
+        mask = Utils.get_cv2_img_array(img_arr_or_url_or_file)
+    #todo - check why get_cv2_img_array doesnt like getting a  mask
+    else:
+        mask = img_arr_or_url_or_file
+     #   mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
         if isinstance(img_arr_or_url_or_file,basestring):
             logging.warning('could not get filename/url:'+str(img_arr_or_url_or_file))
