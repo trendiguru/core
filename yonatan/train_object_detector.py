@@ -168,6 +168,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)]
             print "left=w_gap = {0}, top=y_face + h_face + h_gap = {1}, right=w_cropped = {2}, bottom=new_h_cropped = {3}".format(w_gap, y_face + h_face + h_gap, w_cropped, new_h_cropped)
             print "width = {0}, height = {1}".format(w_cropped - w_gap, new_h_cropped - (y_face + h_face + h_gap))
+            print "ratio_w_h = {0}".format(float(w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap)))
 
             try:
                 # line_in_list_images = cv2.imread('/data/dress_detector/images_raw/' + file)
