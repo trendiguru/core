@@ -36,15 +36,21 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     u21_mask = label_conversions.fashionista_to_ultimate_21(mask)
     print('u21 mask:'+str())
 
+#could also have used
+    #   get_pd_results_on_db_for_webtool.convert_and_save_results
+
+
     #make a legend of original mask
-    before_pd_conclusions_name = os.path.join(save_dir,image_file[:-4]+'_pd.bmp')
+    print('save dir:'+save_dir)
+    image_base = os.path.basename(image_file)
+    before_pd_conclusions_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
     res=cv2.imwrite(before_pd_conclusions_name,u21_mask)
     print('save result '+str(res)+ ' for file '+before_pd_conclusions_name)
     imutils.show_mask_with_labels(before_pd_conclusions_name,constants.fashionista_categories_augmented,save_images=True)
 
     #make a legend of mask after pd conclusions
     after_mask = pipeline.after_pd_conclusions(u21_mask, label_dict)
-    after_pd_conclusions_name = os.path.join(save_dir,image_file[:-4]+'_after_pd_conclusions.bmp')
+    after_pd_conclusions_name = os.path.join(save_dir,image_base[:-4]+'_after_pd_conclusions.bmp')
     res = cv2.imwrite(after_pd_conclusions_name,after_mask)
     print('save result '+str(res)+' for file '+after_pd_conclusions_name)
 
