@@ -20,7 +20,7 @@ def get_pd_results(image_file):
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
-    url = 'http://www.extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
+    url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
     resp = pd_falcon_client.pd(url)
     print('resp:'+str(resp))
 
