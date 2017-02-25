@@ -107,7 +107,7 @@ sum_h = 0
 # also when (50, 100) : (w , h), the average w and h were:
 average_w = 150
 average_h = 331
-w_h_ratio = float(average_w) / average_h
+w_h_ratio = float(average_w) / average_h  # = 0.453
 
 break_from_main_loop = False
 
