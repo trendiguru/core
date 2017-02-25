@@ -8,7 +8,7 @@ from time import sleep
 import numpy as np
 
 from trendi.paperdoll import pd_falcon_client
-from trendi import constants
+from trendi import constants#
 from trendi import Utils
 from trendi.utils import imutils
 from trendi.paperdoll import hydra_tg_falcon_client
@@ -17,21 +17,29 @@ from trendi.paperdoll import neurodoll_falcon_client
 
 def get_pd_results(image_file):
     #use the api - so first get the image onto the web , then aim the api at it
-    copycmd = 'scp '+image_file+'root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
+    copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
     url = 'http://www.extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
     resp = pd_falcon_client.pd(url)
     print('resp:'+str(resp))
 
-def get_hydra_nd_results(image_file):
-    hydra_result = multilabel_from_hydra.get_hydra_output(image_file)
+def get_hydra_nd_results(url):
+    hydra_result = hydra_tg_falcon_client.hydra_tg(url)
 #map hydra result to something equivalent to paperdoll output , return
-    nd_result = neurodoll.combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
-                                     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
-                                     multilabel_labels=constants.binary_classifier_categories, face=None,
-                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
-                                     do_graylevel_zeroing=True)
+
+    nd_result = neurodoll_falcon_client.nd(url,category_index=None,get_combined_results=True,multilabel_results=hydra_result)
+    #todo - allow nd to accept multilabel results as input
+    #convert multilabel results to ultimate_21 classes
+    # nd_result = neurodoll_falcon_client.nd(url,category_index=None,get_multilabel_results=None,
+    #                                        get_combined_results=None,get_layer_output=None,
+    #                                        get_all_graylevels=None,threshold=None)
+
+    # nd_result = neurodoll.combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
+    #                                  multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
+    #                                  multilabel_labels=constants.binary_classifier_categories, face=None,
+    #                                  output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
+    #                                  do_graylevel_zeroing=True)
 
 def image_to_name(url_or_filename_or_img_arr):
     if isinstance(url_or_filename_or_img_arr,basestring):
