@@ -42,7 +42,10 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     cv2.imwrite(after_pd_conclusions_name,after_mask)
     imutils.show_mask_with_labels(after_pd_conclusions_name,constants.fashionista_categories_augmented,save_images=True)
 
-
+    copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name)
+    subprocess.call(copycmd,shell=True)
+    copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name)
+    subprocess.call(copycmd,shell=True)
 
     #pose also available , resp['pose']
     #make list of labels in ultimate_21 format
