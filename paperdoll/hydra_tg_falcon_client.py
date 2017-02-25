@@ -2,18 +2,18 @@ __author__ = 'liorsabag'
 
 from jaweson import msgpack
 import requests
-
+from trendi import constants
 #
 # CLASSIFIER_ADDRESS = "http://37.58.101.170:8080/pd"  # Braini5
 # CLASSIFIER_ADDRESS = "http://37.58.101.173:8082/pd"  # Braini2
 # CLASSIFIER_ADDRESS = "http://159.8.222.7:8083/pd" # brainik80c RIP
-CLASSIFIER_ADDRESS = "13.82.136.127:8083/hydra_tg"
+CLASSIFIER_ADDRESS = constants.HYDRA_TG_CLASSIFIER_ADDRESS #"13.82.136.127:8083/hydra_tg"
 
 
-def pd(image_arrary_or_url):
+def hydra_tg(image_arrary_or_url):
     data = msgpack.dumps({"image": image_arrary_or_url})
     resp = requests.post(CLASSIFIER_ADDRESS, data)
     if  200 <= resp.status_code < 300:
         return msgpack.loads(resp.content)
     else:
-        raise Exception('PD FAILED', resp.content)
+        raise Exception('hydra failed, abort', resp.content)
