@@ -12,7 +12,8 @@ from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
 from trendi.paperdoll import hydra_tg_falcon_client
-from trendi import neurodoll
+from trendi.paperdoll import neurodoll_falcon_client
+#from trendi import neurodoll
 
 def get_pd_results(image_file):
     #use the api - so first get the image onto the web , then aim the api at it

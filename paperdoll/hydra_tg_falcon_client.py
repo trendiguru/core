@@ -9,7 +9,6 @@ from trendi import constants
 # CLASSIFIER_ADDRESS = "http://159.8.222.7:8083/pd" # brainik80c RIP
 CLASSIFIER_ADDRESS = constants.HYDRA_TG_CLASSIFIER_ADDRESS #"13.82.136.127:8083/hydra_tg"
 
-
 def hydra_tg(image_arrary_or_url):
     data = msgpack.dumps({"image": image_arrary_or_url})
     resp = requests.post(CLASSIFIER_ADDRESS, data)
