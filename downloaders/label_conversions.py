@@ -168,10 +168,7 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
         mask[mask==u] = newval
     return mask
 
-def convert_pd_output(mask, label_names, pose,filename,img,url,forwebtool=False,
-                                webserver_addr='root@104.155.22.95:/var/www/results/pd_output/',
-                                new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
-                                savedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_resluts'):
+def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -206,26 +203,7 @@ def convert_pd_output(mask, label_names, pose,filename,img,url,forwebtool=False,
         print('didnt fully convert mask')
         return
     conversion_utils.count_values(new_mask,new_labels)
-    if webserver_addr:
-        full_name = os.path.join(savedir,filename)
-        print('writing output img to '+str(full_name))
-        cv2.imwrite(full_name,img)
-        command_string = 'scp '+full_name+' '+webserver_addr
-        subprocess.call(command_string, shell=True)
-        try:
-            pose_name = full_name.strip('.jpg')+'.pose'
-            with open(pose_name, "w+") as outfile:
-                print('succesful open, attempting to write pose')
-                poselist=pose[0].tolist()
-    #                json.dump([1,2,3], outfile, indent=4)
-                json.dump(poselist,outfile, indent=4)
-        except:
-            print('fail in convert_and_save_results dude, bummer')
-            print(str(sys.exc_info()[0]))
-
-        imutils.show_mask_with_labels(full_name,new_labels,save_images=True)
-
-        return new_mask
+    return new_mask
 
 
 
