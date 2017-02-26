@@ -60,11 +60,11 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #send legends to extremeli
     # copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name)
     # subprocess.call(copycmd,shell=True)
-    copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name).replace('.bmp','_legend.jpg')
+    copycmd = 'scp '+before_pd_conclusions_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
     subprocess.call(copycmd,shell=True)
     # copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name)
     # subprocess.call(copycmd,shell=True)
-    copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name).replace('.bmp','_legend.jpg')
+    copycmd = 'scp '+after_pd_conclusions_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
     subprocess.call(copycmd,shell=True)
 
     #pose also available , resp['pose']
