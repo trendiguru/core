@@ -42,6 +42,8 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
 #...what does after_pd_conclusions do with the labels?
+    #it seems to return mask in terms of the original labels??
+
   #  u21_mask = label_conversions.convert_pd_output(mask, label_dict, new_labels=new_labels)
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
@@ -98,7 +100,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
 
 def get_saved_mask_results(mask_file):
     img_arr = cv2.imread(mask_file)
-    if not img_arr:
+    if  img_arr is None:
         print('couldnt open '+mask_file)
         return None
     if len(img_arr.shape) == 3:
