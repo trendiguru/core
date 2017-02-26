@@ -283,4 +283,5 @@ def results_to_html(outfilename,results_dict):
 
 
 if __name__ == "__main__":
-    Utils.map_function_on_dir(get_live_pd_results,'/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test/')
+#    Utils.map_function_on_dir(get_live_pd_results,'/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test/')
+     all_pd_results()
