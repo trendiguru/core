@@ -117,7 +117,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
     if not break_from_main_loop:
         for file in files:
             ## if i want to limit to smaller number of images
-            if counter > 100:
+            if counter > 500:
                 print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
                 break
 
