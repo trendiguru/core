@@ -169,12 +169,15 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
                 h_cropped_out_of_bound = True
                 counter_big_ratio += 1
                 print cv2.imwrite("/data/yonatan/linked_to_web/test_error" + str(counter) + ".jpg", original_image)
+                continue
             else:
                 new_h_cropped += y_face + h_face + h_gap
 
             new_w_h_ratio = float(w_gap + w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap))
-            # if new_w_h_ratio > 0.5:
-            #     counter_big_ratio += 1
+            if new_w_h_ratio > 0.5:
+                print "stull ratio bigger than 0.5!"
+                counter_big_ratio += 1
+                continue
 
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_gap + w_cropped, bottom=new_h_cropped)]
