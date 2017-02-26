@@ -4,6 +4,11 @@ import os
 import cv2
 import numpy as np
 import logging
+import subprocess
+import sys
+import json
+from trendi.classifier_stuff.caffe_nns import conversion_utils
+
 logging.basicConfig(level=logging.DEBUG)
 
 from trendi import constants
@@ -80,6 +85,9 @@ def fashionista_to_ultimate_21_dir(dir):
 
 def fashionista_to_ultimate_21(img_arr_or_url_or_file):
     ##########warning not finished #################3
+    #also this is for images saved using the fashionista_categories_augmented labels, raw d output is with a dictionary of arbitrary labels
+    #so use  get_pd_results_on_db_for_webtool.convert_and_save_results
+    #actually this is a better place for that so now its copied here
 
     ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                    'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
@@ -159,6 +167,102 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
         print('replacing index {} with newindex {}'.format(u,newval))
         mask[mask==u] = newval
     return mask
+
+def convert_and_save_pd_results(mask, label_names, pose,filename,img,url,forwebtool=False,copy_to_extremeli=True,new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2):
+    '''
+    This saves the mask using the labelling fashionista_categories_augmented_zero_based
+    :param mask:
+    :param label_names:
+    :param pose:
+    :param filename:
+    :param img:
+    :param url:
+    :return:
+     '''
+    fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
+    h,w = mask.shape[0:2]
+    new_mask=np.ones((h,w,3),dtype=np.uint8)*255  # anything left with 255 wasn't dealt with in the following conversion code
+    print('new mask size:'+str(new_mask.shape))
+    success = True #assume innocence until proven guilty
+    print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
+    for label in label_names: # need these in order
+        if label in fashionista_ordered_categories:
+            fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
+            pd_index = label_names[label]
+            pixlevel_index = constants.new_labels[fashionista_index]
+#            pixlevel_v4_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web[fashionista_index]
+            if pixlevel_index is None:
+                pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
+#            new_mask[mask==pd_index] = fashionista_index
+     #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
+            new_mask[mask==pd_index] = pixlevel_index
+        else:
+            print('label '+str(label)+' not found in regular cats')
+            success=False
+    if 255 in new_mask:
+        print('didnt fully convert mask')
+        success = False
+    if success:
+        try:   #write orig file
+#            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v2)
+            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v4_for_web)
+            dir = constants.pd_output_savedir
+            Utils.ensure_dir(dir)
+            full_name = os.path.join(dir,filename)
+#            full_name = filename
+            print('writing output img to '+str(full_name))
+            cv2.imwrite(full_name,img)
+        except:
+            print('fail in try 1, '+sys.exc_info()[0])
+        try:   #write rgb mask
+#            bmp_name = full_name.replace('.jpg','_pixv2.png')
+            bmp_name = full_name.replace('.jpg','_pixv4.png')
+            print('writing mask bmp to '+str(bmp_name))
+            cv2.imwrite(bmp_name,new_mask)
+            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v4,original_image=full_name,save_images=True)
+            if socket.gethostname() != 'extremeli-evolution-1':
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
+                subprocess.call(command_string, shell=True)
+                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
+                subprocess.call(command_string, shell=True)
+
+        except:
+            print('fail in try 2, '+str(sys.exc_info()[0]))
+        try: #write webtool mask
+            if forwebtool:
+                webtool_mask = copy.copy(new_mask)
+                webtool_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
+                webtool_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
+#                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
+                bmp_name=full_name.replace('.jpg','_pixv4_webtool.png')
+                print('writing mask bmp to '+str(bmp_name))
+                cv2.imwrite(bmp_name,webtool_mask)
+                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd'
+                subprocess.call(command_string, shell=True)
+        except:
+            print('fail in try 3, '+str(sys.exc_info()[0]))
+        try:
+            pose_name = full_name.strip('.jpg')+'.pose'
+            with open(pose_name, "w+") as outfile:
+                print('succesful open, attempting to write pose')
+                poselist=pose[0].tolist()
+#                json.dump([1,2,3], outfile, indent=4)
+                json.dump(poselist,outfile, indent=4)
+            if url is not None:
+                url_name = full_name.strip('.jpg')+'.url'
+                print('writing url to '+str(url_name))
+                with open(url_name, "w+") as outfile2:
+                    print('succesful open, attempting to write:'+str(url))
+                    outfile2.write(url)
+        except:
+            print('fail in convert_and_save_results dude, bummer')
+            print(str(sys.exc_info()[0]))
+        return
+    else:
+        print('didnt fully convert mask, or unkown label in convert_and_save_results')
+        success = False
+        return
+
 
 
 if __name__=="__main__":
