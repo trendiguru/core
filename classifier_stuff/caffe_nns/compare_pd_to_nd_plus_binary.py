@@ -74,7 +74,9 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
 
     for f in files_to_test:
         print('getting pd result for '+f)
+        raw_input('ret to cont')
         pd_mask = get_live_pd_results(f)
+        raw_input('ret to cont')
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
         confmat = fast_hist(gt_mask.flatten, pd_mask.flatten, n_cl)
