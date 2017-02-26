@@ -46,7 +46,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
 
-    np.bincount(final_mask)
+  #  np.bincount(final_mask)
 
     #make a legend of original mask
     print('save dir:'+save_dir)
