@@ -172,7 +172,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
                 new_h_cropped += y_face + h_face + h_gap
 
             new_w_h_ratio = float(w_gap + w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap))
-            if new_w_h_ratio > 0.465:
+            if new_w_h_ratio > 0.5:
                 counter_big_ratio += 1
 
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
