@@ -21,6 +21,7 @@ from trendi.downloaders import label_conversions
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results'):
     #use the api - so first get the image onto the web , then aim the api at it
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
+    print('copying file to webserver:'+copycmd)
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
     url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
@@ -56,10 +57,14 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 
     imutils.show_mask_with_labels(after_pd_conclusions_name,constants.fashionista_categories_augmented,save_images=True)
 
-    #send legends to extremeli
-    copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name)
+#send legends to extremeli
+    # copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name)
+    # subprocess.call(copycmd,shell=True)
+    copycmd = 'scp '+before_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(before_pd_conclusions_name).replace('.bmp','_legend.jpg')
     subprocess.call(copycmd,shell=True)
-    copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name)
+    # copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name)
+    # subprocess.call(copycmd,shell=True)
+    copycmd = 'scp '+after_pd_conclusions_name+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(after_pd_conclusions_name).replace('.bmp','_legend.jpg')
     subprocess.call(copycmd,shell=True)
 
     #pose also available , resp['pose']
