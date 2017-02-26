@@ -70,9 +70,12 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     print('starting all_pd_results {} {} {} {}'.format(filedir,labelsdir,save_dir,labels))
     n_cl = len(labels)
     accumulated_confmat = np.zeros((n_cl, n_cl))
-    files_to_test = [os.path.join(filedir,f) for f in filedir if '.jpg' in f]
+    files_to_test = [os.path.join(filedir,f) for f in os.listdir(filedir) if '.jpg' in f]
+    if len(files_to_test)==0:
+        print('no files in '+str(filedir))
+        return
 
-    print('db1')
+    print(str(len(files_to_test))+' files to test')
 
     for f in files_to_test:
         print('getting pd result for '+f)
