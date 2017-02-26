@@ -8,6 +8,7 @@ from time import sleep
 import numpy as np
 import logging
 logging.basicConfig(level=logging.DEBUG)
+import json
 
 from trendi.paperdoll import pd_falcon_client
 from trendi import constants#
@@ -37,7 +38,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     if len(mask.shape) == 3:
         mask = mask[:,:,0]
 
-    #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.py, hopefully this is ok without the face
+    #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
 #...what does after_pd_conclusions do with the labels?
@@ -67,7 +68,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
                     save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                     labels=constants.fashionista_categories_augmented_zero_based):
 
-    print('starting all_pd_results {} {} {} {}'.format(filedir,labelsdir,save_dir,labels))
+    print('starting all_pd_results , filedir:{}\nlabelsdir:{}\nsave_dir:{}labels:\n{}'.format(filedir,labelsdir,save_dir,labels))
     n_cl = len(labels)
     accumulated_confmat = np.zeros((n_cl, n_cl))
     files_to_test = [os.path.join(filedir,f) for f in os.listdir(filedir) if '.jpg' in f]
@@ -88,6 +89,10 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
 
     results_dict = results_from_hist(accumulated_confmat)
     logging.debug(results_dict)
+    textfile = os.path.join(save_dir,'output.txt')
+    with open(textfile,'a') as fp:
+        json.dump(results_dict,fp,indent=4)
+        fp.close()
     results_to_html(os.path.join(save_dir,'pd_results.html',results_dict))
 
 
