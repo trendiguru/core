@@ -100,6 +100,8 @@ counter_bad = 0
 
 counter = 0
 
+counter_big_ratio = 0
+
 sum_w = 0
 sum_h = 0
 
@@ -115,9 +117,9 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
     if not break_from_main_loop:
         for file in files:
             ## if i want to limit to smaller number of images
-            # if counter > 10000:
-            #     print "counter: {0}".format(counter)
-            #     break
+            if counter > 100:
+                print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
+                break
 
             full_image = cv2.imread('/data/dress_detector/images_raw/' + file)
 
@@ -131,7 +133,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             if faces["are_faces"]:
                 if len(faces['faces']) == 1:
                     x_face, y_face, w_face, h_face = faces['faces'][0]
-                    full_image = full_image[y_face + h_face:, :]  # Crop the face from the image
+                    full_image = full_image[y_face + h_face:, :, :]  # Crop the face from the image
                     # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
                 else:
                     print "more than one face"
@@ -163,16 +165,22 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
             h_cropped_out_of_bound = False
             if y_face + h_face + h_gap + new_h_cropped > h_original:
-                new_h_cropped = h_original - 1
+                new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
                 h_cropped_out_of_bound = True
+                print cv2.imwrite("/data/yonatan/linked_to_web/test_error" + str(counter) + ".jpg", original_image)
             else:
                 new_h_cropped += y_face + h_face + h_gap
 
+            new_w_h_ratio = float(w_gap + w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap))
+            if new_w_h_ratio > 0.465:
+                counter_big_ratio += 1
+
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_gap + w_cropped, bottom=new_h_cropped)]
-            print "left=w_gap = {0}, top=y_face + h_face + h_gap = {1}, right=w_cropped = {2}, bottom=new_h_cropped = {3}".format(w_gap, y_face + h_face + h_gap, w_gap + w_cropped, new_h_cropped)
+            print "left=w_gap = {0}, top=y_face + h_face + h_gap = {1}, right=w_gap + w_cropped = {2}, bottom=new_h_cropped = {3}".format(w_gap, y_face + h_face + h_gap, w_gap + w_cropped, new_h_cropped)
             print "width = {0}, height = {1}".format(w_gap + w_cropped - w_gap, new_h_cropped - (y_face + h_face + h_gap))
-            print "ratio_w_h = {0}, h_cropped_out_of_bound = {1}".format(float(w_gap + w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap)), h_cropped_out_of_bound)
+            print "ratio_w_h = {0}, h_cropped_out_of_bound = {1}".format(new_w_h_ratio, h_cropped_out_of_bound)
+
 
             try:
                 # line_in_list_images = cv2.imread('/data/dress_detector/images_raw/' + file)
@@ -193,7 +201,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
                 boxes_new_test.append(line_in_list_boxes)
                 images_new_test.append(line_in_list_images)
             else:
-                print "counter: {0}, counter_bad : {1}".format(counter, counter_bad)
+                print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
                 break_from_main_loop = True
                 break
 
