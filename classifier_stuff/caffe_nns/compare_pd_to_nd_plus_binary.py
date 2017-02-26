@@ -67,6 +67,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
                     save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                     labels=constants.fashionista_categories_augmented_zero_based):
 
+    print('starting all_pd_results {} {} {} {}'.format(filedir,labelsdir,save_dir,labels))
     n_cl = len(labels)
     accumulated_confmat = np.zeros((n_cl, n_cl))
     files_to_test = [os.path.join(filedir,f) for f in filedir if '.jpg' in f]
