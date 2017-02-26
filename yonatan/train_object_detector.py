@@ -167,7 +167,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             if y_face + h_face + h_gap + new_h_cropped > h_original:
                 new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
                 h_cropped_out_of_bound = True
-                print cv2.imwrite("/data/yonatan/linked_to_web/test_error.jpg", original_image)
+                print cv2.imwrite("/data/yonatan/linked_to_web/test_error" + str(counter) + ".jpg", original_image)
             else:
                 new_h_cropped += y_face + h_face + h_gap
 
