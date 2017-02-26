@@ -72,6 +72,8 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     accumulated_confmat = np.zeros((n_cl, n_cl))
     files_to_test = [os.path.join(filedir,f) for f in filedir if '.jpg' in f]
 
+    print('db1')
+
     for f in files_to_test:
         print('getting pd result for '+f)
         raw_input('ret to cont')
