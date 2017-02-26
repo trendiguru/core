@@ -168,7 +168,10 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
         mask[mask==u] = newval
     return mask
 
-def convert_and_save_pd_results(mask, label_names, pose,filename,img,url,forwebtool=False,copy_to_extremeli=True,new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2):
+def convert_pd_output(mask, label_names, pose,filename,img,url,forwebtool=False,
+                                webserver_addr='root@104.155.22.95:/var/www/results/pd_output/',
+                                new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2,
+                                savedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_resluts'):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -189,79 +192,40 @@ def convert_and_save_pd_results(mask, label_names, pose,filename,img,url,forwebt
         if label in fashionista_ordered_categories:
             fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
-            pixlevel_index = constants.new_labels[fashionista_index]
+            pixlevel_index = new_labels[fashionista_index]
 #            pixlevel_v4_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web[fashionista_index]
             if pixlevel_index is None:
                 pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
-     #       print('old index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_v2_index)+':'+constants.pixlevel_categories_v2[pixlevel_v2_index])
+            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_index)+':'+new_labels[pixlevel_index])
             new_mask[mask==pd_index] = pixlevel_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False
     if 255 in new_mask:
         print('didnt fully convert mask')
-        success = False
-    if success:
-        try:   #write orig file
-#            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v2)
-            conversion_utils.count_values(new_mask,labels=constants.pixlevel_categories_v4_for_web)
-            dir = constants.pd_output_savedir
-            Utils.ensure_dir(dir)
-            full_name = os.path.join(dir,filename)
-#            full_name = filename
-            print('writing output img to '+str(full_name))
-            cv2.imwrite(full_name,img)
-        except:
-            print('fail in try 1, '+sys.exc_info()[0])
-        try:   #write rgb mask
-#            bmp_name = full_name.replace('.jpg','_pixv2.png')
-            bmp_name = full_name.replace('.jpg','_pixv4.png')
-            print('writing mask bmp to '+str(bmp_name))
-            cv2.imwrite(bmp_name,new_mask)
-            imutils.show_mask_with_labels(new_mask,labels=constants.pixlevel_categories_v4,original_image=full_name,save_images=True)
-            if socket.gethostname() != 'extremeli-evolution-1':
-                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
-                subprocess.call(command_string, shell=True)
-                command_string = 'scp '+full_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd/'
-                subprocess.call(command_string, shell=True)
-
-        except:
-            print('fail in try 2, '+str(sys.exc_info()[0]))
-        try: #write webtool mask
-            if forwebtool:
-                webtool_mask = copy.copy(new_mask)
-                webtool_mask[:,:,0]=0 #zero out the B,G for webtool - leave only R
-                webtool_mask[:,:,1]=0 #zero out the B,G for webtool - leave only R
-#                bmp_name=full_name.replace('.jpg','_pixv2_webtool.png')
-                bmp_name=full_name.replace('.jpg','_pixv4_webtool.png')
-                print('writing mask bmp to '+str(bmp_name))
-                cv2.imwrite(bmp_name,webtool_mask)
-                command_string = 'scp '+bmp_name+' root@104.155.22.95:/var/www/js-segment-annotator/data/pd_output/pd'
-                subprocess.call(command_string, shell=True)
-        except:
-            print('fail in try 3, '+str(sys.exc_info()[0]))
+        return
+    conversion_utils.count_values(new_mask,new_labels)
+    if webserver_addr:
+        full_name = os.path.join(savedir,filename)
+        print('writing output img to '+str(full_name))
+        cv2.imwrite(full_name,img)
+        command_string = 'scp '+full_name+' '+webserver_addr
+        subprocess.call(command_string, shell=True)
         try:
             pose_name = full_name.strip('.jpg')+'.pose'
             with open(pose_name, "w+") as outfile:
                 print('succesful open, attempting to write pose')
                 poselist=pose[0].tolist()
-#                json.dump([1,2,3], outfile, indent=4)
+    #                json.dump([1,2,3], outfile, indent=4)
                 json.dump(poselist,outfile, indent=4)
-            if url is not None:
-                url_name = full_name.strip('.jpg')+'.url'
-                print('writing url to '+str(url_name))
-                with open(url_name, "w+") as outfile2:
-                    print('succesful open, attempting to write:'+str(url))
-                    outfile2.write(url)
         except:
             print('fail in convert_and_save_results dude, bummer')
             print(str(sys.exc_info()[0]))
-        return
-    else:
-        print('didnt fully convert mask, or unkown label in convert_and_save_results')
-        success = False
-        return
+
+        imutils.show_mask_with_labels(full_name,new_labels,save_images=True)
+
+        return new_mask
 
 
 
