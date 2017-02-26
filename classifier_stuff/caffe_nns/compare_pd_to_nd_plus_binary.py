@@ -72,6 +72,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     files_to_test = [os.path.join(filedir,f) for f in filedir if '.jpg' in f]
 
     for f in files_to_test:
+        print('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
