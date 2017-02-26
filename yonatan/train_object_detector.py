@@ -117,7 +117,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
     if not break_from_main_loop:
         for file in files:
             ## if i want to limit to smaller number of images
-            if counter > 500:
+            if counter > 100:
                 print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
                 break
 
@@ -167,6 +167,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             if y_face + h_face + h_gap + new_h_cropped > h_original:
                 new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
                 h_cropped_out_of_bound = True
+                print cv2.imwrite("/data/yonatan/linked_to_web/test_error.jpg", original_image)
             else:
                 new_h_cropped += y_face + h_face + h_gap
 
