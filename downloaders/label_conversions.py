@@ -182,7 +182,7 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
     print('new mask size:'+str(new_mask.shape))
     success = True #assume innocence until proven guilty
     print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
-    for label in label_names: # need these in order
+    for label in label_names:
         pd_index = label_names[label]
         if label in new_labels:
             if pd_index in mask:
@@ -198,6 +198,7 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
         print('didnt fully convert mask')
         return
     conversion_utils.count_values(new_mask,new_labels)
+    print('bincoutn:'+str(np.bincount(new_mask)))
     return new_mask
 
 
