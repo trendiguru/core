@@ -42,7 +42,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
     print('uniques:'+str(np.unique(final_mask)))
-    print('paperdoll cats'+constants.paperdoll_categories)
+    print('paperdoll cats'+str(constants.paperdoll_categories))
 
 #...what does after_pd_conclusions do with the labels?
     #it seems to return mask in terms of the original labels??
