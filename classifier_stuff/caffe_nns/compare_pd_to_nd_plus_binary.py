@@ -59,7 +59,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
     res=cv2.imwrite(save_name,final_mask)
     print('save result '+str(res)+ ' for file '+save_name)
-    imutils.show_mask_with_labels(save_name,constants.fashionista_categories_augmented_zero_based,save_images=True)
+    imutils.show_mask_with_labels(save_name,constants.fashionista_categories_augmented_zero_based,save_images=True,original_image=image_file)
 
 #send legends to extremeli
     copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
