@@ -19,6 +19,7 @@ from trendi.paperdoll import neurodoll_falcon_client
 from trendi.utils import imutils
 from trendi import pipeline
 from trendi.downloaders import label_conversions
+from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 #from trendi import neurodoll
 
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
@@ -78,10 +79,16 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         print('no files in '+str(filedir))
         return
 
+    files_to_test = files_to_test[0:3]
     print(str(len(files_to_test))+' files to test')
 
+    tp = np.zeros(len(labels))
+    tn = np.zeros(len(labels))
+    fp = np.zeros(len(labels))
+    fn = np.zeros(len(labels))
+
     for f in files_to_test:
-        raw_input('getting pd result for '+f)
+        print('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
         logging.debug('pd bincount:'+str(np.bincount(pd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
@@ -107,13 +114,30 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         accumulated_confmat += confmat
         logging.info(accumulated_confmat)
 
+        #do image level comparison (are the correct categories there)
+        imagelevel_gt = np.zeros(len(labels))
+        imagelevel_gt[np.unique(gt_mask)]=1
+        imagelevel_pd = np.zeros(len(labels))
+        imagelevel_pd[np.unique(pd_mask)]=1
+        print('gt:'+str(imagelevel_gt))  #turn to int since print as float takes 2 lines
+        print('est:'+str(imagelevel_pd))
+        tp,tn,fp,fn = multilabel_accuracy.update_confmat(imagelevel_gt,imagelevel_pd,tp,tn,fp,fn)
+        print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
+
+
     results_dict = results_from_hist(accumulated_confmat)
     logging.debug(results_dict)
-    textfile = os.path.join(save_dir,'output.txt')
+    textfile = os.path.join(save_dir,'pixlevel_results.txt')
     with open(textfile,'a') as fp:
         json.dump(results_dict,fp,indent=4)
         fp.close()
     results_to_html(os.path.join(save_dir,'pd_results.html',results_dict))
+
+    imagelevel_dict = {'tp':tp,'tn':tn,'fp':fp,'fn':fn}
+    textfile = os.path.join(save_dir,'imagelevel_results.txt')
+    with open(textfile,'a') as fp:
+        json.dump(imagelevel_dict,fp,indent=4)
+        fp.close()
 
 
 def get_saved_mask_results(mask_file):
