@@ -168,7 +168,7 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
         mask[mask==u] = newval
     return mask
 
-def convert_pd_output(mask, label_names, new_labels=constants.fashionista_categories_augmented_zero_based):
+def convert_pd_output(mask, label_names, new_labels=constants.fashionista_categories_augmented):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
@@ -176,7 +176,6 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
     :param new_labels: list of labels - map pd labels to the indices of these labels. guaranteed to work for constants.fashionista_aug_zerobased
     :return:
      '''
-    fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
     h,w = mask.shape[0:2]
     new_mask=np.ones((h,w),dtype=np.uint8)*255  # anything left with 255 wasn't dealt with in the following conversion code
     print('new mask size:'+str(new_mask.shape))

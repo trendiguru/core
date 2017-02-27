@@ -22,7 +22,7 @@ from trendi.downloaders import label_conversions
 #from trendi import neurodoll
 
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
-                        new_labels = constants.fashionista_categories_augmented_zero_based):
+                        new_labels = constants.fashionista_categories_augmented):
     #use the api - so first get the image onto the web , then aim the api at it
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     print('copying file to webserver:'+copycmd)
@@ -89,7 +89,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         logging.info('gt bincount:'+str(np.bincount(gt_mask.flatten())))
 
         #save and send pd output
-        labels = constants.fashionista_categories_augmented_zero_based
+        labels = constants.fashionista_categories_augmented
         image_base = os.path.basedir(f)
         save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
         imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
