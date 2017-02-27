@@ -48,8 +48,8 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #...what does after_pd_conclusions do with the labels?
     #it seems to return mask in terms of the original labels??
 
-    final_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
-    print('bincount after conversion:'+str(np.bincount(final_mask.flatten())))
+    converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
+    print('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
 
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
@@ -59,7 +59,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     print('save dir:'+save_dir)
     image_base = os.path.basename(image_file)
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
-    res=cv2.imwrite(save_name,final_mask)
+    res=cv2.imwrite(save_name,converted_mask)
     print('save result '+str(res)+ ' for file '+save_name)
     #labels = constants.fashionista_categories_augmented_zero_based
     labels=constants.paperdoll_relevant_categories
@@ -69,7 +69,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
     subprocess.call(copycmd,shell=True)
 
-    return final_mask
+    return converted_mask
 
 
 def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
