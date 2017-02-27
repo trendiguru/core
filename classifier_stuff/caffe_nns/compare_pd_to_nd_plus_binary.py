@@ -83,14 +83,14 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     for f in files_to_test:
         raw_input('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
-        logging.info('pd bincount:'+str(np.bincount(pd_mask.flatten())))
+        logging.debug('pd bincount:'+str(np.bincount(pd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
-        logging.info('gt bincount:'+str(np.bincount(gt_mask.flatten())))
+        logging.debug('gt bincount:'+str(np.bincount(gt_mask.flatten())))
 
         #save and send pd output
         labels = constants.fashionista_categories_augmented
-        image_base = os.path.basedir(f)
+        image_base = os.path.basename(f)
         save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
         imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
         copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
