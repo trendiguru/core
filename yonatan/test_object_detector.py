@@ -179,8 +179,8 @@ def theDetector(url_or_np_array):
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045.jpg", padded_image)
 
     print "dress detector 0.7!"
-    dets = find_dress_dlib(full_image, 0.7)
-    for d in dets:
+    dets2 = find_dress_dlib(full_image, 0.7)
+    for d in dets2:
         if d.left() < 0:
             left = d.left() + 15
         else:
