@@ -168,12 +168,12 @@ def fashionista_to_ultimate_21(img_arr_or_url_or_file):
         mask[mask==u] = newval
     return mask
 
-def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_zerobased_to_pixlevel_categories_v2):
+def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_zerobased):
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
     :param label_names: dictionary of 'labelname':index
-    :param new_labels: map labels to these indices
+    :param new_labels: list of labels - map pd labels to the indices of these labels. guaranteed to work for constants.fashionista_aug_zerobased
     :return:
      '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
@@ -183,19 +183,14 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_ze
     success = True #assume innocence until proven guilty
     print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
-        if label in fashionista_ordered_categories:
-            fashionista_index = fashionista_ordered_categories.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
+        if label in new_labels:
+            new_index = new_labels.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
-            pixlevel_index = new_labels[fashionista_index]
-#            pixlevel_v4_index = constants.fashionista_aug_zerobased_to_pixlevel_categories_v4_for_web[fashionista_index]
-            if pixlevel_index is None:
-                pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
-#            new_mask[mask==pd_index] = fashionista_index
-            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
-            print(str(fashionista_ordered_categories[fashionista_index]))
-            print('newer index '+str(pixlevel_index))
-            print('label'+new_labels[pixlevel_index])
-            new_mask[mask==pd_index] = pixlevel_index
+            if new_index is None:
+                new_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
+            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(new_index))
+            print(str(new_labels[new_index]))
+            new_mask[mask==pd_index] = new_index
         else:
             print('label '+str(label)+' not found in regular cats')
             success=False

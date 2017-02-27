@@ -22,7 +22,7 @@ from trendi.downloaders import label_conversions
 #from trendi import neurodoll
 
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
-                        new_labels = constants.pixlevel_categories_v2):
+                        new_labels = constants.fashionista_categories_augmented_zero_based):
     #use the api - so first get the image onto the web , then aim the api at it
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     print('copying file to webserver:'+copycmd)
@@ -49,7 +49,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     #it seems to return mask in terms of the original labels??
 
     final_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
-    print('bincount after conclusions:'+str(np.bincount(mask.flatten())))
+    print('bincount after conversion:'+str(np.bincount(final_mask.flatten())))
 
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
