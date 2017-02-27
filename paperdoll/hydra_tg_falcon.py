@@ -15,9 +15,9 @@ import cv2
 import numpy as np
 #this file has to go in the rcnn folder
 import requests
-from trendi import multilabel_from_hydra
-
 from jaweson import json #, msgpack
+
+from trendi import multilabel_from_hydra
 
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))

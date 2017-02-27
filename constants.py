@@ -528,7 +528,7 @@ pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jeans' ] #and socks appears twice...
 
-#16 categories here
+#16 categories here. this is what the latest pixlevel neurdoll outputs
 pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
                           'bag','belt','eyewear','hat','tie','skin']
@@ -712,6 +712,10 @@ fashionista_categories_augmented = ['','null','tights','shorts','blazer','t-shir
                                     'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
                                     'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
                                     'pumps','wallet','bodysuit','loafers','hair','skin','face']  #0='',1='null', 57='face'
+
+#= ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+##               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
+  #             'top']
 
 fashionista_categories_augmented_zero_based = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
                                     'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
