@@ -92,11 +92,13 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         labels = constants.fashionista_categories_augmented
         image_base = os.path.basename(f)
         save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
+        print('saving pd to :'+save_name)
         imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
         copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
         subprocess.call(copycmd,shell=True)
         #save and send gt
         save_name = os.path.join(save_dir,image_base[:-4]+'_gt.bmp')
+        print('saving gt to :'+save_name)
         imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
         copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
         subprocess.call(copycmd,shell=True)
