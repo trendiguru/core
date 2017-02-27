@@ -38,33 +38,55 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     print label_dict
     if len(mask.shape) == 3:
         mask = mask[:,:,0]
-
     logging.debug('bincount before conclusions:'+str(np.bincount(mask.flatten())))
     #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
     logging.debug('uniques:'+str(np.unique(final_mask)))
     logging.debug('bincount after conclusions:'+str(np.bincount(final_mask.flatten())))
-
-#...what does after_pd_conclusions do with the labels?
-    #it seems to return mask in terms of the original labels??
-
     converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
+#could also have used   get_pd_results_on_db_for_webtool.convert_and_save_results
     logging.debug('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
 
-#could also have used
-    #   get_pd_results_on_db_for_webtool.convert_and_save_results
-
-
-    #make a legend of original mask
     print('save dir:'+save_dir)
     image_base = os.path.basename(image_file)
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
     res=cv2.imwrite(save_name,converted_mask)
     print('save result '+str(res)+ ' for file '+save_name)
-
     return converted_mask
 
+def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
+                        new_labels = constants.fashionista_categories_augmented):
+    #use the api - so first get the image onto the web , then aim the api at it
+    copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
+    print('copying file to webserver:'+copycmd)
+    subprocess.call(copycmd,shell=True)
+    sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
+    url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
+    resp = pd_falcon_client.pd(url)
+    print('resp:'+str(resp))
+    label_dict = resp['label_dict']
+    mask = resp['mask']
+    #label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
+    print label_dict
+    if len(mask.shape) == 3:
+        mask = mask[:,:,0]
+    logging.debug('bincount before conclusions:'+str(np.bincount(mask.flatten())))
+    #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
+#    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
+    final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
+    logging.debug('uniques:'+str(np.unique(final_mask)))
+    logging.debug('bincount after conclusions:'+str(np.bincount(final_mask.flatten())))
+    converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
+#could also have used   get_pd_results_on_db_for_webtool.convert_and_save_results
+    logging.debug('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
+
+    print('save dir:'+save_dir)
+    image_base = os.path.basename(image_file)
+    save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
+    res=cv2.imwrite(save_name,converted_mask)
+    print('save result '+str(res)+ ' for file '+save_name)
+    return converted_mask
 
 def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
                     labelsdir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_labels_fashionista_augmented_categories',
@@ -128,17 +150,91 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     results_dict = results_from_hist(accumulated_confmat)
     logging.debug(results_dict)
     textfile = os.path.join(save_dir,'pixlevel_results.txt')
-    with open(textfile,'a') as fp:
-        json.dump(results_dict,fp,indent=4)
-        fp.close()
+    with open(textfile,'a') as file_pointer:
+        json.dump(results_dict,file_pointer,indent=4)
+        file_pointer.close()
     htmlname = os.path.join(save_dir,'pd_results.html')
     results_to_html(htmlname,results_dict)
 
     imagelevel_dict = {'tp':tp.tolist(),'tn':tn.tolist(),'fp':fp.tolist(),'fn':fn.tolist()}
     textfile = os.path.join(save_dir,'imagelevel_results.txt')
-    with open(textfile,'a') as fp:
-        json.dump(imagelevel_dict,fp,indent=4)
-        fp.close()
+    with open(textfile,'a') as file_pointer:
+        json.dump(imagelevel_dict,file_pointer,indent=4)
+        file_pointer.close()
+
+def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
+                    labelsdir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_labels_fashionista_augmented_categories',
+                    save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
+                    labels=constants.fashionista_categories_augmented):
+
+    print('starting all_pd_results , filedir:{}\nlabelsdir:{}\nsave_dir:{}labels:\n{}'.format(filedir,labelsdir,save_dir,labels))
+    n_cl = len(labels)
+    accumulated_confmat = np.zeros((n_cl, n_cl))
+    files_to_test = [os.path.join(filedir,f) for f in os.listdir(filedir) if '.jpg' in f]
+    if len(files_to_test)==0:
+        print('no files in '+str(filedir))
+        return
+
+    files_to_test = files_to_test[0:3]
+    print(str(len(files_to_test))+' files to test')
+
+    tp = np.zeros(len(labels))
+    tn = np.zeros(len(labels))
+    fp = np.zeros(len(labels))
+    fn = np.zeros(len(labels))
+
+    for f in files_to_test:
+        print('getting pd result for '+f)
+        nd_mask = get_live_nd_results(f)
+        logging.debug('pd bincount:'+str(np.bincount(pd_mask.flatten())))
+        gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
+        gt_mask = get_saved_mask_results(gt_file)
+        logging.debug('gt bincount:'+str(np.bincount(gt_mask.flatten())))
+
+        #save and send pd output
+        labels = constants.fashionista_categories_augmented
+        image_base = os.path.basename(f)
+        save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
+        print('saving pd to :'+save_name)
+        imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
+        copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
+        subprocess.call(copycmd,shell=True)
+        #save and send gt
+        save_name = os.path.join(save_dir,image_base[:-4]+'_gt.bmp')
+        print('saving gt to :'+save_name)
+        imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
+        copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
+        subprocess.call(copycmd,shell=True)
+
+        confmat = fast_hist(gt_mask.flatten(), pd_mask.flatten(), n_cl)
+        accumulated_confmat += confmat
+        logging.info(accumulated_confmat)
+
+        #do image level comparison (are the correct categories there)
+        imagelevel_gt = np.zeros(len(labels))
+        imagelevel_gt[np.unique(gt_mask)]=1
+        imagelevel_pd = np.zeros(len(labels))
+        imagelevel_pd[np.unique(pd_mask)]=1
+        print('gt:'+str(imagelevel_gt))  #turn to int since print as float takes 2 lines
+        print('est:'+str(imagelevel_pd))
+        tp,tn,fp,fn = multilabel_accuracy.update_confmat(imagelevel_gt,imagelevel_pd,tp,tn,fp,fn)
+        print('tp {}\ntn {}\nfp {}\nfn {}'.format(tp,tn,fp,fn))
+
+
+    results_dict = results_from_hist(accumulated_confmat)
+    logging.debug(results_dict)
+    textfile = os.path.join(save_dir,'pixlevel_results.txt')
+    with open(textfile,'a') as file_pointer:
+        json.dump(results_dict,file_pointer,indent=4)
+        file_pointer.close()
+    htmlname = os.path.join(save_dir,'pd_results.html')
+    results_to_html(htmlname,results_dict)
+
+    imagelevel_dict = {'tp':tp.tolist(),'tn':tn.tolist(),'fp':fp.tolist(),'fn':fn.tolist()}
+    textfile = os.path.join(save_dir,'imagelevel_results.txt')
+    with open(textfile,'a') as file_pointer:
+        json.dump(imagelevel_dict,file_pointer,indent=4)
+        file_pointer.close()
 
 
 def get_saved_mask_results(mask_file):
