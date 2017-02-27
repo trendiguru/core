@@ -33,7 +33,7 @@ def after_pd_conclusions(mask, labels, face=None):
     2. else -
         2.1 lower-body: decide whether it's a pants, jeans.. or a skirt, and share masks
         2.2 upper-body: decide whether it's a one-part or under & cover
-    3. return new mask - (I think using constants.paperdoll_categories - jr)
+    3. return new mask - using same category values as incoming mask
     """
     if face:
         ref_area = face[2] * face[3]
