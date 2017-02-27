@@ -172,11 +172,8 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_ze
     '''
     This saves the mask using the labelling fashionista_categories_augmented_zero_based
     :param mask:
-    :param label_names:
-    :param pose:
-    :param filename:
-    :param img:
-    :param url:
+    :param label_names: dictionary of 'labelname':index
+    :param new_labels: map labels to these indices
     :return:
      '''
     fashionista_ordered_categories = constants.fashionista_categories_augmented_zero_based  #constants.fashionista_categories
@@ -194,7 +191,10 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_aug_ze
             if pixlevel_index is None:
                 pixlevel_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
 #            new_mask[mask==pd_index] = fashionista_index
-            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index)+':' + fashionista_ordered_categories[fashionista_index]+ ' and newer index '+str(pixlevel_index)+':'+new_labels[pixlevel_index])
+            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(fashionista_index))
+            print(str(fashionista_ordered_categories[fashionista_index]))
+            print('newer index '+str(pixlevel_index))
+            print('label'+new_labels[pixlevel_index])
             new_mask[mask==pd_index] = pixlevel_index
         else:
             print('label '+str(label)+' not found in regular cats')
