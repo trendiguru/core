@@ -246,7 +246,7 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
     results_dict = {'class_accuracy':acc.tolist(),'overall_acc':overall_acc.tolist(),'mean_acc':mean_acc.tolist(),'class_iou':iu.tolist(),'mean_iou':mean_iou.tolist(),'fwavacc':fwavacc.tolist()}
     if save_file:
         with open(save_file,'a+') as f:  #a+ creates if it doesnt exist
-            f.write('net output '+ str(datetime.now())+' ' + info_string+ '\n')
+            f.write('net output '+' ' + info_string+ '\n')
             f.write('<br>\n')
             f.write('classes: \n')
             for i in range(len(labels)):
