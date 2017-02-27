@@ -101,7 +101,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         print('no files in '+str(filedir))
         return
 
-    files_to_test = files_to_test[0:3]
+   # files_to_test = files_to_test[0:3]
     print(str(len(files_to_test))+' files to test')
 
     tp = np.zeros(len(labels))
