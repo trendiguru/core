@@ -183,7 +183,7 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
     success = True #assume innocence until proven guilty
     print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
     for label in label_names: # need these in order
-        if label in new_labels:
+        if label in new_labels and pd_index in mask:
             new_index = new_labels.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
             pd_index = label_names[label]
             if new_index is None:
