@@ -175,15 +175,14 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
             # ratio = w / h -> h = w / ratio
             new_h_cropped = int(w_cropped / w_h_ratio)
 
-            new_h_cropped2 = 0
             h_cropped_out_of_bound = False
             if y_face + h_face + h_gap + new_h_cropped > h_original:
                 # new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
                 temp_new_h = int(w_cropped / w_h_ratio2)
-                new_h_cropped2 = temp_new_h + y_face + h_face + h_gap
+                new_h_cropped = temp_new_h + y_face + h_face + h_gap
                 h_cropped_out_of_bound = True
                 counter_big_ratio += 1
-                if new_h_cropped2 > h_original:
+                if new_h_cropped > h_original:
                     print "ratio too big even for ratio2"
                     counter_big_ratio2 += 1
                     continue
@@ -211,8 +210,7 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
                 counter_bad += 1
                 continue
 
-
-            if new_h_cropped2:
+            if h_cropped_out_of_bound:
                 counter2 += 1
                 if counter + counter_bad <= number_of_images * 0.8:
                     boxes_new2.append(line_in_list_boxes)
