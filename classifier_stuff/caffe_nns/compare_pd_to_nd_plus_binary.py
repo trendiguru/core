@@ -40,10 +40,11 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 
     #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
-    np.bincount(mask.flatten())
+    print('bincount before conclusions:'+str(np.bincount(mask.flatten())))
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
     print('uniques:'+str(np.unique(final_mask)))
-    print('paperdoll cats'+str(constants.paperdoll_categories))
+#    print('paperdoll cats'+str(constants.paperdoll_categories))
+    print('bincount after conclusions:'+str(np.bincount(mask.flatten())))
 
 #...what does after_pd_conclusions do with the labels?
     #it seems to return mask in terms of the original labels??
@@ -52,7 +53,6 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
 
-    np.bincount(final_mask.flatten())
 
     #make a legend of original mask
     print('save dir:'+save_dir)
