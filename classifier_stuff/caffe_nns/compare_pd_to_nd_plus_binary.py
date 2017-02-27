@@ -40,6 +40,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 
     #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
+    np.bincount(mask.flatten())
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
     print('uniques:'+str(np.unique(final_mask)))
     print('paperdoll cats'+str(constants.paperdoll_categories))
