@@ -22,10 +22,11 @@ from ..utils import imutils
 
 # detector = dlib.get_frontal_face_detector()
 # dress_detector = dlib.simple_object_detector("/data/detector2.svm")
-dress_detector = dlib.simple_object_detector("/data/detector6.svm")
+dress_detector_045 = dlib.simple_object_detector("/data/detector_0.45.svm")
+dress_detector_07 = dlib.simple_object_detector("/data/detector_0.7.svm")
 
 
-def find_dress_dlib(image, max_num_of_faces=10):
+def find_dress_dlib(image, detector, max_num_of_faces=10):
     start = time.time()
 
     ## faces, scores, idx = detector.run(image, 1, -1) - gives more results, those that add low confidence percentage ##
@@ -36,7 +37,10 @@ def find_dress_dlib(image, max_num_of_faces=10):
 
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    dets = dress_detector(image, 0)
+    if detector == 0.45:
+        dets = dress_detector_045(image, 0)
+    elif detector == 0.7:
+        dets = dress_detector_07(image, 0)
 
     # print "image.shape: {0}".format(image.shape)
 
@@ -145,7 +149,9 @@ def theDetector(url_or_np_array):
     #
     # resized_image = imutils.resize_keep_aspect(full_image, output_size=(300, 300))
 
-    dets = find_dress_dlib(full_image)
+    print "dress detector 0.45!"
+    dets = find_dress_dlib(full_image, 0.45)
+
     # dets2 = find_dress_dlib(rotate_image)
     # dets3 = find_dress_dlib(rotate_image2)
     # dets4 = find_dress_dlib(resized_image)
@@ -170,7 +176,19 @@ def theDetector(url_or_np_array):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_testing2.jpg", padded_image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045.jpg", padded_image)
+
+    print "dress detector 0.7!"
+    dets = find_dress_dlib(full_image, 0.7)
+    for d in dets:
+        if d.left() < 0:
+            left = d.left() + 15
+        else:
+            left = d.left()
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
+        cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+
+    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_07.jpg", padded_image)
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
