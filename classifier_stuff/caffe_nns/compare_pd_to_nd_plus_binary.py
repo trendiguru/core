@@ -61,8 +61,8 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
     res=cv2.imwrite(save_name,converted_mask)
     print('save result '+str(res)+ ' for file '+save_name)
-    #labels = constants.fashionista_categories_augmented_zero_based
-    labels=constants.paperdoll_relevant_categories
+    labels = constants.fashionista_categories_augmented_zero_based
+    #labels=constants.paperdoll_relevant_categories
     imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=image_file)
 
 #send legends to extremeli
