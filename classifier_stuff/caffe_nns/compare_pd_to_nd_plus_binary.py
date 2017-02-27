@@ -131,7 +131,8 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     with open(textfile,'a') as fp:
         json.dump(results_dict,fp,indent=4)
         fp.close()
-    results_to_html(os.path.join(save_dir,'pd_results.html',results_dict))
+    htmlname = os.path.join(save_dir,'pd_results.html')
+    results_to_html(htmlname,results_dict)
 
     imagelevel_dict = {'tp':tp,'tn':tn,'fp':fp,'fn':fn}
     textfile = os.path.join(save_dir,'imagelevel_results.txt')
