@@ -198,7 +198,7 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
         print('didnt fully convert mask')
         return
     conversion_utils.count_values(new_mask,new_labels)
-    print('bincoutn:'+str(np.bincount(new_mask.flatten())))
+  #  print('bincount:'+str(np.bincount(new_mask.flatten())))
     return new_mask
 
 

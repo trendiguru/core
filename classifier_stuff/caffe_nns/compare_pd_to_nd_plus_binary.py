@@ -38,18 +38,18 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     if len(mask.shape) == 3:
         mask = mask[:,:,0]
 
-    print('bincount before conclusions:'+str(np.bincount(mask.flatten())))
+    logging.debug('bincount before conclusions:'+str(np.bincount(mask.flatten())))
     #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
     final_mask = pipeline.after_pd_conclusions(mask, label_dict,None)
-    print('uniques:'+str(np.unique(final_mask)))
-    print('bincount after conclusions:'+str(np.bincount(final_mask.flatten())))
+    logging.debug('uniques:'+str(np.unique(final_mask)))
+    logging.debug('bincount after conclusions:'+str(np.bincount(final_mask.flatten())))
 
 #...what does after_pd_conclusions do with the labels?
     #it seems to return mask in terms of the original labels??
 
     converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
-    print('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
+    logging.debug('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
 
 #could also have used
     #   get_pd_results_on_db_for_webtool.convert_and_save_results
@@ -90,9 +90,11 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     for f in files_to_test:
         print('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
+        print('pd bincount:'+str(np.bincount(pd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
-        confmat = fast_hist(gt_mask.flatten, pd_mask.flatten, n_cl)
+        print('gt bincount:'+str(np.bincount(gt_mask.flatten())))
+        confmat = fast_hist(gt_mask.flatten(), pd_mask.flatten(), n_cl)
         accumulated_confmat += confmat
         logging.debug(accumulated_confmat)
 
