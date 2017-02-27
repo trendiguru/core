@@ -188,8 +188,7 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
             pd_index = label_names[label]
             if new_index is None:
                 new_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
-            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(new_index))
-            print(str(new_labels[new_index]))
+            print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(new_index)+' '+str(new_labels[new_index]))
             new_mask[mask==pd_index] = new_index
         else:
             print('label '+str(label)+' not found in regular cats')
