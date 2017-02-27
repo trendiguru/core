@@ -110,7 +110,7 @@ counter2 = 0
 counter_big_ratio = 0
 counter_big_ratio2 = 0
 
-number_of_images = 100
+number_of_images = 13500
 
 sum_w = 0
 sum_h = 0
