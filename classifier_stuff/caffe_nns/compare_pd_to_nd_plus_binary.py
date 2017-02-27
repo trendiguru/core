@@ -68,7 +68,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
 def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
                     labelsdir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_labels_fashionista_augmented_categories',
                     save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
-                    labels=constants.fashionista_categories_augmented_zero_based):
+                    labels=constants.fashionista_categories_augmented):
 
     print('starting all_pd_results , filedir:{}\nlabelsdir:{}\nsave_dir:{}labels:\n{}'.format(filedir,labelsdir,save_dir,labels))
     n_cl = len(labels)
@@ -81,7 +81,7 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     print(str(len(files_to_test))+' files to test')
 
     for f in files_to_test:
-        print('getting pd result for '+f)
+        raw_input('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
         logging.info('pd bincount:'+str(np.bincount(pd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
