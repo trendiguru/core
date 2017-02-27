@@ -7,7 +7,7 @@ import os
 from time import sleep
 import numpy as np
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import json
 
 from trendi.paperdoll import pd_falcon_client
@@ -61,13 +61,6 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
     res=cv2.imwrite(save_name,converted_mask)
     print('save result '+str(res)+ ' for file '+save_name)
-    labels = constants.fashionista_categories_augmented_zero_based
-    #labels=constants.paperdoll_relevant_categories
-    imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=image_file)
-
-#send legends to extremeli
-    copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
-    subprocess.call(copycmd,shell=True)
 
     return converted_mask
 
@@ -90,13 +83,27 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     for f in files_to_test:
         print('getting pd result for '+f)
         pd_mask = get_live_pd_results(f)
-        print('pd bincount:'+str(np.bincount(pd_mask.flatten())))
+        logging.info('pd bincount:'+str(np.bincount(pd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
-        print('gt bincount:'+str(np.bincount(gt_mask.flatten())))
+        logging.info('gt bincount:'+str(np.bincount(gt_mask.flatten())))
+
+        #save and send pd output
+        labels = constants.fashionista_categories_augmented_zero_based
+        image_base = os.path.basedir(f)
+        save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
+        imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
+        copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
+        subprocess.call(copycmd,shell=True)
+        #save and send gt
+        save_name = os.path.join(save_dir,image_base[:-4]+'_gt.bmp')
+        imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
+        copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
+        subprocess.call(copycmd,shell=True)
+
         confmat = fast_hist(gt_mask.flatten(), pd_mask.flatten(), n_cl)
         accumulated_confmat += confmat
-        logging.debug(accumulated_confmat)
+        logging.info(accumulated_confmat)
 
     results_dict = results_from_hist(accumulated_confmat)
     logging.debug(results_dict)
