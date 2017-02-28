@@ -53,6 +53,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     caffe.set_device(gpu)
 #    print('params:'+str(hydra_net.params))
     out_layers = hydra_net.outputs
+    out_layers = put_in_numeric_not_alphabetic_order(out_layers)
 #    print('out layers: '+str(out_layers))
     j=0
     output_names = constants.hydra_tg_heads
@@ -120,6 +121,17 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
 
     return out
 
+def put_in_numeric_not_alphabetic_order(out_layers):
+    new_list = [0 for l in out_layers]
+    for i in range(len(out_layers)):
+        if not '__' in out_layers[i] :
+            logging.warning('didnt find telltale __ in layer name , abort')
+            return None
+        n = int(out_layers[i].split('__')[1])
+        print('layer {} n {}'.format(out_layers[i],n))
+        new_list[n-1] = out_layers[i] #n-1 because layers start at 1 , change here needed if layer numbering redone to start at 0 in generic_hydra
+    print(new_list)
+    return new_list
 
 if __name__ == "__main__":
     urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
