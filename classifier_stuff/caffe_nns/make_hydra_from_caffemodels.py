@@ -46,6 +46,8 @@ def get_user_input():
                         help='name of the source (train/test) prototxt', required=False)
     parser.add_argument('-o', '--output', dest="modelname",
                         help='name of the new model', required=True)
+    parser.add_argument('-g', '--gpu', dest="gpu",
+                        help='gpu to use', required=False,default=0)
     args = parser.parse_args()
     return args
 
@@ -186,6 +188,7 @@ if __name__ == "__main__":
     raw_input('loading net {} using proto {} (ret to cont)'.format(first_model_path,dest_proto))
 
     caffe.set_mode_gpu()
+    caffe.set_device(int(user_input.gpu))
     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
