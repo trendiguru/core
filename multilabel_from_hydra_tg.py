@@ -124,6 +124,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
 def put_in_numeric_not_alphabetic_order(out_layers):
     new_list = [0 for l in out_layers]
     for i in range(len(out_layers)):
+        print('layer {} '.format(out_layers[i]))
         if not '__' in out_layers[i] :
             logging.warning('didnt find telltale __ in layer name , abort')
             return None
