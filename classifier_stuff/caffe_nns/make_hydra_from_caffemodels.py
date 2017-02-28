@@ -10,6 +10,7 @@ usage -
 python   /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/make_hydra_from_caffemodels.py -f /data/jeremy/caffenets/hydra/production/ -d ResNet-152-deploy.prototxt -s ResNet-152-deploy.prototxt
 ie deploy and source protos identical ; source can prob be deprecated to use specific source proto for each caffemodel (then the model final
 layers can be different)
+x.caffemodel should have x.prototxt
 """
 
 import caffe
@@ -200,7 +201,7 @@ if __name__ == "__main__":
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = caffemodel.replace('caffemodel','prototxt')
-        if not prototxt in proto_files: #if the source protos start to get nonstandard they can be imported one-by-one here
+        if not os.path.isfile(prototxt): #if the source protos start to get nonstandard they can be imported one-by-one here
             logging.warning('couldnt find proto {} for {}'.format(prototxt,caffemodel))
             prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
