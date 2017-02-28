@@ -133,7 +133,7 @@ def put_in_numeric_not_alphabetic_order(out_layers):
             return None
         n = int(out_layers[i].split('__')[1])
         print('layer {} n {}'.format(out_layers[i],n))
-        new_list[n-1] = out_layers[i] #n-1 because layers start at 1 , change here needed if layer numbering redone to start at 0 in generic_hydra
+        new_list[n] = out_layers[i] #n-1 because layers start at 1 , change here needed if layer numbering redone to start at 0 in generic_hydra
     print(new_list)
     return new_list
 
