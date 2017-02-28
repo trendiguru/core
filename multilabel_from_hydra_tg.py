@@ -85,13 +85,13 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     i = 0
     for output_layer in out_layers:
         one_out = hydra_net.blobs[output_layer].data[0]   #not sure why the data is nested [1xN] matrix and not a flat [N] vector
-        second_neuron = copy.copy(one_out[1])
+        second_neuron = copy.copy(one_out[1])#the copy is required - if you dont do it then out gets over-written with each new one_out
         second_neuron = round(float(second_neuron),3)
   #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
         if second_neuron > detection_threshold:
-            out[name]=second_neuron #the copy is required - if you dont do it then out gets over-written with each new one_out
-        logging.debug('output for {} is {}'.format(output_layer,second_neuron))
+            out[name]=second_neuron
+        logging.debug('output for {} {} is {}'.format(output_layer,name,second_neuron))
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         i=i+1
     logging.debug('all output:'+str(out))
