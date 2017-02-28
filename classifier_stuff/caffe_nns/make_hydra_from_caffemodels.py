@@ -6,11 +6,6 @@ stages:
 3. load many nets in Test mode
 4. create a dict where each key is a pointer to the new net params
 5. assign the params from the old nets to the ndict by keys
-usage -
-python   /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/make_hydra_from_caffemodels.py -f /data/jeremy/caffenets/hydra/production/ -d ResNet-152-deploy.prototxt -s ResNet-152-deploy.prototxt
-ie deploy and source protos identical ; source can prob be deprecated to use specific source proto for each caffemodel (then the model final
-layers can be different)
-x.caffemodel should have x.prototxt
 """
 
 import caffe
@@ -47,8 +42,6 @@ def get_user_input():
                         help='name of the source (train/test) prototxt', required=False)
     parser.add_argument('-o', '--output', dest="modelname",
                         help='name of the new model', required=True)
-    parser.add_argument('-g', '--gpu', dest="gpu",
-                        help='gpu to use', required=False,default=0)
     args = parser.parse_args()
     return args
 
@@ -189,30 +182,28 @@ if __name__ == "__main__":
     raw_input('loading net {} using proto {} (ret to cont)'.format(first_model_path,dest_proto))
 
     caffe.set_mode_gpu()
-    caffe.set_device(int(user_input.gpu))
-    print('using gpu '.format(int(user_input.gpu)))
     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
 
     nets = []
     n_models_to_add = len(model_files)-1
-
     for i in range(n_models_to_add):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
         prototxt = caffemodel.replace('caffemodel','prototxt')
-        if not os.path.isfile(prototxt): #if the source protos start to get nonstandard they can be imported one-by-one here
+        if not prototxt in proto_files: #if the source protos start to get nonstandard they can be imported one-by-one here
             logging.warning('couldnt find proto {} for {}'.format(prototxt,caffemodel))
             prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
-#        nets.append(net)
+        nets.append(net)
         compare_nets(destination_net,net)
+    print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 
-#add source net params to destination
-#if the nets are idiosyncratic this has to change, currently it assumes fc2...fc4, ideally take the params from the proto
-        net_orig = net
+
+    for i in range(n_models_to_add):
+        net_orig = nets[i]
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
         destination_output = i+1
@@ -229,8 +220,9 @@ if __name__ == "__main__":
 
     destination_net.save('/'.join([folder_path, user_input.modelname]))
 
-    print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 #    nets.close()
+#    del net_new
+#
     print 'DONE!'
 
 
