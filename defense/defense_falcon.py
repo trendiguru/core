@@ -1,7 +1,7 @@
 import traceback
 import falcon
 print(falcon.__file__)
-from .. import multilabel_from_hydra
+from .. import multilabel_from_hydra_hls
 import requests
 from .. import Utils
 import numpy as np
@@ -48,7 +48,7 @@ class HydraResource:
                 print('img arr into hydra falcon size:'+str(img.shape))
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
-            hydra_output = multilabel_from_hydra.get_hydra_output(img,detection_threshold=0.9)
+            hydra_output = multilabel_from_hydra_hls.get_hydra_output(img,detection_threshold=0.9)
             if "sweater_binary_h_iter_50000" in hydra_output:
                 del hydra_output["sweater_binary_h_iter_50000"]
             if "sweatshirt_binary_h_iter_14000" in hydra_output:

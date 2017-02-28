@@ -329,10 +329,14 @@ binary_caffemodels = [
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
-hydra_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
+hydra_hls_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
                               '/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt']
 
-hydra_heads =  ["backpack_hydra_iter_2000",
+hydra_tg_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.caffemodel',
+                              '/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.prototxt']
+
+
+hydra_hls_heads =  ["backpack_hydra_iter_2000",
         "blazer_h_iter_15000.",
         "cardigan_binary_h_iter_20000",
         "cardigan_binary_h_iter_25000",
@@ -341,7 +345,7 @@ hydra_heads =  ["backpack_hydra_iter_2000",
         "hat_hydra_iter_5000",
         "jacket_binary_h_iter_50000",
         "jeans_binary_h_iter_10000",
-       "lingerie_binary_h_iter_50000",
+        "lingerie_binary_h_iter_50000",
         "pants_hydra_iter_10000",
         "relevant_irrelevant_iter_10000",
         "shorts_binary_h_iter_30000_charles",
@@ -349,8 +353,39 @@ hydra_heads =  ["backpack_hydra_iter_2000",
         "skirt_binary_h_iter_50000",
         "sweater_binary_h_iter_50000",
         "sweatshirt_binary_h_iter_14000",
-       "sweatshirt_binary_h_iter_16000",
-       "top_hydra_iter_25000" ]
+        "sweatshirt_binary_h_iter_16000",
+        "top_hydra_iter_25000" ]
+
+hydra_tg_heads =  ["backpack_hydra_iter_2000",
+        "bag_55000",
+        "belt_95000",
+        "blazer_h_iter_15000",
+        "blouse_45000",
+        "cardigan_binary_h_iter_25000",
+        "coat_binary_h_iter_50000",
+        "dress_hydra_iter_50000",
+        "footwear_50000",
+        "hat_hydra_iter_60000",  #10
+        "jacket_binary_h_iter_50000",
+        "jeans_binary_h_iter_10000",
+        "leggings_80000",
+        "lingerie_binary_h_iter_50000",
+        "pants_hydra_iter_10000",
+        "relevant_irrelevant_iter_10000",
+        "shorts_binary_h_iter_30000_charles",
+        "shorts_binary_h_iter_50000",
+        "skirt_binary_h_iter_50000",
+        "stockings_30000",  #20
+        "suit_65000",
+        "sweater_binary_h_iter_50000",
+        "sweatshirt_binary_h_iter_16000",
+        "t-shirt_45000",
+        "top_hydra_iter_25000" ,
+        "tracksuit_80000" ] #26
+
+hydra_tg_thresholds = [0.99,0.9,0.9,0.9,0.9,0.95,0.9,0.8,0.9,0.9,
+                       0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.8,0.9,
+                       0.9,0.9,0.9,0.9,0.8,0.9]
 
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
