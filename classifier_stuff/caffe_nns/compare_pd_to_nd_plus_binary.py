@@ -63,7 +63,7 @@ def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
     url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
-    resp = pd_falcon_client.pd(url)
+    resp = hydra_tg_falcon_client.hydra_tg(url)
     print('resp:'+str(resp))
     label_dict = resp['label_dict']
     mask = resp['mask']
@@ -167,7 +167,7 @@ def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
                     save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                     labels=constants.fashionista_categories_augmented):
 
-    print('starting all_pd_results , filedir:{}\nlabelsdir:{}\nsave_dir:{}labels:\n{}'.format(filedir,labelsdir,save_dir,labels))
+    print('starting all_nd_results , filedir:{}\nlabelsdir:{}\nsave_dir:{}labels:\n{}'.format(filedir,labelsdir,save_dir,labels))
     n_cl = len(labels)
     accumulated_confmat = np.zeros((n_cl, n_cl))
     files_to_test = [os.path.join(filedir,f) for f in os.listdir(filedir) if '.jpg' in f]
@@ -186,27 +186,27 @@ def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     for f in files_to_test:
         print('getting pd result for '+f)
         nd_mask = get_live_nd_results(f)
-        logging.debug('pd bincount:'+str(np.bincount(pd_mask.flatten())))
+        logging.debug('pd bincount:'+str(np.bincount(nd_mask.flatten())))
         gt_file = os.path.join(labelsdir,os.path.basename(f).replace('.jpg','.png'))
         gt_mask = get_saved_mask_results(gt_file)
         logging.debug('gt bincount:'+str(np.bincount(gt_mask.flatten())))
 
-        #save and send pd output
+        #save and send output
         labels = constants.fashionista_categories_augmented
         image_base = os.path.basename(f)
-        save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
-        print('saving pd to :'+save_name)
+        save_name = os.path.join(save_dir,image_base[:-4]+'_nd.bmp')
+        print('saving nd to :'+save_name)
         imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
         copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
         subprocess.call(copycmd,shell=True)
-        #save and send gt
-        save_name = os.path.join(save_dir,image_base[:-4]+'_gt.bmp')
-        print('saving gt to :'+save_name)
-        imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
-        copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
-        subprocess.call(copycmd,shell=True)
+        # #save and send gt - already sent by p d
+        # save_name = os.path.join(save_dir,image_base[:-4]+'_gt.bmp')
+        # print('saving gt to :'+save_name)
+        # imutils.show_mask_with_labels(save_name,labels=labels,save_images=True,original_image=f)
+        # copycmd = 'scp '+save_name.replace('.bmp','_legend.jpg')+' root@104.155.22.95:/var/www/results/pd_test/'
+        # subprocess.call(copycmd,shell=True)
 
-        confmat = fast_hist(gt_mask.flatten(), pd_mask.flatten(), n_cl)
+        confmat = fast_hist(gt_mask.flatten(), nd_mask.flatten(), n_cl)
         accumulated_confmat += confmat
         logging.info(accumulated_confmat)
 
@@ -214,7 +214,7 @@ def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         imagelevel_gt = np.zeros(len(labels))
         imagelevel_gt[np.unique(gt_mask)]=1
         imagelevel_pd = np.zeros(len(labels))
-        imagelevel_pd[np.unique(pd_mask)]=1
+        imagelevel_pd[np.unique(nd_mask)]=1
         print('gt:'+str(imagelevel_gt))  #turn to int since print as float takes 2 lines
         print('est:'+str(imagelevel_pd))
         tp,tn,fp,fn = multilabel_accuracy.update_confmat(imagelevel_gt,imagelevel_pd,tp,tn,fp,fn)
