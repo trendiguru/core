@@ -40,6 +40,14 @@ import dlib
 from skimage import io
 import cv2
 
+
+images_new2 = []
+boxes_new2 = []
+
+images_new_test2 = []
+boxes_new_test2 = []
+
+
 images_new = []
 boxes_new = []
 
@@ -97,10 +105,12 @@ options.epsilon = 0.001
 
 ## train set ##
 counter_bad = 0
-
 counter = 0
-
+counter2 = 0
 counter_big_ratio = 0
+counter_big_ratio2 = 0
+
+number_of_images = 13500
 
 sum_w = 0
 sum_h = 0
@@ -111,14 +121,16 @@ average_w = 150
 average_h = 331
 w_h_ratio = float(average_w) / average_h  # = 0.453
 
+w_h_ratio2 = 0.7
+
 break_from_main_loop = False
 
 for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
     if not break_from_main_loop:
         for file in files:
             ## if i want to limit to smaller number of images
-            if counter > 2000:
-                print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
+            if counter > number_of_images:
+                print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}\ncounter2 : {3}, counter_big_ratio2: {4}".format(counter, counter_bad, counter_big_ratio, counter2, counter_big_ratio2)
                 break
 
             full_image = cv2.imread('/data/dress_detector/images_raw/' + file)
@@ -165,19 +177,23 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
             h_cropped_out_of_bound = False
             if y_face + h_face + h_gap + new_h_cropped > h_original:
-                new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
+                # new_h_cropped = h_original - (y_face + h_face + h_gap + 1)
+                temp_new_h = int(w_cropped / w_h_ratio2)
+                new_h_cropped = temp_new_h + y_face + h_face + h_gap
                 h_cropped_out_of_bound = True
                 counter_big_ratio += 1
-                print cv2.imwrite("/data/yonatan/linked_to_web/test_error" + str(counter) + ".jpg", original_image)
-                continue
+                if new_h_cropped > h_original:
+                    print "ratio too big even for ratio2"
+                    counter_big_ratio2 += 1
+                    continue
             else:
                 new_h_cropped += y_face + h_face + h_gap
 
             new_w_h_ratio = float(w_gap + w_cropped - w_gap) / (new_h_cropped - (y_face + h_face + h_gap))
-            if new_w_h_ratio > 0.5:
-                print "stull ratio bigger than 0.5!"
-                counter_big_ratio += 1
-                continue
+            # if new_w_h_ratio > 0.5:
+            #     print "still ratio bigger than 0.5!"
+            #     counter_big_ratio += 1
+            #     # continue
 
             # line_in_list_boxes = ([dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_cropped, bottom=new_h_cropped)])
             line_in_list_boxes = [dlib.rectangle(left=w_gap, top=y_face + h_face + h_gap, right=w_gap + w_cropped, bottom=new_h_cropped)]
@@ -194,20 +210,34 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
                 counter_bad += 1
                 continue
 
-            counter += 1
-            print "counter: {}".format(counter)
-
-
-            if counter + counter_bad <= 10000:
-                boxes_new.append(line_in_list_boxes)
-                images_new.append(line_in_list_images)
-            elif 10000 < counter + counter_bad < 15000:
-                boxes_new_test.append(line_in_list_boxes)
-                images_new_test.append(line_in_list_images)
+            if h_cropped_out_of_bound:
+                counter2 += 1
+                if counter + counter_bad <= number_of_images * 0.8:
+                    boxes_new2.append(line_in_list_boxes)
+                    images_new2.append(line_in_list_images)
+                elif number_of_images * 0.8 < counter + counter_bad < number_of_images:
+                    boxes_new_test2.append(line_in_list_boxes)
+                    images_new_test2.append(line_in_list_images)
+                else:
+                    print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}\ncounter2 : {3}, counter_big_ratio2: {4}".format(
+                        counter, counter_bad, counter_big_ratio, counter2, counter_big_ratio2)
+                    break_from_main_loop = True
+                    break
             else:
-                print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}".format(counter, counter_bad, counter_big_ratio)
-                break_from_main_loop = True
-                break
+                counter += 1
+                if counter + counter_bad <= number_of_images * 0.8:
+                    boxes_new.append(line_in_list_boxes)
+                    images_new.append(line_in_list_images)
+                elif number_of_images * 0.8 < counter + counter_bad < number_of_images:
+                    boxes_new_test.append(line_in_list_boxes)
+                    images_new_test.append(line_in_list_images)
+                else:
+                    print "counter: {0}, counter_bad : {1}, counter_big_ratio : {2}\ncounter2 : {3}, counter_big_ratio2: {4}".format(
+                        counter, counter_bad, counter_big_ratio, counter2, counter_big_ratio2)
+                    break_from_main_loop = True
+                    break
+
+            print "counter: {}".format(counter)
 
 #             sum_w += w_cropped
 #             sum_h += h_cropped
@@ -231,9 +261,14 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 # images = images_array.tolist()
 # boxes = boxes_array.tolist()
 
-detector2 = dlib.train_simple_object_detector(images_new, boxes_new, options)
+detector = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector2.save('/data/detector6.svm')
+detector.save('/data/detector_0.45.svm')
+print "Done saving!"
+
+detector2 = dlib.train_simple_object_detector(images_new2, boxes_new2, options)
+print "Done training!"
+detector2.save('/data/detector_0.7.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
@@ -337,8 +372,17 @@ print "Done saving!"
 # # test_simple_object_detector().  If you have already loaded your training
 # # images and bounding boxes for the objects then you can call it as shown
 # # below.
+print "detector_0.45:"
 print("\nTraining accuracy: {}".format(
-    dlib.test_simple_object_detector(images_new, boxes_new, detector2)))
+    dlib.test_simple_object_detector(images_new, boxes_new, detector)))
 
 print("\nTesting accuracy: {}".format(
-    dlib.test_simple_object_detector(images_new_test, boxes_new_test, detector2)))
+    dlib.test_simple_object_detector(images_new_test, boxes_new_test, detector)))
+
+
+print "detector_0.7:"
+print("\nTraining accuracy: {}".format(
+    dlib.test_simple_object_detector(images_new2, boxes_new2, detector2)))
+
+print("\nTesting accuracy: {}".format(
+    dlib.test_simple_object_detector(images_new_test2, boxes_new_test2, detector2)))
