@@ -6,6 +6,10 @@ stages:
 3. load many nets in Test mode
 4. create a dict where each key is a pointer to the new net params
 5. assign the params from the old nets to the ndict by keys
+usage -
+python   /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/make_hydra_from_caffemodels.py -f /data/jeremy/caffenets/hydra/production/ -d ResNet-152-deploy.prototxt -s ResNet-152-deploy.prototxt
+ie deploy and source protos identical ; source can prob be deprecated to use specific source proto for each caffemodel (then the model final
+layers can be different)
 """
 
 import caffe
