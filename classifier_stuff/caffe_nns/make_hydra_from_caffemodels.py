@@ -189,6 +189,7 @@ if __name__ == "__main__":
 
     caffe.set_mode_gpu()
     caffe.set_device(int(user_input.gpu))
+    print('using gpu '.format(int(user_input.gpu)))
     destination_net = caffe.Net(dest_proto, caffe.TEST,weights=first_model_path)
     print('loaded model {} defined by proto {}'.format(first_model_path,dest_proto))
 #    modelpath = '/'.join([folder_path, proto_files[0]])
