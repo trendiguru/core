@@ -139,7 +139,8 @@ def put_in_numeric_not_alphabetic_order(out_layers):
     return new_list
 
 if __name__ == "__main__":
-    urls = ['https://secure.polyvoreimg.com/cgi/img-thing/size/l/tid/47760829.jpg' ,#skirt
+    urls = ['http://extremeli.trendi.guru/demo/results/pd_test/96397.jpg',#dress
+            'https://secure.polyvoreimg.com/cgi/img-thing/size/l/tid/47760829.jpg' ,#skirt
             'https://ae01.alicdn.com/kf/HTB1cZJuIFXXXXa5XXXXq6xXFXXX1/women-high-waist-sexy-font-b-skirts-b-font-lady-font-b-long-b-font-font.jpg',
             'http://fashiongum.com/wp-content/uploads/2015/01/Sequin-Skirts-Best-Street-Style-Looks-5.jpg',
             'https://s-media-cache-ak0.pinimg.com/736x/c1/be/9e/c1be9e3ffa1d7446e9c23a306d1b2bf9.jpg',#dress
