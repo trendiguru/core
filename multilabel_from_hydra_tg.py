@@ -36,7 +36,7 @@ hydra_net = caffe.Net(deployproto,caffe.TEST,weights=caffemodel)
 
 
 def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size=(224,224),mean=(104.0,116.7,122.7),
-                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves',detection_threshold=0.9):
+                     gpu=1,save_data=True,save_path='/data/jeremy/caffenets/hydra/production/saves',detection_thresholds=constants.hydra_tg_thresholds):
     '''
     start net, get a bunch of results. DONE: resize to e.g. 250x250 (whatever was done in training) and crop to dims
     :param url_or_image_arr_list:#
@@ -90,8 +90,9 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         second_neuron = round(float(second_neuron),3)
   #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
-        if second_neuron > detection_threshold:
+        if second_neuron > detection_thresholds[i]:
             out[name]=second_neuron
+            print('{} is past threshold {} for category {} {}'.format(second_neuron,detection_thresholds[i],i,name))
         logging.debug('output for {} {} is {}'.format(output_layer,name,second_neuron))
 #        print('final till now:'+str(all_outs)+' '+str(all_outs2))
         i=i+1
@@ -124,7 +125,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
 def put_in_numeric_not_alphabetic_order(out_layers):
     new_list = [0 for l in out_layers]
     for i in range(len(out_layers)):
-        print('layer {} '.format(out_layers[i]))
+  #      print('layer {} '.format(out_layers[i]))
         if out_layers[i] == 'estimate': #0th layer just called 'estimate' this should really be changed in generic_hydra
             new_list[0] = out_layers[i]
             continue
@@ -132,7 +133,7 @@ def put_in_numeric_not_alphabetic_order(out_layers):
             logging.warning('didnt find telltale __ in layer name , abort')
             return None
         n = int(out_layers[i].split('__')[1])
-        print('layer {} n {}'.format(out_layers[i],n))
+#        print('layer {} n {}'.format(out_layers[i],n))
         new_list[n] = out_layers[i] #n-1 because layers start at 1 , change here needed if layer numbering redone to start at 0 in generic_hydra
  #   print(new_list)
     return new_list

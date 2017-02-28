@@ -365,7 +365,7 @@ hydra_tg_heads =  ["backpack_hydra_iter_2000",
         "coat_binary_h_iter_50000",
         "dress_hydra_iter_50000",
         "footwear_50000",
-        "hat_hydra_iter_60000",
+        "hat_hydra_iter_60000",  #10
         "jacket_binary_h_iter_50000",
         "jeans_binary_h_iter_10000",
         "leggings_80000",
@@ -375,14 +375,17 @@ hydra_tg_heads =  ["backpack_hydra_iter_2000",
         "shorts_binary_h_iter_30000_charles",
         "shorts_binary_h_iter_50000",
         "skirt_binary_h_iter_50000",
-        "stockings_30000",
+        "stockings_30000",  #20
         "suit_65000",
         "sweater_binary_h_iter_50000",
         "sweatshirt_binary_h_iter_16000",
         "t-shirt_45000",
         "top_hydra_iter_25000" ,
-        "tracksuit_80000" ]
+        "tracksuit_80000" ] #26
 
+hydra_tg_thresholds = [0.99,0.9,0.9,0.9,0.9,0.95,0.9,0.8,0.9,0.9,
+                       0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.8,0.9,
+                       0.9,0.9,0.9,0.9,0.8,0.9]
 
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
