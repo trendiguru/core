@@ -197,6 +197,7 @@ if __name__ == "__main__":
 
     nets = []
     n_models_to_add = len(model_files)-1
+
     for i in range(n_models_to_add):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
@@ -206,13 +207,11 @@ if __name__ == "__main__":
             prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
-        nets.append(net)
+
+#        nets.append(net)
         compare_nets(destination_net,net)
-    print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
 
-
-    for i in range(n_models_to_add):
-        net_orig = nets[i]
+        net_orig = net
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
         destination_output = i+1
@@ -229,8 +228,14 @@ if __name__ == "__main__":
 
     destination_net.save('/'.join([folder_path, user_input.modelname]))
 
+
+    print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
+
+#if the nets are idiosyncratic this has to change, currently it assumes fc2...fc4, ideally take the params from the proto
+    for i in range(n_models_to_add):
+
 #    nets.close()
-#    del net_new
+    del net_new
 #
     print 'DONE!'
 
