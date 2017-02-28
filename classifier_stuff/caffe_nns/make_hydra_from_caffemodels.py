@@ -207,10 +207,11 @@ if __name__ == "__main__":
             prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
-
 #        nets.append(net)
         compare_nets(destination_net,net)
 
+#add source net params to destination
+#if the nets are idiosyncratic this has to change, currently it assumes fc2...fc4, ideally take the params from the proto
         net_orig = net
         lower_fully_connected = 2  #e.g. fc2_0 is the first(lowest) fully connected of net 0, fc2_2 is first of net 2
         upper_fully_connected = 4  #e.g. fc4_0 is the last fullyconnected of net0, fc4_2 is last of net2
@@ -228,15 +229,8 @@ if __name__ == "__main__":
 
     destination_net.save('/'.join([folder_path, user_input.modelname]))
 
-
     print('loaded {} models {}\ndefined by proto {}'.format(len(model_files),model_files,prototxt))
-
-#if the nets are idiosyncratic this has to change, currently it assumes fc2...fc4, ideally take the params from the proto
-    for i in range(n_models_to_add):
-
 #    nets.close()
-    del net_new
-#
     print 'DONE!'
 
 
