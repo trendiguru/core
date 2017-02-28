@@ -134,16 +134,19 @@ def put_in_numeric_not_alphabetic_order(out_layers):
         n = int(out_layers[i].split('__')[1])
         print('layer {} n {}'.format(out_layers[i],n))
         new_list[n] = out_layers[i] #n-1 because layers start at 1 , change here needed if layer numbering redone to start at 0 in generic_hydra
-    print(new_list)
+ #   print(new_list)
     return new_list
 
 if __name__ == "__main__":
-    urls = ['https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
+    urls = ['https://s-media-cache-ak0.pinimg.com/736x/c1/be/9e/c1be9e3ffa1d7446e9c23a306d1b2bf9.jpg',#dress
+            'http://ind5.ccio.co/ud/oM/4K/166351779955768499Z9HaV5O7c.jpg',
+            'http://i.styleoholic.com/15-Cool-Dress-And-Boots-Combinations-For-Fall10.jpg',
+             'https://s-media-cache-ak0.pinimg.com/236x/ce/64/a0/ce64a0dca7ad6d609c635432e9ae1413.jpg',  #bags
             'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
             'https://s-media-cache-ak0.pinimg.com/564x/9a/9d/f7/9a9df7455232035c6284ad1961816fd8.jpg',
             'http://2.bp.blogspot.com/-VmiQlqdliyE/U9nyto2L1II/AAAAAAAADZ8/g30i4j_YZeI/s1600/310714+awayfromblue+kameleon+shades+chambray+shift+dress+converse+louis+vuitton+neverfull+mbmj+scarf.png',
             'https://s-media-cache-ak0.pinimg.com/236x/1b/31/fd/1b31fd2182f0243ebc97ca115f04f131.jpg',
-            'http://healthsupporters.com/wp-content/uploads/2013/10/belt_2689094b.jpg' ,
+            'http://healthsupporters.com/wp-content/uploads/2013/10/belt_2689094b.jpg' , #belt
             'http://static1.businessinsider.com/image/53c96c90ecad04602086591e-480/man-fashion-jacket-fall-layers-belt.jpg', #belts
             'http://gunbelts.com/media/wysiwyg/best-gun-belt-width.jpg',
             'https://i.ytimg.com/vi/5-jWNWUQdFQ/maxresdefault.jpg'
