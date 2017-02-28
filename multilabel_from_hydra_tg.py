@@ -125,6 +125,9 @@ def put_in_numeric_not_alphabetic_order(out_layers):
     new_list = [0 for l in out_layers]
     for i in range(len(out_layers)):
         print('layer {} '.format(out_layers[i]))
+        if out_layers[i] == 'estimate': #0th layer just called 'estimate' this should really be changed in generic_hydra
+            new_list[0] = out_layers[i]
+            continue
         if not '__' in out_layers[i] :
             logging.warning('didnt find telltale __ in layer name , abort')
             return None
