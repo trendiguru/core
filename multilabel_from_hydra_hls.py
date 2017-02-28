@@ -25,7 +25,7 @@ print('loading net for multilabel_from_hydra_hls.py')
 #  'pants','shorts', 'skirt','stocking','suit','sweater','top','scarf','womens_swimwear_bikini','womens_swimwear_nonbikini',
 #  'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch', 'mens_swimwear']
 
-model_and_proto = constants.hydra_tg_caffemodel_and_proto
+model_and_proto = constants.hydra_hls_caffemodel_and_proto
 caffe.set_mode_gpu()
 gpu = 1
 caffe.set_device(gpu)
@@ -55,7 +55,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     out_layers = hydra_net.outputs
 #    print('out layers: '+str(out_layers))
     j=0
-    output_names = constants.hydra_tg_heads
+    output_names = constants.hydra_hls_heads
 
     # load image, resize, crop, subtract mean, and make dims C x H x W for Caffe
     im = Utils.get_cv2_img_array(url_or_image_arr)
