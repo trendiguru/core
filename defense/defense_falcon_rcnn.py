@@ -50,7 +50,7 @@ class HLS:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                detected = self.detect(img_arr)
+                detected = self.detect(img_arr,url=image_url)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
@@ -74,7 +74,7 @@ class HLS:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr):
+    def detect(self, img_arr,url=''):
         detected = defense_rcnn.detect_frcnn(img_arr)
         # get hydra results
         print('started defense_falcon_rcnn.detect')
@@ -91,7 +91,7 @@ class HLS:
                 hydra_output = self.get_hydra_output(cropped_image)
                 if hydra_output:
                     item['details'] = hydra_output
-
+        self.write_log(url,detected)
         return detected
 
 
@@ -114,10 +114,10 @@ class HLS:
 
 
     def write_log(self, url, output):
-        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
-            output['url'] = url
+        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt', 'a') as fp:
+           # output.append = {'url':url}
             json.dumps(output, fp, indent=4)
-            fp.write()
+#            fp.write()
 
 api = falcon.API()
 api.add_route('/hls/', HLS())

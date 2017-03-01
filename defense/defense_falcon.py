@@ -1,7 +1,8 @@
 import traceback
 import falcon
 print(falcon.__file__)
-from .. import multilabel_from_hydra_hls
+#from .. import multilabel_from_hydra_hls
+from .. import multilabel_from_hydra_tg
 import requests
 from .. import Utils
 import numpy as np
@@ -10,8 +11,6 @@ from jaweson import json, msgpack
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
 
 class HydraResource:
     def __init__(self):
@@ -48,7 +47,8 @@ class HydraResource:
                 print('img arr into hydra falcon size:'+str(img.shape))
  #           img_arr=Utils.get_cv2_img_array(img)
 #            frcnn_output =  self.get_fcrnn_output(self,img)
-            hydra_output = multilabel_from_hydra_hls.get_hydra_output(img,detection_threshold=0.9)
+#            hydra_output = multilabel_from_hydra_hls.get_hydra_output(img,detection_threshold=0.9)
+            hydra_output = multilabel_from_hydra_tg.get_hydra_output(img)
             if "sweater_binary_h_iter_50000" in hydra_output:
                 del hydra_output["sweater_binary_h_iter_50000"]
             if "sweatshirt_binary_h_iter_14000" in hydra_output:

@@ -1203,6 +1203,6 @@ blacklisted_exceptions = {'xxxlarge',
                           'kannada'}
 
 NEURODOLL_CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
-HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
-HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hydra_tg"  #as opposed to hydra which is for the hls project
+HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra" #allison
+FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls" #allison
+HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hydra_tg"  #allison - as opposed to hydra_hls which is for the hls project
