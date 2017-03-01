@@ -225,6 +225,26 @@ def variance_of_laplacian(image):
     return blurry
 
 
+def is_one_color_image(image):
+    # convert RGB to HSV then calculate the standard deviation of the hsv_image,
+    # and only refer to std of H (Hue - color)
+    std_threshold = 20
+
+    try:
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        mean, std = cv2.meanStdDev(hsv_image)
+    except AttributeError:
+        # in case of an AttributeError i return False which mean proceed as if the image
+        # is good to go, i did it cause i guess it's not the right place for that kind of
+        # filter here
+        return False
+
+    if std[0][0] < std_threshold:
+        return True
+    else:
+        return False
+
+
 def average_bbs(bb1, bb2):
     bb_x = int((bb1[0] + bb2[0]) / 2)
     bb_y = int((bb1[1] + bb2[1]) / 2)

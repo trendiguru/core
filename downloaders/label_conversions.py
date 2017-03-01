@@ -4,6 +4,11 @@ import os
 import cv2
 import numpy as np
 import logging
+import subprocess
+import sys
+import json
+from trendi.classifier_stuff.caffe_nns import conversion_utils
+
 logging.basicConfig(level=logging.DEBUG)
 
 from trendi import constants
@@ -78,8 +83,11 @@ def fashionista_to_ultimate_21_dir(dir):
         print('new maskname:'+newname)
 #        imutils.show_mask_with_labels(newname,constants.ultimate_21,visual_output=True)
 
-def fashionista_to_ultimate_21(file):
+def fashionista_to_ultimate_21(img_arr_or_url_or_file):
     ##########warning not finished #################3
+    #also this is for images saved using the fashionista_categories_augmented labels, raw d output is with a dictionary of arbitrary labels
+    #so use  get_pd_results_on_db_for_webtool.convert_and_save_results
+    #actually this is a better place for that so now its copied here
 
     ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
                    'jeans','legging','pants','shoe','shorts','skin','skirt','stocking','suit','sweater',
@@ -121,13 +129,13 @@ def fashionista_to_ultimate_21(file):
                                      }
 
 
-    index_conversion = [-666]*len(fashionista_categories_augmented)
+    index_conversion = [-666 for i in range(len(fashionista_categories_augmented))]
     for k,v in conversion_dictionary_strings.iteritems():
         ultimate_21_index = ultimate_21.index(k)
-        for fash_cat in v:
+        for fash_cat in v: #no need to check if the fashcat is in v since all the values here are in fashionista....
             fash_index = fashionista_categories_augmented.index(fash_cat)
 #            fash_index = constants.fashionista_categories_augmented_zero_based.index(fash_cat)
- #           print('ultimate index {} cat {} fasjh index {} cat {}'.format(ultimate_21_index,ultimate_21[ultimate_21_index],fash_index,fashionista_categories_augmented[fash_index]))
+            logging.debug('ultimate index {} cat {} fash index {} cat {}'.format(ultimate_21_index,ultimate_21[ultimate_21_index],fash_index,fashionista_categories_augmented[fash_index]))
             index_conversion[fash_index] = ultimate_21_index
 
     print(index_conversion)
@@ -135,9 +143,17 @@ def fashionista_to_ultimate_21(file):
 #        if index_conversion[i] == -666:
 #            print('unmapped fashcat:'+str(i)+fashionista_categories_augmented[i])
 
-    mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
+    if isinstance(img_arr_or_url_or_file,basestring):
+        mask = Utils.get_cv2_img_array(img_arr_or_url_or_file)
+    #todo - check why get_cv2_img_array doesnt like getting a  mask
+    else:
+        mask = img_arr_or_url_or_file
+     #   mask=cv2.imread(file,cv2.IMREAD_GRAYSCALE)
     if mask is None:
-        logging.warning('could not get file:'+file)
+        if isinstance(img_arr_or_url_or_file,basestring):
+            logging.warning('could not get filename/url:'+str(img_arr_or_url_or_file))
+        else:
+            logging.warning('could not get file/url')
         return None
     if len(mask.shape)==3:
         logging.warning('multichannel mask, taking chan 0')
@@ -151,6 +167,39 @@ def fashionista_to_ultimate_21(file):
         print('replacing index {} with newindex {}'.format(u,newval))
         mask[mask==u] = newval
     return mask
+
+def convert_pd_output(mask, label_names, new_labels=constants.fashionista_categories_augmented):
+    '''
+    This saves the mask using the labelling fashionista_categories_augmented_zero_based
+    :param mask:
+    :param label_names: dictionary of 'labelname':index
+    :param new_labels: list of labels - map pd labels to the indices of these labels. guaranteed to work for constants.fashionista_aug_zerobased
+    :return:
+     '''
+    h,w = mask.shape[0:2]
+    new_mask=np.ones((h,w),dtype=np.uint8)*255  # anything left with 255 wasn't dealt with in the following conversion code
+    print('new mask size:'+str(new_mask.shape))
+    success = True #assume innocence until proven guilty
+    print('attempting convert and save, shapes:'+str(mask.shape)+' new:'+str(new_mask.shape))
+    for label in label_names:
+        pd_index = label_names[label]
+        if label in new_labels:
+            if pd_index in mask:
+                new_index = new_labels.index(label) + 0  # number by  0=null, 55=skin  , not 1=null,56=skin
+                if new_index is None:
+                    new_index = 0  #map unused categories (used in fashionista but not pixlevel v2)  to background
+                print('pd index '+str(pd_index)+' for '+str(label)+': gets new index:'+str(new_index)+' '+str(new_labels[new_index]))
+                new_mask[mask==pd_index] = new_index
+        else:
+            print('label '+str(label)+' not found in regular cats')
+            success=False
+    if 255 in new_mask:
+        print('didnt fully convert mask')
+        return
+    conversion_utils.count_values(new_mask,new_labels)
+  #  print('bincount:'+str(np.bincount(new_mask.flatten())))
+    return new_mask
+
 
 
 if __name__=="__main__":

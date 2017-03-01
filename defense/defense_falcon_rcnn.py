@@ -15,14 +15,16 @@ import requests
 
 from jaweson import json #, msgpack
 
+from trendi import constants
+
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
 # print('current_dir is '+str(base_dir))
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls"
+HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS #"http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS #"http://13.82.136.127:8082/hls"
 #what is the frcnn referring to - maybe its the thing at the end of file
 #namely, api.add_route('/frcnn/', HydraResource())
 
@@ -48,7 +50,7 @@ class HLS:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                detected = self.detect(img_arr)
+                detected = self.detect(img_arr,url=image_url)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
@@ -72,7 +74,7 @@ class HLS:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr):
+    def detect(self, img_arr,url=''):
         detected = defense_rcnn.detect_frcnn(img_arr)
         # get hydra results
         print('started defense_falcon_rcnn.detect')
@@ -89,7 +91,8 @@ class HLS:
                 hydra_output = self.get_hydra_output(cropped_image)
                 if hydra_output:
                     item['details'] = hydra_output
-
+        self.write_log(url,detected)
+        print detected
         return detected
 
 
@@ -112,10 +115,13 @@ class HLS:
 
 
     def write_log(self, url, output):
-        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
-            output['url'] = url
-            json.dumps(output, fp, indent=4)
-            fp.write()
+        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
+        print('logging output to '+logfile)
+        out = {'output':output,'url':url}
+        with open(logfile, 'a') as fp:
+           # output.append = {'url':url}
+            json.dumps(out, fp, indent=4)
+#            fp.write()
 
 api = falcon.API()
 api.add_route('/hls/', HLS())
