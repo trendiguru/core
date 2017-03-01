@@ -3,6 +3,7 @@ __author__ = 'liorsabag'
 from jaweson import msgpack
 import requests
 from trendi import constants
+import json
 #
 # CLASSIFIER_ADDRESS = "http://37.58.101.170:8080/pd"  # Braini5
 # CLASSIFIER_ADDRESS = "http://37.58.101.173:8082/pd"  # Braini2
