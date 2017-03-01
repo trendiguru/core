@@ -115,7 +115,7 @@ class HLS:
 
     def write_log(self, url, output):
         with open('/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt', 'a') as fp:
-            output['url'] = url
+            output.append = {'url':url}
             json.dumps(output, fp, indent=4)
             fp.write()
 
