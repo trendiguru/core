@@ -460,7 +460,10 @@ def lossplot(input_filename,netinfo='',logy=True):
     except:  #the curve_fit can sometimes fail
       e = sys.exc_info()[0]
       print("Error doing fit:{}".format(e))
-    miny = np.min(accuracy)*0.9
+    if len(accuracy)>0:
+      miny = np.min(accuracy)*0.9
+    else:
+      miny =  0
     ax2.set_ylim(miny,1)
 
 

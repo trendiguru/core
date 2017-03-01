@@ -92,6 +92,7 @@ class HLS:
                 if hydra_output:
                     item['details'] = hydra_output
         self.write_log(url,detected)
+        print detected
         return detected
 
 
@@ -114,9 +115,12 @@ class HLS:
 
 
     def write_log(self, url, output):
-        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt', 'a') as fp:
+        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
+        print('logging output to '+logfile)
+        out = {'output':output,'url':url}
+        with open(logfile, 'a') as fp:
            # output.append = {'url':url}
-            json.dumps(output, fp, indent=4)
+            json.dumps(out, fp, indent=4)
 #            fp.write()
 
 api = falcon.API()
