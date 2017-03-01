@@ -86,7 +86,7 @@ class Images(object):
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
-        print "ON_POST took {0} seconds".format(time.time()-start)
+        print "ON_POST v2 took {0} seconds".format(time.time()-start)
 
     def on_get(self, req, resp):
         ret = {}
