@@ -88,9 +88,10 @@ class HYDRA_TG:
 
     def write_log(self, url, output):
         with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
-            output['url'] = url
-            json.dumps(output, fp, indent=4)
-            fp.write()
+            out=output
+            out.append(url)
+            json.dumps(out, fp, indent=4)
+#            fp.write()
 #
 api = falcon.API()
 api.add_route('/hydra_tg/', HYDRA_TG())
