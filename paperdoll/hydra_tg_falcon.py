@@ -89,7 +89,7 @@ class HYDRA_TG:
     def write_log(self, url, output):
         with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
             out=output
-            out.append(url)
+            out['url']=url
             json.dumps(out, fp, indent=4)
 #            fp.write()
 #
