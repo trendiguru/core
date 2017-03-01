@@ -117,7 +117,7 @@ class HLS:
         with open('/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt', 'a') as fp:
            # output.append = {'url':url}
             json.dumps(output, fp, indent=4)
-            fp.write()
+#            fp.write()
 
 api = falcon.API()
 api.add_route('/hls/', HLS())
