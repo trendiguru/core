@@ -42,9 +42,9 @@ def find_dress_dlib(image, detector, max_num_of_faces=10):
     # faces.
     # can also put 0.
     if detector == 0.45:
-        dets = dress_detector_045(image, 1)
+        dets = dress_detector_045(image, 5)
     elif detector == 0.7:
-        dets = dress_detector_07(image, 1)
+        dets = dress_detector_07(image, 5)
 
     # print "image.shape: {0}".format(image.shape)
 
