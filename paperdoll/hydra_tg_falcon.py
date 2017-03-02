@@ -51,11 +51,10 @@ class HYDRA_TG:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                detected = self.detect(img_arr)
+                detected = self.detect(img_arr,url=image_url)  #url being sent for logging
                 self.write_log(image_url,detected)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
-                self.write_log(image_url,detected)
             except:
                 raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
@@ -77,10 +76,10 @@ class HYDRA_TG:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr):
+    def detect(self, img_arr,url=None):
         print('started hydra_falcon.detect')
         try:
-            detected = multilabel_from_hydra_tg.get_hydra_output(img_arr)
+            detected = multilabel_from_hydra_tg.get_hydra_output(img_arr,url=url)
         # get hydra results
         except:
             print("Unexpected error in hydra_falcon.detect:"+ str(sys.exc_info()[0]))

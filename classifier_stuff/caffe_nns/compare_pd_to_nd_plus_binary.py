@@ -10,6 +10,15 @@ import logging
 logging.basicConfig(level=logging.INFO)
 import json
 import re
+import os
+import cv2
+import numpy as np
+import logging
+import subprocess
+import sys
+import json
+from trendi.classifier_stuff.caffe_nns import conversion_utils
+import pdb
 
 from trendi.paperdoll import pd_falcon_client
 from trendi import constants#
