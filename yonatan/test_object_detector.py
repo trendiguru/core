@@ -109,7 +109,7 @@ def pad(array, reference, offsets):
     return result
 
 
-def theDetector(url_or_np_array, label=0):
+def detect(url_or_np_array, label=0):
 
     print "Starting the dress detector testing!"
     # check if i get a url (= string) or np.ndarray
@@ -158,6 +158,8 @@ def theDetector(url_or_np_array, label=0):
     print "dress detector 0.45!"
     dets = find_dress_dlib(full_image, 0.45)
 
+    print dets
+
     # dets2 = find_dress_dlib(rotate_image)
     # dets3 = find_dress_dlib(rotate_image2)
     # dets4 = find_dress_dlib(resized_image)
@@ -187,6 +189,7 @@ def theDetector(url_or_np_array, label=0):
 
     print "dress detector 0.7!"
     dets2 = find_dress_dlib(full_image, 0.7)
+    print dets2
     for d in dets2:
         if d.left() < 0:
             left = d.left() + 15
@@ -196,6 +199,11 @@ def theDetector(url_or_np_array, label=0):
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+
+    if dets or dets2:
+        print "found dat dress!"
+    else:
+        print "no dress today!"
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
