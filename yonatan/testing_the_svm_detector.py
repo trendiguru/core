@@ -21,7 +21,7 @@ db = pymongo.MongoClient('localhost', port=27017).mydb
 
 dict = db.irrelevant_images_distinct.find()
 
-results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/_results_irrelevant_db_images.txt", "w")
+results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/results_irrelevant_db_images.txt", "w")
 
 error_counter = 0
 face_image_counter = 0
