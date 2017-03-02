@@ -9,6 +9,7 @@ import numpy as np
 import logging
 logging.basicConfig(level=logging.INFO)
 import json
+import re
 
 from trendi.paperdoll import pd_falcon_client
 from trendi import constants#
@@ -161,6 +162,30 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
     with open(textfile,'a') as file_pointer:
         json.dump(imagelevel_dict,file_pointer,indent=4)
         file_pointer.close()
+
+def convert_nd_results_to_fashionista(nd_results,labels=constants.fashionista_categories_augmented):
+    converted_results = np.zeros(len(labels))
+    # ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+    #                                 'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+    #                                 'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+    #                                 'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+    #                                 'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+    #                                 'pumps','wallet','bodysuit','loafers','hair','skin','face']
+    for item in nd_results:
+        n_matched = 0
+        for label in labels:
+            if label in item:
+                n_matched += 1
+#                i = [m.start() for m in re.finditer(label, item)]
+                i = labels.index(label)
+                converted_results[i] = nd_results[item]
+                print('using {} as {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
+
+        if n_matched == 0 :
+            print('didnt get match for {}'.format(item))
+        elif n_matched > 1 :
+            print('got several matches for {}'.format(item))
+
 
 def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
                     labelsdir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_labels_fashionista_augmented_categories',

@@ -324,7 +324,13 @@ def fit_exp3(x, y_0,tau,y_inf):
   eps=10**-10
   x=x+eps
   tau=tau+eps
-  return (y_0-y_inf)*np.exp(np.divide(-x,tau)) + y_inf
+  try:
+    answer = (y_0-y_inf)*np.exp(np.divide(-x,tau)) + y_inf
+  except:
+    answer = 0
+    e = sys.exc_info()[0]
+    print e
+  return answer
 
 
 def fit_exp(x, k,a, b, x0):

@@ -8,6 +8,8 @@ nvidia-docker run -it -v /data:/data -p 8083:8083 --name hydra_tg eu.gcr.io/test
 import traceback
 import os
 import falcon
+import sys
+
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
 # print('current_dir is '+str(base_dir))
@@ -17,7 +19,7 @@ import numpy as np
 import requests
 from jaweson import json #, msgpack
 
-from trendi import multilabel_from_hydra
+from trendi import multilabel_from_hydra_tg
 
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
@@ -25,8 +27,7 @@ from trendi import multilabel_from_hydra
 
 print "Done with imports"
 
-HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hydra_tg"  #as opposed to hydra which is for the hls project
-
+#
 class HYDRA_TG:
     def __init__(self):
         print "Loaded Resource"
@@ -77,7 +78,7 @@ class HYDRA_TG:
     def detect(self, img_arr):
         print('started hydra_falcon.detect')
         try:
-            detected = multilabel_from_hydra.get_hydra_output(img_arr)
+            detected = multilabel_from_hydra_tg.get_hydra_output(img_arr)
         # get hydra results
         except:
             print("Unexpected error in hydra_falcon.detect:"+ str(sys.exc_info()[0]))
@@ -87,9 +88,10 @@ class HYDRA_TG:
 
     def write_log(self, url, output):
         with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
-            output['url'] = url
-            json.dumps(output, fp, indent=4)
-            fp.write()
+            out=output
+            out['url']=url
+            json.dumps(out, fp, indent=4)
+#            fp.write()
 #
 api = falcon.API()
 api.add_route('/hydra_tg/', HYDRA_TG())
