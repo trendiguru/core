@@ -109,7 +109,7 @@ def pad(array, reference, offsets):
     return result
 
 
-def theDetector(url_or_np_array, label=0):
+def detect(url_or_np_array, label=0):
 
     print "Starting the dress detector testing!"
     # check if i get a url (= string) or np.ndarray
@@ -182,7 +182,8 @@ def theDetector(url_or_np_array, label=0):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+    if dets:
+        print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
 
 
     print "dress detector 0.7!"
@@ -195,7 +196,13 @@ def theDetector(url_or_np_array, label=0):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+    if dets2:
+        print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+
+    if dets or dets2:
+        return True
+    else:
+        return False
 
     # if not dresses["are_dresses"]:
     #     print "didn't find any dresses"
