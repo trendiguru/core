@@ -237,7 +237,7 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
 #                i = [m.start() for m in re.finditer(label, item)]
                 i = new_labels.index(label)
                 converted_results[i] = hydra_results[item]
-                logging.debug('using {} as {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
+                print('using {} as {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
 
 
         if n_matched == 0 :
