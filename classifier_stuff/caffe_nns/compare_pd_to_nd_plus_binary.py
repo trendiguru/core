@@ -25,6 +25,13 @@ from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
 
 def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                         new_labels = constants.fashionista_categories_augmented):
+    '''
+    todo - use post instead of get to avoid url and send img_arr instead
+    :param image_file:
+    :param save_dir:
+    :param new_labels:
+    :return:
+    '''
     #use the api - so first get the image onto the web , then aim the api at it
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     print('copying file to webserver:'+copycmd)
@@ -56,9 +63,7 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     print('save result '+str(res)+ ' for file '+save_name)
     return converted_mask
 
-def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
-                        new_labels = constants.fashionista_categories_augmented):
-    #use the api - so first get the image onto the web , then aim the api at it
+def get_hydra_tg_results(image_file):
     copycmd = 'scp '+image_file+' root@104.155.22.95:/var/www/results/pd_test/'+os.path.basename(image_file)
     print('copying file to webserver:'+copycmd)
     subprocess.call(copycmd,shell=True)
@@ -66,12 +71,27 @@ def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
     resp = hydra_tg_falcon_client.hydra_tg(url)
     print('resp:'+str(resp))
-    label_dict = resp['label_dict']
-    mask = resp['mask']
+    if not 'data' in resp:
+        logging.warning('expected "data" in response '+str(resp))
+    data = resp['data']
+    return data
+
+
+def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
+                        new_labels = constants.fashionista_categories_augmented):
+    #use the api - so first get the image onto the web , then aim the api at it
+
+
     #label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
-    print label_dict
-    if len(mask.shape) == 3:
-        mask = mask[:,:,0]
+    hydra_multilabel_results = get_hydra_tg_results(image_file)
+    print('hydra_ml results:'+str(hydra_multilabel_results))
+    fashionista_results = label_conversions.hydra_results_to_fashionista(hydra_multilabel_results)
+    print('converted results:'+str(fashionista_results))
+    print fashionista_results
+    img_arr = cv2.imread(image_file)
+    nd_mask = neurodoll_falcon_client.nd(img_arr)
+    if len(nd_mask.shape) == 3:
+        mask = nd_mask[:,:,0]
     logging.debug('bincount before conclusions:'+str(np.bincount(mask.flatten())))
     #see https://github.com/trendiguru/tg_storm/blob/master/src/bolts/person.#py, hopefully this is ok without the face
 #    final_mask = pipeline.after_pd_conclusions(mask, label_dict, person['face'])
@@ -163,28 +183,6 @@ def all_pd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize
         json.dump(imagelevel_dict,file_pointer,indent=4)
         file_pointer.close()
 
-def convert_nd_results_to_fashionista(nd_results,labels=constants.fashionista_categories_augmented):
-    converted_results = np.zeros(len(labels))
-    # ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
-    #                                 'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
-    #                                 'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
-    #                                 'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
-    #                                 'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
-    #                                 'pumps','wallet','bodysuit','loafers','hair','skin','face']
-    for item in nd_results:
-        n_matched = 0
-        for label in labels:
-            if label in item:
-                n_matched += 1
-#                i = [m.start() for m in re.finditer(label, item)]
-                i = labels.index(label)
-                converted_results[i] = nd_results[item]
-                print('using {} as {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
-
-        if n_matched == 0 :
-            print('didnt get match for {}'.format(item))
-        elif n_matched > 1 :
-            print('got several matches for {}'.format(item))
 
 
 def all_nd_results(filedir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test',
