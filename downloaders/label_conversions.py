@@ -217,11 +217,13 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
     #                                 'pumps','wallet','bodysuit','loafers','hair','skin','face']
     for item in hydra_results:
         n_matched = 0
+        logging.debug('item '+str(item))
         for label in new_labels:
+            logging.debug('label '+str(label))
             if label == '':
                 continue
             if label in item:
-                pdb.set_trace()
+              #  pdb.set_trace()
                 n_matched += 1
 #                i = [m.start() for m in re.finditer(label, item)]
                 i = new_labels.index(label)
