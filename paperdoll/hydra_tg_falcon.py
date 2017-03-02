@@ -55,6 +55,7 @@ class HYDRA_TG:
                 self.write_log(image_url,detected)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
+                self.write_log(image_url,detected)
             except:
                 raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
@@ -88,7 +89,7 @@ class HYDRA_TG:
 
 
     def write_log(self, url, output):
-        with open('/data/jeremy/caffenets/hydra/production/hydra/logged_output.txt', 'a') as fp:
+        with open('/data/jeremy/caffenets/hydra/production/hydra/tg_logged_output.txt', 'a+') as fp: #a+ not a to create if file doesnt exist
             out=output
             out['url']=url
             json.dumps(out, fp, indent=4)

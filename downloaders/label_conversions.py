@@ -200,6 +200,35 @@ def convert_pd_output(mask, label_names, new_labels=constants.fashionista_catego
   #  print('bincount:'+str(np.bincount(new_mask.flatten())))
     return new_mask
 
+def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_categories_augmented):
+    '''
+    warning tested only on new_labels = fashionista_categories_augmented
+    :param hydra_results:
+    :param output_labels:
+    :return:
+    '''
+    converted_results = np.zeros(len(new_labels))
+    # ['','null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
+    #                                 'boots','blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings',
+    #                                 'scarf','hat','top','cardigan','accessories','vest','sunglasses','belt','socks','glasses',
+    #                                 'intimate','stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges',
+    #                                 'ring','flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch',
+    #                                 'pumps','wallet','bodysuit','loafers','hair','skin','face']
+    for item in hydra_results:
+        n_matched = 0
+        for label in new_labels:
+            if label in item:
+                n_matched += 1
+#                i = [m.start() for m in re.finditer(label, item)]
+                i = new_labels.index(label)
+                converted_results[i] = hydra_results[item]
+                logging.debug('using {} as {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
+
+        if n_matched == 0 :
+            logging.warning('didnt get match for {}'.format(item))
+
+        elif n_matched > 1 :
+            logging.warning('got several matches for {}'.format(item))
 
 
 if __name__=="__main__":
