@@ -27,7 +27,7 @@ print('loading net for multilabel_from_hydra_hls.py')
 
 model_and_proto = constants.hydra_tg_caffemodel_and_proto
 caffe.set_mode_gpu()
-gpu = 3
+gpu = 1
 caffe.set_device(gpu)
 caffemodel = model_and_proto[0]
 deployproto = model_and_proto[1]
