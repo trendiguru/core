@@ -47,6 +47,7 @@ class HYDRA_TG:
             print('get request didnt specify a url:'+str(req))
             raise falcon.HTTPMissingParam("imageUrl")
         else:
+            print('hydra_tg falcon on_get got url '+image_url)
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)

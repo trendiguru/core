@@ -17,6 +17,7 @@ def hydra_tg(image_arrary_or_url):
 #    resp = requests.get(CLASSIFIER_ADDRESS, dumped_data)
     resp = requests.get(CLASSIFIER_ADDRESS, data)
     if  200 <= resp.status_code < 300:
-        return msgpack.loads(resp.content)
+        return json.loads(resp.content)
+#        return msgpack.loads(resp.content)
     else:
         raise Exception('hydra_tg failed, abort', resp.content)
