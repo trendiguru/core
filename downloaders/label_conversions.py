@@ -218,6 +218,8 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
     for item in hydra_results:
         n_matched = 0
         for label in new_labels:
+            if label == '':
+                continue
             if label in item:
                 pdb.set_trace()
                 n_matched += 1
