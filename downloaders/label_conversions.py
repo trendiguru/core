@@ -231,7 +231,9 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
                 (label=='shirt' and 'top' in item) or \
                 (label=='intimate' and 'lingerie' in item) or \
                 (label=='purse' and 'bag' in item)) and not \
-                (label=='shirt' and 't-shirt' in item):
+                ((label=='shirt' and 't-shirt' in item) or \
+                (label=='suit' and 'tracksuit' in item) or \
+                 (label=='shirt' and 'sweatshirt' in item)) :
               #  pdb.set_trace()
                 n_matched += 1
 #                i = [m.start() for m in re.finditer(label, item)]
@@ -246,6 +248,10 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
         elif n_matched > 1 :
             logging.warning('got several matches for {}'.format(item))
 
+    print('converted results:'+str(converted_results))
+    for i in range(len(converted_results)):
+        print('result {}:{} cat {}'.format(i,converted_results[i],new_labels[i]))
+    return converted_results
 
 if __name__=="__main__":
 
