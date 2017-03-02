@@ -15,7 +15,6 @@ import sys
 import hashlib
 import time
 
-
 from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
@@ -23,7 +22,6 @@ from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi.paperdoll import neurodoll_falcon_client as nfc
-
 
 #REQUIREMENTS FOR THIS TO RUN
 #These files have to exist

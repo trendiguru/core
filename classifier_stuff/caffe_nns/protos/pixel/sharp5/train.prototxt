@@ -1,4 +1,4 @@
-name: "pixlevel-sharp5"
+name: "pixlevel_v3labels-sharp5"
 
 layer {
     name: "data"

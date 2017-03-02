@@ -64,7 +64,6 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
 #could also have used   get_pd_results_on_db_for_webtool.convert_and_save_results
     logging.debug('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
-
     print('save dir:'+save_dir)
     image_base = os.path.basename(image_file)
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
@@ -99,6 +98,10 @@ def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     fashionista_results = label_conversions.hydra_results_to_fashionista(hydra_multilabel_results)
     print('converted results:'+str(fashionista_results))
     print fashionista_results
+
+    u21_results = label_conversions.hydra_results_to_fashionista(hydra_multilabel_results,label_conversions=constants.ultimate_21)
+    print('u21 results'+str(u21_results))
+
     img_arr = cv2.imread(image_file)
     nd_mask = neurodoll_falcon_client.nd(img_arr)
     if len(nd_mask.shape) == 3:
