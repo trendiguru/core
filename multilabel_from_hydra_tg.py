@@ -49,6 +49,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     :param mean:
     :return:
     '''
+    detection_thresholds = None
     start_time = time.time()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
