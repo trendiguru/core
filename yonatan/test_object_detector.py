@@ -183,7 +183,7 @@ def detect(url_or_np_array, label=0):
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     if dets:
-        print cv2.imwrite("/data/yonatan/linked_to_web/smv_irrelevant_test/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+        print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
 
 
     print "dress detector 0.7!"
@@ -197,7 +197,7 @@ def detect(url_or_np_array, label=0):
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     if dets2:
-        print cv2.imwrite("/data/yonatan/linked_to_web/smv_irrelevant_test/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+        print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
 
     if dets or dets2:
         return True
