@@ -8,6 +8,7 @@ import subprocess
 import sys
 import json
 from trendi.classifier_stuff.caffe_nns import conversion_utils
+import pdb
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -218,6 +219,7 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
         n_matched = 0
         for label in new_labels:
             if label in item:
+                pdb.set_trace()
                 n_matched += 1
 #                i = [m.start() for m in re.finditer(label, item)]
                 i = new_labels.index(label)
