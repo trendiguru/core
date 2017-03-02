@@ -223,8 +223,7 @@ def hydra_results_to_fashionista(hydra_results,new_labels=constants.fashionista_
             if label == '':
                 continue
 
-            if label in item or
-                (label=='shoes' and 'footwear' in item) or
+            if label in item or (label=='shoes' and 'footwear' in item) or
                 (label=='tights' and 'leggings' in item) or a
                 (label=='purse' and 'bag' in item) or
                 (label=='bra' and 'lingerie' in item) or
