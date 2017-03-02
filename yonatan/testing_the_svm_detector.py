@@ -1,19 +1,9 @@
 #!/usr/bin/env python
 
 import numpy as np
-import os
-import caffe
-from trendi import background_removal, Utils, constants
 import cv2
-import sys
-import argparse
-import glob
-import time
-import urllib
 import requests
-import dlib
 import pymongo
-
 from trendi.yonatan import test_object_detector, preparing_data_from_db
 
 
@@ -33,9 +23,10 @@ dict = db.irrelevant_images_distinct.find()
 
 results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/_results_irrelevant_db_images.txt", "w")
 
-counter = 0
 error_counter = 0
 face_image_counter = 0
+found_dress_counter = 0
+no_dress_counter = 0
 
 for i in range(1, dict.count()):
 
@@ -73,18 +64,18 @@ for i in range(1, dict.count()):
         face_image_counter += 1
         continue
 
-    test_object_detector.detect(full_image, counter)
+    if test_object_detector.detect(full_image, found_dress_counter):
+        found_dress_counter += 1
+    else:
+        no_dress_counter += 1
+
+    total = error_counter + face_image_counter + found_dress_counter + no_dress_counter
+    added_images = found_dress_counter / float(total)
+    print "error_counter = {0}, face_image_counter = {1}, found_dress_counter = {2}, no_dress_counter = {3}\ntotal = {4}, added_images = {5}".format(error_counter, face_image_counter, found_dress_counter, no_dress_counter, total, added_images)
 
 
 
+results_text_file.write("error_counter = " + str(error_counter) + ", face_image_counter = " + str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) + ", no_dress_counter = " + str(no_dress_counter) + "\ntotal = " + str(total) + ", added_images = " + str(added_images))
 
-    print counter
 
-
-    counter += 1
-
-results_text_file.write(working_path + '/' + image_file_name + ' ' + str(value[1]) + '\n')
-
-print "number of bad images: {0}".format(i - counter)
-
-# text_file.flush()
+results_text_file.flush()
