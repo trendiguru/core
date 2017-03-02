@@ -71,11 +71,10 @@ for i in range(1, dict.count()):
 
     total = error_counter + face_image_counter + found_dress_counter + no_dress_counter
     added_images = found_dress_counter / float(total)
-    print "error_counter = {0}, face_image_counter = {1}, found_dress_counter = {2}, no_dress_counter = {3}\ntotal = {4}, added_images = {5}".format(error_counter, face_image_counter, found_dress_counter, no_dress_counter, total, added_images)
+    print "error_counter = {0}, face_image_counter = {1}, found_dress_counter = {2}, no_dress_counter = {3}\ntotal = {4}, added_images_percent = {5}".format(error_counter, face_image_counter, found_dress_counter, no_dress_counter, total, added_images)
 
 
-
-results_text_file.write("error_counter = " + str(error_counter) + ", face_image_counter = " + str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) + ", no_dress_counter = " + str(no_dress_counter) + "\ntotal = " + str(total) + ", added_images = " + str(added_images))
+results_text_file.write("error_counter = " + str(error_counter) + ", face_image_counter = " + str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) + ", no_dress_counter = " + str(no_dress_counter) + "\ntotal = " + str(total) + ", added_images_percent = " + str(added_images))
 
 
 results_text_file.flush()
