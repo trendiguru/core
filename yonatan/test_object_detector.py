@@ -131,16 +131,16 @@ def detect(url_or_np_array, label=0):
 
     # faces = background_removal.find_face_dlib(full_image)
 
-    x, y, z = full_image.shape
-    print (x, y, z)
-    new_x = x + 30
-    new_y = y + 30
+    h, w, d = full_image.shape
+    print (h, w, d)
+    new_h = h + 30
+    new_w = w + 30
 
-    padded_image = np.zeros((new_x, new_y, z))
+    padded_image = np.zeros((new_h, new_w, d))
     print padded_image.shape
-    x_offset = 15
-    y_offset = 15
-    padded_image[x_offset:x + x_offset, y_offset:y + y_offset, :] = full_image
+    h_offset = 15
+    w_offset = 15
+    padded_image[h_offset:h + h_offset, w_offset:w + w_offset, :] = full_image
 
     padded_image2 = padded_image.copy()
 
@@ -179,7 +179,14 @@ def detect(url_or_np_array, label=0):
             left = d.left() + 15
         else:
             left = d.left()
-        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
+
+        width = d.right()-left
+        height = d.bottom()-d.top()
+
+        if height < 0.25 * h:
+            return False
+
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     if dets:
@@ -193,7 +200,14 @@ def detect(url_or_np_array, label=0):
             left = d.left() + 15
         else:
             left = d.left()
-        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), d.right()-left, d.bottom()-d.top())
+
+        width = d.right() - left
+        height = d.bottom() - d.top()
+
+        if height < 0.25 * h:
+            return False
+
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     if dets2:
