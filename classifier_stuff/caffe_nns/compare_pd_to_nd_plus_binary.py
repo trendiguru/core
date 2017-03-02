@@ -78,7 +78,7 @@ def get_hydra_tg_results(image_file):
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
     url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
-    resp = hydra_tg_falcon_client.hydra_tg(url)
+    resp = hydra_tg_falcon_client.hydra_tg(url,thresholds=None)
     print('resp:'+str(resp))
     if not 'data' in resp:
         logging.warning('expected "data" in response '+str(resp))

@@ -27,7 +27,7 @@ print('loading net for multilabel_from_hydra_hls.py')
 
 model_and_proto = constants.hydra_tg_caffemodel_and_proto
 caffe.set_mode_gpu()
-gpu = 1
+gpu = 3
 caffe.set_device(gpu)
 caffemodel = model_and_proto[0]
 deployproto = model_and_proto[1]
@@ -91,7 +91,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         second_neuron = round(float(second_neuron),3)
   #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
-        if second_neuron > detection_thresholds[i]:
+        if detection_thresholds and second_neuron > detection_thresholds[i]:
             out[name]=second_neuron
             print('{} is past threshold {} for category {} {}'.format(second_neuron,detection_thresholds[i],i,name))
         logging.debug('output for {} {} is {}'.format(output_layer,name,second_neuron))

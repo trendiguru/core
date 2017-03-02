@@ -10,10 +10,10 @@ import json
 # CLASSIFIER_ADDRESS = "http://159.8.222.7:8083/pd" # brainik80c RIP
 CLASSIFIER_ADDRESS = constants.HYDRA_TG_CLASSIFIER_ADDRESS #"13.82.136.127:8083/hydra_tg"
 
-def hydra_tg(image_arrary_or_url):
+def hydra_tg(image_arrary_or_url,thresholds=constants.hydra_tg_thresholds):
    # data = msgpack.dumps({"image": image_arrary_or_url})
-    data = {"imageUrl": image_arrary_or_url}
-    dumped_data = json.dumps({"imageUrl": image_arrary_or_url})
+    data = {"imageUrl": image_arrary_or_url,"thresholds":thresholds}
+#    dumped_data = json.dumps({"imageUrl": image_arrary_or_url})
 #    resp = requests.get(CLASSIFIER_ADDRESS, dumped_data)
     resp = requests.get(CLASSIFIER_ADDRESS, data)
     if  200 <= resp.status_code < 300:

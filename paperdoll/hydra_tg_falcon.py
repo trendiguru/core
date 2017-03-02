@@ -49,6 +49,7 @@ class HYDRA_TG:
         else:
             print('hydra_tg falcon on_get got url '+image_url)
             try:
+#                thresholds =  req.get_param("thresholds")
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
                 detected = self.detect(img_arr,url=image_url)  #url being sent for logging
