@@ -263,12 +263,12 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
 detector = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector.save('/data/detector_0.45.svm')
+detector.save('/data/detector_0.45_C_40.svm')
 print "Done saving!"
 
 detector2 = dlib.train_simple_object_detector(images_new2, boxes_new2, options)
 print "Done training!"
-detector2.save('/data/detector_0.7.svm')
+detector2.save('/data/detector_0.7_C_40.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
