@@ -94,7 +94,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         name = output_names[i]
         if detection_thresholds is None:
             out[name]=second_neuron
-            print('{} is past threshold {} for category {} {}'.format(second_neuron,detection_thresholds[i],i,name))
+            print('{} for category {} {}'.format(second_neuron,i,name))
         elif second_neuron > detection_thresholds[i]:
             out[name]=second_neuron
             print('{} is past threshold {} for category {} {}'.format(second_neuron,detection_thresholds[i],i,name))
