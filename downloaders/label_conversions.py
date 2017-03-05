@@ -268,7 +268,7 @@ def hydra_to_u21(hydra_results):
             if label == '':
                 continue
 
-            if (label in item or (label=='shoes' and 'footwear' in item)):
+            if (label in item or (label=='shoe' and 'footwear' in item)):
               #  pdb.set_trace()
                 n_matched += 1
 #                i = [m.start() for m in re.finditer(label, item)]
