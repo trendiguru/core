@@ -87,11 +87,10 @@ def get_hydra_tg_results(image_file):
     return data
 
 
+
 def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                         new_labels = constants.fashionista_categories_augmented):
     #use the api - so first get the image onto the web , then aim the api at it
-
-
     #label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
     hydra_multilabel_results = get_hydra_tg_results(image_file)
     print('hydra_ml results:'+str(hydra_multilabel_results))
@@ -469,6 +468,9 @@ def results_to_html(outfilename,results_dict):
         f.write('fwavacc:'+ str(fwavacc)+'\n')
         f.write('<br>\n')
         f.write('<br>\n')
+
+
+
 
 
 
