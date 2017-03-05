@@ -14,6 +14,7 @@ import urllib
 import sys
 import hashlib
 import time
+import pdb
 
 from trendi import constants
 from trendi.utils import imutils
@@ -1344,19 +1345,19 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 
     return final_mask
 
-def combine_neurodoll_v3labels_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_as_u21,multilabel_threshold=0.7,median_factor=1.0,
-                                     multilabel_labels=constants.binary_classifier_categories, face=None,
-                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
-                                     do_graylevel_zeroing=True):
+def combine_neurodoll_v3labels_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_as_u21,multilabel_threshold=0.7,
+                                     median_factor=1.0,multilabel_labels=constants.ultimate_21,
+                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=True):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
     multilabel_labels=constants.web_tool_categories    , or
     multilabel_labels=constants.binary_classifier_categories
-
     multilabel - this should be in a form that the converter can deal with
     '''
+
+    pdb.set_trace()
 
     print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
 #
