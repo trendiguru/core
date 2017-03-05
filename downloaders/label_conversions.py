@@ -258,8 +258,8 @@ def hydra_to_u21(hydra_results):
     # 'bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
     #            'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
     #            'top'
-    converted_results = np.zeros(len(new_labels))
     new_labels = constants.ultimate_21
+    converted_results = np.zeros(len(new_labels))
     for item in hydra_results:
         n_matched = 0
         logging.debug('item '+str(item))
