@@ -67,7 +67,7 @@ def show_all_params(proto,caffemodel,filter='',gpu=0):
     print all params
     '''
     print('starting show_all_params')
-    pdb.set_trace()
+  #  pdb.set_trace()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
