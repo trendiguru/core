@@ -61,7 +61,7 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
             else:
                 n_false_neg += 1
         print('true pos {} false neg {} approx.acc {}'.format(n_true_pos,n_false_neg,float(n_true_pos/(n_true_pos+n_false_neg))))
-
+#
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
     print all params
