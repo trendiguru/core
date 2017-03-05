@@ -25,7 +25,7 @@ import json
 import os
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
-
+import pdb
 def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel',gpu=0):
     #pants, shirt, dress
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
@@ -66,12 +66,15 @@ def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
     print all params
     '''
-
+    print('starting show_all_params')
+    pdb.set_trace()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    print('starting show_all_params')
     all_params = [p for p in net.params if filter in p]
+    print('starting show_all_params')
 
     print('showing params ')
     print('all params in net1:'+str(all_params))
