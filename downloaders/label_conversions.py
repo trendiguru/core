@@ -258,11 +258,8 @@ def hydra_to_u21(hydra_results):
     # 'bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
     #            'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
     #            'top'
+    converted_results = np.zeros(len(new_labels))
     new_labels = constants.ultimate_21
-    converted_results = [None for i in range(len((new_labels)))]
-    for item in hydra_results:
-    n_matched = 0
-    logging.debug('item '+str(item))
     for item in hydra_results:
         n_matched = 0
         logging.debug('item '+str(item))
@@ -271,14 +268,13 @@ def hydra_to_u21(hydra_results):
             if label == '':
                 continue
 
-            if (label in item or (label=='shoe' and 'footwear' in item)):
+            if (label in item or (label=='shoes' and 'footwear' in item)):
               #  pdb.set_trace()
                 n_matched += 1
-    #                i = [m.start() for m in re.finditer(label, item)]
+#                i = [m.start() for m in re.finditer(label, item)]
                 i = new_labels.index(label)
                 converted_results[i] = hydra_results[item]
                 print('using {} for {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
-
 
         if n_matched == 0 :
             logging.warning('didnt get match for {}'.format(item))
