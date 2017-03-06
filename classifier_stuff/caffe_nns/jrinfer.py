@@ -23,10 +23,10 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def refibulate(url_file_or_img_arr,dims,mean):
+def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     # load image in cv2 (so already BGR), resize, subtract mean, reorder dims to C x H x W for Caffe
     if isinstance(url_file_or_img_arr,basestring):
-        print('working on:'+url_file_or_img_arr)
+        print('working on:'+url_file_or_img_arr+' resize:'+str(dims)+' mean:'+str(mean))
     im = Utils.get_cv2_img_array(url_file_or_img_arr)
     if im is None:
         logging.warning('could not get image '+str(url_file_or_img_arr))
