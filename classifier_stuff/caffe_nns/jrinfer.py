@@ -63,7 +63,7 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
         net.blobs['data'].data[...] = in_
         # run net and take argmax for prediction
         net.forward()
-        out = net.blobs['score'].data[0].argmax(axis=0)
+        out = net.blobs[output_layer].data[0].argmax(axis=0)
         result = Image.fromarray(out.astype(np.uint8))
     #        outname = im.strip('.png')[0]+'out.bmp'
         outname = os.path.basename(imagename)
