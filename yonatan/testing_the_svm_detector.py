@@ -33,7 +33,7 @@ for i in range(1, len(irrelevant_dictionary)):
 
     full_image = functions.url_to_np_array(link_to_image)
 
-    if not full_image:
+    if full_image is None:
         error_counter += 1
         continue
 

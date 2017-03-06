@@ -18,11 +18,11 @@ def url_to_np_array(url_or_np_array):
             image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
         except:
             print "couldn't open link"
-            return False
+            return None
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
     else:
-        return False
+        return None
 
     return image
 
