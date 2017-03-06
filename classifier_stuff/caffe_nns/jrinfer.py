@@ -23,7 +23,9 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def infer_many_pixlevel(images,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7)):
+def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7)):
+    images = os.listdir(image_dir)
+    print(str(len(images))+' images in '+image_dir)
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
     start_time = time.time()
     masks=[]
