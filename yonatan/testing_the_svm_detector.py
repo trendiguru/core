@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import numpy as np
-import cv2
-import requests
 import pymongo
-from trendi.yonatan import test_object_detector, preparing_data_from_db
+from trendi.yonatan import test_object_detector, functions
 
-
-# if i run this function on braini2:
-# db = constants.db
 
 # if i run this function on brainik80a:
 # db = pymongo.MongoClient().mydb
@@ -19,48 +13,34 @@ db = pymongo.MongoClient('localhost', port=27017).mydb
 # else:
 # db = constants.db
 
-dict = db.irrelevant_images_distinct.find()
+# irrelevant_dictionary = db.irrelevant_images_distinct.find()
+irrelevant_dictionary = db.irrelevant_images_distinct.aggregate([{ "$sample": { "size": 5000} }])
 
-results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/results_irrelevant_db_images.txt", "w")
+results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/results_irrelevant_db.txt", "w")
 
 error_counter = 0
 face_image_counter = 0
 found_dress_counter = 0
 no_dress_counter = 0
 
-for i in range(1, dict.count()):
+
+for i in range(1, irrelevant_dictionary.count()):
 
     # if i % 10 != 0:
     #     continue
 
-    link_to_image = dict[i]['image_urls'][0]
+    link_to_image = irrelevant_dictionary[i]['image_urls'][0]
 
-    # check if i get a url (= string) or np.ndarray
-    if isinstance(link_to_image, basestring):
-        # full_image = url_to_image(url_or_np_array)
-        try:
-            response = requests.get(link_to_image, timeout=10)  # download
-            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-        except:
-            print "couldn't open link"
-            error_counter += 1
-            continue
-    elif type(link_to_image) == np.ndarray:
-        full_image = link_to_image
-    else:
+    full_image = functions.url_to_np_array(link_to_image)
+
+    if not full_image:
         error_counter += 1
         continue
 
-    # checks if the face coordinates are inside the image
-    if full_image is None:
-        print "not a good image"
-        error_counter += 1
-        continue
+    # check if there's faces in the image
+    is_there_faces = functions.find_face_dlib(full_image)
 
-    # # if there's a head, cut it off
-    faces = preparing_data_from_db.find_face_dlib(full_image)
-
-    if faces["are_faces"]:
+    if is_there_faces["are_faces"]:
         face_image_counter += 1
         continue
 
@@ -71,10 +51,14 @@ for i in range(1, dict.count()):
 
     total = error_counter + face_image_counter + found_dress_counter + no_dress_counter
     added_images = found_dress_counter / float(total)
-    print "error_counter = {0}, face_image_counter = {1}, found_dress_counter = {2}, no_dress_counter = {3}\ntotal = {4}, added_images_percent = {5}".format(error_counter, face_image_counter, found_dress_counter, no_dress_counter, total, added_images)
+    print "error_counter = {0}, face_image_counter = {1}, found_dress_counter = {2}, no_dress_counter = {3}\n" \
+          "total = {4}, added_images_percent = {5}".format(error_counter, face_image_counter, found_dress_counter,
+                                                           no_dress_counter, total, added_images)
 
-
-results_text_file.write("error_counter = " + str(error_counter) + ", face_image_counter = " + str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) + ", no_dress_counter = " + str(no_dress_counter) + "\ntotal = " + str(total) + ", added_images_percent = " + str(added_images))
+    results_text_file.write("svm_045 - C = 20, svm_07 - C = 20\nerror_counter = " + str(error_counter) + ", face_image_counter = " +
+                            str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) +
+                            ", no_dress_counter = " + str(no_dress_counter) + ", total = " + str(total) +
+                            ", added_images_percent = " + str(added_images) + "\n")
 
 
 results_text_file.flush()
