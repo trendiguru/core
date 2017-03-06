@@ -83,7 +83,7 @@ def detect(url_or_np_array, label=0):
 
     full_image = functions.url_to_np_array(url_or_np_array)
 
-    if not full_image:
+    if full_image is None:
         return None
 
 
