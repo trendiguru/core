@@ -23,9 +23,8 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
+def infer_many_pixlevel(images,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7)):
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
-    dims = [150,100]
     start_time = time.time()
     masks=[]
     Utils.ensure_dir(out_dir)
@@ -43,7 +42,7 @@ def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
             continue
         print('size:'+str(in_.shape))
         in_ = in_[:,:,::-1]
-        in_ -= np.array((104.0,116.7,122.7))
+        in_ -= np.array(mean)
         in_ = in_.transpose((2,0,1))
         # shape for input (data blob is N x C x H x W), set data
         net.blobs['data'].reshape(1, *in_.shape)
