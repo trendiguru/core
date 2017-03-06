@@ -64,12 +64,12 @@ def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob'):
+def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob',mean=(104.0,116.7,122.7)):
     if caffe_variant == None:
         import caffe
     else:
         pass
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
 #    dims = [150,100] default for something??
     start_time = time.time()
     print('working on:'+imagename)
@@ -85,7 +85,7 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
         return
     print('shape before:'+str(in_.shape))
     in_ = in_[:,:,::-1]
-    in_ -= np.array((104.0,116.7,122.7))
+    in_ -= np.array(mean)
     in_ = in_.transpose((2,0,1))
     print('shape after:'+str(in_.shape))
     # shape for input (data blob is N x C x H x W), set data
