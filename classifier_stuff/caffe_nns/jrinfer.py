@@ -31,7 +31,7 @@ def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     if im is None:
         logging.warning('could not get image '+str(url_file_or_img_arr))
         return
-    im = imutils.resize_keep_aspect(im,dims)
+    im = imutils.resize_keep_aspect(im,output_size=dims)
 #    im = cv2.resize(im,dims)
     in_ = np.array(im, dtype=np.float32)
     if len(in_.shape) != 3:
