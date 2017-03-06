@@ -84,9 +84,9 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
     print('shape before:'+str(in_.shape))
-    in_ = in_[:,:,::-1]
+    in_ = in_[:,:,::-1]  #rgb-bgr
     in_ -= np.array(mean)
-    in_ = in_.transpose((2,0,1))
+    in_ = in_.transpose((2,0,1))  #whc -> cwh
     print('shape after:'+str(in_.shape))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
