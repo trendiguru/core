@@ -23,7 +23,30 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg'):
+def refibulate(url_file_or_img_arr,dims,mean):
+    # load image in cv2 (so already BGR), resize, subtract mean, reorder dims to C x H x W for Caffe
+    if isinstance(url_file_or_img_arr,basestring):
+        print('working on:'+url_file_or_img_arr)
+    im = Utils.get_cv2_img_array(url_file_or_img_arr)
+    if im is None:
+        logging.warning('could not get image '+str(url_file_or_img_arr))
+        return
+    im = imutils.resize_keep_aspect(im,dims)
+#    im = cv2.resize(im,dims)
+    in_ = np.array(im, dtype=np.float32)
+    if len(in_.shape) != 3:
+        print('got 1-chan image, skipping')
+        return
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+    print('shape before:'+str(in_.shape))
+ #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
+    in_ -= np.array(mean)
+    in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
+    return in_
+
+def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg',dims=(224,224)):
     images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
     print(str(len(images))+' images in '+image_dir)
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
@@ -33,20 +56,8 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        im = Image.open(imagename)
-#        im = im.resize(dims,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        if len(in_.shape) != 3:
-            print('got 1-chan image, skipping')
-            continue
-        elif in_.shape[2] != 3:
-            print('got n-chan image, skipping - shape:'+str(in_.shape))
-            continue
-        print('size:'+str(in_.shape))
-        in_ = in_[:,:,::-1]
-        in_ -= np.array(mean)
-        in_ = in_.transpose((2,0,1))
-        # shape for input (data blob is N x C x H x W), set data
+        in_ = refibulate(imagename,dims=dims,mean=mean)
+
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
         # run net and take argmax for prediction
