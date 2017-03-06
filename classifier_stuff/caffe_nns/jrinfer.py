@@ -46,7 +46,8 @@ def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
     return in_
 
-def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg',dims=(224,224)):
+def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg',
+                        dims=(224,224),output_layer='pixlevel_sigmoid_output'):
     images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
     print(str(len(images))+' images in '+image_dir)
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
