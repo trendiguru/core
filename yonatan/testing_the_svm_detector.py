@@ -14,7 +14,7 @@ db = pymongo.MongoClient('localhost', port=27017).mydb
 # db = constants.db
 
 # irrelevant_dictionary = db.irrelevant_images_distinct.find()
-irrelevant_dictionary = db.irrelevant_images_distinct.aggregate([{ "$sample": { "size": 5000} }])
+irrelevant_dictionary = list(db.irrelevant_images_distinct.aggregate([{ "$sample": { "size": 5000} }]))
 
 results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/results_irrelevant_db.txt", "w")
 
@@ -24,7 +24,7 @@ found_dress_counter = 0
 no_dress_counter = 0
 
 
-for i in range(1, irrelevant_dictionary.count()):
+for i in range(1, len(irrelevant_dictionary)):
 
     # if i % 10 != 0:
     #     continue
