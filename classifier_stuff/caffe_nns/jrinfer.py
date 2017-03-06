@@ -47,7 +47,7 @@ def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     return in_
 
 def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg',
-                        dims=(224,224),output_layer='pixlevel_sigmoid_output'):
+                        dims=(224,224),output_layer='pixlevel_sigmoid_output',save_legends=True,labels=constants.pixlevel_categories_v3):
     images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
     print(str(len(images))+' images in '+image_dir)
     net = caffe.Net(prototxt,caffemodel, caffe.TEST)
@@ -64,14 +64,18 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
         # run net and take argmax for prediction
         net.forward()
         out = net.blobs[output_layer].data[0].argmax(axis=0)
-        result = Image.fromarray(out.astype(np.uint8))
+
+#        result = Image.fromarray(out.astype(np.uint8))
     #        outname = im.strip('.png')[0]+'out.bmp'
+        result = out.astype(np.uint8)
         outname = os.path.basename(imagename)
         outname = outname.split('.jpg')[0]+'.bmp'
         outname = os.path.join(out_dir,outname)
         print('outname:'+outname)
-        result.save(outname)
+        cv2.imwrite(outname,result)
+#        result.save(outname)
         masks.append(out.astype(np.uint8))
+        imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
     return masks
