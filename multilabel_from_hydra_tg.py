@@ -49,6 +49,7 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
     :param mean:
     :return:
     '''
+    detection_thresholds = None
     start_time = time.time()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
@@ -91,7 +92,10 @@ def get_hydra_output(url_or_image_arr,out_dir='./',orig_size=(256,256),crop_size
         second_neuron = round(float(second_neuron),3)
   #      print('type:'+str(type(second_neuron)))
         name = output_names[i]
-        if second_neuron > detection_thresholds[i]:
+        if detection_thresholds is None:
+            out[name]=second_neuron
+            print('{} for category {} {}'.format(second_neuron,i,name))
+        elif second_neuron > detection_thresholds[i]:
             out[name]=second_neuron
             print('{} is past threshold {} for category {} {}'.format(second_neuron,detection_thresholds[i],i,name))
         logging.debug('output for {} {} is {}'.format(output_layer,name,second_neuron))

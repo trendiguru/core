@@ -1,4 +1,4 @@
-name: "pixlevel-sharp5"
+name: "pixlevel_v3labels-sharp5"
 
 layer {
   name: "data"
@@ -2531,7 +2531,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 21
+    num_output: 16
     pad: 1
     kernel_size: 3
     stride: 1

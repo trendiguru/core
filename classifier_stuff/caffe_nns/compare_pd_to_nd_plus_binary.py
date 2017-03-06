@@ -64,7 +64,6 @@ def get_live_pd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/
     converted_mask = label_conversions.convert_pd_output(final_mask, label_dict, new_labels=new_labels)
 #could also have used   get_pd_results_on_db_for_webtool.convert_and_save_results
     logging.debug('bincount after conversion:'+str(np.bincount(converted_mask.flatten())))
-
     print('save dir:'+save_dir)
     image_base = os.path.basename(image_file)
     save_name = os.path.join(save_dir,image_base[:-4]+'_pd.bmp')
@@ -78,6 +77,8 @@ def get_hydra_tg_results(image_file):
     subprocess.call(copycmd,shell=True)
     sleep(1) #give time for file to get to extremeli - maybe unecessary (if subprocess is synchronous)
     url = 'http://extremeli.trendi.guru/demo/results/pd_test/'+os.path.basename(image_file)
+    thresholds = np.zeros(len(constants.fashionista_categories_augmented))
+#    resp = hydra_tg_falcon_client.hydra_tg(url,thresholds=thresholds)
     resp = hydra_tg_falcon_client.hydra_tg(url)
     print('resp:'+str(resp))
     if not 'data' in resp:
@@ -86,17 +87,20 @@ def get_hydra_tg_results(image_file):
     return data
 
 
+
 def get_live_nd_results(image_file,save_dir='/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_test_pd_results',
                         new_labels = constants.fashionista_categories_augmented):
     #use the api - so first get the image onto the web , then aim the api at it
-
-
     #label_dict = {fashionista_categories_augmented_zero_based[i]:i for i in range(len(fashionista_categories_augmented_zero_based))}
     hydra_multilabel_results = get_hydra_tg_results(image_file)
     print('hydra_ml results:'+str(hydra_multilabel_results))
     fashionista_results = label_conversions.hydra_results_to_fashionista(hydra_multilabel_results)
     print('converted results:'+str(fashionista_results))
     print fashionista_results
+
+    u21_results = label_conversions.hydra_results_to_fashionista(hydra_multilabel_results,label_conversions=constants.ultimate_21)
+    print('u21 results'+str(u21_results))
+
     img_arr = cv2.imread(image_file)
     nd_mask = neurodoll_falcon_client.nd(img_arr)
     if len(nd_mask.shape) == 3:
@@ -464,6 +468,9 @@ def results_to_html(outfilename,results_dict):
         f.write('fwavacc:'+ str(fwavacc)+'\n')
         f.write('<br>\n')
         f.write('<br>\n')
+
+
+
 
 
 
