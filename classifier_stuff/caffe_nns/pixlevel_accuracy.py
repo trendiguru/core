@@ -128,7 +128,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
 
     val = range(n_tests)
     if gpu is not None:
-        caffe.set_device(int(args.gpu))
+        caffe.set_device(gpu)
     else:
         caffe.set_mode_cpu()
 
