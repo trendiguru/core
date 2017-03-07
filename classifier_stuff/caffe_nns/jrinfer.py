@@ -50,7 +50,7 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
                         dims=(224,224),output_layer='pixlevel_sigmoid_output',save_legends=True,labels=constants.pixlevel_categories_v3):
     images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
     print(str(len(images))+' images in '+image_dir)
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
     start_time = time.time()
     masks=[]
     Utils.ensure_dir(out_dir)
@@ -58,7 +58,6 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
         in_ = img_to_caffe(imagename,dims=dims,mean=mean)
-
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
         # run net and take argmax for prediction
