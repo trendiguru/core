@@ -342,7 +342,19 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120),denormalize=True):
+def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(104.0, 116.7, 122.7),denormalize=False):
+    '''
+    note the save of data (original image) wont work with a  batchnorm layer since this is changing mean/stdv of data layer in-place
+    :param net:
+    :param save_dir:
+    :param n_images:
+    :param layer:
+    :param gt:
+    :param labels:
+    :param mean:
+    :param denormalize:
+    :return:
+    '''
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
@@ -383,6 +395,10 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt_image.shape))
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
+
+            min = np.min(orig_image)
+            max = np.max(orig_image)
+            print('original min {} max {}'.format(min,max))
             orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
             orig_image_transposed += np.array(mean)
             min = np.min(orig_image_transposed)
@@ -395,6 +411,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
                 min = np.min(orig_image_transposed)
                 max = np.max(orig_image_transposed)
                 print('after denorm image max {} min {} :'.format(max,min))
+
             orig_image_transposed = orig_image_transposed.astype(np.uint8)
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image_transposed)
@@ -404,7 +421,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
             imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=False)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
-    return hist, loss / len(dataset)
+    return hist, loss / n_images
 
 def results_from_hist(hist,save_file='./summary_output.txt',info_string='',labels=constants.ultimate_21):
     # mean loss

@@ -94,7 +94,7 @@ class JrPixlevel(caffe.Layer):
                 self.labelfiles = [s.split()[1] for s in lines]
                 self.n_files = len(self.imagefiles)
             else:
-                logging.warning('COULD NOT OPEN  '+self.images_and_labels_file)
+                logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
                 print('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
@@ -245,9 +245,9 @@ class JrPixlevel(caffe.Layer):
             logging.warning('could not get image '+full_filename)
             return None
 #        print(full_filename+ ' has dims '+str(in_.shape))
-        in_ = in_[:,:,::-1]
+        in_ = in_[:,:,::-1]  #rgb->bgr
 #        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))
+        in_ = in_.transpose((2,0,1))   #hwc->cwh
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return in_
 
@@ -328,6 +328,7 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             if self.resize:
+                #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
                 im = im.resize(self.resize,Image.ANTIALIAS)
                 print('resizing mask')
             if im is None:
@@ -342,9 +343,9 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             break  #we finally made it past all the checks
-        if self.kaggle is not False:
-            print('kagle image, moving 255 -> 1')
-            label_in_[label_in_==255] = 1
+        # if self.kaggle is not False:
+        #     print('kagle image, moving 255 -> 1')
+        #     label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
