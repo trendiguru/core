@@ -16,7 +16,7 @@ db = pymongo.MongoClient('localhost', port=27017).mydb
 # irrelevant_dictionary = db.irrelevant_images_distinct.find()
 irrelevant_dictionary = list(db.irrelevant_images_distinct.aggregate([{ "$sample": { "size": 5000} }]))
 
-results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/results_irrelevant_db.txt", "w")
+results_text_file = open("/data/yonatan/yonatan_files/trendi/yonatan/txt_files/results_irrelevant_db_C_40.txt", "w")
 
 error_counter = 0
 face_image_counter = 0
@@ -55,7 +55,7 @@ for i in range(1, len(irrelevant_dictionary)):
           "total = {4}, added_images_percent = {5}".format(error_counter, face_image_counter, found_dress_counter,
                                                            no_dress_counter, total, added_images)
 
-    results_text_file.write("svm_045 - C = 20, svm_07 - C = 20\nerror_counter = " + str(error_counter) + ", face_image_counter = " +
+    results_text_file.write("svm_045 - C = 40, svm_07 - C = 40\nerror_counter = " + str(error_counter) + ", face_image_counter = " +
                             str(face_image_counter) + ", found_dress_counter = " + str(found_dress_counter) +
                             ", no_dress_counter = " + str(no_dress_counter) + ", total = " + str(total) +
                             ", added_images_percent = " + str(added_images) + "\n")
