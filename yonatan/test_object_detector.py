@@ -123,9 +123,6 @@ def detect(url_or_np_array, label=0):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
-    if dets:
-        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
-
     print "dress detector 0.7!"
     dets2 = find_dress_dlib(full_image, 0.7)
     for d in dets2:
@@ -143,10 +140,15 @@ def detect(url_or_np_array, label=0):
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 255, 0), 3)
 
-    if dets2:
+    if dets and dets2:
+        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+        return 2
+    elif dets:
+        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+        return True
+    elif dets2:
         print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
-
-    if dets or dets2:
         return True
     else:
         return False

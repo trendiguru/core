@@ -22,6 +22,7 @@ error_counter = 0
 face_image_counter = 0
 found_dress_counter = 0
 no_dress_counter = 0
+unique_counter = 0
 
 
 for i in range(1, len(irrelevant_dictionary)):
@@ -44,8 +45,11 @@ for i in range(1, len(irrelevant_dictionary)):
         face_image_counter += 1
         continue
 
-    if test_object_detector.detect(full_image, found_dress_counter):
+    is_there_dress = test_object_detector.detect(full_image, found_dress_counter)
+
+    if is_there_dress:
         found_dress_counter += 1
+        unique_counter += is_there_dress - 1
     else:
         no_dress_counter += 1
 
