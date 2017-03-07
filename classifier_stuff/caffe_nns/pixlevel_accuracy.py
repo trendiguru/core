@@ -127,7 +127,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
 
-    val = range(n_tests)
+    n_images = range(n_tests)
     if gpu is not None:
         caffe.set_device(gpu)
     else:
@@ -137,11 +137,11 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
         solver = caffe.SGDSolver(solverproto)
         solver.net.copy_from(caffemodel)
         print('using net defined by {} and {} '.format(solverproto,caffemodel))
-        answer_dict = jrinfer.seg_tests(solver, picsdir, val, output_layer=output_layer,outfilename=detailed_outputname)
+        answer_dict = jrinfer.seg_tests(solver, n_images, output_layer=output_layer,gt_layer='label',outfilename=detailed_outputname)
 
     elif(testproto is not None):  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel, caffe.TEST)
-        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, val,output_layer=output_layer,  gt_layer='label',outfilename=detailed_outputname)
+        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, n_images,output_layer=output_layer,  gt_layer='label',outfilename=detailed_outputname)
 
 
 
