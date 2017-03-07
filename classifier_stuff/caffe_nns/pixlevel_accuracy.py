@@ -156,7 +156,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
-def get_pixlevel_nd_output(img_file_or_cv2_arr):
+def get_pixlevel_nd_output_falcon(img_file_or_cv2_arr):
     if isinstance(img_file_or_cv2_arr,basestring):
         img_arr = cv2.imread(img_file_or_cv2_arr)
         if img_arr is None:
