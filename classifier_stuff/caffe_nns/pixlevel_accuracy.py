@@ -112,7 +112,7 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0, savepics=True):
+def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0, savepics=True,gpu=0):
 #to do accuracy we prob dont need to load solver
     caffemodel_base = os.path.basename(caffemodel)
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
@@ -127,9 +127,8 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
 
     val = range(n_tests)
-    if args.gpu:
-        caffe.set_mode_gpu()
-        caffe.set_device(int(args.gpu))
+    if gpu is not None:
+        caffe.set_device(gpu)
     else:
         caffe.set_mode_cpu()
 
