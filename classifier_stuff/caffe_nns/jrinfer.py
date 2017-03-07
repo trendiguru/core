@@ -343,6 +343,18 @@ def fast_hist(a, b, n):
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
 def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(104.0, 116.7, 122.7),denormalize=False):
+    '''
+    note the save of data (original image) wont work with a  batchnorm layer since this is changing mean/stdv of data layer in-place
+    :param net:
+    :param save_dir:
+    :param n_images:
+    :param layer:
+    :param gt:
+    :param labels:
+    :param mean:
+    :param denormalize:
+    :return:
+    '''
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
