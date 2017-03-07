@@ -7,8 +7,8 @@ import dlib
 from trendi.yonatan import functions
 
 
-dress_detector_045 = dlib.simple_object_detector("/data/detector_0.45_C_40.svm")
-dress_detector_07 = dlib.simple_object_detector("/data/detector_0.7_C_40.svm")
+dress_detector_045 = dlib.simple_object_detector("/data/detector_0.45_C_40_symmetry.svm")
+dress_detector_07 = dlib.simple_object_detector("/data/detector_0.7_C_40_symmetry.svm")
 
 
 def find_dress_dlib(image, detector, max_num_of_faces=10):
@@ -123,7 +123,7 @@ def detect(url_or_np_array, label=0):
         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
 
     if dets:
-        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_40/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
 
     print "dress detector 0.7!"
     dets2 = find_dress_dlib(full_image, 0.7)
@@ -143,7 +143,7 @@ def detect(url_or_np_array, label=0):
         cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 255, 0), 3)
 
     if dets2:
-        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_40/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
+        print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
 
     if dets or dets2:
         return True
