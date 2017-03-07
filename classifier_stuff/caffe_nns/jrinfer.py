@@ -23,7 +23,7 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
+def img_to_caffe(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     # load image in cv2 (so already BGR), resize, subtract mean, reorder dims to C x H x W for Caffe
     if isinstance(url_file_or_img_arr,basestring):
         print('working on:'+url_file_or_img_arr+' resize:'+str(dims)+' mean:'+str(mean))
@@ -50,15 +50,14 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
                         dims=(224,224),output_layer='pixlevel_sigmoid_output',save_legends=True,labels=constants.pixlevel_categories_v3):
     images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
     print(str(len(images))+' images in '+image_dir)
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
     start_time = time.time()
     masks=[]
     Utils.ensure_dir(out_dir)
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        in_ = refibulate(imagename,dims=dims,mean=mean)
-
+        in_ = img_to_caffe(imagename,dims=dims,mean=mean)
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
         # run net and take argmax for prediction
@@ -75,7 +74,8 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
         cv2.imwrite(outname,result)
 #        result.save(outname)
         masks.append(out.astype(np.uint8))
-        imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
+        if save_legends:
+            imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
     return masks
