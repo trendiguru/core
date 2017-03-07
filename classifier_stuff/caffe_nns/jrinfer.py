@@ -75,7 +75,8 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
         cv2.imwrite(outname,result)
 #        result.save(outname)
         masks.append(out.astype(np.uint8))
-        imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
+        if save_legends:
+            imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
     return masks
