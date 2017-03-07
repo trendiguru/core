@@ -23,7 +23,7 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def refibulate(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
+def img_to_caffe(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
     # load image in cv2 (so already BGR), resize, subtract mean, reorder dims to C x H x W for Caffe
     if isinstance(url_file_or_img_arr,basestring):
         print('working on:'+url_file_or_img_arr+' resize:'+str(dims)+' mean:'+str(mean))
@@ -57,7 +57,7 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        in_ = refibulate(imagename,dims=dims,mean=mean)
+        in_ = img_to_caffe(imagename,dims=dims,mean=mean)
 
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
