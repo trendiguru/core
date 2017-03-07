@@ -404,7 +404,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
             imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=False)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
-    return hist, loss / len(dataset)
+    return hist, loss / n_images
 
 def results_from_hist(hist,save_file='./summary_output.txt',info_string='',labels=constants.ultimate_21):
     # mean loss
