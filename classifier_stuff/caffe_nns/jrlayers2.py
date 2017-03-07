@@ -94,7 +94,7 @@ class JrPixlevel(caffe.Layer):
                 self.labelfiles = [s.split()[1] for s in lines]
                 self.n_files = len(self.imagefiles)
             else:
-                logging.warning('COULD NOT OPEN  '+self.images_and_labels_file)
+                logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
                 print('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
@@ -342,9 +342,9 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             break  #we finally made it past all the checks
-        if self.kaggle is not False:
-            print('kagle image, moving 255 -> 1')
-            label_in_[label_in_==255] = 1
+        # if self.kaggle is not False:
+        #     print('kagle image, moving 255 -> 1')
+        #     label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))
