@@ -39,25 +39,26 @@ def find_dress_dlib(image, detector, max_num_of_faces=10):
     #     img = io.imread(f)
     #     dets = dress_detector(img)
 
-#
-# def print_image_with_bb(image, bb_cordinates, limit_height=False, limit_width=False):
-#     for d in dets:
-#         if d.left() < 0:
-#             left = d.left() + 15
-#         else:
-#             left = d.left()
-#
-#         width = d.right()-left
-#         height = d.bottom()-d.top()
-#
-#         if height < 0.25 * h:
-#             dets = 0
-#
-#         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
-#         cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
-#
-#     if dets:
-#         print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
+
+def print_image_with_bb(image, bb_cordinates, limit_height=False, limit_width=False):
+
+    for d in bb_cordinates:
+        if d.left() < 0:
+            left = d.left() + 15
+        else:
+            left = d.left()
+
+        width = d.right()-left
+        height = d.bottom()-d.top()
+
+        if height < 0.25 * h:
+            dets = 0
+
+        print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(left, d.top(), d.right(), d.bottom(), width, height)
+        cv2.rectangle(padded_image, (left, d.top()), (d.right(), d.bottom()), (0, 0, 255), 3)
+
+    if dets:
+        print cv2.imwrite("/data/yonatan/linked_to_web/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
 
 
 
