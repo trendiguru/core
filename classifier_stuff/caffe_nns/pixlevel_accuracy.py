@@ -112,7 +112,8 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0, savepics=True,gpu=0):
+def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None,
+                         iter=0, savepics=True,gpu=0,output_layer='output'):
 #to do accuracy we prob dont need to load solver
     caffemodel_base = os.path.basename(caffemodel)
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
@@ -140,7 +141,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
 
     elif(testproto is not None):  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel, caffe.TEST)
-        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, val, layer=layer, gt='label',outfilename=detailed_outputname)
+        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, val,output_layer=layer,  gt_layer='label',outfilename=detailed_outputname)
 
 
 
