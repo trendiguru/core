@@ -94,7 +94,8 @@ class JrPixlevel(caffe.Layer):
                 self.labelfiles = [s.split()[1] for s in lines]
                 self.n_files = len(self.imagefiles)
             else:
-                logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
+                logging.warning('COULD NOT OPEN  '+self.images_and_labels_file)
+                print('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
 #######begin vestigial code for separate images/labels files
