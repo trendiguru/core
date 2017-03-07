@@ -3,15 +3,10 @@ import caffe
 import time
 import os
 import sys
-import setproctitle
 import subprocess
 import socket
-import matplotlib
-import matplotlib.pyplot as plt
 import datetime
 import numpy as np
-
-import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 
@@ -20,16 +15,8 @@ from trendi import constants
 from trendi.classifier_stuff.caffe_nns import jrinfer
 from trendi.classifier_stuff.caffe_nns import single_label_accuracy
 from trendi.classifier_stuff.caffe_nns import multilabel_accuracy
-from trendi.classifier_stuff.caffe_nns import progress_plot
 from trendi.classifier_stuff.caffe_nns import caffe_utils
-import scipy
 import matplotlib as plt
-
-
-#matplotlib.use('Agg') #allow plot generation on X-less systems
-#plt.ioff()
-#setproctitle.setproctitle(os.path.basename(os.getcwd()))
-
 
 
 def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n_iter=200,n_loops=200,n_tests=1000,
