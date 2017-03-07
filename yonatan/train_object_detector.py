@@ -76,7 +76,7 @@ options = dlib.simple_object_detector_training_options()
 # Since faces are left/right symmetric we can tell the trainer to train a
 # symmetric detector.  This helps it get the most value out of the training
 # data.
-options.add_left_right_image_flips = False
+options.add_left_right_image_flips = True
 # The trainer is a kind of support vector machine and therefore has the usual
 # SVM C parameter.  In general, a bigger C encourages it to fit the training
 # data better but might lead to overfitting.  You must find the best C value
@@ -263,12 +263,12 @@ for root, dirs, files in os.walk('/data/dress_detector/images_raw'):
 
 detector = dlib.train_simple_object_detector(images_new, boxes_new, options)
 print "Done training!"
-detector.save('/data/detector_0.45_C_40.svm')
+detector.save('/data/detector_0.45_C_40_symmetry.svm')
 print "Done saving!"
 
 detector2 = dlib.train_simple_object_detector(images_new2, boxes_new2, options)
 print "Done training!"
-detector2.save('/data/detector_0.7_C_40.svm')
+detector2.save('/data/detector_0.7_C_40_symmetry.svm')
 print "Done saving!"
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
