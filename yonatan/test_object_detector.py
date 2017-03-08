@@ -65,13 +65,13 @@ def print_image_with_bb(image, bb_coordinates, label, path, color, to_print=True
         else:
             top = d.top()
 
-        if d.right() < 0:
-            right = 0
+        if d.right() > w - 1:
+            right = w - 1
         else:
             right = d.right()
 
-        if d.bottom() < 0:
-            bottom = 0
+        if d.bottom() > h - 1:
+            bottom = h - 1
         else:
             bottom = d.bottom()
 
