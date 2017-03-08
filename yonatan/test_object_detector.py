@@ -40,10 +40,15 @@ def find_dress_dlib(image, detector, max_num_of_faces=10):
     #     dets = dress_detector(img)
 
 
-def print_image_with_bb(image, bb_coordinates, label, path, limit_height=False, limit_width=False):
+def print_image_with_bb(image, bb_coordinates, label, path, color, limit_height=False, limit_width=False):
 
     if not bb_coordinates:
         return False
+
+    if color == 'red':
+        rgb = (0, 0, 255)
+    else:
+        rgb = (0, 255, 0)
 
     h, w, d = image.shape
 
@@ -76,7 +81,7 @@ def print_image_with_bb(image, bb_coordinates, label, path, limit_height=False, 
             return False
 
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(d.left(), d.top(), d.right(), d.bottom(), width, height)
-        cv2.rectangle(image, (left, top), (right, bottom), (0, 0, 255), 3)
+        cv2.rectangle(image, (left, top), (right, bottom), rgb, 3)
 
         print cv2.imwrite(path + str(label) + ".jpg", image)
 
@@ -158,17 +163,17 @@ def detect(url_or_np_array, label=0):
     #     cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 255, 0), 3)
 
     if dets and dets2:
-        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
-        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", 'red', limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", 'green', limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
         return 2
     elif dets:
-        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", 'red', limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
         return True
     elif dets2:
-        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", 'green', limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
         return True
     else:

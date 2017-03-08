@@ -27,9 +27,6 @@ unique_counter = 0
 
 for i in range(1, len(irrelevant_dictionary)):
 
-    # if i % 10 != 0:
-    #     continue
-
     link_to_image = irrelevant_dictionary[i]['image_urls'][0]
 
     full_image = functions.url_to_np_array(link_to_image)
