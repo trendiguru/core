@@ -181,7 +181,19 @@ def conv_relu(bottom,lr_mult1 = 1,lr_mult2 = 2,decay_mult1=1,decay_mult2 =0,n_ou
     relu = L.ReLU(conv, in_place=True)
     return conv,relu
 
-def conv_bn_scale_relu(bottom, kernel_size=3, num_out=64, stride=1, pad=0, params=conv_params): #needed for resnet
+def conv_bn_scale_relu(bottom, kernel_size=3, num_out=64, stride=1, pad=0, params=[dict(type='msra'),dict(type='constant',value=0)]): #needed for resnet
+    '''
+    weight_filler = dict(type='msra')
+    bias_filler = dict(type='constant', value=0)
+    conv_params = [weight_filler, bias_filler]
+    :param bottom:
+    :param kernel_size:
+    :param num_out:
+    :param stride:
+    :param pad:
+    :param params:
+    :return:
+    '''
     weight_filler = params[0]
     bias_filler = params[1]
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride, num_output=num_out,
@@ -196,7 +208,7 @@ def conv_bn_scale_relu(bottom, kernel_size=3, num_out=64, stride=1, pad=0, param
 
     return conv, bn_train, bn_test, scale, relu
 
-def conv_bn_scale(bottom, kernel_size=3, num_out=64, stride=1, pad=0, params=conv_params): #needed for resnet
+def conv_bn_scale(bottom, kernel_size=3, num_out=64, stride=1, pad=0, params=[dict(type='msra'),dict(type='constant',value=0)]): #needed for resnet
     weight_filler = params[0]
     bias_filler = params[1]
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride, num_output=num_out,

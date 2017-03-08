@@ -66,7 +66,7 @@ class PaperResource:
         try:
             data = msgpack.loads(req.stream.read())
             img = data.get("image")
-
+            print('img:'+str(img))
 #            if get_yolo_results:
 #                yolo_output = mydet.get_yolo_results(img)
 #                ret['yolo_output'] = yolo_output
@@ -114,7 +114,11 @@ class PaperResource:
 
         # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
             if get_layer_output:
-                ret["layer_output"] = neurodoll.get_layer_output(get_layer_output)
+                ret["layer_output"] = neurodoll.get_layer_output(img,layer=get_layer_output)
+
+#                url_or_np_array,required_image_size=(256,256),layer='myfc7'
+
+
                 if ret["layer_output"] is not None:
                     ret["success"] = True
                 else:
