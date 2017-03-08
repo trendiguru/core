@@ -49,7 +49,9 @@ class Images(object):
         try:
             if type(images) is list and page_url is not None:
                 if method == 'pd':
-                    relevancy_dict = {url: page_results.handle_post(url, page_url, products, 'pd') for url in images}
+                    relevancy_dict = {url: gevent.spawn(page_results.handle_post, url, page_url, products, 'pd') for url in images}
+                    gevent.joinall(relevancy_dict.values())
+                    relevancy_dict =  {url: green.value for url, green in relevancy_dict.iteritems()}
                     ret["success"] = True
                     ret["relevancy_dict"] = relevancy_dict
                 else:
@@ -84,7 +86,7 @@ class Images(object):
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
-        print "ON_POST took {0} seconds".format(time.time()-start)
+        print "ON_POST v2 took {0} seconds".format(time.time()-start)
 
     def on_get(self, req, resp):
         ret = {}

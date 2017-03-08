@@ -23,53 +23,70 @@ from trendi.paperdoll import paperdoll_parse_enqueue
 from trendi import Utils
 from trendi.utils import augment_images
 
-def infer_many(images,prototxt,caffemodel,out_dir='./',caffe_variant=None):
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
-    dims = [150,100]
+def img_to_caffe(url_file_or_img_arr,dims=(224,224),mean=(104.0,116.7,122.7)):
+    # load image in cv2 (so already BGR), resize, subtract mean, reorder dims to C x H x W for Caffe
+    if isinstance(url_file_or_img_arr,basestring):
+        print('working on:'+url_file_or_img_arr+' resize:'+str(dims)+' mean:'+str(mean))
+    im = Utils.get_cv2_img_array(url_file_or_img_arr)
+    if im is None:
+        logging.warning('could not get image '+str(url_file_or_img_arr))
+        return
+    im = imutils.resize_keep_aspect(im,output_size=dims)
+#    im = cv2.resize(im,dims)
+    in_ = np.array(im, dtype=np.float32)
+    if len(in_.shape) != 3:
+        print('got 1-chan image, skipping')
+        return
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+    print('shape before:'+str(in_.shape))
+ #   in_ = in_[:,:,::-1] #RGB->BGR, not needed if reading with cv2
+    in_ -= np.array(mean)
+    in_ = in_.transpose((2,0,1)) #W,H,C -> C,W,H
+    return in_
+
+def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,116.7,122.7),filter='.jpg',
+                        dims=(224,224),output_layer='pixlevel_sigmoid_output',save_legends=True,labels=constants.pixlevel_categories_v3):
+    images = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
+    print(str(len(images))+' images in '+image_dir)
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
     start_time = time.time()
     masks=[]
     Utils.ensure_dir(out_dir)
     for imagename in images:
         print('working on:'+imagename)
             # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
-        im = Image.open(imagename)
-#        im = im.resize(dims,Image.ANTIALIAS)
-        in_ = np.array(im, dtype=np.float32)
-        if len(in_.shape) != 3:
-            print('got 1-chan image, skipping')
-            continue
-        elif in_.shape[2] != 3:
-            print('got n-chan image, skipping - shape:'+str(in_.shape))
-            continue
-        print('size:'+str(in_.shape))
-        in_ = in_[:,:,::-1]
-        in_ -= np.array((104.0,116.7,122.7))
-        in_ = in_.transpose((2,0,1))
-        # shape for input (data blob is N x C x H x W), set data
+        in_ = img_to_caffe(imagename,dims=dims,mean=mean)
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
         # run net and take argmax for prediction
         net.forward()
-        out = net.blobs['score'].data[0].argmax(axis=0)
-        result = Image.fromarray(out.astype(np.uint8))
+        out = net.blobs[output_layer].data[0].argmax(axis=0)
+
+#        result = Image.fromarray(out.astype(np.uint8))
     #        outname = im.strip('.png')[0]+'out.bmp'
+        result = out.astype(np.uint8)
         outname = os.path.basename(imagename)
         outname = outname.split('.jpg')[0]+'.bmp'
         outname = os.path.join(out_dir,outname)
         print('outname:'+outname)
-        result.save(outname)
+        cv2.imwrite(outname,result)
+#        result.save(outname)
         masks.append(out.astype(np.uint8))
+        if save_legends:
+            imutils.show_mask_with_labels(outname,labels=labels,original_image=imagename,save_images=True)
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time)+' tpi:'+str(elapsed_time/len(images)))
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob'):
+def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob',mean=(104.0,116.7,122.7)):
     if caffe_variant == None:
         import caffe
     else:
         pass
-    net = caffe.Net(prototxt,caffemodel, caffe.TEST)
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
 #    dims = [150,100] default for something??
     start_time = time.time()
     print('working on:'+imagename)
@@ -84,9 +101,9 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
     print('shape before:'+str(in_.shape))
-    in_ = in_[:,:,::-1]
-    in_ -= np.array((104.0,116.7,122.7))
-    in_ = in_.transpose((2,0,1))
+    in_ = in_[:,:,::-1]  #rgb-bgr
+    in_ -= np.array(mean)
+    in_ = in_.transpose((2,0,1))  #whc -> cwh
     print('shape after:'+str(in_.shape))
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
@@ -325,7 +342,19 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(120,120,120),denormalize=True):
+def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(104.0, 116.7, 122.7),denormalize=False):
+    '''
+    note the save of data (original image) wont work with a  batchnorm layer since this is changing mean/stdv of data layer in-place
+    :param net:
+    :param save_dir:
+    :param n_images:
+    :param layer:
+    :param gt:
+    :param labels:
+    :param mean:
+    :param denormalize:
+    :return:
+    '''
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
@@ -366,6 +395,10 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
             print('orig image size:'+str(orig_image.shape)+' gt:'+str(gt_image.shape))
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
 #            gt_reshaped = np.reshape(gt,[gt.shape[1],gt.shape[2]])
+
+            min = np.min(orig_image)
+            max = np.max(orig_image)
+            print('original min {} max {}'.format(min,max))
             orig_image_transposed = orig_image.transpose((1,2,0))   #CxWxH->WxHxC
             orig_image_transposed += np.array(mean)
             min = np.min(orig_image_transposed)
@@ -378,6 +411,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
                 min = np.min(orig_image_transposed)
                 max = np.max(orig_image_transposed)
                 print('after denorm image max {} min {} :'.format(max,min))
+
             orig_image_transposed = orig_image_transposed.astype(np.uint8)
             orig_savename = os.path.join(save_dir, str(idx) + 'orig.jpg')
             cv2.imwrite(orig_savename,orig_image_transposed)
@@ -387,7 +421,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
             imutils.show_mask_with_labels(gt_savename,labels,original_image=orig_savename,save_images=True,visual_output=False)
         # compute the loss as well
         loss += net.blobs['loss'].data.flat[0]
-    return hist, loss / len(dataset)
+    return hist, loss / n_images
 
 def results_from_hist(hist,save_file='./summary_output.txt',info_string='',labels=constants.ultimate_21):
     # mean loss

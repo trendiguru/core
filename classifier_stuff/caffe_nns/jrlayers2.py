@@ -42,11 +42,6 @@ class JrPixlevel(caffe.Layer):
             layer: "JrLayer"
             param_str: "{\'images_and_labels_file\': \'train_u21_256x256.txt\', \'mean\': (104.00699, 116.66877, 122.67892)}"
             }
-#            param_str: "{\'images_dir\': \'/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_u21_256x256\', \'labels_dir\':\'/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_256x256/\', \'mean\': (104.00699, 116.66877, 122.67892)}"
-#            }
-        params = dict(sbdd_dir="/path/to/SBDD/dataset",
-            mean=(104.00698793, 116.66876762, 122.67891434),
-            split="valid")
         """
         # config
         params = eval(self.param_str)
@@ -56,7 +51,6 @@ class JrPixlevel(caffe.Layer):
         self.random_pick = params.get('random_pick', True) #pick random image from list every time
         self.seed = params.get('seed', 1337)
         self.batch_size = params.get('batch_size',1)  #######Not implemented, batchsize = 1
-        self.kaggle = params.get('kaggle',False)  #######Not implemented, batchsize = 1
         self.resize = params.get('resize',False)
         self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
@@ -70,12 +64,13 @@ class JrPixlevel(caffe.Layer):
         self.augment_do_mirror_ud = params.get('augment_do_mirror_ud',False)
         self.augment_crop_size = params.get('augment_crop_size',(224,224)) #
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
+        self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
 
         print('##############')
         print('params coming into jrlayers2')
-        print('batchsize {}\n type {}'.format(self.batch_size,type(self.batch_size)))
+        print('batchsize {}'.format(self.batch_size))
         print('imfile {} \nmean {}  \nrandinit {} \nrandpick {}'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
         print('seed {} \nresize \n{} \nbatchsize {} \naugment \n{} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {}'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
@@ -100,6 +95,7 @@ class JrPixlevel(caffe.Layer):
                 self.n_files = len(self.imagefiles)
             else:
                 logging.debug('COULD NOT OPEN  '+self.images_and_labels_file)
+                print('COULD NOT OPEN  '+self.images_and_labels_file)
                 return
 
 #######begin vestigial code for separate images/labels files
@@ -249,9 +245,9 @@ class JrPixlevel(caffe.Layer):
             logging.warning('could not get image '+full_filename)
             return None
 #        print(full_filename+ ' has dims '+str(in_.shape))
-        in_ = in_[:,:,::-1]
+        in_ = in_[:,:,::-1]  #rgb->bgr
 #        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))
+        in_ = in_.transpose((2,0,1))   #hwc->cwh
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         return in_
 
@@ -332,6 +328,7 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             if self.resize:
+                #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
                 im = im.resize(self.resize,Image.ANTIALIAS)
                 print('resizing mask')
             if im is None:
@@ -346,9 +343,9 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
             break  #we finally made it past all the checks
-        if self.kaggle is not False:
-            print('kagle image, moving 255 -> 1')
-            label_in_[label_in_==255] = 1
+        # if self.kaggle is not False:
+        #     print('kagle image, moving 255 -> 1')
+        #     label_in_[label_in_==255] = 1
 #        in_ = in_ - 1
  #       print('uniques of label:'+str(np.unique(label_in_))+' shape:'+str(label_in_.shape))
 #        print('after extradim shape:'+str(label.shape))

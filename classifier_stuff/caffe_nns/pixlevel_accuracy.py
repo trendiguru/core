@@ -112,7 +112,8 @@ def write_textfile(caffemodel, solverproto, threshold,model_base,dir=None,classe
         f.write('categories: '+str(classes)+ '\n')
         f.close()
 
-def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None, iter=0, savepics=True):
+def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,testproto=None,solverproto=None,
+                         iter=0, savepics=True,gpu=0,output_layer='output'):
 #to do accuracy we prob dont need to load solver
     caffemodel_base = os.path.basename(caffemodel)
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
@@ -126,10 +127,9 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     detailed_outputname = htmlname[:-5]+'.txt'
     print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
 
-    val = range(n_tests)
-    if args.gpu:
-        caffe.set_mode_gpu()
-        caffe.set_device(int(args.gpu))
+    n_images = range(n_tests)
+    if gpu is not None:
+        caffe.set_device(gpu)
     else:
         caffe.set_mode_cpu()
 
@@ -137,11 +137,11 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
         solver = caffe.SGDSolver(solverproto)
         solver.net.copy_from(caffemodel)
         print('using net defined by {} and {} '.format(solverproto,caffemodel))
-        answer_dict = jrinfer.seg_tests(solver, picsdir, val, layer=layer,outfilename=detailed_outputname)
+        answer_dict = jrinfer.seg_tests(solver, n_images, output_layer=output_layer,gt_layer='label',outfilename=detailed_outputname)
 
     elif(testproto is not None):  #try using net without sgdsolver
         net = caffe.Net(testproto,caffemodel, caffe.TEST)
-        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, val, layer=layer, gt='label',outfilename=detailed_outputname)
+        answer_dict = jrinfer.do_seg_tests(net, iter, picsdir, n_images,output_layer=output_layer,  gt_layer='label',outfilename=detailed_outputname)
 
 
 
@@ -156,7 +156,7 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     write_html(htmlname,answer_dict)
     close_html(htmlname)
 
-def get_pixlevel_nd_output(img_file_or_cv2_arr):
+def get_pixlevel_nd_output_falcon(img_file_or_cv2_arr):
     if isinstance(img_file_or_cv2_arr,basestring):
         img_arr = cv2.imread(img_file_or_cv2_arr)
         if img_arr is None:

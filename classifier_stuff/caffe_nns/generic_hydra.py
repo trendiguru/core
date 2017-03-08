@@ -2,11 +2,16 @@
 stages:
 1. create a new folder and copy all the caffemodels + protos to there
     - there should by equal number of protos and models - 1 and 1 under each name
-
 2. create a new prototxt with the same root layers but many output leafs
 3. load that proto in test mode with the first layer weights
 4. load many nets in Test mode and fill in their weights
 5. save new net to output folder
+
+usage -
+python   /usr/lib/python2.7/dist-packages/trendi/classifier_stuff/caffe_nns/make_hydra_from_caffemodels.py -f /data/jeremy/caffenets/hydra/production/ -d ResNet-152-deploy.prototxt -s ResNet-152-deploy.prototxt
+ie deploy and source protos identical ; source can prob be deprecated to use specific source proto for each caffemodel (then the model final
+layers can be different
+
 """
 
 import caffe
@@ -20,7 +25,8 @@ import json
 import os
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
-
+import pdb
+import numpy as np
 def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel',gpu=0):
     #pants, shirt, dress
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
@@ -56,17 +62,20 @@ def mega_test_hydra(proto='/data/jeremy/caffenets/hydra/production/output/hydra_
             else:
                 n_false_neg += 1
         print('true pos {} false neg {} approx.acc {}'.format(n_true_pos,n_false_neg,float(n_true_pos/(n_true_pos+n_false_neg))))
-
+#
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
     print all params
     '''
-
+    print('starting show_all_params')
+  #  pdb.set_trace()
     caffe.set_mode_gpu()
     caffe.set_device(gpu)
 
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
+    print('starting show_all_params')
     all_params = [p for p in net.params if filter in p]
+    print('starting show_all_params')
 
     print('showing params ')
     print('all params in net1:'+str(all_params))
@@ -225,16 +234,13 @@ if __name__ == "__main__":
         net_info.append([cfm,prt,params_to_replace])
   #      raw_input('return to continue')
         for pr in params_to_replace:
-#            pr_tmp = pr[:-3] #wont work with n>9
             pr_tmp =  pr.split('__')[0]  #get layername part of layername__x
 
             print('copying values from {} to {} '.format(pr_tmp,pr))
             for i in range(len(net_new.params[pr])):
                 net_new.params[pr][i].data[...] = net_tmp.params[pr_tmp][i].data
 #                net_new.params[pr][i].data = net_tmp.params[pr_tmp][i].data
-
 #            dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
-
 
 
         del net_tmp
@@ -245,7 +251,8 @@ if __name__ == "__main__":
     del net_new
     print 'DONE!'
 
-    with open('net_info.txt','w') as fp:
+    net_info_filename = os.path.join(output_folder,user_input.newName+'_netinfo.txt')
+    with open(net_info_filename,'w') as fp:
         json.dump(net_info,fp,indent = 4)
 
 

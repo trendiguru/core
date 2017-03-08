@@ -81,7 +81,7 @@ for j in range(len(images_old)):
         # images_new.append(line_in_list_images)
 
         # full_image = cv2.imread('/data/dress_detector/images/' + image_file_name)
-        full_image = io.imread('/data/dress_detector/images/' + image_file_name)
+        full_image = io.imread('/data/dress_detector/images_raw/' + image_file_name)
 
         resized_image = cv2.resize(full_image, (100, 230))
 

@@ -1,4 +1,4 @@
-name: "pixlevel-sharp5"
+name: "pixlevel_v3labels-sharp5"
 
 layer {
     name: "data"
@@ -9,7 +9,7 @@ layer {
     module: "jrlayers2"
     layer: "JrPixlevel"
 #    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":1 }"
-    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(448,448), \"batch_size\":1,\"save_visual_output\":False }"
+    param_str: "{\"images_and_labels_file\": \"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(448,448), \"batch_size\":1,\"save_visual_output\":False }"
     }
   }
 layer {
@@ -93,7 +93,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -230,7 +230,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -367,7 +367,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -430,7 +430,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -567,7 +567,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -630,7 +630,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -767,7 +767,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -830,7 +830,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1264,7 +1264,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1327,7 +1327,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1520,7 +1520,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1583,7 +1583,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1653,7 +1653,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1806,7 +1806,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1869,7 +1869,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -1939,7 +1939,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -2092,7 +2092,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -2155,7 +2155,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -2225,7 +2225,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -2378,7 +2378,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {
@@ -2441,7 +2441,7 @@ layer {
     decay_mult: 0
   }
   batch_norm_param {
-    use_global_stats: false
+    use_global_stats: true
   }
 }
 layer {

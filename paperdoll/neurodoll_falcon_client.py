@@ -1,14 +1,15 @@
 from jaweson import msgpack
 import requests
 
-#
-#CLASSIFIER_ADDRESS = "http://37.58.101.173:8080/nd" #braini2
-CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
-
 #run gunicorn -b :8080 --workers 4 --timeout 300 trendi.paperdoll.neurodoll_falcon:api
 
+from trendi import constants
+CLASSIFIER_ADDRESS = constants.NEURODOLL_CLASSIFIER_ADDRESS #"http://acs-1agents.westeurope.cloudapp.azure.com/pd"
 
-def pd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None,get_layer_output=None,get_all_graylevels=None,threshold=None):
+
+
+
+def nd(image_array_or_url, category_index=None,get_multilabel_results=None,get_combined_results=None,get_layer_output=None,get_all_graylevels=None,threshold=None):
     params = {}
     if category_index:
         params['categoryIndex'] = category_index

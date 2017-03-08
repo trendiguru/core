@@ -13,6 +13,8 @@ import os
 import argparse
 import cv2
 import numpy as np
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
@@ -28,7 +30,6 @@ def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer)
                         source_layer,i,source_net_params[source_layer][i].data.shape,
                         np.mean(source_net_params[source_layer][i].data),np.std(source_net_params[source_layer][i].data)))
         dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
-
     return dest_net_params
 
 
@@ -51,7 +52,6 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
             'http://getabhi.com/image/cache/catalog/BARCODE:%20324BNZ61RBLUE/2-800x800.jpg',
             'http://myntra.myntassets.com/images/style/properties/Belle-Fille-Black-Maxi-Dress_e3e65039ce204cefb7590fc8ec10f1e9_images.jpg']
-
  #   for url in urls:
  #       jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
     jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
@@ -162,6 +162,7 @@ if __name__ == "__main__":
     folder_path = user_input.path2folder
     all_files_in_dir = os.listdir(folder_path)
     proto_files = [f for f in all_files_in_dir if '.prototxt' in f and not 'solver' in f]
+    proto_files.sort()
     if user_input.source_proto is not None:
         source_proto = user_input.source_proto
     else:
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     if user_input.modelname in model_files:
         model_files.remove(user_input.modelname)
     assert len(model_files)>=1, 'no extra model files found '
+    #the trunk weights come from the first model (arbitrarily, same weights could have come from any of the models)
     first_model_path = os.path.join(folder_path,model_files[0])
     print('initial model:'+str(first_model_path))
     print('modelfiles to add:'+str(model_files[1:]))
@@ -192,7 +194,10 @@ if __name__ == "__main__":
     for i in range(n_models_to_add):
         cfm_base = model_files[i+1] #first model is used as base, 2nd and subsequent added to it
         caffemodel = os.path.join(folder_path,cfm_base)
-        prototxt = source_proto
+        prototxt = caffemodel.replace('caffemodel','prototxt')
+        if not prototxt in proto_files: #if the source protos start to get nonstandard they can be imported one-by-one here
+            logging.warning('couldnt find proto {} for {}'.format(prototxt,caffemodel))
+            prototxt = source_proto
         raw_input('adding net {} using proto {} (ret to cont)'.format(caffemodel,prototxt))
         net = caffe.Net(prototxt, caffe.TEST,weights=caffemodel)
         nets.append(net)

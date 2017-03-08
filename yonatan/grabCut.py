@@ -26,7 +26,7 @@ def grabcut(url_or_np_array):
         print "image too small for grabcut"
         return None
 
-    rect = (5, 5, img.shape[1] - 5, img.shape[0] - 15)
+    rect = (5, 5, img.shape[1] - 5, img.shape[0] - 25)  # the -25 in the 'h' place is for the legs to be considered as background
     ## rect is in the form of (x, y, w, h)
     # rect = sys.argv[2]
 
@@ -53,11 +53,8 @@ def grabcut(url_or_np_array):
                           indexing='ij')
     sub_image = img[indices]
 
-
     # plt.imshow(img),plt.colorbar(),plt.show()
 
-    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_testing.jpg", without_bg_img)
-    # print cv2.imwrite("/data/yonatan/linked_to_web/grabcut_sub_image.jpg", sub_image)
-
-    return sub_image
+    # i - line number (height), j - column number (width)
+    return sub_image, min(i), min(j)
 

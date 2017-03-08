@@ -3,6 +3,8 @@ import os
 import pwd
 import numpy as np
 import logging
+
+from trendi import Utils
 #print os.environ["USER"]
 #print os.getuid() # numeric uid
 #print pwd.getpwuid(os.getuid())
@@ -103,20 +105,55 @@ def colorbars(labels):
 
 #    show_parse(img_array=new_img+1)
 
+def save_clothing_parts(mask_file_or_arr,image_file_or_arr,savedir=None,visual_output=True):
+    if isinstance(mask_file_or_arr,basestring):
+        mask_arr = cv2.imread(mask_file_or_arr)
+    elif isinstance(mask_file_or_arr,np.ndarray):
+        mask_arr = mask_file_or_arr
+    else:
+        print('not clear what input is')
+        return
+    if isinstance(image_file_or_arr,basestring):
+        img_arr = cv2.imread(image_file_or_arr)
+        filename = image_file_or_arr.replace('.jpg','.part')
+    elif isinstance(image_file_or_arr,np.ndarray):
+        img_arr = image_file_or_arr
+        filename = 'part'
+    else:
+        print('not clear what input is')
+        return
+    print('maskshape {} imshape {}'.format(mask_arr.shape,img_arr.shape))
+    for i in np.unique(mask_arr):
+        item_img = (mask_arr==i) * img_arr
+        item_filename = os.path.join(savedir,os.path.basename(filename) + str(i)+'.jpg')
+        if visual_output:
+            cv2.imshow('part'+str(i),item_img)
 
+        if savedir:
+            print('saving '+item_filename)
+            res=cv2.imwrite(item_filename,item_img)
+            print('res '+str(res))
 
+    cv2.waitKey(0)
 
 if __name__ == '__main__':
+
     print os.getuid() # numeric uid
     print pwd.getpwuid(os.getuid())
     path = '/home/jr/tg/pd_output'
     path = '/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1'
     path = '/home/jr/tg/pd_output/'
-    files = ['56558cd462532224c676ba7c']
+    imgpath = '/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_train'
+    labelpath = '/data/jeremy/image_dbs/tg/pixlevel/pixlevel_fullsize_labels_fashionista_augmented_categories'
     #take the file 'base' i.e. without extension
-    files = [f.split('.')[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-    print('nfiles:'+str(len(files)))
-    fashionista_ordered_categories = constants.fashionista_categories
+    savedir = '/data/jeremy/image_dbs/tg/pixlevel/separated_parts'
+#    imgfiles = [f.split('.')[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+
+    labelfiles = [f for f in os.listdir(labelpath) if 'png' in f]
+    imgfiles = [f for f in os.listdir(imgpath) if 'jpg' in f]
+
+    print('nfiles:'+str(len(labelfiles)))
+#    fashionista_ordered_categories = constants.fashionista_categories
         #in case it changes in future - as of 2/16 this list goes a little something like this:
         #fashionista_categories = ['null','tights','shorts','blazer','t-shirt','bag','shoes','coat','skirt','purse',
     # 'boots',  'blouse','jacket','bra','dress','pants','sweater','shirt','jeans','leggings','scarf','hat',
@@ -124,12 +161,20 @@ if __name__ == '__main__':
               #            'stockings','necklace','cape','jumper','sweatshirt','suit','bracelet','heels','wedges','ring',
                 #          'flats','tie','romper','sandals','earrings','gloves','sneakers','clogs','watch','pumps','wallet',
                   #        'bodysuit','loafers','hair','skin']
-    colorbars(fashionista_ordered_categories)
+#    colorbars(fashionista_ordered_categories)
+    Utils.ensure_dir(savedir)
+    for file in imgfiles:
+        full_img = os.path.join(imgpath,file)
+        full_lbl = os.path.join(labelpath,file.replace('.jpg','.png'))
+        if not os.path.isfile(full_img):
+            print('img {} is not there '.format(full_img))
+            continue
+        if not os.path.isfile(full_lbl):
+            print('img {} is not there '.format(full_lbl))
+            continue
+        save_clothing_parts(full_lbl,full_img,savedir=savedir)
 
-    for file in files:
-        fullpath = os.path.join(path,file)
   #      raw_input('enter')
-        show_pd_results(fullpath)
+#        show_pd_results(fullpath)
 #        raw_input('enter for next')
-
 
