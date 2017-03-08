@@ -133,7 +133,8 @@ class PaperResource:
         except Exception as e:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
-
+            url = req.get_param('image')
+            ret['url'] = url
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
