@@ -5,11 +5,11 @@ from tqdm import tqdm
 
 def create_test_collection(category):
     new_col = 'nd_as_fp'
-    all_items_in_category = db.shopstyle_US_Female.find({'categories':category})
+    all_items_in_category = db.shopstyle_US_Female.find({'categories': category})
     for item in tqdm(all_items_in_category):
         try:
-            new_obj = {'img_url':item['images']['XLarge'],
-                       'fp': item['fp'],
+            new_obj = {'img_url': item['images']['XLarge'],
+                       'fp': item['fingerprint'],
                        'category': category,
                        'nd': []}
             data = nd(new_obj['img_url'], get_layer_output='fc7')
