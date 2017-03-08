@@ -158,17 +158,17 @@ def detect(url_or_np_array, label=0):
     #     cv2.rectangle(padded_image2, (left, d.top()), (d.right(), d.bottom()), (0, 255, 0), 3)
 
     if dets and dets2:
-        print print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
-        print print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/unique/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
         return 2
     elif dets:
-        print print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_045_" + str(label) + ".jpg", padded_image)
         return True
     elif dets2:
-        print print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
+        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", limit_height = 0.25, limit_width = False)
         # print cv2.imwrite("/data/yonatan/linked_to_web/svm_C_60/dress_detector_result_07_" + str(label) + ".jpg", padded_image2)
         return True
     else:
