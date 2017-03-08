@@ -14,7 +14,7 @@ print "Starting the dress detector testing!"
 
 
 def find_dress_dlib(image, detector, max_num_of_faces=10):
-    start = time.time()
+    # start = time.time()
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -30,16 +30,7 @@ def find_dress_dlib(image, detector, max_num_of_faces=10):
     print "number of dresses found: {0}".format(len(dets))
     # print("Done in %.3f s." % (time.time() - start))
 
-    if len(dets) == 0:
-        print "no dress!!"
-        return dets
-    else:
-        print "great success!"
-        print len(dets)
-        return dets
-
-    #     img = io.imread(f)
-    #     dets = dress_detector(img)
+    return dets
 
 
 def print_image_with_bb(image, bb_coordinates, label, path, color, to_print=True, limit_height=False, limit_width=False):
@@ -85,10 +76,10 @@ def print_image_with_bb(image, bb_coordinates, label, path, color, to_print=True
         print "d.left: {0}, d.top: {1}, d.right: {2}, d.bottom: {3}\nwidth: {4}, height: {5}\n".format(d.left(), d.top(), d.right(), d.bottom(), width, height)
         cv2.rectangle(image, (left, top), (right, bottom), rgb, 3)
 
-        if to_print:
-            print cv2.imwrite(path + str(label) + ".jpg", image)
+    if to_print:
+        print cv2.imwrite(path + str(label) + ".jpg", image)
 
-        return True
+    return True
 
 
 def detect(url_or_np_array, label=0):
@@ -105,14 +96,11 @@ def detect(url_or_np_array, label=0):
     dets2 = find_dress_dlib(full_image, 0.7)
 
     if dets and dets2:
-        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", 'red', to_print=False, limit_height=0.25, limit_width=False)
-        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", 'green', limit_height=0.25, limit_width=False)
-        return 2
+        return print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_045_", 'red', to_print=False, limit_height=0.25, limit_width=False) +\
+               print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/unique/dress_detector_result_07_", 'green', limit_height=0.25, limit_width=False)
     elif dets:
-        print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", 'red', limit_height=0.25, limit_width=False)
-        return True
+        return print_image_with_bb(full_image, dets, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_045_", 'red', limit_height=0.25, limit_width=False)
     elif dets2:
-        print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", 'green', limit_height=0.25, limit_width=False)
-        return True
+        return print_image_with_bb(full_image, dets2, label, "/data/yonatan/linked_to_web/svm_C_40_symmetry/dress_detector_result_07_", 'green', limit_height=0.25, limit_width=False)
     else:
         return False
