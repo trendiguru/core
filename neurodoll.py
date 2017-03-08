@@ -120,7 +120,7 @@ def url_to_image(url):
     # return the image
     return new_image
 
-def get_layer_output(url_or_np_array,required_image_size=(256,256),layer='myfc7'):
+def get_layer_output(url_or_np_array,required_image_size=(224,224),layer='myfc7'):
     if isinstance(url_or_np_array, basestring):
         print('get_layer_output working on url:'+url_or_np_array)
         image = url_to_image(url_or_np_array)
