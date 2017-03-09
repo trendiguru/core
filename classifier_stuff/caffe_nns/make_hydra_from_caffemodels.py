@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 from trendi.classifier_stuff.caffe_nns import jrinfer
 
+
 def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer):
     print('attempting to sub {} into {}'.format(source_layer,dest_layer))
     assert len(dest_net_params[dest_layer])==len(source_net_params[source_layer]) ,'inequal lengths of params'
@@ -30,6 +31,7 @@ def copy_layer_params(dest_net_params,dest_layer,source_net_params,source_layer)
                         np.mean(source_net_params[source_layer][i].data),np.std(source_net_params[source_layer][i].data)))
         dest_net_params[dest_layer][i].data[...] = source_net_params[source_layer][i].data
     return dest_net_params
+
 
 def get_user_input():
     parser = argparse.ArgumentParser(description='"@@@ Many2One @@@')
@@ -44,6 +46,7 @@ def get_user_input():
     args = parser.parse_args()
     return args
 
+
 def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffemodel'):
     #pants, shirt, dress
     urls = ['http://g04.a.alicdn.com/kf/HTB1BdwqHVXXXXcJXFXXq6xXFXXXz/2015-Fashion-Spring-Summer-Pants-Women-Straight-Career-Trousers-for-Office-Ladies-Black-Green-Pantalones-Women.jpg',
@@ -52,6 +55,7 @@ def test_hydra(proto='ResNet-101-deploy.prototxt',caffemodel='three_heads.caffem
  #   for url in urls:
  #       jrinfer.infer_one_hydra(url,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
     jrinfer.infer_many_hydra(urls,proto,caffemodel,out_dir='./',dims=(224,224),output_layers=['fc4_0','fc4_1','fc4_2'])
+
 
 def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2='ResNet-101-deploy.prototxt',caffemodel1='three_heads.caffemodel',caffemodel2='three_heads.caffemodel'):
     '''
@@ -80,6 +84,7 @@ def compare_nets(net1=None,net2=None,proto1='ResNet-101-deploy.prototxt',proto2=
             print('net1 {}[{}] params shape {} mean {} std {}'.format(layer,i,params1.shape,np.mean(params1),np.std(params1)))
             print('net2 {}[{}] params shape {} mean {} std {}'.format(layer,i,params2.shape,np.mean(params2),np.std(params2)))
             print('params equal ' if np.all(params1==params2) else 'params not equal')
+
 
 def show_all_params(proto,caffemodel,filter='',gpu=0):
     '''
@@ -214,7 +219,8 @@ if __name__ == "__main__":
             for k in range(len(destination_net.params[fc_dest])):
                 print('check:dest layer {}[{}] shape {} mean {} std {}'.format(fc_dest,k,
                         destination_net.params[fc_dest][k].data.shape,
-                            np.mean(destination_net.params[fc_dest][k].data),np.std(destination_net.params[fc_dest][k].data)))
+                        np.mean(destination_net.params[fc_dest][k].data),
+                        np.std(destination_net.params[fc_dest][k].data)))
 
     destination_net.save('/'.join([folder_path, user_input.modelname]))
 

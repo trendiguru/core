@@ -509,8 +509,9 @@ def bb_to_mask(bb, img_array):
 
 
 def is_valid_image(img_array):
-    if img_array is not None and type(img_array) == np.ndarray and img_array.shape[0] * img_array.shape[
-        1] >= constants.min_image_area:
+    if img_array is not None and \
+            type(img_array) == np.ndarray and\
+            img_array.shape[0] * img_array.shape[1] >= constants.min_image_area:
         return True
     else:
         return False
