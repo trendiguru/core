@@ -5,6 +5,8 @@ import cv2
 import requests
 import skimage
 import dlib
+import pymongo
+
 
 # # uncomment the line below only if you want to use dlib_face_detector
 detector = dlib.get_frontal_face_detector()
@@ -64,4 +66,17 @@ def pad(array, reference, offsets):
     # Insert the array in the result at the specified offsets
     result[insertHere] = array
     return result
+
+
+def connect_to_mongo():
+    # one possibility:
+    # db = pymongo.MongoClient().mydb
+
+    # if in_docker:
+    db = pymongo.MongoClient('localhost', port=27017).mydb
+
+    # else:
+    # db = constants.db
+
+    return db
 

@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 
-import pymongo
 from trendi.yonatan import test_object_detector, functions
 
 
-# if i run this function on brainik80a:
-# db = pymongo.MongoClient().mydb
-
-# if in_docker:
-db = pymongo.MongoClient('localhost', port=27017).mydb
-
-# else:
-# db = constants.db
+db = functions.connect_to_mongo()
 
 # irrelevant_dictionary = db.irrelevant_images_distinct.find()
 irrelevant_dictionary = list(db.irrelevant_images_distinct.aggregate([{ "$sample": { "size": 5000} }]))
@@ -23,7 +15,6 @@ face_image_counter = 0
 found_dress_counter = 0
 no_dress_counter = 0
 unique_counter = 0
-
 
 for i in range(1, len(irrelevant_dictionary)):
 
