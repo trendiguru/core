@@ -354,7 +354,6 @@ def build_resnet(N=9,training_data_path=None,test_data_path=None,mean_file_path=
 
     print('Saved ' + save_file)
 
-
 # another helper function
 def fc_relu(bottom, nout,lr_mult1=1,decay_mult1=1,lr_mult2=2,decay_mult2=0):
     fc = L.InnerProduct(bottom,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],num_output=nout,weight_filler=dict(type='xavier'))
@@ -446,21 +445,113 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
-def resnet_u():
-    incoming = resnet('train','test')
-    print(str(incoming))
+def jr_resnet_50(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
+                 lr_mult=(1,1),weight_filler='xavier',use_global_stats=False): #global stats false for train, true for test/deploy
+    data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
+    transform_param=dict(crop_size=227, mean_value=[104, 117, 123], mirror=True)
+    # the net itself
+    conv = L.Convolution(data, kernel_size=7, stride=2,
+                                num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
+    batch_norm = L.BatchNorm(conv, in_place=True, param= \
+                                [dict(lr_mult=0, decay_mult=0),
+                                 dict(lr_mult=0, decay_mult=0),
+#                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
+                                 dict(lr_mult=0, decay_mult=0)],
+                             batch_norm_param=dict(use_global_stats=use_global_stats))
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
 
-def conv_factory(bottom, ks, nout, stride=1, pad=0):
-    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
-                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
-    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+  #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
+ #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
+    residual = max_pool(relu, 3, stride=2)
+
+    nout = 64
+    kernel_sizes = (1,3)
+    strides = (1,1)
+    l = jr_resnet_A(residual,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+
+    strides = (2,1)
+    l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    strides = (1,1)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+
+    strides = (2,1)
+    l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    strides = (1,1)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+
+    strides = (2,1)
+    l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    strides = (1,1)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+
+#    residual = max_pool(l, 7, stride=1)
+    residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=7, stride=1)
+
+    fc = L.InnerProduct(residual,param= \
+                        [dict(lr_mult=lr_mult[0]),
+                         dict(lr_mult=lr_mult[1])],
+                        weight_filler=dict(type=weight_filler),
+                        num_output=1000)
+
+    loss = L.SoftmaxWithLoss(fc, label)
+    acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    return to_proto(loss, acc)
+
+def jr_resnet_A(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
+    #kernel_sizes[1] is the middle (larger) kernel size
+    #strides[0] is the first (sometimes larger) stride
+    cbsr_b2_a = conv_factory_relu(bottom, nout, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats) #CBSR
+    cbsr_b2_b = conv_factory_relu(cbsr_b2_a, nout, kernel_size=kernel_sizes[1],stride=strides[1],use_global_stats=use_global_stats)
+    n_cbs = nout * 4
+    cbs_b2_c = conv_factory(cbsr_b2_b, n_cbs,kernel_size=kernel_sizes[0],stride=strides[1],use_global_stats=use_global_stats) #CBS
+    cbs_b1_a = conv_factory(bottom, n_cbs, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats)
+    residual = L.Eltwise(cbs_b1_a, cbs_b2_c, operation=P.Eltwise.SUM)
+    relu = L.ReLU(residual, in_place=True)
+    return relu
+
+def jr_resnet_B(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
+    #kernel_sizes[1] is the middle (larger) kernel size
+    #strides[0] is the first (sometimes larger) stride
+    cbsr_b2_a = conv_factory_relu(bottom, nout, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats) #CBSR
+    cbsr_b2_b = conv_factory_relu(cbsr_b2_a, nout, kernel_size=kernel_sizes[1],stride=strides[1],use_global_stats=use_global_stats)
+    n_cbs = nout * 4
+    cbs_b2_c = conv_factory(cbsr_b2_b, n_cbs,kernel_size=kernel_sizes[0],stride=strides[1],use_global_stats=use_global_stats) #CBS
+    residual = L.Eltwise(bottom,cbs_b2_c, operation=P.Eltwise.SUM)
+    relu = L.ReLU(residual, in_place=True)
+    return relu
+
+def conv_factory(bottom, nout,kernel_size=1, stride=1, pad='preserve',filler='msra',use_global_stats=False): #CBS
+    if pad=='preserve':
+        pad = (kernel_size-1)/2
+        if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
+            print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
+    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
+                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
+#    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+    batch_norm = L.BatchNorm(conv, in_place=True)#apparently, default global_param and lr is ok
+    print(str(batch_norm))
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     return scale
 
-def conv_factory_relu(bottom, ks, nout, stride=1, pad=0):
-    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
-                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
-    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
+def conv_factory_relu(bottom, nout, kernel_size=1, stride=1, pad='preserve',filler='msra',use_global_stats=False): #CBSR
+    if pad=='preserve':
+        pad = (kernel_size-1)/2
+        if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
+            print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
+    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
+                                num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
+    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+    batch_norm = L.BatchNorm(conv, in_place=True) #default global_param and lr is supposed to be ok
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
     return relu
@@ -1037,7 +1128,7 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     return n.to_proto()
 
 def sharp_res50():
-    pss
+    pass
 
 '''layer {
   name: "data"

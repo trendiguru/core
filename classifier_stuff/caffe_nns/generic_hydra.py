@@ -85,14 +85,17 @@ def show_all_params(proto,caffemodel,filter='',gpu=0):
             params = net.params[layer][i].data
             print('net {}[{}] params shape {} mean {} std {}'.format(layer,i,params.shape,np.mean(params),np.std(params)))
 
-def show_all_layers(proto,caffemodel,filter='',gpu=0):
+def show_all_layers(proto,caffemodel,filter='',gpu=None):
     '''
     print all params
     '''
 
-    caffe.set_mode_gpu()
-    caffe.set_device(gpu)
-
+    if(gpu):
+        caffe.set_mode_gpu()
+        caffe.set_device(gpu)
+    else:
+        caffe.set_mode_cpu()
+        
     net = caffe.Net(proto, caffe.TEST,weights=caffemodel)
     all_params = [p for p in net.layers if filter in p]
 
