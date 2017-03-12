@@ -30,3 +30,20 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
 
                 # cv2.imshow("image", img_arr)
                 # cv2.waitKey(0)
+
+
+### print the deep fashion 'fabric' categories ###
+def print_category_from_deepfashion():
+    import yonatan_constants
+
+    dict = yonatan_constants.attribute_type_dict
+
+    counter = 0
+
+    for key, value in dict.iteritems():
+
+        if value[1] == "fabric":
+            counter += 1
+            print value[0]
+
+    print "\ncounter: {0}".format(counter)
