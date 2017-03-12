@@ -537,7 +537,8 @@ def conv_factory(bottom, nout,kernel_size=1, stride=1, pad='preserve',filler='ms
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
-    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+#    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+    batch_norm = L.BatchNorm(conv, in_place=True)#apparently, default global_param and lr is ok
     print(str(batch_norm))
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     return scale
@@ -550,6 +551,7 @@ def conv_factory_relu(bottom, nout, kernel_size=1, stride=1, pad='preserve',fill
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
     batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+    batch_norm = L.BatchNorm(conv, in_place=True) #default global_param and lr is supposed to be ok
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
     return relu
