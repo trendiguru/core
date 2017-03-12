@@ -454,7 +454,9 @@ def jr_resnet_50(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=
     batch_norm = L.BatchNorm(conv, in_place=True, param= \
                                 [dict(lr_mult=0, decay_mult=0),
                                  dict(lr_mult=0, decay_mult=0),
-                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats,False)])
+#                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
+                                 dict(lr_mult=0, decay_mult=0)],
+                             batch_norm_param=dict(use_global_stats=False))
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
@@ -470,30 +472,40 @@ def jr_resnet_50(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
 
+    strides = (2,1)
     l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
+    strides = (1,1)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
 
+    strides = (2,1)
     l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
+    strides = (1,1)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
 
+    strides = (2,1)
     l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
+    strides = (1,1)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
     l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides)
 
-    residual = max_pool(relu, 7, stride=1)
+#    residual = max_pool(l, 7, stride=1)
+    residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=7, stride=1)
+
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
                          dict(lr_mult=lr_mult[1])],
                         weight_filler=dict(type=weight_filler),
                         num_output=1000)
 
-    n.loss = L.SoftmaxWithLoss(n.conv_final, n.label)
+    loss = L.SoftmaxWithLoss(fc, label)
+    acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    return to_proto(loss, acc)
 
 
 
@@ -526,7 +538,7 @@ def conv_factory(bottom, nout,kernel_size=1, stride=1, pad='preserve'): #CBS
         pad = (kernel_size-1)/2
         if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
-    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
     batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
@@ -537,7 +549,7 @@ def conv_factory_relu(bottom, nout, kernel_size=1, stride=1, pad='preserve'): #C
         pad = (kernel_size-1)/2
         if float(kernel_size/2) == float(kernel_size)/2:  #kernel size is even
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
-    conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+    conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
     batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)])
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
