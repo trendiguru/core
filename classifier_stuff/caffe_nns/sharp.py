@@ -452,12 +452,13 @@ def jr_resnet_50(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=
     # the net itself
     conv = L.Convolution(data, kernel_size=7, stride=2,
                                 num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
-    batch_norm = L.BatchNorm(conv, in_place=True, param= \
-                                [dict(lr_mult=0, decay_mult=0),
-                                 dict(lr_mult=0, decay_mult=0),
-#                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
-                                 dict(lr_mult=0, decay_mult=0)],
-                             batch_norm_param=dict(use_global_stats=use_global_stats))
+#     batch_norm = L.BatchNorm(conv, in_place=True, param= \
+#                                 [dict(lr_mult=0, decay_mult=0),
+#                                  dict(lr_mult=0, decay_mult=0),
+# #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
+#                                  dict(lr_mult=0, decay_mult=0)],
+#                              batch_norm_param=dict(use_global_stats=use_global_stats))
+    batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
@@ -539,7 +540,6 @@ def conv_factory(bottom, nout,kernel_size=1, stride=1, pad='preserve',filler='ms
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
 #    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
     batch_norm = L.BatchNorm(conv, in_place=True)#apparently, default global_param and lr is ok
-    print(str(batch_norm))
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     return scale
 
@@ -550,7 +550,7 @@ def conv_factory_relu(bottom, nout, kernel_size=1, stride=1, pad='preserve',fill
             print('warning: even kernel size, image size cannot be preserved! pad:'+str(pad)+' kernelsize:'+str(kernel_size))
     conv = L.Convolution(bottom, kernel_size=kernel_size, stride=stride,
                                 num_output=nout, pad=pad, bias_term=False, weight_filler=dict(type=filler))
-    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
+#    batch_norm = L.BatchNorm(conv, in_place=True, param=[dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)],batch_norm_param=dict(use_global_stats=use_global_stats))
     batch_norm = L.BatchNorm(conv, in_place=True) #default global_param and lr is supposed to be ok
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
