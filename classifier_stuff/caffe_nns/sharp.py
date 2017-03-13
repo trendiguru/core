@@ -593,7 +593,7 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 # #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
 #                                  dict(lr_mult=0, decay_mult=0)],
 #                              batch_norm_param=dict(use_global_stats=use_global_stats))
-    batch_norm = L.BatchNorm(conv, in_place=True)
+    batch_norm = L.BatchNorm(conv, in_place=True,use_global_stats=use_global_stats)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
@@ -609,8 +609,8 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     for j in range(n_bs[0]):
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
-    for i in range(1,len(n_bs)+1):
-        print('doing {} Bs for A {}'.format(n_bs[i],i))
+    for i in range(1,len(n_bs)):
+        print('doing {} Bs for A[{}]'.format(n_bs[i],i))
         strides = (2,1)
         l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
