@@ -610,7 +610,8 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
     for i in range(1,len(n_bs)):
-        print('doing {} Bs for A[{}]'.format(n_bs[i],i))
+        nout = nout * 2
+        print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
         strides = (2,1)
         l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
