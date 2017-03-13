@@ -445,19 +445,13 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
-def jr_resnet_u(n_bs=[2,3,5,2],lr_mult=(1,1),decay_mult1=(1,0)): #check decays
-    def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
-                 lr_mult=(1,1),weight_filler='xavier',use_global_stats=False): #global stats false for train, true for test/deploy
+def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2))): #check decays
     '''
-
     resnet 50: n_bs = [2,3,5,2]  this
     :param n_bs: number of 'B' units for each 'A' unit
-    :param source:
-    :param batch_size:
-    :param nout_initial:
     :param lr_mult:
+    :param decay_mult:
     :param weight_filler:
-    :param use_global_stats:
     :return:
     '''
     data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
