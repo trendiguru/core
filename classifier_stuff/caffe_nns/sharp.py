@@ -445,7 +445,7 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
-def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2))): #check decays
+def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2)),image_dims=(224,224)): #check decays
     '''
     resnet 50: n_bs = [2,3,5,2]  this
     :param n_bs: number of 'B' units for each 'A' unit
@@ -454,10 +454,12 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     :param weight_filler:
     :return:
     '''
+    current_dims = np.array(image_dims)
     data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
     transform_param=dict(crop_size=227, mean_value=[104, 117, 123], mirror=True)
     # the net itself
-    conv = L.Convolution(data, kernel_size=7, stride=2,
+    stride=2
+    conv = L.Convolution(data, kernel_size=7, stride=stride,
                                 num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
 #     batch_norm = L.BatchNorm(conv, in_place=True, param= \
 #                                 [dict(lr_mult=0, decay_mult=0),
@@ -465,14 +467,20 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
 # #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
 #                                  dict(lr_mult=0, decay_mult=0)],
 #                              batch_norm_param=dict(use_global_stats=use_global_stats))
+    current_dims = np.divide(current_dims,2.0)
+    print('dims after conv1 '+str(current_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
-    residual = max_pool(relu, 3, stride=2)
-
+    kernel_size=3
+    pad = 0
+    residual = max_pool(relu, kernel_size, stride=2)
+#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+    current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
+    print('dims after maxpool1 '+str(current_dims))
 
     # starting the U - going in
     nout = 64
@@ -493,22 +501,49 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         l_cross[i] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
-    #    residual = max_pool(l, 7, stride=1)
-    residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=7, stride=1)
+    #    residual = ave_pool(l, 7, stride=1)
+    pad = 0
+    kernel_size = 7
+    residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=kernel_size, stride=1)
+#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+    current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
+    print('dims after maxpool2 '+str(current_dims))
 
+    n_filters = 64  #arbitrary
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
                          dict(lr_mult=lr_mult[1])],
                         weight_filler=dict(type=weight_filler),
-                        num_output=1000)
+                        num_output=n_filters*current_dims[0]*current_dims[1])
+#-------
+    reshape = L.Reshape(fc, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
 
+#    n.conv8_0,n.relu8_0,n.bn8_0,n.scale8_0 = conv_relu_bn(n.reshape8,n_output=512,kernel_size=7,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
+    #the following will be 14x14 (original /16).
 
-    # ending the U - going out
-    deconv1 = L.Deconvolution(fc,param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
-                    convolution_param = dict(num_output=nout,pad = 0,kernel_size=7,stride = 1,
-                    weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
+    kernel_size = 2
+    stride = 2
+    initial_deconv_value = 1.0/(stride*stride)
+    print('initial deconv value '+str(initial_deconv_value))
+    deconv = L.Deconvolution(reshape,
+                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
+#                            num_output=64,
+                            convolution_param = dict(num_output=512, pad = 0,
+                            kernel_size=kernel_size,
+                            stride = stride,
+#                            weight_filler= {'type':'xavier'},
+                            weight_filler= {'type':'constant','value':initial_deconv_value},
+                            bias_filler= {'type':'constant','value':0.0}) )
 
-    l = deconv1
+#       stride_data[i] * (input_dim - 1)  + kernel_extent - 2 * pad_data[i];
+#    current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1  #
+    # see https://github.com/BVLC/caffe/blob/master/src/caffe/layers/deconv_layer.cpp#L10  for deconv
+    current_dims = stride*(current_dims-1) + kernel_size - 2 * pad
+    print('dims after deconv '+str(current_dims))
+
+#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+
+    l = deconv
     for i in range(len(n_bs)+1,1,-1):
         strides = (2,1)
         l = jr_resnet_A_cross(l,l_cross[i],nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
@@ -565,15 +600,17 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
     residual = max_pool(relu, 3, stride=2)
-
+    # n.b. this is being done without a pad
     nout = 64
     kernel_sizes = (1,3)
     strides = (1,1)
     l = jr_resnet_A(residual,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    print('doing {} Bs for initial A'.format(n_bs[0]))
     for j in range(n_bs[0]):
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
     for i in range(1,len(n_bs)+1):
+        print('doing {} Bs for A {}'.format(n_bs[i],i))
         strides = (2,1)
         l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
@@ -706,6 +743,7 @@ def conv_factory_relu_inverse_no_inplace(bottom, ks, nout, stride=1, pad=0):
     return conv
 
 def max_pool(bottom, ks, stride=1):
+    '''note this can take a pad '''
     return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
 
 
