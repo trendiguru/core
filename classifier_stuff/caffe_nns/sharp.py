@@ -13,6 +13,7 @@ from trendi import Utils
 from google.protobuf import text_format
 
 from trendi.classifier_stuff.caffe_nns import lmdb_utils
+import math
 
 #label = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_label', transform_param=dict(scale=1./255), ntop=1)
 #data = L.Data(batch_size=99, backend=P.Data.LMDB, source='train_data', transform_param=dict(scale=1./255), ntop=1)
@@ -487,19 +488,23 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     kernel_sizes = (1,3)
     strides = (1,1)
     l = jr_resnet_A(residual,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    print('doing {} Bs for initial A'.format(n_bs[0]))
     for j in range(n_bs[0]-1):
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
     l_cross = [None for k in range(n_bs)]
     l_cross[0] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
+    l = l_cross[0]
     for i in range(1,len(n_bs)+1):
+        nout = nout * 2
+        print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
         strides = (2,1)
         l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
-        nout=nout*2
         for j in range(n_bs[i]-1):
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         l_cross[i] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+        l = l_cross
 
     #    residual = ave_pool(l, 7, stride=1)
     pad = 0
@@ -509,12 +514,14 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
     print('dims after maxpool2 '+str(current_dims))
 
-    n_filters = 64  #arbitrary
+    n_filters = math.ceil(float(nout)/(current_dims[0]*current_dims[1])) #arbitrary
+    n_neurons = math.ceil(current_dims[0]*current_dims[1]*n_filters)
+    print('orig filters {} x {} y {} n_filt {}'.format(nout,current_dims[0],current_dims[1],n_neurons))
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
                          dict(lr_mult=lr_mult[1])],
                         weight_filler=dict(type=weight_filler),
-                        num_output=n_filters*current_dims[0]*current_dims[1])
+                        num_output=n_neurons)
 #-------
     reshape = L.Reshape(fc, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
 
@@ -557,7 +564,9 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     kernel_sizes = (1,3)
     strides = (1,1)
     l = jr_resnet_A(residual,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    print('doing {} Bs for initial A'.format(n_bs[0]))
     for j in range(n_bs[0]-1):
+        nout = nout * 2
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
     l_cross = [None for k in range(n_bs)]
     l_cross[0] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
