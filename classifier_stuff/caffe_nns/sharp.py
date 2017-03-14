@@ -503,9 +503,6 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     relu = L.ReLU(scale, in_place=True)
 
 
-    loss = L.SoftmaxWithLoss(relu, label)
-    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
-    return to_proto(loss, acc)
 
 
     residual = max_pool(relu, kernel_size, stride=2)
@@ -532,6 +529,11 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
     l = l_cross[0]
 #    l = l_cross0
+
+    loss = L.SoftmaxWithLoss(l, label)
+    acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    return to_proto(loss, acc)
+
 
     for i in range(1,len(n_bs)):
         nout = nout * 2
