@@ -502,10 +502,6 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
-    loss = L.SoftmaxWithLoss(relu, label)
-    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
-    print(type(loss),type(acc))
-    return to_proto(acc)
 
     residual = max_pool(relu, kernel_size, stride=2)
 
