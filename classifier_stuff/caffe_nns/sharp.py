@@ -550,8 +550,8 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
         final_cross_index = i
     #    residual = ave_pool(l, 7, stride=1)
 
-    loss = L.SoftmaxWithLoss(relu, label)
-    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    loss = L.SoftmaxWithLoss(l, label)
+    acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
 
@@ -580,6 +580,11 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                         num_output=n_neurons)
     relu = L.ReLU(fc, in_place=True)
     reshape = L.Reshape(relu, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
+
+    loss = L.SoftmaxWithLoss(reshape, label)
+    acc = L.Accuracy(reshape, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    return to_proto(loss, acc)
+
 
     raw_input('ret to cont')
 
