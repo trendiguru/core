@@ -446,7 +446,9 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 #
-def jr_resnet_test(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2)),image_dims=(224,224),batch_size=10,use_global_stats=False): #check decays
+def jr_resnet_test(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
+                 lr_mult=(1,1),weight_filler='xavier',use_global_stats=False): #global stats false for train, true for test/deploy
+
     '''
     resnet 50: n_bs = [2,3,5,2]  this
     :param n_bs: number of 'B' units for each 'A' unit
@@ -455,7 +457,6 @@ def jr_resnet_test(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0)
     :param weight_filler:
     :return:
     '''
-    current_dims = np.array(image_dims)
     data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
     transform_param=dict(crop_size=224, mean_value=[104, 117, 123], mirror=True)
     # the net itself
@@ -465,8 +466,6 @@ def jr_resnet_test(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0)
     conv = L.Convolution(data, kernel_size=kernel_size, stride=stride,
                                 num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
-    current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
-    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
