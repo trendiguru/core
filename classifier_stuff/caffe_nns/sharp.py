@@ -476,7 +476,7 @@ def jr_resnet_test(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initia
     return to_proto(acc)
 
 
-def jr_resnet_u([2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
+def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                  lr_mult=(1,1),weight_filler='xavier',use_global_stats=False,image_dims=(224,224)): #global stats false for train, true for test/deploy
     '''
     resnet 50: n_bs = [2,3,5,2]  this
