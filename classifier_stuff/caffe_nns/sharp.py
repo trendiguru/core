@@ -446,6 +446,37 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
 
+def jr_resnet_test(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2)),image_dims=(224,224),batch_size=10,use_global_stats=False): #check decays
+    '''
+    resnet 50: n_bs = [2,3,5,2]  this
+    :param n_bs: number of 'B' units for each 'A' unit
+    :param lr_mult:
+    :param decay_mult:
+    :param weight_filler:
+    :return:
+    '''
+    current_dims = np.array(image_dims)
+    data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
+    transform_param=dict(crop_size=224, mean_value=[104, 117, 123], mirror=True)
+    # the net itself
+    stride=2
+    kernel_size = 7
+    pad = 3
+    conv = L.Convolution(data, kernel_size=kernel_size, stride=stride,
+                                num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+    current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
+    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
+    batch_norm = L.BatchNorm(conv, in_place=True)
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+
+    loss = L.SoftmaxWithLoss(relu, label)
+    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    print(type(loss),type(acc))
+    return to_proto(acc)
+
+
 def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2)),image_dims=(224,224),batch_size=10,use_global_stats=False): #check decays
     '''
     resnet 50: n_bs = [2,3,5,2]  this
@@ -464,26 +495,19 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     pad = 3
     conv = L.Convolution(data, kernel_size=kernel_size, stride=stride,
                                 num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
-#     batch_norm = L.BatchNorm(conv, in_place=True, param= \
-#                                 [dict(lr_mult=0, decay_mult=0),
-#                                  dict(lr_mult=0, decay_mult=0),
-# #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
-#                                  dict(lr_mult=0, decay_mult=0)],
-#                              batch_norm_param=dict(use_global_stats=use_global_stats))
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
     current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
     print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
-    residual = max_pool(relu, kernel_size, stride=2)
 
-    loss = L.SoftmaxWithLoss(residual, label)
-    acc = L.Accuracy(residual, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    loss = L.SoftmaxWithLoss(relu, label)
+    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     print(type(loss),type(acc))
     return to_proto(acc)
-    return acc.to_proto()
 
+    residual = max_pool(relu, kernel_size, stride=2)
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
@@ -661,12 +685,6 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     # the net itself
     conv = L.Convolution(data, kernel_size=7, stride=2,
                                 num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
-#     batch_norm = L.BatchNorm(conv, in_place=True, param= \
-#                                 [dict(lr_mult=0, decay_mult=0),
-#                                  dict(lr_mult=0, decay_mult=0),
-# #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
-#                                  dict(lr_mult=0, decay_mult=0)],
-#                              batch_norm_param=dict(use_global_stats=use_global_stats))
     batch_norm = L.BatchNorm(conv, in_place=True,use_global_stats=use_global_stats)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
@@ -675,8 +693,6 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     print(type(loss),type(acc))
     return to_proto(acc)
-    return acc.to_proto()
-
 
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
