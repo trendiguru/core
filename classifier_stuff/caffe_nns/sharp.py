@@ -460,8 +460,10 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     transform_param=dict(crop_size=224, mean_value=[104, 117, 123], mirror=True)
     # the net itself
     stride=2
-    conv = L.Convolution(data, kernel_size=7, stride=stride,
-                                num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
+    kernel_size = 7
+    pad = 3
+    conv = L.Convolution(data, kernel_size=kernel_size, stride=stride,
+                                num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 #     batch_norm = L.BatchNorm(conv, in_place=True, param= \
 #                                 [dict(lr_mult=0, decay_mult=0),
 #                                  dict(lr_mult=0, decay_mult=0),
@@ -469,17 +471,24 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
 #                                  dict(lr_mult=0, decay_mult=0)],
 #                              batch_norm_param=dict(use_global_stats=use_global_stats))
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
-    current_dims = np.divide(current_dims,2)
+    current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
     print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
+    residual = max_pool(relu, kernel_size, stride=2)
+
+    loss = L.SoftmaxWithLoss(residual, label)
+    acc = L.Accuracy(residual, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    print(type(loss),type(acc))
+    return to_proto(acc)
+    return acc.to_proto()
+
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
     kernel_size=3
     pad = 1
-    residual = max_pool(relu, kernel_size, stride=2)
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
     current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
     print('dims after maxpool1 '+str(current_dims))
@@ -493,9 +502,18 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     for j in range(n_bs[0]-1):
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
     l_cross = [None for k in range(len(n_bs))]
-    l_cross[0] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+#    l_cross[0] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    l_cross0 = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
-    l = l_cross[0]
+#    l = l_cross[0]
+    l = l_cross0
+
+    loss = L.SoftmaxWithLoss(l, label)
+    acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    print(type(loss),type(acc))
+    return to_proto(loss, acc)
+
+
     for i in range(1,len(n_bs)):
         nout = nout * 2
         print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
@@ -504,8 +522,10 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
         strides = (1,1)
         for j in range(n_bs[i]-1):
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-        l_cross[i] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-        l = l_cross
+        #l_cross[i] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+        l_cross1 = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+#        l = l_cross[i]
+        l = l_cross1
         final_cross_index = i
     #    residual = ave_pool(l, 7, stride=1)
     pad = 3
@@ -513,19 +533,15 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
     stride = 1
     residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=kernel_size, stride=stride)
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+
+
+
+
+
+
+    #bottom of U
     current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
     print('dims after maxpool2 '+str(current_dims))
-
-#    stride = 7
-#    conv = L.Convolution(data, kernel_size=7, stride=stride,
- #                               num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
-#     batch_norm = L.BatchNorm(conv, in_place=True, param= \
-#                                 [dict(lr_mult=0, decay_mult=0),
-#                                  dict(lr_mult=0, decay_mult=0),
-# #                                 dict(lr_mult=0, decay_mult=0),dict(use_global_stats=False)])
-#                                  dict(lr_mult=0, decay_mult=0)],
-#                              batch_norm_param=dict(use_global_stats=use_global_stats))
-#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
 
     n_output_filters = math.ceil(float(nout)/(current_dims[0]*current_dims[1])) #arbitrary
     n_neurons = math.ceil(current_dims[0]*current_dims[1]*n_output_filters)
@@ -536,42 +552,59 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
                         weight_filler=dict(type=weight_filler),
                         num_output=n_neurons)
     relu = L.ReLU(fc, in_place=True)
-    reshape = L.Reshape(fc, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
+    reshape = L.Reshape(relu, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
 
-#    n.conv8_0,n.relu8_0,n.bn8_0,n.scale8_0 = conv_relu_bn(n.reshape8,n_output=512,kernel_size=7,pad='preserve',stage=stage)  #watch out for padsize here, make sure outsize is 14x14 #ug, pad1->size15, pad0->size13...
-    #the following will be 14x14 (original /16).
     raw_input('ret to cont')
 
-    for i in range(len(n_bs),1,-1):
+    for i in range(len(n_bs)-1,0,-1):
         #get the cross
         bottom = [l_cross[final_cross_index], reshape]
         final_cross_index -= 1
         l = L.Concat(*bottom) #param=dict(concat_dim=1))
         strides = (2,1)
-        l = jr_resnet_A_cross(l,l_cross[i],nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+        l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
-        for j in range(n_bs[i]-1):
+        print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
+        for j in range(n_bs[i]):
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-        l_cross[i] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         nout=nout/2
 
     nout = 64
     kernel_sizes = (1,3)
     strides = (1,1)
-    l = jr_resnet_A(residual,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
+    bottom = [l_cross[final_cross_index], l]
+    final_cross_index -= 1
+    l = L.Concat(*bottom) #param=dict(concat_dim=1))
+    l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
     print('doing {} Bs for initial A'.format(n_bs[0]))
-    for j in range(n_bs[0]-1):
+    for j in range(n_bs[0]):
         nout = nout * 2
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-    l_cross = [None for k in range(n_bs)]
-    l_cross[0] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-
 
     kernel_size = 2
     stride = 2
+    pad = 0
     initial_deconv_value = 1.0/(stride*stride)
     print('initial deconv value '+str(initial_deconv_value))
-    deconv = L.Deconvolution(reshape,
+    deconv1 = L.Deconvolution(reshape,
+                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
+#                            num_output=64,
+                            convolution_param = dict(num_output=nout, pad = 0,
+                            kernel_size=kernel_size,
+                            stride = stride,
+#                            weight_filler= {'type':'xavier'},
+                            weight_filler= {'type':'constant','value':initial_deconv_value},
+                            bias_filler= {'type':'constant','value':0.0}) )
+    current_dims = stride*(current_dims-1) + kernel_size - 2 * pad
+    print('dims after deconv1 '+str(current_dims))
+
+
+    stride=2
+    kernel_size = 7
+    pad = 2
+    initial_deconv_value = 1.0/(stride*stride)
+    print('initial deconv value '+str(initial_deconv_value))
+    deconv2 = L.Deconvolution(deconv1,
                             param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
 #                            num_output=64,
                             convolution_param = dict(num_output=512, pad = 0,
@@ -581,22 +614,33 @@ def jr_resnet_u(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),we
                             weight_filler= {'type':'constant','value':initial_deconv_value},
                             bias_filler= {'type':'constant','value':0.0}) )
 
+
 #       stride_data[i] * (input_dim - 1)  + kernel_extent - 2 * pad_data[i];
 #    current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1  #
     # see https://github.com/BVLC/caffe/blob/master/src/caffe/layers/deconv_layer.cpp#L10  for deconv
     current_dims = stride*(current_dims-1) + kernel_size - 2 * pad
-    print('dims after deconv '+str(current_dims))
+    print('dims after deconv2 '+str(current_dims))
 
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
 
-    l = deconv
+    fc = L.InnerProduct(deconv2,param= \
+                        [dict(lr_mult=lr_mult[0]),
+                         dict(lr_mult=lr_mult[1])],
+                        weight_filler=dict(type=weight_filler),
+                        num_output=2)
 
+    kernel_size = 2
+    stride = 2
+    pad = 0
 
     loss = L.SoftmaxWithLoss(fc, label)
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    #
+    #
+    # loss = L.SoftmaxWithLoss(l, label)
+    # acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    print(type(loss),type(acc))
     return to_proto(loss, acc)
-
-
 
 def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                  lr_mult=(1,1),weight_filler='xavier',use_global_stats=False): #global stats false for train, true for test/deploy
@@ -626,6 +670,14 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     batch_norm = L.BatchNorm(conv, in_place=True,use_global_stats=use_global_stats)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
+
+    loss = L.SoftmaxWithLoss(relu, label)
+    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    print(type(loss),type(acc))
+    return to_proto(acc)
+    return acc.to_proto()
+
+
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
@@ -671,37 +723,6 @@ def jr_resnet_A(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=Fa
     cbs_b1_a = conv_factory(bottom, n_cbs, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats)
     residual = L.Eltwise(cbs_b1_a, cbs_b2_c, operation=P.Eltwise.SUM)
     relu = L.ReLU(residual, in_place=True)
-    return relu
-
-def jr_resnet_A_cross(bottom1,bottom2,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
-    '''
-    intended to take output from two sources , for unet
-    :param bottom:
-    :param nout:
-    :param kernel_sizes:
-    :param strides:
-    :param use_global_stats:
-    :return:
-    '''
-
-
-    bottom = [n.conv4_cross2, n.conv10_1]
-    n.cat10 = L.Concat(*bottom) #param=dict(concat_dim=1))
-    n.conv10_2,n.relu10_2 = conv_relu(n.cat10,n_output=512,kernel_size=3,pad='preserve')
-
-    cbsr_b2_a = conv_factory_relu(bottom, nout, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats) #CBSR
-    cbsr_b2_b = conv_factory_relu(cbsr_b2_a, nout, kernel_size=kernel_sizes[1],stride=strides[1],use_global_stats=use_global_stats)
-    n_cbs = nout * 4
-    cbs_b2_c = conv_factory(cbsr_b2_b, n_cbs,kernel_size=kernel_sizes[0],stride=strides[1],use_global_stats=use_global_stats) #CBS
-    cbs_b1_a = conv_factory(bottom, n_cbs, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats)
-    residual = L.Eltwise(cbs_b1_a, cbs_b2_c, operation=P.Eltwise.SUM)
-    relu = L.ReLU(residual, in_place=True)
-
-
-
-
-
-
     return relu
 
 def jr_resnet_B(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
