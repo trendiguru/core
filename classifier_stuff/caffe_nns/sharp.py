@@ -574,7 +574,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     print('dims after maxpool2 '+str(current_dims))
 
     n_output_filters = math.ceil(float(nout)/(current_dims[0]*current_dims[1])) #arbitrary
-    n_neurons = math.ceil(current_dims[0]*current_dims[1]*n_output_filters)
+    n_neurons = int(math.ceil(current_dims[0]*current_dims[1]*n_output_filters))
     print('orig filters {} x {} y {} n_filt {} neurons {} '.format(nout,current_dims[0],current_dims[1],n_output_filters,n_neurons))
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
