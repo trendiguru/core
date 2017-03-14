@@ -664,18 +664,18 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
 
-    fc = L.InnerProduct(deconv2,param= \
-                        [dict(lr_mult=lr_mult[0]),
-                         dict(lr_mult=lr_mult[1])],
-                        weight_filler=dict(type=weight_filler),
-                        num_output=2)
+    # fc = L.InnerProduct(deconv2,param= \
+    #                     [dict(lr_mult=lr_mult[0]),
+    #                      dict(lr_mult=lr_mult[1])],
+    #                     weight_filler=dict(type=weight_filler),
+    #                     num_output=2)
 
     kernel_size = 2
     stride = 2
     pad = 0
 
-    loss = L.SoftmaxWithLoss(fc, label)
-    acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    loss = L.SoftmaxWithLoss(deconv2, label)
+    acc = L.Accuracy(deconv2, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     #
     #
     # loss = L.SoftmaxWithLoss(l, label)
