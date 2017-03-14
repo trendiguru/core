@@ -445,7 +445,7 @@ def resnet(train_lmdb, test_lmdb, batch_size=256, stages=[2, 2, 2, 2], first_out
     loss = L.SoftmaxWithLoss(fc, label)
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
-
+#
 def jr_resnet_test(n_bs=[2,3,5,2],nout_initial=64,lr_mult=(1,1),decay_mult=(1,0),weight_filler=('xavier',('constant',0.2)),image_dims=(224,224),batch_size=10,use_global_stats=False): #check decays
     '''
     resnet 50: n_bs = [2,3,5,2]  this
