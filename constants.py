@@ -572,8 +572,8 @@ hydra_hls_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/outpu
 hydra_tg_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.caffemodel',
                               '/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.prototxt']
 
-pixlevel_v3_caffemodel_info = {'caffemodel':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_iter_7000.caffemodel',
-                              'prototxt':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_deploy.prototxt','ip':'13.82.136.127',
+pixlevel_v3_caffemodel_info = {'caffemodel':'/data/production/caffemodels_and_protos/neurodoll/sharp5_v3labels_iter_7000.caffemodel',
+                              'prototxt':'/data/production/caffemodels_and_protos/neurodoll/sharp5_v3labels_deploy.prototxt','ip':'13.82.136.127',
                                 'output_layer':'output','labels':pixlevel_categories_v3}
 
 
