@@ -528,6 +528,7 @@ def lossplot(input_filename,netinfo='',logy=True):
 
   ax1.set_xlabel(xtitle)
   ax1.set_ylabel("loss")
+  ax1.grid(axis='x',which='major') #'both' possible for both axis (x,y) and which ('major','minor')
   plt.title(input_filename)
   plt.suptitle(netinfo)
   ax1.legend(loc='lower left',fontsize=8)
