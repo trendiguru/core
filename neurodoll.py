@@ -331,7 +331,12 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224),multilab
         print('multilabel:  {}'.format(out))
         return out
 
-def get_neurodoll_output(url_or_np_array):
+def get_neurodoll_output_using_falcon(url_or_np_array):
+    '''
+    example of how you would get nd output using the falcon client
+    :param url_or_np_array:
+    :return:
+    '''
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
@@ -416,6 +421,9 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
     logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
+
+def get_nd_raw_mask(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output')
+    graylevels = get_all_category_graylevels(url_or_np_array,resize=resize,required_image_size=required_image_size,output_layer=output_layer)
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
