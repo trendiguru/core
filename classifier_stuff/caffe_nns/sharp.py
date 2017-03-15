@@ -487,7 +487,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     :return:
     '''
     #cross-connection layers
-    l_cross = [None for k in range(len(n_bs))]
+    l_cross = [None for k in range(len(n_bs)+2)]
     current_cross_layer = 0
     current_dims = np.array(image_dims)
     data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
@@ -550,7 +550,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
         #the A sequence  strides by both
         stride = strides[0]*strides[1] #aka 2
         current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
-        print('dims after initial A '+str(current_dims))
+        print('dims after A{}:{}'.format(i,current_dims))
         strides = (1,1)
         for j in range(n_bs[i]-1):
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
@@ -559,6 +559,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
         current_cross_layer += 1
         final_cross_index = i
 
+    current_cross_layer-=1
     pad = 3
     kernel_size = 7
     stride = 1
@@ -585,12 +586,13 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
 
     reshape = L.Reshape(relu, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
-
+    l = reshape
     raw_input('ret to cont')
 
     for i in range(len(n_bs)-1,0,-1):
         #get the cross
-        bottom = [l_cross[current_cross_layer], reshape]
+        print('doing cross for {} with layers {} and {}'.format(current_cross_layer,l_cross[current_cross_layer],reshape))
+        bottom = [l_cross[current_cross_layer], l]
         current_cross_layer -= 1
         l = L.Concat(*bottom) #param=dict(concat_dim=1))
         strides = (2,1)
@@ -639,7 +641,8 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     pad = 2
     initial_deconv_value = 1.0/(stride*stride)
     print('initial deconv value '+str(initial_deconv_value))
-    deconv2 = L.Deconvolution(bottom,
+    #bttom should be bottom not deconv1
+    deconv2 = L.Deconvolution(l,
                             param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
 #                            num_output=64,
                             convolution_param = dict(num_output=512, pad = 0,
@@ -744,6 +747,20 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     loss = L.SoftmaxWithLoss(fc, label)
     acc = L.Accuracy(fc, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     return to_proto(loss, acc)
+
+def jr_resnet_A_deconv(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
+    #kernel_sizes[1] is the middle (larger) kernel size
+    #strides[0] is the first (sometimes larger) stride
+    if strides[0] == 1 and strides[1] == 1: #if all strides are 1 then no need for deconv
+        return jr_resnet_A(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False)
+    cbsr_b2_a = conv_factory_relu(bottom, nout, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats) #CBSR
+    cbsr_b2_b = conv_factory_relu(cbsr_b2_a, nout, kernel_size=kernel_sizes[1],stride=strides[1],use_global_stats=use_global_stats)
+    n_cbs = nout * 4
+    cbs_b2_c = conv_factory(cbsr_b2_b, n_cbs,kernel_size=kernel_sizes[0],stride=strides[1],use_global_stats=use_global_stats) #CBS
+    cbs_b1_a = conv_factory(bottom, n_cbs, kernel_size=kernel_sizes[0],stride=strides[0],use_global_stats=use_global_stats)
+    residual = L.Eltwise(cbs_b1_a, cbs_b2_c, operation=P.Eltwise.SUM)
+    relu = L.ReLU(residual, in_place=True)
+    return relu
 
 def jr_resnet_A(bottom,nout,kernel_sizes=(1,3),strides=(1,1),use_global_stats=False):
     #kernel_sizes[1] is the middle (larger) kernel size
