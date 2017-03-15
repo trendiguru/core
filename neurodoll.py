@@ -156,7 +156,7 @@ def get_layer_output(url_or_np_array,required_image_size=(224,224),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
+def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlevel_sigmoid_output',mean=(104.0, 116.7, 122.7)):
     start_time = time.time()
     thedir = './images'
     Utils.ensure_dir(thedir)
@@ -207,7 +207,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
 #    in_ = in_[:,:,::-1]  for doing RGB -> BGR
 #    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
 
-    in_ -= np.array([104,116,122.0])  #was not used in training!!
+    in_ -= np.array(mean)  #make sure this fits whatever was used in training!!
     in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
@@ -247,7 +247,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
-    return out
+    return out,LABELS
 
 def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
@@ -422,11 +422,6 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
         print('get_all_categorygraylevels after reshape: '+str(out.shape))
     logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
-
-def get_nd_raw_mask(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
-    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,resize=resize,required_image_size=required_image_size,output_layer=output_layer)
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    return pixlevel_categorical_output,LABELS
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):

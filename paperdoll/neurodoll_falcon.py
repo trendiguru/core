@@ -127,7 +127,7 @@ class PaperResource:
         # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:
                 print "No special params, inferring..."
-                ret["mask"] = neurodoll.infer_one(img)
+                ret["mask"],labels = neurodoll.infer_one(img)
                 if ret["mask"] is not None:
                     ret["success"] = True
                 else:
