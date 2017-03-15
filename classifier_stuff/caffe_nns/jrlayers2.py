@@ -67,7 +67,10 @@ class JrPixlevel(caffe.Layer):
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',21)
-
+        self.fwd_pass_counter = 0
+        self.images_processed_counter = 0
+        self.start_time = time.time()
+        self.analysis_time = time.time()
         print('##############')
         print('params coming into jrlayers2')
         print('batchsize {}'.format(self.batch_size))
@@ -172,9 +175,12 @@ class JrPixlevel(caffe.Layer):
                 for o in output:
                     all_data[i,...]=o[0]
                     all_labels[i,...]=o[1]
+                    self.images_processed_counter += 1
+
             else:
                 for i in range(self.batch_size):
                     data, label = self.load_image_and_mask()
+                    self.images_processed_counter += 1
                     all_data[i,...]=data
                     all_labels[i,...]=label
                     self.next_idx()
@@ -200,7 +206,9 @@ class JrPixlevel(caffe.Layer):
         top[0].data[...] = self.data
         top[1].data[...] = self.label
         # pick next input
+        self.fwd_pass_counter += 1
         self.next_idx()
+
 
     def backward(self, top, propagate_down, bottom):
         pass
@@ -274,7 +282,6 @@ class JrPixlevel(caffe.Layer):
  #       print(full_filename+' has dims '+str(in_.shape))
         label = copy.copy(in_[np.newaxis, ...])
 #        print('after extradim shape:'+str(label.shape))
-
         return label
 
     def load_image_and_mask_helper(self,idxs):
@@ -379,7 +386,26 @@ class JrPixlevel(caffe.Layer):
             logging.warning('got 3 layer img as mask from augment, taking first layer')
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
+
+        self.fwd_pass_counter = 0
+        self.images_processed_counter = 0
+        self.start_time = time.time()
+
+        dt_in = time.time()-self.analysis_time
+        dt_out = time.time()-self.analysis_time_out
+        total_elapsed_time = time.time() - self.start_time
+        self.analysis_time_out = time.time()
+        print(str(self.fwd_pass_counter)+' fwd passes, '+str(self.images_processed_counter)+
+              ' images processed., tin '+str(round(dt_in,3))+
+              ' tout '+str(round(dt_out,3))+
+              ' ttot '+str(round(dt_tot,3))+
+              ' tpi '+str(float(total_elapsed_time)/self.images_processed_counter))
+
+
+
         return out1,out2
+
+
 
 
 
@@ -503,6 +529,7 @@ class JrMultilabel(caffe.Layer):
         self.augment_distribution = params.get('augment_distribution','uniform')
         self.n_labels = params.get('n_labels',0)  #this will obvious from the image/label file. in case of multilabel this is number of classes, i n case of single label this is 1
         self.counter = 0
+
 
         print('############net params for jrlayers2#########')
         if self.images_and_labels_file is not None:

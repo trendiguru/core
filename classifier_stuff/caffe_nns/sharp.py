@@ -589,6 +589,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l = reshape
     raw_input('ret to cont')
 
+    #Rest of U - going back up
     for i in range(len(n_bs)-1,0,-1):
         #get the cross
         print('doing cross for {} with layers {} and {}'.format(current_cross_layer,l_cross[current_cross_layer],reshape))

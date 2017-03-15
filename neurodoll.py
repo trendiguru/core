@@ -73,8 +73,9 @@ raw_scale = 255.0
 print('done loading caffemodel for neurodoll')
 
 #best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
-multilabel_from_binaries = True
-if not multilabel_from_binaries: #dont need this if answers are coming from multilabel_from_binaries. otherwise get the multilabel net
+multilabel_from_binaries = False
+multilabel_from_hydra = True
+if not (multilabel_from_binaries or multilabel_from_hydra): #dont need this if answers are coming from multilabel_from_binaries. otherwise get the multilabel net
     print('starting up multilabel net')
 #    protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
     modelpath = '/home/jeremy/caffenets/production'
