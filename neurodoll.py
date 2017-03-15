@@ -51,6 +51,7 @@ MODEL_FILE = constants.pixlevel_v3_caffemodel_proto_ip[1]
 #PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 #PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
 PRETRAINED = constants.pixlevel_v3_caffemodel_proto_ip[0]
+LABELS = constants.pixlevel_categories_v3
 
 test_on = True
 if test_on:
@@ -422,8 +423,10 @@ def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_
     logging.debug('get_all_category_graylevels elapsed time:'+str(elapsed_time))
     return out
 
-def get_nd_raw_mask(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output')
-    graylevels = get_all_category_graylevels(url_or_np_array,resize=resize,required_image_size=required_image_size,output_layer=output_layer)
+def get_nd_raw_mask(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer='pixlevel_sigmoid_output'):
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,resize=resize,required_image_size=required_image_size,output_layer=output_layer)
+    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    return pixlevel_categorical_output,LABELS
 
 def analyze_graylevels(url_or_np_array,labels=constants.ultimate_21):
     if isinstance(url_or_np_array, basestring):
