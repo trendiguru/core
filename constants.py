@@ -330,15 +330,6 @@ binary_caffemodels = [
 'res101_binary_swimwear_mens_iter_39000.caffemodel'
 ]
 
-hydra_hls_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
-                              '/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt']
-
-hydra_tg_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.caffemodel',
-                              '/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.prototxt']
-
-pixlevel_v3_caffemodel_info = {'caffemodel':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_iter_7000.caffemodel',
-                              'prototxt':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_deploy.prototxt','ip':'13.82.136.127',
-                                'output_layer':'output','labels':pixlevel_categories_v3}
 
 
 hydra_hls_heads =  ["backpack_hydra_iter_2000",
@@ -574,6 +565,18 @@ pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','u
                           'bag','belt','eyewear','hat','tie','skin']
 
 ultimate_21_to_pixlevel_v3 = [0,10,11,5,5,1,12,None,None,13,6,6,6,8,7,15,7,6,1,5,4]
+
+hydra_hls_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/hydra_out.caffemodel',
+                              '/data/jeremy/caffenets/hydra/production/output/hydra_out.prototxt']
+
+hydra_tg_caffemodel_and_proto = ['/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.caffemodel',
+                              '/data/jeremy/caffenets/hydra/production/output/tg_hydra_280217.prototxt']
+
+pixlevel_v3_caffemodel_info = {'caffemodel':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_iter_7000.caffemodel',
+                              'prototxt':'/data/production/caffemodels_and_protos/nd/sharp5_v3labels_deploy.prototxt','ip':'13.82.136.127',
+                                'output_layer':'output','labels':pixlevel_categories_v3}
+
+
 
 #romper (one-piece short+shirt)->dress
 #jumper (sleeveless dress) ->dress
