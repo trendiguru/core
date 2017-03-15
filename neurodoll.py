@@ -22,6 +22,7 @@ from trendi import Utils
 from trendi.paperdoll import binary_multilabel_falcon_client as bmfc
 from trendi.paperdoll import binary_multilabel_falcon_client2 as bmfc2
 from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
+from trendi.paperdoll import hydra_tg_falcon_client
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi.downloaders import label_conversions
 #REQUIREMENTS FOR THIS TO RUN
@@ -39,14 +40,17 @@ from trendi.downloaders import label_conversions
 #PRETRAINED = "/home/jeremy/voc8_15_pixlevel_iter120000.caffemodel"
 print('loading caffemodel for neurodoll')
 #protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
-modelpath = '/data/production/caffemodels_and_protos/neurodoll/'
+#modelpath = '/data/production/caffemodels_and_protos/neurodoll/'
+modelpath = os.path.basename(constants.pixlevel_v3_caffemodel_proto_ip[0])
 #modelpath = '/home/jeremy/caffenets/production'
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
-MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototxt')
+#MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototxt')
+MODEL_FILE = constants.pixlevel_v3_caffemodel_proto_ip[1]
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
 #PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
-PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
+#PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
+PRETRAINED = constants.pixlevel_v3_caffemodel_proto_ip[0]
 
 test_on = True
 if test_on:
@@ -62,10 +66,7 @@ else:
     gpu = 1
 caffe.set_mode_gpu()
 caffe.set_device(gpu)
-net = caffe.Net(MODEL_FILE,caffe.TEST, weights = PRETRAINED)  #avoid deprecated usage
-print('test value should be 1 :'+str(caffe.TEST))
-# #required_image_size = (256, 256)
-#required_image_size = (224,224)
+net = caffe.Net(MODEL_FILE,caffe.TEST, weights = PRETRAINED)
 image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
@@ -96,15 +97,7 @@ if not (multilabel_from_binaries or multilabel_from_hydra): #dont need this if a
     #multilabel_required_image_size = (227,227)
 
 else:
-    print('using multilabel from binaries (thru falcon) ')
-multilabel_required_image_size = (224,224)
-
-# Make classifier.
-#classifier = caffe.Classifier(MODEL_FILE, PRETRAINED,
-#                              image_dims=image_dims, mean=mean,
-##                              input_scale=input_scale, raw_scale=raw_scale,
- #                             channel_swap=channel_swap)
-
+    print('using multilabel thru falcon')
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -255,7 +248,6 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
     count_values(out,labels=constants.ultimate_21)
     return out
 
-
 def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
 #done
@@ -275,7 +267,7 @@ def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thr
             logging.debug(str(unique) + ' is under area threshold, new ratio '+str(ratio))
     return(out)
 
-def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
+def get_multilabel_output(url_or_np_array,required_image_size=(224,224),multilabel_source='hydra'):
 #################################
 #todo - parallelize the first if#
 #################################
@@ -298,6 +290,10 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224)):
         output3 = dic3['output']
         output = output1+output2+output3
         return output
+
+    elif multilabel_source == 'hydra':
+        dict = hydra_tg_falcon_client.hydra_tg(url_or_np_array)
+        return dict
 
     else:
         if isinstance(url_or_np_array, basestring):

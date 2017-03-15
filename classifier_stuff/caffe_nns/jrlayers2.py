@@ -156,7 +156,6 @@ class JrPixlevel(caffe.Layer):
         start_time=time.time()
    #     print('reshaping')
         # reshape tops to fit (leading 1 is for batch dimension)
-
 #        self.data,self.label = self.load_image_and_mask()
         if self.batch_size == 1:
             self.data, self.label = self.load_image_and_mask()
@@ -167,7 +166,6 @@ class JrPixlevel(caffe.Layer):
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
-
             multiprocess=False
             if multiprocess:
                 pool = multiprocessing.Pool(4)
@@ -176,7 +174,6 @@ class JrPixlevel(caffe.Layer):
                     all_data[i,...]=o[0]
                     all_labels[i,...]=o[1]
                     self.images_processed_counter += 1
-
             else:
                 for i in range(self.batch_size):
                     data, label = self.load_image_and_mask()
