@@ -41,17 +41,18 @@ from trendi.downloaders import label_conversions
 print('loading caffemodel for neurodoll')
 #protopath = os.path.join(os.path.dirname(os.path.abspath( __file__ )), 'classifier_stuff/caffe_nns/protos')
 #modelpath = '/data/production/caffemodels_and_protos/neurodoll/'
-modelpath = os.path.basename(constants.pixlevel_v3_caffemodel_proto_ip[0])
+modelpath = os.path.basename(constants.pixlevel_v3_caffemodel_info['caffemodel'])
 #modelpath = '/home/jeremy/caffenets/production'
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy.prototxt')
 #MODEL_FILE = os.path.join(modelpath,'voc8_15_pixlevel_deploy_with_sigmoid.prototxt')
 #MODEL_FILE = os.path.join(modelpath,'sharp5_pixlevel_deploy_with_sigmoid.prototxt')
-MODEL_FILE = constants.pixlevel_v3_caffemodel_proto_ip[1]
+MODEL_FILE = constants.pixlevel_v3_caffemodel_proto_ip['prototxt']
 #PRETRAINED = os.path.join(modelpath,'voc8_15_pixlevel_iter120000.caffemodel')
 #PRETRAINED = os.path.join(modelpath,'voc8_15_0816_iter10000_pixlevel_deploy.caffemodel')
 #PRETRAINED = os.path.join(modelpath,'sharp5_all_bn_iter_32000.caffemodel')
-PRETRAINED = constants.pixlevel_v3_caffemodel_proto_ip[0]
-LABELS = constants.pixlevel_categories_v3
+PRETRAINED = constants.pixlevel_v3_caffemodel_info['caffemodel']
+LABELS = constants.pixlevel_v3_caffemodel_info['labels']
+OUTPUT_LAYER = constants.pixlevel_v3_caffemodel_info['output_layer']
 
 test_on = True
 if test_on:
@@ -229,7 +230,6 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlev
 #        out = imutils.resize_keep_aspect(out,output_size=(original_h,original_w),output_file=None)
         out = imutils.undo_resize_keep_aspect(out,output_size=(original_h,original_w),careful_with_the_labels=True)
 #        out = out[:,:,0]
-
 
     out = threshold_pixlevel(out)
 
