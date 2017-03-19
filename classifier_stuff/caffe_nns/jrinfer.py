@@ -559,7 +559,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='use gpu',default='True')
     parser.add_argument('--caffe_variant', help='caffe variant',default=None)
     parser.add_argument('--dims', help='dims for net',default=None)
-    parser.add_argument('--iou',help='do iou test on pixel level net',default=True)
+    parser.add_argument('--iou',help='do iou test on pixel level net',default=False)
     parser.add_argument('--output_layer',help='output layer of net',default='output')
     args = parser.parse_args()
     print('args:'+str(args))
@@ -598,6 +598,6 @@ if __name__ == "__main__":
         elif args.image_directory:
             images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
             print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
-            infer_many(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+            infer_many_pixlevel(images,args.prototxt,args.caffemodel,out_dir=args.out_directory)
         else:
             print('gave neither image nor directory as input')
