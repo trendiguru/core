@@ -137,7 +137,7 @@ def infer_one_pixlevel_cv2(imagename,prototxt,caffemodel,out_dir='./',dims=[224,
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
     im = Utils.get_cv2_img_array(imagename)
  #   im = Image.open(imagename)
-    im = cv2.resize(im,dims)
+    im = cv2.resize(im,(dims[0],dims[1]))
 #    im = im.resize(dims,Image.ANTIALIAS)
     in_ = np.array(im, dtype=np.float32)
     if len(in_.shape) != 3:
