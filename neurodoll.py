@@ -60,9 +60,9 @@ if test_on:
         try:
             gpu = int(sys.argv[1])
         except:
-            gpu=1
+            gpu=0
     else:
-        gpu =1
+        gpu =0
     print('using gpu '+str(gpu))
 else:
     gpu = 1
@@ -157,7 +157,7 @@ def get_layer_output(url_or_np_array,required_image_size=(224,224),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlevel_sigmoid_output',mean=(104.0, 116.7, 122.7)):
+def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_LAYER,mean=(104.0, 116.7, 122.7)):
     start_time = time.time()
     image = Utils.get_cv2_img_array(url_or_np_array)
     thedir = './images'
