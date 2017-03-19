@@ -147,7 +147,7 @@ def infer_one_pixlevel_cv2(imagename,prototxt,caffemodel,out_dir='./',dims=[224,
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return
     print('shape before:'+str(in_.shape))
-    in_ = in_[:,:,::-1]  #rgb-bgr
+#    in_ = in_[:,:,::-1]  #rgb-bgr
     in_ -= np.array(mean)
     in_ = in_.transpose((2,0,1))  #whc -> cwh
     print('shape after:'+str(in_.shape))
