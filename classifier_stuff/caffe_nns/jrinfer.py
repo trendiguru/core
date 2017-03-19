@@ -128,6 +128,51 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
     print('elapsed time:'+str(elapsed_time))
     return out.astype(np.uint8)
 
+def infer_one_pixlevel_cv2(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob',
+                       mean=(104.0,116.7,122.7),labels=constants.pixlevel_categories_v3):
+    net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
+#    dims = [150,100] default for something??
+    start_time = time.time()
+    print('working on:'+imagename)
+        # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
+    im = Utils.get_cv2_img_array(imagename)
+ #   im = Image.open(imagename)
+    im = cv2.resize(im,dims)
+#    im = im.resize(dims,Image.ANTIALIAS)
+    in_ = np.array(im, dtype=np.float32)
+    if len(in_.shape) != 3:
+        print('got 1-chan image, skipping')
+        return
+    elif in_.shape[2] != 3:
+        print('got n-chan image, skipping - shape:'+str(in_.shape))
+        return
+    print('shape before:'+str(in_.shape))
+    in_ = in_[:,:,::-1]  #rgb-bgr
+    in_ -= np.array(mean)
+    in_ = in_.transpose((2,0,1))  #whc -> cwh
+    print('shape after:'+str(in_.shape))
+    # shape for input (data blob is N x C x H x W), set data
+    net.blobs['data'].reshape(1, *in_.shape)
+    net.blobs['data'].data[...] = in_
+    # run net and take argmax for prediction
+    net.forward()
+    #output_layer='prob'
+    out = net.blobs[output_layer].data[0].argmax(axis=0)
+    result = Image.fromarray(out.astype(np.uint8))
+#        outname = im.strip('.png')[0]+'out.bmp'
+    outname = os.path.basename(imagename)
+    outname = outname.split('.jpg')[0]+'cv2.bmp'
+    outname = os.path.join(out_dir,outname)
+    print('outname:'+outname)
+    result.save(outname)
+#    cv2.imwrite(filename=outname,img=out)
+
+    imutils.show_mask_with_labels(outname,labels=labels,visual_output=False,save_images=True,original_image=imagename)
+    #        fullout = net.blobs['score'].data[0]
+    elapsed_time=time.time()-start_time
+    print('elapsed time:'+str(elapsed_time))
+    return out.astype(np.uint8)
+
 def infer_one_hydra(url_or_image_arr,prototxt,caffemodel,out_dir='./',dims=(224,224),output_layers=['prob_0','prob_1','prob_2']):
     im = Utils.get_cv2_img_array(url_or_image_arr)
     if im is None:
@@ -601,6 +646,7 @@ if __name__ == "__main__":
     else:
         if args.image_file:
             infer_one_pixlevel(args.image_file,args.deployproto,args.model,out_dir=args.out_directory,output_layer=args.output_layer)
+            infer_one_pixlevel_cv2(args.image_file,args.deployproto,args.model,out_dir=args.out_directory,output_layer=args.output_layer)
         elif args.image_directory:
             images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
             print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)

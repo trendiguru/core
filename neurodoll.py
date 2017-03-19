@@ -53,6 +53,7 @@ MODEL_FILE = constants.pixlevel_v3_caffemodel_info['prototxt']
 PRETRAINED = constants.pixlevel_v3_caffemodel_info['caffemodel']
 LABELS = constants.pixlevel_v3_caffemodel_info['labels']
 OUTPUT_LAYER = constants.pixlevel_v3_caffemodel_info['output_layer']
+OUTPUT_LAYER = 'output2'
 
 test_on = True
 if test_on:
