@@ -159,18 +159,17 @@ def get_layer_output(url_or_np_array,required_image_size=(224,224),layer='myfc7'
 
 def infer_one(url_or_np_array,required_image_size=(224,224),output_layer='pixlevel_sigmoid_output',mean=(104.0, 116.7, 122.7)):
     start_time = time.time()
+    image = Utils.get_cv2_img_array(url_or_np_array)
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         print('infer_one working on url:'+url_or_np_array)
-        image = url_to_image(url_or_np_array)
         orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1])
     elif type(url_or_np_array) == np.ndarray:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
         name_base = 'orig'+hash.hexdigest()[:10]+'.jpg'
         orig_filename = os.path.join(thedir,name_base)
-        image = url_or_np_array
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
     print('writing orig to '+orig_filename)
@@ -2027,7 +2026,7 @@ if __name__ == "__main__":
         raw_input('start test_nfc_nd_alone')
         for url in urls:
             print('testing nfc_nd')
-            nd_out = get_neurodoll_output(url)
+            nd_out = get_neurodoll_output_using_falcon(url)
             orig_filename = '/home/jeremy/'+url.split('/')[-1]
             urllib.urlretrieve(url, orig_filename)
             name = orig_filename[:-4]+'_nd_output.png'
