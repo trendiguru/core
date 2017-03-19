@@ -2005,13 +2005,14 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ] #
-    test_nd_alone = False
+    test_nd_alone = True
     if test_nd_alone:
         raw_input('start test_nd_alone')
         for url in urls:
             #infer-one saves results depending on switch at end
             print('testing nd alone')
             result = infer_one(url)
+            print result
 
 #    after_nn_result = pipeline.after_nn_conclusions(result,constants.ultimate_21_dict)
 #    cv2.imwrite('output_afternn.png',after_nn_result)
@@ -2056,7 +2057,7 @@ if __name__ == "__main__":
 #    get_category_graylevel(urls[0],4)
 
     #get output of combine_nd_and_ml
-    test_combine = True
+    test_combine = False
     if test_combine:
         print('start test_combined_nd')
         for url in urls: #
