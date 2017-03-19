@@ -130,6 +130,19 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
 
 def infer_one_pixlevel_cv2(imagename,prototxt,caffemodel,out_dir='./',dims=[224,224],output_layer='prob',
                        mean=(104.0,116.7,122.7),labels=constants.pixlevel_categories_v3):
+    '''
+    this is just to check that there is no difference bet. inference using cv2 to load/reshape
+    and using PIL image
+    :param imagename:
+    :param prototxt:
+    :param caffemodel:
+    :param out_dir:
+    :param dims:
+    :param output_layer:
+    :param mean:
+    :param labels:
+    :return:
+    '''
     net = caffe.Net(prototxt,caffe.TEST,weights=caffemodel)
 #    dims = [150,100] default for something??
     start_time = time.time()
