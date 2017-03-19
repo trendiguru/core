@@ -202,11 +202,11 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
     elif in_.shape[2] != 3:
         print('got n-chan image, skipping - shape:'+str(in_.shape))
         return None
-#    in_ = in_[:,:,::-1]  for doing RGB -> BGR
+#    in_ = in_[:,:,::-1]  for doing RGB -> BGR, not necessary when using cv2.imread
 #    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
 
     in_ -= np.array(mean)  #make sure this fits whatever was used in training!!
-#    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh, not necessary when using cv2.imread
+    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
