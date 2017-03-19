@@ -81,7 +81,8 @@ def infer_many_pixlevel(image_dir,prototxt,caffemodel,out_dir='./',mean=(104.0,1
     return masks
     #fullout = net.blobs['score'].data[0]
 
-def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob',mean=(104.0,116.7,122.7)):
+def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=None,dims=[224,224],output_layer='prob',
+                       mean=(104.0,116.7,122.7),labels=constants.pixlevel_categories_v3):
     if caffe_variant == None:
         import caffe
     else:
@@ -119,6 +120,9 @@ def infer_one_pixlevel(imagename,prototxt,caffemodel,out_dir='./',caffe_variant=
     outname = os.path.join(out_dir,outname)
     print('outname:'+outname)
     result.save(outname)
+#    cv2.imwrite(filename=outname,img=out)
+
+    imutils.show_mask_with_labels(outname,labels=labels,visual_output=False,save_images=True,original_image=imagename)
     #        fullout = net.blobs['score'].data[0]
     elapsed_time=time.time()-start_time
     print('elapsed time:'+str(elapsed_time))
@@ -589,6 +593,8 @@ if __name__ == "__main__":
         #seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
 
         seg_tests(solver,  val, output_layer=args.output_layer,save_dir='outs')
+
+
 #        else:
 #            print('gave neither image nor directory as input to iou test')
     #do image level tests
