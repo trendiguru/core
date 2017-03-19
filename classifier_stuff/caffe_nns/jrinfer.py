@@ -594,7 +594,7 @@ if __name__ == "__main__":
     #do image level tests
     else:
         if args.image_file:
-            infer_one_pixlevel(args.image_file,args.deployproto,args.caffemodel,out_dir=args.out_directory)
+            infer_one_pixlevel(args.image_file,args.deployproto,args.model,out_dir=args.out_directory)
         elif args.image_directory:
             images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
             print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
