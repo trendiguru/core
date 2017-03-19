@@ -157,7 +157,7 @@ def get_layer_output(url_or_np_array,required_image_size=(224,224),layer='myfc7'
     layer_data = net.blobs[layer].data
     return layer_data
 
-def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_LAYER,mean=(104.0, 116.7, 122.7)):
+def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_LAYER,mean=(104.0, 116.7, 122.7),save_results = True):
     start_time = time.time()
     image = Utils.get_cv2_img_array(url_or_np_array)
     thedir = './images'
@@ -172,8 +172,6 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
         orig_filename = os.path.join(thedir,name_base)
     if image is None:
         logging.debug('got None in grabcut_using_neurodoll_output')
-    print('writing orig to '+orig_filename)
-    cv2.imwrite(orig_filename,image)
 
         # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 #    im = Image.open(imagename)
@@ -198,7 +196,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
             print('got something weird with shape '+str(in_.shape)+' , giving up')
             return None
         else:
-            print('got  image with shape '+str(in_.shape)+' , turning into 3 channel')
+            print('got image with shape '+str(in_.shape)+' , turning into 3 channel')
             in_ = np.array([copy.deepcopy(in_),copy.deepcopy(in_),copy.deepcopy(in_)])
             print('now image has shape '+str(in_.shape))
     elif in_.shape[2] != 3:
@@ -208,7 +206,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
 #    cv2.imwrite('test1234.jpg',in_) #verify that images are coming in as rgb
 
     in_ -= np.array(mean)  #make sure this fits whatever was used in training!!
-    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh
+#    in_ = in_.transpose((2,0,1))   #wxhxc -> cxwxh, not necessary when using cv2.imread
     # shape for input (data blob is N x C x H x W), set data
     net.blobs['data'].reshape(1, *in_.shape)
     net.blobs['data'].data[...] = in_
@@ -238,8 +236,10 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
  #   cv2.waitKey(0)
 #    return out.astype(np.uint8)
     out = np.array(out,dtype=np.uint8)
-    save_results = True
+
     if save_results:
+        print('writing orig to '+orig_filename)
+        cv2.imwrite(orig_filename,image)
         pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
         imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=orig_filename)
