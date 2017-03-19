@@ -552,6 +552,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='get Caffe output')
     parser.add_argument('--model', help='caffemodel', default=caffemodel)
     parser.add_argument('--solverproto', help='solver prototxt',default='solver.prototxt')
+    parser.add_argument('--deployproto', help='deploy prototxt',default='deploy.prototxt')
     parser.add_argument('--image', dest = 'image_file', help='image file',default=None)
     parser.add_argument('--dir', dest = 'image_directory', help='image directory',default=None)
     parser.add_argument('--outdir', dest = 'out_directory', help='result directory',default='.')
@@ -593,7 +594,7 @@ if __name__ == "__main__":
     #do image level tests
     else:
         if args.image_file:
-            infer_one(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
+            infer_one_pixlevel(args.image_file,args.prototxt,args.caffemodel,out_dir=args.out_directory)
         elif args.image_directory:
             images = [os.path.join(args.image_directory,f) for f in os.listdir(args.image_directory) if '.jpg' in f ]
             print('nimages:'+str(len(images)) + ' in directory '+args.image_directory)
