@@ -321,8 +321,9 @@ def bb_mask(image, bounding_box):
     y_up = np.max([0, y-0.2*h])
     x_ahead = np.min([image_w-1, x+1.2*w])
     rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
-    rectangles["PFG"].append([x, x+w, y, y+h])
-    rectangles["PBG"].append([x_back, x_ahead, y_up, y_down])
+    rectangles["PFG"].append([int(x), int(x+w), int(y), int(y+h)])
+    rectangles["PBG"].append([int(x_back), int(x_ahead), int(y_up), int(y_down)])
+#    print(rectangles)
     mask = create_mask_for_gc(rectangles, image)
     return mask
 
@@ -345,15 +346,19 @@ def create_mask_for_gc(rectangles, image):
     for rectangle in rectangles["BG"]:
         x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 0
+        print('BG'+str(rectangle))
     for rectangle in rectangles["PBG"]:
         x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 2
+        print('PBG'+str(rectangle))
     for rectangle in rectangles["PFG"]:
         x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 3
+        print('PFG'+str(rectangle))
     for rectangle in rectangles["FG"]:
         x0, x1, y0, y1 = rectangle
         mask[y0:y1, x0:x1] = 1
+        print('FG'+str(rectangle))
     return mask
 
 

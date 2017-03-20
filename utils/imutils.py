@@ -17,6 +17,7 @@ try:
     from joblib import Parallel,delayed
 except:
     pass
+import numpy as np
 import multiprocessing
 import socket
 import copy
@@ -24,6 +25,7 @@ from trendi import constants
 import matplotlib.pyplot as plt
 import subprocess
 import inspect
+
 
 from trendi import background_removal
 
@@ -1322,6 +1324,135 @@ def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
     files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
     for f in files:
         some_function(f,**kwargs)
+
+def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10):
+    f = background_removal.find_face_dlib_with_scores(mannequin_img)
+    print(f)
+    img_mannequin = Utils.get_cv2_img_array(mannequin_img)
+    img_clothing = Utils.get_cv2_img_array(clothing_img)
+    center = (img_mannequin.shape[1]/2,img_mannequin.shape[0]/2)
+    angle = max_rot*np.random.randn(max_rot)[0]
+    r = cv2.getRotationMatrix2D(center,angle,scale=1)
+    print(r)
+    clothing_rotated = cv2.warpAffine(img_clothing,r,(img_mannequin.shape[0],img_mannequin.shape[1]))
+    print('angle {}'.format(angle))
+    if f['are_faces']:
+        faces = f['faces']
+        for face in faces:
+            print(face)
+            cv2.rectangle(img_mannequin,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),thickness=3)
+    cv2.imshow('mannequin',img_mannequin)
+    full_size=(256,256)
+    if type == 'fullbody':
+        reduction_factor = 0.8
+    clothes_size = (int(full_size[0]*reduction_factor),int(full_size[1]*reduction_factor))
+    mannequin_resized = resize_keep_aspect(mannequin_img,output_size=full_size)
+    print('clothes size:{}'.format(clothes_size))
+    clothes_resized = resize_keep_aspect(clothing_rotated,output_size = clothes_size)
+
+    cv2.imshow('orig m',img_mannequin)
+    cv2.imshow('clothing rotated',clothing_rotated)
+    cv2.imshow('mannequin_resized',mannequin_resized)
+    cv2.imshow('clothes_resized',clothes_resized)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    gc_then_overlay(clothes_resized,mannequin_resized)
+
+def clothe_lots(clothing_dir,mannequin_dir,type='bottom'):
+    clothes_files = [os.path.join(clothing_dir,f) for f in clothing_dir]
+    mannequin_files = [os.path.join(clothing_dir,f) for f in mannequin_dir]
+    for c in clothes_files:
+        for m in mannequin_files:
+            clothe_the_naked(c,m,type=type)
+
+
+
+
+def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
+    im1 = Utils.get_cv2_img_array(im1)
+    im2 = Utils.get_cv2_img_array(im2)
+    if im1.shape[0]>im2.shape[0] or im1.shape[1]>im2.shape[1]:
+        print('overlay larger than image im1 {} im2 {}'.format(im1.shape,im2.shape))
+        return
+    if position == None:
+        position = (im2.shape[0]/2,im2.shape[1]/2)
+    mask_y = (im2.shape[0]-im1.shape[0])/2
+    mask_x = (im2.shape[1]-im1.shape[1])/2
+    bb_percent = 0.1  #percent of image center to use as bb
+    w = int(im1.shape[1]*bb_percent)
+    h = int(im1.shape[0]*bb_percent)
+    x = int((im1.shape[1]-w)/2)
+    y = int((im1.shape[0]-h)/2)
+    bb = [x,y,w,h]
+
+    print('bb:{}'.format(bb))
+    mask = background_removal.get_fg_mask(im1,bounding_box=bb)
+    print('got mask shape {} uniques {} '.format(mask.shape,np.unique(mask)))
+    overlay(mask, im1,im2)
+
+def overlay(im1_mask,im1, im2,position=None,save=True,visual_output=True):
+    im2 = Utils.get_cv2_img_array(im2)
+    if im1_mask.shape[0]>im2.shape[0] or im1_mask.shape[1]>im2.shape[1]:
+        print('overlay larger than image im1 {} im2 {}'.format(im1_mask.shape,im2.shape))
+        return
+    if position == None:
+        position = (im2.shape[0]/2,im2.shape[1]/2)
+    mask_y = (im2.shape[0]-im1_mask.shape[0])/2
+    mask_x = (im2.shape[1]-im1_mask.shape[1])/2
+
+    final_canvas = np.zeros_like(im2)
+    mask_height = im1_mask.shape[0]
+    mask_width = im1_mask.shape[1]
+    mask_on_canvas = np.zeros_like(im2)
+    mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,0] = im1[:,:,0]
+    mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,1] = im1[:,:,1]
+    mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,2] = im1[:,:,2]
+
+    print('im1 {} im2 {} final canvas {} maskh {} maskw {}'.format(im1_mask.shape,im2.shape,final_canvas.shape,mask_height,mask_width))
+    final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,0] = im1_mask
+    final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,1] = im1_mask
+    final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,2] = im1_mask
+    masked_1 = np.where(final_canvas!=0,mask_on_canvas,im2)
+    if visual_output:
+        cv2.imshow('mask1',im1_mask)
+        cv2.imshow('mask_on_canvas',mask_on_canvas)
+        cv2.imshow('final',final_canvas)
+        cv2.imshow('im2',im2)
+        cv2.imshow('masked_1',masked_1)
+        cv2.waitKey(0)
+#    overlaid = np.where(mask_3channels>0,im1,im2)
+
+def get_fg_mask(image, bounding_box=None):
+    rect = (0, 0, image.shape[1]-1, image.shape[0]-1)
+    bgdmodel = np.zeros((1, 65), np.float64)  # what is this wierd size about? (jr)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    # bounding box was sent from a human - grabcut with bounding box mask
+    if Utils.legal_bounding_box(bounding_box):
+        if Utils.all_inclusive_bounding_box(image, bounding_box):  # bb is nearly the whole image
+            mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+        else:
+            mask = bb_mask(image, bounding_box)
+            cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
+
+    # grabcut on the whole image, with/without face
+    else:
+        faces_dict = find_face_cascade(image)
+        # if len(faces_dict['faces']) > 0:  # grabcut with mask
+        #     try:
+        #         rectangles = body_estimation(image, faces_dict['faces'][0])
+        #         mask = create_mask_for_gc(rectangles, image)
+        #     except:
+        #         mask = create_mask_for_gc(image)
+        #
+        # else:  # grabcut with arbitrary rect
+        mask = create_arbitrary(image)
+        cv2.grabCut(image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_RECT)
+
+    mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
+    return mask2
+
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
