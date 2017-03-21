@@ -1326,15 +1326,22 @@ def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
     for f in files:
         some_function(f,**kwargs)
 
-def clothe_lots(clothing_dir,mannequin_dir,type='fullbody'):
-    clothes_files = [os.path.join(clothing_dir,f) for f in os.listdir(clothing_dir)]
+def clothe_lots(clothing_dir,mannequin_dir,type='fullbody',n=10000,filter='gc'):
+    clothes_files = [os.path.join(clothing_dir,f) for f in os.listdir(clothing_dir) if filter in f]
     mannequin_files = [os.path.join(mannequin_dir,f) for f in os.listdir(mannequin_dir)]
-    for c in clothes_files:
-        for m in mannequin_files:
-            print('{} is trying on {}'.format(m,c))
-            clothe_the_naked(c,m,type=type)
+    print('{} clothes and {} mannequins'.format(len(clothes_files,mannequin_files)))
+    n_done=0
+    while(n_done<n):
+        c=random.choice(clothes_files)
+        m=random.choice(mannequin_files)
+        clothe_the_naked(c,m,type=type)
+        n_done+=1
+    # for c in clothes_files:
+    #     for m in mannequin_files:
+    #         print('{} is trying on {}'.format(m,c))
+    #         clothe_the_naked(c,m,type=type)
 
-def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10,save = True,interactive=True,savedir='clothed'):
+def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save = True,interactive=True,savedir='clothed'):
     Utils.ensure_dir(savedir)
     f = background_removal.find_face_dlib_with_scores(mannequin_img)
     print(f)
@@ -1358,7 +1365,7 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10,save
         reduction_factor = 0.8
     clothes_size = (int(full_size[0]*reduction_factor),int(full_size[1]*reduction_factor))
     mannequin_resized = resize_keep_aspect(mannequin_img,output_size=full_size)
-    print('clothes size:{}'.format(clothes_size))
+ #   print('clothes size:{}'.format(clothes_size))
     clothes_resized = resize_keep_aspect(clothing_rotated,output_size = clothes_size)
 
 #    cv2.imshow('orig m',img_mannequin)
@@ -1368,23 +1375,27 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10,save
 #    k = cv2.waitKey(0)
 #    cv2.destroyAllWindows()
     result = gc_then_overlay(clothes_resized,mannequin_resized)
-    if interactive:
-        k=raw_input('s or return to save...')
-        if k == 's' or k== '':
-            if isinstance(mannequin_img,basestring):
-                mannequin_name=os.path.basename(mannequin_img)
-            else:
-                mannequin_name='body'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
-            if isinstance(clothing_img,basestring):
-                clothing_name=os.path.basename(clothing_img)
-            else:
-                clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
-            name = mannequin_name.replace('.jpg','')+clothing_name.replace('.jpg','')+'.jpg'
-            name = os.path.join(savedir,name)
-            print('saving image to {}'.format(name))
-            cv2.imwrite(name,result)
+    if result is None:
+        pass
+    elif save:
+        if isinstance(mannequin_img,basestring):
+            mannequin_name=os.path.basename(mannequin_img)
         else:
-            print('not saving')
+            mannequin_name='body'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+        if isinstance(clothing_img,basestring):
+            clothing_name=os.path.basename(clothing_img)
+        else:
+            clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+        name = mannequin_name.replace('.jpg','')+clothing_name.replace('.jpg','')+'.jpg'
+        name = os.path.join(savedir,name)
+        print('saving image to {}'.format(name))
+        cv2.imwrite(name,result)
+    else:
+        print('not saving')
+
+    # elif interactive:
+    #     k=raw_input('s or return to save...')
+    #     if k == 's' or k== '':
     cv2.destroyAllWindows()
 
 def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
@@ -1439,14 +1450,14 @@ def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
 
     try:
         #TODO - try more than 1 grabcut call in itr
-        itr = 1
+        itr = 2
         cv2.grabCut(im1, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK) #im, mask, rect, bgmodel, fgmoel, iterations
     except:
         print('grabcut exception')
         return None
     mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
 #    mask = background_removal.get_fg_mask(im1,bounding_box=bb)
-    print('got mask shape {} uniques {} '.format(mask.shape,np.unique(mask)))
+#    print('got mask shape {} uniques {} '.format(mask.shape,np.unique(mask)))
 #    cv2.imshow('mask_b4gc',mask)
 #    cv2.imshow('mask_aftergc',mask2)
 #    cv2.waitKey(0)
@@ -1468,8 +1479,10 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
         im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
         im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
     if scale != 1:
-        size = (w*scale,h*scale)
+        dsize = (int(w*scale),int(h*scale))
         im1_mask = cv2.resize(im1_mask,dsize)
+        im1 = cv2.resize(im1_mask,dsize)
+
     if rotation != 0:
         center = (w/2,h/2)
         r = cv2.getRotationMatrix2D(center,rotation,scale=1)
@@ -1499,7 +1512,7 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
  #       cv2.imshow('final',final_canvas)
  #       cv2.imshow('bgnd',bgnd_img)
         cv2.imshow('masked_1',masked_1)
-        print('use arrow keys to translate')
+        print('use arrow keys to translate:awds rotate:er scale:-+')
         k = cv2.waitKey(0)
 
         #shift mask interactively
@@ -1521,6 +1534,8 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
             return(overlay(im1_mask,im1,bgnd_img,rotation=-shift))
         elif k == ord('r'): #rot+
             return(overlay(im1_mask,im1,bgnd_img,rotation=shift))
+        elif k == ord('q'): #quit
+            return
 
     return masked_1
 #    overlaid = np.where(mask_3channels>0,im1,im2)
