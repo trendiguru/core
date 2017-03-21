@@ -1329,19 +1329,19 @@ def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
 def clothe_lots(clothing_dir,mannequin_dir,type='fullbody',n=10000,filter='gc'):
     clothes_files = [os.path.join(clothing_dir,f) for f in os.listdir(clothing_dir) if filter in f]
     mannequin_files = [os.path.join(mannequin_dir,f) for f in os.listdir(mannequin_dir)]
-    print('{} clothes and {} mannequins'.format(len(clothes_files,mannequin_files)))
+    print('{} clothes and {} mannequins'.format(len(clothes_files),len(mannequin_files)))
     n_done=0
     while(n_done<n):
         c=random.choice(clothes_files)
         m=random.choice(mannequin_files)
-        clothe_the_naked(c,m,type=type)
+        clothe_the_naked(c,m,type=type,filter=filter)
         n_done+=1
     # for c in clothes_files:
     #     for m in mannequin_files:
     #         print('{} is trying on {}'.format(m,c))
     #         clothe_the_naked(c,m,type=type)
 
-def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save = True,interactive=True,savedir='clothed'):
+def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save = True,interactive=True,savedir='clothed',filter=filter):
     Utils.ensure_dir(savedir)
     f = background_removal.find_face_dlib_with_scores(mannequin_img)
     print(f)
@@ -1374,18 +1374,27 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save 
 #    cv2.imshow('clothes_resized',clothes_resized)
 #    k = cv2.waitKey(0)
 #    cv2.destroyAllWindows()
-    result = gc_then_overlay(clothes_resized,mannequin_resized)
+    if filter:
+        p0 = clothes_resized[:,:,0]
+        p1 = clothes_resized[:,:,1]
+        p2 = clothes_resized[:,:,2]
+        nonzero = np.where((p0==0)+(p1==0)+(p2==0),255,0)
+        #mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
+        result = overlay(nonzero, clothes_resized,mannequin_resized)
+
+    else:
+        result = gc_then_overlay(clothes_resized,mannequin_resized)
     if result is None:
         pass
     elif save:
         if isinstance(mannequin_img,basestring):
             mannequin_name=os.path.basename(mannequin_img)
         else:
-            mannequin_name='body'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+            mannequin_name='body'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
         if isinstance(clothing_img,basestring):
             clothing_name=os.path.basename(clothing_img)
         else:
-            clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+            clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
         name = mannequin_name.replace('.jpg','')+clothing_name.replace('.jpg','')+'.jpg'
         name = os.path.join(savedir,name)
         print('saving image to {}'.format(name))
@@ -1428,14 +1437,15 @@ def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
 #    print('PBG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
 
     #prob. fgnd - center rectangle
-    bb_percent = 0.4  #percent of image center to use as bb
-    w = int(im1.shape[1]*bb_percent)
-    h = int(im1.shape[0]*bb_percent)
+    bb_percent_w = 0.5  #percent of image center to use as bb
+    bb_percent_h = 0.8  #percent of image center to use as bb
+    w = int(im1.shape[1]*bb_percent_w)
+    h = int(im1.shape[0]*bb_percent_h)
     x = int((im1.shape[1]-w)/2)
     y = int((im1.shape[0]-h)/2)
     x0, x1, y0, y1 = [x,x+w,y,y+h]
     mask[y0:y1, x0:x1] = cv2.GC_PR_FGD
-#    print('PFG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
+    print('PFG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
 
     #prob. fgnd - center rectangle
     bb_percent = 0.1  #percent of image center to use as bb
