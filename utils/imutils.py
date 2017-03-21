@@ -1454,8 +1454,9 @@ def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
     overlaid = overlay(mask2, im1,im2)
     return overlaid
 
-def overlay(im1_mask,im1, bgnd_img,position=None,save=True,visual_output=True):
+def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,visual_output=True):
     bgnd_img = Utils.get_cv2_img_array(bgnd_img)
+    w,h = im1.shape[0:2]
     if im1_mask.shape[0]>bgnd_img.shape[0] or im1_mask.shape[1]>bgnd_img.shape[1]:
         print('overlay larger than image im1 {} im2 {}'.format(im1_mask.shape,bgnd_img.shape))
         return
@@ -1464,9 +1465,17 @@ def overlay(im1_mask,im1, bgnd_img,position=None,save=True,visual_output=True):
     else:
         print('shifting by {}'.format(position))
         translation_matrix = np.float32([ [1,0,position[1]], [0,1,position[0]]] )
-        w,h = im1.shape[0:2]
         im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
         im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+    if scale != 1:
+        size = (w*scale,h*scale)
+        im1_mask = cv2.resize(im1_mask,dsize)
+    if rotation != 0:
+        center = (w/2,h/2)
+        r = cv2.getRotationMatrix2D(center,rotation,scale=1)
+        im1_mask = cv2.warpAffine(im1_mask, r, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+        im1 = cv2.warpAffine(im1, r, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+
 
     mask_y = (bgnd_img.shape[0]-im1_mask.shape[0])/2
     mask_x = (bgnd_img.shape[1]-im1_mask.shape[1])/2
@@ -1504,6 +1513,15 @@ def overlay(im1_mask,im1, bgnd_img,position=None,save=True,visual_output=True):
             return(overlay(im1_mask,im1,bgnd_img,position=(0,+shift)))
         elif k == 40 or k ==  ord('s'): #down
             return(overlay(im1_mask,im1,bgnd_img,position=(shift,0)))
+        elif k == ord('+'): #enlargen
+            return(overlay(im1_mask,im1,bgnd_img,scale=1.05))
+        elif k == ord('-'): #enlargen
+            return(overlay(im1_mask,im1,bgnd_img,scale=.95))
+        elif k == ord('e'): #rot-
+            return(overlay(im1_mask,im1,bgnd_img,rotation=-shift))
+        elif k == ord('r'): #rot+
+            return(overlay(im1_mask,im1,bgnd_img,rotation=shift))
+
     return masked_1
 #    overlaid = np.where(mask_3channels>0,im1,im2)
 
