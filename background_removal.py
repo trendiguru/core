@@ -323,7 +323,7 @@ def bb_mask(image, bounding_box):
     rectangles = {"BG": [], "FG": [], "PFG": [], "PBG": []}
     rectangles["PFG"].append([int(x), int(x+w), int(y), int(y+h)])
     rectangles["PBG"].append([int(x_back), int(x_ahead), int(y_up), int(y_down)])
-#    print(rectangles)
+ #   print('bb_mask rectangles {} imw {} imh {} x {} y {} w {} h {} yd {} yu {} xd {} xu {} '.format(rectangles,image_w,image_h,x,y,w,h,y_down,y_up,x_back,x_ahead))
     mask = create_mask_for_gc(rectangles, image)
     return mask
 

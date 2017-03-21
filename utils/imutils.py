@@ -25,7 +25,8 @@ from trendi import constants
 import matplotlib.pyplot as plt
 import subprocess
 import inspect
-
+import string
+import random
 
 from trendi import background_removal
 
@@ -1325,7 +1326,16 @@ def do_for_all_files_in_dir(some_function,dir,filter='.jpg',**kwargs):
     for f in files:
         some_function(f,**kwargs)
 
-def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10):
+def clothe_lots(clothing_dir,mannequin_dir,type='fullbody'):
+    clothes_files = [os.path.join(clothing_dir,f) for f in os.listdir(clothing_dir)]
+    mannequin_files = [os.path.join(mannequin_dir,f) for f in os.listdir(mannequin_dir)]
+    for c in clothes_files:
+        for m in mannequin_files:
+            print('{} is trying on {}'.format(m,c))
+            clothe_the_naked(c,m,type=type)
+
+def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10,save = True,interactive=True,savedir='clothed'):
+    Utils.ensure_dir(savedir)
     f = background_removal.find_face_dlib_with_scores(mannequin_img)
     print(f)
     img_mannequin = Utils.get_cv2_img_array(mannequin_img)
@@ -1333,16 +1343,17 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10):
     center = (img_mannequin.shape[1]/2,img_mannequin.shape[0]/2)
     angle = max_rot*np.random.randn(max_rot)[0]
     r = cv2.getRotationMatrix2D(center,angle,scale=1)
-    print(r)
-    clothing_rotated = cv2.warpAffine(img_clothing,r,(img_mannequin.shape[0],img_mannequin.shape[1]))
-    print('angle {}'.format(angle))
+  #  print(r)
+    clothing_rotated = cv2.warpAffine(img_clothing,r,(img_mannequin.shape[0],img_mannequin.shape[1]))#     cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+  #  print('angle {}'.format(angle))
     if f['are_faces']:
         faces = f['faces']
         for face in faces:
             print(face)
             cv2.rectangle(img_mannequin,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),thickness=3)
-    cv2.imshow('mannequin',img_mannequin)
+ #   cv2.imshow('mannequin',img_mannequin)
     full_size=(256,256)
+    reduction_factor = 0.7
     if type == 'fullbody':
         reduction_factor = 0.8
     clothes_size = (int(full_size[0]*reduction_factor),int(full_size[1]*reduction_factor))
@@ -1350,23 +1361,31 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=10):
     print('clothes size:{}'.format(clothes_size))
     clothes_resized = resize_keep_aspect(clothing_rotated,output_size = clothes_size)
 
-    cv2.imshow('orig m',img_mannequin)
-    cv2.imshow('clothing rotated',clothing_rotated)
-    cv2.imshow('mannequin_resized',mannequin_resized)
-    cv2.imshow('clothes_resized',clothes_resized)
-    cv2.waitKey(0)
+#    cv2.imshow('orig m',img_mannequin)
+#    cv2.imshow('clothing rotated',clothing_rotated)
+#    cv2.imshow('mannequin_resized',mannequin_resized)
+#    cv2.imshow('clothes_resized',clothes_resized)
+#    k = cv2.waitKey(0)
+#    cv2.destroyAllWindows()
+    result = gc_then_overlay(clothes_resized,mannequin_resized)
+    if interactive:
+        k=raw_input('s or return to save...')
+        if k == 's' or k== '':
+            if isinstance(mannequin_img,basestring):
+                mannequin_name=os.path.basename(mannequin_img)
+            else:
+                mannequin_name='body'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+            if isinstance(clothing_img,basestring):
+                clothing_name=os.path.basename(clothing_img)
+            else:
+                clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))
+            name = mannequin_name.replace('.jpg','')+clothing_name.replace('.jpg','')+'.jpg'
+            name = os.path.join(savedir,name)
+            print('saving image to {}'.format(name))
+            cv2.imwrite(name,result)
+        else:
+            print('not saving')
     cv2.destroyAllWindows()
-    gc_then_overlay(clothes_resized,mannequin_resized)
-
-def clothe_lots(clothing_dir,mannequin_dir,type='bottom'):
-    clothes_files = [os.path.join(clothing_dir,f) for f in clothing_dir]
-    mannequin_files = [os.path.join(clothing_dir,f) for f in mannequin_dir]
-    for c in clothes_files:
-        for m in mannequin_files:
-            clothe_the_naked(c,m,type=type)
-
-
-
 
 def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
     im1 = Utils.get_cv2_img_array(im1)
@@ -1378,48 +1397,114 @@ def gc_then_overlay(im1,im2, position=None,save=True,visual_output=True):
         position = (im2.shape[0]/2,im2.shape[1]/2)
     mask_y = (im2.shape[0]-im1.shape[0])/2
     mask_x = (im2.shape[1]-im1.shape[1])/2
+
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+    mask = np.zeros(im1.shape[:2], dtype=np.uint8)
+
+    #TODO - maybe find something better than median as the threshold
+
+    # x0, x1, y0, y1 = []
+    # mask[y0:y1, x0:x1] = 0
+    # print('BG'+str(rectangle))
+
+# cv2.GC_BGD, cv2.GC_FGD, cv2.GC_PR_BGD, cv2.GC_PR_FGD, or
+
+    #prob. backgnd - entire image
+    h,w = im1.shape[0:2]
+    x0, x1, y0, y1 = [0,w,0,h]
+    mask[y0:y1, x0:x1] = cv2.GC_PR_BGD
+#    print('PBG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
+
+    #prob. fgnd - center rectangle
+    bb_percent = 0.4  #percent of image center to use as bb
+    w = int(im1.shape[1]*bb_percent)
+    h = int(im1.shape[0]*bb_percent)
+    x = int((im1.shape[1]-w)/2)
+    y = int((im1.shape[0]-h)/2)
+    x0, x1, y0, y1 = [x,x+w,y,y+h]
+    mask[y0:y1, x0:x1] = cv2.GC_PR_FGD
+#    print('PFG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
+
+    #prob. fgnd - center rectangle
     bb_percent = 0.1  #percent of image center to use as bb
     w = int(im1.shape[1]*bb_percent)
     h = int(im1.shape[0]*bb_percent)
     x = int((im1.shape[1]-w)/2)
     y = int((im1.shape[0]-h)/2)
-    bb = [x,y,w,h]
+    x0, x1, y0, y1 = [x,x+w,y,y+h]
+    mask[y0:y1, x0:x1] = cv2.GC_FGD
+ #   print('FG x0 {} x1 {} y0 {} y1 {} '.format(x0,x1,y0,y1))
 
-    print('bb:{}'.format(bb))
-    mask = background_removal.get_fg_mask(im1,bounding_box=bb)
+
+    try:
+        #TODO - try more than 1 grabcut call in itr
+        itr = 1
+        cv2.grabCut(im1, mask, None, bgdmodel, fgdmodel, itr, cv2.GC_INIT_WITH_MASK) #im, mask, rect, bgmodel, fgmoel, iterations
+    except:
+        print('grabcut exception')
+        return None
+    mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
+#    mask = background_removal.get_fg_mask(im1,bounding_box=bb)
     print('got mask shape {} uniques {} '.format(mask.shape,np.unique(mask)))
-    overlay(mask, im1,im2)
+#    cv2.imshow('mask_b4gc',mask)
+#    cv2.imshow('mask_aftergc',mask2)
+#    cv2.waitKey(0)
 
-def overlay(im1_mask,im1, im2,position=None,save=True,visual_output=True):
-    im2 = Utils.get_cv2_img_array(im2)
-    if im1_mask.shape[0]>im2.shape[0] or im1_mask.shape[1]>im2.shape[1]:
-        print('overlay larger than image im1 {} im2 {}'.format(im1_mask.shape,im2.shape))
+    overlaid = overlay(mask2, im1,im2)
+    return overlaid
+
+def overlay(im1_mask,im1, bgnd_img,position=None,save=True,visual_output=True):
+    bgnd_img = Utils.get_cv2_img_array(bgnd_img)
+    if im1_mask.shape[0]>bgnd_img.shape[0] or im1_mask.shape[1]>bgnd_img.shape[1]:
+        print('overlay larger than image im1 {} im2 {}'.format(im1_mask.shape,bgnd_img.shape))
         return
     if position == None:
-        position = (im2.shape[0]/2,im2.shape[1]/2)
-    mask_y = (im2.shape[0]-im1_mask.shape[0])/2
-    mask_x = (im2.shape[1]-im1_mask.shape[1])/2
+        position = (0,0)
+    else:
+        print('shifting by {}'.format(position))
+        translation_matrix = np.float32([ [1,0,position[1]], [0,1,position[0]]] )
+        w,h = im1.shape[0:2]
+        im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+        im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
 
-    final_canvas = np.zeros_like(im2)
+    mask_y = (bgnd_img.shape[0]-im1_mask.shape[0])/2
+    mask_x = (bgnd_img.shape[1]-im1_mask.shape[1])/2
+
+    final_canvas = np.zeros_like(bgnd_img)
     mask_height = im1_mask.shape[0]
     mask_width = im1_mask.shape[1]
-    mask_on_canvas = np.zeros_like(im2)
+    mask_on_canvas = np.zeros_like(bgnd_img)
     mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,0] = im1[:,:,0]
     mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,1] = im1[:,:,1]
     mask_on_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,2] = im1[:,:,2]
 
-    print('im1 {} im2 {} final canvas {} maskh {} maskw {}'.format(im1_mask.shape,im2.shape,final_canvas.shape,mask_height,mask_width))
+    print('im1 {} bgndd {} final canvas {} maskh {} maskw {}'.format(im1_mask.shape,bgnd_img.shape,final_canvas.shape,mask_height,mask_width))
     final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,0] = im1_mask
     final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,1] = im1_mask
     final_canvas[mask_y:mask_y+mask_height,mask_x:mask_x+mask_width,2] = im1_mask
-    masked_1 = np.where(final_canvas!=0,mask_on_canvas,im2)
+    masked_1 = np.where(final_canvas!=0,mask_on_canvas,bgnd_img)
     if visual_output:
-        cv2.imshow('mask1',im1_mask)
-        cv2.imshow('mask_on_canvas',mask_on_canvas)
-        cv2.imshow('final',final_canvas)
-        cv2.imshow('im2',im2)
+#        cv2.imshow('mask1',im1_mask)
+ #       cv2.imshow('mask_on_canvas',mask_on_canvas)
+ #       cv2.imshow('final',final_canvas)
+ #       cv2.imshow('bgnd',bgnd_img)
         cv2.imshow('masked_1',masked_1)
-        cv2.waitKey(0)
+        print('use arrow keys to translate')
+        k = cv2.waitKey(0)
+
+        #shift mask interactively
+        print('pressed value:'+str(k))
+        shift = 5 #pixels to translate each time
+        if k == 37 or k ==  ord('a'): #left
+            return(overlay(im1_mask,im1,bgnd_img,position=(0,-shift)))
+        elif k == 38 or k ==  ord('w'): #up
+            return(overlay(im1_mask,im1,bgnd_img,position=(-shift,0)))
+        elif k == 39 or k ==  ord('d'): #right
+            return(overlay(im1_mask,im1,bgnd_img,position=(0,+shift)))
+        elif k == 40 or k ==  ord('s'): #down
+            return(overlay(im1_mask,im1,bgnd_img,position=(shift,0)))
+    return masked_1
 #    overlaid = np.where(mask_3channels>0,im1,im2)
 
 def get_fg_mask(image, bounding_box=None):
