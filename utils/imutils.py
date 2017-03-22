@@ -122,7 +122,7 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
     tpi = 1
     alpha = 0.9
     time_done=time.time()
-    n_deleted = 0
+    n_deleted = 0 #
     n_kept = 1 #white lie to avoid /0
     while i < n-1 : #to allow undo need to manipulate index which doesnt work with iterator
         i = i + 1
