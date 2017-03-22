@@ -143,7 +143,7 @@ def image_chooser(source_dir,dest_dir=None,removed_dir=None,relabel_dir=None,mul
 #            resized = img_arr
         resized = resize_keep_aspect(img_arr,output_size=display_size)
         h,w = img_arr.shape[0:2]
-##            if h>200:
+##            if h>200:#
 #               resized = cv2.resize(img_arr,(int((200.0*w)/h),200))
 #               print('h,w {},{} newh neww {},{}'.format(h,w,resized.shape[0],resized.shape[1]))
         print('img '+str(i)+' of '+str(n)+':'+a_file+' shape:'+str(shape) +' (resized to '+str(resized.shape)+') kept:'+str(n_kept)+' deleted:'+str(n_deleted)+' %'+str(100*float(n_deleted)/n_kept))
