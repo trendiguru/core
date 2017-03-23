@@ -114,8 +114,8 @@ def detect(url_or_np_array):
         cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(full_image, '{:s} {:.3f}'.format(gender, score), (int(x + 5), int(y + 18)), font, 0.5,
-                    (0, 255, 0), 1, cv2.LINE_AA)
+        cv2.putText(full_image, '{:s} {:.3f}'.format(gender, score), (int(x + 4), int(y + 16)), font, 0.5,
+                    (255, 0, 0), 1, cv2.LINE_AA)
 
         print score
         print gender
