@@ -74,6 +74,9 @@ def detect(url_or_np_array):
 
     for i in range(0, len(faces["faces"])):
 
+        gender = ""
+        score = 0
+
         print faces["faces"][i]  # just checking if the face that found seems in the right place
 
         height, width, channels = full_image.shape
@@ -102,8 +105,19 @@ def detect(url_or_np_array):
         print("Done in %.2f s." % (time.time() - start))
 
         if predictions[0][1] > predictions[0][0]:
-            print predictions[0][1]
-            print "Male"
+            score = predictions[0][1]
+            gender = "Male"
         else:
-            print predictions[0][0]
-            print "Female"
+            score = predictions[0][0]
+            gender = "Female"
+
+        cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(full_image, '{:s} {:.3f}'.format(gender, score), (int(x), int(y + 13)), font, 1,
+                    (0, 255, 0), 2, cv2.LINE_AA)
+
+        print score
+        print gender
+
+    print cv2.imwrite("/data/yonatan/linked_to_web/gender_classifier_results/image1.jpg", full_image)
