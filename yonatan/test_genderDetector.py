@@ -115,7 +115,7 @@ def detect(url_or_np_array):
 
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(full_image, '{:s} {:.3f}'.format(gender, score), (int(x), int(y + 10)), font, 0.5,
-                    (0, 255, 0), 2, cv2.LINE_AA)
+                    (0, 255, 0), 1, cv2.LINE_AA)
 
         print score
         print gender
