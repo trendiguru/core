@@ -1334,6 +1334,7 @@ def clothe_lots(clothing_dir,mannequin_dir,type='fullbody',n=10000,filter='gc'):
     while(n_done<n):
         c=random.choice(clothes_files)
         m=random.choice(mannequin_files)
+        print('{} is trying on {} n={}'.format(m,c,n_done))
         clothe_the_naked(c,m,type=type,filter=filter)
         n_done+=1
     # for c in clothes_files:
@@ -1374,11 +1375,15 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save 
 #    cv2.imshow('clothes_resized',clothes_resized)
 #    k = cv2.waitKey(0)
 #    cv2.destroyAllWindows()
-    if filter:
+    if filter:   # these ones have already been interactively gc'd so no need to gc
         p0 = clothes_resized[:,:,0]
         p1 = clothes_resized[:,:,1]
         p2 = clothes_resized[:,:,2]
-        nonzero = np.where((p0==0)+(p1==0)+(p2==0),255,0)
+        nonzero = np.where((p0!=0)+(p1!=0)+(p2!=0),255,0)
+        print('size of nonzero {} type {}'.format(nonzero.shape,nonzero.dtype))
+        nonzero = np.array(nonzero,dtype=np.uint8)
+        print('size of nonzero {} type {}'.format(nonzero.shape,nonzero.dtype))
+
         #mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
         result = overlay(nonzero, clothes_resized,mannequin_resized)
 
@@ -1395,7 +1400,7 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save 
             clothing_name=os.path.basename(clothing_img)
         else:
             clothing_name='clothing'+''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
-        name = mannequin_name.replace('.jpg','')+clothing_name.replace('.jpg','')+'.jpg'
+        name = mannequin_name.replace('.jpg','')+clothing_name.replace('gc.png','').replace('.jpg','').replace('.png','')+'.jpg'
         name = os.path.join(savedir,name)
         print('saving image to {}'.format(name))
         cv2.imwrite(name,result)
@@ -1489,9 +1494,29 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
         im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
         im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
     if scale != 1:
+        print('im1_mask {} im1 {} before resize'.format(im1_mask.shape,im1.shape))
+        h,w = im1.shape[0:2]
         dsize = (int(w*scale),int(h*scale))
         im1_mask = cv2.resize(im1_mask,dsize)
-        im1 = cv2.resize(im1_mask,dsize)
+        im1 = cv2.resize(im1,dsize)
+        print('im1_mask {} im1 {} after resize'.format(im1_mask.shape,im1.shape))
+        if scale>1: #crop extra
+            extra = (dsize[0]-h,dsize[1]-w)
+            starty=extra[0]/2
+            endy = extra[0]/2+h
+            startx=extra[1]/2
+            endx = extra[1]/2+w
+            print('sy {} endy {} sx {} edx {}'.format(starty,endy,startx,endx))
+            im1 = im1[starty:endy,startx:endx,:]
+            im1_mask=im1_mask[starty:endy,startx:endx]
+            print('im1_mask {} im1 {} after crop'.format(im1_mask.shape,im1.shape))
+        else: #add missing
+            extra = (h-dsize[0],w-dsize[1])
+            im1_dest = np.zeros((h,w,3))
+            im1_mask_dest = np.zeros((h,w))
+            im1_dest[extra[0]/2:extra[0]/2+h,extra[1]/2:extra[1]/2+w,:]= im1
+            im1_mask_dest[extra[0]/2:extra[0]/2+h,extra[1]/2:extra[1]/2+w]=im1_mask
+            print('im1_mask {} im1 {} after padding'.format(im1_mask.shape,im1.shape))
 
     if rotation != 0:
         center = (w/2,h/2)
@@ -1522,7 +1547,7 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
  #       cv2.imshow('final',final_canvas)
  #       cv2.imshow('bgnd',bgnd_img)
         cv2.imshow('masked_1',masked_1)
-        print('use arrow keys to translate:awds rotate:er scale:-+')
+        print('use arrow keys to translate:awds rotate:er scale:o-,p+ (q)uit, return to save')
         k = cv2.waitKey(0)
 
         #shift mask interactively
@@ -1536,9 +1561,9 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
             return(overlay(im1_mask,im1,bgnd_img,position=(0,+shift)))
         elif k == 40 or k ==  ord('s'): #down
             return(overlay(im1_mask,im1,bgnd_img,position=(shift,0)))
-        elif k == ord('+'): #enlargen
+        elif k == ord('+') or k==ord('p'): #enlargen
             return(overlay(im1_mask,im1,bgnd_img,scale=1.05))
-        elif k == ord('-'): #enlargen
+        elif k == ord('-') or k==ord('o'): #smallen
             return(overlay(im1_mask,im1,bgnd_img,scale=.95))
         elif k == ord('e'): #rot-
             return(overlay(im1_mask,im1,bgnd_img,rotation=-shift))

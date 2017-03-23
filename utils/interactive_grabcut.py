@@ -36,6 +36,8 @@ import cv2
 import sys
 import os
 
+from trendi import Utils
+
 BLUE = [255,0,0]        # rectangle color
 RED = [0,0,255]         # PR BG
 GREEN = [0,255,0]       # PR FG
@@ -110,8 +112,7 @@ def interactive_gc(filename):
     #     filename = '../data/lena.jpg'
 
     img = cv2.imread(filename)
-    h,w = filename.shape[0:2]
-    rect = (w/3,h/3,2*w/3,2*h/3)
+    h,w = img.shape[0:2]
     img2 = img.copy()                               # a copy of original image
     mask = np.zeros(img.shape[:2],dtype = np.uint8) # mask initialized to PR_BG
     output = np.zeros(img.shape,np.uint8)           # output image to be shown
@@ -121,6 +122,16 @@ def interactive_gc(filename):
     cv2.namedWindow('input')
     cv2.setMouseCallback('input',onmouse)
     cv2.moveWindow('input',img.shape[1]+10,90)
+
+
+    bgdmodel = np.zeros((1,65),np.float64)
+    fgdmodel = np.zeros((1,65),np.float64)
+
+    #do initial guess
+    frac = 5
+    rect = (w/frac,h/frac,2*w/frac,2*h/frac)
+    rect = (1,1,w-2,h-2)
+    cv2.grabCut(img2,mask,rect,bgdmodel,fgdmodel,1,cv2.GC_INIT_WITH_RECT)
 
     print(" Instructions: \n")
     print(" Draw a rectangle around the object using right mouse button \n")
@@ -148,9 +159,20 @@ def interactive_gc(filename):
             # bar = np.zeros((img.shape[0],5,3),np.uint8)
             # res = np.hstack((img2,bar,img,bar,output))
             # cv2.imwrite('grabcut_output.png',res)
-            outname = filename.replace('.jpg','')+'gc.jpg'
-            cv2.imwrite(outname,img2)
+            outname = filename.replace('.jpg','')+'gc.png'
+            cv2.imwrite(outname,output)
             print(" Result saved as image {}".format(outname))
+            #move finished to new dir
+            src_base_orig = os.path.basename(filename)
+            src_base_gc = os.path.basename(outname)
+            src_dir = os.path.dirname(filename)
+            dest_dir = os.path.join(src_dir,'finished')
+            Utils.ensure_dir(dest_dir)
+            dest_orig=os.path.join(dest_dir,src_base_orig)
+            dest_gc=os.path.join(dest_dir,src_base_gc)
+            print('moving {} to {} and {} to {}'.format(filename,dest_orig,outname,dest_gc))
+            os.rename(filename,dest_orig)
+            os.rename(outname,dest_gc)
             break
         elif k == ord('r'): # reset everything
             print("resetting \n")
@@ -189,6 +211,7 @@ if __name__ == '__main__':
     else:
         print("No input image given, so loading default image, ../data/lena.jpg \n")
         print("Correct Usage: python grabcut.py <filename> \n")
-    files = [os.path.join(dir,f) for f in os.listdir(dir)]
+    filter = '.jpg'
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
     for f in files:
         interactive_gc(f)
