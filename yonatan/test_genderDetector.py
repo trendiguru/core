@@ -21,10 +21,10 @@ import yonatan_classifier
 
 detector = dlib.get_frontal_face_detector()
 
-MODLE_FILE = "/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/home/yonatan/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
+MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 caffe.set_mode_gpu()
-caffe.set_device(1) # choose GPU
+caffe.set_device(1)  # choose GPU number
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
 channel_swap = [2, 1, 0]
@@ -53,34 +53,37 @@ def find_face_dlib(image, max_num_of_faces=10):
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
-def theDetector(url_or_np_array):
+def detect(url_or_np_array):
 
     print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
-        #full_image = url_to_image(url_or_np_array)
-        response = requests.get(url_or_np_array)  # download
-        full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        try:
+            response = requests.get(url_or_np_array, timeout=10)  # download
+            full_image = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+        except:
+            print "couldn't open link"
+            return None
     elif type(url_or_np_array) == np.ndarray:
         full_image = url_or_np_array
     else:
         return None
 
-    #checks if the face coordinates are inside the image
+    # checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
         return None
 
     #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
 
-    faces = background_removal.find_face_dlib(full_image)
-    # faces = find_face_dlib(full_image, 1)
+    # faces = background_removal.find_face_dlib(full_image)
+    faces = find_face_dlib(full_image, 1)
 
     if not faces["are_faces"]:
         print "didn't find any faces"
         return None
 
-    print faces["faces"][0] # just checking if the face that found seems in the right place
+    print faces["faces"][0]  # just checking if the face that found seems in the right place
 
     height, width, channels = full_image.shape
 
@@ -98,9 +101,9 @@ def theDetector(url_or_np_array):
     # cv2.waitKey()
 
 
-    resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+    # resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
-    face_for_caffe = [cv2_image_to_caffe(resized_face_image)]
+    face_for_caffe = [cv2_image_to_caffe(face_image)]
     #face_for_caffe = [caffe.io.load_image(face_image)]
 
     if face_for_caffe is None:
