@@ -1334,6 +1334,7 @@ def clothe_lots(clothing_dir,mannequin_dir,type='fullbody',n=10000,filter='gc'):
     while(n_done<n):
         c=random.choice(clothes_files)
         m=random.choice(mannequin_files)
+        print('{} is trying on {} n={}'.format(m,c),n_done)
         clothe_the_naked(c,m,type=type,filter=filter)
         n_done+=1
     # for c in clothes_files:
@@ -1378,7 +1379,7 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save 
         p0 = clothes_resized[:,:,0]
         p1 = clothes_resized[:,:,1]
         p2 = clothes_resized[:,:,2]
-        nonzero = np.where((p0==0)+(p1==0)+(p2==0),255,0)
+        nonzero = np.where((p0!=0)+(p1!=0)+(p2!=0),255,0)
         #mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
         result = overlay(nonzero, clothes_resized,mannequin_resized)
 
