@@ -62,54 +62,48 @@ def detect(url_or_np_array):
     else:
         return None
 
-    # checks if the face coordinates are inside the image
     if full_image is None:
         print "not a good image"
         return None
 
-    #resized_image = imutils.resize_keep_aspect(full_image, output_size=(124, 124))
-
-    # faces = background_removal.find_face_dlib(full_image)
     faces = find_face_dlib(full_image, 1)
 
     if not faces["are_faces"]:
         print "didn't find any faces"
         return None
 
-    print faces["faces"][0]  # just checking if the face that found seems in the right place
+    for i in range(0, len(faces["faces"])):
 
-    height, width, channels = full_image.shape
+        print faces["faces"][i]  # just checking if the face that found seems in the right place
 
-    x, y, w, h = faces["faces"][0]
+        height, width, channels = full_image.shape
 
-    if x > width or x + w > width or y > height or y + h > height:
-        return None
+        x, y, w, h = faces["faces"][i]
 
-    face_image = full_image[y: y + h, x: x + w]
+        # checks if the face coordinates are inside the image
+        if x > width or x + w > width or y > height or y + h > height:
+            print "face coordinates are out of image boundary"
+            continue
 
-    # cv2.imshow("full_image", full_image)
-    # cv2.waitKey()
-    #
-    # cv2.imshow("face_image", face_image)
-    # cv2.waitKey()
+        face_image = full_image[y: y + h, x: x + w]
 
+        # resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
-    # resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
+        face_for_caffe = [cv2_image_to_caffe(face_image)]
+        #face_for_caffe = [caffe.io.load_image(face_image)]
 
-    face_for_caffe = [cv2_image_to_caffe(face_image)]
-    #face_for_caffe = [caffe.io.load_image(face_image)]
+        if face_for_caffe is None:
+            print "image to caffe failed"
+            continue
 
-    if face_for_caffe is None:
-        return None
+        # Classify.
+        start = time.time()
+        predictions = classifier.predict(face_for_caffe)
+        print("Done in %.2f s." % (time.time() - start))
 
-    # Classify.
-    start = time.time()
-    predictions = classifier.predict(face_for_caffe)
-    print("Done in %.2f s." % (time.time() - start))
-
-    if predictions[0][1] > predictions[0][0]:
-        print predictions[0][1]
-        return 'Male'
-    else:
-        print predictions[0][0]
-        return 'Female'
+        if predictions[0][1] > predictions[0][0]:
+            print predictions[0][1]
+            print "Male"
+        else:
+            print predictions[0][0]
+            print "Female"
