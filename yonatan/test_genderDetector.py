@@ -113,7 +113,6 @@ def detect(url_or_np_array):
             gender = "Female"
             frame_and_text_color = (127, 0, 225)
 
-
         cv2.rectangle(full_image, (x, y), (x + w, y + h), frame_and_text_color, 1 + w / 90)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
