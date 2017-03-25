@@ -20,7 +20,8 @@ caffe.set_mode_gpu()
 caffe.set_device(1)  # choose GPU number
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
-channel_swap = [2, 1, 0]
+# channel_swap = [2, 1, 0]
+channel_swap = None
 raw_scale = 255.0
 
 # Make classifier.
@@ -42,7 +43,6 @@ def find_face_dlib(image, max_num_of_faces=10):
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
-    #final_faces = choose_faces(image, faces, max_num_of_faces)
     return {'are_faces': len(faces) > 0, 'faces': faces}
 
 
