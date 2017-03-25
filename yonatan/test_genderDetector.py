@@ -107,15 +107,17 @@ def detect(url_or_np_array):
         if predictions[0][1] > predictions[0][0]:
             score = predictions[0][1]
             gender = "Male"
+            frame_and_text_color = (255, 0, 0)
         else:
             score = predictions[0][0]
             gender = "Female"
+            frame_and_text_color = (127, 0, 225)
 
-        cv2.rectangle(full_image, (x, y), (x + w, y + h), (255, 0, 0), 3)
+        cv2.rectangle(full_image, (x, y), (x + w, y + h), frame_and_text_color, 3)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(full_image, '{:s} {:.2f}'.format(gender, score), (int(x + 4), int(y + h - 6 - h / 130)), font, float(w) / 230,
-                    "pink", 1 + w / 170, cv2.LINE_AA)
+                    frame_and_text_color, 1 + w / 170, cv2.LINE_AA)
 
         print score
         print gender
