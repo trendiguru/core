@@ -76,6 +76,7 @@ def detect(url_or_np_array):
 
         gender = ""
         score = 0
+        frame_and_text_color = (0, 0, 0)
 
         print faces["faces"][i]  # just checking if the face that found seems in the right place
 
@@ -101,7 +102,7 @@ def detect(url_or_np_array):
 
         # Classify.
         start = time.time()
-        predictions = classifier.predict(face_for_caffe)
+        predictions = classifier.predict(face_image)
         print("Done in %.2f s." % (time.time() - start))
 
         if predictions[0][1] > predictions[0][0]:
