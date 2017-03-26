@@ -19,8 +19,8 @@ caffe.set_mode_gpu()
 caffe.set_device(0)  # choose GPU number
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
-channel_swap = [:, :, (2, 1, 0)]
-# channel_swap = None
+# channel_swap = [:, :, (2, 1, 0)]
+channel_swap = None
 raw_scale = 255.0
 
 # Make classifier.
