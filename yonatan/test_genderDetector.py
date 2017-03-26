@@ -11,17 +11,16 @@ import requests
 import dlib
 import yonatan_classifier
 
-
 detector = dlib.get_frontal_face_detector()
 
 MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
-caffe.set_mode_cpu()
-caffe.set_device(1)  # choose GPU number
+caffe.set_mode_gpu()
+caffe.set_device(0)  # choose GPU number
 image_dims = [224, 224]
 mean, input_scale = np.array([120, 120, 120]), None
-# channel_swap = [2, 1, 0]
-channel_swap = None
+channel_swap = [:, :, (2, 1, 0)]
+# channel_swap = None
 raw_scale = 255.0
 
 # Make classifier.
@@ -39,7 +38,6 @@ def cv2_image_to_caffe(image):
 
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
-    print faces
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
         return {'are_faces': False, 'faces': []}
@@ -72,11 +70,11 @@ def detect(url_or_np_array):
         print "didn't find any faces"
         return None
 
-    for i in range(0, len(faces["faces"])):
+    gender = ""
+    score = 0
+    frame_and_text_color = (0, 0, 0)
 
-        gender = ""
-        score = 0
-        frame_and_text_color = (0, 0, 0)
+    for i in range(0, len(faces["faces"])):
 
         print faces["faces"][i]  # just checking if the face that found seems in the right place
 
@@ -108,11 +106,11 @@ def detect(url_or_np_array):
         if predictions[0][1] > predictions[0][0]:
             score = predictions[0][1]
             gender = "Male"
-            frame_and_text_color = (255, 0, 0)
+            frame_and_text_color = (255, 0, 0)  # blue for men
         else:
             score = predictions[0][0]
             gender = "Female"
-            frame_and_text_color = (127, 0, 225)
+            frame_and_text_color = (127, 0, 225)  # pink for women
 
         cv2.rectangle(full_image, (x, y), (x + w, y + h), frame_and_text_color, 1 + w / 50)
 
