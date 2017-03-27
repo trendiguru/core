@@ -76,7 +76,6 @@ class HLS:
 
     def detect(self, img_arr,url=''):
         detected = defense_rcnn.detect_frcnn(img_arr)
-        # get hydra results
         print('started defense_falcon_rcnn.detect')
         for item in detected:
             cat = item["object"]
@@ -88,6 +87,7 @@ class HLS:
                 print('img arr shape:'+str((img_arr.shape)))
                 cropped_image = img_arr[y1:y2,x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
+                # get hydra results
                 hydra_output = self.get_hydra_output(cropped_image)
                 if hydra_output:
                     item['details'] = hydra_output
@@ -104,14 +104,18 @@ class HLS:
         '''
         data = json.dumps({"image": subimage})
         print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
-        resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
+        try:
+            resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
         # print('resp:'+str(resp))
         # print('type;'+str(type(resp)))
         # print('resp:'+str(resp.content))
         # print('type;'+str(type(resp.content)))
-        dict = json.loads(resp.content)
+            dict = json.loads(resp.content)
+            return dict['output']
+        except:
+            print('couldnt get hydra output')
+            return None
         # print('response dict from hydra:'+str(dict))
-        return dict['output']
 
 
     def write_log(self, url, output):
