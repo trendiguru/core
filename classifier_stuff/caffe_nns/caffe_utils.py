@@ -347,6 +347,8 @@ def get_netname(proto):
         l2 = fp.readline()
     logging.debug('line1 '+l1)
     logging.debug('line2 '+l2)
+    print('l1'+l1)
+    print('l2'+l2)
     if 'name' in l1:
         netname = l1[l1.find('name:')+5:] #get string after name:
         netname = netname.replace('"','')  #remove quotes
