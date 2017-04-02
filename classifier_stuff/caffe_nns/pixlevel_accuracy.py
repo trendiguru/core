@@ -119,13 +119,13 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     if savepics:
-        picsdir = os.path.join(dir,'pics')
+        picsdir = os.path.join(dir,caffemodel_base+ '_output')
         Utils.ensure_dir(picsdir)
     else:
         picsdir = False
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]+'.txt'
-    print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
+    print('saving net of {} {} to dir {} html {} and file {}'.format(caffemodel,solverproto,picsdir,htmlname,detailed_outputname))
 
     n_images = range(n_tests)
     if gpu is not None:
@@ -326,12 +326,12 @@ if __name__ =="__main__":
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
 
-    get_pixlevel_confmat_using_falcon(args.testfile,labels=constants.ultimate_21, save_dir='./nd_output')
+#    get_pixlevel_confmat_using_falcon(args.testfile,labels=constants.ultimate_21, save_dir='./nd_output')
 
-#    caffe.set_mode_gpu()
-#    caffe.set_device(gpu)
-#    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
-#    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
+    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
 
 
 
