@@ -119,13 +119,13 @@ def do_pixlevel_accuracy(caffemodel,n_tests,layer,classes=constants.ultimate_21,
     dir = 'pixlevel_results-'+caffemodel_base.replace('.caffemodel','')
     Utils.ensure_dir(dir)
     if savepics:
-        picsdir = os.path.join(dir,'pics')
+        picsdir = os.path.join(dir,caffemodel_base+ '_output')
         Utils.ensure_dir(picsdir)
     else:
         picsdir = False
     htmlname = os.path.join(dir,dir+'.html')
     detailed_outputname = htmlname[:-5]+'.txt'
-    print('saving net of {} {} to dir {} and file {}'.format(caffemodel,solverproto,htmlname,detailed_outputname))
+    print('saving net of {} {} to dir {} html {} and file {}'.format(caffemodel,solverproto,picsdir,htmlname,detailed_outputname))
 
     n_images = range(n_tests)
     if gpu is not None:
@@ -301,9 +301,13 @@ def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert
 
 if __name__ =="__main__":
 
+#   default_testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
+
+    default_testfile = '/data/jeremy/image_dbs/pixlevel_images/pixlevel_250x250_labels_v3_test.txt'
     default_solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
+
 
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
     parser.add_argument('--solverproto',  help='solver prototxt',default=None)
@@ -312,9 +316,10 @@ if __name__ =="__main__":
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='score')
     parser.add_argument('--n_tests', help='number of examples to test',default=200)
-    parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
+    parser.add_argument('--classes', help='class labels',default=constants.pixlevel_categories_v3)
     parser.add_argument('--iter', help='iter',default=0)
     parser.add_argument('--savepics', help='iter',default=True)
+    parser.add_argument('--testfile', help='iter',default=default_testfile)
 
     args = parser.parse_args()
     print(args)
@@ -322,13 +327,12 @@ if __name__ =="__main__":
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
 
-    testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
-    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output')
+#    get_pixlevel_confmat_using_falcon(args.testfile,labels=constants.ultimate_21, save_dir='./nd_output')
 
-#    caffe.set_mode_gpu()
-#    caffe.set_device(gpu)
-#    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
-#    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
+    caffe.set_mode_gpu()
+    caffe.set_device(gpu)
+    print('using net defined by valproto {} caffmodel  {} solverproto {}'.format(args.testproto,args.caffemodel,args.solverproto))
+    do_pixlevel_accuracy(args.caffemodel,n_tests,args.output_layer_name,args.classes,solverproto = args.solverproto, testproto=args.testproto,iter=int(args.iter),savepics=args.savepics)
 
 
 

@@ -25,6 +25,8 @@ Key '3' - To select areas of probable foreground
 Key 'n' - To update the segmentation
 Key 'r' - To reset the setup
 Key 's' - To save the results
+Key 'q' - To skip imagen
+
 ===============================================================================
 '''
 
@@ -121,7 +123,8 @@ def interactive_gc(filename):
     cv2.namedWindow('output')
     cv2.namedWindow('input')
     cv2.setMouseCallback('input',onmouse)
-    cv2.moveWindow('input',img.shape[1]+10,90)
+#    cv2.moveWindow('input',img.shape[1]+10,200)
+    cv2.moveWindow('input',0,300)
 
 
     bgdmodel = np.zeros((1,65),np.float64)
@@ -131,7 +134,7 @@ def interactive_gc(filename):
     frac = 5
     rect = (w/frac,h/frac,2*w/frac,2*h/frac)
     rect = (1,1,w-2,h-2)
-    cv2.grabCut(img2,mask,rect,bgdmodel,fgdmodel,1,cv2.GC_INIT_WITH_RECT)
+    cv2.grabCut(img2,mask,rect,bgdmodel,fgdmodel,5,cv2.GC_INIT_WITH_RECT)
 
     print(" Instructions: \n")
     print(" Draw a rectangle around the object using right mouse button \n")
@@ -140,6 +143,8 @@ def interactive_gc(filename):
 
         cv2.imshow('output',output)
         cv2.imshow('input',img)
+#        cv2.moveWindow('input',0,0)
+#        cv2.moveWindow('input',500,0)
         k = cv2.waitKey(1)
 
         # key bindings
@@ -197,7 +202,16 @@ def interactive_gc(filename):
                 bgdmodel = np.zeros((1,65),np.float64)
                 fgdmodel = np.zeros((1,65),np.float64)
                 cv2.grabCut(img2,mask,rect,bgdmodel,fgdmodel,1,cv2.GC_INIT_WITH_MASK)
-
+        elif k == ord('q'): # save image
+            #move 'bad' img to new dir
+            src_base_orig = os.path.basename(filename)
+            src_dir = os.path.dirname(filename)
+            dest_dir = os.path.join(src_dir,'bad_images')
+            Utils.ensure_dir(dest_dir)
+            dest_orig=os.path.join(dest_dir,src_base_orig)
+            print('moving bad image {} to {} '.format(filename,dest_orig))
+            os.rename(filename,dest_orig)
+            break
         mask2 = np.where((mask==1) + (mask==3),255,0).astype('uint8')
         output = cv2.bitwise_and(img2,img2,mask=mask2)
 

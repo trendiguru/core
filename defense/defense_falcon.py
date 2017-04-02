@@ -1,3 +1,10 @@
+"""
+falcon for hydra , run this like:
+gunicorn -b :8081 -w 1 -k gevent -n hls --timeout 120 trendi.defense.defense_falcon:api
+assuming the docker was started with port 8081 specified e.g.
+nvidia-docker run -it -v /data:/data -p 8081:8081 --name hls_hydra  eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
+"""
+
 import traceback
 import falcon
 print(falcon.__file__)

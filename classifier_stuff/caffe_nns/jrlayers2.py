@@ -173,11 +173,9 @@ class JrPixlevel(caffe.Layer):
                 for o in output:
                     all_data[i,...]=o[0]
                     all_labels[i,...]=o[1]
-                    self.images_processed_counter += 1
             else:
                 for i in range(self.batch_size):
                     data, label = self.load_image_and_mask()
-                    self.images_processed_counter += 1
                     all_data[i,...]=data
                     all_labels[i,...]=label
                     self.next_idx()
@@ -297,6 +295,7 @@ class JrPixlevel(caffe.Layer):
         """
         #add idx and allow randomness of next_idx to take care of multiprocessing case where
         #multiple threads are using this simultanesouly and dont want to get the same image
+        self.analysis_time=time.time()
         self.next_idx()
         while(1):
             filename = self.imagefiles[self.idx]
@@ -384,22 +383,20 @@ class JrPixlevel(caffe.Layer):
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
 
-        self.fwd_pass_counter = 0
-        self.images_processed_counter = 0
-        self.start_time = time.time()
+        self.analysis_time_out = time.time()
 
         dt_in = time.time()-self.analysis_time
         dt_out = time.time()-self.analysis_time_out
         total_elapsed_time = time.time() - self.start_time
         self.analysis_time_out = time.time()
+        self.images_processed_counter += 1
+
         print(str(self.fwd_pass_counter)+' fwd passes, '+str(self.images_processed_counter)+
               ' images processed., tin '+str(round(dt_in,3))+
               ' tout '+str(round(dt_out,3))+
-              ' ttot '+str(round(dt_tot,3))+
-              ' tpi '+str(float(total_elapsed_time)/self.images_processed_counter))
-
-
-
+              ' tin '+str(round(dt_in,3))+
+              ' ttot '+str(round(total_elapsed_time,3))+
+              ' tpi '+str(round(float(total_elapsed_time)/self.images_processed_counter,3)))
         return out1,out2
 
 

@@ -1383,7 +1383,8 @@ def clothe_the_naked(clothing_img, mannequin_img,type='fullbody',max_rot=6,save 
         print('size of nonzero {} type {}'.format(nonzero.shape,nonzero.dtype))
         nonzero = np.array(nonzero,dtype=np.uint8)
         print('size of nonzero {} type {}'.format(nonzero.shape,nonzero.dtype))
-
+#        cv2.imshow('themask',nonzero)
+#        cv2.waitKey(0)
         #mask2 = np.where((mask == cv2.GC_FGD) + (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)  #return all fg and prob. fg
         result = overlay(nonzero, clothes_resized,mannequin_resized)
 
@@ -1487,12 +1488,34 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
         print('overlay larger than image im1 {} im2 {}'.format(im1_mask.shape,bgnd_img.shape))
         return
     if position == None:
-        position = (0,0)
-    else:
-        print('shifting by {}'.format(position))
-        translation_matrix = np.float32([ [1,0,position[1]], [0,1,position[0]]] )
-        im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
-        im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+        im2,contours,hierarchy = cv2.findContours(im1_mask, 1, 2)
+#        cv2.imshow('mask1',im1_mask)
+#        cv2.waitKey(0)
+        cnt = contours[0]
+        M = cv2.moments(cnt)
+     #   print('contour moments:'+str(M))
+      #  From this moments, you can extract useful data like area, centroid etc. Centroid is given by the relations, Cx=M10M00 and Cy=M01M00. This can be done as follows:
+        try:
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            print('cx {} cy {}'.format(cx,cy))
+        except:
+            print('prob division by zero, m00={}'.format(M['m00']))
+            cx = im1_mask.shape[0]/2
+            cy = im1_mask.shape[1]/2
+#        cv2.circle(im1_mask,(cx,cy),20,(255,100,50),thickness=5)
+#        cv2.rectangle(img_arr,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),color=(255,255,0),thickness=2)
+  #      cv2.imshow('mask1',im1_mask)
+  #      cv2.waitKey(0)
+        dx = im1_mask.shape[0]/2-cx
+        dy = im1_mask.shape[1]/2-cy
+        position = (dx,dy)
+        print('cx {} cy {} dx {} dy {}'.format(cx,cy,dx,dy))
+
+    print('shifting by {}'.format(position))
+    translation_matrix = np.float32([ [1,0,position[1]], [0,1,position[0]]] )
+    im1_mask = cv2.warpAffine(im1_mask, translation_matrix, (w, h)) # cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
+    im1 = cv2.warpAffine(im1, translation_matrix, (w, h))   #cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, 255)
     if scale != 1:
         print('im1_mask {} im1 {} before resize'.format(im1_mask.shape,im1.shape))
         h,w = im1.shape[0:2]
@@ -1512,10 +1535,16 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
             print('im1_mask {} im1 {} after crop'.format(im1_mask.shape,im1.shape))
         else: #add missing
             extra = (h-dsize[0],w-dsize[1])
+            print('extra {} h {} w {} dsize {} e0 {} e1 {}'.format(extra,h,w,dsize,extra[0],extra[1]))
+            starty=extra[0]/2
+            endy = extra[0]/2+dsize[0]
+            startx=extra[1]/2
+            endx = extra[1]/2+dsize[1]
+            print('sy {} endy {} sx {} edx {}'.format(starty,endy,startx,endx))
             im1_dest = np.zeros((h,w,3))
             im1_mask_dest = np.zeros((h,w))
-            im1_dest[extra[0]/2:extra[0]/2+h,extra[1]/2:extra[1]/2+w,:]= im1
-            im1_mask_dest[extra[0]/2:extra[0]/2+h,extra[1]/2:extra[1]/2+w]=im1_mask
+            im1_dest[starty:endy,startx:endx,:]= im1
+            im1_mask_dest[starty:endy,startx:endx]=im1_mask
             print('im1_mask {} im1 {} after padding'.format(im1_mask.shape,im1.shape))
 
     if rotation != 0:
