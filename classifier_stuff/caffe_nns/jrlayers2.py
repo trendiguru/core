@@ -396,7 +396,7 @@ class JrPixlevel(caffe.Layer):
               ' tout '+str(round(dt_out,3))+
               ' tin '+str(round(dt_in,3))+
               ' ttot '+str(round(total_elapsed_time,3))+
-              ' tpi '+str(round(float(total_elapsed_time)/self.images_processed_counter),3))
+              ' tpi '+str(round(float(total_elapsed_time)/self.images_processed_counter,3)))
         return out1,out2
 
 
