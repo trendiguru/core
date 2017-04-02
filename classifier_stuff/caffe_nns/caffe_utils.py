@@ -362,13 +362,21 @@ def get_netname(proto):
         logging.info('netname:'+netname)
         return netname
     if 'test_net' or 'train_net' in l1: #the file is prob a solverproto and refers to test/val which may have netname
-        fname = l1.split('"')[-2]
-        logging.info('trying to find netname in file1 '+fname)
-        return get_netname(fname)
+        logging.info('trying to find netname in line1 '+l1)
+        s = l1.split('"')
+        if len(s)>1:
+            fname = l1.split('"')[-2]
+            return get_netname(fname)
+        else:
+            return None
     if 'test_net' or 'train_net' in l2:
-        fname = l2.split('"')[-2]
-        logging.info('trying to find netname in file2 '+fname)
-        return get_netname(fname)
+        print('trying to find netname in line2 '+l2)
+        s = l2.split('"')
+        if len(s)>1:
+            fname = l2.split('"')[-2]
+            return get_netname(fname)
+        else:
+            return None
     else:
         netname = None
     return netname
