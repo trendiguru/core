@@ -308,6 +308,7 @@ if __name__ =="__main__":
     default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
 
+
     parser = argparse.ArgumentParser(description='multilabel accuracy tester')
     parser.add_argument('--solverproto',  help='solver prototxt',default=None)
     parser.add_argument('--testproto',  help='val prototxt',default=None)
@@ -315,7 +316,7 @@ if __name__ =="__main__":
     parser.add_argument('--gpu', help='gpu #',default=0)
     parser.add_argument('--output_layer_name', help='output layer name',default='score')
     parser.add_argument('--n_tests', help='number of examples to test',default=200)
-    parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
+    parser.add_argument('--classes', help='class labels',default=constants.pixlevel_categories_v3)
     parser.add_argument('--iter', help='iter',default=0)
     parser.add_argument('--savepics', help='iter',default=True)
     parser.add_argument('--testfile', help='iter',default=default_testfile)
