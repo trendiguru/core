@@ -1498,6 +1498,7 @@ def overlay(im1_mask,im1, bgnd_img,position=None,rotation=0,scale=1,save=True,vi
         try:
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
+            print('cx {} cy {}'.format(cx,cy))
         except:
             print('prob division by zero, m00={}'.format(M['m00']))
             cx = im1_mask.shape[0]/2

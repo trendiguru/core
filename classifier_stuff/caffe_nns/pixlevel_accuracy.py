@@ -301,6 +301,9 @@ def convert_masks_to_webtool(dir,suffix_to_convert_from='.png',suffix_to_convert
 
 if __name__ =="__main__":
 
+#   default_testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
+
+    default_testfile = '/data/jeremy/image_dbs/pixlevel_images/pixlevel_250x250_labels_v3_test.txt'
     default_solverproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_testproto = '/home/jeremy/caffenets/multilabel/deep-residual-networks/prototxt/ResNet-101-test.prototxt'
     default_caffemodel = '/home/jeremy/caffenets/production/multilabel_resnet101_sgd_iter_120000.caffemodel'
@@ -315,6 +318,7 @@ if __name__ =="__main__":
     parser.add_argument('--classes', help='class labels',default=constants.ultimate_21)
     parser.add_argument('--iter', help='iter',default=0)
     parser.add_argument('--savepics', help='iter',default=True)
+    parser.add_argument('--testfile', help='iter',default=default_testfile)
 
     args = parser.parse_args()
     print(args)
@@ -322,8 +326,7 @@ if __name__ =="__main__":
     outlayer = args.output_layer_name
     n_tests = int(args.n_tests)
 
-    testfile = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt'
-    get_pixlevel_confmat_using_falcon(testfile,labels=constants.ultimate_21, save_dir='./nd_output')
+    get_pixlevel_confmat_using_falcon(args.testfile,labels=constants.ultimate_21, save_dir='./nd_output')
 
 #    caffe.set_mode_gpu()
 #    caffe.set_device(gpu)
