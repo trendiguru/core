@@ -66,7 +66,7 @@ if test_on:
         gpu =0
     print('using gpu '+str(gpu))
 else:
-    gpu = 1
+    gpu = 0
 caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,caffe.TEST, weights = PRETRAINED)
