@@ -527,6 +527,8 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
     return results_dict
 
 def seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
+#er.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
+
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
         print('saving net test output to '+save_dir)
