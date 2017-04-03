@@ -420,7 +420,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
-    print('n channels: '+str(n_cl))
+    print('n channels: '+str(n_cl)+' using output layer '+str(layer))
     for idx in n_images:
         net.forward()
         print('idx:'+str(idx))
