@@ -77,6 +77,8 @@ def consistency_check_multilabel_db():
     check images that have been gone over by 2 or more ppl
     do something about disagreements
     '''
+
+    db = pymongo.MongoClient('localhost', port=27017).mydb
     n_consistent = 0
     n_inconsistent = 0
     db = constants.db
