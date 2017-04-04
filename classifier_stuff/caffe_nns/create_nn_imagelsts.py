@@ -87,6 +87,7 @@ def consistency_check_multilabel_db(in_docker=True):
     cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
+    all_items_dict = {}
     for document in cursor:
 #    for i in range(n_total):
 #        document = cursor.next()
@@ -96,11 +97,10 @@ def consistency_check_multilabel_db(in_docker=True):
             print('no items in doc')
             continue
         totlist = {}
-        all_items_dict = {}
         for item in items_list:
             cat = item['category']
 #            print('cat:'+str(cat))
-            if cat in constants.web_tool_categories_v2 :
+            if cat in constants.web_tool_categories_v2:
 #                print('cat in webtool cats v2')
                 pass
             elif cat in constants.tamara_berg_to_web_tool_dict:
@@ -124,10 +124,10 @@ def consistency_check_multilabel_db(in_docker=True):
             consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
         if consistent:
             for key, value in totlist.iteritems():
-                # if key in all_items_dict:
-                #     all_items_dict[key] += 1
-                # else:
-                #     all_items_dict = 1
+                if key in all_items_dict:
+                    all_items_dict[key] += 1
+                else:
+                    all_items_dict = 1
                 print('key:' + str(key))
 
         print('all_items_dict:' + str(all_items_dict))
