@@ -99,6 +99,7 @@ def consistency_check_multilabel_db(in_docker=True):
         totlist = {}
         for item in items_list:
             cat = item['category']
+            print cat
 #            print('cat:'+str(cat))
             if cat in constants.web_tool_categories_v2:
 #                print('cat in webtool cats v2')
