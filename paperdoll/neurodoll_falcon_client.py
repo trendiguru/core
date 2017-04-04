@@ -34,3 +34,6 @@ def nd(image_array_or_url, category_index=None,get_multilabel_results=None,get_c
     resp = requests.post(CLASSIFIER_ADDRESS, data=data, params=params)
     return msgpack.loads(resp.content)
     
+if __name__ == "__main__":
+    url = 'https://s-media-cache-ak0.pinimg.com/736x/ae/d7/24/aed7241fcb27ad888cabefb82696b553.jpg'
+    nd(url)
