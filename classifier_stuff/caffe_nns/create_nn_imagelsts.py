@@ -71,7 +71,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
             fp.write(line+'\n')
     print(str(lines_written)+' lines written to '+catsfile)
 
-def consistency_check_multilabel_db():
+def consistency_check_multilabel_db(in_docker=True):
     '''
     read multilabel db, tally up total tags
     check images that have been gone over by 2 or more ppl
@@ -83,7 +83,8 @@ def consistency_check_multilabel_db():
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
-        db = constants.db    cursor = db.training_images.find()
+        db = constants.db
+    cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
     for document in cursor:
