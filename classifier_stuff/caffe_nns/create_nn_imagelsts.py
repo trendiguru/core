@@ -96,6 +96,7 @@ def consistency_check_multilabel_db(in_docker=True):
             print('no items in doc')
             continue
         totlist = {}
+        all_items_dict = {}
         for item in items_list:
             cat = item['category']
 #            print('cat:'+str(cat))
@@ -121,6 +122,13 @@ def consistency_check_multilabel_db(in_docker=True):
             consistent = False
         else:
             consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        if consistent:
+            for key, value in totlist.iteritems():
+                if key in all_items_dict:
+                    all_items_dict[key] += 1
+                else:
+                    all_items_dict = 1
+        print('all_items_dict:' + str(all_items_dict))
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
