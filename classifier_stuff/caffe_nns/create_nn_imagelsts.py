@@ -129,7 +129,7 @@ def consistency_check_multilabel_db(in_docker=True):
                 if key in all_items_dict:
                     all_items_dict[key] += 1
                 else:
-                    all_items_dict = 1
+                    all_items_dict[key] = 1
                 print('all_items_dict:' + str(all_items_dict))
                 # print('key:' + str(key))
 
