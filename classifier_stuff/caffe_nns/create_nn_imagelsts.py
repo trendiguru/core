@@ -117,11 +117,14 @@ def consistency_check_multilabel_db(in_docker=True):
             continue
         cat_totals = [totlist[cat] for cat in totlist]
 #        print('cat totals:'+str(cat_totals))
-        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        if cat_totals[0] == 1:
+            consistent = False
+        else:
+            consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
-    print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
+    # print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
     '''
