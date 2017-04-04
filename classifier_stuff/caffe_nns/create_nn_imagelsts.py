@@ -71,7 +71,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
             fp.write(line+'\n')
     print(str(lines_written)+' lines written to '+catsfile)
 
-def consistency_check_multilabel_db():
+def consistency_check_multilabel_db(in_docker=True):
     '''
     read multilabel db, tally up total tags
     check images that have been gone over by 2 or more ppl
@@ -81,7 +81,11 @@ def consistency_check_multilabel_db():
     db = pymongo.MongoClient('localhost', port=27017).mydb
     n_consistent = 0
     n_inconsistent = 0
-    db = constants.db
+    print('attempting db connection')
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
     cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
@@ -119,6 +123,7 @@ def consistency_check_multilabel_db():
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+    print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
     '''

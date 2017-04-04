@@ -1075,7 +1075,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     dest = cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
     bar_height = int(float(h)/len(uniques))
-    bar_width = 120
+    bar_width = 150
     colorbar = np.zeros([h,bar_width])
     i = 0
     logging.debug('len labels:'+str(len(labels)))
@@ -1111,7 +1111,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
             logging.debug('unique:'+str(unique)+':'+labels[unique]+' pixcount:'+str(pixelcount)+' fraction'+str(float(pixelcount)/totpixels))
             frac_string='{:.4f}'.format(float(pixelcount)/totpixels)
             text_string = str(unique)+' '+labels[unique]+' '+str(frac_string)
-            cv2.putText(dest_colorbar,text_string,(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,1,[0,10,50],thickness=1)
+            cv2.putText(dest_colorbar,text_string,(5,int(i*bar_height+float(bar_height)/2+5)),cv2.FONT_HERSHEY_PLAIN,0.7,[0,10,50],thickness=1)
         except:
 #            logging.warning('some problem in labelling')
             print("Unexpected error:"+ str(sys.exc_info()[0]))

@@ -170,6 +170,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             print(s)
             val = range(0,n_tests) #
             results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
+#            results_dict = jrinfer.seg_tests(test_net,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
+                    #dont need to send test_net, the jrinfer already looks for test net part of solver
             overall_acc = results_dict['overall_acc']
             mean_acc = results_dict['mean_acc']
             mean_ion = results_dict['mean_iou']

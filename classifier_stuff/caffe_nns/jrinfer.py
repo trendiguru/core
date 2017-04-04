@@ -420,7 +420,7 @@ def compute_hist(net, save_dir, n_images, layer='score', gt='label',labels=const
     n_cl = net.blobs[layer].channels
     hist = np.zeros((n_cl, n_cl))
     loss = 0
-    print('n channels: '+str(n_cl))
+    print('n channels: '+str(n_cl)+' using output layer '+str(layer))
     for idx in n_images:
         net.forward()
         print('idx:'+str(idx))
@@ -527,6 +527,8 @@ def results_from_hist(hist,save_file='./summary_output.txt',info_string='',label
     return results_dict
 
 def seg_tests(solver, n_images, output_layer='score', gt_layer='label',outfilename='net_output.txt',save_dir=None,labels=constants.pixlevel_categories_v3):
+#er.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
+
     print '>>>', datetime.now(), 'Begin seg tests'
     if save_dir is not None:
         print('saving net test output to '+save_dir)

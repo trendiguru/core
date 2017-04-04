@@ -13,7 +13,7 @@ from jaweson import json, msgpack
 
 print "Done with imports"
 
-class PaperResource:
+class NeurodollResource:
     def __init__(self):
         print "Loaded Resource"
 
@@ -145,4 +145,4 @@ class PaperResource:
 
 
 api = falcon.API()
-api.add_route('/nd/', PaperResource())
+api.add_route('/nd/', NeurodollResource())
