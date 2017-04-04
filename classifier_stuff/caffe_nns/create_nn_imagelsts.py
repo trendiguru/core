@@ -79,8 +79,11 @@ def consistency_check_multilabel_db():
     '''
     n_consistent = 0
     n_inconsistent = 0
-    db = constants.db
-    cursor = db.training_images.find()
+    print('attempting db connection')
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db    cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
     for document in cursor:
