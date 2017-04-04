@@ -87,7 +87,7 @@ def consistency_check_multilabel_db(in_docker=True):
     cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
-    all_items_dict = {}
+    all_items_dict = list()
     for document in cursor:
 #    for i in range(n_total):
 #        document = cursor.next()
