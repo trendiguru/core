@@ -77,11 +77,8 @@ def consistency_check_multilabel_db(in_docker=True):
     check images that have been gone over by 2 or more ppl
     do something about disagreements
     '''
-    overall_valid_items = {}
-    min_votes_for_positive=2
-    max_votes_for_negative=0
-    n_consistent = 0  #at least min_votes_for_positive votes for every positive item (not having more than max_for_neg_ votes)
-    n_inconsistent = 0 # one or more items with bet. max_neg and min_pos
+    n_consistent = 0
+    n_inconsistent = 0
     print('attempting db connection')
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
@@ -90,6 +87,7 @@ def consistency_check_multilabel_db(in_docker=True):
     cursor = db.training_images.find()
     n_total = cursor.count()
     print(str(n_total)+' docs total')
+    all_items_dict = {}
     for document in cursor:
 #    for i in range(n_total):
 #        document = cursor.next()
@@ -102,7 +100,7 @@ def consistency_check_multilabel_db(in_docker=True):
         for item in items_list:
             cat = item['category']
 #            print('cat:'+str(cat))
-            if cat in constants.web_tool_categories_v2 :
+            if cat in constants.web_tool_categories_v2:
 #                print('cat in webtool cats v2')
                 pass
             elif cat in constants.tamara_berg_to_web_tool_dict:
@@ -119,20 +117,23 @@ def consistency_check_multilabel_db(in_docker=True):
             print('totlist is {}')
             continue
         cat_totals = [totlist[cat] for cat in totlist]
-#        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
-        consistent = all([(elem >= min_votes_for_positive or elem <= max_votes_for_negative) for elem in cat_totals)])
+#        print('cat totals:'+str(cat_totals))
+        if cat_totals[0] == 1:
+            consistent = False
+        else:
+            consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        if consistent:
+            for key, value in totlist.iteritems():
+                if key in all_items_dict:
+                    all_items_dict[key] += 1
+                else:
+                    all_items_dict[key] = 1
+
+        print('all_items_dict:' + str(all_items_dict))
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
-        print('tots:'+str(cat_totals)+'consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
-        if consistent:
-            for item in totlist:
-                if item in overall_valid_items:
-                    overall_valid_items[item] += 1
-                else:
-                    overall_valid_items[item] = 1
-        print('tots:'+str(cat_totals)+'consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
-        print('overall:'+str(overall_valid_items))
-    print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
+        print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+    # print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
     '''
