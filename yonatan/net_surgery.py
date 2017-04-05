@@ -18,4 +18,5 @@ for layer in all_params: #loops over different layers
         #for instance there may be weights and biases , or just weights
         params[i] = net.params[layer][i].data
         print params[i]
+        break
     break
