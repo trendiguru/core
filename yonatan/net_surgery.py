@@ -10,7 +10,7 @@ net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/alexnet/Alexnet_depl
 caffe.set_device(1)
 caffe.set_mode_gpu()
 
-params = 0
+params = []
 
 all_params = [p for p in net.params ]
 for layer in all_params: #loops over different layers
