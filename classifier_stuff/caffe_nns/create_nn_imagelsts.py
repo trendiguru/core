@@ -77,8 +77,11 @@ def consistency_check_multilabel_db(in_docker=True):
     check images that have been gone over by 2 or more ppl
     do something about disagreements
     '''
-    n_consistent = 0
-    n_inconsistent = 0
+    overall_valid_items = {}
+    min_votes_for_positive=2
+    max_votes_for_negative=0
+    n_consistent = 0  #at least min_votes_for_positive votes for every positive item (not having more than max_for_neg_ votes)
+    n_inconsistent = 0 # one or more items with bet. max_neg and min_pos
     print('attempting db connection')
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
@@ -116,11 +119,19 @@ def consistency_check_multilabel_db(in_docker=True):
             print('totlist is {}')
             continue
         cat_totals = [totlist[cat] for cat in totlist]
-#        print('cat totals:'+str(cat_totals))
-        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+#        consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        consistent = all([(elem >= min_votes_for_positive or elem <= max_votes_for_negative) for elem in cat_totals)])
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
-        print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+        print('tots:'+str(cat_totals)+'consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+        if consistent:
+            for item in totlist:
+                if item in overall_valid_items:
+                    overall_valid_items[item] += 1
+                else:
+                    overall_valid_items[item] = 1
+        print('tots:'+str(cat_totals)+'consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+        print('overall:'+str(overall_valid_items))
     print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
