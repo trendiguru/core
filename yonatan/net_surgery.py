@@ -10,14 +10,12 @@ net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/alexnet/Alexnet_depl
 caffe.set_device(1)
 caffe.set_mode_gpu()
 
+params = 0
+
 all_params = [p for p in net.params ]
 for layer in all_params: #loops over different layers
     for i in range(len(net.params[layer])): #loops over stuff in layer
         #for instance there may be weights and biases , or just weights
-        # params[i] = net.params[layer][i].data
-        print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[0])
-        print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[95])
-        print "I'm here!!!"
-        print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[96])
-        break
+        params[i] = net.params[layer][i].data
+        print params[i]
     break
