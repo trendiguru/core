@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import logging
 
-net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt', '/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_gender_by_face_iter_5000.caffemodel', caffe.TEST)
+net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/alexnet/Alexnet_deploy.prototxt', '/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_alexnet_train_faces_iter_100000.caffemodel', caffe.TEST)
 
 caffe.set_device(1)
 caffe.set_mode_gpu()
