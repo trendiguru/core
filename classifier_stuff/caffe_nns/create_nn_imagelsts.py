@@ -79,6 +79,8 @@ def consistency_check_multilabel_db(in_docker=True):
     '''
     n_consistent = 0
     n_inconsistent = 0
+    min_votes_for_positive=2
+    max_votes_for_negative=0
     print('attempting db connection')
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
@@ -112,16 +114,17 @@ def consistency_check_multilabel_db(in_docker=True):
                 totlist[cat] += 1
             else:
                 totlist[cat] = 1
-        print('totlist:'+str(totlist))
         if totlist == {}:
             print('totlist is {}')
             continue
+        print('totlist:'+str(totlist))
         cat_totals = [totlist[cat] for cat in totlist]
 #        print('cat totals:'+str(cat_totals))
-        if cat_totals[0] == 1:
-            consistent = False
-        else:
-            consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+#         if cat_totals[0] == 1:
+#             consistent = False
+#         else:
+#             consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
+        consistent=all([cat_totals[elem]>=min_votes_for_positive or cat_totals[elem]<=max_votes_for_negative) for elem in cat_totals])
         if consistent:
             for key, value in totlist.iteritems():
                 if key in all_items_dict:
@@ -133,6 +136,7 @@ def consistency_check_multilabel_db(in_docker=True):
         n_consistent = n_consistent + consistent
         n_inconsistent = n_inconsistent + int(not(consistent))
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+        print
     # print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
