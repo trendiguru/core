@@ -7,7 +7,7 @@ import logging
 
 net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt', '/data/yonatan/yonatan_caffemodels/dressTexture_caffemodels/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel', caffe.TEST)
 
-caffe.set_device(0)
+caffe.set_device(1)
 caffe.set_mode_gpu()
 
 all_params = [p for p in net.params ]
