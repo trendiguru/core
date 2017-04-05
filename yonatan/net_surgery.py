@@ -21,4 +21,5 @@ for layer in all_params: #loops over different layers
         break
     break
 
-print "params[0]: {0}\nparams[1]: {1}".format(params[0], params[1])
+print "params[0]: {0}".format(params[0])
+print "params[1]: {0}".format(params[1])
