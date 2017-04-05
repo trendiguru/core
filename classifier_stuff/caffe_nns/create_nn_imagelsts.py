@@ -124,7 +124,7 @@ def consistency_check_multilabel_db(in_docker=True):
 #             consistent = False
 #         else:
 #             consistent = cat_totals and all(cat_totals[0] == elem for elem in cat_totals)
-        consistent=all([cat_totals[elem]>=min_votes_for_positive or cat_totals[elem]<=max_votes_for_negative) for elem in cat_totals])
+        consistent=all([(cat_totals[elem]>=min_votes_for_positive or cat_totals[elem]<=max_votes_for_negative) for elem in cat_totals])
         if consistent:
             for key, value in totlist.iteritems():
                 if key in all_items_dict:
