@@ -12,7 +12,7 @@ def create_multilabel_imagefile():
     destination cats
     hydra_ml_test_cats=['dress','skirt','pants_jeans','footwear']
 
-
+   @
     :return:
     '''
     catfile = 'hydra_test_ml.txt'
