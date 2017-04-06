@@ -438,7 +438,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tama
                 fp.close()
 
 def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
-                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',catsfile=None,
                                            desired_cat='suit',desired_index=6):
     '''
     read multilabel db.
@@ -449,7 +449,12 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
+    Utils.ensure_dir(catsfile_dir)
+    if catsfile is None:
+        catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
+    else:
+        catsfile = os.path.join(catsfile_dir,catsfile)
+
     print('catsfile:'+catsfile)
     for i in range(n_done):
         document = cursor.next()

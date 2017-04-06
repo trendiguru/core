@@ -673,6 +673,8 @@ hydra_cats = [['None','dress','suit','overalls','tracksuit','robe','pajamas','wo
              ['None','belt'],   #extra stuff
              ['None','sarong']]  #extra stuff
 
+hydra_ml_test_cats=['dress','skirt','pants_jeans','footwear']
+
 #made minor chages to hydra_cats for more overlap with mongodbs
 # legging->leggings, stocking->stockings, tee->t-shirt, tank-tanktop, womens_swimwear_bikini->bikini
 #items in db not in hydra: tights, top, swimsuit.
