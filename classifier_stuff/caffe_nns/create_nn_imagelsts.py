@@ -439,12 +439,15 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tama
 
 def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',catsfile=None,
-                                           desired_cat='suit',desired_index=6):
+                                           desired_cat='suit',desired_index=6,in_docker=False):
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives for cat
     '''
-    db = constants.db
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
     print('attempting db connection')
     cursor = db.training_images.find()
     n_done = cursor.count()
