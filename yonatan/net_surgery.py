@@ -15,6 +15,7 @@ for layer in all_params: #loops over different layers
         #for instance there may be weights and biases , or just weights
         print "len(net.params[layer]): {0}".format(len(net.params[layer]))
         params[i] = net.params[layer][i].data
+    print "new layer!"
 
 
 
