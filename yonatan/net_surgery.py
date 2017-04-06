@@ -5,10 +5,7 @@ import cv2
 import numpy as np
 import logging
 
-net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/alexnet/Alexnet_deploy.prototxt', '/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_alexnet_train_faces_iter_100000.caffemodel', caffe.TEST)
-
-caffe.set_device(1)
-caffe.set_mode_gpu()
+net = caffe.Net('/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_dress_texture/ResNet-152-deploy.prototxt', '/data/yonatan/yonatan_caffemodels/dressTexture_caffemodels/caffe_resnet152_snapshot_dress_texture_10_categories_iter_2500.caffemodel', caffe.TEST)
 
 params = {}
 
@@ -16,10 +13,13 @@ all_params = [p for p in net.params ]
 for layer in all_params: #loops over different layers
     for i in range(len(net.params[layer])): #loops over stuff in layer
         #for instance there may be weights and biases , or just weights
+        print "len(net.params[layer]): {0}".format(len(net.params[layer]))
         params[i] = net.params[layer][i].data
-        # print params[i]
-        break
-    break
 
-print "params[0]: {0}".format(params[0])
-print "params[1]: {0}".format(params[1])
+
+
+
+        # print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[0])
+        # print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[95])
+        # print "I'm here!!!"
+        # print "net.params[layer][i].data: {0}".format(net.params[layer][i].data[0])
