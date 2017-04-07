@@ -138,6 +138,8 @@ def consistency_check_multilabel_db(in_docker=True):
         print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
         print
     # print('cat_totals:'+str(cat_totals)+' totlist:'+str(totlist))
+    print('all_items_dict:' + str(all_items_dict))
+    print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
 
 def tg_positives(folderpath='/data/jeremy/image_dbs/tg/google',path_filter='kept',allcats=constants.flat_hydra_cats,outsuffix='pos_tg.txt'):
     '''
@@ -436,18 +438,26 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tama
                 fp.close()
 
 def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
-                                           catsfile_dir = '/data/jeremy/image_dbs/labels',
-                                           desired_cat='suit',desired_index=6):
+                                           catsfile_dir = '/data/jeremy/image_dbs/labels',catsfile=None,
+                                           desired_cat='suit',desired_index=6,in_docker=False):
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives for cat
     '''
-    db = constants.db
+    if in_docker:
+        db = pymongo.MongoClient('localhost',port=27017).mydb
+    else:
+        db = constants.db
     print('attempting db connection')
     cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs done')
-    catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
+    Utils.ensure_dir(catsfile_dir)
+    if catsfile is None:
+        catsfile = os.path.join(catsfile_dir,desired_cat+'_positives.txt')
+    else:
+        catsfile = os.path.join(catsfile_dir,catsfile)
+
     print('catsfile:'+catsfile)
     for i in range(n_done):
         document = cursor.next()
