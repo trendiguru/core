@@ -439,7 +439,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tama
 
 def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',catsfile=None,
-                                           desired_cat='suit',desired_index=6,in_docker=False):
+                                           desired_cat='suit',desired_index=6,in_docker=False,check_file_existence=False):
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives for cat
@@ -470,7 +470,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
-        if not os.path.exists(full_path):
+        if check_file_existence and not os.path.exists(full_path):
             print('file '+full_path+' does not exist, skipping')
             continue
         items_list = document['items'] #
