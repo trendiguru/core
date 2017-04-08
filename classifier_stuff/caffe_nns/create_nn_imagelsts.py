@@ -34,6 +34,10 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
     n_done = cursor.count()
     print(str(n_done)+' docs in db')
     lines_written = 0
+    n_consistent = 0
+    n_inconsistent = 0
+    min_votes_for_positive=2
+    max_votes_for_negative=0
     with open(catsfile,'w') as fp:
         for i in range(n_done):
             document = cursor.next()
@@ -63,12 +67,18 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
                         index = constants.web_tool_categories_v2.index('jacket')
                         print('replacing blazer with jacket ( cat {}) '.format(index))
                     continue
-                hotlist[index] = 1
+                hotlist[index] = hotlist[index]+1
 #                print('item:'+str(cat))
+
+            consistent=all([(elem>=min_votes_for_positive or elem<=max_votes_for_negative) for elem in hotlist])
+            n_consistent = n_consistent + consistent
+            n_inconsistent = n_inconsistent + int(not(consistent))
+            print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
             print('hotlist:'+str(hotlist))
-            line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
-            lines_written +=1
-            fp.write(line+'\n')
+            if(consistent):
+                line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
+                lines_written +=1
+                fp.write(line+'\n')
     print(str(lines_written)+' lines written to '+catsfile)
 
 def consistency_check_multilabel_db(in_docker=True):
@@ -439,7 +449,7 @@ def binary_pos_and_neg_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tama
 
 def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',catsfile=None,
-                                           desired_cat='suit',desired_index=6,in_docker=False):
+                                           desired_cat='suit',desired_index=6,in_docker=False,check_file_existence=False):
     '''
     read multilabel db.
     if n_votes[cat] >= 2, put that image in positives for cat
@@ -459,6 +469,8 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
         catsfile = os.path.join(catsfile_dir,catsfile)
 
     print('catsfile:'+catsfile)
+    n_items = 0
+
     for i in range(n_done):
         document = cursor.next()
         if not 'already_seen_image_level' in document:
@@ -470,7 +482,7 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
         url = document['url']
         filename = os.path.basename(url)
         full_path = os.path.join(image_dir,filename)
-        if not os.path.exists(full_path):
+        if check_file_existence and not os.path.exists(full_path):
             print('file '+full_path+' does not exist, skipping')
             continue
         items_list = document['items'] #
@@ -483,7 +495,6 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
             cat = item['category']
             if cat==desired_cat:
                 votes_for_item+=1
-        n_items = 0
         if votes_for_item>=2:
             print('votes:'+str(votes_for_item))
             n_items += 1
@@ -492,8 +503,8 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 print line
                 fp.write(line)
                 fp.close()
-        print('number of matches found:'+str(n_items))
-        return n_items
+    print('number of matches found:'+str(n_items))
+    return n_items
 
 def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',

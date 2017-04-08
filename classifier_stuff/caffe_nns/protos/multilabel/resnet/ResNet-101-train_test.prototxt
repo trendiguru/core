@@ -5,17 +5,32 @@ name: "ResNet-101_multilabel"
 #input_dim: 224
 #input_dim: 224
 
+
 layer {
       name: "data"
       type: "Python"
       top: "data"
-      top: "labels"
+      top: "label"
       python_param {
-      module: "jrlayers"
+      module: "jrlayers2"
       layer: "JrMultilabel"
-      param_str: "{\'images_and_labels_file\': \'tb_cats_from_webtool_256x256_train.txt\', \'mean\': (104.0, 116.7, 122.7), \'augment\':True,\'augment_crop_size\':(224,224)  }"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_train.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':30 }"
       }
+  include {phase: TRAIN}
 }
+layer {
+      name: "data"
+      type: "Python"
+      top: "data"
+      top: "label"
+      python_param {
+      module: "jrlayers2"
+      layer: "JrMultilabel"
+      param_str: "{\'images_and_labels_file\': \'/home/jeremy/image_dbs/tamara_berg_street_to_shop/dress_filipino_labels_250x250_test.txt\', \'mean\': (104.0, 116.7, 122.7),\'augment\':True,\'augment_crop_size\':(224,224), \'batch_size\':1 }"
+     }
+   include {phase: TEST}
+}
+
 
 layer {
 	bottom: "data"
@@ -5156,13 +5171,13 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "myfc1000"
-	name: "myfc1000"
+	top: "myfc21"
+	name: "myfc21"
 	type: "InnerProduct"
 
 
 	inner_product_param {
-		num_output: 21
+		num_output: 4
                 weight_filler {
                 type: "xavier"
                    }
@@ -5192,10 +5207,18 @@ layer {
 #}
 
 layer {
-	bottom: "myfc1000"
+	bottom: "myfc21"
 	bottom: "labels"
 	top: "score"
 	name: "score"
 	type: "SigmoidCrossEntropyLoss"
+  include {phase: TRAIN}
 }
 
+layer {
+	bottom: "myfc21"
+	top: "estimate"
+	name: "estimate"
+	type: "Sigmoid"
+  include {phase: TEST}
+}
