@@ -46,7 +46,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
     destination cats
     hydra_ml_test_cats=['dress','skirt','pants_jeans','footwear']
 
-   @
+
     :return:
 
     '''
