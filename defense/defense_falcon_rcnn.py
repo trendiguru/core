@@ -6,6 +6,7 @@ nvidia-docker run -it -v /data:/data -p 8082:8082 --name frcnn eu.gcr.io/test-pa
 """
 import traceback
 import falcon
+from falcon_cors import CORS
 import os
 import cv2
 import numpy as np
@@ -127,5 +128,8 @@ class HLS:
             json.dumps(out, fp, indent=4)
 #            fp.write()
 
-api = falcon.API()
+
+cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=True)
+api = falcon.API(middleware=[cors.middleware])
+
 api.add_route('/hls/', HLS())
