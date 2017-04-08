@@ -158,7 +158,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
     #    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
         if type == 'multilabel':
-            precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=n_tests, threshold=0.5, gt_layer='labels',estimate_layer='prob')
+            precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=n_tests, threshold=0.5, gt_layer=label_layer,estimate_layer=estimate_layer)
             print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
             n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
             multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname)
