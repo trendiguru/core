@@ -492,8 +492,8 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
                 print line
                 fp.write(line)
                 fp.close()
-        print('number of matches found:'+str(n_items))
-        return n_items
+    print('number of matches found:'+str(n_items))
+    return n_items
 
 def all_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/photos',
                                            catsfile_dir = '/data/jeremy/image_dbs/labels',
