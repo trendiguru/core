@@ -459,6 +459,8 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
         catsfile = os.path.join(catsfile_dir,catsfile)
 
     print('catsfile:'+catsfile)
+    n_items = 0
+
     for i in range(n_done):
         document = cursor.next()
         if not 'already_seen_image_level' in document:
@@ -483,7 +485,6 @@ def one_class_positives_from_multilabel_db(image_dir='/data/jeremy/image_dbs/tam
             cat = item['category']
             if cat==desired_cat:
                 votes_for_item+=1
-        n_items = 0
         if votes_for_item>=2:
             print('votes:'+str(votes_for_item))
             n_items += 1
