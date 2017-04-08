@@ -56,7 +56,8 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
     else:
-        db = constants.db    cursor = db.training_images.find()
+        db = constants.db
+    cursor = db.training_images.find()
     n_done = cursor.count()
     print(str(n_done)+' docs in db')
     lines_written = 0
