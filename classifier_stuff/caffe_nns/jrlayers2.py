@@ -506,7 +506,7 @@ class JrMultilabel(caffe.Layer):
         self.regression = params.get('regression',False)
         self.scale = params.get('scale',False)
         self.save_visual_output = params.get('save_visual_output',False)
-        self.equalize_category_populations = params.get('equalize_categories',True)
+        self.equalize_category_populations = params.get('equalize_categories',False)
         self.max_category_index = params.get('max_category_index',True)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
