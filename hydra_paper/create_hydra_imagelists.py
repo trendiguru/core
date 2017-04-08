@@ -2,6 +2,8 @@ __author__ = 'jeremy'
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi import constants
 import pymongo
+import os
+
 def create_single_label_imagefile(in_docker=True):
     '''
     original cats in db are from this list
