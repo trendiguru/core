@@ -34,6 +34,10 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
     n_done = cursor.count()
     print(str(n_done)+' docs in db')
     lines_written = 0
+    n_consistent = 0
+    n_inconsistent = 0
+    min_votes_for_positive=2
+    max_votes_for_negative=0
     with open(catsfile,'w') as fp:
         for i in range(n_done):
             document = cursor.next()
@@ -63,12 +67,18 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
                         index = constants.web_tool_categories_v2.index('jacket')
                         print('replacing blazer with jacket ( cat {}) '.format(index))
                     continue
-                hotlist[index] = 1
+                hotlist[index] = hotlist[index]+1
 #                print('item:'+str(cat))
+
+            consistent=all([(elem>=min_votes_for_positive or elem<=max_votes_for_negative) for elem in hotlist])
+            n_consistent = n_consistent + consistent
+            n_inconsistent = n_inconsistent + int(not(consistent))
+            print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
             print('hotlist:'+str(hotlist))
-            line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
-            lines_written +=1
-            fp.write(line+'\n')
+            if(consistent):
+                line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
+                lines_written +=1
+                fp.write(line+'\n')
     print(str(lines_written)+' lines written to '+catsfile)
 
 def consistency_check_multilabel_db(in_docker=True):
