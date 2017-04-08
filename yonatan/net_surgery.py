@@ -11,11 +11,14 @@ params = {}
 
 all_params = [p for p in net.params ]
 for layer in all_params: #loops over different layers
-    for i in range(len(net.params[layer])): #loops over stuff in layer
+    for i in range(len(net.params[layer])): #loops over stuff in layer - there's only 2 things with same len() in each layer, the first are all the weights, the second maybe mean of every filter (..?)
         #for instance there may be weights and biases , or just weights
-        print "len(net.params[layer]): {0}".format(len(net.params[layer]))
-        params[i] = net.params[layer][i].data
+        if layer == 'conv3':
+            print "len(net.params[layer]): {0}".format(len(net.params[layer]))
+            params[i] = net.params[layer][i].data
     print "new layer!"
+    # break
+
 
 
 
