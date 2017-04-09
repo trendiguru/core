@@ -233,7 +233,7 @@ def test_confmat():
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
 
-def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob'):
+def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob',labels=constants.web_tool_categories_v2):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     blobs = [ k for k in net.blobs.keys()]
     print('all blobs:'+str(blobs))
@@ -754,8 +754,9 @@ def summary_html(dir):
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
+def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,classlabels=None):
     model_base = os.path.basename(modelname)
+
     if dir is not None:
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
@@ -763,6 +764,9 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         htmlname = os.path.join(model_base,'results.html')
     if name is not None:
         htmlname = name
+
+    open_html(model_base,dir=dir,classlabels=classlabels)
+
     with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0
@@ -965,7 +969,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    open_html(model_base,dir=dir)
+#    open_html(model_base,dir=dir)
     positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
