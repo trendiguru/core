@@ -37,7 +37,7 @@ def create_single_label_imagefile(in_docker=True):
         cat_index=cat_index+1
 
 
-def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg/images',catsfile='/data/jeremy/image_dbs/labels/hydra_test/hydrapaper_ml.txt'):
+def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg_street_to_shop/images_256x256',catsfile='/data/jeremy/image_dbs/labels/hydra_test/hydrapaper_ml.txt'):
     '''
 
     original cats in db are from this list
@@ -74,6 +74,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
             url = document['url']
             filename = os.path.basename(url)
             full_path = os.path.join(image_dir,filename)
+
             items_list = document['items'] #
             print items_list
             hotlist = [0 for i in range(len_relevant_items)]
@@ -97,7 +98,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
             print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
             print('hotlist:'+str(hotlist))
             if(consistent):
-                line = str(full_path) +' '+ ' '.join(str(int(n)) for n in hotlist)
+                line = str(full_path) +' '+ ' '.join(str(int(n>0)) for n in hotlist)
                 lines_written +=1
                 fp.write(line+'\n')
     print(str(lines_written)+' lines written to '+catsfile)
