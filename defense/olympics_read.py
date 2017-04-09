@@ -5,7 +5,7 @@ import csv
 import os
 import cv2
 
-def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confidence_threshold=0.9,manual_verification=True):
+def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',visual_output=False,confidence_threshold=0.9,manual_verification=True):
     ''''
     ok the bbx, bby , bbwidth, bbight are in % of image dims, and bbwidth/hight are not width/hight but
     rather x2,y2 of the bb
@@ -20,7 +20,11 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confi
             if float(row['confidence'])<confidence_threshold:
                 print('too low confidence '+str(row['confidence']))
                 continue
-            im = cv2.imread(filename)
+            if imagedir is not None:
+                full_name = os.path.join(imagedir,filename)
+            else:
+                full_name = filename
+            im = cv2.imread(full_name)
             if im is None:
                 print('couldnt read '+filename)
                 continue
