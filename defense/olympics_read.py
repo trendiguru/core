@@ -5,7 +5,7 @@ import csv
 import os
 import cv2
 
-def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confidence_threshold=0.9):
+def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confidence_threshold=0.9,manual_verification=True):
     ''''
     ok the bbx, bby , bbwidth, bbight are in % of image dims, and bbwidth/hight are not width/hight but
     rather x2,y2 of the bb
@@ -58,12 +58,20 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',visual_output=False,confi
                 cv2.imshow('full',im)
                 #cv2.waitKey(0)
                 cv2.imshow('rect',bb_img)
-                cv2.waitKey(0)
+                print('(a)ccept , any other key to not accept')
+                k=cv2.waitKey(0)
             lblname = row['description']+'_labels.txt'
-            with open(lblname,'a') as fp:
-                line = savename+'\t'+'1'+'\n'
-                fp.write(line)
-                fp.close()
+            if manual_verification:
+                if k == ord('a'):
+                    with open(lblname,'a') as fp:
+                        line = savename+'\t'+'1'+'\n'
+                        fp.write(line)
+                        fp.close()
+            else:
+                with open(lblname,'a') as fp:
+                    line = savename+'\t'+'1'+'\n'
+                    fp.write(line)
+                    fp.close()
 
             if not row['description'] in unique_descs:
                 unique_descs.append(row['description'])
