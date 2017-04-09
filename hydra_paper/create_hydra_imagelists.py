@@ -54,7 +54,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
     '''
     relevant_list=['dress','skirt','top','pants','jeans','footwear']
     relevant_indices=[0,1,2,3,3,4]
-    len_relevant_items=4
+    len_relevant_items=5
     in_docker=True
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
