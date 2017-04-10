@@ -18,7 +18,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
     if manual_verification:
         verified_objects_file = 'verified_objects.txt'
         with open(verified_objects_file,'a') as fp:
-            line = 'filename\tdescription\tx\ty\tw\th\n'
+            line = '#filename\tdescription\tx\ty\tw\th\n'
             fp.write(line)
             fp.close()
 
