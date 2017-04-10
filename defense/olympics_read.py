@@ -15,7 +15,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
     #filename = "olympicsfull.csv"
     unique_descs=[]
     all_bbs=[]
-    if manual_verification:
+    if manual_verification:  #write a description line in verified objects file
         verified_objects_file = 'verified_objects.txt'
         with open(verified_objects_file,'a') as fp:
             line = '#filename\tdescription\tx\ty\tw\th\n'
@@ -55,7 +55,6 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
             y=max(0,bby)
             x2=min(im_h,bbx+bbw)
             y2=min(im_w,bby+bbh)
-            bb = [x,y,bbw,bbh]
             bb = [x,y,bbx2-bbx,bby2-bby]
             all_bbs.append(bb)
             if bb[2]==0 or bb[3] == 0 :
