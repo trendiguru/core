@@ -682,7 +682,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
         for imgfile,estimate in zip(img_files,estimates):
             fp.write(imgfile+' ')
             for e in estimate:
-                fp.write(str(round(e,2))+' ')
+                fp.write(str(round(e,3))+' ')
             fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
@@ -795,7 +795,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
         fwavn = n_sum/float(len(p))
 
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2)))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,3),round(fwavr,3),round(fwava,3),round(fwavn,3)))
     #write line with n_positives
         if(positives):
             g.write('<tr>\n')
@@ -803,7 +803,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(str(round(fwavn,2)))
+            g.write(str(round(fwavn,3)))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -823,7 +823,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(threshold,2)))
+            g.write(str(round(threshold,3)))
             g.write('</td>\n')
         g.write('</tr>\n')
         g.write('</b>')
@@ -834,11 +834,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwavp,2)))
+        g.write(str(round(fwavp,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(p[i],2)))
+            g.write(str(round(p[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
@@ -848,11 +848,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwavr,2)))
+        g.write(str(round(fwavr,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(r[i],2)))
+            g.write(str(round(r[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
@@ -862,11 +862,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,cl
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwava,2)))
+        g.write(str(round(fwava,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(a[i],2)))
+            g.write(str(round(a[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
