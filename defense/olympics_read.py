@@ -4,6 +4,8 @@ __author__ = 'jeremy'
 import csv
 import os
 import cv2
+import Image
+
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',visual_output=False,confidence_threshold=0.9,manual_verification=True):
     ''''
@@ -13,6 +15,13 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
     #filename = "olympicsfull.csv"
     unique_descs=[]
     all_bbs=[]
+    if manual_verification:
+        verified_objects_file = 'verified_objects.txt'
+        with open(verified_objects_file,'a') as fp:
+            line = 'filename\tdescription\tx\ty\tw\th\n'
+            fp.write(line)
+            fp.close()
+
     with open(csvfile, "rb") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -57,7 +66,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
             bb_img = im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             savename = filename.replace('.jpg','_'+str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'.jpg')
             if visual_output:
-                cv2.imwrite(savename,bb_img)
+#                cv2.imwrite(savename,bb_img)
                 cv2.rectangle(im,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,100],thickness=2)
                 cv2.imshow('full',im)
                 #cv2.waitKey(0)
@@ -67,8 +76,8 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
             lblname = row['description']+'_labels.txt'
             if manual_verification:
                 if k == ord('a'):
-                    with open(lblname,'a') as fp:
-                        line = savename+'\t'+'1'+'\n'
+                    with open(verified_objects_file,'a') as fp:
+                        line = filename+'\t'+row['description']+'\t'+str(bb[0])+'\t'+str(bb[1])+'\t'+str(bb[2])+'\t'+str(bb[3])+'\n'
                         fp.write(line)
                         fp.close()
             else:
@@ -104,3 +113,25 @@ def make_rcnn_trainfile(dir,filter='.jpg',trainfile='train.txt'):
 	    # Do awesome things with row["path"], row["boundingBoxX"], etc..."
 		# DictReader autommatically turn the row into a dict.
 
+def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/olympics/olympics'):
+    with open(verified_objects_file,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if line[0]=='#':  #first line describes fields
+                continue
+            filename,object_type,x,y,w,h=line.split()
+            x=int(x)
+            y=int(y)
+            w=int(w)
+            h=int(h)
+            print('file {} obj {} x {} y {} w {} h {}'.format(filename,object_type,x,y,w,h))
+            fullname = os.path.join(imagedir,filename)
+            im = cv2.imread(fullname)
+            if im is None:
+                print('couldnt read '+filename)
+                continue
+#                cv2.imwrite(savename,bb_img)
+            cv2.rectangle(im,(x,y),(x+w,y+h),color=[255,0,100],thickness=2)
+            cv2.imshow('full',im)
+            #cv2.waitKey(0)
+            k=cv2.waitKey(0)
