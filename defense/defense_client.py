@@ -5,7 +5,11 @@ from trendi import constants
 
 CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS # "http://13.82.136.127:8082/hls"
 
-def detect(image_or_url):
-    data = msgpack.dumps({"image": image_or_url})
-    resp = requests.post(CLASSIFIER_ADDRESS, data=data)
+def detect(img_arr, roi=[]):
+    data = {"image": img_arr}
+    if roi:
+        print "Make sure roi is a list in this order [x1, y1, x2, y2]"
+        data["roi"] = roi
+    serialized_data = msgpack.dumps(data)
+    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
     return msgpack.loads(resp.content)
