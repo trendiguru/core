@@ -24,7 +24,8 @@ from trendi import constants
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
+# Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
+HYDRA_CLASSIFIER_ADDRESS = "http://hls_hydra:8081/hydra" # constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
 FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS # "http://13.82.136.127:8082/hls"
 # what is the frcnn referring to - maybe its the thing at the end of file
 # namely, api.add_route('/frcnn/', HydraResource())
