@@ -40,10 +40,10 @@ class HLS:
         resp.content_type = "application/json"
 
         image_url = req.get_param("imageUrl")
-        x1 = req.get_param_as_int("x1")
-        x2 = req.get_param_as_int("x2")
-        y1 = req.get_param_as_int("y1")
-        y2 = req.get_param_as_int("y2")
+        r_x1 = req.get_param_as_int("x1")
+        r_x2 = req.get_param_as_int("x2")
+        r_y1 = req.get_param_as_int("y1")
+        r_y2 = req.get_param_as_int("y2")
 
         if not image_url:
             print('get request:' + str(req) + ' is missing imageUrl param')
@@ -52,10 +52,15 @@ class HLS:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                if x1 or x2 or y1 or y2:
-                    img_arr = img_arr[y1:y2, x1:x2]
-                    print "ROI: {},{},{},{}; img_arr.shape: {}".format(x1, x2, y1, y2, str(img_arr.shape))
-                detected = self.detect(img_arr,url=image_url)
+                if r_x1 or r_x2 or r_y1 or r_y2:
+                    img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
+                    print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
+                detected = self.detect(img_arr, url=image_url)
+                if (r_x1, r_y1) != (0, 0):
+                    for obj in detected:
+                        x1, y1, x2, y2 = obj["bbox"]
+                        obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
+
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
@@ -70,9 +75,13 @@ class HLS:
             img_arr = data.get("image")
             roi = data.get("roi")
             if roi:
-                x1, x2, y1, y2 = roi
-                img_arr = img_arr[y1:y2, x1:x2]
+                r_x1, r_y1, r_x2, r_y2 = roi
+                img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
             detected = self.detect(img_arr)
+            if (r_x1, r_y1) != (0, 0):
+                for obj in detected:
+                    x1, y1, x2, y2 = obj["bbox"]
+                    obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
             resp.data = serializer.dumps({"data": detected})
             resp.status = falcon.HTTP_200
         except:
