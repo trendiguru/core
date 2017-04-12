@@ -36,21 +36,24 @@ class HLS:
 
     def on_get(self, req, resp): #
         """Handles GET requests"""
-        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
-        #     serializer = msgpack
-        #     resp.content_type = "application/x-msgpack"
-        # else:
         serializer = json
         resp.content_type = "application/json"
 
         image_url = req.get_param("imageUrl")
+        x1 = int(req.get_param("x1"))
+        x2 = int(req.get_param("x2"))
+        y1 = int(req.get_param("y1"))
+        y2 = int(req.get_param("y2"))
+
         if not image_url:
-            print('get request:'+str(req)+' is missing imageUrl param')
+            print('get request:' + str(req) + ' is missing imageUrl param')
             raise falcon.HTTPMissingParam("imageUrl")
         else:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+                if x1 or x2 or y1 or y2:
+                    img_arr = img_arr[y1:y2, x1:x2]
                 detected = self.detect(img_arr,url=image_url)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
@@ -59,15 +62,15 @@ class HLS:
 
 
     def on_post(self, req, resp):
-        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
-        #     serializer = msgpack
-        #     resp.content_type = "application/x-msgpack"
-        # else:
         serializer = msgpack
         resp.content_type = "application/x-msgpack"
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
+            roi = data.get("roi")
+            if roi:
+                x1, x2, y1, y2 = roi
+                img_arr = img_arr[y1:y2, x1:x2]
             detected = self.detect(img_arr)
             resp.data = serializer.dumps({"data": detected})
             resp.status = falcon.HTTP_200
@@ -75,7 +78,7 @@ class HLS:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr,url=''):
+    def detect(self, img_arr, url=''):
         detected = defense_rcnn.detect_frcnn(img_arr)
         print('started defense_falcon_rcnn.detect')
         for item in detected:
@@ -86,12 +89,15 @@ class HLS:
                 print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
                 print('img arr type:'+str(type(img_arr)))
                 print('img arr shape:'+str((img_arr.shape)))
-                cropped_image = img_arr[y1:y2,x1:x2]
+                cropped_image = img_arr[y1:y2, x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 # get hydra results
-                hydra_output = self.get_hydra_output(cropped_image)
-                if hydra_output:
-                    item['details'] = hydra_output
+                try:
+                    hydra_output = self.get_hydra_output(cropped_image)
+                    if hydra_output:
+                        item['details'] = hydra_output
+                except:
+                    print "Hydra failed " + traceback.format_exc()
         self.write_log(url,detected)
         print detected
         return detected
@@ -104,19 +110,14 @@ class HLS:
         :return:
         '''
         data = json.dumps({"image": subimage})
-        print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
+        print('defense falcon is attempting to get response from hydra at ' + str(HYDRA_CLASSIFIER_ADDRESS))
         try:
             resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
-        # print('resp:'+str(resp))
-        # print('type;'+str(type(resp)))
-        # print('resp:'+str(resp.content))
-        # print('type;'+str(type(resp.content)))
             dict = json.loads(resp.content)
             return dict['output']
         except:
             print('couldnt get hydra output')
             return None
-        # print('response dict from hydra:'+str(dict))
 
 
     def write_log(self, url, output):
