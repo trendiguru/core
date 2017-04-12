@@ -54,6 +54,7 @@ class HLS:
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
                 if x1 or x2 or y1 or y2:
                     img_arr = img_arr[y1:y2, x1:x2]
+                    print "ROI: {},{},{},{}; img_arr.shape: {}".format(x1, x2, y1, y2, str(img_arr.shape))
                 detected = self.detect(img_arr,url=image_url)
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
