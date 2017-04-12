@@ -46,12 +46,10 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
     destination cats
-    hydra_ml_test_cats=['dress','skirt','pants_jeans','footwear']
-
-
+    hydra_ml_test_cats=['dress','skirt','top','pants_jeans','footwear']
     :return:
-
     '''
+
     relevant_list=['dress','skirt','top','pants','jeans','footwear']
     relevant_indices=[0,1,2,3,3,4]
     len_relevant_items=5
