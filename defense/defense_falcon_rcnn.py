@@ -79,7 +79,7 @@ class HLS:
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                 print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
             detected = self.detect(img_arr)
-            if (r_x1, r_y1) != (0, 0):
+            if roi and (r_x1, r_y1) != (0, 0):
                 for obj in detected:
                     x1, y1, x2, y2 = obj["bbox"]
                     obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
