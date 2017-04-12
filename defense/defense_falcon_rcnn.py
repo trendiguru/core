@@ -14,7 +14,7 @@ import numpy as np
 import defense_rcnn
 import requests
 
-from jaweson import json #, msgpack
+from jaweson import json, msgpack
 
 from trendi import constants
 
@@ -24,10 +24,10 @@ from trendi import constants
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS #"http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS #"http://13.82.136.127:8082/hls"
-#what is the frcnn referring to - maybe its the thing at the end of file
-#namely, api.add_route('/frcnn/', HydraResource())
+HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS # "http://13.82.136.127:8082/hls"
+# what is the frcnn referring to - maybe its the thing at the end of file
+# namely, api.add_route('/frcnn/', HydraResource())
 
 class HLS:
     def __init__(self):
@@ -63,8 +63,8 @@ class HLS:
         #     serializer = msgpack
         #     resp.content_type = "application/x-msgpack"
         # else:
-        serializer = json
-        resp.content_type = "application/json"
+        serializer = msgpack
+        resp.content_type = "application/x-msgpack"
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
