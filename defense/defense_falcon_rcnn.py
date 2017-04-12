@@ -40,10 +40,10 @@ class HLS:
         resp.content_type = "application/json"
 
         image_url = req.get_param("imageUrl")
-        x1 = int(req.get_param("x1"))
-        x2 = int(req.get_param("x2"))
-        y1 = int(req.get_param("y1"))
-        y2 = int(req.get_param("y2"))
+        x1 = int(req.get_param("x1", 0))
+        x2 = int(req.get_param("x2", 0))
+        y1 = int(req.get_param("y1", 0))
+        y2 = int(req.get_param("y2", 0))
 
         if not image_url:
             print('get request:' + str(req) + ' is missing imageUrl param')
