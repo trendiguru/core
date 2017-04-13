@@ -208,7 +208,7 @@ def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
 def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
     '''
     divide into n subarrays , check each
-    quartered
+
     :param img:
     :param bb_gt:
     :return:
@@ -227,12 +227,14 @@ def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
             top=dy*j
             left=dx*i
             subimage = orig_img[top:top+dy,left:left+dx] #use orig image to avoid bb that may get drawn
+            subimage_w,subimage_h = subimage.shape[0:2]
             #the ground truth has now shifted
             new_gt = [bb_gt[0]-top,bb_gt[1]-left,bb_gt[2],bb_gt[3]]
             #check if gt is in the current subimage, only check image if it is
             #this will miss all the false pos but rght now lets just conc. on false neg
-  #          if new_gt[0]>0 and new_gt[0]<
-            print('new gt: '+str(new_gt))
+            if ((new_gt[0]<0 and new_gt[0]+new_gt[0]+new_gt[2]<0) or
+                (new_gt[0]>0 and new_gt[0]+new_gt[0]+new_gt[3]<0)
+            print('new gt:{} subimage dims {} '.format(new_gt,subimage.shape))
             orig_subimage = copy.copy(subimage)
             if show_visual_output:
                 cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
