@@ -4,11 +4,14 @@ __author__ = 'jeremy'
 import csv
 import os
 import cv2
-import Image
+import numpy as np
+import copy
+
 from trendi.defense import defense_client
 from trendi import Utils
 
-def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',visual_output=False,confidence_threshold=0.9,manual_verification=True):
+def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True):
     ''''
     ok the bbx, bby , bbwidth, bbight are in % of image dims, and bbwidth/hight are not width/hight but
     rather x2,y2 of the bb
@@ -18,6 +21,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
     all_bbs=[]
     if manual_verification:  #write a description line in verified objects file
         verified_objects_file = 'verified_objects.txt'
+        visual_output = True
         with open(verified_objects_file,'a') as fp:
             line = '#filename\tdescription\tx\ty\tw\th\n'
             fp.write(line)
@@ -63,6 +67,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
                 continue
             object = row['description']
             print('im_w {} im_h {} bb {} object {} bbx {} bby {}'.format(im_w,im_h,bb,object,row['boundingBoxX'],row['boundingBoxY']))
+            print('unique descriptions:'+str(unique_descs))
             bb_img = im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             savename = filename.replace('.jpg','_'+str(bb[0])+'_'+str(bb[1])+'_'+str(bb[2])+'_'+str(bb[3])+'.jpg')
             if visual_output:
@@ -90,7 +95,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
                 unique_descs.append(row['description'])
                 print unique_descs
 
-
+    print('unique descriptions:'+str(unique_descs))
 
 def make_rcnn_trainfile(dir,filter='.jpg',trainfile='train.txt'):
     '''
@@ -136,8 +141,9 @@ def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/
             #cv2.waitKey(0)
             k=cv2.waitKey(0)
 
-def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'):
-    defense_client.CLASSIFIER_ADDRESS = "http://hls_frcnn:8082/hls"
+def get_results_on_verified_objects(verified_objects_file='verified_objects.txt',in_docker=True):
+    if in_docker:
+        defense_client.CLASSIFIER_ADDRESS = "http://hls_frcnn:8082/hls"
     with open(verified_objects_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -151,15 +157,85 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             bb_gt=[x,y,w,h]
             print('file {} obj {} x {} y {} w {} h {}'.format(filename,object_type,x,y,w,h))
             img = Utils.get_cv2_img_array("http://justvisual.cloudapp.net:8000/"+filename)
-            retval = defense_client.detect(img)
-            print retval
-            data = retval['data']
-            if retval == []:
-                print('no objects detected')
-            else:
-                for object in data:
-                    bb = object['bbox'] #we return x,y,w,h
-                    conf = object['confidence']
-                    iou = Utils.intersectionOverUnion(bb_gt,bb)
+            send_and_check(img,bb_gt,object_type)
+        #split to 4 and check those, zoom in on them
 
-            raw_input('return to continue')
+
+            cv2.imwrite('bl')
+
+def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
+    DEFENSE_CLASSES = ['bicycle', 'bus', 'car', 'motorbike', 'person','tvmonitor','train','bottle','chair']
+    OLYMPICS_CLASSES = ['street_style-man', 'street_style-vehicle-private_car', 'street_style-vehicle-suv_jeep',
+                        'street_style-vehicle-van', 'street_style-from_above-private_car', 'street_style-vehicle-pickup_truck',
+                        'street_style-man-supermarket_cart', 'street_style-man-red_top', 'street_style-man-with_hat',
+                        'street_style-man-blue_top', 'street_style-man-backpack', 'street_style-man-bag_in_hand']
+
+    matches = {'street_style-man':['person'],
+               'street_style-vehicle-private-car':['car'],
+               'street_style-vehicle-suv_jeep':['bus','car'],
+               'street_style-vehicle-van':['bus','car'],
+               'street_style-from_above-private_car':['car'],
+               'street_style-vehicle-pickup_truck':['bus','car'],
+               'street_style-man-supermarket_cart':None,
+               'street_style-man-red_top':['person'],
+               'street_style-man-with_hat':['person'],
+               'street_style-man-blue_top':['person'],
+               'street_style-man-backpack':['person'],
+               'street_style-man-bag_in_hand':['person']}
+
+    if bb_to_analyze:
+        retval = defense_client.detect(img,bb_to_analyze)
+    else:
+        retval = defense_client.detect(img)
+    best_object = None
+    print retval
+    data = retval['data']
+    if retval == []:
+        print('no objects detected')
+    else:
+        best_iou = 0
+        for object in data:
+            bb = object['bbox'] #we return x,y,w,h
+            conf = object['confidence']
+            iou = Utils.intersectionOverUnion(bb_gt,bb)
+            found_object = object['object']
+            if iou>best_iou:
+                best_object = object
+    raw_input('return to continue')
+    print('best match found: {} {}'.format(iou,best_object))
+    return(best_object)
+
+def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
+    '''
+    divide into n subarrays , check each
+    quartered
+    :param img:
+    :param bb_gt:
+    :return:
+    '''
+    image_width,image_height=img.shape[0:2]
+    dx=image_height/n
+    dy=image_width/n
+    subarrays=[]
+    orig_img=copy.copy(img)
+    print('orig gt: '+str(bb_gt))
+    if show_visual_output:
+        cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
+        cv2.imshow('origimage',img)
+    for i in range(n):
+        for j in range(n):
+            top=dy*j
+            left=dx*i
+            subimage = orig_img[top:top+dy,left:left+dx] #use orig image to avoid bb that may get drawn
+            #the ground truth has now shifted
+            new_gt = [bb_gt[0]-top,bb_gt[1]-left,bb_gt[2],bb_gt[3]]
+            #check if gt is in the current subimage, only check image if it is
+            #this will miss all the false pos but rght now lets just conc. on false neg
+  #          if new_gt[0]>0 and new_gt[0]<
+            print('new gt: '+str(new_gt))
+            orig_subimage = copy.copy(subimage)
+            if show_visual_output:
+                cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
+                cv2.imshow('subimage',subimage)
+                cv2.waitKey(0)
+            send_and_check(orig_subimage,new_gt)
