@@ -137,6 +137,7 @@ def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/
             k=cv2.waitKey(0)
 
 def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'):
+    defense_client.CLASSIFIER_ADDRESS = "http://hls_frcnn:8082/hls"
     with open(verified_objects_file,'r') as fp:
     lines = fp.readlines()
     for line in lines:
