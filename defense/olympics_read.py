@@ -159,7 +159,7 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             else:
                 for object in data:
                     bb = object['bbox'] #we return x,y,w,h
-                    conf = object['confidence]'
+                    conf = object['confidence']
                     iou = Utils.intersectionOverUnion(bb_gt,bb)
 
             raw_input('return to continue')
