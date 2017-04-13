@@ -84,6 +84,7 @@ def secure_the_homeland(image_array_or_url, gpu=1):
         print resp.content
 
 
+
 if __name__ == "__main__":
     url = 'http://www.thecantoncitizen.com/wp-content/uploads/2013/08/dunkin-robbery.jpg'
     url = 'http://mediaweb.wftv.com/photo/2016/12/02/MTD-HOME%20BURGLARIES%20-%205pm%20-.jpgo_20161202234727517_6738720_ver1.0_640_360.jpg'

@@ -5,7 +5,8 @@ import csv
 import os
 import cv2
 import Image
-
+from trendi.defense import defense_client
+from trendi import Utils
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',visual_output=False,confidence_threshold=0.9,manual_verification=True):
     ''''
@@ -134,3 +135,21 @@ def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/
             cv2.imshow('full',im)
             #cv2.waitKey(0)
             k=cv2.waitKey(0)
+
+def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'):
+    with open(verified_objects_file,'r') as fp:
+    lines = fp.readlines()
+    for line in lines:
+        if line[0]=='#':  #first line describes fields
+            continue
+        filename,object_type,x,y,w,h=line.split()
+        x=int(x)
+        y=int(y)
+        w=int(w)
+        h=int(h)
+        print('file {} obj {} x {} y {} w {} h {}'.format(filename,object_type,x,y,w,h))
+        img = Utils.get_cv2_img_array("http://justvisual.cloudapp.net:8000/"+filename)
+        retval = defense_client.detect(img)
+        print retval
+#        iou = Utils.intersectionOverUnion(b1,b2)
+        raw_input('return to continue')
