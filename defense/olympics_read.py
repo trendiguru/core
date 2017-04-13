@@ -148,9 +148,18 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             y=int(y)
             w=int(w)
             h=int(h)
+            bb_gt=[x,y,w,h]
             print('file {} obj {} x {} y {} w {} h {}'.format(filename,object_type,x,y,w,h))
             img = Utils.get_cv2_img_array("http://justvisual.cloudapp.net:8000/"+filename)
             retval = defense_client.detect(img)
             print retval
-    #        iou = Utils.intersectionOverUnion(b1,b2)
+            data = retval['data']
+            if retval == []:
+                print('no objects detected')
+            else:
+                for object in data:
+                    bb = object['bbox'] #we return x,y,w,h
+                    conf = object['confidence]'
+                    iou = Utils.intersectionOverUnion(bb_gt,bb)
+
             raw_input('return to continue')
