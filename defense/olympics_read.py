@@ -210,7 +210,7 @@ def zoom_object(img,bb_gt,percent_to_crop,show_visual_output=False):
 
     :param img:
     :param bb_gt:
-    :param percent_to_crop: max crop (percent_to_crop=1) is just the bb, min crop (percent_to_crop=0) is no orig full image
+    :param percent_to_crop: max crop (percent_to_crop=1) is just the bb, min crop (percent_to_crop=0) is no orig full image#
     :param show_visual_output:
     :return:
     '''
