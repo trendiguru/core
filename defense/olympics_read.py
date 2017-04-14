@@ -205,6 +205,34 @@ def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
     print('best match found: {} {}'.format(iou,best_object))
     return(best_object)
 
+def zoom_object(img,bb_gt,percent_to_crop,show_visual_output=False):
+    '''
+
+    :param img:
+    :param bb_gt:
+    :param percent_to_crop: max crop (percent_to_crop=1) is just the bb, min crop (percent_to_crop=0) is no orig full image
+    :param show_visual_output:
+    :return:
+    '''
+    image_h,image_w=img.shape[0:2]
+    #max crops - left, top, right, bottom maximum possible crop distance around bb
+    max_crops = np.array([bb_gt[0],bb_gt[1],image_w-(bb_gt[0]+bb_gt[2]),image_h-(bb_gt[1]+bb_gt[3])])
+    actual_crops = [int(max_crops[0]*percent_to_crop),
+                    int(max_crops[1]*percent_to_crop),
+                    int(max_crops[2]*(1-percent_to_crop)),
+                    int(max_crops[3]*(1-percent_to_crop))]
+    print('max crops '+str(max_crops))
+    print('actual crops '+str(actual_crops))
+    crop_positions=[actual_crops[1]:bb_gt[3]+actual_crops[3],actual_crops[0]:bb_gt[2]+actual_crops[2]]
+    print('crop pos '+str(crop_positions))
+    cropped_img = img[crop_positions[0]:crop_positions[2],crop_positions[1]:crop_positions[3]]
+    if show_visual_output:
+        cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
+        cv2.imshow('orig',img)
+        cv2.imshow('cropped',cropped_img)
+        cv2.waitKey(0)
+
+
 def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
     '''
     divide into n subarrays , check each
@@ -233,7 +261,8 @@ def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
             #check if gt is in the current subimage, only check image if it is
             #this will miss all the false pos but rght now lets just conc. on false neg
             if ((new_gt[0]<0 and new_gt[0]+new_gt[0]+new_gt[2]<0) or
-                (new_gt[0]>0 and new_gt[0]+new_gt[0]+new_gt[3]<0)
+                (new_gt[0]>0 and new_gt[0]+new_gt[0]+new_gt[3]<0)):
+                pass
             print('new gt:{} subimage dims {} '.format(new_gt,subimage.shape))
             orig_subimage = copy.copy(subimage)
             if show_visual_output:
