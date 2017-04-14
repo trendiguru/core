@@ -215,17 +215,17 @@ def zoom_object(img,bb_gt,percent_to_crop,show_visual_output=False):
     :return:
     '''
     image_h,image_w=img.shape[0:2]
-    #max crops - left, top, right, bottom maximum possible crop distance around bb
-    max_crops = np.array([bb_gt[0],bb_gt[1],image_w-(bb_gt[0]+bb_gt[2]),image_h-(bb_gt[1]+bb_gt[3])])
+    #max crops - top, left, bottom, right, maximum possible crop distance around bb
+    max_crops = np.array([bb_gt[1],bb_gt[0],image_h-(bb_gt[1]+bb_gt[3]),image_w-(bb_gt[0]+bb_gt[2])])
     actual_crops = [int(max_crops[0]*percent_to_crop),
                     int(max_crops[1]*percent_to_crop),
-                    int(max_crops[2]*(1-percent_to_crop)),
-                    int(max_crops[3]*(1-percent_to_crop))]
-    print('max crops '+str(max_crops))
+                    int(max_crops[2]*(percent_to_crop)),
+                    int(max_crops[3]*(percent_to_crop))]
+    print('max crops '+str(max_crops)+'  top left  bottom right')
     print('actual crops '+str(actual_crops))
-    crop_positions=[actual_crops[1]:bb_gt[3]+actual_crops[3],actual_crops[0]:bb_gt[2]+actual_crops[2]]
-    print('crop pos '+str(crop_positions))
-    cropped_img = img[crop_positions[0]:crop_positions[2],crop_positions[1]:crop_positions[3]]
+    crop_positions=[actual_crops[0],image_h-actual_crops[2],actual_crops[1],image_w-actual_crops[3]]
+    print('crop pos '+str(crop_positions)+' y1y2 x1x2')
+    cropped_img = img[crop_positions[0]:crop_positions[1],crop_positions[2]:crop_positions[3]]
     if show_visual_output:
         cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
         cv2.imshow('orig',img)
