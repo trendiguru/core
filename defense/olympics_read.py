@@ -159,11 +159,14 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             imh,imw=img.shape[0:2]
             print('file {} obj {} x {} y {} w {} h {} imh {} imw {}'.format(filename,object_type,x,y,w,h,imh,imw))
 
-            best_obj,iou = send_and_check(img,bb_gt,object_type,in_docker=in_docker,show_visual_output=visual_output)
-            if best_obj:
-                print('best fit {} iou {}'.format(best_obj,iou))
-            else:
-                print('no objects found')
+            zoom_factors = [0,0.2,0.4,0.6,0.8,1]
+            for zoom_factor in zoom_factors:
+                zoomed_bb = get_zoomed_bb(img,bb_gt,zoom_factor,show_visual_output=True)
+                best_obj,iou = send_and_check(img,bb_gt,object_type,bb_to_analyze=zoomed_bb,in_docker=in_docker,show_visual_output=visual_output)
+                if best_obj:
+                    print('best fit {} iou {}'.format(best_obj,iou))
+                else:
+                    print('no objects found')
         #split to 4 and check those, zoom in on them
 
 
@@ -223,7 +226,7 @@ def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=F
             if show_visual_output:
        #         cv2.rectangle(img_copy,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,100,100],thickness=2)
                 cv2.rectangle(img_copy,(bb[0],bb[1]),(bb[2],bb[3]),color=[255,100,100],thickness=2)
-                cv2.putText(img_copy,found_object,(bb_gt[0],max(0,bb_gt[1]-10)),cv2.FONT_HERSHEY_SIMPLEX,0.5,[255,100,100])
+                cv2.putText(img_copy,found_object,(bb[0],max(0,bb[1]-10)),cv2.FONT_HERSHEY_SIMPLEX,0.5,[255,100,100])
                 cv2.imshow('img',img_copy)
                 cv2.waitKey(0)
 #    raw_input('return to continue')
