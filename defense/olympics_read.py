@@ -177,7 +177,13 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             h=int(h)
             bb_gt=[x,y,x+w,y+h]  #x1 y1 x2 y2
             img = Utils.get_cv2_img_array("http://justvisual.cloudapp.net:8000/"+filename)
+            if img is None:
+                print('got no image '+filename)
+                continue
             imh,imw=img.shape[0:2]
+            if imh==0 or imw==0:
+                print('got 0 size somewhere '+str(img.shape()))
+                continue
             print('file {} obj {} x {} y {} w {} h {} imh {} imw {}'.format(filename,object_type,x,y,w,h,imh,imw))
 
             for zoom_factor in zoom_factors:
