@@ -78,7 +78,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
                 #cv2.waitKey(0)
                 cv2.imshow('rect',bb_img)
                 print('(a)ccept , any other key to not accept')
-                k=cv2.waitKey(0)
+                k=cv2.waitKey(100)
             lblname = row['description']+'_labels.txt'
             if manual_verification:
                 if k == ord('a'):
@@ -140,9 +140,30 @@ def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/
             cv2.rectangle(im,(x,y),(x+w,y+h),color=[255,0,100],thickness=2)
             cv2.imshow('full',im)
             #cv2.waitKey(0)
-            k=cv2.waitKey(0)
+            k=cv2.waitKey(100)
 
-def get_results_on_verified_objects(verified_objects_file='verified_objects.txt',in_docker=True,visual_output=False):
+def get_results_on_verified_objects(verified_objects_file='verified_objects.txt',
+                                    in_docker=True,visual_output=False,save_file='results.txt'):
+    '''
+    check objects that the olympics guys did using our hls .
+    zoom in at several zoom_factors around known good bb (bb_gt)
+    save iou, pixel size of object sent to detector (min side )
+    :param verified_objects_file: file of objects - warning in xywh format
+    :param in_docker:
+    :param visual_output:
+    :param save_file: where to save results
+    :return:
+    '''
+
+    zoom_factors = [0,0.3,0.6,0.8,1]
+    nn_size = (224,224)
+    #lists of results - short side of image, iou for that image (0 if no detection)
+    pixel_widths = []
+    ious = []
+    Utils.ensure_file(save_file)
+    with open(save_file,'a') as sfp:
+        sfp.write('#\tiou\tpixels\tfile\tzoom\tourbb[x1y1x2y2]\ttheirbb[x1y1x2y2]\n')
+    Utils.ensure_file(save_file)
     with open(verified_objects_file,'r') as fp:
         lines = fp.readlines()
 
@@ -159,16 +180,30 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             imh,imw=img.shape[0:2]
             print('file {} obj {} x {} y {} w {} h {} imh {} imw {}'.format(filename,object_type,x,y,w,h,imh,imw))
 
-            zoom_factors = [0,0.2,0.4,0.6,0.8,1]
             for zoom_factor in zoom_factors:
                 zoomed_bb = get_zoomed_bb(img,bb_gt,zoom_factor,show_visual_output=True)
+                #calculation of how big the gt bb is according to the cnn (after resize to e.g. 224x224)
+                max_img_side = max(zoomed_bb[2]-zoomed_bb[0],zoomed_bb[3]-zoomed_bb[1])
+                min_gt_bb = min(bb_gt[2]-bb_gt[0],bb_gt[3]-bb_gt[1])
+                compression_factor = float(max_img_side)/nn_size[0]
+                min_pixel_width = int(min_gt_bb/compression_factor)
+                pixel_widths.append(min_pixel_width)
+                print('roi size {} gtbb {} maxside {} mingt {} cf {} minpixels {}'.format(zoomed_bb,bb_gt,max_img_side,min_gt_bb,compression_factor,min_pixel_width))
                 best_obj,iou = send_and_check(img,bb_gt,object_type,bb_to_analyze=zoomed_bb,in_docker=in_docker,show_visual_output=visual_output)
+                ious.append(iou)
                 if best_obj:
                     print('best fit {} iou {}'.format(best_obj,iou))
                 else:
                     print('no objects found')
-        #split to 4 and check those, zoom in on them
-
+                if best_obj:
+                    our_bb = best_obj['bbox']
+                else:
+                    our_bb = None
+                with open(save_file,'a') as sfp:
+                    line = str(iou)+'\t'+str(min_pixel_width)+'\t'+str(filename)+'\t'+str(zoom_factor)+'\t'+str(our_bb)+'\t'+str(bb_gt)+'\n'
+                    sfp.write(line)
+    sfp.close()
+    print('results written to '+save_file)
 
 def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=False,in_docker=True):
     #bb in form of x1 y1 x2 y2
@@ -197,8 +232,10 @@ def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=F
                'street_style-man-bag_in_hand':['person']}
 
     if bb_to_analyze:
+        print('sending img to defense_client using bb {}'.format(bb_to_analyze))
         retval = defense_client.detect(img,bb_to_analyze)
     else:
+        print('sending img to defense_client w/o bb'.format(bb_to_analyze))
         retval = defense_client.detect(img)
     best_object = None
     print retval
@@ -208,7 +245,7 @@ def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=F
         cv2.rectangle(img_copy,(bb_gt[0],bb_gt[1]),(bb_gt[2],bb_gt[3]),color=[100,255,100],thickness=2)
         cv2.putText(img_copy,object_type,(bb_gt[0],max(0,bb_gt[1]-10)),cv2.FONT_HERSHEY_SIMPLEX,0.5,[100,255,100])
         cv2.imshow('img',img_copy)
-        cv2.waitKey(0)
+        cv2.waitKey(100)
     if retval == []:
         print('no objects detected')
     else:
@@ -228,7 +265,7 @@ def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=F
                 cv2.rectangle(img_copy,(bb[0],bb[1]),(bb[2],bb[3]),color=[255,100,100],thickness=2)
                 cv2.putText(img_copy,found_object,(bb[0],max(0,bb[1]-10)),cv2.FONT_HERSHEY_SIMPLEX,0.5,[255,100,100])
                 cv2.imshow('img',img_copy)
-                cv2.waitKey(0)
+                cv2.waitKey(100)
 #    raw_input('return to continue')
     print('best match found: {} {}'.format(best_iou,best_object))
     return(best_object,best_iou)
@@ -271,7 +308,7 @@ def get_zoomed_bb(img,bb_gt,percent_to_crop,show_visual_output=False):
         cv2.imshow('orig',img)
         cv2.rectangle(cropped_img,(new_gt[0],new_gt[1]),(new_gt[2],new_gt[3]),color=[100,255,100],thickness=2)
         cv2.imshow('cropped',cropped_img)
-        cv2.waitKey(0)
+        cv2.waitKey(100)
     return new_bb
 
 def tile_and_conquer(img,bb_gt,n,show_visual_output=False):
@@ -309,12 +346,12 @@ def tile_and_conquer(img,bb_gt,n,show_visual_output=False):
             if show_visual_output:
                 cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
                 cv2.imshow('subimage',subimage)
-                cv2.waitKey(0)
+                cv2.waitKey(100)
             send_and_check(orig_subimage,new_gt)
 
 def x1y1x2y2_to_xywh(bb):
-    assert(bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb))
-    assert(bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb))
+    assert bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb)
+    assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
     return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
 
 def xywh_to_x1y1x2y2(bb):
