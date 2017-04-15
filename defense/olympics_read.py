@@ -181,7 +181,7 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             print('file {} obj {} x {} y {} w {} h {} imh {} imw {}'.format(filename,object_type,x,y,w,h,imh,imw))
 
             for zoom_factor in zoom_factors:
-                zoomed_bb = get_zoomed_bb(img,bb_gt,zoom_factor,show_visual_output=True)
+                zoomed_bb = get_zoomed_bb(img,bb_gt,zoom_factor,show_visual_output=visual_output)
                 #calculation of how big the gt bb is according to the cnn (after resize to e.g. 224x224)
                 max_img_side = max(zoomed_bb[2]-zoomed_bb[0],zoomed_bb[3]-zoomed_bb[1])
                 min_gt_bb = min(bb_gt[2]-bb_gt[0],bb_gt[3]-bb_gt[1])
