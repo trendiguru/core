@@ -9,6 +9,7 @@ import copy
 
 from trendi.defense import defense_client
 from trendi import Utils
+from trendi import constants
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
              visual_output=False,confidence_threshold=0.9,manual_verification=True):
@@ -141,9 +142,7 @@ def check_verified(verified_objects_file='verified_objects.txt',imagedir='/data/
             #cv2.waitKey(0)
             k=cv2.waitKey(0)
 
-def get_results_on_verified_objects(verified_objects_file='verified_objects.txt',in_docker=True):
-    if in_docker:
-        defense_client.CLASSIFIER_ADDRESS = "http://hls_frcnn:8082/hls"
+def get_results_on_verified_objects(verified_objects_file='verified_objects.txt',in_docker=True,visual_output=False):
     with open(verified_objects_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -155,15 +154,23 @@ def get_results_on_verified_objects(verified_objects_file='verified_objects.txt'
             w=int(w)
             h=int(h)
             bb_gt=[x,y,w,h]
-            print('file {} obj {} x {} y {} w {} h {}'.format(filename,object_type,x,y,w,h))
             img = Utils.get_cv2_img_array("http://justvisual.cloudapp.net:8000/"+filename)
-            send_and_check(img,bb_gt,object_type)
+            imh,imw=img.shape[0:2]
+            print('file {} obj {} x {} y {} w {} h {} imh {} imw {}'.format(filename,object_type,x,y,w,h,imh,imw))
+            best_obj,iou = send_and_check(img,bb_gt,object_type,in_docker=in_docker,show_visual_output=visual_output)
+            if best_obj:
+                print('best fit {} iou {}'.format(best_obj,iou))
+            else:
+                print('no objects found')
         #split to 4 and check those, zoom in on them
 
 
-            cv2.imwrite('bl')
+def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=False,in_docker=True):
+    if in_docker:
+        defense_client.CLASSIFIER_ADDRESS = "http://hls_frcnn:8082/hls"
+    else:
+        defense_client.CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS
 
-def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
     DEFENSE_CLASSES = ['bicycle', 'bus', 'car', 'motorbike', 'person','tvmonitor','train','bottle','chair']
     OLYMPICS_CLASSES = ['street_style-man', 'street_style-vehicle-private_car', 'street_style-vehicle-suv_jeep',
                         'street_style-vehicle-van', 'street_style-from_above-private_car', 'street_style-vehicle-pickup_truck',
@@ -190,6 +197,11 @@ def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
     best_object = None
     print retval
     data = retval['data']
+    if show_visual_output:
+        cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[100,255,100],thickness=2)
+        cv2.putText(img,object_type,(bb_gt[0],max(0,bb_gt[1]-10)),cv2.FONT_HERSHEY_SIMPLEX,1,[100,255,100])
+        cv2.imshow('img',img)
+        cv2.waitKey(0)
     if retval == []:
         print('no objects detected')
     else:
@@ -201,13 +213,18 @@ def send_and_check(img,bb_gt,objcet_type,bb_to_analyze=None):
             found_object = object['object']
             if iou>best_iou:
                 best_object = object
-    raw_input('return to continue')
-    print('best match found: {} {}'.format(iou,best_object))
-    return(best_object)
+                best_iou = iou
+            if show_visual_output:
+                cv2.rectangle(img,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[100,255,100],thickness=2)
+                cv2.putText(img,found_object,cv2.FONT_HERSHEY_SIMPLEX,1,[100,255,100])
+                cv2.imshow('img',img)
+                cv2.waitKey(0)
+#    raw_input('return to continue')
+    print('best match found: {} {}'.format(best_iou,best_object))
+    return(best_object,best_iou)
 
-def zoom_object(img,bb_gt,percent_to_crop,show_visual_output=False):
+def get_zoomed_bb(img,bb_gt,percent_to_crop,show_visual_output=False):
     '''
-
     :param img:
     :param bb_gt:
     :param percent_to_crop: max crop (percent_to_crop=1) is just the bb, min crop (percent_to_crop=0) is no orig full image#
@@ -223,17 +240,24 @@ def zoom_object(img,bb_gt,percent_to_crop,show_visual_output=False):
                     int(max_crops[3]*(percent_to_crop))]
     print('max crops '+str(max_crops)+'  top left  bottom right')
     print('actual crops '+str(actual_crops))
+    #crop positions is y1 y2 x1 x2 (for use in crop operation that order makes sense)
     crop_positions=[actual_crops[0],image_h-actual_crops[2],actual_crops[1],image_w-actual_crops[3]]
     print('crop pos '+str(crop_positions)+' y1y2 x1x2')
-    cropped_img = img[crop_positions[0]:crop_positions[1],crop_positions[2]:crop_positions[3]]
+    #new_bb is xywh
+    new_bb = [crop_positions[2],crop_positions[0],crop_positions[3]-crop_positions[2],crop_positions[1]-crop_positions[0]]
+    new_gt = [bb_gt[0]-new_bb[0],bb_gt[1]-new_bb[1],bb_gt[2],bb_gt[3]]
+    print('new bb '+str(new_bb))
     if show_visual_output:
-        cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[255,0,100],thickness=2)
+        cropped_img = img[crop_positions[0]:crop_positions[1],crop_positions[2]:crop_positions[3]]
+        cv2.rectangle(img,(bb_gt[0],bb_gt[1]),(bb_gt[0]+bb_gt[2],bb_gt[1]+bb_gt[3]),color=[100,255,100],thickness=2)
+        cv2.rectangle(img,(new_bb[0],new_bb[1]),(new_bb[0]+new_bb[2],new_bb[1]+new_bb[3]),color=[255,100,100],thickness=2)
         cv2.imshow('orig',img)
+        cv2.rectangle(cropped_img,(new_gt[0],new_gt[1]),(new_gt[0]+new_gt[2],new_gt[1]+new_gt[3]),color=[100,255,100],thickness=2)
         cv2.imshow('cropped',cropped_img)
         cv2.waitKey(0)
+    return new_bb
 
-
-def zoom_and_conquer(img,bb_gt,n,show_visual_output=False):
+def tile_and_conquer(img,bb_gt,n,show_visual_output=False):
     '''
     divide into n subarrays , check each
 
