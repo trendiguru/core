@@ -404,7 +404,7 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
   #  ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
    # ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
  #   plt.bar(x, y, width, color="blue")
-    plt.show()
+#    plt.show()
     plt.savefig('raw_detections.png')
 
 #    plt.clf
@@ -417,5 +417,5 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
 #    ax.set_xticks(ind + width / 2)
   #  ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
    # ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
-    plt.show()
+ #   plt.show()
     plt.savefig('percent_detections.png')
