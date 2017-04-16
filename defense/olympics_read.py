@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import copy
 import sys
+import matplotlib.pyplot as plt
 
 from trendi.defense import defense_client
 from trendi import Utils
@@ -370,3 +371,51 @@ def x1y1x2y2_to_xywh(bb):
 
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
+
+def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
+#overlaps file (results on verified olympics detections) looks like this
+#       iou     pixels  file    zoom    ourbb[x1y1x2y2] theirbb[x1y1x2y2]
+    with open(overlaps_file,'r') as fp:
+        lines = fp.readlines()
+    #number of hits (iou>0.5) as function of length of shortest side (in pixels)
+    max_pixels = 256 #assuming 300 is max length of shortest side (in pixels)size
+    ind = np.arange(max_pixels)
+    pixel_hits = np.zeros(max_pixels)
+    n_attempts = np.zeros(max_pixels) #number of attempts as function of length
+    for line in lines:
+        if line[0]=='#':
+            continue
+
+        iou,npixels = line.split()[0:2]
+        iou = float(iou)
+        npixels = int(float(npixels))
+        n_attempts[npixels]+=1
+        if iou>0:
+            pixel_hits[npixels]+=1
+
+    fig, ax = plt.subplots()
+    width = 0.5
+    plot_until_index = 50
+    print(len(ind[:plot_until_index]))
+    rects1 = ax.bar(ind[:plot_until_index], pixel_hits[:plot_until_index], width, color='r')
+    ax.set_ylabel('n_hits')
+    ax.set_title('n_hits vs pixel size')
+#    ax.set_xticks(ind + width / 2)
+  #  ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
+   # ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
+ #   plt.bar(x, y, width, color="blue")
+    plt.show()
+    plt.savefig('raw_detections.png')
+
+#    plt.clf
+    percent_detections = np.divide(pixel_hits,n_attempts)
+    fig, ax = plt.subplots()
+    width = 0.5
+    rects1 = ax.bar(ind[:plot_until_index], percent_detections[:plot_until_index], width, color='r')
+    ax.set_ylabel('n_hits')
+    ax.set_title('percentage hits vs pixel size')
+#    ax.set_xticks(ind + width / 2)
+  #  ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
+   # ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
+    plt.show()
+    plt.savefig('percent_detections.png')
