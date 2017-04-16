@@ -6,6 +6,7 @@ import os
 import cv2
 import numpy as np
 import copy
+import sys
 
 from trendi.defense import defense_client
 from trendi import Utils
@@ -239,10 +240,17 @@ def send_and_check(img,bb_gt,object_type,bb_to_analyze=None,show_visual_output=F
 
     if bb_to_analyze:
         print('sending img to defense_client using bb {}'.format(bb_to_analyze))
-        retval = defense_client.detect(img,bb_to_analyze)
+        try:
+            retval = defense_client.detect(img,bb_to_analyze)
+        except:
+            print('error '+ str(sys.exc_info()[0]))
+
     else:
         print('sending img to defense_client w/o bb'.format(bb_to_analyze))
-        retval = defense_client.detect(img)
+        try:
+            retval = defense_client.detect(img)
+        except:
+            print('error '+str(sys.exc_info()[0]))
     best_object = None
     print retval
     data = retval['data']
