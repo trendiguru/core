@@ -28,7 +28,7 @@ def inspect_matlab_dataset(filename='/data/jeremy/image_dbs/hls/mall_dataset/mal
     return mat
 
 def show_rects(n,head_positions):
-    name = '/data/jeremy/image_dbs/hls/mall_dataset/frames/seq_%06d'%n+'.jpg'
+    name = '/data/jeremy/image_dbs/hls/mall_dataset/frames/seq_%06d'%n+'.jpg' #
     if not os.path.isfile(name):
         print('{} is not a file'.format(name))
         exit()
