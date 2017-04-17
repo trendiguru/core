@@ -43,13 +43,11 @@ def show_rects(n,head_positions):
 #        y=im_height-y
         cv2.rectangle(img_arr,(x-xsize,y-xsize),(x+xsize,y+xsize),color=[255,0,100],thickness=2)
     cv2.imshow('img',img_arr)
-
     cv2.waitKey(0)
     return(img_arr)
 
 if __name__=="__main__":
     f1 = inspect_matlab_dataset(filename='/data/jeremy/image_dbs/hls/mall_dataset/mall_feat.mat')
-
     frame = load_malldataset()
     print frame.shape
     n=1
