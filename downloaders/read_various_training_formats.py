@@ -83,6 +83,7 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
                 continue
             print('reading {}'.format(fullpath))
             img_arr = cv2.imread(fullpath)
+            img_dims = (img_arr.shape[1],img_arr.shape[0]) #widthxheight
             n_bb = (len(elements) - 3)/5  #3 elements till first bb, five elem per bb
             print('{} bounding boxes for this image'.format(n_bb))
             bb_list_xywh = []
@@ -97,18 +98,19 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo(fullpath,bb_list_xywh,class_no,destination_dir=os.path.dirname(fullpath))
+                write_yolo(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
             cv2.imshow('img',img_arr)
             cv2.waitKey(0)
             out.write(img_arr)
         out.release()
         cv2.destroyAllWindows()
 
-def write_yolo(img_path,bb_list_xywh,class_number,destination_dir='./'):
+def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir='./'):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
     <object-class> <x> <y> <width> <height>
+    where those are percentages...
     :param img_path:
     :param bb_xywh:
     :param class_number:
@@ -120,7 +122,11 @@ def write_yolo(img_path,bb_list_xywh,class_number,destination_dir='./'):
     destination_path=os.path.join(destination_dir,img_basename)
     with open(destination_path,'w+') as fp:
         for bb_xywh in bb_list_xywh:
-            line = str(class_number)+' '+str(bb_xywh[0])+' '+str(bb_xywh[1])+' '+str(bb_xywh[2])+' '+str(bb_xywh[3])+'\n'
+            x_p = float(bb_xywh[0])/image_dims[0]
+            y_p = float(bb_xywh[1])/image_dims[1]
+            w_p = float(bb_xywh[2])/image_dims[0]
+            h_p = float(bb_xywh[3])/image_dims[1]
+            line = str(class_number)+' '+str(round(x_p,4))+' '+str(round(y_p,4))+' '+str(round(w_p,4))+' '+str(round(h_p,4))+'\n'
             print('writing "{}" to {}'.format(line,destination_path))
             fp.write(line)
     fp.close()
@@ -131,6 +137,7 @@ def read_yolo(txt_file):
     '''
     format is
     <object-class> <x> <y> <width> <height>
+    where x,y,w,h are relative to image width, height
     :param txt_file:
     :return:
     '''
@@ -138,14 +145,19 @@ def read_yolo(txt_file):
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
+    image_h,image_w = img_arr.shape[0:2]
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
             object_class,x,y,w,h = line.split()
-            x=int(x)
-            y=int(y)
-            w=int(w)
-            h=int(h)
+            x_p=float(x)
+            y_p=float(y)
+            w_p=float(w)
+            h_p=float(h)
+            x = int(x_p*image_w)
+            y = int(x_p*image_h)
+            w = int(x_p*image_w)
+            h = int(x_p*image_h)
             print('class {} x {} y {} w {} h {} '.format(object_class,x,y,w,h))
             cv2.rectangle(img_arr,(x,y),(x+w,y+h),color=[100,255,100],thickness=2)
             cv2.imshow('img',img_arr)
