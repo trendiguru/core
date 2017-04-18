@@ -113,8 +113,9 @@ def write_yolo(img_path,bb_xywh,class_number,destination_dir='./'):
     :return:
     '''
     img_basename = os.path.basename(img_path)
-    destination_path=os.path.join(destination_dir,img_basename.replace('.jpg','.txt'))
-    line = str(class_number)+' '+bb_xywh[0]+' '+bb_xywh[1]+' '+bb_xywh[2]+' '+bb_xywh[3]+'\n'
+    destination_path=os.path.join(destination_dir,img_basename.replace('.jpg','.txt').replace('.bmp','.txt').replace('.bmp','.txt'))
+    line = str(class_number)+' '+str(bb_xywh[0])+' '+str(bb_xywh[1])+' '+str(bb_xywh[2])+' '+str(bb_xywh[3])+'\n'
+    print('writing "{}" to {}'.format(line,destination_path))
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
     with open(destination_path,'w') as fp:
