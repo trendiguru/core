@@ -1,9 +1,17 @@
+'''
+generally for reading db's having bb's
+
+'''
+
 __author__ = 'jeremy'
+
 
 import os
 import cv2
 import sys
 import re
+
+from trendi import Utils
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -48,11 +56,18 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
                 print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
 
 
-def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl'):
+def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl',class_no=0):
     '''
+    reads from
     https://data.vision.ee.ethz.ch/cvl/aess/dataset/   - pedestrians only
     '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
+    writes to yolo format
     '''
+
+    # Define the codec and create VideoWriter object
+    # not necessary fot function , just wanted to track boxes
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
     with open(os.path.join(dir,file),'r') as fp:
         lines = fp.readlines()
@@ -61,19 +76,46 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
             elements = re.findall(r"[-\w']+",line)
             print elements
         #    elements = line.split
-            imgname = line.split()[0]
+            imgname = line.split()[0].replace('"','').replace('.png','_0.png').replace(':','')
             fullpath=os.path.join(dir,imgname)
-            if not os.path.exists(fullpath):
+            if not os.path.isfile(fullpath):
                 print('couldnt find {}'.format(fullpath))
                 continue
+            print('reading {}'.format(fullpath))
             img_arr = cv2.imread(fullpath)
-            n_bb = (len(n_elem) - 3.0)/5.0  #3 elements till first bb, five elem per bb
-            print(n_bb_)
+            n_bb = (len(elements) - 3)/5  #3 elements till first bb, five elem per bb
+            print('{} bounding boxes for this image'.format(n_bb))
             for i in range(int(n_bb)):
                 ind = i*5+3
                 x1=int(elements[ind])
                 y1=int(elements[ind+1])
                 x2=int(elements[ind+2])
                 y2=int(elements[ind+3])
-                print('ind {} x1 {} y1 {} x2 {} y2 {}'.format(ind,x1,y1,x2,y2))
-            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+                bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
+                print('ind {} x1 {} y1 {} x2 {} y2 {} bb {}'.format(ind,x1,y1,x2,y2,bb))
+                cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+                write_yolo(fullpath,[x1,y1,x2-x1,y2-y1],class_no,destination_dir=os.path.dirname(fullpath))
+            cv2.imshow('img',img_arr)
+            cv2.waitKey(0)
+            out.write(img_arr)
+        out.release()
+        cv2.destroyAllWindows()
+
+def write_yolo(img_path,bb_xywh,class_number,destination_dir='./'):
+    '''
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    <object-class> <x> <y> <width> <height>
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+    '''
+    img_basename = os.path.basename(img_path)
+    destination_path=os.path.join(destination_dir,img_basename.replace('.jpg','.txt'))
+    line = str(class_number)+' '+bb_xywh[0]+' '+bb_xywh[1]+' '+bb_xywh[2]+' '+bb_xywh[3]+'\n'
+#    if not os.exists(destination_path):
+#        Utils.ensure_file(destination_path)
+    with open(destination_path,'w') as fp:
+        fp.write(line)
