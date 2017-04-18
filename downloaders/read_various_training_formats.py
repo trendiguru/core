@@ -76,7 +76,7 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
             elements = re.findall(r"[-\w']+",line)
             print elements
         #    elements = line.split
-            imgname = line.split()[0].replace('"','').replace('.png','_0.png').replace(':','')
+            imgname = line.split()[0].replace('"','').replace('.png','_0.png').replace(':','').replace('\n','')
             fullpath=os.path.join(dir,imgname)
             if not os.path.isfile(fullpath):
                 print('couldnt find {}'.format(fullpath))
@@ -85,6 +85,7 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
             img_arr = cv2.imread(fullpath)
             n_bb = (len(elements) - 3)/5  #3 elements till first bb, five elem per bb
             print('{} bounding boxes for this image'.format(n_bb))
+            bb_list_xywh = []
             for i in range(int(n_bb)):
                 ind = i*5+3
                 x1=int(elements[ind])
@@ -92,16 +93,18 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
                 x2=int(elements[ind+2])
                 y2=int(elements[ind+3])
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
-                print('ind {} x1 {} y1 {} x2 {} y2 {} bb {}'.format(ind,x1,y1,x2,y2,bb))
+                bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
+                bb_list_xywh.append(bb_xywh)
+                print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo(fullpath,[x1,y1,x2-x1,y2-y1],class_no,destination_dir=os.path.dirname(fullpath))
+                write_yolo(fullpath,bb_list_xywh,class_no,destination_dir=os.path.dirname(fullpath))
             cv2.imshow('img',img_arr)
             cv2.waitKey(0)
             out.write(img_arr)
         out.release()
         cv2.destroyAllWindows()
 
-def write_yolo(img_path,bb_xywh,class_number,destination_dir='./'):
+def write_yolo(img_path,bb_list_xywh,class_number,destination_dir='./'):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
@@ -113,10 +116,37 @@ def write_yolo(img_path,bb_xywh,class_number,destination_dir='./'):
     :return:
     '''
     img_basename = os.path.basename(img_path)
-    destination_path=os.path.join(destination_dir,img_basename.replace('.jpg','.txt').replace('.bmp','.txt').replace('.bmp','.txt'))
-    line = str(class_number)+' '+str(bb_xywh[0])+' '+str(bb_xywh[1])+' '+str(bb_xywh[2])+' '+str(bb_xywh[3])+'\n'
-    print('writing "{}" to {}'.format(line,destination_path))
+    img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
+    destination_path=os.path.join(destination_dir,img_basename)
+    with open(destination_path,'w+') as fp:
+        for bb_xywh in bb_list_xywh:
+            line = str(class_number)+' '+str(bb_xywh[0])+' '+str(bb_xywh[1])+' '+str(bb_xywh[2])+' '+str(bb_xywh[3])+'\n'
+            print('writing "{}" to {}'.format(line,destination_path))
+            fp.write(line)
+    fp.close()
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
-    with open(destination_path,'w') as fp:
-        fp.write(line)
+
+def read_yolo(txt_file):
+    '''
+    format is
+    <object-class> <x> <y> <width> <height>
+    :param txt_file:
+    :return:
+    '''
+    img_file = txt_file.replace('.txt','.png')
+    img_arr = cv2.imread(img_file)
+    if img_arr is None:
+        print('problem reading {}'.format(img_file))
+    with open(txt_file,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            object_class,x,y,w,h = line.split()
+            x=int(x)
+            y=int(y)
+            w=int(w)
+            h=int(h)
+            print('class {} x {} y {} w {} h {} '.format(object_class,x,y,w,h))
+            cv2.rectangle(img_arr,(x,y),(x+w,y+h),color=[100,255,100],thickness=2)
+            cv2.imshow('img',img_arr)
+            cv2.waitKey(0)
