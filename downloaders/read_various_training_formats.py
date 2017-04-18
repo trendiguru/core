@@ -1,0 +1,79 @@
+__author__ = 'jeremy'
+
+import os
+import cv2
+import sys
+import re
+
+def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
+    '''
+    reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
+    which has a file for each image, filenames 000000.txt, 000001.txt etc, each file has a line like:
+    Pedestrian 0.00 0 -0.20 712.40 143.00 810.73 307.92 1.89 0.48 1.20 1.84 1.47 8.41 0.01
+    in format:
+    1    type         Describes the type of object: 'Car', 'Van', 'Truck',
+                     'Pedestrian', 'Person_sitting', 'Cyclist', 'Tram',
+                     'Misc' or 'DontCare'
+    1    truncated    Float from 0 (non-truncated) to 1 (truncated), where
+                     truncated refers to the object leaving image boundaries
+    1    occluded     Integer (0,1,2,3) indicating occlusion state:
+                     0 = fully visible, 1 = partly occluded
+                     2 = largely occluded, 3 = unknown
+    1    alpha        Observation angle of object, ranging [-pi..pi]
+    4    bbox         2D bounding box of object in the image (0-based index):
+                     contains left, top, right, bottom pixel coordinates
+    3    dimensions   3D object dimensions: height, width, length (in meters)
+    3    location     3D object location x,y,z in camera coordinates (in meters)
+    1    rotation_y   Rotation ry around Y-axis in camera coordinates [-pi..pi]
+    1    score        Only for results: Float, indicating confidence in
+                     detection, needed for p/r curves, higher is better.
+    :param dir:
+    :return:
+    '''
+
+    files = os.listdir(dir)
+    files.sort()
+    for f in files:
+    #    filename = os.path.join(dir,'%06d.txt'%i)
+        if not os.path.exists(f):
+            print('{} not found'.format(f))
+        else:
+            with open(f,'r' ) as fp:
+                line = fp.read()
+                print(line)
+                try:
+                    type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
+                except:
+                    print("error:", sys.exc_info()[0])
+                print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
+
+
+def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl'):
+    '''
+    https://data.vision.ee.ethz.ch/cvl/aess/dataset/   - pedestrians only
+    '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
+    '''
+
+    with open(os.path.join(dir,file),'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            print line
+            elements = re.findall(r"[-\w']+",line)
+            print elements
+        #    elements = line.split
+            imgname = line.split()[0]
+            fullpath=os.path.join(dir,imgname)
+            if not os.path.exists(fullpath):
+                print('couldnt find {}'.format(fullpath))
+                continue
+            img_arr = cv2.imread(fullpath)
+            n_bb = (len(n_elem) - 3.0)/5.0  #3 elements till first bb, five elem per bb
+            print(n_bb_)
+            for i in range(int(n_bb)):
+                ind = i*5+3
+                x1=int(elements[ind])
+                y1=int(elements[ind+1])
+                x2=int(elements[ind+2])
+                y2=int(elements[ind+3])
+                print('ind {} x1 {} y1 {} x2 {} y2 {}'.format(ind,x1,y1,x2,y2))
+            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
