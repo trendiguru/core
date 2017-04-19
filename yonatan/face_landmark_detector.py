@@ -64,6 +64,7 @@ def shape_to_np(shape, dtype="int"):
     # initialize the list of (x, y)-coordinates
     coords = np.zeros((68, 2), dtype=dtype)
     print coords
+    print shape
 
     # loop over the 68 facial landmarks and convert them
     # to a 2-tuple of (x, y)-coordinates
