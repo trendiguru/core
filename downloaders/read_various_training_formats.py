@@ -10,6 +10,7 @@ import sys
 import re
 
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -95,14 +96,14 @@ def read_rmptfmp_write_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
+                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
             cv2.imshow('img',img_arr)
             cv2.waitKey(0)
  #           out.write(img_arr)
  #       out.release()
         cv2.destroyAllWindows()
 
-def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
+def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
@@ -137,6 +138,24 @@ def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir=Non
     fp.close()
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
+
+def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05):
+    '''
+    this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
+    :param dir:
+    :param trainfile:
+    :return:
+    '''
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    print('{} files w filter {} in {}'.format(len(files),filter,dir))
+    if len(files) == 0:
+        print('no files fitting {} in {}, stopping'.format(filter,dir))
+        return
+    with open(trainfile,'w+') as fp:
+        for f in files:
+            fp.write(f+'\n')
+    if split_to_test_and_train is not None:
+        create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
 def read_yolo(txt_file):
     '''
