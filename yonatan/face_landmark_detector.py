@@ -16,23 +16,23 @@ import imutils
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor()
 
-MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
-PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
-caffe.set_mode_gpu()
-caffe.set_device(0)  # choose GPU number
-image_dims = [224, 224]
-mean, input_scale = np.array([120, 120, 120]), None
-# channel_swap = [:, :, (2, 1, 0)]
-channel_swap = None
-raw_scale = 255.0
-
-# Make classifier.
-classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
-                              image_dims=image_dims, mean=mean,
-                              input_scale=input_scale, raw_scale=raw_scale,
-                              channel_swap=channel_swap)
-
-print "Done initializing!"
+# MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
+# PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
+# caffe.set_mode_gpu()
+# caffe.set_device(0)  # choose GPU number
+# image_dims = [224, 224]
+# mean, input_scale = np.array([120, 120, 120]), None
+# # channel_swap = [:, :, (2, 1, 0)]
+# channel_swap = None
+# raw_scale = 255.0
+#
+# # Make classifier.
+# classifier = yonatan_classifier.Classifier(MODLE_FILE, PRETRAINED,
+#                               image_dims=image_dims, mean=mean,
+#                               input_scale=input_scale, raw_scale=raw_scale,
+#                               channel_swap=channel_swap)
+#
+# print "Done initializing!"
 
 
 def cv2_image_to_caffe(image):
@@ -121,6 +121,8 @@ def detect(url_or_np_array):
         # convert the facial landmark (x, y)-coordinates to a NumPy
         # array
         shape = predictor(gray, rect)
+        print "shape.part(0): {0}, shape.part(1): {1}".format(shape.part(0), shape.part(1))
+
         shape = shape_to_np(shape)
 
         # convert dlib's rectangle to a OpenCV-style bounding box
