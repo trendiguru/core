@@ -46,15 +46,13 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
                     'overalls','sweatshirt' , 'bracelet','necklace','earrings','watch' ]
 
     destination cats
-    hydra_ml_test_cats=['dress','skirt','pants_jeans','footwear']
-
-
+    hydra_ml_test_cats=['dress','skirt','top','pants_jeans','footwear']
     :return:
-
     '''
-    relevant_list=['dress','skirt','pants','jeans','footwear']
-    relevant_indices=[0,1,2,2,3]
-    len_relevant_items=4
+
+    relevant_list=['dress','skirt','top','pants','jeans','footwear']
+    relevant_indices=[0,1,2,3,3,4]
+    len_relevant_items=5
     in_docker=True
     if in_docker:
         db = pymongo.MongoClient('localhost',port=27017).mydb
@@ -95,7 +93,7 @@ def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg
             consistent=all([(elem>=min_votes_for_positive or elem<=max_votes_for_negative) for elem in hotlist])
             n_consistent = n_consistent + consistent
             n_inconsistent = n_inconsistent + int(not(consistent))
-            print('consistent:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
+            print('consistency:'+str(consistent)+' n_con:'+str(n_consistent)+' incon:'+str(n_inconsistent))
             print('hotlist:'+str(hotlist))
             if(consistent):
                 line = str(full_path) +' '+ ' '.join(str(int(n>0)) for n in hotlist)

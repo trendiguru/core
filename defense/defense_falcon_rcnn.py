@@ -14,7 +14,7 @@ import numpy as np
 import defense_rcnn
 import requests
 
-from jaweson import json #, msgpack
+from jaweson import json, msgpack
 
 from trendi import constants
 
@@ -24,10 +24,11 @@ from trendi import constants
 
 print "Done with imports"
 
-HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_HLS_CLASSIFIER_ADDRESS #"http://13.82.136.127:8081/hydra"
-FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS #"http://13.82.136.127:8082/hls"
-#what is the frcnn referring to - maybe its the thing at the end of file
-#namely, api.add_route('/frcnn/', HydraResource())
+# Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
+HYDRA_CLASSIFIER_ADDRESS = "http://hls_hydra:8081/hydra" # constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
+FRCNN_CLASSIFIER_ADDRESS = constants.FRCNN_CLASSIFIER_ADDRESS # "http://13.82.136.127:8082/hls"
+# what is the frcnn referring to - maybe its the thing at the end of file
+# namely, api.add_route('/frcnn/', HydraResource())
 
 class HLS:
     def __init__(self):
@@ -36,22 +37,31 @@ class HLS:
 
     def on_get(self, req, resp): #
         """Handles GET requests"""
-        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
-        #     serializer = msgpack
-        #     resp.content_type = "application/x-msgpack"
-        # else:
         serializer = json
         resp.content_type = "application/json"
 
         image_url = req.get_param("imageUrl")
+        r_x1 = req.get_param_as_int("x1")
+        r_x2 = req.get_param_as_int("x2")
+        r_y1 = req.get_param_as_int("y1")
+        r_y2 = req.get_param_as_int("y2")
+
         if not image_url:
-            print('get request:'+str(req))
+            print('get request:' + str(req) + ' is missing imageUrl param')
             raise falcon.HTTPMissingParam("imageUrl")
         else:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                detected = self.detect(img_arr,url=image_url)
+                if r_x1 or r_x2 or r_y1 or r_y2:
+                    img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
+                    print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
+                detected = self.detect(img_arr, url=image_url)
+                if (r_x1, r_y1) != (0, 0):
+                    for obj in detected:
+                        x1, y1, x2, y2 = obj["bbox"]
+                        obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
+
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
@@ -59,23 +69,28 @@ class HLS:
 
 
     def on_post(self, req, resp):
-        # if req.client_accepts_msgpack or "msgpack" in req.content_type:
-        #     serializer = msgpack
-        #     resp.content_type = "application/x-msgpack"
-        # else:
-        serializer = json
-        resp.content_type = "application/json"
+        serializer = msgpack
+        resp.content_type = "application/x-msgpack"
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
+            roi = data.get("roi")
+            if roi:
+                r_x1, r_y1, r_x2, r_y2 = roi
+                img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
+                print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
             detected = self.detect(img_arr)
+            if roi and (r_x1, r_y1) != (0, 0):
+                for obj in detected:
+                    x1, y1, x2, y2 = obj["bbox"]
+                    obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
             resp.data = serializer.dumps({"data": detected})
             resp.status = falcon.HTTP_200
         except:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr,url=''):
+    def detect(self, img_arr, url=''):
         detected = defense_rcnn.detect_frcnn(img_arr)
         print('started defense_falcon_rcnn.detect')
         for item in detected:
@@ -86,12 +101,15 @@ class HLS:
                 print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
                 print('img arr type:'+str(type(img_arr)))
                 print('img arr shape:'+str((img_arr.shape)))
-                cropped_image = img_arr[y1:y2,x1:x2]
+                cropped_image = img_arr[y1:y2, x1:x2]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 # get hydra results
-                hydra_output = self.get_hydra_output(cropped_image)
-                if hydra_output:
-                    item['details'] = hydra_output
+                try:
+                    hydra_output = self.get_hydra_output(cropped_image)
+                    if hydra_output:
+                        item['details'] = hydra_output
+                except:
+                    print "Hydra failed " + traceback.format_exc()
         self.write_log(url,detected)
         print detected
         return detected
@@ -104,19 +122,14 @@ class HLS:
         :return:
         '''
         data = json.dumps({"image": subimage})
-        print('defense falcon is attempting to get response from hydra at '+str(HYDRA_CLASSIFIER_ADDRESS))
+        print('defense falcon is attempting to get response from hydra at ' + str(HYDRA_CLASSIFIER_ADDRESS))
         try:
             resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
-        # print('resp:'+str(resp))
-        # print('type;'+str(type(resp)))
-        # print('resp:'+str(resp.content))
-        # print('type;'+str(type(resp.content)))
             dict = json.loads(resp.content)
             return dict['output']
         except:
             print('couldnt get hydra output')
             return None
-        # print('response dict from hydra:'+str(dict))
 
 
     def write_log(self, url, output):

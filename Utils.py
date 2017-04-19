@@ -920,6 +920,23 @@ def give_me_a_list_of_synonyms(category,synonym_lists=constants.synonymous_cats)
             return l
     return [category]  #no list available so return just the category itself
 
+def fix_bb_x1y1x2y2(bb_x1y1x2y2):
+    if bb_x1y1x2y2[0]>bb_x1y1x2y2[2]: #swap x1y1 w. x2y2
+        tmp=bb_x1y1x2y2[0]  #swap x1,x2
+        bb_x1y1x2y2[0]=bb_x1y1x2y2[2]
+        bb_x1y1x2y2[2]=tmp
+        tmp=bb_x1y1x2y2[1]  #swap y1,y2
+        bb_x1y1x2y2[1]=bb_x1y1x2y2[3]
+        bb_x1y1x2y2[3]=tmp
+    if bb_x1y1x2y2[1]>bb_x1y1x2y2[3]:  # bb is top right instead of top left or something
+        logging.warning('malformed x1y1x2y2 bb {}, swapping y1 and y2'.format(bb_x1y1x2y2))
+        tmp=bb_x1y1x2y2[1]  #swap y1,y2, dont swap x
+        bb_x1y1x2y2[1]=bb_x1y1x2y2[3]
+        bb_x1y1x2y2[3]=tmp
+#    print(bb_x1y1x2y2)
+    return bb_x1y1x2y2
+
+
 if __name__ == '__main__':
     print('starting')
     # show_all_bbs_in_db()

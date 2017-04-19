@@ -42,14 +42,25 @@ def secure_the_homeland(image_array_or_url, gpu=1):
  #    print('response  to POST:'+str(resp.content))
  #    print resp.content
 
-    #try GET json dumps
+
+    #try GET with dictionary
     data_dict = {"imageUrl": image_array_or_url}
-    dumped_data = json.dumps(data_dict)
-    print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
+    print('secure_the_homeland looking for a response to GET w dict from '+str(FRCNN_CLASSIFIER_ADDRESS))
     print('params: '+str(data_dict))
-    resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
+    resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=data_dict)
     print('response  to GET:'+str(resp.content))
     print resp.content
+
+    #try GET with json dumped dictionary
+    try_json_dumps=False
+    if(try_json_dumps):
+        data_dict = {"imageUrl": image_array_or_url}
+        dumped_data = json.dumps(data_dict)
+        print('secure_the_homeland looking for a response to GET w dumped dict from '+str(FRCNN_CLASSIFIER_ADDRESS))
+        print('params: '+str(data_dict))
+        resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
+        print('response  to GET:'+str(resp.content))
+        print resp.content
 
     #try POST msgpack
  #
@@ -62,13 +73,16 @@ def secure_the_homeland(image_array_or_url, gpu=1):
     # print resp.content
 
     #try GET msgpack
-    data_dict = {"imageUrl": image_array_or_url}
-    dumped_data = msgpack.dumps(data_dict)
-    print('secure_the_homeland looking for a response to GET from '+str(FRCNN_CLASSIFIER_ADDRESS))
-    print('params: '+str(data_dict))
-    resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
-    print('response  to GET:'+str(resp.content))
-    print resp.content
+    try_msgpack=False
+    if(try_msgpack):
+        data_dict = {"imageUrl": image_array_or_url}
+        dumped_data = msgpack.dumps(data_dict)
+        print('secure_the_homeland looking for a response to GET with msgpacked dict from '+str(FRCNN_CLASSIFIER_ADDRESS))
+        print('params: '+str(data_dict))
+        resp = requests.get(FRCNN_CLASSIFIER_ADDRESS,params=dumped_data)
+        print('response  to GET:'+str(resp.content))
+        print resp.content
+
 
 
 if __name__ == "__main__":

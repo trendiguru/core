@@ -233,7 +233,7 @@ def test_confmat():
         tp,tn,fp,fn = update_confmat(gt,e,tp,tn,fp,fn)
     print('tp {} tn {} fp {} fn {}'.format(tp,tn,fp,fn))
 
-def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob'):
+def check_acc(net, num_samples, batch_size = 1,threshold = 0.5,gt_layer='labels',estimate_layer='prob',labels=constants.web_tool_categories_v2):
     #this is not working foir batchsize!=1, maybe needs to be defined in net
     blobs = [ k for k in net.blobs.keys()]
     print('all blobs:'+str(blobs))
@@ -682,7 +682,7 @@ def multilabel_output_on_testfile(testfile=None,testdir=None,filter='.jpg',outdi
         for imgfile,estimate in zip(img_files,estimates):
             fp.write(imgfile+' ')
             for e in estimate:
-                fp.write(str(round(e,2))+' ')
+                fp.write(str(round(e,3))+' ')
             fp.write('\n')#
 
 def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = constants.web_tool_categories,name=None):
@@ -754,8 +754,9 @@ def summary_html(dir):
 #        g.write('categories: '+str(constants.web_tool_categories)+'<br>'+'\n')
 
 
-def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
+def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None,classlabels=None):
     model_base = os.path.basename(modelname)
+
     if dir is not None:
         Utils.ensure_dir(dir)
         htmlname = os.path.join(dir,model_base+'results.html')
@@ -763,6 +764,9 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         htmlname = os.path.join(model_base,'results.html')
     if name is not None:
         htmlname = name
+
+    open_html(model_base,dir=dir,classlabels=classlabels)
+
     with open(htmlname,'a') as g:
         fwavp = 0
         fwavr = 0
@@ -791,7 +795,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         fwavn = n_sum/float(len(p))
 
         print('frequency weighted averages p {} r {} acc {} n {}'.format(fwavp,fwavr,fwava,fwavn))
-        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,2),round(fwavr,2),round(fwava,2),round(fwavn,2)))
+        g.write('frequency weighted averages p {} r {} acc {} n {}'.format(round(fwavp,3),round(fwavr,3),round(fwava,3),round(fwavn,3)))
     #write line with n_positives
         if(positives):
             g.write('<tr>\n')
@@ -799,7 +803,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
             g.write('n_positives')
             g.write('</td>\n')
             g.write('<td>')
-            g.write(str(round(fwavn,2)))
+            g.write(str(round(fwavn,3)))
             g.write('</td>\n')
             for i in range(len(p)):
                 g.write('<td>')
@@ -819,7 +823,7 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(threshold,2)))
+            g.write(str(round(threshold,3)))
             g.write('</td>\n')
         g.write('</tr>\n')
         g.write('</b>')
@@ -830,11 +834,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         g.write('precision')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwavp,2)))
+        g.write(str(round(fwavp,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(p[i],2)))
+            g.write(str(round(p[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
@@ -844,11 +848,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         g.write('recall')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwavr,2)))
+        g.write(str(round(fwavr,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(r[i],2)))
+            g.write(str(round(r[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n')
 
@@ -858,11 +862,11 @@ def write_html(p,r,a,n,threshold,modelname,positives=False,dir=None,name=None):
         g.write('accuracy')
         g.write('</td>\n')
         g.write('<td>')
-        g.write(str(round(fwava,2)))
+        g.write(str(round(fwava,3)))
         g.write('</td>\n')
         for i in range(len(p)):
             g.write('<td>')
-            g.write(str(round(a[i],2)))
+            g.write(str(round(a[i],3)))
             g.write('</td>\n')
         g.write('</tr>\n<br>\n')
 
@@ -965,7 +969,7 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 
     print('dir to save stuff in : '+str(dir))
     Utils.ensure_dir(dir)
-    open_html(model_base,dir=dir)
+#    open_html(model_base,dir=dir)
     positives = True
     for t in thresh:
         p,r,a,tp,tn,fp,fn = check_accuracy(solverproto, caffemodel, threshold=t, num_batches=n_tests,outlayer=outlayer)
