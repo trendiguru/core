@@ -99,4 +99,7 @@ def detect(url_or_np_array):
                 cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
             print "jjjjj: {}".format(j)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image2.jpg", image)
+    # print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image2.jpg", image)
+
+    cv2.imshow("Output", image)
+    cv2.waitKey(0)
