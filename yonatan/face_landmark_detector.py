@@ -139,6 +139,8 @@ def detect(url_or_np_array):
         for (x, y) in shape:
             cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
 
+    print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image1.jpg", image)
+
     # gender = ""
     # score = 0
     # frame_and_text_color = (0, 0, 0)
