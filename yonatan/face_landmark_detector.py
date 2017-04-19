@@ -120,7 +120,7 @@ def detect(url_or_np_array):
         # determine the facial landmarks for the face region, then
         # convert the facial landmark (x, y)-coordinates to a NumPy
         # array
-        shape = predictor(gray, rect)
+        shape = predictor(gray, faces_list[i])
         print "shape.part(0): {0}, shape.part(1): {1}".format(shape.part(0), shape.part(1))
 
         shape = shape_to_np(shape)
