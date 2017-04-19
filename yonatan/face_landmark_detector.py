@@ -105,6 +105,11 @@ def detect(url_or_np_array):
     # detect faces in the grayscale image
     rects = detector(gray, 1)
 
+    faces_list = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(rects)]
+    if not len(faces_list):
+        print "didn't find a face!"
+        return
+
     # loop over the face detections
     for (i, rect) in enumerate(rects):
         # determine the facial landmarks for the face region, then
