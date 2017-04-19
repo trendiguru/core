@@ -95,6 +95,9 @@ def detect(url_or_np_array):
 
         shape = predictor(full_image, d)
 
+        for (x_LM, y_LM) in shape:
+            print "x_LM: {0}, y_LM: {1}".format(x_LM, y_LM)
+
     #     face_for_caffe = [cv2_image_to_caffe(face_image)]
     #     #face_for_caffe = [caffe.io.load_image(face_image)]
     #
