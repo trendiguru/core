@@ -108,12 +108,12 @@ def detect(url_or_np_array):
     # detect faces in the grayscale image
     rects = detector(gray, 1)
 
-    print "rects: {}".format(rects)
-
     faces_list = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(rects)]
     if not len(faces_list):
         print "didn't find a face!"
         return
+
+    print "rects: {}".format(faces_list)
 
     # loop over the face detections
     for (i, rect) in enumerate(rects):
