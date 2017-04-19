@@ -16,6 +16,7 @@ import imutils
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
 
+eyes_landmarks = {38, 39, 41, 42, 44, 45, 47, 48}
 # MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 # PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
 # caffe.set_mode_gpu()
@@ -134,12 +135,17 @@ def detect(url_or_np_array):
         cv2.putText(image, "Face #{}".format(i + 1), (x - 10, y - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+
         # loop over the (x, y)-coordinates for the facial landmarks
         # and draw them on the image
-        for (x, y) in shape:
-            cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
+        for j, (x, y) in enumerate(shape):
+            if j + 1 in eyes_landmarks:
+                cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
+            else:
+                cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
+            print "jjjjj: {}".format(j)
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image1.jpg", image)
+    print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image2.jpg", image)
 
     # gender = ""
     # score = 0
