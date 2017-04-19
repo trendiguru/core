@@ -55,7 +55,7 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
                 print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
 
 
-def read_rmptfmp_write_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl',class_no=0):
+def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0):
     '''
     reads from gt for dataset from https://data.vision.ee.ethz.ch/cvl/aess/dataset/  (pedestrians only)
     '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
@@ -67,15 +67,15 @@ def read_rmptfmp_write_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
 #    fourcc = cv2.VideoWriter_fourcc(*'XVID')
 #    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
-    with open(os.path.join(dir,file),'r') as fp:
+    with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
             print line
             elements = re.findall(r"[-\w']+",line)
             print elements
         #    elements = line.split
-            imgname = line.split()[0].replace('"','').replace('.png','_0.png').replace(':','').replace('\n','')
-            fullpath=os.path.join(dir,imgname)
+            imgname = line.split()[0].replace('"','').replace(':','').replace('\n','')#.replace('.png','_0.png')
+            fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
                 print('couldnt find {}'.format(fullpath))
                 continue
