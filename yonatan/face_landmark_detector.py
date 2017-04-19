@@ -70,6 +70,7 @@ def shape_to_np(shape, dtype="int"):
     # to a 2-tuple of (x, y)-coordinates
     for i in range(0, 68):
         coords[i] = (shape.part(i).x, shape.part(i).y)
+        print i
 
     # return the list of (x, y)-coordinates
     return coords
