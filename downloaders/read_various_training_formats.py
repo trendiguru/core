@@ -55,7 +55,7 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
                 print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
 
 
-def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0):
+def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False):
     '''
     reads from gt for dataset from https://data.vision.ee.ethz.ch/cvl/aess/dataset/  (pedestrians only)
     '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
@@ -95,12 +95,15 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
-                cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+                if visual_output:
+                    cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
                 write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
-            cv2.imshow('img',img_arr)
-            cv2.waitKey(0)
+            if visual_output:
+                cv2.imshow('img',img_arr)
+                cv2.waitKey(0)
  #           out.write(img_arr)
  #       out.release()
+    if visual_output:
         cv2.destroyAllWindows()
 
 def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
