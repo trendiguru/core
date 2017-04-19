@@ -82,12 +82,12 @@ def detect(url_or_np_array):
 
         height, width, channels = full_image.shape
 
-        x, y, w, h = faces["faces_orig"][k]
-
-        # checks if the face coordinates are inside the image
-        if x > width or x + w > width or y > height or y + h > height:
-            print "face coordinates are out of image boundary"
-            continue
+        # x, y, w, h = faces["faces_orig"][k]
+        #
+        # # checks if the face coordinates are inside the image
+        # if x > width or x + w > width or y > height or y + h > height:
+        #     print "face coordinates are out of image boundary"
+        #     continue
 
         # face_image = full_image[y: y + h, x: x + w]
 
