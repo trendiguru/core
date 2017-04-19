@@ -4,8 +4,6 @@ generally for reading db's having bb's
 '''
 
 __author__ = 'jeremy'
-
-
 import os
 import cv2
 import sys
@@ -104,18 +102,24 @@ def read_rmptfmp_write_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
  #       out.release()
         cv2.destroyAllWindows()
 
-def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir='./'):
+def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
     <object-class> <x> <y> <width> <height>
     where those are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs. named:
+    JPEGImages  labels
+    and a train.txt file pointing to just the images - and the label files are same names with .txt instead of .jpg
     :param img_path:
     :param bb_xywh:
     :param class_number:
     :param destination_dir:
     :return:
     '''
+    if destination_dir is None:
+        destination_dir = Utils.parent_dir(img_path)
+        destination_dir = os.path.join(destination_dir,'labels')
     img_basename = os.path.basename(img_path)
     img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
     destination_path=os.path.join(destination_dir,img_basename)
