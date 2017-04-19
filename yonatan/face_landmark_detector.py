@@ -89,7 +89,7 @@ def detect(url_or_np_array):
             print "face coordinates are out of image boundary"
             continue
 
-        face_image = full_image[y: y + h, x: x + w]
+        # face_image = full_image[y: y + h, x: x + w]
 
         # resized_face_image = imutils.resize_keep_aspect(face_image, output_size=(224, 224))
 
