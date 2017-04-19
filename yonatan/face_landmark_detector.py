@@ -12,6 +12,9 @@ from imutils import face_utils
 import imutils
 
 detector = dlib.get_frontal_face_detector()
+# in allison server
+# predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
+# locally
 predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
 
 eyes_landmarks = {38, 39, 41, 42, 44, 45, 47, 48}
