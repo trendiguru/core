@@ -63,6 +63,7 @@ def rect_to_bb(rect):
 def shape_to_np(shape, dtype="int"):
     # initialize the list of (x, y)-coordinates
     coords = np.zeros((68, 2), dtype=dtype)
+    print coords
 
     # loop over the 68 facial landmarks and convert them
     # to a 2-tuple of (x, y)-coordinates
@@ -116,7 +117,7 @@ def detect(url_or_np_array):
         # convert the facial landmark (x, y)-coordinates to a NumPy
         # array
         shape = predictor(gray, rect)
-        shape = face_utils.shape_to_np(shape)
+        shape = shape_to_np(shape)
 
         # convert dlib's rectangle to a OpenCV-style bounding box
         # [i.e., (x, y, w, h)], then draw the face bounding box
