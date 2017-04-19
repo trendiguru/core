@@ -4,14 +4,13 @@ generally for reading db's having bb's
 '''
 
 __author__ = 'jeremy'
-
-
 import os
 import cv2
 import sys
 import re
 
 from trendi import Utils
+from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -56,18 +55,17 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
                 print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
 
 
-def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl',class_no=0):
+def read_rmptfmp_write_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='refined.idl',class_no=0):
     '''
-    reads from
-    https://data.vision.ee.ethz.ch/cvl/aess/dataset/   - pedestrians only
+    reads from gt for dataset from https://data.vision.ee.ethz.ch/cvl/aess/dataset/  (pedestrians only)
     '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
     writes to yolo format
     '''
 
     # Define the codec and create VideoWriter object
     # not necessary fot function , just wanted to track boxes
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+#    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+#    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
     with open(os.path.join(dir,file),'r') as fp:
         lines = fp.readlines()
@@ -98,32 +96,40 @@ def read_rmptfmp(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',file='r
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
+                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
             cv2.imshow('img',img_arr)
             cv2.waitKey(0)
-            out.write(img_arr)
-        out.release()
+ #           out.write(img_arr)
+ #       out.release()
         cv2.destroyAllWindows()
 
-def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir='./'):
+def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
     <object-class> <x> <y> <width> <height>
     where those are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs. named:
+    JPEGImages  labels
+    and a train.txt file pointing to just the images - and the label files are same names with .txt instead of .jpg
     :param img_path:
     :param bb_xywh:
     :param class_number:
     :param destination_dir:
     :return:
     '''
+    if destination_dir is None:
+        destination_dir = Utils.parent_dir(img_path)
+        destination_dir = os.path.join(destination_dir,'labels')
     img_basename = os.path.basename(img_path)
     img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
     destination_path=os.path.join(destination_dir,img_basename)
     with open(destination_path,'w+') as fp:
         for bb_xywh in bb_list_xywh:
-            x_p = float(bb_xywh[0])/image_dims[0]
-            y_p = float(bb_xywh[1])/image_dims[1]
+            x_center = bb_xywh[0]+bb_xywh[2]/2.0
+            y_center = bb_xywh[1]+bb_xywh[3]/2.0
+            x_p = float(x_center)/image_dims[0]
+            y_p = float(y_center)/image_dims[1]
             w_p = float(bb_xywh[2])/image_dims[0]
             h_p = float(bb_xywh[3])/image_dims[1]
             line = str(class_number)+' '+str(round(x_p,4))+' '+str(round(y_p,4))+' '+str(round(w_p,4))+' '+str(round(h_p,4))+'\n'
@@ -133,11 +139,29 @@ def write_yolo(img_path,bb_list_xywh,class_number,image_dims,destination_dir='./
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
 
+def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05):
+    '''
+    this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
+    :param dir:
+    :param trainfile:
+    :return:
+    '''
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    print('{} files w filter {} in {}'.format(len(files),filter,dir))
+    if len(files) == 0:
+        print('no files fitting {} in {}, stopping'.format(filter,dir))
+        return
+    with open(trainfile,'w+') as fp:
+        for f in files:
+            fp.write(f+'\n')
+    if split_to_test_and_train is not None:
+        create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
+
 def read_yolo(txt_file):
     '''
     format is
     <object-class> <x> <y> <width> <height>
-    where x,y,w,h are relative to image width, height
+    where x,y,w,h are relative to image width, height.  It looks like x,y are bb center, not topleft corner - see voc_label.py in .convert(size,box) func
     :param txt_file:
     :return:
     '''
@@ -148,17 +172,28 @@ def read_yolo(txt_file):
     image_h,image_w = img_arr.shape[0:2]
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
+        print('{} bbs found'.format(len(lines)))
         for line in lines:
             object_class,x,y,w,h = line.split()
             x_p=float(x)
             y_p=float(y)
             w_p=float(w)
             h_p=float(h)
-            x = int(x_p*image_w)
-            y = int(x_p*image_h)
-            w = int(x_p*image_w)
-            h = int(x_p*image_h)
-            print('class {} x {} y {} w {} h {} '.format(object_class,x,y,w,h))
-            cv2.rectangle(img_arr,(x,y),(x+w,y+h),color=[100,255,100],thickness=2)
+            x_center = int(x_p*image_w)
+            y_center = int(y_p*image_h)
+            w = int(w_p*image_w)
+            h = int(h_p*image_h)
+            x1 = x_center-w/2
+            x2 = x_center+w/2
+            y1 = y_center-h/2
+            y2 = y_center+h/2
+            print('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(object_class,x_center,y_center,w,h,x1,y1,x2,y2))
+            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
             cv2.imshow('img',img_arr)
-            cv2.waitKey(0)
+        cv2.waitKey(0)
+
+def read_many_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/'):
+    txtfiles = [f for f in os.listdir(dir) if '.txt' in f]
+    for f in txtfiles:
+        fullpath = os.path.join(dir,f)
+        read_yolo(fullpath)
