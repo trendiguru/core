@@ -14,7 +14,7 @@ from imutils import face_utils
 import imutils
 
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor()
+predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
 
 # MODLE_FILE = "/data/yonatan/yonatan_files/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-deploy.prototxt"
 # PRETRAINED = "/data/yonatan/yonatan_caffemodels/genderator_caffemodels/caffe_resnet50_snapshot_sgd_genfder_by_face_iter_10000.caffemodel"
@@ -120,7 +120,7 @@ def detect(url_or_np_array):
         # determine the facial landmarks for the face region, then
         # convert the facial landmark (x, y)-coordinates to a NumPy
         # array
-        shape = predictor(gray, faces_list[i])
+        shape = predictor(gray, rect)
         print "shape.part(0): {0}, shape.part(1): {1}".format(shape.part(0), shape.part(1))
 
         shape = shape_to_np(shape)
