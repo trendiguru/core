@@ -115,8 +115,11 @@ def detect(url_or_np_array):
 
     # print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
-    # cv2.imshow("Output", image)
-    # cv2.waitKey(0)
+    cv2.namedWindow("Output", cv2.CV_WINDOW_AUTOSIZE)
+    cv2.startWindowThread()
+
+    cv2.imshow("Output", image)
+    cv2.waitKey(0)
     #
     # cv2.destroyAllWindows()
     # cv2.waitKey(1)
@@ -127,19 +130,18 @@ def detect(url_or_np_array):
     # cap.release()
     # cv2.destroyAllWindows()
 
-
-    while (1):
-        cv2.imshow("Output", image)
-        k = cv2.waitKey(33)
-        # if k == 97:
-        if k & 0xFF == ord('q'):
-            # cv2.destroyAllWindows()
-            # cv2.waitKey(1)
-            break
-        elif k == -1:  # normally -1 returned,so don't print it
-            continue
-        else:
-            print k  # else print its value
+    # while 1:
+    #     cv2.imshow("Output", image)
+    #     k = cv2.waitKey(33)
+    #     # if k == 97:
+    #     if k & 0xFF == ord('q'):
+    #         cv2.destroyAllWindows()
+    #         cv2.waitKey(1)
+    #         break
+    #     elif k == -1:  # normally -1 returned,so don't print it
+    #         continue
+    #     else:
+    #         print k  # else print its value
 
     # if cv2.waitKey(33) == ord('a'):
     #     print "pressed a"
