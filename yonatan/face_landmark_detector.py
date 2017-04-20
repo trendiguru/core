@@ -117,3 +117,5 @@ def detect(url_or_np_array):
 
     cv2.imshow("Output", image)
     cv2.waitKey(0)
+
+    cv2.destroyAllWindows()
