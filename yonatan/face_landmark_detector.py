@@ -93,13 +93,18 @@ def detect(url_or_np_array):
             if j + 1 in eyes_landmarks:
                 cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
                 eyes_dict[j+1] = (x,y)
+                print eyes_dict[j+1].x
+                print eyes_dict[j+1].y
             else:
                 cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
 
-        cv2.line(image, eyes_dict[38], eyes_dict[41], (255, 0, 0), 5)
-        cv2.line(image, eyes_dict[39], eyes_dict[42], (255, 0, 0), 5)
-        cv2.line(image, eyes_dict[44], eyes_dict[47], (255, 0, 0), 5)
-        cv2.line(image, eyes_dict[45], eyes_dict[48], (255, 0, 0), 5)
+        cv2.line(image, eyes_dict[38], eyes_dict[41], (255, 0, 0), 2)
+        cv2.line(image, eyes_dict[39], eyes_dict[42], (255, 0, 0), 2)
+        cv2.line(image, eyes_dict[44], eyes_dict[47], (255, 0, 0), 2)
+        cv2.line(image, eyes_dict[45], eyes_dict[48], (255, 0, 0), 2)
+
+        # cv2.circle(image, np.mean([]), 1, (255, 0, 0), -1)
+        # cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
