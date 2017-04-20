@@ -94,12 +94,14 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             bb_list_xywh = []
             ind = png_element_index+1
             for i in range(int(n_bb)):
+                x1=int(elements[ind])
                 if x1 == -1:
                     ind=ind+1
-                x1=int(elements[ind])
+                    x1=int(elements[ind])
                 y1=int(elements[ind+1])
                 x2=int(elements[ind+2])
                 y2=int(elements[ind+3])
+                ind = ind+4
                 if y2 == -1:
                     print('XXX warning, got a -1 XXX')
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
