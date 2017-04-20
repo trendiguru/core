@@ -116,10 +116,17 @@ def detect(url_or_np_array):
     # print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
     cv2.imshow("Output", image)
-    cv2.waitKey(1)
+    # cv2.waitKey(0)
+    #
+    # cv2.destroyAllWindows()
+    # cv2.waitKey(1)
 
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+    # cap.release()
     cv2.destroyAllWindows()
-    # cv2.waitKey()
+
 
     # while (1):
     #     cv2.imshow("Output", image)
