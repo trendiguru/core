@@ -93,7 +93,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
             for i in range(int(n_bb)):
-                ind = i*5+3
+                ind = i*5+png_element_index+1
                 x1=int(elements[ind])
                 y1=int(elements[ind+1])
                 x2=int(elements[ind+2])
