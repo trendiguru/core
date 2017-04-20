@@ -93,8 +93,6 @@ def detect(url_or_np_array):
             if j + 1 in eyes_landmarks:
                 cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
                 eyes_dict[j+1] = (x,y)
-                print eyes_dict[j+1][0]
-                print eyes_dict[j+1][1]
             else:
                 cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
 
@@ -108,6 +106,8 @@ def detect(url_or_np_array):
 
         cv2.circle(image, (left_eye_x, left_eye_y), 1, (0, 255, 0), -1)
         cv2.circle(image, (right_eye_x, right_eye_y), 1, (0, 255, 0), -1)
+
+        print "distance between eyes: {}".format(np.linalg.norm((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y)))
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
