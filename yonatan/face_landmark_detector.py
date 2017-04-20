@@ -125,6 +125,7 @@ def detect(url_or_np_array):
         cv2.imshow("Output", image)
         k = cv2.waitKey(33)
         if k == ord('a'):
+            cv2.destroyAllWindows()
             break
         elif k == -1:  # normally -1 returned,so don't print it
             continue
