@@ -68,7 +68,9 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
 #    fourcc = cv2.VideoWriter_fourcc(*'XVID')
 #    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
-    pdb.set_trace()
+#    pdb.set_trace()
+    full_label_dest = os.path.join(Utils.parent_dir(images_dir),'labels')
+    Utils.ensure_dir(full_label_dest)
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -80,6 +82,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         #    print('img name '+str(imgname))
             imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
             if imgname[-6:] != '_0.png':
+
                 imgname = imgname.replace('.png','_0.png')
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
@@ -104,8 +107,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                full_label_dest = os.path.join(Utils.parent_dir(fullpath),'labels')
-                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
+                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(full_label_dest))
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
@@ -207,7 +209,14 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
     if labeldir is None:
         labeldir = os.path.join(Utils.parent_dir(imagedir),'labels')
     imgfiles = [f for f in os.listdir(imagedir) if img_filter in f]
+    imgfiles = sorted(imgfiles)
+    print('found {} files in {}, label dir {}'.format(len(imgfiles),imagedir,labeldir))
     for f in imgfiles:
-        bb_path = os.path.join(labeldir,f).replace(filter,'.txt')
+        bb_path = os.path.join(labeldir,f).replace(img_filter,'.txt')
+        if not os.path.isfile(bb_path):
+            print('{} not found '.format(bb_path))
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
+
+if __name__ == "__main__":
+    read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')
