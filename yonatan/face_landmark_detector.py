@@ -106,8 +106,8 @@ def detect(url_or_np_array):
         left_eye_x, left_eye_y = np.mean([eyes_dict[38][0], eyes_dict[39][0], eyes_dict[41][0], eyes_dict[41][0]]), np.mean([eyes_dict[38][1], eyes_dict[39][1], eyes_dict[41][1], eyes_dict[41][1]])
         right_eye_x, right_eye_y = np.mean([eyes_dict[44][0], eyes_dict[45][0], eyes_dict[47][0], eyes_dict[48][0]]), np.mean([eyes_dict[44][1], eyes_dict[45][1], eyes_dict[47][1], eyes_dict[48][1]])
 
-        cv2.circle(image, (left_eye_x, left_eye_y), 1, (0, 255, 0), -1)
-        cv2.circle(image, (right_eye_x, right_eye_y), 1, (0, 255, 0), -1)
+        cv2.circle(image, int((left_eye_x, left_eye_y)), 1, (0, 255, 0), -1)
+        cv2.circle(image, int((right_eye_x, right_eye_y)), 1, (0, 255, 0), -1)
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
