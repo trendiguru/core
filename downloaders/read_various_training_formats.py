@@ -8,6 +8,7 @@ import os
 import cv2
 import sys
 import re
+import pdb
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
@@ -67,12 +68,13 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
 #    fourcc = cv2.VideoWriter_fourcc(*'XVID')
 #    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
+    pdb.set_trace()
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
             print line
             elements = re.findall(r"[-\w']+",line)
-  #          print elements
+            print elements
         #    elements = line.split
             imgname = line.split()[0].replace('"','').replace(':','').replace('\n','')#.replace('.png','_0.png')
         #    print('img name '+str(imgname))
