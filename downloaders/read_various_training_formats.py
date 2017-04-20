@@ -69,9 +69,6 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
 #    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
 #    pdb.set_trace()
-    full_label_dest = os.path.join(Utils.parent_dir(images_dir),'labels')
-    print('label dir:'+full_label_dest)
-    Utils.ensure_dir(full_label_dest)
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -107,7 +104,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(full_label_dest))
+                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
@@ -134,6 +131,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     if destination_dir is None:
         destination_dir = Utils.parent_dir(img_path)
         destination_dir = os.path.join(destination_dir,'labels')
+        Utils.ensure_dir(destination_dir)
     img_basename = os.path.basename(img_path)
     img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
     destination_path=os.path.join(destination_dir,img_basename)
