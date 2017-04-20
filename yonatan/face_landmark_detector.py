@@ -126,7 +126,7 @@ def detect(url_or_np_array):
 
     # cap.release()
     # cv2.destroyAllWindows()
-
+    cv2.startWindowThread()
 
     while (1):
         cv2.imshow("Output", image)
