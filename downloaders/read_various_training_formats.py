@@ -72,11 +72,13 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         for line in lines:
             print line
             elements = re.findall(r"[-\w']+",line)
-            print elements
+  #          print elements
         #    elements = line.split
             imgname = line.split()[0].replace('"','').replace(':','').replace('\n','')#.replace('.png','_0.png')
-            print('img name '+str(imgname))
+        #    print('img name '+str(imgname))
             imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
+            if imgname[-6:] != '_0.png':
+                imgname = imgname.replace('.png','_0.png')
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
                 print('couldnt find {}'.format(fullpath))
