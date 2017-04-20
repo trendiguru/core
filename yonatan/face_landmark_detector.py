@@ -119,3 +119,4 @@ def detect(url_or_np_array):
     cv2.waitKey(0)
 
     cv2.destroyAllWindows()
+    cv2.waitKey(1)
