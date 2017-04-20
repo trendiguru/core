@@ -5,7 +5,7 @@ __author__ = 'yonatan_guy'
 import numpy as np
 import time
 import cv2
-import skimage
+# import skimage
 import requests
 import dlib
 from imutils import face_utils
