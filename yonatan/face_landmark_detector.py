@@ -115,6 +115,7 @@ def detect(url_or_np_array):
 
     # print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
+    cv2.namedWindow("Output", cv2.CV_WINDOW_AUTOSIZE)
     cv2.startWindowThread()
 
     cv2.imshow("Output", image)
