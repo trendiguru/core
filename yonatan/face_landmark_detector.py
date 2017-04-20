@@ -32,7 +32,6 @@ def find_face_dlib(image, max_num_of_faces=10):
 
 def detect(url_or_np_array):
 
-    print "Starting the genderism!"
     # check if i get a url (= string) or np.ndarray
     if isinstance(url_or_np_array, basestring):
         try:
