@@ -68,7 +68,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
 #    fourcc = cv2.VideoWriter_fourcc(*'XVID')
 #    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
-    pdb.set_trace()
+#    pdb.set_trace()
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -92,20 +92,25 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             n_bb = (len(elements) - png_element_index)/5  #3 elements till first bb, five elem per bb
             print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
+            ind = png_element_index+1
             for i in range(int(n_bb)):
-                ind = i*5+png_element_index+1
                 x1=int(elements[ind])
+                if x1 == -1:
+                    ind=ind+1
+                    x1=int(elements[ind])
                 y1=int(elements[ind+1])
                 x2=int(elements[ind+2])
                 y2=int(elements[ind+3])
+                ind = ind+4
+                if y2 == -1:
+                    print('XXX warning, got a -1 XXX')
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
                 bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                full_label_dest = os.path.join(Utils.parent_dir(fullpath),'labels')
-                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
+                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
@@ -130,8 +135,9 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     :return:
     '''
     if destination_dir is None:
-        destination_dir = Utils.parent_dir(img_path)
+        destination_dir = Utils.parent_dir(os.path.basename(img_path))
         destination_dir = os.path.join(destination_dir,'labels')
+        Utils.ensure_dir(destination_dir)
     img_basename = os.path.basename(img_path)
     img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
     destination_path=os.path.join(destination_dir,img_basename)
@@ -207,7 +213,15 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
     if labeldir is None:
         labeldir = os.path.join(Utils.parent_dir(imagedir),'labels')
     imgfiles = [f for f in os.listdir(imagedir) if img_filter in f]
+    imgfiles = sorted(imgfiles)
+    print('found {} files in {}, label dir {}'.format(len(imgfiles),imagedir,labeldir))
     for f in imgfiles:
-        bb_path = os.path.join(labeldir,f).replace(filter,'.txt')
+        bb_path = os.path.join(labeldir,f).replace(img_filter,'.txt')
+        if not os.path.isfile(bb_path):
+            print('{} not found '.format(bb_path))
+            continue
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
+
+if __name__ == "__main__":
+    read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')
