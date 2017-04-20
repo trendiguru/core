@@ -133,8 +133,8 @@ def detect(url_or_np_array):
         k = cv2.waitKey(33)
         # if k == 97:
         if k & 0xFF == ord('q'):
-            # cv2.destroyAllWindows()
-            # cv2.waitKey(1)
+            cv2.destroyAllWindows()
+            cv2.waitKey(1)
             break
         elif k == -1:  # normally -1 returned,so don't print it
             continue
