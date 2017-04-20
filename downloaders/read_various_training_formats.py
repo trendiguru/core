@@ -70,6 +70,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
 
 #    pdb.set_trace()
     full_label_dest = os.path.join(Utils.parent_dir(images_dir),'labels')
+    print('label dir:'+full_label_dest)
     Utils.ensure_dir(full_label_dest)
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
@@ -82,7 +83,6 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         #    print('img name '+str(imgname))
             imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
             if imgname[-6:] != '_0.png':
-
                 imgname = imgname.replace('.png','_0.png')
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
@@ -215,6 +215,7 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
         bb_path = os.path.join(labeldir,f).replace(img_filter,'.txt')
         if not os.path.isfile(bb_path):
             print('{} not found '.format(bb_path))
+            continue
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
 
