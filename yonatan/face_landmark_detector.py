@@ -13,9 +13,9 @@ import imutils
 
 detector = dlib.get_frontal_face_detector()
 # in allison server
-predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
+# predictor = dlib.shape_predictor("/data/yonatan/yonatan_files/trendi/yonatan/shape_predictor_68_face_landmarks.dat")
 # locally
-# predictor = dlib.shape_predictor("/home/core/yonatan/shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("/home/core/yonatan/shape_predictor_68_face_landmarks.dat")
 
 eyes_landmarks = {38, 39, 41, 42, 44, 45, 47, 48}
 
@@ -113,7 +113,7 @@ def detect(url_or_np_array):
         print "distance between eyes: {}".format(np.linalg.norm((right_eye) - (left_eye)))
         # print "distance between eyes: {}".format(np.sqrt(np.sum(((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y))**2)))
 
-    print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
+    # print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
-    # cv2.imshow("Output", image)
-    # cv2.waitKey(0)
+    cv2.imshow("Output", image)
+    cv2.waitKey(0)
