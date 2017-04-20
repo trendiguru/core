@@ -88,8 +88,9 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             print('reading {}'.format(fullpath))
             img_arr = cv2.imread(fullpath)
             img_dims = (img_arr.shape[1],img_arr.shape[0]) #widthxheight
-            n_bb = (len(elements) - 3)/5  #3 elements till first bb, five elem per bb
-            print('{} bounding boxes for this image'.format(n_bb))
+            png_element_index = elements.index('png')
+            n_bb = (len(elements) - png_element_index)/5  #3 elements till first bb, five elem per bb
+            print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
             for i in range(int(n_bb)):
                 ind = i*5+3
