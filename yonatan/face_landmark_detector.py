@@ -93,8 +93,8 @@ def detect(url_or_np_array):
             if j + 1 in eyes_landmarks:
                 cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
                 eyes_dict[j+1] = (x,y)
-                print eyes_dict[j+1].x
-                print eyes_dict[j+1].y
+                print eyes_dict[j+1][0]
+                print eyes_dict[j+1][1]
             else:
                 cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
 
