@@ -107,8 +107,8 @@ def detect(url_or_np_array):
         cv2.circle(image, (left_eye_x, left_eye_y), 1, (0, 255, 0), -1)
         cv2.circle(image, (right_eye_x, right_eye_y), 1, (0, 255, 0), -1)
 
-        left_eye = np.array(left_eye_x, left_eye_y)
-        right_eye = np.array(right_eye_x, right_eye_y)
+        left_eye = np.array((left_eye_x, left_eye_y))
+        right_eye = np.array((right_eye_x, right_eye_y))
 
         print "distance between eyes: {}".format(np.linalg.norm((right_eye) - (left_eye)))
         # print "distance between eyes: {}".format(np.sqrt(np.sum(((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y))**2)))
