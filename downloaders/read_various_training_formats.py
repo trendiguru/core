@@ -129,7 +129,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     :return:
     '''
     if destination_dir is None:
-        destination_dir = Utils.parent_dir(img_path)
+        destination_dir = Utils.parent_dir(os.path.basename(img_path))
         destination_dir = os.path.join(destination_dir,'labels')
         Utils.ensure_dir(destination_dir)
     img_basename = os.path.basename(img_path)
