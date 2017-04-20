@@ -92,7 +92,7 @@ def detect(url_or_np_array):
         for j, (x, y) in enumerate(shape):
             if j + 1 in eyes_landmarks:
                 cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
-                eyes_dict[j+1] = np.array((x,y))
+                eyes_dict[j+1] = (x,y)
             else:
                 cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
 
@@ -107,7 +107,8 @@ def detect(url_or_np_array):
         cv2.circle(image, (left_eye_x, left_eye_y), 1, (0, 255, 0), -1)
         cv2.circle(image, (right_eye_x, right_eye_y), 1, (0, 255, 0), -1)
 
-        print "distance between eyes: {}".format(np.linalg.norm((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y)))
+        # print "distance between eyes: {}".format(np.linalg.norm((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y)))
+        print "distance between eyes: {}".format(np.sqrt(np.sum(((right_eye_x, right_eye_y) - (left_eye_x, left_eye_y))**2)))
 
     print cv2.imwrite("/data/yonatan/linked_to_web/face_landmarks/image3.jpg", image)
 
