@@ -75,6 +75,8 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             print elements
         #    elements = line.split
             imgname = line.split()[0].replace('"','').replace(':','').replace('\n','')#.replace('.png','_0.png')
+            print('img name '+str(imgname))
+            imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
                 print('couldnt find {}'.format(fullpath))
@@ -160,7 +162,7 @@ def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_a
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def read_yolo(txt_file):
+def read_yolo_bbs(txt_file):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -195,8 +197,8 @@ def read_yolo(txt_file):
             cv2.imshow('img',img_arr)
         cv2.waitKey(0)
 
-def read_many_yolo(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/'):
+def read_many_yolo_bbs(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/'):
     txtfiles = [f for f in os.listdir(dir) if '.txt' in f]
     for f in txtfiles:
         fullpath = os.path.join(dir,f)
-        read_yolo(fullpath)
+        read_yolo_bbs(fullpath)
