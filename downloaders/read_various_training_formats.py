@@ -56,7 +56,7 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
                 print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
 
 
-def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False):
+def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False,label_destination='labels'):
     '''
     reads from gt for dataset from https://data.vision.ee.ethz.ch/cvl/aess/dataset/  (pedestrians only)
     '"left/image_00000001.png": (212, 204, 232, 261):-1, (223, 181, 259, 285):-1, (293, 151, 354, 325):-1, (452, 208, 479, 276):-1, (255, 219, 268, 249):-1, (280, 219, 291, 249):-1, (267, 246, 279, 216):-1, (600, 247, 584, 210):-1;'
@@ -104,6 +104,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+                full_label_dest = os.path.join(Utils.parent_dir(fullpath),'labels')
                 write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims,destination_dir=os.path.dirname(fullpath))
             if visual_output:
                 cv2.imshow('img',img_arr)
@@ -167,7 +168,7 @@ def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_a
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def read_yolo_bbs(txt_file):
+def read_yolo_bbs(txt_file,img_file):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -175,7 +176,7 @@ def read_yolo_bbs(txt_file):
     :param txt_file:
     :return:
     '''
-    img_file = txt_file.replace('.txt','.png')
+#    img_file = txt_file.replace('.txt','.png')
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
@@ -202,8 +203,10 @@ def read_yolo_bbs(txt_file):
             cv2.imshow('img',img_arr)
         cv2.waitKey(0)
 
-def read_many_yolo_bbs(dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/'):
-    txtfiles = [f for f in os.listdir(dir) if '.txt' in f]
-    for f in txtfiles:
-        fullpath = os.path.join(dir,f)
-        read_yolo_bbs(fullpath)
+def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
+    if labeldir is None:
+        labeldir = os.path.join(Utils.parent_dir(imagedir),'labels')
+    imgfiles = [f for f in os.listdir(imagedir) if img_filter in f]
+    for f in imgfiles:
+        bb_path = os.path.join(labeldir,f).replace(filter,'.txt')
+        read_yolo_bbs(bb_path,image_path)
