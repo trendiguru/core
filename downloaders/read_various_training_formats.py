@@ -209,4 +209,5 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
     imgfiles = [f for f in os.listdir(imagedir) if img_filter in f]
     for f in imgfiles:
         bb_path = os.path.join(labeldir,f).replace(filter,'.txt')
+        image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
