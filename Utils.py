@@ -930,6 +930,7 @@ def fix_bb_x1y1x2y2(bb_x1y1x2y2):
         bb_x1y1x2y2[3]=tmp
     if bb_x1y1x2y2[1]>bb_x1y1x2y2[3]:  # bb is top right instead of top left or something
         logging.warning('malformed x1y1x2y2 bb {}, swapping y1 and y2'.format(bb_x1y1x2y2))
+        raw_input('ret to cont')
         tmp=bb_x1y1x2y2[1]  #swap y1,y2, dont swap x
         bb_x1y1x2y2[1]=bb_x1y1x2y2[3]
         bb_x1y1x2y2[3]=tmp

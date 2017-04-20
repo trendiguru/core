@@ -92,12 +92,16 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             n_bb = (len(elements) - png_element_index)/5  #3 elements till first bb, five elem per bb
             print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
+            ind = png_element_index+1
             for i in range(int(n_bb)):
-                ind = i*5+png_element_index+1
+                if x1 == -1:
+                    ind=ind+1
                 x1=int(elements[ind])
                 y1=int(elements[ind+1])
                 x2=int(elements[ind+2])
                 y2=int(elements[ind+3])
+                if y2 == -1:
+                    print('XXX warning, got a -1 XXX')
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
                 bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
                 bb_list_xywh.append(bb_xywh)
