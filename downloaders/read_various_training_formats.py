@@ -80,6 +80,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         #    print('img name '+str(imgname))
             imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
             if imgname[-6:] != '_0.png':
+                print('imgname {} has no _0 at end'.format(imgname))
                 imgname = imgname.replace('.png','_0.png')
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
@@ -89,11 +90,10 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             img_arr = cv2.imread(fullpath)
             img_dims = (img_arr.shape[1],img_arr.shape[0]) #widthxheight
             png_element_index = elements.index('png')
-            n_bb = (len(elements) - png_element_index)/5  #3 elements till first bb, five elem per bb
-            print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
             ind = png_element_index+1
-            for i in range(int(n_bb)):
+            n_bb=0
+            while ind<len(elements):
                 x1=int(elements[ind])
                 if x1 == -1:
                     ind=ind+1
@@ -104,13 +104,16 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 ind = ind+4
                 if y2 == -1:
                     print('XXX warning, got a -1 XXX')
+                n_bb += 1
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
                 bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
                 bb_list_xywh.append(bb_xywh)
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
+            print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
+            print('sending {} for writing'.format(bb_list_xywh))
+            write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
@@ -156,21 +159,37 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
 
-def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05):
+def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None):
     '''
     this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
     :param dir:
     :param trainfile:
     :return:
     '''
-    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
-    print('{} files w filter {} in {}'.format(len(files),filter,dir))
+    files = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
+    print('{} files w filter {} in {}'.format(len(files),filter,image_dir))
+    if check_for_bbfiles:
+        if bb_dir == None:
+            bb_dir = os.path.join(Utils.parent_dir(image_dir),'labels')
+        print('checkin for bbs in '+bb_dir)
     if len(files) == 0:
-        print('no files fitting {} in {}, stopping'.format(filter,dir))
+        print('no files fitting {} in {}, stopping'.format(filter,image_dir))
         return
+    count = 0
     with open(trainfile,'w+') as fp:
         for f in files:
-            fp.write(f+'\n')
+            if check_for_bbfiles:
+                bbfile = os.path.basename(f).replace(filter,'.txt')
+                bbpath = os.path.join(bb_dir,bbfile)
+                if os.path.exists(bbpath):
+                    fp.write(f+'\n')
+                    count +=1
+                else:
+                    print('bbfile {} describing {} not found'.format(bbpath,f))
+            else:
+                fp.write(f+'\n')
+                count += 1
+    print('wrote {} files to {}'.format(count,trainfile))
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
@@ -222,6 +241,7 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
             continue
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
+
 
 if __name__ == "__main__":
     read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')

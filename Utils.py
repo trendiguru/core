@@ -921,6 +921,7 @@ def give_me_a_list_of_synonyms(category,synonym_lists=constants.synonymous_cats)
     return [category]  #no list available so return just the category itself
 
 def fix_bb_x1y1x2y2(bb_x1y1x2y2):
+    '''fix out-of-order bbs (x2y2x1y1) or right top ,left bottom'''
     if bb_x1y1x2y2[0]>bb_x1y1x2y2[2]: #swap x1y1 w. x2y2
         tmp=bb_x1y1x2y2[0]  #swap x1,x2
         bb_x1y1x2y2[0]=bb_x1y1x2y2[2]
