@@ -156,7 +156,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
 
-def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05):
+def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None):
     '''
     this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
     :param dir:
@@ -165,12 +165,28 @@ def write_yolo_trainfile(dir,trainfile='train.txt',filter='.png',split_to_test_a
     '''
     files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
     print('{} files w filter {} in {}'.format(len(files),filter,dir))
+    if check_for_bbfiles:
+        if bb_dir == None:
+            bb_dir = os.path.join(Utils.parent_dir(image_dir),'labels')
+        print('checkin for bbs in '+bb_dir)
     if len(files) == 0:
         print('no files fitting {} in {}, stopping'.format(filter,dir))
         return
+    count = 0
     with open(trainfile,'w+') as fp:
         for f in files:
-            fp.write(f+'\n')
+            if check_for_bbfiles:
+                bbfile = f.replace(filter,'.txt')
+                bbpath = os.path.join(bb_dir,bbfile)
+                if os.path.exists(bbpath):
+                    fp.write(f+'\n')
+                    count +=1
+                else:
+                    print('bbfile {} describing {} not found'.format(bbpath,f))
+            else:
+                fp.write(f+'\n')
+                count += 1
+    print('wrote {} files to {}'.format(count,trainfile))
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
@@ -222,6 +238,7 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
             continue
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
+
 
 if __name__ == "__main__":
     read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')
