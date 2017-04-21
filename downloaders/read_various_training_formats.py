@@ -80,6 +80,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         #    print('img name '+str(imgname))
             imgname = os.path.basename(imgname) #ignore dir referred to in gt file and use mine
             if imgname[-6:] != '_0.png':
+                print('imgname {} has no _0 at end'.format(imgname))
                 imgname = imgname.replace('.png','_0.png')
             fullpath=os.path.join(images_dir,imgname)
             if not os.path.isfile(fullpath):
