@@ -176,7 +176,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     with open(trainfile,'w+') as fp:
         for f in files:
             if check_for_bbfiles:
-                bbfile = f.replace(filter,'.txt')
+                bbfile = os.path.basename(f).replace(filter,'.txt')
                 bbpath = os.path.join(bb_dir,bbfile)
                 if os.path.exists(bbpath):
                     fp.write(f+'\n')
