@@ -111,8 +111,9 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 print('ind {} x1 {} y1 {} x2 {} y2 {} bbxywh {}'.format(ind,x1,y1,x2,y2,bb_xywh))
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
             print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
+            print('sending {} for writing'.format(bb_list_xywh))
+            write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
