@@ -90,11 +90,10 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
             img_arr = cv2.imread(fullpath)
             img_dims = (img_arr.shape[1],img_arr.shape[0]) #widthxheight
             png_element_index = elements.index('png')
-            n_bb = (len(elements) - png_element_index)/5  #3 elements till first bb, five elem per bb
-            print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             bb_list_xywh = []
             ind = png_element_index+1
-            for i in range(int(n_bb)):
+            n_bb=0
+            while ind<len(elements):
                 x1=int(elements[ind])
                 if x1 == -1:
                     ind=ind+1
@@ -105,6 +104,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 ind = ind+4
                 if y2 == -1:
                     print('XXX warning, got a -1 XXX')
+                n_bb += 1
                 bb = Utils.fix_bb_x1y1x2y2([x1,y1,x2,y2])
                 bb_xywh = [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
                 bb_list_xywh.append(bb_xywh)
@@ -112,6 +112,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
                 if visual_output:
                     cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
                 write_yolo_labels(fullpath,bb_list_xywh,class_no,img_dims)
+            print('{} bounding boxes for this image (png {} len {} '.format(n_bb,png_element_index,len(elements)))
             if visual_output:
                 cv2.imshow('img',img_arr)
                 cv2.waitKey(0)
