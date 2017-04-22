@@ -30,7 +30,7 @@ cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
 new_cnts = np.ones(len(cnts))
 
-# loop over the contours individually
+# loop over the contours
 for j, c in enumerate(cnts):
     # if the contour don't stand in the conditions, ignore it
     approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
@@ -38,14 +38,14 @@ for j, c in enumerate(cnts):
     if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
         new_cnts[j] = 0
         continue
-    else:
-        ratio = 1
-        # compute the center of the contour
-        M = cv2.moments(c)
-        cX = int((M["m10"] / M["m00"]) * ratio)
-        cY = int((M["m01"] / M["m00"]) * ratio)
-
-        print "cX: {0}, cY: {1}".format(cX, cY)
+    # else:
+    #     ratio = 1
+    #     # compute the center of the contour
+    #     M = cv2.moments(c)
+    #     cX = int((M["m10"] / M["m00"]) * ratio)
+    #     cY = int((M["m01"] / M["m00"]) * ratio)
+    #
+    #     print "cX: {0}, cY: {1}".format(cX, cY)
 
 new_cnts = np.transpose(np.nonzero(new_cnts))
 
@@ -59,14 +59,24 @@ for idx in new_cnts:
     box = np.array(box, dtype="int")
 
     # compute the center of the bounding box
-    cX = np.average(box[:, 0])
-    cY = np.average(box[:, 1])
+    cX = int(np.average(box[:, 0]))
+    cY = int(np.average(box[:, 1]))
 
     print "cX: {0}, cY: {1}".format(cX, cY)
 
-    text = "{} {}".format("Hi", "Ho")
-    cv2.drawContours(image_rotate, [c], -1, (0, 255, 0), 2)
-    cv2.putText(image_rotate, text, (int(cX), int(cY)),
+    cv2.drawContours(image_rotate, [c], -1, (0, 128, 255), 2)
+    text_center = "(cX:{0}, cY:{1})".format(cX, cY)
+    cv2.putText(image_rotate, text_center, (cX, cY),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+    contour_area = cv2.contourArea(c)
+    contour_area_2 = np.pi * (0.5 * (box[3][0] - box[0][0]))**2
+
+    print "koter: {}".format(box[3][0] - box[0][0])
+    print "contour_area: {0}, contour_area_2: {1}".format(contour_area, contour_area_2)
+
+    text_area = "area: {0}".format(contour_area)
+    cv2.putText(image_rotate, text_area, (cX, cY + 16),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
     hist = cv2.calcHist([image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]], [1], None, [256],
@@ -78,7 +88,7 @@ for idx in new_cnts:
 
     # print "hist: {0}".format(hist)
 
-# show the output image
+# show the original image next to the output image
 cv2.imshow("output", np.hstack([image_rotate, output]))
 cv2.waitKey(0)
 
