@@ -12,15 +12,10 @@ args = vars(ap.parse_args())
 image_orig = cv2.imread(args["image"])
 width = 900
 image_resize = imutils.resize(image_orig, width=width)
-
 image_rotate = imutils.rotate_bound(image_resize, 90)
 
 output = image_rotate.copy()
 gray = cv2.cvtColor(image_rotate, cv2.COLOR_BGR2GRAY)
-
-# # detect circles in the image
-# circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 6, 100, param1=200, param2=1, maxRadius=15)
-
 gray = cv2.GaussianBlur(gray, (7, 7), 0)
 
 # perform edge detection, then perform a dilation + erosion to
@@ -30,46 +25,38 @@ edged = cv2.dilate(edged, None, iterations=1)
 edged = cv2.erode(edged, None, iterations=1)
 
 # find contours in the edge map
-cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
-                        cv2.CHAIN_APPROX_SIMPLE)
+cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
 new_cnts = np.ones(len(cnts))
 
 # loop over the contours individually
 for j, c in enumerate(cnts):
-    # if the contour is not sufficiently large, ignore it
+    # if the contour don't stand in the conditions, ignore it
     approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
     center, radius = cv2.minEnclosingCircle(c)
     if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
         new_cnts[j] = 0
         continue
     else:
-        box = cv2.minAreaRect(c)
-        box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
-        box = np.array(box, dtype="int")
-        print "box: {0}".format(box)
-
-        # compute the center of the bounding box
-        cX = np.average(box[:, 0])
-        cY = np.average(box[:, 1])
+        ratio = 1
+        # compute the center of the contour
+        M = cv2.moments(c)
+        cX = int((M["m10"] / M["m00"]) * ratio)
+        cY = int((M["m01"] / M["m00"]) * ratio)
 
         print "cX: {0}, cY: {1}".format(cX, cY)
-
-print "new_cnts: {0}".format(new_cnts)
 
 new_cnts = np.transpose(np.nonzero(new_cnts))
 
 
-# loop over the contours individually
+# loop over the contours that made the cut
 for idx in new_cnts:
     c = cnts[idx]
 
     box = cv2.minAreaRect(c)
     box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
     box = np.array(box, dtype="int")
-
-    print "box before ordering: {0}".format(box)
 
     # compute the center of the bounding box
     cX = np.average(box[:, 0])
@@ -82,15 +69,12 @@ for idx in new_cnts:
     cv2.putText(image_rotate, text, (int(cX), int(cY)),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    print "image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]: {0}".format(image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]])
-
-    # hist, bin_edges = np.histogram(image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]], bins=20, density=False)
     hist = cv2.calcHist([image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]], [1], None, [256],
                         [0, 256])
 
     if sum(hist) > 600:
         cv2.drawContours(output, c, -1, (0, 128, 255), 8)
-        print "cX: {0}, cY: {1}".format(cX, cY)
+        # print "cX: {0}, cY: {1}".format(cX, cY)
 
     # print "hist: {0}".format(hist)
 
