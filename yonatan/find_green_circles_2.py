@@ -70,7 +70,7 @@ for idx in new_cnts:
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
     contour_area = cv2.contourArea(c)
-    contour_area_2 = np.pi * (0.5 * (box[3][0] - box[0][0]))**2
+    contour_area_2 = np.pi * (0.5 * (box[3][0] - box[0][0]))**2  # px
 
     print "koter: {}".format(box[3][0] - box[0][0])
     print "contour_area: {0}, contour_area_2: {1}".format(contour_area, contour_area_2)
