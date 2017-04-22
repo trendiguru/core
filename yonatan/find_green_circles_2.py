@@ -192,7 +192,7 @@ for idx in new_cnts:
 
         # for (chan, color) in zip(chans, colors):
         # hist, bin_edges = np.histogram(image[box[0][0]:box[1][0], box[0][1]:box[2][1]], bins=20, density=False)
-        hist = cv2.calcHist([image[box[0][0]:box[1][0], box[0][1]:box[2][1]]], [0], None, [256],
+        hist = cv2.calcHist([image[box[0][0]:box[1][0], box[0][1]:box[2][1]]], [1], None, [256],
                             [0, 256])
 
         if sum(hist) > 0:
