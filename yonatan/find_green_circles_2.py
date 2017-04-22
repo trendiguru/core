@@ -6,6 +6,8 @@ import imutils
 from imutils import contours
 from imutils import perspective
 import time
+from shapedetector import ShapeDetector
+from colorlabeler import ColorLabeler
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -59,7 +61,8 @@ print "len(cnts): {0}".format(len(cnts))
 for j, c in enumerate(cnts):
     # if the contour is not sufficiently large, ignore it
     approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
-    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 200 or len(approx) < 11:
+    center, radius = cv2.minEnclosingCircle(c)
+    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
         new_cnts[j] = 0
         continue
     else:
@@ -120,16 +123,25 @@ print "patches: {0}".format(patches)
 
 # new_cnts = np.trim_zeros(new_cnts)
 
+blurred = cv2.GaussianBlur(image, (7, 7), 0)
+lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
+thresh = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY)[1]
+
+# initialize the shape detector and color labeler
+sd = ShapeDetector()
+cl = ColorLabeler()
+ratio = 1
 
 # loop over the contours individually
 for idx in new_cnts:
     c = cnts[idx]
     # if the contour is not sufficiently large, ignore it
     approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
-    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 200 or len(approx) < 11:
+    center, radius = cv2.minEnclosingCircle(c)
+    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
         continue
     else:
-        cv2.drawContours(output, c, -1, (0, 128, 255), 8)
+        # cv2.drawContours(output, c, -1, (0, 128, 255), 8)
         contour_counter += 1
         print contour_counter
 
@@ -141,7 +153,7 @@ for idx in new_cnts:
         # # in top-left, top-right, bottom-right, and bottom-left
         # # order, then draw the outline of the rotated bounding
         # # box
-        # box = perspective.order_points(box)
+        box = perspective.order_points(box)
 
         # compute the center of the bounding box
         cX = np.average(box[:, 0])
@@ -158,11 +170,36 @@ for idx in new_cnts:
         # hist = cv2.calcHist([image], [0], c, [256], [0, 256])
         # print "hist: {0}".format(hist)
 
-# all_cY = np.trim_zeros(all_cY)
+        # detect the shape of the contour and label the color
+        shape = sd.detect(c)
+        color = cl.label(lab, c)
 
-# hist, bin_edges = np.histogram(all_cY, bins=3, density=False)
+        # multiply the contour (x, y)-coordinates by the resize ratio,
+        # then draw the contours and the name of the shape and labeled
+        # color on the image
+        c = c.astype("float")
+        c *= ratio
+        c = c.astype("int")
+        text = "{} {}".format(color, shape)
+        # cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+        cv2.putText(image, text, (int(cX), int(cY)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-# print "hist: {0}".format(hist)
+        # all_cY = np.trim_zeros(all_cY)
+
+        chans = cv2.split(image[box[0][0]:box[1][0], box[0][1]:box[2][1]])
+        colors = ("b", "g", "r")
+
+        # for (chan, color) in zip(chans, colors):
+        # hist, bin_edges = np.histogram(image[box[0][0]:box[1][0], box[0][1]:box[2][1]], bins=20, density=False)
+        hist = cv2.calcHist([image[box[0][0]:box[1][0], box[0][1]:box[2][1]]], [0], None, [256],
+                            [0, 256])
+
+        if sum(hist) > 0:
+            cv2.drawContours(output, c, -1, (0, 128, 255), 8)
+            print "cX: {0}, cY: {1}".format(cX, cY)
+
+        print "hist: {0}".format(hist)
 
 # all_cY = np.sort(all_cY)
 
