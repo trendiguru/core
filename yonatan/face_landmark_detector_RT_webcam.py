@@ -85,7 +85,6 @@ while True:
 
 
 
-
         gray = cv2.GaussianBlur(gray, (7, 7), 0)
 
         # perform edge detection, then perform a dilation + erosion to
