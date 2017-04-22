@@ -47,6 +47,10 @@ new_cnts = np.ones(len(cnts))
 patches = np.zeros((len(cnts), 4))
 patch_counter = 0
 
+index = {}
+images = {}
+
+
 print "len(cnts): {0}".format(len(cnts))
 
 # print "cnts: {0}".format(cnts)
@@ -54,10 +58,12 @@ print "len(cnts): {0}".format(len(cnts))
 # loop over the contours individually
 for j, c in enumerate(cnts):
     # if the contour is not sufficiently large, ignore it
-    if cv2.contourArea(c) > 400 or cv2.contourArea(c) < 200 or cv2.arcLength(c, True) > 100:
+    approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
+    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 200 or len(approx) < 11:
         new_cnts[j] = 0
         continue
     else:
+        print "c: {0}".format(c)
         patch_counter += 1
         box = cv2.minAreaRect(c)
         # print "c: {0}, cv2.contourArea(c): {1}".format(c, cv2.contourArea(c))
@@ -68,7 +74,7 @@ for j, c in enumerate(cnts):
         x, y, w, h = cv2.boundingRect(c)
         print "x, y, w, h: {0} {1} {2} {3}".format(x, y, w, h)
         patches[patch_counter - 1] = x, y, w, h
-        cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         # compute the center of the bounding box
         cX = np.average(box[:, 0])
@@ -79,19 +85,22 @@ for j, c in enumerate(cnts):
 
         print "cX: {0}, cY: {1}".format(cX, cY)
 
+print "new_cnts: {0}".format(new_cnts)
+
 print "len(patches): {0}".format(len(patches))
 
 # patches = patches[np.nonzero(patches)]
 
 patches = patches[~np.all(patches == 0, axis=1)]
 
+new_cnts = np.transpose(np.nonzero(new_cnts))
+
+print "new_cnts: {0}".format(new_cnts)
 print "len(patches): {0}".format(len(patches))
-print "patches[0]: {0}".format(patches[0])
+print "patches: {0}".format(patches)
 
-cv2.imshow("output", np.hstack([image, output]))
-cv2.waitKey(0)
+# for patches
 
-print "all_cY_dict: {0}".format(all_cY_dict)
 
 
 # for key, value in all_cY_dict.iteritems():
@@ -112,22 +121,12 @@ print "all_cY_dict: {0}".format(all_cY_dict)
 # new_cnts = np.trim_zeros(new_cnts)
 
 
-
-# new_cnts = new_cnts[np.nonzero(new_cnts)]
-
-new_cnts = np.transpose(np.nonzero(new_cnts))
-
-
-print "len(new_cnts): {0}, new_cnts: {1}".format(len(new_cnts), new_cnts)
-
-
-
-
 # loop over the contours individually
 for idx in new_cnts:
     c = cnts[idx]
     # if the contour is not sufficiently large, ignore it
-    if cv2.contourArea(c) > 400 or cv2.contourArea(c) < 200 or cv2.arcLength(c, True) > 100:
+    approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
+    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 200 or len(approx) < 11:
         continue
     else:
         cv2.drawContours(output, c, -1, (0, 128, 255), 8)
@@ -148,7 +147,7 @@ for idx in new_cnts:
         cX = np.average(box[:, 0])
         cY = np.average(box[:, 1])
 
-        all_cY[contour_counter - 1] = cY
+        # all_cY[contour_counter - 1] = cY
 
         # all_cY = np.trim_zeros(all_cY)
 
@@ -159,18 +158,18 @@ for idx in new_cnts:
         # hist = cv2.calcHist([image], [0], c, [256], [0, 256])
         # print "hist: {0}".format(hist)
 
-all_cY = np.trim_zeros(all_cY)
+# all_cY = np.trim_zeros(all_cY)
 
-hist, bin_edges = np.histogram(all_cY, bins=3, density=False)
+# hist, bin_edges = np.histogram(all_cY, bins=3, density=False)
 
-print "hist: {0}".format(hist)
+# print "hist: {0}".format(hist)
 
 # all_cY = np.sort(all_cY)
 
 # for i, coorY in enumerate(all_cY):
 #     if all_cY[i] > all_cY[i+1] + 50 or all_cY[i] < all_cY[i+1] + 50
 
-print "all_cY: {0}, type(all_cY): {1}".format(all_cY, type(all_cY))
+# print "all_cY: {0}, type(all_cY): {1}".format(all_cY, type(all_cY))
 
 # show the output image
 cv2.imshow("output", np.hstack([image, output]))
