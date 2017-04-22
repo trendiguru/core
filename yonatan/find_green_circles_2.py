@@ -195,7 +195,7 @@ for idx in new_cnts:
         hist = cv2.calcHist([image[box[0][0]:box[1][0], box[0][1]:box[2][1]]], [1], None, [256],
                             [0, 256])
 
-        if sum(hist) > 0:
+        if sum(hist) > 100:
             cv2.drawContours(output, c, -1, (0, 128, 255), 8)
             print "cX: {0}, cY: {1}".format(cX, cY)
 
