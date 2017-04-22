@@ -30,6 +30,8 @@ eyes_dict = {}
 vs = VideoStream(usePiCamera=-1 > 0).start()
 time.sleep(2.0)
 
+refObj = None
+
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream, resize it to
@@ -56,7 +58,10 @@ while True:
             cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
 
     # show the frame
-    cv2.imshow("Frame", frame)
+    if refObj is None:
+        cv2.imshow("Frame", frame)
+    else:
+        cv2.imshow("Frame", frame_2)
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("d"):
@@ -106,7 +111,7 @@ while True:
         # loop over the contours individually
         for c in cnts:
             # if the contour is not sufficiently large, ignore it
-            if cv2.contourArea(c) < 50:
+            if cv2.contourArea(c) < 200:
                 continue
 
             # compute the rotated bounding box of the contour
@@ -140,6 +145,11 @@ while True:
                 # then construct the reference object
                 D = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
                 refObj = (box, (cX, cY), D / 3.370)
+
+                frame_2 = frame.copy()
+
+                cv2.drawContours(frame_2, [refObj[0].astype("int")], -1, (0, 255, 0), 2)
+
                 break
 
         # # draw the contours on the image
@@ -176,8 +186,8 @@ while True:
 
         print "distance between eyes: {}".format(D)
 
-
-
+    if key == ord("r"):
+        refObj = None
 
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
