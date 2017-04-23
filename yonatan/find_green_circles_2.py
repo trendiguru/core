@@ -78,6 +78,11 @@ for idx in new_cnts:
         cv2.putText(output, text_center, (cX - 45, cY + 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
+        # i multiple by 0.5 because i found that the relevant contours include
+        # approximately same number of green and blue pixels.
+        # also calculate accordingly and found r / R = 2 / 3
+        # r - green radius, R - blue radius,
+        # which seems about right
         contour_area = cv2.contourArea(c) * 0.5  # px
         text_area = "green_area: {0}px".format(contour_area)
         cv2.putText(output, text_area, (cX - 45, cY + 26),
