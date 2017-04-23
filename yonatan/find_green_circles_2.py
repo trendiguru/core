@@ -8,10 +8,9 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="Path to the image")
 args = vars(ap.parse_args())
 
-# load the image, clone it for output, and then convert it to grayscale
+# load the image, resize, rotate, clone it for output, and then convert it to grayscale
 image_orig = cv2.imread(args["image"])
-width = 900
-image_resize = imutils.resize(image_orig, width=width)
+image_resize = imutils.resize(image_orig, width=900)
 image_rotate = imutils.rotate_bound(image_resize, 90)
 
 output = image_rotate.copy()
@@ -28,6 +27,7 @@ edged = cv2.erode(edged, None, iterations=1)
 cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
+# the indexes of the contours that qualify the condition will be in new_cnts
 new_cnts = np.ones(len(cnts))
 
 # loop over the contours
@@ -35,144 +35,53 @@ for j, c in enumerate(cnts):
     # if the contour don't stand in the conditions, ignore it
     approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
     center, radius = cv2.minEnclosingCircle(c)
-    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
+    if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 440 or len(approx) < 11 or radius > 20:
         new_cnts[j] = 0
         continue
 
+# drop the zeros
 new_cnts = np.transpose(np.nonzero(new_cnts))
-
 
 # loop over the contours that made the cut
 for idx in new_cnts:
     c = cnts[idx]
 
+    # find the corners of the minimum box that can include the contour
     box = cv2.minAreaRect(c)
     box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
     box = np.array(box, dtype="int")
 
-    # compute the center of the bounding box
-    cX = int(np.average(box[:, 0]))
-    cY = int(np.average(box[:, 1]))
+    # find center coordinates of the contour
+    center, radius = cv2.minEnclosingCircle(c)
+    cX_float, cY_float = center
+    cX, cY = int(cX_float), int(cY_float)
 
-    cv2.drawContours(image_rotate, [c], -1, (0, 128, 255), 2)
-    text_center = "(cX:{0}, cY:{1})".format(cX, cY)
-    cv2.putText(image_rotate, text_center, (cX, cY),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    # the patch in the original image of the box (of the contour)
+    patch = image_rotate[box[1][1]:box[0][1], box[0][0]:box[3][0]]
+    # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
 
-    # the radius of the contour is approximately half green and half blue,
-    # and i want to find the area of the green circle, so i divide the radius by 2
-    contour_area = np.pi * (0.5 * 0.5 * (box[3][0] - box[0][0]))**2  # px
-    text_area = "area: {0}px".format(contour_area)
-    cv2.putText(image_rotate, text_area, (cX, cY + 16),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    # just a reminder: colors = ("b", "g", "r")
+    chans = cv2.split(patch)
 
+    # histogram of the green channel
+    hist_green = cv2.calcHist([chans[1]], [0], None, [256], [0, 256])
+    # histogram of the blue channel
+    hist_blue = cv2.calcHist([chans[0]], [0], None, [256], [0, 256])
 
-    ratio = 1
-    # compute the center of the contour
-    M = cv2.moments(c)
-    cX = int((M["m10"] / M["m00"]) * ratio)
-    cY = int((M["m01"] / M["m00"]) * ratio)
+    compare_hist = cv2.compareHist(hist_green, hist_blue, cv2.cv.CV_COMP_CORREL)
 
-
-    # # Create a mask holder
-    # patch = image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]
-    #
-    # mask = np.zeros(patch.shape[:2], np.uint8)
-    #
-    # # Grab Cut the object
-    # bgdModel = np.zeros((1, 65), np.float64)
-    # fgdModel = np.zeros((1, 65), np.float64)
-    #
-    # try:
-    #     # Hard Coding the Rect The object must lie within this rect.
-    #     rect = (cX - 3, cY - 3, 6, 6)
-    #     cv2.grabCut(patch, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
-    #     mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
-    #     # img1 = image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]] * mask[:, :, np.newaxis]
-    #
-    #     cv2.drawContours(output, mask, -1, (0, 128, 255), 8)
-    #
-    #     cv2.imshow("output", np.hstack([image_rotate, output]))
-    #     cv2.waitKey(0)
-    #
-    # except:
-    #     continue
-
-    # # define BGR boundaries
-    # lower_green = np.array([0, 107, 0], dtype="uint8")
-    # upper_green = np.array([50, 255, 154], dtype="uint8")
-    #
-    # mask_green = cv2.inRange(image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]], lower_green, upper_green)
-    #
-    # if cv2.countNonZero(mask_green) / float((box[0][1] - box[1][1]) * (box[3][0] - box[0][0])) > 0.01:
-    #     print "GREEN"
-    #     cv2.drawContours(output, c, -1, (0, 128, 255), 8)
-    #
-    # cv2.imshow("output", np.hstack([image_rotate, output]))
-    # cv2.waitKey(0)
-
-
-
-
-
-    hist = cv2.calcHist([image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]], [1], None, [256],
-                        [0, 256])  # the histogram is on the green channel ([1])
-
-    if sum(hist) > 600:
-
-        gray_patch = gray[box[0][0]:box[3][0], box[1][1]:box[0][1]]
-        edged_patch = cv2.Canny(gray_patch, 50, 100)
-        edged_patch = cv2.dilate(edged_patch, None, iterations=1)
-        edged_patch = cv2.erode(edged_patch, None, iterations=1)
-        #
-        # # find contours in the edge map
-        # cnts_patch = cv2.findContours(edged_patch.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        # cnts_patch = cnts_patch[0] if imutils.is_cv2() else cnts_patch[1]
-
-        patch = gray[box[0][0]:box[3][0], box[1][1]:box[0][1]]
-        circles = cv2.HoughCircles(edged_patch.copy(), cv2.cv.CV_HOUGH_GRADIENT, 1, 20,
-                                   param1=50, param2=30, minRadius=0, maxRadius=0)
-
-        circles = np.uint16(np.around(circles))
-
-        for i in circles[0, :]:
-            # draw the outer circle
-            cv2.circle(patch, (i[0], i[1]), i[2], (0, 0, 0), 2)
-            # draw the center of the circle
-            cv2.circle(patch, (i[0], i[1]), 2, (140, 140, 255), 3)
-
-        # for c_p in cnts_patch:
-        #     print "i'm in!"
-        #     cv2.drawContours(image_rotate, c_p, 0, (0, 0, 0), -1)
-        #
-        #     M_patch = cv2.moments(c_p)
-        #     cX_p = int((M_patch["m10"] / M_patch["m00"]) * ratio)
-        #     cY_p = int((M_patch["m01"] / M_patch["m00"]) * ratio)
-        #
-        #     box_p = cv2.minAreaRect(c_p)
-        #     box_p = cv2.cv.BoxPoints(box_p) if imutils.is_cv2() else cv2.boxPoints(box_p)
-        #     box_p = np.array(box_p, dtype="int")
-        #
-        #     contour_area_patch = np.pi * (0.5 * (box_p[3][0] - box_p[0][0])) ** 2  # px
-        #     text_area = "area: {0}px".format(contour_area_patch)
-        #     cv2.putText(image_rotate, text_area, (cX, cY - 22),
-        #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-
-
-
+    # empiric value
+    if compare_hist > 0.20:
         cv2.drawContours(output, [c], -1, (0, 128, 255), 2)
+
         text_center = "(cX:{0}, cY:{1})".format(cX, cY)
-        cv2.putText(output, text_center, (cX, cY),
+        cv2.putText(output, text_center, (cX - 45, cY + 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-        # the radius of the contour is approximately half green and half blue,
-        # and i want to find the area of the green circle, so i divide the radius by 2
-        contour_area = np.pi * (0.5 * 0.5 * (box[3][0] - box[0][0])) ** 2  # px
-        text_area = "area: {0}px".format(contour_area)
-        cv2.putText(output, text_area, (cX, cY + 16),
+        contour_area = cv2.contourArea(c) * 0.5  # px
+        text_area = "green_area: {0}px".format(contour_area)
+        cv2.putText(output, text_area, (cX - 45, cY + 26),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-    # print "hist: {0}".format(hist)
 
 # show the original image next to the output image
 cv2.imshow("output", np.hstack([image_rotate, output]))
