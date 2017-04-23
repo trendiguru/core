@@ -38,14 +38,6 @@ for j, c in enumerate(cnts):
     if cv2.contourArea(c) > 1000 or cv2.contourArea(c) < 100 or len(approx) < 11 or radius > 20:
         new_cnts[j] = 0
         continue
-    # else:
-    #     ratio = 1
-    #     # compute the center of the contour
-    #     M = cv2.moments(c)
-    #     cX = int((M["m10"] / M["m00"]) * ratio)
-    #     cY = int((M["m01"] / M["m00"]) * ratio)
-    #
-    #     print "cX: {0}, cY: {1}".format(cX, cY)
 
 new_cnts = np.transpose(np.nonzero(new_cnts))
 
@@ -132,31 +124,53 @@ for idx in new_cnts:
         edged_patch = cv2.Canny(gray_patch, 50, 100)
         edged_patch = cv2.dilate(edged_patch, None, iterations=1)
         edged_patch = cv2.erode(edged_patch, None, iterations=1)
+        #
+        # # find contours in the edge map
+        # cnts_patch = cv2.findContours(edged_patch.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # cnts_patch = cnts_patch[0] if imutils.is_cv2() else cnts_patch[1]
 
-        # find contours in the edge map
-        cnts_patch = cv2.findContours(edged_patch.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        cnts_patch = cnts_patch[0] if imutils.is_cv2() else cnts_patch[1]
+        patch = gray[box[0][0]:box[3][0], box[1][1]:box[0][1]]
+        circles = cv2.HoughCircles(edged_patch.copy(), cv2.cv.CV_HOUGH_GRADIENT, 1, 20,
+                                   param1=50, param2=30, minRadius=0, maxRadius=0)
 
-        for c_p in cnts_patch:
-            print "i'm in!"
-            cv2.drawContours(image_rotate, c_p, 0, (0, 0, 0), -1)
+        circles = np.uint16(np.around(circles))
 
-            M_patch = cv2.moments(c_p)
-            cX_p = int((M_patch["m10"] / M_patch["m00"]) * ratio)
-            cY_p = int((M_patch["m01"] / M_patch["m00"]) * ratio)
+        for i in circles[0, :]:
+            # draw the outer circle
+            cv2.circle(patch, (i[0], i[1]), i[2], (0, 0, 0), 2)
+            # draw the center of the circle
+            cv2.circle(patch, (i[0], i[1]), 2, (140, 140, 255), 3)
 
-            box_p = cv2.minAreaRect(c_p)
-            box_p = cv2.cv.BoxPoints(box_p) if imutils.is_cv2() else cv2.boxPoints(box_p)
-            box_p = np.array(box_p, dtype="int")
+        # for c_p in cnts_patch:
+        #     print "i'm in!"
+        #     cv2.drawContours(image_rotate, c_p, 0, (0, 0, 0), -1)
+        #
+        #     M_patch = cv2.moments(c_p)
+        #     cX_p = int((M_patch["m10"] / M_patch["m00"]) * ratio)
+        #     cY_p = int((M_patch["m01"] / M_patch["m00"]) * ratio)
+        #
+        #     box_p = cv2.minAreaRect(c_p)
+        #     box_p = cv2.cv.BoxPoints(box_p) if imutils.is_cv2() else cv2.boxPoints(box_p)
+        #     box_p = np.array(box_p, dtype="int")
+        #
+        #     contour_area_patch = np.pi * (0.5 * (box_p[3][0] - box_p[0][0])) ** 2  # px
+        #     text_area = "area: {0}px".format(contour_area_patch)
+        #     cv2.putText(image_rotate, text_area, (cX, cY - 22),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
-            contour_area_patch = np.pi * (0.5 * (box_p[3][0] - box_p[0][0])) ** 2  # px
-            text_area = "area: {0}px".format(contour_area_patch)
-            cv2.putText(image_rotate, text_area, (cX, cY - 22),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
 
-        cv2.drawContours(output, c, -1, (0, 128, 255), 8)
-        # print "cX: {0}, cY: {1}".format(cX, cY)
+        cv2.drawContours(output, [c], -1, (0, 128, 255), 2)
+        text_center = "(cX:{0}, cY:{1})".format(cX, cY)
+        cv2.putText(output, text_center, (cX, cY),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+        # the radius of the contour is approximately half green and half blue,
+        # and i want to find the area of the green circle, so i divide the radius by 2
+        contour_area = np.pi * (0.5 * 0.5 * (box[3][0] - box[0][0])) ** 2  # px
+        text_area = "area: {0}px".format(contour_area)
+        cv2.putText(output, text_area, (cX, cY + 16),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
     # print "hist: {0}".format(hist)
 
