@@ -62,27 +62,99 @@ for idx in new_cnts:
     cX = int(np.average(box[:, 0]))
     cY = int(np.average(box[:, 1]))
 
-    print "cX: {0}, cY: {1}".format(cX, cY)
-
     cv2.drawContours(image_rotate, [c], -1, (0, 128, 255), 2)
     text_center = "(cX:{0}, cY:{1})".format(cX, cY)
     cv2.putText(image_rotate, text_center, (cX, cY),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    contour_area = cv2.contourArea(c)
-    contour_area_2 = np.pi * (0.5 * (box[3][0] - box[0][0]))**2  # px
-
-    print "koter: {}".format(box[3][0] - box[0][0])
-    print "contour_area: {0}, contour_area_2: {1}".format(contour_area, contour_area_2)
-
-    text_area = "area: {0}".format(contour_area)
+    # the radius of the contour is approximately half green and half blue,
+    # and i want to find the area of the green circle, so i divide the radius by 2
+    contour_area = np.pi * (0.5 * 0.5 * (box[3][0] - box[0][0]))**2  # px
+    text_area = "area: {0}px".format(contour_area)
     cv2.putText(image_rotate, text_area, (cX, cY + 16),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
+
+    ratio = 1
+    # compute the center of the contour
+    M = cv2.moments(c)
+    cX = int((M["m10"] / M["m00"]) * ratio)
+    cY = int((M["m01"] / M["m00"]) * ratio)
+
+
+    # # Create a mask holder
+    # patch = image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]
+    #
+    # mask = np.zeros(patch.shape[:2], np.uint8)
+    #
+    # # Grab Cut the object
+    # bgdModel = np.zeros((1, 65), np.float64)
+    # fgdModel = np.zeros((1, 65), np.float64)
+    #
+    # try:
+    #     # Hard Coding the Rect The object must lie within this rect.
+    #     rect = (cX - 3, cY - 3, 6, 6)
+    #     cv2.grabCut(patch, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
+    #     mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
+    #     # img1 = image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]] * mask[:, :, np.newaxis]
+    #
+    #     cv2.drawContours(output, mask, -1, (0, 128, 255), 8)
+    #
+    #     cv2.imshow("output", np.hstack([image_rotate, output]))
+    #     cv2.waitKey(0)
+    #
+    # except:
+    #     continue
+
+    # # define BGR boundaries
+    # lower_green = np.array([0, 107, 0], dtype="uint8")
+    # upper_green = np.array([50, 255, 154], dtype="uint8")
+    #
+    # mask_green = cv2.inRange(image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]], lower_green, upper_green)
+    #
+    # if cv2.countNonZero(mask_green) / float((box[0][1] - box[1][1]) * (box[3][0] - box[0][0])) > 0.01:
+    #     print "GREEN"
+    #     cv2.drawContours(output, c, -1, (0, 128, 255), 8)
+    #
+    # cv2.imshow("output", np.hstack([image_rotate, output]))
+    # cv2.waitKey(0)
+
+
+
+
+
     hist = cv2.calcHist([image_rotate[box[0][0]:box[3][0], box[1][1]:box[0][1]]], [1], None, [256],
-                        [0, 256])
+                        [0, 256])  # the histogram is on the green channel ([1])
 
     if sum(hist) > 600:
+
+        gray_patch = gray[box[0][0]:box[3][0], box[1][1]:box[0][1]]
+        edged_patch = cv2.Canny(gray_patch, 50, 100)
+        edged_patch = cv2.dilate(edged_patch, None, iterations=1)
+        edged_patch = cv2.erode(edged_patch, None, iterations=1)
+
+        # find contours in the edge map
+        cnts_patch = cv2.findContours(edged_patch.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cnts_patch = cnts_patch[0] if imutils.is_cv2() else cnts_patch[1]
+
+        for c_p in cnts_patch:
+            print "i'm in!"
+            cv2.drawContours(image_rotate, c_p, 0, (0, 0, 0), -1)
+
+            M_patch = cv2.moments(c_p)
+            cX_p = int((M_patch["m10"] / M_patch["m00"]) * ratio)
+            cY_p = int((M_patch["m01"] / M_patch["m00"]) * ratio)
+
+            box_p = cv2.minAreaRect(c_p)
+            box_p = cv2.cv.BoxPoints(box_p) if imutils.is_cv2() else cv2.boxPoints(box_p)
+            box_p = np.array(box_p, dtype="int")
+
+            contour_area_patch = np.pi * (0.5 * (box_p[3][0] - box_p[0][0])) ** 2  # px
+            text_area = "area: {0}px".format(contour_area_patch)
+            cv2.putText(image_rotate, text_area, (cX, cY - 22),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+
+
         cv2.drawContours(output, c, -1, (0, 128, 255), 8)
         # print "cX: {0}, cY: {1}".format(cX, cY)
 
