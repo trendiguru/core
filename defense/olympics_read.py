@@ -701,7 +701,7 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
                 cv2.imshow('bgnd w object',bgnd_img_arr)
                 #cv2.waitKey(0)
                 print('(a)ccept , any other key to not accept')
-                k=cv2.waitKey(100)
+                k=cv2.waitKey(0)
             if manual_verification:
                 if k == ord('a'):
                     pass
@@ -722,6 +722,7 @@ def convert_roy_description_to_tg(roy_description):
 
     conversions = {'street_style-man':'person',
                    'street_style-vehicle-private-car':'car',
+                   'street_style-vehicle-private_car':'car',
                    'street_style-vehicle-suv_jeep':'truck',
                    'street_style-vehicle-van':'van',
                    'street_style-from_above-private_car':'car',
@@ -734,6 +735,7 @@ def convert_roy_description_to_tg(roy_description):
                    'street_style-man-bag_in_hand':'person_holding_bag'}
     if not roy_description in conversions:
         print('did not find {} in conversions from roy to tg cats'.format(roy_description))
+        raw_input('!!')
         return(None)
     tg_description = conversions[roy_description]
     return(tg_description)
