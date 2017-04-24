@@ -8,10 +8,13 @@ import numpy as np
 import copy
 import sys
 import matplotlib.pyplot as plt
+import inspect
+import json
 
 from trendi.defense import defense_client
 from trendi import Utils
 from trendi import constants
+from trendi.utils import imutils
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
              visual_output=False,confidence_threshold=0.9,manual_verification=True):
@@ -63,7 +66,7 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
             y=max(0,bby)
             x2=min(im_h,bbx+bbw)
             y2=min(im_w,bby+bbh)
-            bb = [x,y,bbx2-bbx,bby2-bby]
+            bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
             all_bbs.append(bb)
             if bb[2]==0 or bb[3] == 0 :
                 print('got 0 width or height')
@@ -571,6 +574,7 @@ def x1y1x2y2_to_xywh(bb):
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
 
+
 def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
 #overlaps file (results on verified olympics detections) looks like this
 #       iou     pixels  file    zoom    ourbb[x1y1x2y2] theirbb[x1y1x2y2]
@@ -618,3 +622,118 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
    # ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
  #   plt.show()
     plt.savefig('percent_detections.png')
+
+def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True,n_objects_per_image=5,trainfile='augmentations.txt'):
+    '''
+    get olympics positives above threshold and implant those into unpopulated backgrounds.
+    :param csvfile:
+    :param imagedir:
+    :param visual_output:
+    :param confidence_threshold:
+    :param manual_verification:
+    :return:
+    storing the results for this as  a json similar to the one we return as answer to hls api namely:
+    [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]} ,...]
+    That json can then be used to generate yolo or frcnn training files
+    '''
+
+    annotations = []
+    all_bbs=[]
+    current_file = inspect.stack()[0][1]
+    current_dir = os.path.dirname(current_file)
+    print('current file {} dir {}'.format(current_file,current_dir))
+    with open(csvfile, "rb") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if float(row['confidence'])<confidence_threshold:
+                print('too low confidence '+str(row['confidence']))
+                continue
+            annotation_dict = {}
+            filename = row['path']
+            sId = row['streamId']
+            bgnd_filename = sId+'_median.jpg'
+            bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
+            bgnd_img_arr = cv2.imread(bgnd_fullpath)
+            if bgnd_img_arr is None:
+                print('got non for bgnd image {}'.format(bgnd_fullpath))
+                continue
+            if imagedir is not None:
+                full_name = os.path.join(imagedir,filename)
+            else:
+                full_name = filename
+            annotation_dict['filename']=filename
+            im = cv2.imread(full_name)
+            if im is None:
+                print('couldnt read '+filename)
+                continue
+            print row
+            im_h,im_w=im.shape[0:2]
+            factor = 1
+            dx = int(float(im_w)/factor)
+            dy = int(float(im_h)/factor)
+            im = cv2.resize(im,(dx,dy))
+            im_h,im_w=im.shape[0:2]
+            bbx=int(row["boundingBoxX"])*im_w/100
+            bby=int(row["boundingBoxY"])*im_h/100
+            bbw=int(row["boundingBoxWidth"]) #* (im_w-bbx)/100
+            bbh=int(row["boundingBoxHight"]) #* (im_h-bby)/100
+            bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
+            bby2=int(row["boundingBoxHight"])*im_h/100 #* (im_h-bby)/100
+            x=max(0,bbx)
+            y=max(0,bby)
+            bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
+            all_bbs.append(bb)
+            if bb[2]==0 or bb[3] == 0 :
+                print('got 0 width or height')
+                continue
+            roy_object = row['description']
+            tg_object=convert_roy_description_to_tg(roy_object)
+            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
+
+            #transfer the bb'd pixels onto the unpopulated background
+            bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+            if visual_output:
+#                cv2.imwrite(savename,bb_img)
+                cv2.rectangle(im,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,100],thickness=2)
+                cv2.imshow('full',im)
+                cv2.imshow('bgnd w object',bgnd_img_arr)
+                #cv2.waitKey(0)
+                print('(a)ccept , any other key to not accept')
+                k=cv2.waitKey(100)
+            if manual_verification:
+                if k == ord('a'):
+                    pass
+            else:
+                with open(trainfile,'a+') as fp:
+                    json.dump(out,fp,indent=4)
+                    fp.close()
+
+def convert_roy_description_to_tg(roy_description):
+#    hls_yolo_categories = ['person','person_wearing_hat','person_wearing_backpack','person_holding_bag',
+#                       'man_with_red_shirt','man_with_blue_shirt',
+#                       'car','van','truck','unattended_bag']
+
+    OLYMPICS_CLASSES = ['street_style-man', 'street_style-vehicle-private_car', 'street_style-vehicle-suv_jeep',
+                        'street_style-vehicle-van', 'street_style-from_above-private_car', 'street_style-vehicle-pickup_truck',
+                        'street_style-man-supermarket_cart', 'street_style-man-red_top', 'street_style-man-with_hat',
+                        'street_style-man-blue_top', 'street_style-man-backpack', 'street_style-man-bag_in_hand']
+
+    conversions = {'street_style-man':'person',
+                   'street_style-vehicle-private-car':'car',
+                   'street_style-vehicle-suv_jeep':'truck',
+                   'street_style-vehicle-van':'van',
+                   'street_style-from_above-private_car':'car',
+                   'street_style-vehicle-pickup_truck':'truck',
+                   'street_style-man-supermarket_cart':None,
+                   'street_style-man-red_top':'person_wearing_red_shirt',
+                   'street_style-man-with_hat':'person_wearing_hat',
+                   'street_style-man-blue_top':'person_wearing_blue_shirt',
+                   'street_style-man-backpack':'person_wearing_backpack',
+                   'street_style-man-bag_in_hand':'person_holding_bag'}
+    if not roy_description in conversions:
+        print('did not find {} in conversions from roy to tg cats'.format(roy_description))
+        return(None)
+    tg_description = conversions[roy_description]
+    return(tg_description)

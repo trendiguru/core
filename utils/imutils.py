@@ -1646,7 +1646,6 @@ def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=N
     reduced = cv2.resize(img_arr,dsize)
     x_wiggleroom = orig_w - dsize[0]
     y_wiggleroom = orig_h - dsize[1]
-    
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
@@ -1671,6 +1670,32 @@ def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
         if visual_output:
             cv2.imshow('image',img_arr)
             cv2.waitKey(100)
+
+def x1y1x2y2_to_xywh(bb):
+    assert bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb)
+    assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
+    return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
+
+def xywh_to_x1y1x2y2(bb):
+    return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
+
+def xywh_to_yolo(bb_xywh,image_dims):
+    '''
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    <object-class> <x> <y> <width> <height>
+    where those are percentages and x,y are CENTER OF BB (also in percent)
+    :param bb_xywh:
+    :param image_dims size of image for this bb (needed since yolo wants bb's as percentages)
+    :return:
+    '''
+    x_center = bb_xywh[0]+bb_xywh[2]/2.0   #x1+w/2
+    y_center = bb_xywh[1]+bb_xywh[3]/2.0    #y1+h/2
+    x_p = float(x_center)/image_dims[0]    #center x as %
+    y_p = float(y_center)/image_dims[1]   #center y as %
+    w_p = float(bb_xywh[2])/image_dims[0] #width as %
+    h_p = float(bb_xywh[3])/image_dims[1]  #height as %
+    return([x_p,y_p,w_p,h_p])
 
 
 host = socket.gethostname()
