@@ -122,6 +122,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
     if visual_output:
         cv2.destroyAllWindows()
 
+
 def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
@@ -153,7 +154,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
             w_p = float(bb_xywh[2])/image_dims[0]
             h_p = float(bb_xywh[3])/image_dims[1]
             line = str(class_number)+' '+str(round(x_p,4))+' '+str(round(y_p,4))+' '+str(round(w_p,4))+' '+str(round(h_p,4))+'\n'
-            print('writing "{}" to {}'.format(line,destination_path))
+            print('writing "{}" to {}'.format(line[:-1],destination_path))
             fp.write(line)
     fp.close()
 #    if not os.exists(destination_path):
@@ -162,6 +163,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
 def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None):
     '''
     this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
+    note this appends to trainfile , doesnt overwrite , to facilitate building up from multiple sources
     :param dir:
     :param trainfile:
     :return:
@@ -176,7 +178,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
         print('no files fitting {} in {}, stopping'.format(filter,image_dir))
         return
     count = 0
-    with open(trainfile,'w+') as fp:
+    with open(trainfile,'a+') as fp:
         for f in files:
             if check_for_bbfiles:
                 bbfile = os.path.basename(f).replace(filter,'.txt')

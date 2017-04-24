@@ -1635,6 +1635,18 @@ def get_fg_mask(image, bounding_box=None):
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return mask2
 
+def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None):
+    img_arr = Utils.get_cv2_img_array(arr_url_or_file)
+    orig_h,orig_w = img_arr.shape[0:2]
+    if background_image is not None:
+        new_arr = resize_keep_aspect(background_image,output_size=(orig_h,orig_w))
+    else:
+        new_arr = np.zeros_like(img_arr)
+    dsize=(orig_w*(1-reduction_percent),orig_h*(1-reduction_percent))# #make sure resize wants width,height not height,width
+    reduced = cv2.resize(img_arr,dsize)
+    x_wiggleroom = orig_w - dsize[0]
+    y_wiggleroom = orig_h - dsize[1]
+    
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
