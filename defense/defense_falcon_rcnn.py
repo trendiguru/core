@@ -59,8 +59,12 @@ class HLS:
                 detected = self.detect(img_arr, url=image_url)
                 if (r_x1, r_y1) != (0, 0):
                     for obj in detected:
-                        x1, y1, x2, y2 = obj["bbox"]
-                        obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
+                        try:
+                            x1, y1, x2, y2 = obj["bbox"]
+                            obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
+                        except (KeyError, TypeError):
+                            print "No valid 'bbox' in detected"
+                            
 
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
