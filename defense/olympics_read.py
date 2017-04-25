@@ -634,8 +634,8 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
     :param manual_verification:
     :return:
     storing the results for this as  a json similar to the one we return as answer to hls api namely:
-    [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],
-    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]} ,...]
+    [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
     That json can then be used to generate yolo or frcnn training files
     '''
 
@@ -653,37 +653,36 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             annotation_dict = {}
             filename = row['path']
             sId = row['streamId']
-            bgnd_filename = sId+'_median.jpg'
-            bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
-            bgnd_img_arr = cv2.imread(bgnd_fullpath)
-            if bgnd_img_arr is None:
-                print('got non for bgnd image {}'.format(bgnd_fullpath))
-                continue
             if imagedir is not None:
                 full_name = os.path.join(imagedir,filename)
             else:
                 full_name = filename
-            annotation_dict['filename']=filename
+            annotation_dict['filename']=full_name
             im = cv2.imread(full_name)
             if im is None:
                 print('couldnt read '+filename)
                 continue
             print row
             im_h,im_w=im.shape[0:2]
-            factor = 1
-            dx = int(float(im_w)/factor)
-            dy = int(float(im_h)/factor)
-            im = cv2.resize(im,(dx,dy))
-            im_h,im_w=im.shape[0:2]
             bbx=int(row["boundingBoxX"])*im_w/100
             bby=int(row["boundingBoxY"])*im_h/100
-            bbw=int(row["boundingBoxWidth"]) #* (im_w-bbx)/100
-            bbh=int(row["boundingBoxHight"]) #* (im_h-bby)/100
             bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
             bby2=int(row["boundingBoxHight"])*im_h/100 #* (im_h-bby)/100
             x=max(0,bbx)
             y=max(0,bby)
             bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
+
+            for a in annotations:
+                if a['filename'] == full_name:
+                    a['annotations'].append(annotation_dict)
+
+
+            bgnd_filename = sId+'_median.jpg'
+            bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
+            bgnd_img_arr = cv2.imread(bgnd_fullpath)
+            if bgnd_img_arr is None:
+                print('got none for bgnd image {}'.format(bgnd_fullpath))
+                continue
             all_bbs.append(bb)
             if bb[2]==0 or bb[3] == 0 :
                 print('got 0 width or height')
@@ -695,7 +694,11 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             #transfer the bb'd pixels onto the unpopulated background
             bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             if visual_output:
+                magnify = 3
 #                cv2.imwrite(savename,bb_img)
+                bgndcopy = copy.copy(bgnd_img_arr)
+                im = cv2.resize(im,(magnify*im_w,magnify*im_h))
+                bgndcopy = cv2.resize(bgndcopy,(magnify*im_w,magnify*im_h))
                 cv2.rectangle(im,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,100],thickness=2)
                 cv2.imshow('full',im)
                 cv2.imshow('bgnd w object',bgnd_img_arr)
@@ -709,6 +712,68 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
                 with open(trainfile,'a+') as fp:
                     json.dump(out,fp,indent=4)
                     fp.close()
+
+def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True,jsonfile='olympics.json'):
+    '''
+    store the results for this as  a json similar to the one we return as answer to hls api but with the stream Id (sId) for example:
+    [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]],'sId':105},
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],'sId',105} ,...]
+    That json can then be used to generate yolo or frcnn training files
+    '''
+
+    all_annotations = []
+    with open(csvfile, "rb") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if float(row['confidence'])<confidence_threshold:
+                print('too low confidence '+str(row['confidence']))
+                continue
+            filename = row['path']
+            sId = row['streamId']
+            if imagedir is not None:
+                full_name = os.path.join(imagedir,filename)
+            else:
+                full_name = filename
+            im = cv2.imread(full_name)
+            if im is None:
+                print('couldnt read '+filename)
+                continue
+            print row
+
+
+            im_h,im_w=im.shape[0:2]
+            bbx=int(row["boundingBoxX"])*im_w/100
+            bby=int(row["boundingBoxY"])*im_h/100
+            bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
+            bby2=int(row["boundingBoxHight"])*im_h/100 #* (im_h-bby)/100
+            x=max(0,bbx)
+            y=max(0,bby)
+            bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
+
+            roy_object = row['description']
+            tg_object=convert_roy_description_to_tg(roy_object)
+
+            annotation_dict = {}
+            annotation_dict['filename']=full_name
+            annotation_dict['sId']=int(sId)
+            annotation_dict['annotations']==[]
+
+            object_dict = {}
+            object_dict['bbox_xywh']==bb
+            object_dict['object']==tg_object
+
+            #check if this image is already in json dict
+            for a in all_annotations:
+                if a['filename'] == full_name:
+                    a['annotations'].append(object_dict)
+                    annotation_dict = a
+            print('annotation dict:'+str(annotation_dict))
+            all_annotations.append(annotation_dict)
+
+    with open(jsonfile,'w') as fp:
+        json.dump(all_annotations,fp,indent=4)
+        fp.close()
 
 def convert_roy_description_to_tg(roy_description):
 #    hls_yolo_categories = ['person','person_wearing_hat','person_wearing_backpack','person_holding_bag',

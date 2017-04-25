@@ -331,9 +331,9 @@ binary_caffemodels = [
 ]
 
 
-hls_yolo_categories = ['person','person_wearing_hat','person_wearing_backpack','person_holding_bag',
+hls_yolo_categories = ['person','hat','backpack','bag',
                        'person_wearing_red_shirt','person_wearing_blue_shirt',
-                       'car','van','truck','unattended_bag']
+                       'car','van','truck','unattended_bag']  # the hat, backpack,bag are all worn on a person , unattended bag not
 
 hydra_hls_heads =  ["backpack_hydra_iter_2000",
         "blazer_h_iter_15000.",
