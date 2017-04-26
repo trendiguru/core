@@ -11,7 +11,7 @@ import argparse
 import glob
 import time
 import dlib
-from ..utils import imutils
+from utils import imutils
 
 detector = dlib.get_frontal_face_detector()
 

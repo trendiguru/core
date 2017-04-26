@@ -1,9 +1,11 @@
 # import the necessary packages
-from shapedetector import ShapeDetector
-from colorlabeler import ColorLabeler
 import argparse
-import imutils
+
 import cv2
+import imutils
+from yonatan.shapedetector import ShapeDetector
+
+from colorlabeler import ColorLabeler
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
