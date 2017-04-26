@@ -714,7 +714,7 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
                     fp.close()
 
 def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
-             visual_output=False,confidence_threshold=0.9,manual_verification=True,jsonfile='olympics.json'):
+             visual_output=False,confidence_threshold=0.95,manual_verification=True,jsonfile='olympics.json'):
     '''
     store the results for this as  a json similar to the one we return as answer to hls api but with the stream Id (sId) for example:
     [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]],'sId':105},
@@ -740,7 +740,6 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
                 print('couldnt read '+filename)
                 continue
             print row
-
 
             im_h,im_w=im.shape[0:2]
             bbx=int(row["boundingBoxX"])*im_w/100
