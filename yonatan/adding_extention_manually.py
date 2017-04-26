@@ -24,7 +24,3 @@ for root, dirs, files in os.walk(source_dir):
             os.rename(old_file_name, new_file_name)
             counter += 1
             print counter
-
-
-
-
