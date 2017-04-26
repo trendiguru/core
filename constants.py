@@ -331,9 +331,11 @@ binary_caffemodels = [
 ]
 
 
-hls_yolo_categories = ['person','person_wearing_hat','person_with_backpack','person_holding_bag',
-                       'man_with_red_shirt','man_with_blue_shirt',
-                       'car','van','truck']
+hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+#van changed to bus to allow use of pascal voc#
+#the hat, backpack,bag are all worn on a person , unattended bag not
+#bicycle and motorbke added since they are avail thru the pascal voc sets
 
 hydra_hls_heads =  ["backpack_hydra_iter_2000",
         "blazer_h_iter_15000.",
