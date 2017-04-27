@@ -396,7 +396,7 @@ def convert_pascal_txt_annotation(in_file,classes,out_filename):
                 append_write = 'w' # make a new file if not
 
             out_file = open(out_filename, append_write)
-  #          os.chmod(out_filename, 0o666)
+  #          os.chmod(out_filename, 0o666) #
             out_file.write(str(cls_id) + " " + " ".join([str(round(a,4)) for a in bb]) + '\n')
 #       os.chmod(out_filename, 0o777)
         success = True
