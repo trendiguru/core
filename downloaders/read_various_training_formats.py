@@ -378,13 +378,11 @@ def convert_pascal_txt_annotation(in_file,classes,out_filename):
             nums = re.findall('\d+', lines[i+2])
             print('obj {} nums {}'.format(object,nums))
             success=False
-
-            for c in classes:
-                if c in object:
-                    cls_id = classes.index(c)
-                    print('class index '+str(cls_id)+' '+classes[cls_id])
-                    success=True
-                    break
+            cls_id = tg_class_from_pascal_class(object,classes)
+            if cls_id is not None:
+                print('class index '+str(cls_id)+' '+classes[cls_id])
+                success=True
+                break
             if not success:
                 print('NO RELEVANT CLASS FOUND')
                 continue
@@ -403,6 +401,25 @@ def convert_pascal_txt_annotation(in_file,classes,out_filename):
 #       os.chmod(out_filename, 0o777)
         success = True
     return(success)
+
+
+def tg_class_from_pascal_class(pascal_class,tg_classes):
+#hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
+    conversions = {'bike':'bicycle',
+                   'motorcycle':'motorbike'}  #things that have names different than tg names
+                                            #(forced to do this since e.g. bike and bicycle are both used in VOC)
+    for tg_class in tg_classes:
+        if tg_class in pascal_class:
+            tg_ind = tg_classes.index(tg_class)
+            return tg_ind
+    for pascal,tg in conversions.iteritems():
+        if pascal in pascal_class:
+            tg_ind = tg_classes.index(tg)
+            return tg_ind
+    return None
+
 
 
 def convert_x1x2y1y2_to_yolo(size, box):
