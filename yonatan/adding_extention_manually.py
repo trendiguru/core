@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
-counter = 10
+counter = 102
 
 # dresses = {'mini', 'midi', 'maxi'}
 #
