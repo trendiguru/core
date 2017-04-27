@@ -1,5 +1,7 @@
 '''
 generally for reading db's having bb's
+pascal voc
+http://host.robots.ox.ac.uk/pascal/VOC/databases.html#VOC2005_2
 
 '''
 
@@ -22,6 +24,7 @@ from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
+
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
