@@ -20,6 +20,8 @@ from os.path import join
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
+from trendi.utils import imutils
+from trendi import constants
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -252,36 +254,60 @@ def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.
         image_path = os.path.join(imagedir,f)
         read_yolo_bbs(bb_path,image_path)
 
-def read_pascal_xml_write_yolo():
-    sets=[('2012', 'train'), ('2012', 'val'), ('2007', 'train'), ('2007', 'val'), ('2007', 'test')]
-#    classes = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
-    classes = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
-                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+def read_pascal_xml_write_yolo(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/VOCdevkit/VOC2007',annotation_folder='Annotations',img_folder='JPEGImages',
+                               annotation_filter='.xml'):
+    '''
+    nondestructive - if there are already label files these get added to not overwritten
+    :param dir:
+    :param annotation_folder:
+    :param img_folder:
+    :param annotation_filter:
+    :return:
+    '''
+#    classes = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
 
-    hls_yolo_categories = ['person','hat','backpack','bag',
-                       'person_wearing_red_shirt','person_wearing_blue_shirt',
-                       'car','van','truck','unattended_bag']  # the hat, backpack,bag are all worn on a person , unattended bag not
+    classes = constants.hls_yolo_categories
 
+    annotation_dir = os.path.join(dir,annotation_folder)
+    img_dir = os.path.join(dir,img_folder)
+    annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    listfilename = os.path.join(dir,'filelist.txt')
+    list_file = open(listfilename, 'w')
+    for annotation_file in annotation_files:
+        success = convert_pascal_annotation(annotation_file,classes)
+        if success:
+            print('found relevant class(es)')
+            filenumber = os.path.basename(annotation_file).replace('.xml','')
+            jpgpath = os.path.join(img_dir,str(filenumber)+'.jpg')
+            list_file.write(jpgpath+'\n')
+#    list_file.close()
+    # for year, image_set in sets:
+    #     folder = './labels'%(year)
+    #     if not os.path.exists(folder):
+    #         os.makedirs(folder)
+    #     image_ids = open(folder+'/ImageSets/Main/%s.txt'%(year, image_set)).read().strip().split()
+    #     list_file = open('%s_%s.txt'%(year, image_set), 'w')
+    #     for image_id in image_ids:
+    #         list_file.write('%s/VOCdevkit/VOC%s/JPEGImages/%s.jpg\n'%(wd, year, image_id))
+    #         convert_pascal_annotation(year, image_id,classes)
+    #     list_file.close()
 
-    wd = getcwd()
-    for year, image_set in sets:
-        if not os.path.exists('VOCdevkit/VOC%s/labels/'%(year)):
-            os.makedirs('VOCdevkit/VOC%s/labels/'%(year))
-        image_ids = open('VOCdevkit/VOC%s/ImageSets/Main/%s.txt'%(year, image_set)).read().strip().split()
-        list_file = open('%s_%s.txt'%(year, image_set), 'w')
-        for image_id in image_ids:
-            list_file.write('%s/VOCdevkit/VOC%s/JPEGImages/%s.jpg\n'%(wd, year, image_id))
-            convert_pascal_annotation(year, image_id,classes)
-        list_file.close()
-
-def convert_pascal_annotation(year, image_id,classes):
-    in_file = open('VOCdevkit/VOC%s/Annotations/%s.xml'%(year, image_id))
-    out_file = open('VOCdevkit/VOC%s/labels/%s.txt'%(year, image_id), 'w')
+def convert_pascal_annotation(in_file,classes,labeldir=None):
+    filenumber = os.path.basename(in_file).replace('.xml','')
+#    in_file = open('VOCdevkit/VOC%s/Annotations/%s.xml'%(year, image_id))
+    if labeldir==None:
+        parent_dir = Utils.parent_dir(os.path.dirname(in_file))
+        labeldir = os.path.join(parent_dir,'labels')
+        Utils.ensure_dir(labeldir)
+    out_filename = os.path.join(labeldir, filenumber+'.txt')
+    print('in {} out {}'.format(in_file,out_filename))
     tree=ET.parse(in_file)
     root = tree.getroot()
     size = root.find('size')
     w = int(size.find('width').text)
     h = int(size.find('height').text)
+    success=False
     for obj in root.iter('object'):
         difficult = obj.find('difficult').text
         cls = obj.find('name').text
@@ -291,7 +317,13 @@ def convert_pascal_annotation(year, image_id,classes):
         xmlbox = obj.find('bndbox')
         b = (float(xmlbox.find('xmin').text), float(xmlbox.find('xmax').text), float(xmlbox.find('ymin').text), float(xmlbox.find('ymax').text))
         bb = convert_x1x2y1y2_to_yolo((w,h), b)
-        out_file.write(str(cls_id) + " " + " ".join([str(a) for a in bb]) + '\n')
+        out_file = open(out_filename, 'a+')
+        os.chmod(out_filename, 0o666)
+        out_file.write(str(cls_id) + " " + " ".join([str(round(a,4)) for a in bb]) + '\n')
+ #       os.chmod(out_filename, 0o777)
+        success = True
+    return(success)
+
 
 def convert_x1x2y1y2_to_yolo(size, box):
     dw = 1./(size[0])
@@ -306,7 +338,35 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
-
+def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labels',img_folder='JPEGImages',
+                               annotation_filter='.txt',image_filter='.jpg'):
+    #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
+    annotation_dir = os.path.join(dir,yolo_annotation_folder)
+    img_dir = os.path.join(dir,img_folder)
+    annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    classes = constants.hls_yolo_categories
+    for f in annotation_files:
+        print('trying '+f)
+        annotation_base = os.path.basename(f)
+        imgfile = annotation_base.replace(annotation_filter,image_filter)
+        img_path = os.path.join(img_dir,imgfile)
+        img_arr = cv2.imread(img_path)
+        if img_arr is None:
+            print('coulndt get '+img_path)
+        h,w = img_arr.shape[0:2]
+        with open(f,'r') as fp:
+            lines = fp.readlines()
+            for line in lines:
+                print(line)
+                object_class,bb0,bb1,bb2,bb3 = line.split()
+                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+                classname = classes[int(object_class)]
+                print('class {} bb_xywh {}'.format(classname,bb_xywh))
+                cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
+                img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
+                cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+                cv2.imshow('img',img_arr)
+            cv2.waitKey(0)
 
 if __name__ == "__main__":
     read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')

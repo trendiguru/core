@@ -1697,6 +1697,36 @@ def xywh_to_yolo(bb_xywh,image_dims):
     h_p = float(bb_xywh[3])/image_dims[1]  #height as %
     return([x_p,y_p,w_p,h_p])
 
+def x1x2y1y2_to_yolo(size, box):
+    dw = 1./(size[0])
+    dh = 1./(size[1])
+    x = (box[0] + box[1])/2.0 - 1
+    y = (box[2] + box[3])/2.0 - 1
+    w = box[1] - box[0]
+    h = box[3] - box[2]
+    x = x*dw
+    w = w*dw
+    y = y*dh
+    h = h*dh
+    return (x,y,w,h)
+
+def yolo_to_xywh(bb_yolo,image_dims):
+    '''
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    :param bb_yolo: x_center, y_center, w, h all as percentages of image width or height
+    :param image_dims size of image for this bb (needed since yolo wants bb's as percentages)
+    :return:
+    '''
+
+    x_center = float(bb_yolo[0])*image_dims[0]    #center x in pixels
+    y_center = float(bb_yolo[1])*image_dims[1]   #center y pixels
+    w = float(bb_yolo[2])*image_dims[0] #width pixels
+    h = float(bb_yolo[3])*image_dims[1]  #height pixels
+    x=x_center-w/2
+    y=y_center-h/2
+   # print('in {} dims {} out {} {} {} {}'.format(bb_yolo,image_dims,x,y,w,h))
+    return([int(x),int(y),int(w),int(h)])
 
 host = socket.gethostname()
 # print('host:'+str(host))

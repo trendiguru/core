@@ -333,6 +333,8 @@ binary_caffemodels = [
 
 hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
                        'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
+
 #van changed to bus to allow use of pascal voc#
 #the hat, backpack,bag are all worn on a person , unattended bag not
 #bicycle and motorbke added since they are avail thru the pascal voc sets
