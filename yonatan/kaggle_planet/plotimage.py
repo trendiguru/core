@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from skimage import io
 
 
-def plotImage(fileName, outFile):
+def plotImage(outFile):
     '''
     Plot the three color bands for an image
 
@@ -12,10 +12,16 @@ def plotImage(fileName, outFile):
     visualize all the color bands
     '''
 
+    fileName = "/home/yonatan/Downloads/train-jpg/train_40000.jpg"
+
     print fileName
+
+
 
     img      = io.imread(fileName)
     numBands = img.shape[-1]
+
+    print "numBands: {0}".format(numBands)
 
     plt.figure(figsize=(5*(numBands+1), 5)) # One for the original image
     f = 1.0/(numBands+1)
