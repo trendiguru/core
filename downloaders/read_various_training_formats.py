@@ -338,24 +338,35 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
-def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/VOCdevkit/VOC2007',annotation_folder='Annotations',img_folder='JPEGImages',
-                               annotation_filter='.xml',image_filter='.jpg'):
+def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labels',img_folder='JPEGImages',
+                               annotation_filter='.txt',image_filter='.jpg'):
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
-    annotation_dir = os.path.join(dir,annotation_folder)
+    annotation_dir = os.path.join(dir,yolo_annotation_folder)
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    classes = constants.hls_yolo_categories
     for f in annotation_files:
-        imgfile = f.replace(annotation_filter,image_filter)
+        print('trying '+f)
+        annotation_base = os.path.basename(f)
+        imgfile = annotation_base.replace(annotation_filter,image_filter)
         img_path = os.path.join(img_dir,imgfile)
         img_arr = cv2.imread(img_path)
+        if img_arr is None:
+            print('coulndt get '+img_path)
         h,w = img_arr.shape[0:2]
         with open(f,'r') as fp:
-            lines = fp.readlines(f)
+            lines = fp.readlines()
             for line in lines:
+                print(line)
                 object_class,bb0,bb1,bb2,bb3 = line.split()
-                bb_xywh = imutils.yolo_to_xywh([])
-
-
+                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+                classname = classes[int(object_class)]
+                print('class {} bb_xywh {}'.format(classname,bb_xywh))
+                cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
+                img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
+                cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+                cv2.imshow('img',img_arr)
+            cv2.waitKey(0)
 
 if __name__ == "__main__":
     read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')
