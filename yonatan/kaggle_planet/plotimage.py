@@ -17,6 +17,7 @@ def plotImage(outFile):
     print fileName
 
 
+
     img      = io.imread(fileName)
     numBands = img.shape[-1]
 
