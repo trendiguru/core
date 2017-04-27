@@ -382,7 +382,6 @@ def convert_pascal_txt_annotation(in_file,classes,out_filename):
             if cls_id is not None:
                 print('class index '+str(cls_id)+' '+classes[cls_id])
                 success=True
-                break
             if not success:
                 print('NO RELEVANT CLASS FOUND')
                 continue
