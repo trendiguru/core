@@ -12,8 +12,8 @@ import random
 
 train_csv = open('/data/yonatan/kaggle_planet_data/train.csv')
 
-train_text_file = open("/data/yonatan/kaggle_planet_data/kaggke_planet_multilabel_train.txt", "w")
-cv_text_file = open("/data/yonatan/kaggle_planet_data/kaggke_planet_multilabel_cv.txt", "w")
+train_text_file = open("/data/yonatan/kaggle_planet_data/kaggle_planet_multilabel_train.txt", "w")
+cv_text_file = open("/data/yonatan/kaggle_planet_data/kaggle_planet_multilabel_cv.txt", "w")
 
 path = '/data/yonatan/kaggle_planet_data/train-jpg/'
 
