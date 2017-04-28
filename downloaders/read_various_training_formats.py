@@ -1,5 +1,7 @@
 '''
 generally for reading db's having bb's
+pascal voc
+http://host.robots.ox.ac.uk/pascal/VOC/databases.html#VOC2005_2
 
 '''
 
@@ -22,6 +24,7 @@ from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
+
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -275,25 +278,14 @@ def read_pascal_xml_write_yolo(dir='/media/jeremy/9FBD-1B00/hls_potential/voc200
     listfilename = os.path.join(dir,'filelist.txt')
     list_file = open(listfilename, 'w')
     for annotation_file in annotation_files:
-        success = convert_pascal_annotation(annotation_file,classes)
+        success = convert_pascal_xml_annotation(annotation_file,classes)
         if success:
             print('found relevant class(es)')
             filenumber = os.path.basename(annotation_file).replace('.xml','')
             jpgpath = os.path.join(img_dir,str(filenumber)+'.jpg')
             list_file.write(jpgpath+'\n')
-#    list_file.close()
-    # for year, image_set in sets:
-    #     folder = './labels'%(year)
-    #     if not os.path.exists(folder):
-    #         os.makedirs(folder)
-    #     image_ids = open(folder+'/ImageSets/Main/%s.txt'%(year, image_set)).read().strip().split()
-    #     list_file = open('%s_%s.txt'%(year, image_set), 'w')
-    #     for image_id in image_ids:
-    #         list_file.write('%s/VOCdevkit/VOC%s/JPEGImages/%s.jpg\n'%(wd, year, image_id))
-    #         convert_pascal_annotation(year, image_id,classes)
-    #     list_file.close()
 
-def convert_pascal_annotation(in_file,classes,labeldir=None):
+def convert_pascal_xml_annotation(in_file,classes,labeldir=None):
     filenumber = os.path.basename(in_file).replace('.xml','')
 #    in_file = open('VOCdevkit/VOC%s/Annotations/%s.xml'%(year, image_id))
     if labeldir==None:
@@ -323,6 +315,110 @@ def convert_pascal_annotation(in_file,classes,labeldir=None):
  #       os.chmod(out_filename, 0o777)
         success = True
     return(success)
+
+def read_pascal_txt_write_yolo(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2005_1/',
+                               annotation_folder='all_relevant_annotations',img_folder='all_relevant_images',
+                               annotation_filter='.txt',image_filter='.png',yolo_annotation_dir='labels'):
+    '''
+    nondestructive - if there are already label files these get added to not overwritten
+    :param dir:
+    :param annotation_folder:
+    :param img_folder:
+    :param annotation_filter:
+    :return:
+    '''
+#    classes = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
+    classes = constants.hls_yolo_categories
+
+    annotation_dir = os.path.join(dir,annotation_folder)
+    img_dir = os.path.join(dir,img_folder)
+    annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    listfilename = os.path.join(dir,'filelist.txt')
+    list_file = open(listfilename, 'w')
+    yolo_annotation_path = os.path.join(dir,yolo_annotation_dir)
+    Utils.ensure_dir(yolo_annotation_path)
+    for annotation_file in annotation_files:
+
+        out_filename=os.path.join(yolo_annotation_path,os.path.basename(annotation_file))
+        print('outfile'+out_filename)
+        success = convert_pascal_txt_annotation(annotation_file,classes,out_filename)
+        if success:
+            print('found relevant class(es)')
+            filename = os.path.basename(annotation_file).replace(annotation_filter,'')
+            img_dir =  os.path.join(dir,img_folder)
+            imgpath = os.path.join(img_dir,str(filename)+image_filter)
+            list_file.write(imgpath+'\n')
+
+def convert_pascal_txt_annotation(in_file,classes,out_filename):
+    print('in {} out {}'.format(in_file,out_filename))
+    with open(in_file,'r') as fp:
+        lines = fp.readlines()
+    for i in range(len(lines)):
+        if 'Image filename' in lines[i]:
+            imfile=lines[i].split()[3]
+            print('imfile:'+imfile)
+            # path = Utils.parent_dir(os.path.basename(in_file))
+            # if path.split('/')[-1] != 'Annotations':
+            #     path = Utils.parent_dir(path)
+            # print('path to annotation:'+str(path))
+            # img_path = os.path.join(path,imfile)
+            # print('path to img:'+str(img_path))
+            # img_arr = cv2.imread(img_path)
+        if 'Image size' in lines[i]:
+            nums = re.findall('\d+', lines[i])
+            print(lines[i])
+            print('nums'+str(nums))
+            w = int(nums[0])
+            h = int(nums[1])
+            print('h {} w {}'.format(h,w))
+        if '# Details' in lines[i] :
+            object = lines[i].split()[5].replace('(','').replace(')','').replace('"','')
+            nums = re.findall('\d+', lines[i+2])
+            print('obj {} nums {}'.format(object,nums))
+            success=False
+            cls_id = tg_class_from_pascal_class(object,classes)
+            if cls_id is not None:
+                print('class index '+str(cls_id)+' '+classes[cls_id])
+                success=True
+            if not success:
+                print('NO RELEVANT CLASS FOUND')
+                continue
+            b = (int(nums[1]), int(nums[3]), int(nums[2]), int(nums[4])) #file has xmin ymin xmax ymax
+            print('bb_x1x2y1y2:'+str(b))
+            bb = convert_x1x2y1y2_to_yolo((w,h), b)
+            print('bb_yolo'+str(bb))
+            if os.path.exists(out_filename):
+                append_write = 'a' # append if already exists
+            else:
+                append_write = 'w' # make a new file if not
+
+            out_file = open(out_filename, append_write)
+  #          os.chmod(out_filename, 0o666) #
+            out_file.write(str(cls_id) + " " + " ".join([str(round(a,4)) for a in bb]) + '\n')
+#       os.chmod(out_filename, 0o777)
+        success = True
+    return(success)
+
+
+def tg_class_from_pascal_class(pascal_class,tg_classes):
+#hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
+    conversions = {'bike':'bicycle',
+                   'motorcycle':'motorbike'}  #things that have names different than tg names
+                                            #(forced to do this since e.g. bike and bicycle are both used in VOC)
+    for tg_class in tg_classes:
+        if tg_class in pascal_class:
+            tg_ind = tg_classes.index(tg_class)
+            return tg_ind
+    for pascal,tg in conversions.iteritems():
+        if pascal in pascal_class:
+            tg_ind = tg_classes.index(tg)
+            return tg_ind
+    return None
+
 
 
 def convert_x1x2y1y2_to_yolo(size, box):
@@ -369,4 +465,4 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
             cv2.waitKey(0)
 
 if __name__ == "__main__":
-    read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/JELMOLI/images')
+    read_m
