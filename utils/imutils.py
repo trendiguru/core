@@ -1636,6 +1636,14 @@ def get_fg_mask(image, bounding_box=None):
     return mask2
 
 def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None):
+    '''
+    WIP - finish this to augment yolo stuff - and call it from augment_images , checking size of largest object
+    and smallifying accordingly. so we have to keep track of bb's too and return those smallified in same way
+    :param arr_url_or_file:
+    :param reduction_percent:
+    :param background_image:
+    :return:
+    '''
     img_arr = Utils.get_cv2_img_array(arr_url_or_file)
     orig_h,orig_w = img_arr.shape[0:2]
     if background_image is not None:
