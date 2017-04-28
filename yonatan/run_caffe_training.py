@@ -4,7 +4,8 @@ import sys
 import caffe
 
 
-weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
+weights = None
+# weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
 
 # init
 caffe.set_device(int(sys.argv[1]))
@@ -13,7 +14,7 @@ caffe.set_mode_gpu()
 solver = caffe.SGDSolver('/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/solver_152.prototxt')
 
 # for finetune
-solver.net.copy_from(weights)
+# solver.net.copy_from(weights)
 
 # surgeries
 #interp_layers = [k for k in solver.net.params.keys() if 'up' in k]
