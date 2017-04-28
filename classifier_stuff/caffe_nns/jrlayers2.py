@@ -898,10 +898,10 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-            if len(out_.shape) != 3 :
-                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
+            # if len(out_.shape) != 3 :
+            #     print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
+            #     print('weird file:'+filename)
+            #     self.next_idx()  #goto next
                 continue
 
     #if there's a crop then check resultsize=cropsize.
