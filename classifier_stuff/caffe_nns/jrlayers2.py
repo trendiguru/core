@@ -747,7 +747,7 @@ class JrMultilabel(caffe.Layer):
             self.images_processed += 1
         else:
 
-            all_data = np.zeros((self.batch_size,3,self.size_for_shaping[0],self.size_for_shaping[1]))
+            all_data = np.zeros((self.batch_size,4,self.size_for_shaping[0],self.size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 if self.lmdb is not None:
