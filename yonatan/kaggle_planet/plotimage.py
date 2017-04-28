@@ -12,7 +12,7 @@ def plotImage(outFile):
     visualize all the color bands
     '''
 
-    fileName = "/home/yonatan/Downloads/train-jpg/train_40001.jpg"
+    fileName = "/home/yonatan/Downloads/train-jpg/train_12904.jpg"
 
     print fileName
 
