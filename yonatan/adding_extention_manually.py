@@ -12,6 +12,7 @@ counter = 0
 #
 # for dress in dresses:
 
+
 source_dir = '/home/yonatan/dress_length_from_my_pc'
 
 for root, dirs, files in os.walk(source_dir):
