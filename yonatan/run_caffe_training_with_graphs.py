@@ -20,6 +20,7 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 #vars to change
 ###############
 
+weights = None
 # weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
 solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/solver_152.prototxt'
 testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
