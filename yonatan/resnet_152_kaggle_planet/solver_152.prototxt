@@ -1,5 +1,6 @@
-train_net: "ResNet-152-train.prototxt"
-test_net: "ResNet-152-test.prototxt"
+net: "/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/ResNet-152-train_test.prototxt"
+# train_net: "ResNet-152-train.prototxt"
+# test_net: "ResNet-152-test.prototxt"
 test_iter: 500
 test_interval: 5000
 display: 20
@@ -8,7 +9,7 @@ weight_decay: 0.0005
 # no gradient accumulation
 iter_size: 20
 snapshot: 10000
-snapshot_prefix: "snapshot_152/train"
+snapshot_prefix: "/data/yonatan/kaggle_planet_data/snapshots/snapshot_resnet152_kaggle_planet_first_take"
 test_initialization: false
 solver_mode : GPU
 

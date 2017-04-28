@@ -7091,12 +7091,12 @@ layer {
 }
 
 layer {
-	name: "myfc21"
+	name: "myfc17"
 	bottom: "pool5"
-	top: "myfc21"
+	top: "myfc17"
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 4
+		num_output: 17
                 weight_filler {
                 type: "xavier"
                    }
@@ -7114,14 +7114,14 @@ layer {
                 }
 }
 #layer {
-#	bottom: "myfc21"
+#	bottom: "myfc17"
 #	top: "prob"
 #	name: "prob"
 #	type: "Softmax"
 #}
 
 layer {
-	bottom: "myfc21"
+	bottom: "myfc17"
 	bottom: "labels"
 	top: "score"
 	name: "score"
@@ -7130,7 +7130,7 @@ layer {
 }
 
 layer {
-	bottom: "myfc21"
+	bottom: "myfc17"
 	top: "estimate"
 	name: "estimate"
 	type: "Sigmoid"
