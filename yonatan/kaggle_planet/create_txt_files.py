@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import shutil
-import yonatan_constants
 from .. import background_removal, utils, constants
 import sys
 import random
