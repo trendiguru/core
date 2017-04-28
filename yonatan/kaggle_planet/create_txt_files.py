@@ -25,8 +25,10 @@ all_labels = ['partly_cloudy', 'haze', 'clear',
 
 first_line = True
 labels = '0'
+cv_counter = 300
 
-for line in lines_in_train_csv:
+
+for counter, line in enumerate(lines_in_train_csv):
 
     if first_line:
         first_line = False
@@ -49,9 +51,13 @@ for line in lines_in_train_csv:
 
     print path + image_name_and_labels[0] + " " + labels
 
-    train_text_file.write(path + image_name_and_labels[0] + ".jpg" + " " + labels + "\n")
+    if counter < cv_counter:
+        cv_text_file.write(path + image_name_and_labels[0] + ".jpg" + " " + labels + "\n")
+    else:
+        train_text_file.write(path + image_name_and_labels[0] + ".jpg" + " " + labels + "\n")
 
 train_text_file.close()
+cv_text_file.close()
 
 
 
