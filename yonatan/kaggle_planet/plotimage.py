@@ -44,7 +44,7 @@ def plotImage(outFile):
     plt.imshow(img2)
     plt.xticks([]); plt.yticks([])
 
-    plt.savefig(outFile)
+    plt.savefig("/data/yonatan/kaggle_planet_data/" + outFile)
     plt.close('all')
 
     return img
