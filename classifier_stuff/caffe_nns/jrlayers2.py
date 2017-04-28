@@ -682,7 +682,7 @@ class JrMultilabel(caffe.Layer):
         #size_for_shaping is the actual final image size. Image gets resized to new_size if it exists, and cropped
         #to augment_crop_size if that exists. So size_for_shaping = augment_cropsize if that exists, otherwise new_size
         if self.augment_crop_size is not None and self.augment_images is True:
-            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 4,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
             print('dba')
             if self.new_size is None:
@@ -690,14 +690,14 @@ class JrMultilabel(caffe.Layer):
              #   raw_input('ret to cont')
                 self.new_size=self.default_newsize
         elif self.new_size is not None:
-            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+            top[0].reshape(self.batch_size, 4, self.new_size[0], self.new_size[1])
             self.size_for_shaping = self.new_size
             print('dbb')
         else:
             logging.warning('WARNING!!! got no crop or size for self.newsize, using 224x224 resize and no crop!!')
           #  raw_input('ret to cont')
             self.new_size = (224,224)
-            top[0].reshape(self.batch_size, 3, self.new_size[0], self.new_size[1])
+            top[0].reshape(self.batch_size, 4, self.new_size[0], self.new_size[1])
             self.size_for_shaping = (224,224)
             print('dbc')
         print('size for shaping (final img size):'+str(self.size_for_shaping))
@@ -747,7 +747,7 @@ class JrMultilabel(caffe.Layer):
             self.images_processed += 1
         else:
 
-            all_data = np.zeros((self.batch_size,3,self.size_for_shaping[0],self.size_for_shaping[1]))
+            all_data = np.zeros((self.batch_size,4,self.size_for_shaping[0],self.size_for_shaping[1]))
             all_labels = np.zeros((self.batch_size,self.n_labels))
             for i in range(self.batch_size):
                 if self.lmdb is not None:
@@ -851,10 +851,10 @@ class JrMultilabel(caffe.Layer):
                     self.next_idx()
                     continue
                 logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
-                if in_.shape[2] != 3:
-                    logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
-                    self.next_idx()
-                    continue
+                # if in_.shape[2] != 3:
+                #     logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                #     self.next_idx()
+                #     continue
             except:
                 e = sys.exc_info()[0]
                 logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
@@ -898,10 +898,10 @@ class JrMultilabel(caffe.Layer):
                 logging.warning('could not get image '+filename)
                 self.next_idx()
                 continue
-            if len(out_.shape) != 3 :
-                print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
+            # if len(out_.shape) != 3 :
+            #     print('got strange-sized img not having 3 dimensions ('+str(out_.shape) + ') when expected shape is hxwxc (3 dimensions)')
+            #     print('weird file:'+filename)
+            #     self.next_idx()  #goto next
                 continue
 
     #if there's a crop then check resultsize=cropsize.
@@ -917,11 +917,11 @@ class JrMultilabel(caffe.Layer):
                     self.next_idx()  #goto next
                     continue
 
-            if out_.shape[2] !=3 :
-                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
-                continue
+            # if out_.shape[2] !=3 :
+            #     print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
+            #     print('weird file:'+filename)
+            #     self.next_idx()  #goto next
+            #     continue
             break #got good img after all that , get out of while
 
         if self.augment_save_visual_output:
@@ -932,7 +932,7 @@ class JrMultilabel(caffe.Layer):
 
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
         #todo maybe also normalize to -1:1
-        out_ -= self.mean
+        # out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
