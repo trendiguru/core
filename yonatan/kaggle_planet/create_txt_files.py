@@ -40,6 +40,8 @@ for line in lines_in_train_csv:
             else:
                 labels += " 0"
 
+    print path + image_name_and_labels[0] + " " + labels
+
     train_text_file.write(path + image_name_and_labels[0] + " " + labels + "\n")
 
 train_text_file.close()
