@@ -24,8 +24,8 @@ solver = caffe.SGDSolver('/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_
 #run net learning iterations
 for _ in range(100000):
     solver.step(1)
-    my_fc17 = solver.net.blobs['my_fc17'].data
-    print('output of layer "my_fc17" {}'.format(my_fc17))
+    myfc17 = solver.net.blobs['myfc17'].data
+    print('output of layer "myfc17" {}'.format(myfc17))
 #    score.seg_tests(solver, False, val, layer='score')
 #    jrinfer.seg_tests(solver, False, val, layer='score')
 #    progress_plot.parse_solveoutput('net_output.txt')

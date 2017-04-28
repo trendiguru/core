@@ -6758,8 +6758,8 @@ layer {
 
 layer {
 	bottom: "pool5"
-	top: "fc17"
-	name: "fc17"
+	top: "myfc17"
+	name: "myfc17"
 	type: "InnerProduct"
 	inner_product_param {
 		num_output: 17
@@ -6767,7 +6767,7 @@ layer {
 }
 
 layer {
-	bottom: "fc17"
+	bottom: "myfc17"
 	top: "prob"
 	name: "prob"
 	type: "Softmax"
