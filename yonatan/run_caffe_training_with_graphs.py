@@ -20,18 +20,18 @@ from trendi.classifier_stuff.caffe_nns import progress_plot
 #vars to change
 ###############
 
-weights = '/home/yonatan/faces_stuff/resnet_genderator_models_09_10_16/caffe_resnet50_snapshot_sgd_gender_by_face_iter_30000.caffemodel'  #in brainia container jr2
-solverproto = '/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/solver50_sgd.prototxt'
-testproto = '/home/yonatan/trendi/yonatan/resnet_50_gender_by_face/ResNet-50-test.prototxt'  #maybe take this out in  favor of train proto
-type='single_label'
-#type='multilabel'
+weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
+solverproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/solver-152.prototxt'
+testproto = '/data/yonatan/yonatan_files/trendi/yonatan/resnet_152_kaggle_planet/ResNet-152-train_test.prototxt'  #maybe take this out in  favor of train proto
+# type='single_label'
+type='multilabel'
 #type='pixlevel'
 steps_per_iter = 1
 n_iter = 20
-cat = 'man'
+cat = 'kaggle_planet'
 classlabels=['not_'+cat,cat]
 n_tests = 1000
-baremetal_hostname = 'brainik80a'
+baremetal_hostname = 'allison'
 
 ####################
 
