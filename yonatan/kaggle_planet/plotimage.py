@@ -12,7 +12,7 @@ def plotImage(outFile):
     visualize all the color bands
     '''
 
-    fileName = "/data/yonatan/kaggle_planet_data/train-jpg/train_12904.jpg"
+    fileName = "/home/yonatan/Downloads/train-jpg/train_12904.jpg"
 
     print fileName
 
@@ -44,7 +44,7 @@ def plotImage(outFile):
     plt.imshow(img2)
     plt.xticks([]); plt.yticks([])
 
-    plt.savefig("/data/yonatan/kaggle_planet_data/" + outFile)
+    plt.savefig(outFile)
     plt.close('all')
 
     return img

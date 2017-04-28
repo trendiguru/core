@@ -682,7 +682,7 @@ class JrMultilabel(caffe.Layer):
         #size_for_shaping is the actual final image size. Image gets resized to new_size if it exists, and cropped
         #to augment_crop_size if that exists. So size_for_shaping = augment_cropsize if that exists, otherwise new_size
         if self.augment_crop_size is not None and self.augment_images is True:
-            top[0].reshape(self.batch_size, 3,self.augment_crop_size[0], self.augment_crop_size[1])
+            top[0].reshape(self.batch_size, 4,self.augment_crop_size[0], self.augment_crop_size[1])
             self.size_for_shaping = self.augment_crop_size
             print('dba')
             if self.new_size is None:
