@@ -677,11 +677,11 @@ class JrMultilabel(caffe.Layer):
                 self.next_idx()
                 idx = self.idx
                 continue
-            # if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
-            #     print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
-            #     self.next_idx()  #goto next
-            #     idx = self.idx
-            #     continue
+            if len(out_.shape) != 3 or out_.shape[0] != self.new_size[0] or out_.shape[1] != self.new_size[1] or out_.shape[2]!=3:
+                print('got bad img of size '+str(out_.shape) + '= when expected shape is 3x'+str(self.new_size))
+                self.next_idx()  #goto next
+                idx = self.idx
+                continue
             break #got good img, get out of while
 
         if self.augment_save_visual_output:

@@ -917,11 +917,11 @@ class JrMultilabel(caffe.Layer):
                     self.next_idx()  #goto next
                     continue
 
-            if out_.shape[2] !=3 :
-                print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
-                print('weird file:'+filename)
-                self.next_idx()  #goto next
-                continue
+            # if out_.shape[2] !=3 :
+            #     print('got non-3-chan img of size '+str(out_.shape) + ' when expected n_channels is 3 '+str(self.new_size))
+            #     print('weird file:'+filename)
+            #     self.next_idx()  #goto next
+            #     continue
             break #got good img after all that , get out of while
 
         if self.augment_save_visual_output:
