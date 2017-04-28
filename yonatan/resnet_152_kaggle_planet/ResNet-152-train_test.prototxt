@@ -7122,7 +7122,7 @@ layer {
 
 layer {
 	bottom: "myfc17"
-	bottom: "labels"
+	bottom: "label"
 	top: "score"
 	name: "score"
 	type: "SigmoidCrossEntropyLoss"
