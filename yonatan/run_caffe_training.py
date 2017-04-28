@@ -3,6 +3,7 @@ import os
 import sys
 import caffe
 
+
 weights = '/data/yonatan/yonatan_files/prepared_caffemodels/ResNet-152-model.caffemodel'  #in brainia container jr2
 
 # init
