@@ -932,7 +932,7 @@ class JrMultilabel(caffe.Layer):
 
         #print(str(filename) + ' has dims '+str(out_.shape)+' label:'+str(label_vec)+' idex'+str(idx))
         #todo maybe also normalize to -1:1
-        out_ -= self.mean
+        # out_ -= self.mean
         out_ = out_.transpose((2,0,1))  #Row Column Channel -> Channel Row Column
 #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
         #print('load_image_and_label end')
