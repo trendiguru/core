@@ -472,9 +472,6 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
             img_array = img_array[top:bottom,left:right]
     return img_array
 #  raw_input('enter to cont')
-
-
-
 def generate_images_for_directory(fulldir,**args):
     only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
     for a_file in only_files:
@@ -505,9 +502,6 @@ def generate_masks(img_filename, **kwargs):
 
     cv2.waitKey(0)
 
-
-
-
 def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args):
     only_dirs = [dir for dir in os.listdir(dir_of_dirs) if os.path.isdir(os.path.join(dir_of_dirs,dir))  ]
     logging.debug(str(only_dirs))
@@ -517,7 +511,6 @@ def generate_images_for_directory_of_directories(dir_of_dirs,filter= None,**args
     for a_dir in only_dirs:
         full_dir = os.path.join(dir_of_dirs,a_dir)
         generate_images_for_directory(full_dir,**args)
-
 
 def clear_underutilized_bins(img_arr):
     h = np.histogram(img_arr,bins=57)
