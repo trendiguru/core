@@ -23,9 +23,14 @@ all_labels = ['partly_cloudy', 'haze', 'clear',
               'primary', 'water', 'habitation', 'agriculture', 'cultivation', 'road', 'bare_ground',
               'slash_burn', 'selective_logging', 'blooming', 'conventional_mine', 'artisinal_mine', 'blow_down']
 
+first_line = True
 labels = '0'
 
 for line in lines_in_train_csv:
+
+    if first_line:
+        first_line = False
+        continue
 
     labels = '0'
 
@@ -44,7 +49,7 @@ for line in lines_in_train_csv:
 
     print path + image_name_and_labels[0] + " " + labels
 
-    train_text_file.write(path + image_name_and_labels[0] + " " + labels + "\n")
+    train_text_file.write(path + image_name_and_labels[0] + ".jpg" + " " + labels + "\n")
 
 train_text_file.close()
 
