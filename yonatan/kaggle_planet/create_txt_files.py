@@ -27,6 +27,8 @@ labels = '0'
 
 for line in lines_in_train_csv:
 
+    labels = '0'
+
     image_name_and_labels = line.split(',')
     image_name = image_name_and_labels[0]
     labels_names = image_name_and_labels[1]
