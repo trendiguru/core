@@ -851,10 +851,10 @@ class JrMultilabel(caffe.Layer):
                     self.next_idx()
                     continue
                 logging.debug('IN_ SHAPE in jrlayers2:'+str(in_.shape))
-                if in_.shape[2] != 3:
-                    logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
-                    self.next_idx()
-                    continue
+                # if in_.shape[2] != 3:
+                #     logging.debug('got channels !=3 in jrlayers2.load_image_and_labels')
+                #     self.next_idx()
+                #     continue
             except:
                 e = sys.exc_info()[0]
                 logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
