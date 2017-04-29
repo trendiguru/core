@@ -639,7 +639,7 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
     That json can then be used to generate yolo or frcnn training files
     '''
 
-    annotations = []
+    all_annotations = []
     all_bbs=[]
     current_file = inspect.stack()[0][1]
     current_dir = os.path.dirname(current_file)
@@ -657,13 +657,13 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
                 full_name = os.path.join(imagedir,filename)
             else:
                 full_name = filename
-            annotation_dict['filename']=full_name
+
             im = cv2.imread(full_name)
             if im is None:
                 print('couldnt read '+filename)
                 continue
             print row
-            im_h,im_w=im.shape[0:2]
+            im_h,im_w,im_c=im.shape
             bbx=int(row["boundingBoxX"])*im_w/100
             bby=int(row["boundingBoxY"])*im_h/100
             bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
@@ -672,11 +672,18 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             y=max(0,bby)
             bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
 
-            for a in annotations:
+            annotation_dict['filename']=full_name
+            annotation_dict['annotations']=[]
+            annotation_dict['dimensions_w_h_c'] = im.shape
+            #check if file has already been seen and a dict started, if so use that instead
+            for a in all_annotations:
                 if a['filename'] == full_name:
-                    a['annotations'].append(annotation_dict)
+                    annotation_dict=a
+                    break
+            object_dict={}
+            object_dict['bbox_xywh'] = bb
 
-
+        #put positive on depopulated background (generated elsewhere)
             bgnd_filename = sId+'_median.jpg'
             bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
             bgnd_img_arr = cv2.imread(bgnd_fullpath)
@@ -690,7 +697,7 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             roy_object = row['description']
             tg_object=convert_roy_description_to_tg(roy_object)
             print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
-
+            object_dict['object']=tg_object
             #transfer the bb'd pixels onto the unpopulated background
             bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             if visual_output:
@@ -779,6 +786,10 @@ def convert_roy_description_to_tg(roy_description):
 #                       'man_with_red_shirt','man_with_blue_shirt',
 #                       'car','van','truck','unattended_bag']
 
+#hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
+
     OLYMPICS_CLASSES = ['street_style-man', 'street_style-vehicle-private_car', 'street_style-vehicle-suv_jeep',
                         'street_style-vehicle-van', 'street_style-from_above-private_car', 'street_style-vehicle-pickup_truck',
                         'street_style-man-supermarket_cart', 'street_style-man-red_top', 'street_style-man-with_hat',
@@ -788,15 +799,16 @@ def convert_roy_description_to_tg(roy_description):
                    'street_style-vehicle-private-car':'car',
                    'street_style-vehicle-private_car':'car',
                    'street_style-vehicle-suv_jeep':'truck',
-                   'street_style-vehicle-van':'van',
+                   'street_style-vehicle-van':'bus',
                    'street_style-from_above-private_car':'car',
                    'street_style-vehicle-pickup_truck':'truck',
                    'street_style-man-supermarket_cart':None,
                    'street_style-man-red_top':'person_wearing_red_shirt',
-                   'street_style-man-with_hat':'person_wearing_hat',
+                   'street_style-man-with_hat':'hat',
                    'street_style-man-blue_top':'person_wearing_blue_shirt',
-                   'street_style-man-backpack':'person_wearing_backpack',
-                   'street_style-man-bag_in_hand':'person_holding_bag'}
+                   'street_style-man-backpack':'backpack',
+                   'street_style-man-bag_in_hand':'bag'}
+
     if not roy_description in conversions:
         print('did not find {} in conversions from roy to tg cats'.format(roy_description))
         raw_input('!!')

@@ -271,7 +271,6 @@ def read_pascal_xml_write_yolo(dir='/media/jeremy/9FBD-1B00/hls_potential/voc200
 #                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
 
     classes = constants.hls_yolo_categories
-
     annotation_dir = os.path.join(dir,annotation_folder)
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
