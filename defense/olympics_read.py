@@ -15,6 +15,7 @@ from trendi.defense import defense_client
 from trendi import Utils
 from trendi import constants
 from trendi.utils import imutils
+from trendi.downloaders import read_various_training_formats
 
 def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
              visual_output=False,confidence_threshold=0.9,manual_verification=True):
@@ -706,7 +707,7 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
                         continue #dont add bb to list, go to next csv line
             if not manual_verification:
                 annotation_dict['annotations'].append(object_dict)
-            print('annotation dict:'+str(annotation_dict))
+           # print('annotation dict:'+str(annotation_dict))
             if not file_already_in_json: #add new file to all_annotations
                 all_annotations.append(annotation_dict)
             else:  #update current annotation with new bb
@@ -721,35 +722,7 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
         json.dump(all_annotations,fp,indent=4)
         fp.close()
 
-def inspect_json(jsonfile='rio.json'):
-    '''
-        read file like:
-        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
-    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
-    :param jsonfile:
-    :return:
-    '''
-    object_counts = {}
-    with open(jsonfile,'r') as fp:
-        annotation_list = json.load(fp)
-    for d in annotation_list:
-#        print d
-        filename = d['filename']
-        annotations = d['annotations']
-        sid = d['sId']
-        n_bbs = len(annotations)
-        print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
-        for annotation in annotations:
-            object = annotation['object']
-            if not object in object_counts:
-                object_counts[object] = 1
-            else:
-                object_counts[object] = object_counts[object] + 1
-    print('n annotated files {}'.format(len(annotation_list)))
-    print('bb counts by category {}'.format(object_counts))
-
-
-def implant_on_original_background(json_file,visual_output=False,out_suffix='augmented'):
+def implant_on_original_background(json_file,visual_output=False,out_suffix='augmented',out_dir=None):
     #put positive on depopulated background (generated elsewhere)
     current_file = inspect.stack()[0][1]
     current_dir = os.path.dirname(current_file)
@@ -778,16 +751,24 @@ def implant_on_original_background(json_file,visual_output=False,out_suffix='aug
             #transfer the bb'd pixels onto the unpopulated background
             bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             bgnd_copy[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]   =orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
-            cv2.rectangle(bgnd_copy,(bb[0],bb[1]),(bb[1]+bb[3]),color=[255,0,100],thickness=2)
+            cv2.rectangle(bgnd_copy,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,100],thickness=2)
         if visual_output:
             cv2.imshow('implanted',bgnd_img_arr)
             cv2.imshow('orig',orig_img)
             cv2.imshow('implanted w rectangle',bgnd_copy)
             cv2.waitKey(0)
-        out_filename = filename.replace('.png','_augmented.png').replace('.jpg','_augmented.jpg')
-        cv2.imwrite(out_filename,bgnd_img_arr)
-
-
+        if out_dir is None:
+            out_dir = os.path.dirname(filename)+'_augmented'
+            Utils.ensure_dir(out_dir)
+        out_file = os.path.basename(filename).replace('.png','_augmented.png').replace('.jpg','_augmented.jpg')
+        out_path = os.path.join(out_dir,out_file)
+        print('outfile {} out path {} outdir {}'.format(out_file,out_path,out_dir))
+        retval = cv2.imwrite(out_path,bgnd_img_arr)
+        print('return code from imwrite:'+str(retval))
+        #write yolo label using reference to augmented image
+        d['filename'] = out_path
+        read_various_training_formats.write_yolo_from_tgdict(d)
+   #     raw_input('ret to cont')
 
 
 def convert_roy_description_to_tg(roy_description):
