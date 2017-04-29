@@ -623,10 +623,10 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
  #   plt.show()
     plt.savefig('percent_detections.png')
 
-def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
-             visual_output=False,confidence_threshold=0.9,manual_verification=True,n_objects_per_image=5,trainfile='augmentations.txt'):
+def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True,jsonfile='rio.json'):
     '''
-    get olympics positives above threshold and implant those into unpopulated backgrounds.
+    get olympics positives above conf threshold and put them into json
     :param csvfile:
     :param imagedir:
     :param visual_output:
@@ -674,7 +674,8 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
 
             annotation_dict['filename']=full_name
             annotation_dict['annotations']=[]
-            annotation_dict['dimensions_w_h_c'] = im.shape
+            annotation_dict['dimensions_h_w_c'] = im.shape
+            annotation_dict['sId'] = sId
             #check if file has already been seen and a dict started, if so use that instead
             for a in all_annotations:
                 if a['filename'] == full_name:
@@ -683,23 +684,6 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             object_dict={}
             object_dict['bbox_xywh'] = bb
 
-        #put positive on depopulated background (generated elsewhere)
-            bgnd_filename = sId+'_median.jpg'
-            bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
-            bgnd_img_arr = cv2.imread(bgnd_fullpath)
-            if bgnd_img_arr is None:
-                print('got none for bgnd image {}'.format(bgnd_fullpath))
-                continue
-            all_bbs.append(bb)
-            if bb[2]==0 or bb[3] == 0 :
-                print('got 0 width or height')
-                continue
-            roy_object = row['description']
-            tg_object=convert_roy_description_to_tg(roy_object)
-            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
-            object_dict['object']=tg_object
-            #transfer the bb'd pixels onto the unpopulated background
-            bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
             if visual_output:
                 magnify = 3
 #                cv2.imwrite(savename,bb_img)
@@ -715,10 +699,33 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             if manual_verification:
                 if k == ord('a'):
                     pass
-            else:
-                with open(trainfile,'a+') as fp:
-                    json.dump(out,fp,indent=4)
-                    fp.close()
+    with open(jsonfile,'w') as fp:
+        json.dump(all_annotations,fp,indent=4)
+        fp.close()
+
+
+def implant_on_background(annotation_json):
+    #put positive on depopulated background (generated elsewhere)
+    bgndcopy = copy.copy(bgnd_img_arr)
+    im = cv2.resize(im,(magnify*im_w,magnify*im_h))
+    bgndcopy = cv2.resize(bgndcopy,(magnify*im_w,magnify*im_h))
+    bgnd_filename = sId+'_median.jpg'
+    bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
+    bgnd_img_arr = cv2.imread(bgnd_fullpath)
+    if bgnd_img_arr is None:
+        print('got none for bgnd image {}'.format(bgnd_fullpath))
+        continue
+    all_bbs.append(bb)
+    if bb[2]==0 or bb[3] == 0 :
+        print('got 0 width or height')
+        continue
+    roy_object = row['description']
+    tg_object=convert_roy_description_to_tg(roy_object)
+    print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
+    object_dict['object']=tg_object
+    #transfer the bb'd pixels onto the unpopulated background
+    bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+
 
 def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
              visual_output=False,confidence_threshold=0.95,manual_verification=True,jsonfile='olympics.json'):
