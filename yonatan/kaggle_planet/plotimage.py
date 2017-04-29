@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
+import cv2
 
 
 def plotImage(outFile):
@@ -15,6 +16,17 @@ def plotImage(outFile):
     fileName = "/home/yonatan/Downloads/train-jpg/train_12904.jpg"
 
     print fileName
+
+    full_image = cv2.imread(fileName)
+    # blue, green, red = cv2.split(full_image)
+    #
+    # print "blue channel: {}".format(blue)
+    # print "green channel: {}".format(green)
+    # print "red channel: {}".format(red)
+    # # print "nir channel: {}".format(nir)
+
+    nir = full_image[:, :, 2, 0]
+    print "nir channel: {}".format(nir)
 
 
     img      = io.imread(fileName)
