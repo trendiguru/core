@@ -418,6 +418,50 @@ def tg_class_from_pascal_class(pascal_class,tg_classes):
             return tg_ind
     return None
 
+def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_categories):
+    '''
+    input- json in 'tg format' which is like this
+       [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
+    That json can then be used to generate yolo or frcnn training files
+
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    <object-class> <x> <y> <width> <height>
+    where those are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
+    e.g. JPEGImages  labels
+    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+    '''
+
+    img_filename = tg_dict['filename']
+    annotations = tg_dict['annotations']
+    sid = tg_dict['sId']
+    dims = tg_dict['dimensions_h_w_c']
+    im_h,im_w=(dims[0],dims[1])
+    print('file {}\nannotations {}\nsid {}'.format(img_filename,annotations,sid))
+    if label_dir is None:
+        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
+        label_ext = os.path.dirname(img_filename)+'labels'
+        label_dir = os.path.join(img_parent,label_ext)
+    label_name = img_filename.replace('.png','.txt').replace('.jpg','.txt')
+    label_path = os.path.join(label_dir,label_name)
+    print('writing to '+str(label_path))
+    with open(label_path,'w') as fp:
+        for annotation in annotations:
+            bb_xywh = annotation['bbox_xywh']
+            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_w,im_h))
+            print('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
+            object = annotation['object']
+            class_number = classes.index(object)
+            line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
+            fp.write(line)
+        fp.close()
 
 
 def convert_x1x2y1y2_to_yolo(size, box):
