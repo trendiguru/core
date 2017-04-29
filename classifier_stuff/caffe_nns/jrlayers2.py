@@ -608,7 +608,8 @@ class JrMultilabel(caffe.Layer):
                 print('checking image files')
                 for line in self.images_and_labels_list:
                     imgfilename = line.split()[0]
-                    img_arr = Image.open(imgfilename)
+                    # img_arr = Image.open(imgfilename)
+                    img_arr = cv2.imread(imgfilename)
                     in_ = np.array(img_arr, dtype=np.float32)
                     if img_arr is not None:
                         vals = line.split()[1:]
@@ -832,7 +833,9 @@ class JrMultilabel(caffe.Layer):
             #print('calling augment_images with file '+filename)
 #############start added code to avoid cv2.imread############
             try:
-                im = Image.open(filename)
+                # im = Image.open(filename)
+                im = cv2.imread(filename)
+
                 if im is None:
                     logging.warning('jrlayers2 could not get im '+filename)
                     self.next_idx()
