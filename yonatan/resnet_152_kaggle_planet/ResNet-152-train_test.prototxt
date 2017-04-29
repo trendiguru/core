@@ -7131,8 +7131,8 @@ layer {
 
 layer {
 	bottom: "myfc17"
-	top: "estimate"
-	name: "estimate"
+	top: "prob"
+	name: "prob"
 	type: "Sigmoid"
   include {phase: TEST}
 }
