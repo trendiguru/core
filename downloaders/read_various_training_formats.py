@@ -424,7 +424,6 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
     {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
     That json can then be used to generate yolo or frcnn training files
-
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
     <object-class> <x> <y> <width> <height>
@@ -447,9 +446,13 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
     print('file {}\nannotations {}\nsid {}'.format(img_filename,annotations,sid))
     if label_dir is None:
         img_parent = Utils.parent_dir(os.path.dirname(img_filename))
-        label_ext = os.path.dirname(img_filename)+'labels'
-        label_dir = os.path.join(img_parent,label_ext)
-    label_name = img_filename.replace('.png','.txt').replace('.jpg','.txt')
+        img_diralone = os.path.dirname(img_filename).split('/')[-1]
+        label_diralone = img_diralone+'labels'
+        label_dir= os.path.join(img_parent,label_diralone)
+        Utils.ensure_dir(label_dir)
+     #   label_dir = os.path.join(img_parent,label_ext)
+        print('img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
     label_path = os.path.join(label_dir,label_name)
     print('writing to '+str(label_path))
     with open(label_path,'w') as fp:
@@ -506,6 +509,37 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
                 cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
                 cv2.imshow('img',img_arr)
             cv2.waitKey(0)
+
+
+
+def inspect_json(jsonfile='rio.json'):
+    '''
+        read file like:
+        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
+    :param jsonfile:
+    :return:
+    '''
+    object_counts = {}
+    with open(jsonfile,'r') as fp:
+        annotation_list = json.load(fp)
+    for d in annotation_list:
+#        print d
+        filename = d['filename']
+        annotations = d['annotations']
+        sid = d['sId']
+        n_bbs = len(annotations)
+        print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
+        for annotation in annotations:
+            object = annotation['object']
+            if not object in object_counts:
+                object_counts[object] = 1
+            else:
+                object_counts[object] = object_counts[object] + 1
+    print('n annotated files {}'.format(len(annotation_list)))
+    print('bb counts by category {}'.format(object_counts))
+
+
 
 if __name__ == "__main__":
     read_m
