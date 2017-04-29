@@ -662,7 +662,7 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
             if im is None:
                 print('couldnt read '+filename)
                 continue
-            print row
+  #          print row
             im_h,im_w,im_c=im.shape
             bbx=int(row["boundingBoxX"])*im_w/100
             bby=int(row["boundingBoxY"])*im_h/100
@@ -686,15 +686,15 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
 
             roy_object = row['description']
             tg_object=convert_roy_description_to_tg(roy_object)
-            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
+            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}  bbx2 {} bby2 {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY'],bbx2,bby2))
             object_dict={}
             object_dict['bbox_xywh'] = bb
             object_dict['object']=tg_object
 
             if visual_output or manual_verification:
+                im = imutils.bb_with_text(im,bb,tg_object)
                 magnify = 3
                 im = cv2.resize(im,(magnify*im_w,magnify*im_h))
-                im = imutils.bb_with_text(im,bb,tg_object)
                 cv2.imshow('full',im)
                 cv2.waitKey(0)
                 print('(a)ccept , any other key to not accept')
@@ -713,33 +713,79 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
                 for a in all_annotations:
                     if a['filename'] == full_name:
                         a=annotation_dict
-            print('annotation dict:'+str(annotation_dict))
-            print('# files:'+str(len(annotation_dict)))
-            raw_input('ret to cont')
+     #       print('annotation dict:'+str(annotation_dict))
+            print('# files:'+str(len(all_annotations)))
+           # raw_input('ret to cont')
 
     with open(jsonfile,'w') as fp:
         json.dump(all_annotations,fp,indent=4)
         fp.close()
 
+def inspect_json(jsonfile='rio.json'):
+    '''
+        read file like:
+        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
+    :param jsonfile:
+    :return:
+    '''
+    object_counts = {}
+    with open(jsonfile,'r') as fp:
+        annotation_list = json.load(fp)
+    for d in annotation_list:
+#        print d
+        filename = d['filename']
+        annotations = d['annotations']
+        sid = d['sId']
+        n_bbs = len(annotations)
+        print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
+        for annotation in annotations:
+            object = annotation['object']
+            if not object in object_counts:
+                object_counts[object] = 1
+            else:
+                object_counts[object] = object_counts[object] + 1
+    print('n annotated files {}'.format(len(annotation_list)))
+    print('bb counts by category {}'.format(object_counts))
 
-def implant_on_background(annotation_json):
-    pass
+
+def implant_on_original_background(json_file,visual_output=False,out_suffix='augmented'):
     #put positive on depopulated background (generated elsewhere)
-    # bgndcopy = copy.copy(bgnd_img_arr)
-    # im = cv2.resize(im,(magnify*im_w,magnify*im_h))
-    # bgndcopy = cv2.resize(bgndcopy,(magnify*im_w,magnify*im_h))
-    # bgnd_filename = sId+'_median.jpg'
-    # bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
-    # bgnd_img_arr = cv2.imread(bgnd_fullpath)
-    # if bgnd_img_arr is None:
-    #     print('got none for bgnd image {}'.format(bgnd_fullpath))
-    #     continue
-    # all_bbs.append(bb)
-    # if bb[2]==0 or bb[3] == 0 :
-    #     print('got 0 width or height')
-    #     continue
-    # #transfer the bb'd pixels onto the unpopulated background
-    # bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+    current_file = inspect.stack()[0][1]
+    current_dir = os.path.dirname(current_file)
+    print('current file {} dir {}'.format(current_file,current_dir))
+    with open(json_file,'r') as fp:
+        annotation_list = json.load(fp)
+    for d in annotation_list:
+        print d
+        filename = d['filename']
+        annotations = d['annotations']
+        sid = d['sId']
+        print('file {}\nannotations {}\nsid {}'.format(filename,annotations,sid))
+        median_name = str(sid)+'_median.jpg'
+        median_path = os.path.join(current_dir,median_name)
+        bgnd_img_arr = cv2.imread(median_path)
+        if bgnd_img_arr is None:
+            print('got none for bgnd image {}'.format(median_path))
+            continue
+        orig_img = cv2.imread(filename)
+        if orig_img is None:
+            print('got none for orig image {}'.format(orig_img))
+            continue
+        bgnd_copy = copy.copy(bgnd_img_arr)
+        for annotation in annotations:
+            bb = annotation['bbox_xywh']
+            #transfer the bb'd pixels onto the unpopulated background
+            bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+            bgnd_copy[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]   =orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+            cv2.rectangle(bgnd_copy,(bb[0],bb[1]),(bb[1]+bb[3]),color=[255,0,100],thickness=2)
+        if visual_output:
+            cv2.imshow('implanted',bgnd_img_arr)
+            cv2.imshow('orig',orig_img)
+            cv2.imshow('implanted w rectangle',bgnd_copy)
+            cv2.waitKey(0)
+        out_filename = filename.replace('.png','_augmented.png').replace('.jpg','_augmented.jpg')
+        cv2.imwrite(out_filename,bgnd_img_arr)
 
 
 
