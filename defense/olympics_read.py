@@ -707,7 +707,7 @@ def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/o
                         continue #dont add bb to list, go to next csv line
             if not manual_verification:
                 annotation_dict['annotations'].append(object_dict)
-            print('annotation dict:'+str(annotation_dict))
+           # print('annotation dict:'+str(annotation_dict))
             if not file_already_in_json: #add new file to all_annotations
                 all_annotations.append(annotation_dict)
             else:  #update current annotation with new bb
