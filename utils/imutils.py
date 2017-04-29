@@ -1635,7 +1635,7 @@ def get_fg_mask(image, bounding_box=None):
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return mask2
 
-def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None):
+def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None,bb=None):
     '''
     WIP - finish this to augment yolo stuff - and call it from augment_images , checking size of largest object
     and smallifying accordingly. so we have to keep track of bb's too and return those smallified in same way
@@ -1735,6 +1735,12 @@ def yolo_to_xywh(bb_yolo,image_dims):
     y=y_center-h/2
    # print('in {} dims {} out {} {} {} {}'.format(bb_yolo,image_dims,x,y,w,h))
     return([int(x),int(y),int(w),int(h)])
+
+def bb_with_text(img_arr,bb_xywh,text):
+    cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
+    img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
+    cv2.putText(img_arr,text,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+    return img_arr
 
 host = socket.gethostname()
 # print('host:'+str(host))

@@ -623,10 +623,10 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
  #   plt.show()
     plt.savefig('percent_detections.png')
 
-def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
-             visual_output=False,confidence_threshold=0.9,manual_verification=True,n_objects_per_image=5,trainfile='augmentations.txt'):
+def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True,jsonfile='rio.json'):
     '''
-    get olympics positives above threshold and implant those into unpopulated backgrounds.
+    get olympics positives above conf threshold and put them into json
     :param csvfile:
     :param imagedir:
     :param visual_output:
@@ -639,7 +639,7 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
     That json can then be used to generate yolo or frcnn training files
     '''
 
-    annotations = []
+    all_annotations = []
     all_bbs=[]
     current_file = inspect.stack()[0][1]
     current_dir = os.path.dirname(current_file)
@@ -657,13 +657,13 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
                 full_name = os.path.join(imagedir,filename)
             else:
                 full_name = filename
-            annotation_dict['filename']=full_name
+
             im = cv2.imread(full_name)
             if im is None:
                 print('couldnt read '+filename)
                 continue
-            print row
-            im_h,im_w=im.shape[0:2]
+  #          print row
+            im_h,im_w,im_c=im.shape
             bbx=int(row["boundingBoxX"])*im_w/100
             bby=int(row["boundingBoxY"])*im_h/100
             bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
@@ -672,112 +672,132 @@ def generate_training_from_olympic_positives(csvfile='/data/olympics/olympicsful
             y=max(0,bby)
             bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
 
-            for a in annotations:
-                if a['filename'] == full_name:
-                    a['annotations'].append(annotation_dict)
-
-
-            bgnd_filename = sId+'_median.jpg'
-            bgnd_fullpath = os.path.join(current_dir,bgnd_filename)
-            bgnd_img_arr = cv2.imread(bgnd_fullpath)
-            if bgnd_img_arr is None:
-                print('got none for bgnd image {}'.format(bgnd_fullpath))
-                continue
-            all_bbs.append(bb)
-            if bb[2]==0 or bb[3] == 0 :
-                print('got 0 width or height')
-                continue
-            roy_object = row['description']
-            tg_object=convert_roy_description_to_tg(roy_object)
-            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY']))
-
-            #transfer the bb'd pixels onto the unpopulated background
-            bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=im[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
-            if visual_output:
-                magnify = 3
-#                cv2.imwrite(savename,bb_img)
-                bgndcopy = copy.copy(bgnd_img_arr)
-                im = cv2.resize(im,(magnify*im_w,magnify*im_h))
-                bgndcopy = cv2.resize(bgndcopy,(magnify*im_w,magnify*im_h))
-                cv2.rectangle(im,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[255,0,100],thickness=2)
-                cv2.imshow('full',im)
-                cv2.imshow('bgnd w object',bgnd_img_arr)
-                #cv2.waitKey(0)
-                print('(a)ccept , any other key to not accept')
-                k=cv2.waitKey(0)
-            if manual_verification:
-                if k == ord('a'):
-                    pass
-            else:
-                with open(trainfile,'a+') as fp:
-                    json.dump(out,fp,indent=4)
-                    fp.close()
-
-def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
-             visual_output=False,confidence_threshold=0.95,manual_verification=True,jsonfile='olympics.json'):
-    '''
-    store the results for this as  a json similar to the one we return as answer to hls api but with the stream Id (sId) for example:
-    [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]],'sId':105},
-    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],'sId',105} ,...]
-    That json can then be used to generate yolo or frcnn training files
-    '''
-
-    all_annotations = []
-    with open(csvfile, "rb") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if float(row['confidence'])<confidence_threshold:
-                print('too low confidence '+str(row['confidence']))
-                continue
-            filename = row['path']
-            sId = row['streamId']
-            if imagedir is not None:
-                full_name = os.path.join(imagedir,filename)
-            else:
-                full_name = filename
-            im = cv2.imread(full_name)
-            if im is None:
-                print('couldnt read '+filename)
-                continue
-            print row
-
-            im_h,im_w=im.shape[0:2]
-            bbx=int(row["boundingBoxX"])*im_w/100
-            bby=int(row["boundingBoxY"])*im_h/100
-            bbx2=int(row["boundingBoxWidth"])*im_w/100 #* (im_w-bbx)/100
-            bby2=int(row["boundingBoxHight"])*im_h/100 #* (im_h-bby)/100
-            x=max(0,bbx)
-            y=max(0,bby)
-            bb = [x,y,bbx2-bbx,bby2-bby]  #xywh
-
-            roy_object = row['description']
-            tg_object=convert_roy_description_to_tg(roy_object)
-
-            annotation_dict = {}
             annotation_dict['filename']=full_name
-            annotation_dict['sId']=int(sId)
-            annotation_dict['annotations']==[]
-
-            object_dict = {}
-            object_dict['bbox_xywh']==bb
-            object_dict['object']==tg_object
-
-            #check if this image is already in json dict
+            annotation_dict['annotations']=[]
+            annotation_dict['dimensions_h_w_c'] = im.shape
+            annotation_dict['sId'] = sId
+            #check if file has already been seen and a dict started, if so use that instead
+            file_already_in_json = False
             for a in all_annotations:
                 if a['filename'] == full_name:
-                    a['annotations'].append(object_dict)
-                    annotation_dict = a
+                    annotation_dict=a
+                    file_already_in_json = True
+                    break
+
+            roy_object = row['description']
+            tg_object=convert_roy_description_to_tg(roy_object)
+            print('im_w {} im_h {} bb {} object {} tgobj {} bbx {} bby {}  bbx2 {} bby2 {}'.format(im_w,im_h,bb,roy_object,tg_object,row['boundingBoxX'],row['boundingBoxY'],bbx2,bby2))
+            object_dict={}
+            object_dict['bbox_xywh'] = bb
+            object_dict['object']=tg_object
+
+            if visual_output or manual_verification:
+                im = imutils.bb_with_text(im,bb,tg_object)
+                magnify = 3
+                im = cv2.resize(im,(magnify*im_w,magnify*im_h))
+                cv2.imshow('full',im)
+                cv2.waitKey(0)
+                print('(a)ccept , any other key to not accept')
+                k=cv2.waitKey(0)
+                if manual_verification:
+                    if k == ord('a'):
+                        annotation_dict['annotations'].append(object_dict)
+                    else:
+                        continue #dont add bb to list, go to next csv line
+            if not manual_verification:
+                annotation_dict['annotations'].append(object_dict)
             print('annotation dict:'+str(annotation_dict))
-            all_annotations.append(annotation_dict)
+            if not file_already_in_json: #add new file to all_annotations
+                all_annotations.append(annotation_dict)
+            else:  #update current annotation with new bb
+                for a in all_annotations:
+                    if a['filename'] == full_name:
+                        a=annotation_dict
+     #       print('annotation dict:'+str(annotation_dict))
+            print('# files:'+str(len(all_annotations)))
+           # raw_input('ret to cont')
 
     with open(jsonfile,'w') as fp:
         json.dump(all_annotations,fp,indent=4)
         fp.close()
 
+def inspect_json(jsonfile='rio.json'):
+    '''
+        read file like:
+        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
+    :param jsonfile:
+    :return:
+    '''
+    object_counts = {}
+    with open(jsonfile,'r') as fp:
+        annotation_list = json.load(fp)
+    for d in annotation_list:
+#        print d
+        filename = d['filename']
+        annotations = d['annotations']
+        sid = d['sId']
+        n_bbs = len(annotations)
+        print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
+        for annotation in annotations:
+            object = annotation['object']
+            if not object in object_counts:
+                object_counts[object] = 1
+            else:
+                object_counts[object] = object_counts[object] + 1
+    print('n annotated files {}'.format(len(annotation_list)))
+    print('bb counts by category {}'.format(object_counts))
+
+
+def implant_on_original_background(json_file,visual_output=False,out_suffix='augmented'):
+    #put positive on depopulated background (generated elsewhere)
+    current_file = inspect.stack()[0][1]
+    current_dir = os.path.dirname(current_file)
+    print('current file {} dir {}'.format(current_file,current_dir))
+    with open(json_file,'r') as fp:
+        annotation_list = json.load(fp)
+    for d in annotation_list:
+        print d
+        filename = d['filename']
+        annotations = d['annotations']
+        sid = d['sId']
+        print('file {}\nannotations {}\nsid {}'.format(filename,annotations,sid))
+        median_name = str(sid)+'_median.jpg'
+        median_path = os.path.join(current_dir,median_name)
+        bgnd_img_arr = cv2.imread(median_path)
+        if bgnd_img_arr is None:
+            print('got none for bgnd image {}'.format(median_path))
+            continue
+        orig_img = cv2.imread(filename)
+        if orig_img is None:
+            print('got none for orig image {}'.format(orig_img))
+            continue
+        bgnd_copy = copy.copy(bgnd_img_arr)
+        for annotation in annotations:
+            bb = annotation['bbox_xywh']
+            #transfer the bb'd pixels onto the unpopulated background
+            bgnd_img_arr[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]=orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+            bgnd_copy[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]   =orig_img[bb[1]:bb[1]+bb[3],bb[0]:bb[0]+bb[2]]
+            cv2.rectangle(bgnd_copy,(bb[0],bb[1]),(bb[1]+bb[3]),color=[255,0,100],thickness=2)
+        if visual_output:
+            cv2.imshow('implanted',bgnd_img_arr)
+            cv2.imshow('orig',orig_img)
+            cv2.imshow('implanted w rectangle',bgnd_copy)
+            cv2.waitKey(0)
+        out_filename = filename.replace('.png','_augmented.png').replace('.jpg','_augmented.jpg')
+        cv2.imwrite(out_filename,bgnd_img_arr)
+
+
+
+
 def convert_roy_description_to_tg(roy_description):
 #    hls_yolo_categories = ['person','person_wearing_hat','person_wearing_backpack','person_holding_bag',
 #                       'man_with_red_shirt','man_with_blue_shirt',
 #                       'car','van','truck','unattended_bag']
+
+#hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
+#                       'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
+
 
     OLYMPICS_CLASSES = ['street_style-man', 'street_style-vehicle-private_car', 'street_style-vehicle-suv_jeep',
                         'street_style-vehicle-van', 'street_style-from_above-private_car', 'street_style-vehicle-pickup_truck',
@@ -788,15 +808,16 @@ def convert_roy_description_to_tg(roy_description):
                    'street_style-vehicle-private-car':'car',
                    'street_style-vehicle-private_car':'car',
                    'street_style-vehicle-suv_jeep':'truck',
-                   'street_style-vehicle-van':'van',
+                   'street_style-vehicle-van':'bus',
                    'street_style-from_above-private_car':'car',
                    'street_style-vehicle-pickup_truck':'truck',
                    'street_style-man-supermarket_cart':None,
                    'street_style-man-red_top':'person_wearing_red_shirt',
-                   'street_style-man-with_hat':'person_wearing_hat',
+                   'street_style-man-with_hat':'hat',
                    'street_style-man-blue_top':'person_wearing_blue_shirt',
-                   'street_style-man-backpack':'person_wearing_backpack',
-                   'street_style-man-bag_in_hand':'person_holding_bag'}
+                   'street_style-man-backpack':'backpack',
+                   'street_style-man-bag_in_hand':'bag'}
+
     if not roy_description in conversions:
         print('did not find {} in conversions from roy to tg cats'.format(roy_description))
         raw_input('!!')
