@@ -627,7 +627,7 @@ def overlaps_file_to_histogram(overlaps_file = 'results.txt'):
 def olympics_to_json(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
              visual_output=False,confidence_threshold=0.9,manual_verification=True,jsonfile='rio.json'):
     '''
-    get olympics positives above conf threshold and put them into json
+    get olympics positives above conf threshold and put them into json #
     :param csvfile:
     :param imagedir:
     :param visual_output:
