@@ -117,7 +117,7 @@ for _ in range(1000000):
     for i in range(n_iter):
         solver.step(steps_per_iter)
 #        loss = solver.net.blobs['score'].data
-        loss = solver.net.blobs['loss'].data
+        loss = solver.net.blobs['score'].data
         print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
         loss_avg[i] = loss
         losses.append(loss)

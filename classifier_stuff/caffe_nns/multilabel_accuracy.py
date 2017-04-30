@@ -714,10 +714,11 @@ def open_html(modelname,dir=None,solverproto='',caffemodel='',classlabels = cons
         g.write('<th>')
         g.write('fw avg.')
         g.write('</th>\n')
-        for i in range(len(classlabels)):
-            g.write('<th>')
-            g.write(classlabels[i])
-            g.write('</th>\n')
+        if classlabels:
+            for i in range(len(classlabels)):
+                g.write('<th>')
+                g.write(classlabels[i])
+                g.write('</th>\n')
         g.write('</tr>\n')
 
 #        g.write('</table><br>')

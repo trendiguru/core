@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
 import cv2
+from PIL import Image
 
 
 def plotImage(outFile):
@@ -25,12 +26,28 @@ def plotImage(outFile):
     # print "red channel: {}".format(red)
     # # print "nir channel: {}".format(nir)
 
-    nir = full_image[:, :, 2, 0]
-    print "nir channel: {}".format(nir)
+    # nir = full_image[:, :, 2, 0]
+    # print "nir channel: {}".format(nir)
+    print "full_image: {}".format(full_image)
 
 
     img      = io.imread(fileName)
     numBands = img.shape[-1]
+
+    print "img: {}".format(img)
+
+    im = Image.open(fileName)
+    im = im.convert("L")
+    im = np.asarray(im)
+
+    print "im: {}".format(im)
+
+    # im.show()
+    # im.tostring()
+
+
+
+
 
     print "numBands: {0}".format(numBands)
 
