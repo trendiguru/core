@@ -11,13 +11,13 @@ import cv2
 import sys
 import re
 import pdb
-
+import csv
 import xml.etree.ElementTree as ET
 import pickle
 import os
 from os import listdir, getcwd
 from os.path import join
-
+import json
 
 
 from trendi import Utils
@@ -466,6 +466,136 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
             fp.write(line)
         fp.close()
 
+def udacity_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-detection-crowdai',image_dir='/data/jeremy/image_dbs',classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None):
+    '''
+    read udaicty csv to grab files here
+    https://github.com/udacity/self-driving-car/tree/master/annotations
+    pedestrians, cars, trucks (and trafficlights in second one)
+    udacity file looks like:
+    xmin,ymin,xmax,ymax,Frame,Label,Preview URL
+    785,533,905,644,1479498371963069978.jpg,Car,http://crowdai.com/images/Wwj-gorOCisE7uxA/visualize
+    create the 'usual' tg dict for bb's , also write to json while we're at it
+    [ {
+        "dimensions_h_w_c": [360,640,3],
+        "filename": "/data/olympics/olympics/9908661.jpg"
+        "annotations": [
+            {
+               "bbox_xywh": [89, 118, 64,44 ],
+                "object": "car"
+            }
+        ],   }, ...
+
+    :param udacity_csv:
+    :param label_dir:
+    :param classes:
+    :return:
+    '''
+
+    all_annotations = []
+    print('opening udacity csv file {} '.format(udacity_csv))
+    with open(udacity_csv, "rb") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row[0]== '#':
+                pass #comment row
+            fields = row.split(',')
+            xmin,ymin,xmax,ymax,frame,label,preview_url=fields
+            xmin=int(xmin)
+            ymin=int(ymin)
+            xmax=int(xmax)
+            ymax=int(ymax)
+            label=label.lower()
+            try:
+                assert(xmax>xmin)
+                assert(ymax>ymin)
+            except:
+                print('problem with order of x/y min/max')
+                print('xmin {} ymin {} xmax {} ymax {} '.format(xmin,ymin,xmax,ymax))
+                continue
+            filename = frame
+            if image_dir is not None:
+                full_name = os.path.join(image_dir,filename)
+            else:
+                full_name = filename
+
+            im = cv2.imread(full_name)
+            if im is None:
+                print('couldnt open '+full_name)
+
+            im_h,im_w=im.shape[0:2]
+            print('file {} xmin {} ymin {} xmax {} ymax {} object {}'.format(full_name,xmin,ymin,xmax,ymax,label))
+
+            annotation_dict = {}
+            bb = [xmin,ymin,xmax-xmin,ymax-ymin]  #xywh
+
+            annotation_dict['filename']=full_name
+            annotation_dict['annotations']=[]
+            annotation_dict['dimensions_h_w_c'] = im.shape
+            #check if file has already been seen and a dict started, if so use that instead
+            file_already_in_json = False
+            #this is prob a stupid slow way to check
+            for a in all_annotations:
+                if a['filename'] == full_name:
+                    annotation_dict=a
+                    file_already_in_json = True
+                    break
+
+            tg_object=convert_udacity_label_to_tg(label)
+            print('im_w {} im_h {} bb {} object {} tgobj {} '.format(im_w,im_h,bb,label,tg_object))
+            object_dict={}
+            object_dict['bbox_xywh'] = bb
+            object_dict['object']=tg_object
+
+            if visual_output or manual_verification:
+                im = imutils.bb_with_text(im,bb,tg_object)
+                magnify = 3
+                im = cv2.resize(im,(magnify*im_w,magnify*im_h))
+                cv2.imshow('full',im)
+                cv2.waitKey(0)
+                print('(a)ccept , any other key to not accept')
+                k=cv2.waitKey(0)
+                if manual_verification:
+                    if k == ord('a'):
+                        annotation_dict['annotations'].append(object_dict)
+                    else:
+                        continue #dont add bb to list, go to next csv line
+            if not manual_verification:
+                annotation_dict['annotations'].append(object_dict)
+           # print('annotation dict:'+str(annotation_dict))
+            if not file_already_in_json: #add new file to all_annotations
+                all_annotations.append(annotation_dict)
+            else:  #update current annotation with new bb
+                for a in all_annotations:
+                    if a['filename'] == full_name:
+                        a=annotation_dict
+     #       print('annotation dict:'+str(annotation_dict))
+            print('# files:'+str(len(all_annotations)))
+           # raw_input('ret to cont')
+
+    if jsonfile == None:
+        jsonfile = udacity_csv.replace('.csv','.json')
+    with open(jsonfile,'w') as fp:
+        json.dump(all_annotations,fp,indent=4)
+        fp.close()
+
+    return all_annotations
+
+
+def convert_udacity_label_to_tg(udacity_label):
+#    hls_yolo_categories = ['person','person_wearing_hat','person_wearing_backpack','person_holding_bag',
+#                       'man_with_red_shirt','man_with_blue_shirt',
+#                       'car','van','truck','unattended_bag']
+#udacity: Car Truck Pedestrian
+
+    conversions = {'pedestrian':'person',
+                   'car':'car',
+                   'truck':'truck'}
+    if not udacity_label in conversions:
+        print('did not find {} in conversions from roy to tg cats'.format(roy_description))
+        raw_input('!!')
+        return(None)
+    tg_description = conversions[udacity_label]
+    return(tg_description)
 
 def convert_x1x2y1y2_to_yolo(size, box):
     dw = 1./(size[0])
