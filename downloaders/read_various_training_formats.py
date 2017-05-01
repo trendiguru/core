@@ -189,8 +189,9 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     print('{} files w filter {} in {}'.format(len(files),filter,image_dir))
     if check_for_bbfiles:
         if bb_dir == None:
-            bb_dir = os.path.join(Utils.parent_dir(image_dir),os.path.basename(image_dir)+'labels')
-        print('checkin for bbs in '+bb_dir)
+            labeldir = os.path.basename(image_dir)+'labels'
+            bb_dir = os.path.join(Utils.parent_dir(image_dir),labeldir)
+        print('checkin for bbs in '+bb_dir+' leafdir '+str(labeldir))
     if len(files) == 0:
         print('no files fitting {} in {}, stopping'.format(filter,image_dir))
         return
