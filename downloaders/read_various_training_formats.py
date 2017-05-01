@@ -477,14 +477,19 @@ def udacity_csv_to_yolo(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/objec
     inspect_json()
 
 def parse_udacity(row):
-    xmin=row['xmin']
-    xmax=row['ymin']
-    ymin=row['xmax']
-    ymax=row['ymax']
+    xmin=int(row['xmin'])
+    xmax=int(row['ymin'])
+    ymin=int(row['xmax'])
+    ymax=int(row['ymax'])
     frame=row['Frame']  #aka filename
     label=row['Label']
+    label=label.lower()
     preview_url=row['Preview URL']
-    return xmin,xmax,ymin,ymax,frame,label
+    tg_object=convert_udacity_label_to_tg(label)
+    if tg_object is None:
+        #label didnt get xlated so its something we dont care about e.g streetlight
+        print('object {} is not of interest'.format(label))
+    return xmin,xmax,ymin,ymax,frame,tg_object
 
 def parse_autti(row,delimiter=' '):
     #these parse guys should also have the translator (whatever classes into tg classes
@@ -499,6 +504,8 @@ def parse_autti(row,delimiter=' '):
     ymax=int(elements[4])
     #something i'm ignoring in row[5]
     label=elements[6].replace('"','').replace("'","").replace('\n','').replace('\t','')
+    label=label.lower()
+
     assert(xmin<xmax)
     assert(ymin<ymax)
     tg_object=convert_udacity_label_to_tg(label)
@@ -507,7 +514,7 @@ def parse_autti(row,delimiter=' '):
         print('object {} is not of interest'.format(label))
     return xmin,xmax,ymin,ymax,filename,tg_object
 
-def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv',image_dir=None,classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None,parsemethod=parse_autti,delimiter='\t',readmode='r'):
+def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv',image_dir=None,classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None,parsemethod=parse_udacity,delimiter='\t',readmode='r'):
     '''
     read udaicty csv to grab files here
     https://github.com/udacity/self-driving-car/tree/master/annotations
@@ -543,9 +550,8 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
   #  with open(udacity_csv, newline='') as file:
     with open(udacity_csv,readmode) as file:
  #   with open('eggs.csv', newline='') as csvfile:
-
-
-        reader = csv.DictReader(file,delimiter=delimiter, quotechar='|')
+##        reader = csv.DictReader(file,delimiter=delimiter, quotechar='|')
+        reader = csv.DictReader(file)
         for row in reader:
             print('row'+str(row))
             try:
@@ -554,11 +560,6 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
             except:
                 print('trouble getting row '+str(row))
                 continue
-            xmin=int(xmin)
-            ymin=int(ymin)
-            xmax=int(xmax)
-            ymax=int(ymax)
-            label=label.lower()
             try:
                 assert(xmax>xmin)
                 assert(ymax>ymin)
@@ -571,22 +572,18 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
                 ymint=min(ymin,ymax)
                 ymax=max(ymin,ymax)
                 ymin=ymint
-            filename = frame
+            bb = [xmin,ymin,xmax-xmin,ymax-ymin]  #xywh
             if image_dir is not None:
                 full_name = os.path.join(image_dir,filename)
             else:
                 full_name = filename
-
             im = cv2.imread(full_name)
             if im is None:
                 print('couldnt open '+full_name)
                 continue
             im_h,im_w=im.shape[0:2]
-            print('file {} xmin {} ymin {} xmax {} ymax {} object {}'.format(full_name,xmin,ymin,xmax,ymax,label))
 
             annotation_dict = {}
-            bb = [xmin,ymin,xmax-xmin,ymax-ymin]  #xywh
-
             annotation_dict['filename']=full_name
             annotation_dict['annotations']=[]
             annotation_dict['dimensions_h_w_c'] = im.shape
@@ -598,18 +595,13 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
                     annotation_dict=a
                     file_already_in_json = True
                     break
-
-            tg_object=convert_udacity_label_to_tg(label)
-            print('im_w {} im_h {} bb {} object {} tgobj {} '.format(im_w,im_h,bb,label,tg_object))
-            if tg_object is None:
-                print('object {} isnt of interest'.format(label))
-                continue
+#            print('im_w {} im_h {} bb {} label {}'.format(im_w,im_h,bb,label))
             object_dict={}
             object_dict['bbox_xywh'] = bb
-            object_dict['object']=tg_object
+            object_dict['object']=label
 
             if visual_output or manual_verification:
-                im = imutils.bb_with_text(im,bb,tg_object)
+                im = imutils.bb_with_text(im,bb,label)
                 magnify = 1
                 im = cv2.resize(im,(int(magnify*im_w),int(magnify*im_h)))
                 cv2.imshow('full',im)
@@ -685,11 +677,7 @@ def txt_to_tgdict(txtfile='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/
             except:
                 print('trouble getting row '+str(row))
                 continue
-            xmin=int(xmin)
-            ymin=int(ymin)
-            xmax=int(xmax)
-            ymax=int(ymax)
-            label=label.lower()
+
             try:
                 assert(xmax>xmin)
                 assert(ymax>ymin)
@@ -712,7 +700,6 @@ def txt_to_tgdict(txtfile='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/
                 print('couldnt open '+full_name)
                 continue
             im_h,im_w=im.shape[0:2]
-            print('file {} xmin {} ymin {} xmax {} ymax {} object {}'.format(full_name,xmin,ymin,xmax,ymax,label))
 
             annotation_dict = {}
             bb = [xmin,ymin,xmax-xmin,ymax-ymin]  #xywh
@@ -728,8 +715,6 @@ def txt_to_tgdict(txtfile='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/
                     annotation_dict=a
                     file_already_in_json = True
                     break
-
-            print('im_w {} im_h {} bb {} object {} tgobj {} '.format(im_w,im_h,bb,label,tg_object))
             object_dict={}
             object_dict['bbox_xywh'] = bb
             object_dict['object']=label
@@ -831,7 +816,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
 
 
 
-def inspect_json(jsonfile='rio.json',visual_output=False):
+def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True):
     '''
         read file like:
         [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
@@ -852,12 +837,27 @@ def inspect_json(jsonfile='rio.json',visual_output=False):
             sid = d['sId']
         n_bbs = len(annotations)
         print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
+        if check_img_existence:
+            if not os.path.exists(filename):
+                print('WARNNING could not find '+filename+' WARNING')
+        if visual_output:
+            img_arr = cv2.imread(filename)
+            if img_arr is None:
+                print('WARNNING could not read '+filename+' WARNING')
+
         for annotation in annotations:
             object = annotation['object']
+            bb_xywh = annotation['bb_xywh']
+            if visual_output:
+                imutils.bb_with_text(img_arr,bb_xywh,object)
             if not object in object_counts:
                 object_counts[object] = 1
             else:
                 object_counts[object] = object_counts[object] + 1
+        if visual_output:
+            cv2.imshow(img_arr)
+            cv2.waitKey(0)
+
     print('n annotated files {}'.format(len(annotation_list)))
     print('bb counts by category {}'.format(object_counts))
 
