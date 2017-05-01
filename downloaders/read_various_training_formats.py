@@ -136,7 +136,7 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
         cv2.destroyAllWindows()
 
 
-def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None):
+def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None,overwrite=True):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
@@ -158,7 +158,11 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     img_basename = os.path.basename(img_path)
     img_basename = img_basename.replace('.jpg','.txt').replace('.png','.txt').replace('.bmp','.txt')
     destination_path=os.path.join(destination_dir,img_basename)
-    with open(destination_path,'w+') as fp:
+    if overwrite:
+        write_mode = 'w'
+    else:
+        write_mode = 'a'
+    with open(destination_path,write_mode) as fp:
         for bb_xywh in bb_list_xywh:
             x_center = bb_xywh[0]+bb_xywh[2]/2.0
             y_center = bb_xywh[1]+bb_xywh[3]/2.0
@@ -439,10 +443,12 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
     '''
     img_filename = tg_dict['filename']
     annotations = tg_dict['annotations']
-    sid = tg_dict['sId']
+    sid = None
+    if 'sid' in tg_dict:
+        sid = tg_dict['sId']
     dims = tg_dict['dimensions_h_w_c']
     im_h,im_w=(dims[0],dims[1])
-    print('file {}\nannotations {}\nsid {}'.format(img_filename,annotations,sid))
+    print('file {}\nannotations {}'.format(img_filename,annotations))
     if label_dir is None:
         img_parent = Utils.parent_dir(os.path.dirname(img_filename))
         img_diralone = os.path.dirname(img_filename).split('/')[-1]
@@ -543,7 +549,7 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
     :param classes:
     :return:
     '''
-
+#todo this can be combined with the txt_to_tgdict probably, maybe usin csv.reader instead of csv.dictread
 #    spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
 #...     for row in spamreader:
 #...         print ', '.join(row)
@@ -557,7 +563,10 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
  #   with open('eggs.csv', newline='') as csvfile:
 ##        reader = csv.DictReader(file,delimiter=delimiter, quotechar='|')
         reader = csv.DictReader(file)
+        n_rows = 0
+        max_annotations=10**10
         for row in reader:
+            n_rows += 1
             print('row'+str(row))
             try:
                 xmin,xmax,ymin,ymax,filename,label=parsemethod(row)
@@ -631,6 +640,8 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
                         a=annotation_dict
      #       print('annotation dict:'+str(annotation_dict))
             print('# files:'+str(len(all_annotations)))
+            if len(all_annotations)>max_annotations:
+                break #  for debugging, these files are ginormous
            # raw_input('ret to cont')
 
     if jsonfile == None:
@@ -822,7 +833,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
 
 
 
-def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True):
+def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True,movie=False):
     '''
         read file like:
         [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
@@ -835,6 +846,15 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
     print('inspecting json annotations in '+jsonfile)
     with open(jsonfile,'r') as fp:
         annotation_list = json.load(fp)
+
+
+# Define the codec and create VideoWriter object
+    if movie:
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter('output.mp4',fourcc, 20.0, (640,480))
+#        out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+
+
     for d in annotation_list:
 #        print d
         filename = d['filename']
@@ -854,7 +874,7 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
         for annotation in annotations:
             object = annotation['object']
-            bb_xywh = annotation['bb_xywh']
+            bb_xywh = annotation['bbox_xywh']
             if visual_output:
                 imutils.bb_with_text(img_arr,bb_xywh,object)
             if not object in object_counts:
@@ -862,11 +882,19 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
             else:
                 object_counts[object] = object_counts[object] + 1
         if visual_output:
-            cv2.imshow(img_arr)
+            cv2.imshow('out',img_arr)
             cv2.waitKey(0)
+            if movie:
+                out.write(img_arr)
+
 
     print('n annotated files {}'.format(len(annotation_list)))
     print('bb counts by category {}'.format(object_counts))
+    if visual_output:
+        cv2.destroyAllWindows()
+
+    if movie:
+        out.release()
 
 
 
