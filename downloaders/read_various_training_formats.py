@@ -189,7 +189,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     print('{} files w filter {} in {}'.format(len(files),filter,image_dir))
     if check_for_bbfiles:
         if bb_dir == None:
-            bb_dir = os.path.join(Utils.parent_dir(image_dir),'labels')
+            bb_dir = os.path.join(Utils.parent_dir(image_dir),os.path.basename(image_dir)+'labels')
         print('checkin for bbs in '+bb_dir)
     if len(files) == 0:
         print('no files fitting {} in {}, stopping'.format(filter,image_dir))
@@ -472,6 +472,8 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
         fp.close()
 
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
+    #to deal with driving file from autti
+#   wget  http://bit.ly/udacity-annotations-autti
     all_annotations = txt_to_tgdict(txtfile=autti_txt,image_dir=None,parsemethod=parse_autti)
     for tg_dict in all_annotations:
         write_yolo_from_tgdict(tg_dict)
@@ -480,6 +482,9 @@ def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-da
     inspect_json(json_name)
 
 def udacity_csv_to_yolo(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-detection-crowdai/labels.csv'):
+# to deal with driving  file from udacity -
+#  wget http://bit.ly/udacity-annoations-crowdai
+
     all_annotations = csv_to_tgdict(udacity_csv=udacity_csv,parsemethod=parse_udacity)
     for tg_dict in all_annotations:
         write_yolo_from_tgdict(tg_dict)
@@ -529,6 +534,7 @@ def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-data
     '''
     read udaicty csv to grab files here
     https://github.com/udacity/self-driving-car/tree/master/annotations
+
     pedestrians, cars, trucks (and trafficlights in second one)
     udacity file looks like:
     xmin,ymin,xmax,ymax,Frame,Label,Preview URL
