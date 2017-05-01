@@ -470,11 +470,16 @@ def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-da
     for tg_dict in all_annotations:
         write_yolo_from_tgdict(tg_dict)
 
+    json_name = autti_txt.replace('.csv','.json')
+    inspect_json(json_name)
+
 def udacity_csv_to_yolo(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-detection-crowdai/labels.csv'):
     all_annotations = csv_to_tgdict(udacity_csv=udacity_csv,parsemethod=parse_udacity)
     for tg_dict in all_annotations:
         write_yolo_from_tgdict(tg_dict)
-    inspect_json()
+
+    json_name = udacity_csv.replace('.csv','.json')
+    inspect_json(json_name)
 
 def parse_udacity(row):
     xmin=int(row['xmin'])
@@ -791,6 +796,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
     classes = constants.hls_yolo_categories
+    print('inspecting yolo annotations in '+dir)
     for f in annotation_files:
         print('trying '+f)
         annotation_base = os.path.basename(f)
@@ -826,6 +832,7 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
     '''
     #todo add visual inspect here
     object_counts = {}
+    print('inspecting json annotations in '+jsonfile)
     with open(jsonfile,'r') as fp:
         annotation_list = json.load(fp)
     for d in annotation_list:
