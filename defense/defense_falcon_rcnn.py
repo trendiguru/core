@@ -129,8 +129,8 @@ class HLS:
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
             fp.close()
-        with open(saved_detections,'w') as fp2:
-            lines = fp2.writelines(lines)
+        with open(saved_detections,'w') as fp2: #copy into another file w unique name so we can delete original
+            fp2.writelines(lines)
             fp2.close()
         os.remove(detections_path)
 
@@ -143,7 +143,7 @@ class HLS:
             xmax=int(xmax)
             ymin=int(ymin)
             ymax=int(ymax)
-            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax]}
+            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             if label == 'person':
                 cropped_image = img_arr[ymin:ymax, xmin:xmax]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
