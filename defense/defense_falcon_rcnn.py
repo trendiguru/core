@@ -7,13 +7,15 @@ nvidia-docker run -it -v /data:/data -p 8082:8082 --name frcnn eu.gcr.io/test-pa
 import traceback
 import falcon
 from falcon_cors import CORS
+import subprocess
 import os
 import cv2
 import numpy as np
 #this file has to go in the rcnn folder
 import defense_rcnn
 import requests
-
+import hashlib
+import time
 from jaweson import json, msgpack
 
 from trendi import constants
@@ -45,6 +47,7 @@ class HLS:
         r_x2 = req.get_param_as_int("x2")
         r_y1 = req.get_param_as_int("y1")
         r_y2 = req.get_param_as_int("y2")
+        net = req.get_param("net")
 
         if not image_url:
             print('get request:' + str(req) + ' is missing imageUrl param')
@@ -56,7 +59,15 @@ class HLS:
                 if r_x1 or r_x2 or r_y1 or r_y2:
                     img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                     print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-                detected = self.detect(img_arr, url=image_url)
+                #which net to use - yolo or rcnn, default to yolo
+                if not net:
+                    detected = self.detect_yolo(img_arr, url=image_url)
+                elif net == "yolo":
+                    detected = self.detect_yolo(img_arr, url=image_url)
+                elif net == "rcnn":
+                    detected = self.detect_rcnn(img_arr, url=image_url)
+                else:
+                    detected = self.detect_yolo(img_arr, url=image_url)
                 if (r_x1, r_y1) != (0, 0):
                     for obj in detected:
                         try:
@@ -94,9 +105,54 @@ class HLS:
             raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
 
 
-    def detect(self, img_arr, url=''):
+    def detect_yolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
+        #RETURN dict like: ({'object':class_name,'bbox':bbox,'confidence':round(float(score),3)})
+ #  relevant_bboxes.append({'object':class_name,'bbox':bbox,'confidence':round(float(score),3)})
+
+
+        print('started defense_falcon_rcnn.detect_yolo')
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        img_filename = hash.hexdigest()[:10]
+      #  img_filename = 'incoming.jpg'
+        cv2.imwrite(img_filename,img_arr)
+        yolo_path = '/data/jeremy/darknet_python/darknet'
+        cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
+        weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
+        detections_path = '/data/jeremy/darknet_python/detections.txt'
+        cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
+        subprocess.call(cmd, shell=True)  #blocking call
+        relevant_bboxes = []
+        with open(detections_path,'r') as fp:
+            lines = fp.readlines()
+        for line in lines:
+            label,confidence,xmin,ymin,xmax,ymax = line.split()
+            confidence=float(confidence)
+            xmin=int(xmin)
+            xmax=int(xmax)
+            ymin=int(ymin)
+            ymax=int(ymax)
+            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax]}
+            if label == 'person':
+                cropped_image = img_arr[ymin:ymax, xmin:xmax]
+                # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
+                # get hydra results
+                try:
+                    hydra_output = self.get_hydra_output(cropped_image)
+                    if hydra_output:
+                        item['details'] = hydra_output
+                except:
+                    print "Hydra failed " + traceback.format_exc()
+            relevant_bboxes.append(item)
+        self.write_log(url,relevant_bboxes)
+        print relevant_bboxes
+        return relevant_bboxes
+
+
+
+    def detect_rcnn(self, img_arr, url=''):
+        print('started defense_falcon_rcnn.detect_rcnn')
         detected = defense_rcnn.detect_frcnn(img_arr)
-        print('started defense_falcon_rcnn.detect')
         for item in detected:
             cat = item["object"]
             if cat == "person":
