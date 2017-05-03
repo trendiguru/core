@@ -80,7 +80,7 @@ class HLS:
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
-                raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
+                raise falcon.HTTPBadRequest("Something went wrong in get:(", traceback.format_exc())
 
 
     def on_post(self, req, resp):
@@ -102,7 +102,7 @@ class HLS:
             resp.data = serializer.dumps({"data": detected})
             resp.status = falcon.HTTP_200
         except:
-            raise falcon.HTTPBadRequest("Something went wrong :(", traceback.format_exc())
+            raise falcon.HTTPBadRequest("Something went wrong in post :(", traceback.format_exc())
 
 
     def detect_yolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
@@ -113,7 +113,7 @@ class HLS:
         print('started defense_falcon_rcnn.detect_yolo')
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        img_filename = hash.hexdigest()[:10]
+        img_filename = hash.hexdigest()[:10]+'.jpg'
       #  img_filename = 'incoming.jpg'
         cv2.imwrite(img_filename,img_arr)
         yolo_path = '/data/jeremy/darknet_python/darknet'
