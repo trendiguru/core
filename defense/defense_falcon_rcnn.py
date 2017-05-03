@@ -121,9 +121,14 @@ class HLS:
         cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
         weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
         detections_path = '/data/jeremy/darknet_python/detections.txt'
+        try:
+            os.remove(detections_path)  #this is a temp file to hold current detection - erase then write
+        except:
+            print('file {} doesnt exist'.format(detections_path))
         saved_detections = '/data/jeremy/darknet_python/detections'+hash.hexdigest()[:10]+'.txt'
         cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
         subprocess.call(cmd, shell=True)  #blocking call
+        time.sleep(0.1) #wait for file to get written
         relevant_bboxes = []
         print('save file '+str(img_filename))
         if not os.path.exists(detections_path):
@@ -134,7 +139,6 @@ class HLS:
         with open(saved_detections,'w') as fp2: #copy into another file w unique name so we can delete original
             fp2.writelines(lines)
             fp2.close()
-        os.remove(detections_path)
 
         for line in lines:
             label_index,confidence,xmin,ymin,xmax,ymax = line.split()
