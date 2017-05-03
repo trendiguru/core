@@ -126,6 +126,8 @@ class HLS:
         subprocess.call(cmd, shell=True)  #blocking call
         relevant_bboxes = []
         print('save file '+str(img_filename))
+        if not os.path.exists(detections_path):
+            return {'object':None}
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
             fp.close()
