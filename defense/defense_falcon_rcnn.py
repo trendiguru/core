@@ -84,6 +84,7 @@ class HLS:
 
 
     def on_post(self, req, resp):
+        #NOTE this doesnt run yolo , only frcnn - call detect_yolo instead of detect_frcnnif we need yolo here
         serializer = msgpack
         resp.content_type = "application/x-msgpack"
         try:
@@ -94,7 +95,7 @@ class HLS:
                 r_x1, r_y1, r_x2, r_y2 = roi
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                 print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-            detected = self.detect(img_arr)
+            detected = self.detect_rcnn(img_arr)
             if roi and (r_x1, r_y1) != (0, 0):
                 for obj in detected:
                     x1, y1, x2, y2 = obj["bbox"]
@@ -126,7 +127,9 @@ class HLS:
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
         for line in lines:
-            label,confidence,xmin,ymin,xmax,ymax = line.split()
+            label_index,confidence,xmin,ymin,xmax,ymax = line.split()
+            label_index=int(label_index)
+            label=classes[label_index]
             confidence=float(confidence)
             xmin=int(xmin)
             xmax=int(xmax)
