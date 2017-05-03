@@ -120,12 +120,12 @@ class HLS:
         yolo_path = '/data/jeremy/darknet_python/darknet'
         cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
         weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
-        detections_path = '/data/jeremy/darknet_python/detections.txt'
+        detections_path = 'detections.txt'  #these are getting stored in local dir it seems
         try:
             os.remove(detections_path)  #this is a temp file to hold current detection - erase then write
         except:
             print('file {} doesnt exist'.format(detections_path))
-        saved_detections = '/data/jeremy/darknet_python/detections'+hash.hexdigest()[:10]+'.txt'
+        saved_detections = 'detections'+hash.hexdigest()[:10]+'.txt'
         cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
         subprocess.call(cmd, shell=True)  #blocking call
         time.sleep(0.1) #wait for file to get written
