@@ -121,6 +121,7 @@ class HLS:
         cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
         weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
         detections_path = '/data/jeremy/darknet_python/detections.txt'
+        saved_detections = '/data/jeremy/darknet_python/detections'+hash.hexdigest()[:10]+'.txt'
         cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
         subprocess.call(cmd, shell=True)  #blocking call
         relevant_bboxes = []
@@ -128,6 +129,11 @@ class HLS:
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
             fp.close()
+        with open(saved_detections,'w') as fp2:
+            lines = fp2.write(lines)
+            fp2.close()
+        os.remove(detections_path)
+
         for line in lines:
             label_index,confidence,xmin,ymin,xmax,ymax = line.split()
             label_index=int(label_index)
