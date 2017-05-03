@@ -124,8 +124,10 @@ class HLS:
         cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
         subprocess.call(cmd, shell=True)  #blocking call
         relevant_bboxes = []
+        print('save file '+str(img_filename))
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
+            fp.close()
         for line in lines:
             label_index,confidence,xmin,ymin,xmax,ymax = line.split()
             label_index=int(label_index)
