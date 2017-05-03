@@ -130,7 +130,7 @@ class HLS:
             lines = fp.readlines()
             fp.close()
         with open(saved_detections,'w') as fp2:
-            lines = fp2.write(lines)
+            lines = fp2.writelines(lines)
             fp2.close()
         os.remove(detections_path)
 
