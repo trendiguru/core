@@ -118,8 +118,10 @@ class HLS:
       #  img_filename = 'incoming.jpg'
         cv2.imwrite(img_filename,img_arr)
         yolo_path = '/data/jeremy/darknet_python/darknet'
-        cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
-        weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
+#        cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
+        cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_608.cfg'
+#        weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
+        weights_path = '/data/jeremy/darknet_python/yolo-voc_608_46000.weights'
         detections_path = 'detections.txt'  #these are getting stored in local dir it seems
         try:
             os.remove(detections_path)  #this is a temp file to hold current detection - erase then write
