@@ -181,9 +181,9 @@ class HLS:
 
     def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
-
+        print('started pyyolo detect')
         relevant_items = []
-        yolo_results = pyyolo_results(img_arr)
+        yolo_results = pyyolo_results.detect_yolo_pyyolo(img_arr)
         for item in yolo_results:
             print(item)
 
