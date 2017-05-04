@@ -35,19 +35,19 @@ print "Done with imports"
 
 
 #get yolo net and keep it in mem
-datacfg = 'cfg/coco.data'
-datacfg = 'cfg/coco.data'
-cfgfile = 'cfg/tiny-yolo.cfg'
-weightfile = '../tiny-yolo.weights'
-filename = 'data/person.jpg'
+#datacfg = 'cfg/coco.data'
+datacfg = '/data/jeremy/darknet_python/cfg/coco.data'
+cfgfile = '/data/jeremy/darknet_python/cfg/tiny-yolo.cfg'
+weightfile = '/data/jeremy/darknet_python/tiny-yolo.weights'
+#filename = 'data/person.jpg'
 thresh = 0.24
 hier_thresh = 0.5
+pyyolo.init(datacfg, cfgfile, weightfile)
 # cam = cv2.VideoCapture(-1)
 # ret_val, img = cam.read()
 # print(ret_val)
 # ret_val = cv2.imwrite(filename,img)
 # print(ret_val)
-pyyolo.init(datacfg, cfgfile, weightfile)
 
 # Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
 HYDRA_CLASSIFIER_ADDRESS = "http://hls_hydra:8081/hydra" # constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
@@ -195,7 +195,13 @@ class HLS:
     def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
         # from file
         print('----- test original C using a file')
-        outputs = pyyolo.test(filename, thresh, hier_thresh)
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        img_filename = hash.hexdigest()[:10]+'pyyolo.jpg'
+      #  img_filename = 'incoming.jpg'
+        cv2.imwrite(img_filename,img_arr)
+
+        outputs = pyyolo.test(img_filename, thresh, hier_thresh)
         relevant_bboxes = []
         for output in outputs:
             print(output)
