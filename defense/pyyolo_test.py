@@ -37,25 +37,13 @@ def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
     relevant_bboxes = []
     for output in outputs:
         print(output)
-        elements = output.split()
-        print('elements: '+str(elements))
-        label = elements[0]
-        xmin = int(elements[1])
-        ymin = int(elements[2])
-        xmax = int(elements[3])
-        ymax = int(elements[4])
+        label = output['class']
+        xmin = output['left']
+        ymin = output['top']
+        xmax = output['right']
+        ymax = output['bottom']
         item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
 #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
-        if elements[0] == 'person':
-            cropped_image = img_arr[ymin:ymax, xmin:xmax]
-            # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
-            # get hydra results
-            try:
-                hydra_output = self.get_hydra_output(cropped_image)
-                if hydra_output:
-                    item['details'] = hydra_output
-            except:
-                print "Hydra failed " + traceback.format_exc()
 
         relevant_bboxes.append(item)
     # camera
@@ -75,4 +63,4 @@ def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
     #     i = i + 1
     # free model
     pyyolo.cleanup()
-    return relevant_boxes
+    return relevant_bboxes
