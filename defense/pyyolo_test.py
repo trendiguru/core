@@ -24,7 +24,7 @@ pyyolo.init(datacfg, cfgfile, weightfile)
 
 
 
-def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
+def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
     # from file
     print('----- test original C using a file')
     hash = hashlib.sha1()
