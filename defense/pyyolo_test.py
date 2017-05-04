@@ -1,11 +1,11 @@
 __author__ = 'jeremy'
 
 import pyyolo
-import numpy as np
-import sys
 import cv2
+import hashlib
+import time
 
-
+from trendi import constants
 
 #get yolo net and keep it in mem
 #datacfg = 'cfg/coco.data'
