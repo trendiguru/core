@@ -202,11 +202,11 @@ class HLS:
             elements = output.split()
             print('elements: '+str(elements))
             label = elements[0]
-            xmin = elements[1]
-            ymin = elements[2]
-            xmax = elements[3]
-            ymax = elements[4]
-            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax,'confidence':'>'+str(thresh)}
+            xmin = int(elements[1])
+            ymin = int(elements[2])
+            xmax = int(elements[3])
+            ymax = int(elements[4])
+            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
 #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             if elements[0] == 'person':
                 cropped_image = img_arr[ymin:ymax, xmin:xmax]
@@ -220,7 +220,6 @@ class HLS:
                     print "Hydra failed " + traceback.format_exc()
 
             relevant_bboxes.append(item)
-
         # camera
         # print('----- test python API using a file')
         # i = 1
