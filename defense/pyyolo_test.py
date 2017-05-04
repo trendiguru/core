@@ -4,6 +4,8 @@ import pyyolo
 import cv2
 import hashlib
 import time
+import cv2
+
 
 from trendi import constants
 
@@ -64,3 +66,8 @@ def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
     # free model
     pyyolo.cleanup()
     return relevant_bboxes
+
+if __name__=="__main__":
+    img_arr = cv2.imread('/data/jeremy/image_dbs/bags_for_tags/photo_10006.jpg')
+    res = detect_yolo_pyyolo(img_arr)
+    print(res)
