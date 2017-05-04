@@ -36,8 +36,8 @@ print "Done with imports"
 
 #get yolo net and keep it in mem
 #datacfg = 'cfg/coco.data'
-datacfg = '/data/jeremy/pyyolo/cfg/coco.data'
-cfgfile = '/data/jeremy/pyyolo/cfg/tiny-yolo.cfg'
+datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
+cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
 weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
 #filename = 'data/person.jpg'
 thresh = 0.24
