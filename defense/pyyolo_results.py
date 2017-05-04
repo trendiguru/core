@@ -48,6 +48,9 @@ def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
 #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
 
         relevant_bboxes.append(item)
+
+  #not sure wht the diff is between second method and first
+
     # camera
     # print('----- test python API using a file')
     # i = 1
