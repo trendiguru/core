@@ -12,7 +12,7 @@ from trendi import constants
 #datacfg = 'cfg/coco.data'
 #datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
 datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
-cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_608.cfg'
+cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_544.cfg'
 #cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
 #weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
 weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
