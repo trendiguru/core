@@ -26,7 +26,7 @@ import cv2
 
 
 from trendi import constants
-from trendi.defense import pyyolo_results
+#from trendi.defense import pyyolo_results
 
 # print('falcon is coming form '+str(falcon.__file__))
 # base_dir = os.path.dirname(os.path.realpath(__file__))
