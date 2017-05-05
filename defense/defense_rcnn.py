@@ -47,7 +47,7 @@ NETS = {'vgg16': ('VGG16',
         'zf': ('ZF',
                   'ZF_faster_rcnn_final.caffemodel')}
 
-gpu_id = 1
+gpu_id = 0
 cpu_mode = False
 demo_net = 'vgg16'
 

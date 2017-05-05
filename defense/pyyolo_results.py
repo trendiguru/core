@@ -6,7 +6,6 @@ import hashlib
 import time
 import cv2
 
-
 from trendi import constants
 
 #get yolo net and keep it in mem
@@ -20,7 +19,6 @@ weightfile = '/data/jeremy/darknet_orig/backup608/yolo-voc_544_95000.weights'
 thresh = 0.24
 hier_thresh = 0.5
 pyyolo.init(datacfg, cfgfile, weightfile)
-
 
 
 def detect_yolo_pyyolo(img_arr, url='',classes=constants.hls_yolo_categories):
