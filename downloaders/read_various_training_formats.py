@@ -807,10 +807,12 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
-def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labels',img_folder='JPEGImages',
-                               annotation_filter='.txt',image_filter='.jpg'):
+def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
+                               annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
     annotation_dir = os.path.join(dir,yolo_annotation_folder)
+    verified_dir = os.path.join(dir,verified_folder)
+    Utils.ensure_dir(verified_dir)
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
     classes = constants.hls_yolo_categories
@@ -836,8 +838,18 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/hls_potential/voc2007/
                 img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
                 cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
                 cv2.imshow('img',img_arr)
-            cv2.waitKey(0)
-
+            fp.close()
+            print('(a)ccept, any other key to not accept '+str(f))
+            k=cv2.waitKey(0)
+            if manual_verification:
+                if k == ord('a'):
+                    base = os.path.basename(f)
+                    verified_path = os.path.join(verified_dir,base)
+                    print('accepting images, wriing to '+str(verified_path))
+                    with open(verified_path,'w') as fp2:
+                        fp2.writelines(lines)
+                else:
+                    print('not accepting image')
 
 
 def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True,movie=False):

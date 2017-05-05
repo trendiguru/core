@@ -104,8 +104,8 @@ def read_csv(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/
 
     print('unique descriptions:'+str(unique_descs))
 
-def backpacks(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
-             visual_output=False,confidence_threshold=0.9,manual_verification=True):
+def specific_items(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics/olympics',
+             visual_output=False,confidence_threshold=0.9,manual_verification=True,item='backpack'):
     ''''
     ok the bbx, bby , bbwidth, bbight [sic] are in % of image dims, and bbwidth/height are not width/height but
     rather x2,y2 of the bb
@@ -114,7 +114,7 @@ def backpacks(csvfile='/data/olympics/olympicsfull.csv',imagedir='/data/olympics
     unique_descs=[]
     all_bbs=[]
     if manual_verification:  #write a description line in verified objects file
-        verified_objects_file = 'verified_backpacks.txt'
+        verified_objects_file = 'verified_'+item+'.txt'
         visual_output = True
         with open(verified_objects_file,'a') as fp:
             line = '#filename\tdescription\tx\ty\tw\th\n'

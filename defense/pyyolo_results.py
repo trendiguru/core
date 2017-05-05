@@ -11,18 +11,15 @@ from trendi import constants
 
 #get yolo net and keep it in mem
 #datacfg = 'cfg/coco.data'
-datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
-cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
-weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
-#filename = 'data/person.jpg'
+#datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
+datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
+cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_608.cfg'
+#cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
+#weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
+weightfile = '/data/jeremy/darknet_orig/backup608/yolo-voc_544_95000.weights'
 thresh = 0.24
 hier_thresh = 0.5
 pyyolo.init(datacfg, cfgfile, weightfile)
-# cam = cv2.VideoCapture(-1)
-# ret_val, img = cam.read()
-# print(ret_val)
-# ret_val = cv2.imwrite(filename,img)
-# print(ret_val)
 
 
 
