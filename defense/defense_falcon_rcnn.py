@@ -26,6 +26,8 @@ import cv2
 
 
 from trendi import constants
+from trendi import Utils
+from trendi.utils import imutils
 #from trendi.defense import pyyolo_results
 
 # print('falcon is coming form '+str(falcon.__file__))
@@ -118,38 +120,39 @@ class HLS:
             raise falcon.HTTPBadRequest("Something went wrong in post :(", traceback.format_exc())
 
 
-    def detect_yolo_shell(self, img_arr, url='',classes=constants.hls_yolo_categories):
+    def detect_yolo_shell(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
         #RETURN dict like: ({'object':class_name,'bbox':bbox,'confidence':round(float(score),3)})
  #  relevant_bboxes.append({'object':class_name,'bbox':bbox,'confidence':round(float(score),3)})
-
-
         print('started defense_falcon_rcnn.detect_yolo')
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        img_filename = hash.hexdigest()[:10]+'.jpg'
       #  img_filename = 'incoming.jpg'
-        cv2.imwrite(img_filename,img_arr)
         yolo_path = '/data/jeremy/darknet_python/darknet'
 #        cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_544.cfg'
         cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_608.cfg'
 #        weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
         weights_path = '/data/jeremy/darknet_python/yolo-voc_608_46000.weights'
+        save_path = './results/'
         detections_path = 'detections.txt'  #these are getting stored in local dir it seems
+        img_filename = hash.hexdigest()[:10]+'.jpg'
+        Utils.ensure_dir(save_path)
+        img_path = os.path.join(save_path,img_filename)
+        print('save file '+str(img_path))
+        cv2.imwrite(img_path,img_arr)
         try:
             os.remove(detections_path)  #this is a temp file to hold current detection - erase then write
         except:
             print('file {} doesnt exist'.format(detections_path))
-        saved_detections = 'detections'+hash.hexdigest()[:10]+'.txt'
-        cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_filename
+        cmd = yolo_path+' detect '+cfg_path+' '+weights_path+' '+img_path
         subprocess.call(cmd, shell=True)  #blocking call
         time.sleep(0.1) #wait for file to get written
         relevant_bboxes = []
-        print('save file '+str(img_filename))
         if not os.path.exists(detections_path):
             return {'object':None}
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
             fp.close()
+        saved_detections = img_path.replace('.jpg','.txt')
         with open(saved_detections,'w') as fp2: #copy into another file w unique name so we can delete original
             fp2.writelines(lines)
             fp2.close()
@@ -175,8 +178,16 @@ class HLS:
                 except:
                     print "Hydra failed " + traceback.format_exc()
             relevant_bboxes.append(item)
+            if save_results:
+                imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],label)
+        if save_results:
+            marked_imgname = img_path.replace('.jpg','_bbs.jpg')
+            print('bbs writtten to '+str(marked_imgname))
+            cv2.imwrite(marked_imgname,img_arr)
         self.write_log(url,relevant_bboxes)
+
         print relevant_bboxes
+
         return relevant_bboxes
 
     def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
@@ -186,7 +197,6 @@ class HLS:
         yolo_results = pyyolo_results.detect_yolo_pyyolo(img_arr)
         for item in yolo_results:
             print(item)
-
             if item['object'] == 'person':
                 xmin=item['bbox'][0]
                 ymin=item['bbox'][1]
