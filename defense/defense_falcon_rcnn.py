@@ -18,7 +18,7 @@ import hashlib
 import time
 from jaweson import json, msgpack
 #pyyolo
-import pyyolo
+#import pyyolo
 import numpy as np
 import sys
 import cv2
