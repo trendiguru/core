@@ -1655,6 +1655,32 @@ def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=N
     x_wiggleroom = orig_w - dsize[0]
     y_wiggleroom = orig_h - dsize[1]
 
+def dominant_colors(img_arr,n_components=2):
+    '''
+    :param img_arr: this is a subimage (orig image cropped to a bb)
+    components was for gmm breakdown but it didnt work well
+    :return: names/vals of dominant color(s)
+    '''
+
+    if img_arr is None:
+        print('got non arr in dominant_colors')
+        return None
+
+    hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
+    if hsv is None:
+        print('some prob with hsv')
+        return None
+
+    try:
+        avg_sat = np.mean(hsv[:,:,1])
+        avg_val = np.mean(hsv[:,:,2])
+        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
+        if avg_sat < 150 or avg_val < 150: #these are stabs in the dark and should be checked
+            return None
+    except:
+        print('problem calculating sat or val')
+
+
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
 #        imgname = image.replace('https://','').replace('http://','').replace('/','_') #conver url to name

@@ -73,13 +73,13 @@ class HLS_YOLO:
                     print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
                 #which net to use - pyyolo or shell yolo , default to pyyolo
                 if not net:
-                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
+                    detected = self.detect_yolo_shell(img_arr, url=image_url)
                 elif net == "shell":
                     detected = self.detect_yolo_shell(img_arr, url=image_url)
                 elif net == "pyyolo":
                     detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
                 else:
-                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
+                    detected = self.detect_yolo_shell(img_arr, url=image_url)
                 if (r_x1, r_y1) != (0, 0):
                     for obj in detected:
                         try:
@@ -299,6 +299,31 @@ class HLS_YOLO:
            # output.append = {'url':url}
             json.dumps(out, fp, indent=4)
 #            fp.write()
+
+def dominant_colors(img_arr,n_components=2):
+    '''
+    :param img_arr: this should be a subimage (orig image cropped to a bb)
+    :return:
+    '''
+
+    if img_arr is None:
+        print('got non arr in dominant_colors')
+        return None
+
+    hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
+    if hsv is None:
+        print('some prob with hsv')
+        return None
+
+    try:
+        avg_sat = np.mean(hsv[:,:,1])
+        avg_val = np.mean(hsv[:,:,2])
+        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
+        if avg_sat < 150 or avg_val < 150: #these are stabs in the dark and should be checked
+            return None
+    except:
+        print('problem calculating sat or val')
+
 
 
 cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=True)
