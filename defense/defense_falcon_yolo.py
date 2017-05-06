@@ -218,9 +218,8 @@ class HLS_YOLO:
                         item['details'] = hydra_output
                 except:
                     print "Hydra call from pyyolo defense falcon failed " + traceback.format_exc()
-
-            relevant_items.append(item)
-#        pyyolo.cleanup()
+##### TAKING OUT RELEVANT ITEMS ON ROYS SUGGESTION
+#            relevant_items.append(item)
             if save_results:
                 imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         if save_results:
