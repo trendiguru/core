@@ -128,7 +128,7 @@ class HLS:
         cfg_path = '/data/jeremy/darknet_python/cfg/yolo-voc_608.cfg'
 #        weights_path = '/data/jeremy/darknet_python/yolo-voc_544_95000.weights'
         weights_path = '/data/jeremy/darknet_python/yolo-voc_608_46000.weights'
-        save_path = './results/'
+        save_path = '/data/jeremy/darknet_python/results/'
         detections_path = 'detections.txt'  #these are getting stored in local dir it seems
         img_filename = hash.hexdigest()[:10]+'.jpg'
         Utils.ensure_dir(save_path)
