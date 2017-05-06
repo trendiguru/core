@@ -208,18 +208,20 @@ class HLS_YOLO:
             ymin=item['bbox'][1]
             xmax=item['bbox'][2]
             ymax=item['bbox'][3]
-            if item['object'] == 'person':
-                cropped_image = img_arr[ymin:ymax, xmin:xmax]
-                # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
-                # get hydra results
-                try:
-                    hydra_output = self.get_hydra_output(cropped_image)
-                    if hydra_output:
-                        item['details'] = hydra_output
-                except:
-                    print "Hydra call from pyyolo defense falcon failed " + traceback.format_exc()
 ##### TAKING OUT RELEVANT ITEMS ON ROYS SUGGESTION
-#            relevant_items.append(item)
+            use_hydra=False
+            if use_hydra:
+                if item['object'] == 'person':
+                    cropped_image = img_arr[ymin:ymax, xmin:xmax]
+                    # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
+                    # get hydra results
+                    try:
+                        hydra_output = self.get_hydra_output(cropped_image)
+                        if hydra_output:
+                            item['details'] = hydra_output
+                    except:
+                        print "Hydra call from pyyolo defense falcon failed " + traceback.format_exc()
+            relevant_items.append(item)
             if save_results:
                 imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         if save_results:
