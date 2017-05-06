@@ -19,22 +19,34 @@ from jaweson import json, msgpack
 import numpy as np
 import cv2
 
+import pyyolo
+
 from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
-#pyyolo
-from trendi.defense import pyyolo_results
 
 print "Defense_falcon_yolo done with imports"
 
+#get yolo net and keep it in mem
+#datacfg = 'cfg/coco.data'
+#datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
+datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
+cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_544.cfg'
+#cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
+#weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
+weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
+thresh = 0.24
+hier_thresh = 0.5
+pyyolo.init(datacfg, cfgfile, weightfile)
+
+
 # Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
 YOLO_HLS_CLASSIFIER_ADDRESS = constants.YOLO_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8083/hls"
-# what is the frcnn referring to - maybe its the thing at the end of file
-# namely, api.add_route('/frcnn/', HydraResource())
+HYDRA_CLASSIFIER_ADDRESS = "http://hls_hydra:8081/hydra" # constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
 
-class HLS:
+class HLS_YOLO:
     def __init__(self):
-        print "Loaded Resource"
+        print "Loaded Resource for HLS YOLO"
 
 
     def on_get(self, req, resp): #
@@ -48,9 +60,9 @@ class HLS:
         r_y1 = req.get_param_as_int("y1")
         r_y2 = req.get_param_as_int("y2")
         net = req.get_param("net")
-        print('params into on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net))
+        print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net))
         if not image_url:
-            print('get request:' + str(req) + ' is missing imageUrl param')
+            print('get request to hls yolo:' + str(req) + ' is missing imageUrl param')
             raise falcon.HTTPMissingParam("imageUrl")
         else:
             try:
@@ -59,17 +71,15 @@ class HLS:
                 if r_x1 or r_x2 or r_y1 or r_y2:
                     img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                     print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-                #which net to use - yolo or rcnn, default to yolo
+                #which net to use - pyyolo or shell yolo , default to pyyolo
                 if not net:
+                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
+                elif net == "shell":
                     detected = self.detect_yolo_shell(img_arr, url=image_url)
-                elif net == "yolo":
-                    detected = self.detect_yolo_shell(img_arr, url=image_url)
-                elif net == "rcnn":
-                    detected = self.detect_rcnn(img_arr, url=image_url)
                 elif net == "pyyolo":
                     detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
                 else:
-                    detected = self.detect_yolo_shell(img_arr, url=image_url)
+                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
                 if (r_x1, r_y1) != (0, 0):
                     for obj in detected:
                         try:
@@ -86,7 +96,7 @@ class HLS:
 
 
     def on_post(self, req, resp):
-        #NOTE this doesnt run yolo , only frcnn - call detect_yolo instead of detect_frcnnif we need yolo here
+        #untested
         serializer = msgpack
         resp.content_type = "application/x-msgpack"
         try:
@@ -97,7 +107,7 @@ class HLS:
                 r_x1, r_y1, r_x2, r_y2 = roi
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                 print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-            detected = self.detect_rcnn(img_arr)
+            detected = self.detect_yolo_pyyolo(img_arr)
             if roi and (r_x1, r_y1) != (0, 0):
                 for obj in detected:
                     x1, y1, x2, y2 = obj["bbox"]
@@ -173,16 +183,21 @@ class HLS:
             print('bbs writtten to '+str(marked_imgname))
             cv2.imwrite(marked_imgname,img_arr)
         self.write_log(url,relevant_bboxes)
-
         print relevant_bboxes
-
         return relevant_bboxes
 
-    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
+
+    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
+        save_path = './results/'
+        img_filename = hash.hexdigest()[:10]+'.jpg'
+        Utils.ensure_dir(save_path)
+        img_path = os.path.join(save_path,img_filename)
+        print('detecto_yolo_pyyolo saving file '+str(img_path))
+        cv2.imwrite(img_path,img_arr)
         relevant_items = []
-        yolo_results = pyyolo_results.detect_yolo_pyyolo(img_arr)
+        yolo_results = self.get_pyyolo_results(img_arr)
         for item in yolo_results:
             print(item)
             if item['object'] == 'person':
@@ -198,35 +213,61 @@ class HLS:
                     if hydra_output:
                         item['details'] = hydra_output
                 except:
-                    print "Hydra failed " + traceback.format_exc()
+                    print "Hydra call from pyyolo defense falcon failed " + traceback.format_exc()
 
             relevant_items.append(item)
-        pyyolo.cleanup()
-        return relevant_items
+#        pyyolo.cleanup()
+            if save_results:
+                imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
+        if save_results:
+            marked_imgname = img_path.replace('.jpg','_bbs.jpg')
+            print('pyyolo bbs writtten to '+str(marked_imgname))
+            cv2.imwrite(marked_imgname,img_arr)
 
-    def detect_rcnn(self, img_arr, url=''):
-        print('started defense_falcon_rcnn.detect_rcnn')
-        detected = defense_rcnn.detect_frcnn(img_arr)
-        for item in detected:
-            cat = item["object"]
-            if cat == "person":
-                print('bbox:'+str(item['bbox'])+' type:'+str(type(item['bbox'])))
-                x1,y1,x2,y2 = item["bbox"]
-                print('x1 {} y1 {} x2 {} y2 {} type {}:'.format(x1,y1,x2,y2,type(x1)))
-                print('img arr type:'+str(type(img_arr)))
-                print('img arr shape:'+str((img_arr.shape)))
-                cropped_image = img_arr[y1:y2, x1:x2]
-                # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
-                # get hydra results
-                try:
-                    hydra_output = self.get_hydra_output(cropped_image)
-                    if hydra_output:
-                        item['details'] = hydra_output
-                except:
-                    print "Hydra failed " + traceback.format_exc()
-        self.write_log(url,detected)
-        print detected
-        return detected
+
+
+    def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories):
+        # from file
+        print('----- test original C using a file')
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
+        img_filename = hash.hexdigest()[:10]+'pyyolo.jpg'
+      #  img_filename = 'incoming.jpg'
+        cv2.imwrite(img_filename,img_arr)
+
+        outputs = pyyolo.test(img_filename, thresh, hier_thresh)
+        relevant_bboxes = []
+        for output in outputs:
+            print(output)
+            label = output['class']
+            xmin = output['left']
+            ymin = output['top']
+            xmax = output['right']
+            ymax = output['bottom']
+            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
+    #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
+            relevant_bboxes.append(item)
+
+  #not sure what the diff is between this second method (pyyolo.detect) and first (pyyolo.test)
+    # camera
+    # print('----- test python API using a file')
+    # i = 1
+    # while i < 2:
+    #     # ret_val, img = cam.read()
+    #     img = cv2.imread(filename)
+    #     img = img.transpose(2,0,1)
+    #     c, h, w = img.shape[0], img.shape[1], img.shape[2]
+    #     # print w, h, c
+    #     data = img.ravel()/255.0
+    #     data = np.ascontiguousarray(data, dtype=np.float32)
+    #     outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
+    #     for output in outputs:
+    #         print(output)
+    #     i = i + 1
+    # free model
+
+#        pyyolo.cleanup()
+        return relevant_bboxes
 
 
     def get_hydra_output(self, subimage):
@@ -260,3 +301,7 @@ cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=Tr
 api = falcon.API(middleware=[cors.middleware])
 
 api.add_route('/hls/', HLS())
+# if __name__=="__main__":
+#     img_arr = cv2.imread('/data/jeremy/image_dbs/bags_for_tags/photo_10006.jpg')
+#     res = detect_yolo_pyyolo(img_arr)
+#     print(res)
