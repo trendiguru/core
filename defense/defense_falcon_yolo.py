@@ -191,6 +191,9 @@ class HLS_YOLO:
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
         save_path = './results/'
+    #generate randonm filename
+        hash = hashlib.sha1()
+        hash.update(str(time.time()))
         img_filename = hash.hexdigest()[:10]+'.jpg'
         Utils.ensure_dir(save_path)
         img_path = os.path.join(save_path,img_filename)
