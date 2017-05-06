@@ -190,7 +190,7 @@ class HLS_YOLO:
     def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
-        save_path = '/data/jeremy/darknet_python/results/'
+        save_path = '/data/jeremy/pyyolo/results/'
 
     #generate randonm filename
         hash = hashlib.sha1()
