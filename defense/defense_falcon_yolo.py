@@ -146,7 +146,7 @@ class HLS_YOLO:
         time.sleep(0.1) #wait for file to get written
         relevant_bboxes = []
         if not os.path.exists(detections_path):
-            return {'object':None}
+            return []
         with open(detections_path,'r') as fp:
             lines = fp.readlines()
             fp.close()
@@ -226,7 +226,7 @@ class HLS_YOLO:
             marked_imgname = img_path.replace('.jpg','_bbs.jpg')
             print('pyyolo bbs writtten to '+str(marked_imgname))
             cv2.imwrite(marked_imgname,img_arr)
-
+        return relevant_items
 
 
     def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories):
