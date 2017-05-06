@@ -1,9 +1,9 @@
 __author__ = 'jeremy'
 """
 run this like:
-gunicorn -b :8082 -w 1 -k gevent -n hls --timeout 120 trendi.defense.defense_falcon_yolo:api
-assuming the docker was started with port 8082 specified e.g.
-nvidia-docker run -it -v /data:/data -p 8082:8082 --name frcnn eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
+gunicorn -b :8084 -w 1 -k gevent -n hls_yolo --timeout 120 trendi.defense.defense_falcon_yolo:api
+assuming the docker was started with port 8084 specified e.g.
+nvidia-docker run -it -v /data:/data -p 8084:8084 --name hls_yolo eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
 
 import falcon
@@ -300,7 +300,7 @@ class HLS_YOLO:
 cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=True)
 api = falcon.API(middleware=[cors.middleware])
 
-api.add_route('/hls/', HLS())
+api.add_route('/hls_yolo/', HLS_YOLO())
 # if __name__=="__main__":
 #     img_arr = cv2.imread('/data/jeremy/image_dbs/bags_for_tags/photo_10006.jpg')
 #     res = detect_yolo_pyyolo(img_arr)
