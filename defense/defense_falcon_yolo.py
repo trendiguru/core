@@ -203,11 +203,11 @@ class HLS_YOLO:
         yolo_results = self.get_pyyolo_results(img_arr)
         for item in yolo_results:
             print(item)
+            xmin=item['bbox'][0]
+            ymin=item['bbox'][1]
+            xmax=item['bbox'][2]
+            ymax=item['bbox'][3]
             if item['object'] == 'person':
-                xmin=item['bbox'][0]
-                ymin=item['bbox'][1]
-                xmax=item['bbox'][2]
-                ymax=item['bbox'][3]
                 cropped_image = img_arr[ymin:ymax, xmin:xmax]
                 # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
                 # get hydra results
