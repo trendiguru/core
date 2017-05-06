@@ -223,7 +223,7 @@ class HLS_YOLO:
             if save_results:
                 imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         if save_results:
-            marked_imgname = img_path.replace('.jpg','_bbs.jpg')
+            marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
             print('pyyolo bbs writtten to '+str(marked_imgname))
             cv2.imwrite(marked_imgname,img_arr)
         return relevant_items
