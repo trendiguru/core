@@ -41,7 +41,7 @@ pyyolo.init(datacfg, cfgfile, weightfile)
 
 
 # Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
-YOLO_HLS_CLASSIFIER_ADDRESS = constants.YOLO_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8083/hls"
+YOLO_HLS_CLASSIFIER_ADDRESS = constants.YOLO_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8082/hls"
 HYDRA_CLASSIFIER_ADDRESS = "http://hls_hydra:8081/hydra" # constants.HYDRA_HLS_CLASSIFIER_ADDRESS # "http://13.82.136.127:8081/hydra"
 
 class HLS_YOLO:
@@ -303,7 +303,7 @@ class HLS_YOLO:
 cors = CORS(allow_all_headers=True, allow_all_origins=True, allow_all_methods=True)
 api = falcon.API(middleware=[cors.middleware])
 
-api.add_route('/hls_yolo/', HLS_YOLO())
+api.add_route('/hls/', HLS_YOLO())
 # if __name__=="__main__":
 #     img_arr = cv2.imread('/data/jeremy/image_dbs/bags_for_tags/photo_10006.jpg')
 #     res = detect_yolo_pyyolo(img_arr)

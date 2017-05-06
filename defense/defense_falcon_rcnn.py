@@ -1,4 +1,5 @@
 #this file has to go in the rcnn folder
+#swapping yolo into place instead of this, use 8082 for that and not this so roy doesnt have to change anything
 """
 run this like:
 gunicorn -b :8082 -w 1 -k gevent -n hls --timeout 120 trendi.defense.defense_falcon_rcnn:api
