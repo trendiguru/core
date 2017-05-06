@@ -1,28 +1,25 @@
+#this file has to go in the rcnn folder
 """
 run this like:
 gunicorn -b :8082 -w 1 -k gevent -n hls --timeout 120 trendi.defense.defense_falcon_rcnn:api
 assuming the docker was started with port 8082 specified e.g.
 nvidia-docker run -it -v /data:/data -p 8082:8082 --name frcnn eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
+#this file has to go in the rcnn folder
+
+
 import traceback
 import falcon
 from falcon_cors import CORS
 import subprocess
 import os
-import cv2
-import numpy as np
-#this file has to go in the rcnn folder
 import defense_rcnn
 import requests
 import hashlib
 import time
 from jaweson import json, msgpack
-#pyyolo
-#import pyyolo
 import numpy as np
-import sys
 import cv2
-#from cv2 import cv
 
 
 from trendi import constants
@@ -78,8 +75,6 @@ class HLS:
                     detected = self.detect_yolo_shell(img_arr, url=image_url)
                 elif net == "rcnn":
                     detected = self.detect_rcnn(img_arr, url=image_url)
-                elif net == "pyyolo":
-                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
                 else:
                     detected = self.detect_yolo_shell(img_arr, url=image_url)
                 if (r_x1, r_y1) != (0, 0):
@@ -190,31 +185,6 @@ class HLS:
 
         return relevant_bboxes
 
-    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories):
-#                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
-        print('started pyyolo detect')
-        relevant_items = []
-        yolo_results = pyyolo_results.detect_yolo_pyyolo(img_arr)
-        for item in yolo_results:
-            print(item)
-            if item['object'] == 'person':
-                xmin=item['bbox'][0]
-                ymin=item['bbox'][1]
-                xmax=item['bbox'][2]
-                ymax=item['bbox'][3]
-                cropped_image = img_arr[ymin:ymax, xmin:xmax]
-                # print('crop:{} {}'.format(item["bbox"],cropped_image.shape))
-                # get hydra results
-                try:
-                    hydra_output = self.get_hydra_output(cropped_image)
-                    if hydra_output:
-                        item['details'] = hydra_output
-                except:
-                    print "Hydra failed " + traceback.format_exc()
-
-            relevant_items.append(item)
-        pyyolo.cleanup()
-        return relevant_items
 
     def detect_rcnn(self, img_arr, url=''):
         print('started defense_falcon_rcnn.detect_rcnn')
