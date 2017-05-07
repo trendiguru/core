@@ -195,12 +195,13 @@ class HLS_YOLO:
     #generate randonm filename
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        timestr = time.strftime("%Y%m%d.%H%M%S")
-        img_filename = timestr+hash.hexdigest()[:5]+'.jpg'
-        Utils.ensure_dir(save_path)
-        img_path = os.path.join(save_path,img_filename)
-        print('detecto_yolo_pyyolo saving file '+str(img_path))
-        cv2.imwrite(img_path,img_arr)
+        if save_results:
+            timestr = time.strftime("%Y%m%d.%H%M%S")
+            img_filename = timestr+hash.hexdigest()[:5]+'.jpg'
+            Utils.ensure_dir(save_path)
+            img_path = os.path.join(save_path,img_filename)
+            print('detecto_yolo_pyyolo saving file '+str(img_path))
+            cv2.imwrite(img_path,img_arr)
         relevant_items = []
         yolo_results = self.get_pyyolo_results(img_arr)
         for item in yolo_results:
@@ -233,17 +234,38 @@ class HLS_YOLO:
         return relevant_items
 
 
-    def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories):
+    def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories,method='array'):
         # from file
-        print('----- test original C using a file')
-        hash = hashlib.sha1()
-        hash.update(str(time.time()))
-        img_filename = hash.hexdigest()[:10]+'pyyolo.jpg'
-      #  img_filename = 'incoming.jpg'
-        cv2.imwrite(img_filename,img_arr)
-
-        outputs = pyyolo.test(img_filename, thresh, hier_thresh)
         relevant_bboxes = []
+        if method == 'file':
+            print('----- test original C using a file')
+            hash = hashlib.sha1()
+            hash.update(str(time.time()))
+            img_filename = hash.hexdigest()[:10]+'pyyolo.jpg'
+          #  img_filename = 'incoming.jpg'
+            cv2.imwrite(img_filename,img_arr)
+            outputs = pyyolo.test(img_filename, thresh, hier_thresh)
+
+  #not sure what the diff is between this second method (pyyolo.detect) and first (pyyolo.test)
+                #except it uses array instead of file
+    # camera
+    # print('----- test python API using a file')
+        else:
+            i = 1  #wtf is this count for
+            while i < 2:
+                # ret_val, img = cam.read()
+#                img = cv2.imread(filename)
+                img = img_arr.transpose(2,0,1)
+                c, h, w = img.shape[0], img.shape[1], img.shape[2]
+                # print w, h, c
+                data = img.ravel()/255.0
+                data = np.ascontiguousarray(data, dtype=np.float32)
+                outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
+                for output in outputs:
+                    print(output)
+                i = i + 1
+    # free model
+
         for output in outputs:
             print(output)
             label = output['class']
@@ -256,26 +278,8 @@ class HLS_YOLO:
     #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             relevant_bboxes.append(item)
 
-  #not sure what the diff is between this second method (pyyolo.detect) and first (pyyolo.test)
-    # camera
-    # print('----- test python API using a file')
-    # i = 1
-    # while i < 2:
-    #     # ret_val, img = cam.read()
-    #     img = cv2.imread(filename)
-    #     img = img.transpose(2,0,1)
-    #     c, h, w = img.shape[0], img.shape[1], img.shape[2]
-    #     # print w, h, c
-    #     data = img.ravel()/255.0
-    #     data = np.ascontiguousarray(data, dtype=np.float32)
-    #     outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
-    #     for output in outputs:
-    #         print(output)
-    #     i = i + 1
-    # free model
-
-#        pyyolo.cleanup()
-        return relevant_bboxes
+    #        pyyolo.cleanup()
+            return relevant_bboxes
 
 
     def get_hydra_output(self, subimage):
