@@ -1635,7 +1635,7 @@ def get_fg_mask(image, bounding_box=None):
     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype(np.uint8)
     return mask2
 
-def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None,bb=None):
+def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=None,bb=None,fade_in=True):
     '''
     WIP - finish this to augment yolo stuff - and call it from augment_images , checking size of largest object
     and smallifying accordingly. so we have to keep track of bb's too and return those smallified in same way
@@ -1654,6 +1654,7 @@ def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=N
     reduced = cv2.resize(img_arr,dsize)
     x_wiggleroom = orig_w - dsize[0]
     y_wiggleroom = orig_h - dsize[1]
+
 
 def dominant_colors(img_arr,n_components=2):
     '''

@@ -227,7 +227,8 @@ class HLS_YOLO:
         if save_results:
             marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
             print('pyyolo bbs writtten to '+str(marked_imgname))
-            cv2.imwrite(marked_imgname,img_arr)
+            r=cv2.imwrite(marked_imgname,img_arr)
+            print('write result '+str(r))
         return relevant_items
 
 
@@ -297,10 +298,14 @@ class HLS_YOLO:
         logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
         print('logging output to '+logfile)
         out = {'output':output,'url':url}
-        with open(logfile, 'a') as fp:
-           # output.append = {'url':url}
-            json.dumps(out, fp, indent=4)
-#            fp.write()
+        with open(logfile, 'a') as (fp,err):
+            if err:
+                print('io error '+str(err))
+            else:
+               # output.append = {'url':url}
+                json.dumps(out, fp, indent=4)
+                fp.close()
+    #            fp.write()
 
 def dominant_colors(img_arr,n_components=2):
     '''
