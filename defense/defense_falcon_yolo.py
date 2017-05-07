@@ -187,7 +187,7 @@ class HLS_YOLO:
         return relevant_bboxes
 
 
-    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
+    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=False):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
         save_path = '/data/jeremy/pyyolo/results/'
@@ -231,6 +231,7 @@ class HLS_YOLO:
             print('pyyolo bbs writtten to '+str(marked_imgname))
             r=cv2.imwrite(marked_imgname,img_arr)
             print('write result '+str(r))
+        print('detect yolo returning:'+str(relevant_items))
         return relevant_items
 
 
