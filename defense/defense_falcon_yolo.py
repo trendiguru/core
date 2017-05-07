@@ -280,7 +280,7 @@ class HLS_YOLO:
             relevant_bboxes.append(item)
 
     #        pyyolo.cleanup()
-            return relevant_bboxes
+        return relevant_bboxes
 
 
     def get_hydra_output(self, subimage):
