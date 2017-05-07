@@ -249,7 +249,8 @@ class HLS_YOLO:
             ymin = output['top']
             xmax = output['right']
             ymax = output['bottom']
-            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
+            conf = output['conf']
+            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(conf,4)}
     #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             relevant_bboxes.append(item)
 
