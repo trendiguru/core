@@ -73,7 +73,7 @@ class HLS_YOLO:
                     print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
                 #which net to use - pyyolo or shell yolo , default to pyyolo
                 if not net:
-                    detected = self.detect_yolo_shell(img_arr, url=image_url)
+                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
                 elif net == "shell":
                     detected = self.detect_yolo_shell(img_arr, url=image_url)
                 elif net == "pyyolo":
