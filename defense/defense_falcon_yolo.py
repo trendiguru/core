@@ -195,7 +195,8 @@ class HLS_YOLO:
     #generate randonm filename
         hash = hashlib.sha1()
         hash.update(str(time.time()))
-        img_filename = hash.hexdigest()[:10]+'.jpg'
+        timestr = time.strftime("%Y%m%d.%H%M%S")
+        img_filename = timestr+hash.hexdigest()[:5]+'.jpg'
         Utils.ensure_dir(save_path)
         img_path = os.path.join(save_path,img_filename)
         print('detecto_yolo_pyyolo saving file '+str(img_path))
