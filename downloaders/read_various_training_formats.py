@@ -584,13 +584,27 @@ and use write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo
             tgdict['filename'] = os.path.join(images_dir,basefile)
             print('path {} base {} new {}'.format(kyledict['image_path'],basefile,tgdict['filename']))
             tgdict['annotations']=[]
+            if visual_output:
+                img_arr=cv2.imread(tgdict['filename'])
+                if img_arr is None:
+                    print('COULDNT GET IMAGE '+tgdict['filename'])
             for kyle_object in kyledict['objects']:
                 tg_annotation_dict={}
                 tg_annotation_dict['object']=kyle_object['label']
-                tg_annotation_dict['bbox_xyw']=kyle_object['x_y_w_h']
+                tg_annotation_dict['bbox_xywh']=[int(round(x)) for x in kyle_object['x_y_w_h']]
                 tgdict['annotations'].append(tg_annotation_dict)
+                if visual_output:
+                    imutils.bb_with_text(img_arr,tg_annotation_dict['bbox_xywh'],tg_annotation_dict['object'])
             print(tgdict)
-            raw_input('ret to cont')
+            if visual_output:
+                cv2.imshow('bboxes',img_arr)
+                cv2.waitKey(0)
+            all_tgdicts.append(tgdict)
+            write_yolo_from_tgdict(tgdict,label_dir=None,classes=constants.hls_yolo_categories)
+    json_out = os.path.join(images_dir,'annotations.json')
+    with open(json_out,'w') as fp:
+        json.dump(all_tgdicts,fp,indent=4)
+        fp.close()
 
 
 def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv',image_dir=None,classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None,parsemethod=parse_udacity,delimiter='\t',readmode='r'):
