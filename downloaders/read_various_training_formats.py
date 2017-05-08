@@ -531,6 +531,68 @@ def parse_autti(row,delimiter=' '):
         print('object {} is not of interest'.format(label))
     return xmin,xmax,ymin,ymax,filename,tg_object
 
+def kyle_dicts_to_yolo(dir='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat/annotations_hat',visual_output=True):
+    '''
+    convert from kyles mac itunes-app generated dict which looks like
+    {   "objects" : [
+    {
+      "label" : "person",
+      "x_y_w_h" : [
+        29.75364,
+        16.1669,
+        161.5282,
+        236.6785 ]     },
+    {  "label" : "hat",
+      "x_y_w_h" : [
+        58.17136,
+        16.62691,
+        83.0643,
+        59.15696 ]    }   ],
+   "image_path" : "\/Users\/kylegiddens\/Desktop\/ELBIT\/person_wearing_hat\/images1.jpg",
+  "image_w_h" : [
+    202,
+    250 ] }
+
+to tgformat (while at it write to json) which looks like
+
+    [ {
+        "dimensions_h_w_c": [360,640,3],
+        "filename": "/data/olympics/olympics/9908661.jpg"
+        "annotations": [
+            {
+               "bbox_xywh": [89, 118, 64,44 ],
+                "object": "car"
+            }
+        ],   }, ...
+
+and use write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_categories)
+ to finally write yolo trainfiles
+    :param jsonfile:
+    :return:
+    '''
+    jsonfiles = [os.path.join(dir,f) for f in os.listdir(dir) if '.json' in f]
+    all_tgdicts = []
+    images_dir = Utils.parent_dir(dir)
+    for jsonfile in jsonfiles:
+        with open(jsonfile,'r') as fp:
+            kyledict = json.load(fp)
+            print(kyledict)
+            tgdict = {}
+            tgdict['dimensions_h_w_c']=kyledict['image_w_h']
+            tgdict['dimensions_h_w_c'].append(3)  #add 3 chans to tgdict
+            basefile = os.path.basename(kyledict['image_path'])
+            tgdict['filename'] = os.path.join(images_dir,basefile)
+            print('path {} base {} new {}'.format(kyledict['image_path'],basefile,tgdict['filename']))
+            tgdict['annotations']=[]
+            for kyle_object in kyledict['objects']:
+                tg_annotation_dict={}
+                tg_annotation_dict['object']=kyle_object['label']
+                tg_annotation_dict['bbox_xyw']=kyle_object['x_y_w_h']
+                tgdict['annotations'].append(tg_annotation_dict)
+            print(tgdict)
+            raw_input('ret to cont')
+
+
 def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv',image_dir=None,classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None,parsemethod=parse_udacity,delimiter='\t',readmode='r'):
     '''
     read udaicty csv to grab files here

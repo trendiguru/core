@@ -19,13 +19,20 @@ def analyze_difference_images(img_dir='/home/jeremy/yolosaves',bgnd_images_dir='
 
     diffs = []
     count = 0
-    maxcount = 10000
+    maxcount = 300
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+#    out = cv2.VideoWriter('/home/jeremy/diffs.avi',fourcc,fps=28,frameSize=(720,576))
+    out = cv2.VideoWriter('/home/jeremy/diffs.avi',fourcc,fps=28,frameSize=(360,576/2))
+
     for img in incoming_images:
         for bgnd in bgnd_images:
             incoming_arr = cv2.imread(img)
             bgnd_arr = cv2.imread(bgnd)
             if incoming_arr is None or bgnd_arr is None:
                 continue
+            print(incoming_arr.shape)
+            # if incoming_arr.shape[0]!=704 or incoming_arr.shape[1]!=480:
+            #     continue
             if incoming_arr.shape != bgnd_arr.shape:
                 print('different shapes incomig {} bgnd {}'.format(incoming_arr.shape,bgnd_arr.shape))
                 continue
@@ -36,12 +43,19 @@ def analyze_difference_images(img_dir='/home/jeremy/yolosaves',bgnd_images_dir='
             print('sum of diff image:'+str(s))
             diffs.append(s)
             count = count+1
+            diff=cv2.resize(diff,(360,576/2))
+            out.write(diff)
         if count>maxcount:
             break
     diffs=np.array([diffs])
     diffs=np.transpose(diffs)
-    plt.hist(diffs,bins=100)
+    plt.hist(diffs,bins=1000)
+    img_arr=cv2.imread('/home/jeremy/Dropbox/tg/diffs.png')
+    img_arr=cv2.resize(img_arr,(360,576/2))
+
+    out.write(img_arr)
     plt.show()
+    out.release()
 
 if __name__ == "__main__":
     analyze_difference_images()
