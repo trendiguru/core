@@ -187,7 +187,7 @@ class HLS_YOLO:
         return relevant_bboxes
 
 
-    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=False):
+    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
         save_path = '/data/jeremy/pyyolo/results/'
