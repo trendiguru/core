@@ -200,7 +200,8 @@ class HLS_YOLO:
             img_arr_bgr=img_arr
             print('sizes: {} {}'.format(img_arr_bgr,img_arr))
             img_arr = img_arr_bgr
-    #generate randonm filename
+        print('img arr size {}'.format(img_arr.shape))
+            #generate randonm filename
         hash = hashlib.sha1()
         hash.update(str(time.time()))
         if save_results:
