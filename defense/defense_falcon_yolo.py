@@ -191,7 +191,9 @@ class HLS_YOLO:
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect')
         save_path = '/data/jeremy/pyyolo/results/'
-
+        if img_arr is None:
+            print('got None img array!!')
+            return None
     #generate randonm filename
         hash = hashlib.sha1()
         hash.update(str(time.time()))
