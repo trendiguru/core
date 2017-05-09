@@ -194,6 +194,12 @@ class HLS_YOLO:
         if img_arr is None:
             print('got None img array!!')
             return None
+        if len(img_arr.shape) == 2: #got 1-chan(gray) image
+            print('got gray img')
+            img_arr_bgr=np.zeros([img_arr.shape[0],img_arr.shape[1],3])
+            img_arr_bgr=img_arr
+            print('sizes: {} {}'.format(img_arr_bgr,img_arr))
+            img_arr = img_arr_bgr
     #generate randonm filename
         hash = hashlib.sha1()
         hash.update(str(time.time()))
