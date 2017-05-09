@@ -1703,7 +1703,7 @@ def dominant_colors(img_arr,n_components=2):
     #    print('got visible color')
         colors = ['red','orange','yellow','green','aqua','blue','purple','pink','red']
  #       range_edges=[20,45,70,140,180,260,290,291,340] #for range 0-360
-        range_edges=[10,22,35,70,90,130,145,170,180]
+        range_edges=[13,22,35,70,90,130,145,170,180]
         i=0
         while(avg_hue>range_edges[i]):
             i=i+1
