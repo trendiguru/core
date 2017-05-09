@@ -283,6 +283,8 @@ class HLS_YOLO:
             cropped_arr = img_arr[h/frac:h-(h/frac),w/frac:w-(w/frac)]
             dominant_color = imutils.dominant_colors(cropped_arr)
             print('dominant color:'+str(dominant_color))
+            if dominant_color is not None:
+                item['details']={'color':dominant_color}
     #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             relevant_bboxes.append(item)
 
