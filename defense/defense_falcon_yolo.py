@@ -203,7 +203,7 @@ class HLS_YOLO:
         print('img arr size {}'.format(img_arr.shape))
         if img_arr.shape[0]>1500 or img_arr.shape[1]>1500:  #maybe this is causing prob at http://a.abcnews.com/images/US/150815_yt_phillypd_33x16_1600.jpg
             maxside=max(img_arr.shape)
-            reduction_factor = maxside/1000 #force maxside to 1000
+            reduction_factor = maxside/1000.0 #force maxside to 1000
             img_arr = cv2.resize(img_arr,(int(img_arr.shape[1]/reduction_factor),int(img_arr.shape[0]/reduction_factor)))
             print('reduced size to {}'.format(img_arr.shape))
             #generate randonm filename
