@@ -1700,7 +1700,7 @@ def dominant_colors(img_arr,n_components=2):
     max_sat_for_white=0.15*255 #38
 
     if avg_sat > min_sat_for_color and avg_val > min_val_for_color and stdev_hue<max_std_for_color: #color in visible range
-        print('got visible color')
+    #    print('got visible color')
         colors = ['red','orange','yellow','green','aqua','blue','purple','pink','red']
  #       range_edges=[20,45,70,140,180,260,290,291,340] #for range 0-360
         range_edges=[10,22,35,70,90,130,145,170,180]
@@ -1708,13 +1708,13 @@ def dominant_colors(img_arr,n_components=2):
         while(avg_hue>range_edges[i]):
             i=i+1
        # i=i-1
-        print('range edge '+str(i)+' color '+colors[i])
+     #   print('range edge '+str(i)+' color '+colors[i])
         dom_color = colors[i]
     elif avg_val < max_val_for_black:
-        print('got black')
+      #  print('got black')
         dom_color = 'black'
     elif avg_val>min_val_for_white and avg_sat<max_sat_for_white:
-        print('got white')
+       # print('got white')
         dom_color = 'white'
     # grab the image channels, initialize the tuple of colors,
     # the figure and the flattened feature vector
@@ -1753,7 +1753,7 @@ def dominant_colors(img_arr,n_components=2):
         # to be application dependent
         print("flattened feature vector size: %d" % (np.array(features).flatten().shape))
         plt.show()
-    print('color:'+str(dom_color))
+    print('dominant color:'+str(dom_color))
     return dom_color
 
 

@@ -278,6 +278,11 @@ class HLS_YOLO:
             ymax = output['bottom']
             conf = output['conf']
             item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(conf,4)}
+            h,w=img_arr.shape[0:2]
+            frac = 5
+            cropped_arr = img_arr[h/frac:h-(h/frac),w/frac:w-(w/frac)]
+            dominant_color = imutils.dominant_colors(cropped_arr)
+            print('dominant color:'+str(dominant_color))
     #            item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(float(confidence),3)}
             relevant_bboxes.append(item)
 
