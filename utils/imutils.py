@@ -23,6 +23,7 @@ import socket
 import copy
 from trendi import constants
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import subprocess
 import inspect
 import string
@@ -1658,11 +1659,10 @@ def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=N
 
 def dominant_colors(img_arr,n_components=2):
     '''
-    :param img_arr: this is a subimage (orig image cropped to a bb)
-    components was for gmm breakdown but it didnt work well
-    :return: names/vals of dominant color(s)
+    :param img_arr: this will generally be a subimage (orig image cropped to a bb)
+    :return:
     '''
-
+    dom_color = None
     if img_arr is None:
         print('got non arr in dominant_colors')
         return None
@@ -1673,13 +1673,89 @@ def dominant_colors(img_arr,n_components=2):
         return None
 
     try:
+        avg_hue = np.mean(hsv[:,:,0])
         avg_sat = np.mean(hsv[:,:,1])
         avg_val = np.mean(hsv[:,:,2])
-        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
-        if avg_sat < 150 or avg_val < 150: #these are stabs in the dark and should be checked
-            return None
+        stdev_hue = np.std(hsv[:,:,0])
+        stdev_sat = np.std(hsv[:,:,1])
+        stdev_val = np.std(hsv[:,:,2])
+    #take care of large std for red (which wraps around from 180 to 0
+        if stdev_hue>60:
+            print('correcting hue modulo, orig mean {} std {}'.format(avg_hue,stdev_hue))
+            hue=hsv[:,:,0]
+            mask=hue>90
+            hue=hue-mask*180
+            avg_hue = np.mean(hue)
+            stdev_hue = np.std(hue)
+            print('corrected hue modulo, new mean {} std {}'.format(avg_hue,stdev_hue))
     except:
         print('problem calculating sat or val')
+
+    print('avg hue {} std {} avg sat {} std {} avg val {} std {}'.format(avg_hue,stdev_hue,avg_sat,stdev_sat,avg_val,stdev_val))
+    min_sat_for_color = 0.3*255  #102
+    min_val_for_color=0.3*255 #76
+    max_std_for_color=70
+    max_val_for_black=0.35*255 #89
+    min_val_for_white=0.8*255 #204
+    max_sat_for_white=0.15*255 #38
+
+    if avg_sat > min_sat_for_color and avg_val > min_val_for_color and stdev_hue<max_std_for_color: #color in visible range
+        print('got visible color')
+        colors = ['red','orange','yellow','green','aqua','blue','purple','pink','red']
+ #       range_edges=[20,45,70,140,180,260,290,291,340] #for range 0-360
+        range_edges=[10,22,35,70,90,130,145,170,180]
+        i=0
+        while(avg_hue>range_edges[i]):
+            i=i+1
+       # i=i-1
+        print('range edge '+str(i)+' color '+colors[i])
+        dom_color = colors[i]
+    elif avg_val < max_val_for_black:
+        print('got black')
+        dom_color = 'black'
+    elif avg_val>min_val_for_white and avg_sat<max_sat_for_white:
+        print('got white')
+        dom_color = 'white'
+    # grab the image channels, initialize the tuple of colors,
+    # the figure and the flattened feature vector
+    debug=False
+    if(debug):
+        chans = cv2.split(hsv)
+        colors = ("b", "g", "r")
+        plt.figure()
+        plt.title("'Flattened' Color Histogram")
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        features = []
+
+        # loop over the image channels
+        for (chan, color) in zip(chans, colors):
+            # create a histogram for the current channel and
+            # concatenate the resulting histograms for each
+            # channel
+            hist = cv2.calcHist([chan], [0], None, [256], [0, 256])
+            features.extend(hist)
+
+            # plot the histogram
+            plt.plot(hist, color = color)
+            plt.xlim([0, 256])
+        blu_patch = mpatches.Patch(color='blue', label='Hue')
+#        plt.legend(handles=[blu_patch])
+        grn_patch = mpatches.Patch(color='green', label='Sat')
+#        plt.legend(handles=[grn_patch])
+        red_patch = mpatches.Patch(color='red', label='Val')
+        plt.legend(handles=[red_patch,blu_patch,grn_patch])
+        # here we are simply showing the dimensionality of the
+        # flattened color histogram 256 bins for each channel
+        # x 3 channels = 768 total values -- in practice, we would
+        # normally not use 256 bins for each channel, a choice
+        # between 32-96 bins are normally used, but this tends
+        # to be application dependent
+        print("flattened feature vector size: %d" % (np.array(features).flatten().shape))
+        plt.show()
+    print('color:'+str(dom_color))
+    return dom_color
+
 
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
@@ -1790,51 +1866,62 @@ if __name__ == "__main__":
 #    crop_files_in_dir_of_dirs(dir_of_dirs,bb=None,output_w =150,output_h =200,use_visual_output=True)
 #        dir = '/home/jeremy/projects/core/images'
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
-    dir = '/home/jeremy/tg/pd_output'
-    dir = '/root'
-    indir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
-    outdir = '/home/jeremy/image_dbs/fashionista-v0.2.1/reduced_cats'
 
-    indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
-    outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
-#    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+    dir = '/home/jeremy/Dropbox/tg/color_snatches'
+    files = [os.path.join(dir,f) for f in os.listdir(dir)]
+    for file in files:
+        print('file '+file)
+        im1=cv2.imread(file)
+        cv2.imshow('im1',im1)
+        cv2.waitKey(0)
+        dominant_colors(im1)
 
-    if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
-        dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
-        output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
-        sourcedir = '/home/jeremy/projects/core/d1'
-        targetdir = '/home/jeremy/projects/core/d2'
-        infile =  '/home/jeremy/projects/core/images/female1.jpg'
-    else:
-        dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
-        output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
 
- #   kill_the_missing(sourcedir, targetdir)
-
-    image_chooser('/data/jeremy/image_dbs/tg/google/pijamas - Google Search_files')
-
-    output_file = 'resized.jpg'
-    img_arr = cv2.imread(infile)
-    orig_h,orig_w = img_arr.shape[0:2]
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (600,400),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (600,399),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (400,600),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (400,601),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
-    resize_keep_aspect(infile, output_file=output_file, output_size = (400,599),use_visual_output=True)
-    undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
-
+#     dir = '/home/jeremy/tg/pd_output'
+#     dir = '/root'
+#     indir = '/home/jeremy/image_dbs/fashionista-v0.2.1'
+#     outdir = '/home/jeremy/image_dbs/fashionista-v0.2.1/reduced_cats'
+#
+#     indir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
+#     outdir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150/reduced_cats'
+# #    defenestrate_directory(indir,outdir,filter='.png',keep_these_cats=[1,55,56,57],labels=constants.fashionista_categories_augmented)
+#
+#     if host == 'jr-ThinkPad-X1-Carbon' or host == 'jr':
+#         dir_of_dirs = '/home/jeremy/tg/train_pairs_dresses'
+#         output_dir = '/home/jeremy/tg/curated_train_pairs_dresses'
+#         sourcedir = '/home/jeremy/projects/core/d1'
+#         targetdir = '/home/jeremy/projects/core/d2'
+#         infile =  '/home/jeremy/projects/core/images/female1.jpg'
+#     else:
+#         dir_of_dirs = '/home/jeremy/core/classifier_stuff/caffe_nns/dataset/cropped'
+#         output_dir = '/home/jeremy/core/classifier_stuff/caffe_nns/curated_dataset'
+#
+#  #   kill_the_missing(sourcedir, targetdir)
+#
+#     image_chooser('/data/jeremy/image_dbs/tg/google/pijamas - Google Search_files')
+#
+#     output_file = 'resized.jpg'
+#     img_arr = cv2.imread(infile)
+#     orig_h,orig_w = img_arr.shape[0:2]
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (600,400),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (600,401),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (600,399),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (400,600),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (400,601),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
+#     resize_keep_aspect(infile, output_file=output_file, output_size = (400,599),use_visual_output=True)
+#     undo_resize_keep_aspect(output_file, output_file=None, output_size = (orig_h,orig_w),use_visual_output=True,careful_with_the_labels=True)
+#
 
 #nonlinear xforms , stolen from:
 #https://www.kaggle.com/bguberfain/ultrasound-nerve-segmentation/elastic-transform-for-data-augmentation/comments

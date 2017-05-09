@@ -270,6 +270,8 @@ class HLS_YOLO:
         for output in outputs:
             print(output)
             label = output['class']
+            if 'person' in label:
+                label='person'  #convert 'person_wearing_red/blue_shirt' into just person
             xmin = output['left']
             ymin = output['top']
             xmax = output['right']
@@ -313,29 +315,6 @@ class HLS_YOLO:
                 fp.close()
     #            fp.write()
 
-def dominant_colors(img_arr,n_components=2):
-    '''
-    :param img_arr: this should be a subimage (orig image cropped to a bb)
-    :return:
-    '''
-
-    if img_arr is None:
-        print('got non arr in dominant_colors')
-        return None
-
-    hsv = cv2.cvtColor(img_arr, cv2.COLOR_BGR2HSV)
-    if hsv is None:
-        print('some prob with hsv')
-        return None
-
-    try:
-        avg_sat = np.mean(hsv[:,:,1])
-        avg_val = np.mean(hsv[:,:,2])
-        print('avg sat {} avg val {}'.format(avg_sat,avg_val))
-        if avg_sat < 150 or avg_val < 150: #these are stabs in the dark and should be checked
-            return None
-    except:
-        print('problem calculating sat or val')
 
 
 

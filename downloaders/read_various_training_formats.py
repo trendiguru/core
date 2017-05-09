@@ -449,7 +449,7 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
         sid = tg_dict['sId']
     dims = tg_dict['dimensions_h_w_c']
     im_h,im_w=(dims[0],dims[1])
-    print('file {}\nannotations {}'.format(img_filename,annotations))
+    print('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
     if label_dir is None:
         img_parent = Utils.parent_dir(os.path.dirname(img_filename))
         img_diralone = os.path.dirname(img_filename).split('/')[-1]
@@ -457,7 +457,7 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
         label_dir= os.path.join(img_parent,label_diralone)
         Utils.ensure_dir(label_dir)
      #   label_dir = os.path.join(img_parent,label_ext)
-        print('img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+        print('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
     label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
     label_path = os.path.join(label_dir,label_name)
     print('writing to '+str(label_path))
@@ -578,16 +578,17 @@ and use write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo
             kyledict = json.load(fp)
             print(kyledict)
             tgdict = {}
-            tgdict['dimensions_h_w_c']=kyledict['image_w_h']
-            tgdict['dimensions_h_w_c'].append(3)  #add 3 chans to tgdict
             basefile = os.path.basename(kyledict['image_path'])
             tgdict['filename'] = os.path.join(images_dir,basefile)
             print('path {} base {} new {}'.format(kyledict['image_path'],basefile,tgdict['filename']))
+            img_arr=cv2.imread(tgdict['filename'])
+            if img_arr is None:
+                print('COULDNT GET IMAGE '+tgdict['filename'])
+#            tgdict['dimensions_h_w_c']=kyledict['image_w_h']
+#            tgdict['dimensions_h_w_c'].append(3)  #add 3 chans to tgdict
+            tgdict['dimensions_h_w_c'] = img_arr.shape
+            print('tg dims {} kyle dims {}'.format(tgdict['dimensions_h_w_c'],kyledict['image_w_h']))
             tgdict['annotations']=[]
-            if visual_output:
-                img_arr=cv2.imread(tgdict['filename'])
-                if img_arr is None:
-                    print('COULDNT GET IMAGE '+tgdict['filename'])
             for kyle_object in kyledict['objects']:
                 tg_annotation_dict={}
                 tg_annotation_dict['object']=kyle_object['label']
@@ -914,6 +915,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc200
                 img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
                 cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
                 cv2.imshow('img',img_arr)
+
             fp.close()
             print('(a)ccept, any other key to not accept '+str(f))
             k=cv2.waitKey(0)
@@ -994,4 +996,5 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 
 if __name__ == "__main__":
-    txt_to_tgdict()
+    inspect_yolo_annotations(dir='/data/jeremy/image_dbs/hls/kyle/',yolo_annotation_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hatlabels/',img_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat',manual_verification=True)
+   # txt_to_tgdict()
