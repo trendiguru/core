@@ -79,19 +79,29 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     print('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS))
 #    CLASSIFIER_ADDRESS =   # "http://13.82.136.127:8082/hls"
     print('using yolo api addr '+str(CLASSIFIER_ADDRESS))
-    img_arr = Utils.get_cv2_img_array(url_or_np_array)
     if isinstance(url_or_np_array,basestring): #got a url (or filename, but not dealing with that case)
         data = {"imageUrl": url_or_np_array}
+        print('using imageUrl as data')
     else:
-        data = {"image": url_or_np_array} #this was hitting 'cant serialize' error
+        img_arr = Utils.get_cv2_img_array(url_or_np_array)
+        data = {"image": img_arr} #this was hitting 'cant serialize' error
+        print('using imgage as data')
     if roi:
         print "Make sure roi is a list in this order [x1, y1, x2, y2]"
         data["roi"] = roi
     serialized_data = msgpack.dumps(data)
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
-    resp = requests.post(CLASSIFIER_ADDRESS, data=data)
-    print('answer:'+str(resp))
-    answer = msgpack.loads(resp.content)
+    result = requests.get(CLASSIFIER_ADDRESS, data=data)
+    if result.status_code is not 200:
+       print("Code is not 200")
+    else:
+        for chunk in result.iter_content():
+            print(chunk)
+#            joke = requests.get(JOKE_URL).json()["value"]["joke"]
+
+#    resp = requests.post(CLASSIFIER_ADDRESS, data=data)
+    print('answer:'+str(result))
+    answer = msgpack.loads(result.content)
     print('answer:'+str(answer))
 
 
