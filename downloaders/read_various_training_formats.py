@@ -213,19 +213,25 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def read_yolo_bbs(txt_file,img_file):
+def read_yolo_bbs_give_tgdict(txt_file,img_file,visual_output=False):
     '''
     format is
     <object-class> <x> <y> <width> <height>
     where x,y,w,h are relative to image width, height.  It looks like x,y are bb center, not topleft corner - see voc_label.py in .convert(size,box) func
     :param txt_file:
-    :return:
+    :return:  a 'tgdict' which looks like
+    {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
     '''
 #    img_file = txt_file.replace('.txt','.png')
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
     image_h,image_w = img_arr.shape[0:2]
+    result_dict = {}
+ #   result_dict['data']=[]
+    result_dict['filename']=img_file
+    result_dict['annotations']=[]
+    result_dict['dimensions_h_w_c'] = img_arr.shape
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         print('{} bbs found'.format(len(lines)))
@@ -244,9 +250,16 @@ def read_yolo_bbs(txt_file,img_file):
             y1 = y_center-h/2
             y2 = y_center+h/2
             print('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(object_class,x_center,y_center,w,h,x1,y1,x2,y2))
-            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-            cv2.imshow('img',img_arr)
-        cv2.waitKey(0)
+            if visual_output:
+                cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+                cv2.imshow('img',img_arr)
+            object_dict={}
+            object_dict['bbox_xywh'] = [x1,y1,w,h]
+            object_dict['object']=object_class
+        if visual_output:
+            cv2.waitKey(0)
+        result_dict['annotations'].append(object_dict)
+    return result_dict
 
 def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
     if labeldir is None:
@@ -405,6 +418,33 @@ def convert_pascal_txt_annotation(in_file,classes,out_filename):
         success = True
     return(success)
 
+def tgdict_to_api_dict(tgdict):
+    '''
+    convert a tgdict in format
+        {   "dimensions_h_w_c": [360,640,3],  "filename": "/data/olympics/olympics/9908661.jpg",
+        "annotations": [
+            {
+               "bbox_xywh": [89, 118, 64,44 ],
+                "object": "car"
+            } ...  ]   }
+
+    to an api dict (returned by our api ) in format
+     {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}, {"confidence": 0.2606, "object": "car", "bbox": [0, 116, 571, 462]},
+     where bbox is [xmin,ymin,xmax,ymax] aka [x1,y1,x2,y2]
+    :param tgdict:
+    :return:
+    '''
+    apidict={}
+    apidict['data'] = []
+    for annotation in tgdict['annotations']:
+        bb=annotation['bbox_xywh']
+        object=annotation['object']
+        api_entry={}
+        api_entry=['confidence']=None #tgdict doesnt have this, generally its a gt so its 100%
+        api_entry['object']=object
+        api_entry['bbox']=[bb[0],bb[1],bb[0]+bb[2],bb[1]+bb[3]]  #api bbox is [xmin,ymin,xmax,ymax] aka [x1,y1,x2,y2]
+        apidict['data'].append(api_entry)
+    return apidict
 
 def tg_class_from_pascal_class(pascal_class,tg_classes):
 #hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
@@ -996,5 +1036,8 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 
 if __name__ == "__main__":
+    bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
+    imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
+    read_yolo_bbs_give_tgdict(bbfile,imgfile,visual_output=True)
     inspect_yolo_annotations(dir='/data/jeremy/image_dbs/hls/kyle/',yolo_annotation_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hatlabels/',img_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat',manual_verification=True)
    # txt_to_tgdict()

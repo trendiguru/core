@@ -94,15 +94,22 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     result = requests.get(CLASSIFIER_ADDRESS,params=data)
     if result.status_code is not 200:
        print("Code is not 200")
-    else:
-        for chunk in result.iter_content():
-            print(chunk)
-#            joke = requests.get(JOKE_URL).json()["value"]["joke"]
+#     else:
+#         for chunk in result.iter_content():
+#             print(chunk)
+# #            joke = requests.get(JOKE_URL).json()["value"]["joke"]
 
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=data)
-    print('answer:'+str(result))
-    answer = msgpack.loads(result.content)
-    print('answer:'+str(answer))
+    c=  result.content
+    #content should be roughly in form
+#    {"data":
+    # [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]},
+    # {"confidence": 0.2606, "object": "car", "bbox": [0, 116, 571, 462]}, ... ]}
+    if not 'data' in c:
+        print('didnt get data in result from {} on sendng {}'.format(CLASSIFIER_ADDRESS,data))
+    return data
+    # t = result.text
+    # print('content {} text {}'.format(c,t))
 
 
 def test_multilabel_output_on_testset(testfile,outdir='./'):
