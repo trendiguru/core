@@ -60,8 +60,8 @@ class HLS_YOLO:
         r_y1 = req.get_param_as_int("y1")
         r_y2 = req.get_param_as_int("y2")
         net = req.get_param("net")
-        for k,v in req.get_param.iteritems():
-            print('key {} value {}'.format(k,v))
+#        for k,v in req.get_param.iteritems():
+#            print('key {} value {}'.format(k,v))
         print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net))
         if not image_url:
             print('get request to hls yolo:' + str(req) + ' is missing imageUrl param')
