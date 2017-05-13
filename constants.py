@@ -1223,5 +1223,5 @@ blacklisted_exceptions = {'xxxlarge',
 NEURODOLL_CLASSIFIER_ADDRESS = "http://52.174.49.180:8080/nd" #azure charles  52.174.49.180
 HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra" #allison
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8084/hls" #allison
-YOLO_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hydra" #allison
+YOLO_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls" #allison
 HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hydra_tg"  #allison - as opposed to hydra_hls which is for the hls project
