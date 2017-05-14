@@ -213,7 +213,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def read_yolo_bbs_give_tgdict(txt_file,img_file,visual_output=False):
+def yolo_to_tgdict(txt_file,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -223,6 +223,13 @@ def read_yolo_bbs_give_tgdict(txt_file,img_file,visual_output=False):
     {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
     '''
 #    img_file = txt_file.replace('.txt','.png')
+    if img_file is None:
+        txt_dir = os.path.dirname(txt_file)
+        par_dir = Utils.parent_dir(txt_file)
+        img_dir = par_dir.replace('labels','')
+        img_name = os.path.basename(txt_file).replace('.txt',img_suffix)
+        img_file = os.path.join(img_dir,img_name)
+        print('looking for image file '+img_file)
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
@@ -236,11 +243,13 @@ def read_yolo_bbs_give_tgdict(txt_file,img_file,visual_output=False):
         lines = fp.readlines()
         print('{} bbs found'.format(len(lines)))
         for line in lines:
-            object_class,x,y,w,h = line.split()
+            class_index,x,y,w,h = line.split()
             x_p=float(x)
             y_p=float(y)
             w_p=float(w)
             h_p=float(h)
+            class_index = int(class_index)
+            class_label = classlabels[class_index]
             x_center = int(x_p*image_w)
             y_center = int(y_p*image_h)
             w = int(w_p*image_w)
@@ -249,13 +258,13 @@ def read_yolo_bbs_give_tgdict(txt_file,img_file,visual_output=False):
             x2 = x_center+w/2
             y1 = y_center-h/2
             y2 = y_center+h/2
-            print('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(object_class,x_center,y_center,w,h,x1,y1,x2,y2))
+            print('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(class_index,x_center,y_center,w,h,x1,y1,x2,y2))
             if visual_output:
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
                 cv2.imshow('img',img_arr)
             object_dict={}
             object_dict['bbox_xywh'] = [x1,y1,w,h]
-            object_dict['object']=object_class
+            object_dict['object']=class_label
         if visual_output:
             cv2.waitKey(0)
         result_dict['annotations'].append(object_dict)
@@ -440,7 +449,7 @@ def tgdict_to_api_dict(tgdict):
         bb=annotation['bbox_xywh']
         object=annotation['object']
         api_entry={}
-        api_entry=['confidence']=None #tgdict doesnt have this, generally its a gt so its 100%
+        api_entry['confidence']=None #tgdict doesnt have this, generally its a gt so its 100%
         api_entry['object']=object
         api_entry['bbox']=[bb[0],bb[1],bb[0]+bb[2],bb[1]+bb[3]]  #api bbox is [xmin,ymin,xmax,ymax] aka [x1,y1,x2,y2]
         apidict['data'].append(api_entry)
@@ -1038,6 +1047,9 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 if __name__ == "__main__":
     bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
     imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
-    read_yolo_bbs_give_tgdict(bbfile,imgfile,visual_output=True)
-    inspect_yolo_annotations(dir='/data/jeremy/image_dbs/hls/kyle/',yolo_annotation_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hatlabels/',img_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat',manual_verification=True)
+    d = yolo_to_tgdict(bbfile,img_file=None,visual_output=True)
+    print('tgdict: '+str(d))
+    apidict = tgdict_to_api_dict(d)
+    print('apidict:'+str(apidict))
+  #  inspect_yolo_annotations(dir='/data/jeremy/image_dbs/hls/kyle/',yolo_annotation_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hatlabels/',img_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat',manual_verification=True)
    # txt_to_tgdict()

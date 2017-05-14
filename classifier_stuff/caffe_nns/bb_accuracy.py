@@ -6,6 +6,7 @@ import requests
 from trendi import constants
 from trendi import Utils
 
+
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
     input_scale = None
@@ -111,6 +112,25 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     # t = result.text
     # print('content {} text {}'.format(c,t))
 
+def compare_bb_dicts(gt_dict,guess_dict):
+    '''
+    given 2 dicts (in 'api form', see below of bbs - find bb in dict2 having most overlap for each bb in dict1 (assuming thats the gt)
+    if it exists, check if categories match . return n_matching cats and avg. iou. iou=0 if no box is overlapping , and extra detections (false pos)
+    also count for 0 iou
+
+    :param dict1:ground truth in 'api form' {'data': [{'confidence': None, 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]}
+    :param dict2:guess in 'api form
+    :return:  n_true_positive, n_false_neg, n_false_pos, iou
+    '''
+    gt_data=gt_dict['data']
+    guess_data=guess_dict['data']
+    for gt_detection in gt_data:
+        for guess_detection guess_data:
+            if 'already_matched' in guess_data:
+                continue
+            iou = Utils.intersectionOverUnion(gt_detection['bbox'],guess_detection['bbox'])
+
+####WIP #####
 
 def test_multilabel_output_on_testset(testfile,outdir='./'):
     '''
