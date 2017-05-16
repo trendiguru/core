@@ -271,7 +271,7 @@ class HLS_YOLO:
         return relevant_items
 
 
-    def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories,method='array'):
+    def get_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories,method='file'):
         # from file
         relevant_bboxes = []
         if method == 'file':
@@ -298,7 +298,11 @@ class HLS_YOLO:
                 data = img.ravel()/255.0
                 data = np.ascontiguousarray(data, dtype=np.float32)
                 print('calling pyyolo.detect')
-                outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
+                try:
+                    outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
+                except:
+                    print('some trouble calling pyyolo detect,'+str(sys.exc_info()[0]))
+
                 print('returned from  pyyolo.detect')
                 for output in outputs:
                     print(output)
