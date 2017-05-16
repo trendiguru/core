@@ -580,6 +580,17 @@ def parse_autti(row,delimiter=' '):
         print('object {} is not of interest'.format(label))
     return xmin,xmax,ymin,ymax,filename,tg_object
 
+def convert_kyle(dir='/home/jeremy/Dropbox/tg/hls_tagging/person_wearing_backpack/annotations',filter='.txt'):
+    '''
+    run yolo on a dir having gt from kyle or elsewhere, get yolo  and compare
+    :param dir:
+    :return:
+    '''
+    gts = [os.path.join(dir,f) for f in dir if filter in f]
+    for gt_file in gts:
+        yolodict = read_various_training_formats.kyle_dicts_to_yolo()
+
+
 def kyle_dicts_to_yolo(dir='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat/annotations_hat',visual_output=True):
     '''
     convert from kyles mac itunes-app generated dict which looks like

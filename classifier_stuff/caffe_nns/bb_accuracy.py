@@ -5,7 +5,7 @@ import requests
 
 from trendi import constants
 from trendi import Utils
-
+from trendi.downloaders import read_various_training_formats
 
 def multilabel_infer_one(url):
     image_mean = np.array([104.0,117.0,123.0])
@@ -64,6 +64,17 @@ def multilabel_infer_one(url):
  #   cv2.imshow('out',out.astype(np.uint8))
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
+
+def test_yolo(dir='/home/jeremy/Dropbox/tg/hls_tagging/person_wearing_backpack/annotations',filter='.txt'):
+    '''
+    run yolo on a dir having gt from kyle or elsewhere, get yolo  and compare
+    :param dir:
+    :return:
+    '''
+    gts = [os.path.join(dir,f) for f in dir if filter in f]
+    for gt_file in gts:
+        yolodict = read_various_training_formats.kyle_dicts_to_yolo(gt_file)
+        apidict = read_various_training_formats.yolo_to_tgdict(yolodict)
 
 def bb_output_using_gunicorn(url_or_np_array):
     print('starting get_multilabel_output_using_nfc')
@@ -124,11 +135,36 @@ def compare_bb_dicts(gt_dict,guess_dict):
     '''
     gt_data=gt_dict['data']
     guess_data=guess_dict['data']
+    true_pos = 0
+    false_pos = 0
+    false_neg = 0
+    tot_objects = 0
+    iou_avg = 0
     for gt_detection in gt_data:
-        for guess_detection guess_data:
+        best_iou=0
+        best_detection = None
+        for guess_detection in guess_data:
             if 'already_matched' in guess_data:
                 continue
             iou = Utils.intersectionOverUnion(gt_detection['bbox'],guess_detection['bbox'])
+            print('checking gt {} vs {}, iou {} objects {} {}'.format(gt_detection['bbox'],guess_detection['bbox'],
+                                                                      iou,gt_detection['object'],guess_detection['object']))
+            if iou>best_iou:
+                best_iou = iou
+                best_detection = guess_detection
+        if best_detection is not None:
+            best_detection['already_matched']=True #this gets put into original guess_detection
+            if best_detection['object'] == gt_detection['object'] and best_iou > 0:
+                print('matching object {} in gt and guess, iou {}'.format(best_detection['object'],best_iou))
+                true_pos += 1
+        tot_objects += 1
+        iou_avg += best_iou
+
+    #check for extra guess detections
+    for guess_detection in guess_data:
+        if not 'already_matched' in guess_detection:
+            false_pos += 1
+    return true_pos
 
 ####WIP #####
 

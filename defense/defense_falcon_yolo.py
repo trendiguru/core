@@ -1,9 +1,9 @@
 __author__ = 'jeremy'
 """
 run this like:
-gunicorn -b :8084 -w 1 -k gevent -n hls_yolo --timeout 120 trendi.defense.defense_falcon_yolo:api
+gunicorn -b :8082 -w 1 -k gevent -n hls_yolo --timeout 120 trendi.defense.defense_falcon_yolo:api
 assuming the docker was started with port 8084 specified e.g.
-nvidia-docker run -it -v /data:/data -p 8084:8084 --name hls_yolo eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
+nvidia-docker run -it -v /data:/data -p 8082:8082 --name hls_yolo eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
 
 import falcon
