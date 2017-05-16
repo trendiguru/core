@@ -260,10 +260,10 @@ class HLS_YOLO:
                 imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         if save_results:
             marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
-            print('pyyolo bbs writtten to '+str(marked_imgname))
+            print('pyyolo bbs being writtten to '+str(marked_imgname))
             try:
-                print('write result '+str(r))
                 r=cv2.imwrite(marked_imgname,img_arr)
+                print('write result '+str(r))
             except:
                 print('some trouble saving bb image,'+str(sys.exc_info()[0]))
 
