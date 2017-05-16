@@ -297,7 +297,9 @@ class HLS_YOLO:
                 # print w, h, c
                 data = img.ravel()/255.0
                 data = np.ascontiguousarray(data, dtype=np.float32)
+                print('calling pyyolo.detect')
                 outputs = pyyolo.detect(w, h, c, data, thresh, hier_thresh)
+                print('returned from  pyyolo.detect')
                 for output in outputs:
                     print(output)
                 i = i + 1
