@@ -18,6 +18,7 @@ import time
 from jaweson import json, msgpack
 import numpy as np
 import cv2
+import sys
 
 import pyyolo
 
@@ -108,6 +109,7 @@ class HLS_YOLO:
         #untested
         serializer = msgpack
         resp.content_type = "application/x-msgpack"
+        print('doing HLS_YOLO post')
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
@@ -224,10 +226,16 @@ class HLS_YOLO:
             img_filename = timestr+hash.hexdigest()[:5]+'.jpg'
             Utils.ensure_dir(save_path)
             img_path = os.path.join(save_path,img_filename)
-            print('detecto_yolo_pyyolo saving file '+str(img_path))
-            cv2.imwrite(img_path,img_arr)
+            print('detect_yolo_pyyolo saving file '+str(img_path))
+            try:
+                cv2.imwrite(img_path,img_arr)
+            except:
+                print('some trouble saving image,'+str(sys.exc_info()[0]))
         relevant_items = []
+        print('getting results from get_pyyolo_results')
         yolo_results = self.get_pyyolo_results(img_arr)
+        print('got results from get_pyyolo_results')
+
         for item in yolo_results:
             print(item)
             xmin=item['bbox'][0]
@@ -253,8 +261,12 @@ class HLS_YOLO:
         if save_results:
             marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
             print('pyyolo bbs writtten to '+str(marked_imgname))
-            r=cv2.imwrite(marked_imgname,img_arr)
-            print('write result '+str(r))
+            try:
+                print('write result '+str(r))
+                r=cv2.imwrite(marked_imgname,img_arr)
+            except:
+                print('some trouble saving bb image,'+str(sys.exc_info()[0]))
+
         print('detect yolo returning:'+str(relevant_items))
         return relevant_items
 
