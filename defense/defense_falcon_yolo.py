@@ -70,9 +70,15 @@ class HLS_YOLO:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 1:(", traceback.format_exc())
+            try:
                 if r_x1 or r_x2 or r_y1 or r_y2:
                     img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                     print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 2:(", traceback.format_exc())
+            try:
                 #which net to use - pyyolo or shell yolo , default to pyyolo
                 if not net:
                     detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
@@ -89,12 +95,13 @@ class HLS_YOLO:
                             obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
                         except (KeyError, TypeError):
                             print "No valid 'bbox' in detected"
-
-
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
+            try:
                 resp.data = serializer.dumps({"data": detected})
                 resp.status = falcon.HTTP_200
             except:
-                raise falcon.HTTPBadRequest("Something went wrong in get:(", traceback.format_exc())
+                raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
 
 
     def on_post(self, req, resp):
