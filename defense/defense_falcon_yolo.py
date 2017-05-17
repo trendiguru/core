@@ -242,15 +242,18 @@ class HLS_YOLO:
         for item in yolo_results:
             print(item)
             if resized:
-                item['bbox'][0]=item['bbox'][0]*reduction_factor
-                item['bbox'][1]=item['bbox'][1]*reduction_factor
-                item['bbox'][2]=item['bbox'][2]*reduction_factor
-                item['bbox'][3]=item['bbox'][3]*reduction_factor
+                item['bbox'][0]=int(item['bbox'][0]*reduction_factor)
+                item['bbox'][1]=int(item['bbox'][1]*reduction_factor)
+                item['bbox'][2]=int(item['bbox'][2]*reduction_factor)
+                item['bbox'][3]=int(item['bbox'][3]*reduction_factor)
                 print('fixed size back to original {}'.format(item))
+
             xmin=item['bbox'][0]
             ymin=item['bbox'][1]
             xmax=item['bbox'][2]
             ymax=item['bbox'][3]
+            assert xmin<xmax,'xmin not < xmax!!!'
+            assert ymin<ymax,'xmin not < xmax!!!'
 ##### TAKING OUT RELEVANT ITEMS ON ROYS SUGGESTION
             use_hydra=False
             if use_hydra:
