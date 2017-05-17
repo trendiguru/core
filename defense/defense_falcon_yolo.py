@@ -242,7 +242,7 @@ class HLS_YOLO:
         for item in yolo_results:
             print(item)
             if resized:
-                img_arr = cv2.resize(img_arr,original_size)
+                img_arr = cv2.resize(img_arr,(original_size[1],original_size[0]))
                 item['bbox'][0]=int(item['bbox'][0]*reduction_factor)
                 item['bbox'][1]=int(item['bbox'][1]*reduction_factor)
                 item['bbox'][2]=int(item['bbox'][2]*reduction_factor)
