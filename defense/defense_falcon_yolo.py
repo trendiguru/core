@@ -213,9 +213,12 @@ class HLS_YOLO:
             img_arr = img_arr_bgr
         print('img arr size {}'.format(img_arr.shape))
         max_image_size=1200 #1280 fails
+        resized=False
         if img_arr.shape[0]>max_image_size or img_arr.shape[1]>max_image_size:  #maybe this is causing prob at http://a.abcnews.com/images/US/150815_yt_phillypd_33x16_1600.jpg
             maxside=max(img_arr.shape)
             reduction_factor = maxside/1000.0 #force maxside to 1000
+            original_size=img_arr.shape
+            resized=True
             img_arr = cv2.resize(img_arr,(int(img_arr.shape[1]/reduction_factor),int(img_arr.shape[0]/reduction_factor)))
             print('reduced size to {}'.format(img_arr.shape))
             #generate randonm filename
@@ -238,6 +241,12 @@ class HLS_YOLO:
 
         for item in yolo_results:
             print(item)
+            if resized:
+                item['bbox'][0]=item['bbox'][0]*reduction_factor
+                item['bbox'][1]=item['bbox'][1]*reduction_factor
+                item['bbox'][2]=item['bbox'][2]*reduction_factor
+                item['bbox'][3]=item['bbox'][3]*reduction_factor
+                print('fixed size back to original {}'.format(item))
             xmin=item['bbox'][0]
             ymin=item['bbox'][1]
             xmax=item['bbox'][2]
