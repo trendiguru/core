@@ -54,7 +54,7 @@ class HLS_YOLO:
         """Handles GET requests"""
         serializer = json
         resp.content_type = "application/json"
-
+        print('\nStarting HLS_YOLO (got a get request)')
         image_url = req.get_param("imageUrl")
         r_x1 = req.get_param_as_int("x1")
         r_x2 = req.get_param_as_int("x2")
@@ -109,7 +109,7 @@ class HLS_YOLO:
         #untested
         serializer = msgpack
         resp.content_type = "application/x-msgpack"
-        print('doing HLS_YOLO post')
+        print('\nStarting HLS_YOLO (posted a post request)')
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
