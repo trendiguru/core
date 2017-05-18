@@ -21,3 +21,28 @@ docker exec sleeve_length kill -TTIN $(docker exec sleeve_length pgrep -f master
 to kill a worker you can do 
 
 docker exec sleeve_length kill -TTOU $(docker exec sleeve_length pgrep -f master)
+
+
+
+DRIVER ISSUES
+if you need to roll back a driver e.g. if nvidia-smi gives "Failed to initialize NVML: Driver/library version mismatch"
+first maybe just rebuild the docker container which apparently expects a particular driver
+
+if that doesnt work:
+1. if cuda is not installed, install it, e.g.
+sudo sh cuda_8.0.44_linux-run
+
+2. kill newest driver e..g
+sudo apt-get remove nvidia-375
+
+3. install new driver e.g.
+sudo sh NVIDIA-Linux-x86_64-367.57.run
+
+4. check nvidia-smi runs and shows right version
+
+5. build new containers as in step 4 above e.g.
+`PORT=<FREE_PORT>; NAME=<RELEVANT_NAME>; nvidia-docker run -d  -v /data:/data -p $PORT:$PORT --name $NAME feature_api:1 bash -c "gunicorn -b :$PORT --env GPU_DEVICE=1 --env FEATURES_JSON='[\"$NAME\"]' -k gevent -w 3 -n $NAME --timeout 120 trendi.features_api.app:api"`
+which actually didnt run in one go for me so i had t break it into two parts
+PORT=<FREE_PORT>; NAME=<RELEVANT_NAME>; nvidia-docker run -it  -v /data:/data -p $PORT:$PORT --name $NAME feature_api:1 bash
+and then
+gunicorn -b :$PORT --env GPU_DEVICE=1 --env FEATURES_JSON=[\"$NAME\"] -k gevent -w 3 -n $NAME --timeout 120 trendi.features_api.app:api"
