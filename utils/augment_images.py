@@ -227,7 +227,7 @@ def mask_to_multichannel(mask_arr,n_channels):
     return output_arr
 #
 
-def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
+def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
                     gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                    max_offset_x = 5,max_offset_y = 5,
@@ -239,30 +239,29 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
                    crop_size=None,  #in (h,w)
                    visual_output=False,save_visual_output=False,save_path=None):
     '''
-    generates a bunch of variations of image by rotating, translating, noising etc
-    total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
+    generates a bunch of variations of image by rotating, translating, noising etc, also xform bb list (list of bbs in [x,y,w,h] form expected)
     if you don't want a particular xform set n_whatever = 0
     original image dimensions are preserved
 
-    :param img_filename:
+    :param img_filename_or_nparray:
+    :param bb_list_xywh:
     :param gaussian_or_uniform_distributions:
     :param max_angle:
     :param max_offset_x:
     :param max_offset_y:
-    :param max_scale: this is percent to enlarge/shrink image
+    :param max_scale:
     :param max_noise_level:
     :param noise_type:
     :param max_blur:
+    :param max_color_rotation:
     :param do_mirror_lr:
     :param do_mirror_ud:
-    :param output_dir:
-    :param show_visual_output:
-    :param suffix:
+    :param crop_size:
+    :param visual_output:
+    :param save_visual_output:
+    :param save_path:
     :return:
-    TODO
-    add color shifting
-    fix blur / noise
-    ''' #
+    '''
     img_arr = Utils.get_cv2_img_array(img_filename_or_nparray)
 
     angle = 0
@@ -303,19 +302,12 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
     eps = 0.1
 
     if gaussian_or_uniform_distributions == 'gaussian':
-        if max_angle:
-            angle = np.random.normal(0,max_angle)
-        if max_offset_x:
-            offset_x = np.random.normal(0,max_offset_x)
-        if max_offset_y:
-            offset_y = np.random.normal(0,max_offset_y)
-        if max_scale:
-            #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
-            scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
-        if max_noise_level:
-            noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
-        if max_blur:
-            blur = max(0,np.random.normal(0,max_blur)) #blur >= 0
+        angle = np.random.normal(0,max_angle)
+        offset_x = np.random.normal(0,max_offset_x)
+        offset_y = np.random.normal(0,max_offset_y)
+        scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
+        noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
+        blur = max(0,np.random.normal(0,max_blur)) #blur >= 0
         if x_room:
             crop_dx = max(-float(x_room)/2,int(np.random.normal(0,float(x_room)/2)))
             crop_dx = min(crop_dx,float(x_room)/2)
@@ -324,23 +316,16 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
             crop_dy = min(crop_dy,float(y_room)/2)
 
     else:  #uniform distributed random numbers
-        if max_offset_x:
-            offset_x = np.random.uniform(-max_offset_x,max_offset_x)
-        if max_offset_y:
-            offset_y = np.random.uniform(-max_offset_y,max_offset_y)
-        if max_scale:
-    #        print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
-            scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
-        if max_noise_level:
-            noise_level = np.random.uniform(0,max_noise_level)
-        if max_blur:
-            blur = np.random.uniform(0,max_blur)
+        angle = np.random.uniform(-max_angle,max_angle)
+        offset_x = np.random.uniform(-max_offset_x,max_offset_x)
+        offset_y = np.random.uniform(-max_offset_y,max_offset_y)
+        scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
+        noise_level = np.random.uniform(0,max_noise_level)
+        blur = np.random.uniform(0,max_blur)
         if x_room:
             crop_dx = int(np.random.uniform(0,float(x_room)/2))
         if y_room:
             crop_dy = int(np.random.uniform(0,float(y_room)/2))
-        if max_angle:
-            angle = np.random.uniform(-max_angle,max_angle)
 
     if len(img_arr.shape) == 3:
         depth = img_arr.shape[2]
@@ -353,8 +338,15 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
     flip_ud = 0
     if do_mirror_lr:
         flip_lr = np.random.randint(2)
+        if flip_lr:
+     #       logging.debug('db D1')
+            img_array = cv2.flip(img_array,1)
+            bb_list_xywh = flip_bbs(bb_list_xywh,flip_rl=True)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
+        if flip_ud:
+            img_array = cv2.flip(img_array,0)
+            bb_list_xywh = flip_bbs(bb_list_xywh,flip_ud=True)
     logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
         width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
 
@@ -363,13 +355,8 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
 
    #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
 #    logging.debug('db D')
-    if flip_lr:
- #       logging.debug('db D1')
-        img_array = cv2.flip(img_array,1)
  #       logging.debug('db D2')
 
-    if flip_ud:
-        img_array = cv2.flip(img_array,0)
 #    logging.debug('db E')
 
 # Python: cv2.transform(src, m[, dst]) -> dst
@@ -418,6 +405,41 @@ def transform_image_and_bb(img_filename_or_nparray,bb_xywh,
         cv2.imwrite(save_path,img_arr)
         #cv2.imwrite(name,img_arr)
     return img_arr
+
+
+def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
+    for bb in bb_list_xywh:
+        print('initial bb {}'.format(bb))
+        if flip_rl:
+            right_margin = image_dims_h_w[1]-(bb[0]+bb[2])    #width - right bb edge
+            bb[0] = right_margin
+        if flip_ud:
+            bottom_margin = image_dims_h_w[0]-(bb[1]+bb[3])    #height - bottom bb edge
+            bb[1] = bottom_margin
+        print('final bb {}'.format(bb))
+    return bb_list_xywh
+
+def test_flip_bbs(imgfile='images/female1.jpg'):
+    img_arr=cv2.imread(imgfile)
+    if img_arr is None:
+        print('trouble getting '+imgfile)
+        return
+    h,w=img_arr.shape[0:2]
+    bb1=[10,20,50,70]
+    bb2=[100,200,100,200]
+    bblist =[bb1,bb2]
+    im2=cv2.flip(img_arr,1) #lr
+    im2=cv2.flip(im2,0) #ud
+    for bb in bblist:
+        cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[100,200,255],thickness=1)
+    cv2.imshow('orig',img_arr)
+    cv2.waitKey(0)
+    new_bbs = flip_bbs((h,w),bblist,flip_rl=True,flip_ud=True)
+    for bb in new_bbs:
+        cv2.rectangle(im2,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[200,100,55],thickness=2)
+    cv2.imshow('flip',im2)
+    cv2.waitKey(0)
+
 
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',

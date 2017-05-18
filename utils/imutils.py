@@ -1656,7 +1656,6 @@ def smallify_and_implant(arr_url_or_file,reduction_percent=30,background_image=N
     x_wiggleroom = orig_w - dsize[0]
     y_wiggleroom = orig_h - dsize[1]
 
-
 def dominant_colors(img_arr,n_components=2):
     '''
     :param img_arr: this will generally be a subimage (orig image cropped to a bb)
@@ -1755,8 +1754,6 @@ def dominant_colors(img_arr,n_components=2):
         plt.show()
     print('dominant color:'+str(dom_color))
     return dom_color
-
-
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
