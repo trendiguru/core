@@ -79,6 +79,11 @@ class HLS_YOLO:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
+                if img_arr == None:
+                    print('got none for image array')
+                    resp.data = serializer.dumps({"data": 'bad image at '+image_url})
+                    resp.status = falcon.HTTP_200
+                    return
             except:
                 raise falcon.HTTPBadRequest("Something went wrong in get section 1:(", traceback.format_exc())
             try:
@@ -212,7 +217,7 @@ class HLS_YOLO:
         save_path = '/data/jeremy/pyyolo/results/'
         if img_arr is None:
             print('got None img array!!')
-            return None
+            None
         if len(img_arr.shape) == 2: #got 1-chan(gray) image
             print('got gray img')
             img_arr_bgr=np.zeros([img_arr.shape[0],img_arr.shape[1],3])
