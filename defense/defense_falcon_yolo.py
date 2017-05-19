@@ -283,12 +283,12 @@ class HLS_YOLO:
             marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
             print('pyyolo bbs being writtten to '+str(marked_imgname))
             try:
-                r=cv2.imwrite(marked_imgname,img_arr)
+              #  r=cv2.imwrite(marked_imgname,img_arr)
                 print('write result '+str(r))
             except:
                 print('some trouble saving bb image,'+str(sys.exc_info()[0]))
             txtname=img_path.replace('.jpg','.txt')
-            self.write_log(url,relevant_bboxes,filename=txtname)
+            self.write_log(url,relevant_items,filename=txtname)
 
         print('detect yolo returning:'+str(relevant_items))
         return relevant_items
