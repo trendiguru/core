@@ -391,14 +391,11 @@ class HLS_YOLO:
 #        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
         print('logging output to '+filename)
         out = {'output':output,'url':url}
-        with open(filename, 'w+') as (fp,err):
-            if err:
-                print('io error '+str(err))
-            else:
-                print('writing :'+str(out))
-               # output.append = {'url':url}
-                json.dumps(out, fp, indent=4)
-                fp.close()
+        with open(filename, 'w+') as fp:
+            print('writing :'+str(out))
+           # output.append = {'url':url}
+            json.dumps(out, fp, indent=4)
+            fp.close()
     #            fp.write()
 
 
