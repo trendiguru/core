@@ -206,7 +206,7 @@ class HLS_YOLO:
         return relevant_bboxes
 
 
-    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=False):
+    def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
         print('started pyyolo detect, thresh='+str(thresh)+' hier '+str(hier_thresh))
         save_path = '/data/jeremy/pyyolo/results/'
@@ -283,9 +283,10 @@ class HLS_YOLO:
             marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
             print('pyyolo bbs being writtten to '+str(marked_imgname))
             try:
+                pass  #no real need to save bb file as no extra info there
               #  r=cv2.imwrite(marked_imgname,img_arr)
               #skip saving bb image to conserve space
-                print('write result '+str(r))
+              #  print('write result '+str(r))
             except:
                 print('some trouble saving bb image,'+str(sys.exc_info()[0]))
             txtname=img_path.replace('.jpg','.txt')
@@ -379,7 +380,7 @@ class HLS_YOLO:
 #        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
         print('logging output to '+filename)
         out = {'output':output,'url':url}
-        with open(filename, 'a') as (fp,err):
+        with open(filename, 'w') as (fp,err):
             if err:
                 print('io error '+str(err))
             else:

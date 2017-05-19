@@ -41,7 +41,7 @@ sudo sh NVIDIA-Linux-x86_64-367.57.run
 
 4. check nvidia-smi runs and shows right version
 
-5. build new containers as in step 4 above e.g.
+5. run new containers as in step 4 above e.g.
 `PORT=<FREE_PORT>; NAME=<RELEVANT_NAME>; nvidia-docker run -d  -v /data:/data -p $PORT:$PORT --name $NAME feature_api:1 bash -c "gunicorn -b :$PORT --env GPU_DEVICE=1 --env FEATURES_JSON='[\"$NAME\"]' -k gevent -w 3 -n $NAME --timeout 120 trendi.features_api.app:api"`
 which actually didnt run in one go for me so i had t break it into two parts, interactive run and then gunicorn
 PORT=<FREE_PORT>; NAME=<RELEVANT_NAME>; nvidia-docker run -it  -v /data:/data -p $PORT:$PORT --name $NAME feature_api:1 bash
