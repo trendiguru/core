@@ -284,6 +284,7 @@ class HLS_YOLO:
             print('pyyolo bbs being writtten to '+str(marked_imgname))
             try:
               #  r=cv2.imwrite(marked_imgname,img_arr)
+              #skip saving bb image to conserve space
                 print('write result '+str(r))
             except:
                 print('some trouble saving bb image,'+str(sys.exc_info()[0]))
