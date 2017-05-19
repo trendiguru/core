@@ -287,6 +287,8 @@ class HLS_YOLO:
                 print('write result '+str(r))
             except:
                 print('some trouble saving bb image,'+str(sys.exc_info()[0]))
+            txtname=img_path.replace('.jpg','.txt')
+            self.write_log(url,relevant_bboxes,filename=txtname)
 
         print('detect yolo returning:'+str(relevant_items))
         return relevant_items
@@ -372,11 +374,11 @@ class HLS_YOLO:
             return None
 
 
-    def write_log(self, url, output):
-        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
-        print('logging output to '+logfile)
+    def write_log(self, url, output,filename='/data/jeremy/pyyolo/results/bbs.txt'):
+#        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
+        print('logging output to '+filename)
         out = {'output':output,'url':url}
-        with open(logfile, 'a') as (fp,err):
+        with open(filename, 'a') as (fp,err):
             if err:
                 print('io error '+str(err))
             else:
