@@ -67,9 +67,11 @@ class HLS_YOLO:
 #            print('key {} value {}'.format(k,v))
         print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net,loc_thresh,loc_hier_thresh))
         if loc_thresh is not None:
-            global thresh = loc_thresh
+            global thresh
+            thresh = loc_thresh
         if loc_hier_thresh is not None:
-            global hier_thresh = loc_hier_thresh
+            global hier_thresh
+            hier_thresh = loc_hier_thresh
         if not image_url:
             print('get request to hls yolo:' + str(req) + ' is missing imageUrl param')
             raise falcon.HTTPMissingParam("imageUrl")
