@@ -394,7 +394,7 @@ class HLS_YOLO:
         with open(filename, 'w+') as fp:
             print('writing :'+str(out))
            # output.append = {'url':url}
-            json.dumps(out, fp, indent=4)
+            json.dump(out, fp, indent=4)
             fp.close()
     #            fp.write()
 
