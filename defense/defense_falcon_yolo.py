@@ -383,6 +383,7 @@ class HLS_YOLO:
             if err:
                 print('io error '+str(err))
             else:
+                print('writing :'+str(out))
                # output.append = {'url':url}
                 json.dumps(out, fp, indent=4)
                 fp.close()
