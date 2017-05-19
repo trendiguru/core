@@ -78,7 +78,7 @@ class HLS_YOLO:
         else:
             try:
                 response = requests.get(image_url)
-                print('response:'+str(response))
+                #print('response:'+str(response))
                 # if response is None:
                 #     print('got bad url ')
                 #     resp.data = serializer.dumps({"data": 'bad url '+image_url})
@@ -391,7 +391,7 @@ class HLS_YOLO:
 #        logfile = '/data/jeremy/caffenets/hydra/production/hydra/logged_hls_output.txt'
         print('logging output to '+filename)
         out = {'output':output,'url':url}
-        with open(filename, 'w') as (fp,err):
+        with open(filename, 'w+') as (fp,err):
             if err:
                 print('io error '+str(err))
             else:
