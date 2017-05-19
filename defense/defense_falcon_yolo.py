@@ -79,11 +79,11 @@ class HLS_YOLO:
             try:
                 response = requests.get(image_url)
                 print('response:'+str(response))
-                if response is None:
-                    print('got bad url ')
-                    resp.data = serializer.dumps({"data": 'bad url '+image_url})
-                    resp.status = falcon.HTTP_200
-                    return
+                # if response is None:
+                #     print('got bad url ')
+                #     resp.data = serializer.dumps({"data": 'bad url '+image_url})
+                #     resp.status = falcon.HTTP_200
+                #     return
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
                 if img_arr == None:
                     print('got none for image array')
