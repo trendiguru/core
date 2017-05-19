@@ -36,7 +36,7 @@ cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_544.cfg'
 #cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
 #weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
 weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
-thresh = 0.24
+thresh = 0.1
 hier_thresh = 0.5
 pyyolo.init(datacfg, cfgfile, weightfile)
 
@@ -61,9 +61,12 @@ class HLS_YOLO:
         r_y1 = req.get_param_as_int("y1")
         r_y2 = req.get_param_as_int("y2")
         net = req.get_param("net")
+        loc_thresh = req.get_params("threshold")
 #        for k,v in req.get_param.iteritems():
 #            print('key {} value {}'.format(k,v))
-        print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net))
+        print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net,loc_thresh))
+        if loc_thresh is not None:
+            global thresh = loc_thresh
         if not image_url:
             print('get request to hls yolo:' + str(req) + ' is missing imageUrl param')
             raise falcon.HTTPMissingParam("imageUrl")
@@ -200,7 +203,7 @@ class HLS_YOLO:
 
     def detect_yolo_pyyolo(self, img_arr, url='',classes=constants.hls_yolo_categories,save_results=True):
 #                item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':'>'+str(thresh)}
-        print('started pyyolo detect')
+        print('started pyyolo detect, thresh='+str(thresh))
         save_path = '/data/jeremy/pyyolo/results/'
         if img_arr is None:
             print('got None img array!!')
