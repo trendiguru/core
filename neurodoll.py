@@ -745,6 +745,7 @@ def get_multilabel_output_using_post(url_or_arr):
         return None
 
 def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conversion=constants.binary_classifier_categories_to_ultimate_21):
+    #has some bug and i dont wanna use it anyway
     for i in range(len(ml_values)):
         if ml_values[i] < threshold:
             nd_index = ml_to_nd_conversion[i]
@@ -792,7 +793,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
-                                     do_graylevel_zeroing=True,thresholds=constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
+                                     do_graylevel_zeroing=False,thresholds=constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -850,7 +851,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     print('before graylevel zeroing:')
     count_values(pixlevel_categorical_output,labels=labels)
 
-    if do_graylevel_zeroing:
+    if do_graylevel_zeroing: #if want to do this at least make multiple thresholds one for each cat. and instead of this donate pixels to more likely cats
         graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
 
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
