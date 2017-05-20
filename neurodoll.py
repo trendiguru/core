@@ -775,7 +775,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = OUTPUT_LAYER,required_image_size=(224,224),
-                                     do_graylevel_zeroing=True):
+                                     do_graylevel_zeroing=False):
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
     multilabel_output = get_multilabel_output(url_or_np_array)
