@@ -1,15 +1,25 @@
 __author__ = 'liorsabag'
 # labels for pixel level parsing (neurodoll) are in constants.ultimate21 (21 labels)
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
+"""
+run this like:
+gunicorn -b :8080 -w 1 -k gevent -n nd --timeout 120 trendi.neurodoll_falcon:api
+assuming the docker was started with port 8084 specified e.g.
+nvidia-docker run -it -v /data:/data -p 8080:8080 --name nd eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2
+"""
+
+
 import traceback
 import falcon
+from jaweson import json, msgpack
+
 from .. import neurodoll
     #, neurodoll_single_category
 #from .. import neurodoll_with_multilabel
 from .. import constants
 # from .darknet.pyDarknet import mydet
+from trendi import Utils
 
-from jaweson import json, msgpack
 
 print "Done with imports"
 
@@ -24,7 +34,7 @@ class NeurodollResource:
             'quote': 'I\'ve always been more interested in the future than in the past.',
             'author': 'Grace Hopper'
         }
-
+        print('neurodollresource got get request')
         resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
@@ -61,12 +71,19 @@ class NeurodollResource:
         if get_category_graylevel:
             print('got req for graylevel:'+str(get_category_graylevel))
 
+        posted_url = req.get_param('imageUrl')
+        if posted_url:
+            print('got url:'+posted_url)
+
         ret = {"success": False}
 
         try:
-            data = msgpack.loads(req.stream.read())
-            img = data.get("image")
-            print('img:'+str(img))
+            if posted_url:
+                img = Utils.get_cv2_img_array(posted_url)
+            else:
+                data = msgpack.loads(req.stream.read())
+                img = data.get("image")
+            print('got img of type:'+str(type(img)))
 #            if get_yolo_results:
 #                yolo_output = mydet.get_yolo_results(img)
 #                ret['yolo_output'] = yolo_output

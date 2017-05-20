@@ -1220,7 +1220,7 @@ blacklisted_exceptions = {'xxxlarge',
                           'kannada'}
 
 #NEURODOLL_CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
-NEURODOLL_CLASSIFIER_ADDRESS = "http://52.174.49.180:8080/nd" #azure charles  52.174.49.180
+NEURODOLL_CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
 HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra" #allison
 FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8084/hls" #allison
 YOLO_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls" #allison
