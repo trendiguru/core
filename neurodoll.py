@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # addr in constants (http://52.174.49.180:8080/nd)
 
-
 __author__ = 'jeremy'
 
 import caffe
@@ -18,6 +17,8 @@ import sys
 import hashlib
 import time
 import pdb
+import requests
+import json
 
 from trendi import constants
 from trendi.utils import imutils
@@ -721,6 +722,25 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     multilabel_output = multilabel_dict['multilabel_output']
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
+
+
+def get_multilabel_output_using_post(url_or_arr):
+    '''
+    get hydra details on an image
+    :param subimage: np array , e..g a crop of the original which fcrnn has found
+    :return:
+    '''
+    HYDRA_CLASSIFIER_ADDRESS = constants.HYDRA_TG_CLASSIFIER_ADDRESS
+    img_arr = Utils.get_cv2_img_array(url_or_arr)
+    data = json.dumps({"image": img_arr })
+    print('defense falcon is attempting to get response from hydra at ' + str(HYDRA_CLASSIFIER_ADDRESS))
+    try:
+        resp = requests.post(HYDRA_CLASSIFIER_ADDRESS, data=data)
+        dict = json.loads(resp.content)
+        return dict['output']
+    except:
+        print('couldnt get hydra output')
+        return None
 
 def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conversion=constants.binary_classifier_categories_to_ultimate_21):
     for i in range(len(ml_values)):
