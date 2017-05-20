@@ -854,6 +854,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     if do_graylevel_zeroing: #if want to do this at least make multiple thresholds one for each cat. and instead of this donate pixels to more likely cats
         graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
 
+
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     print('after graylevel zeroing:')
