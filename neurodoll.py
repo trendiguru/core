@@ -56,17 +56,19 @@ OUTPUT_LAYER = constants.pixlevel_v3_caffemodel_info['output_layer']
 OUTPUT_LAYER = 'output2'
 
 test_on = False
+test_gpu=1
+production_gpu=0
 if test_on:
     if len(sys.argv)>1:
         try:
             gpu = int(sys.argv[1])
         except:
-            gpu=0
+            gpu=test_gpu
     else:
-        gpu =0
+        gpu = test_gpu
     print('using gpu '+str(gpu))
 else:
-    gpu = 0
+    gpu = production_gpu
 caffe.set_mode_gpu()
 caffe.set_device(gpu)
 net = caffe.Net(MODEL_FILE,caffe.TEST, weights = PRETRAINED)
