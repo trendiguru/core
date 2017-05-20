@@ -71,6 +71,7 @@ class NeurodollResource:
         if get_category_graylevel:
             print('got req for graylevel:'+str(get_category_graylevel))
 
+
         posted_url = req.get_param('imageUrl')
         if posted_url:
             print('got url:'+posted_url)
