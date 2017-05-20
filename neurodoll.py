@@ -255,10 +255,10 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
     count_values(out,labels=constants.ultimate_21)
     return out,LABELS
 
-def threshold_pixlevel(out,item_area_thresholds = constants.ultimate_21_area_thresholds):
+def threshold_pixlevel(out,item_area_thresholds = constants.pixlevel_v3_min_area_thresholds):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
 #done
-    logging.debug('thresholding pixlevel areas')
+    logging.debug('thresholding pixlevel areas using thresholds:'+str(item_area_thresholds))
     image_size = out.shape[0]*out.shape[1]
     uniques = np.unique(out)
     for unique in uniques:
@@ -792,7 +792,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
-                                     do_graylevel_zeroing=True):
+                                     do_graylevel_zeroing=True,thresholds=constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
     '''
     try product of multilabel and nd output and taking argmax
     multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
@@ -846,7 +846,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 
 
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
+    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output,thresholds=thresholds) #threshold out the small areas
     print('before graylevel zeroing:')
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
 

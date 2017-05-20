@@ -390,6 +390,8 @@ hydra_tg_thresholds = [0.99,0.9,0.9,0.9,0.9,0.95,0.9,0.8,0.9,0.9,
                        0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.8,0.9,
                        0.9,0.9,0.9,0.9,0.8,0.9]
 
+
+
 #this can be used eg when searching for negatives (eg with bad_negs_for_pos or when looking for syonyms
 similar_cats = [['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop'],
                 ['footwear','boots','shoes','sandals','heels'],
@@ -570,6 +572,11 @@ pixlevel3_removed = ['bracelet','necklace','earrings','watch','face','hair','jea
 pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
                           'bag','belt','eyewear','hat','tie','skin']
+
+pixlevel_v3_min_area_thresholds = [0.01,0.01,0.01,0.01,0.01,
+                                   0.01,0.01,0.01,0.01,0.01,
+                       0.001,0.001,0.001,0.001,0.001,0.01]
+
 
 ultimate_21_to_pixlevel_v3 = [0,10,11,5,5,1,12,None,None,13,6,6,6,8,7,15,7,6,1,5,4]
 
