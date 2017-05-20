@@ -1,6 +1,6 @@
 """
 run this like:
-gunicorn -b :8083 -w 1 -k gevent -n hls --timeout 120 trendi.paperdoll.hydra_falcon:api
+gunicorn -b :8090 -w 1 -k gevent -n hls --timeout 120 trendi.paperdoll.hydra_tg_falcon:api
 assuming the docker was started with port 8083 specified e.g.
 nvidia-docker run -it -v /data:/data -p 8083:8083 --name hydra_tg eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """

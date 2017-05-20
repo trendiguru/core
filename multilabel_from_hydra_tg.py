@@ -18,7 +18,7 @@ from trendi.utils import imutils
 from trendi import constants
 from trendi import Utils
 
-print('loading net for multilabel_from_hydra_hls.py')
+print('loading net for multilabel_from_hydra_tg.py')
 #ordered according to
 # constants.binary_classifier_categories =
 # ['bag', 'belt', 'cardigan','coat','dress', 'eyewear', 'footwear', 'hat','jacket','jeans',
