@@ -57,7 +57,7 @@ MODEL_FILE = constants.pixlevel_v3_caffemodel_info['prototxt']
 PRETRAINED = constants.pixlevel_v3_caffemodel_info['caffemodel']
 LABELS = constants.pixlevel_v3_caffemodel_info['labels']
 OUTPUT_LAYER = constants.pixlevel_v3_caffemodel_info['output_layer']
-OUTPUT_LAYER = 'output2'
+#OUTPUT_LAYER = 'output2'
 
 test_on = False
 test_gpu=1
@@ -80,7 +80,7 @@ image_mean = np.array([107.0,117.0,123.0])
 input_scale = None
 channel_swap = [2, 1, 0]
 raw_scale = 255.0
-print('done loading caffemodel for neurodoll')
+print('done loading caffemodel for neurodoll, output layer '+str(OUTPUT_LAYER))
 
 #best multilabel as of 260716, see http://extremeli.trendi.guru/demo/results/ for updates
 multilabel_from_binaries = False
@@ -773,7 +773,7 @@ def count_values(mask,labels=None):
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
-                                     output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
+                                     output_layer = OUTPUT_LAYER,required_image_size=(224,224),
                                      do_graylevel_zeroing=True):
 
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
