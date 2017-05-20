@@ -60,7 +60,7 @@ OUTPUT_LAYER = 'output2'
 
 test_on = False
 test_gpu=1
-production_gpu=0
+production_gpu=1
 if test_on:
     if len(sys.argv)>1:
         try:
