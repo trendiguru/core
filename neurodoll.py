@@ -848,7 +848,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output,item_area_thresholds=thresholds) #threshold out the small areas
     print('before graylevel zeroing:')
-    count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
+    count_values(pixlevel_categorical_output,labels=labels)
 
     if do_graylevel_zeroing:
         graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
