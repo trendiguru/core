@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# addr in constants (http://52.174.49.180:8080/nd)
+
+
 __author__ = 'jeremy'
 
 import caffe
@@ -245,7 +248,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
         cv2.imwrite(orig_filename,image)
         pngname = orig_filename[:-4]+'.png'
         cv2.imwrite(filename=pngname,img=out)
-        imutils.show_mask_with_labels(pngname,labels=constants.ultimate_21,visual_output=False,save_images=True,original_image=orig_filename)
+        imutils.show_mask_with_labels(pngname,labels=LABELS,visual_output=False,save_images=True,original_image=orig_filename)
     uniques = np.unique(out)
     logging.debug('final uniques:'+str(uniques))
     count_values(out,labels=constants.ultimate_21)
