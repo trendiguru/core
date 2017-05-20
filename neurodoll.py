@@ -358,7 +358,7 @@ def get_neurodoll_output_using_falcon(url_or_np_array):
 def get_all_category_graylevels(url_or_np_array,resize=(256,256),required_image_size=(224,224),output_layer=OUTPUT_LAYER):
     start_time = time.time()
     if isinstance(url_or_np_array, basestring):
-        print('get_all_category_graylevels working on url:'+url_or_np_array+' req imsize:'+str(required_image_size))
+        print('get_all_category_graylevels working on url:'+url_or_np_array+' req imsize:'+str(required_image_size)+' using outputlayer '+output_layer)
         image = url_to_image(url_or_np_array)
     elif type(url_or_np_array) == np.ndarray:
         image = url_or_np_array
