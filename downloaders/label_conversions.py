@@ -308,6 +308,7 @@ def hydra_to_pixlevel_v3(hydra_results):
 # footwear_group = ['footwear','boots','shoes','sandals']
 # wrappy_things_group = ['shawl','scarf']
 # eyewear_group = ['eyewear','glasses','sunglasses','shades']
+    pdb.set_trace()
     print('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
