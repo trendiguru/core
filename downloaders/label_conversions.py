@@ -315,15 +315,10 @@ def hydra_to_pixlevel_v3(hydra_results):
     for item in results_dict:
         n_matched = 0
         logging.debug('item '+str(item))
-        for label in new_labels:
-            logging.debug('label '+str(label))
-            if label == '':
-                continue
-            if label in item:
-                i = new_labels.index(label)
-                converted_results[i].append(hydra_results[item])
-                n_matched += 1
-                print('using {} for {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
+        if any([i in item for i in constants.whole_body_group]):
+            i = new_labels.index('whole_body_items')
+            converted_results[i].append(results_dict[item])
+            n_matched += 1
 
         if n_matched == 0 :
             logging.warning('didnt get match for {}'.format(item))
