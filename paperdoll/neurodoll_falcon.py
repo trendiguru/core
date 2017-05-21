@@ -116,7 +116,7 @@ class NeurodollResource:
                 #for new nd with 'v3 cats' - upper cover , fullbody etc.
                 try:
                     combined_output = None
-                    combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel_using_graylevel(img)
+                    combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
                     ret['combined_output'] = combined_output
                     ret['mask'] = combined_output
                 except:
