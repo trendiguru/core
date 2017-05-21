@@ -321,6 +321,7 @@ def hydra_to_pixlevel_v3(hydra_results):
                 i = new_labels.index('whole_body_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
+                print('matched {} {} into whole_body'.format(item,))
             if any([i in item for i in constants.swimwear_group]):
                 i = new_labels.index('whole_body_tight_items')
                 converted_results[i].append(results_dict[item])
@@ -341,7 +342,6 @@ def hydra_to_pixlevel_v3(hydra_results):
                 i = new_labels.index('lower_cover_long_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                n_matched += 1
             if any([i in item for i in constants.lower_short_group]):
                 i = new_labels.index('lower_cover_short_items')
                 converted_results[i].append(results_dict[item])
@@ -356,6 +356,22 @@ def hydra_to_pixlevel_v3(hydra_results):
                 n_matched += 1
             if any([i in item for i in constants.accessories_group]):
                 i = new_labels.index('bag')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
+            if 'cardigan' in item:
+                i = new_labels.index('upper_cover_items')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
+            if 'blazer' in item:
+                i = new_labels.index('upper_cover_items')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
+            if 'sweatshirt' in item:
+                i = new_labels.index('upper_cover_items')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
+            if 'sweater' in item:
+                i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
         except:
