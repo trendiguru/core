@@ -110,10 +110,16 @@ class NeurodollResource:
 
         # combined multilabel and nd
             if get_combined_results:
-                combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
-                ret['combined_output'] = combined_output
-                ret['mask'] = combined_output
 
+                #for old nd with all cats
+#                combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
+                #for new nd with 'v3 cats' - upper cover , fullbody etc.
+                try:
+                    combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel_using_graylevel(img)
+                    ret['combined_output'] = combined_output
+                    ret['mask'] = combined_output
+                except:
+                    print('error in combine_neurodoll_v3labels_and_multilabel_using_graylevel ')
                 if combined_output is not None:
                     ret["success"] = True
 
