@@ -341,6 +341,11 @@ def hydra_to_pixlevel_v3(hydra_results):
                 i = new_labels.index('lower_cover_long_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
+                n_matched += 1
+            if any([i in item for i in constants.lower_short_group]):
+                i = new_labels.index('lower_cover_short_items')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
             if any([i in item for i in constants.footwear_group]):
                 i = new_labels.index('footwear_items')
                 converted_results[i].append(results_dict[item])
