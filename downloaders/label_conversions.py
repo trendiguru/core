@@ -287,6 +287,53 @@ def hydra_to_u21(hydra_results):
         print('result {}:{} cat {}'.format(i,converted_results[i],new_labels[i]))
     return converted_results
 
+def hydra_to_pixlevel_v3(hydra_results):
+    #pixlevelv3 are groups like whole_body, so the translation here will be into arrays
+    #e.g. if we got dress=0.9 and suit=0.8 and shirt=0.5 from hydra, translate it to [[0.9,0.8],.....[0.5..]...]
+
+# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
+# whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pajamas','jumpsuit']
+# swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
+# undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
+# upper_cover_group = ['coat', 'jacket']
+# upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
+# #put cardigan back and just use all the others specifically for dress, cuz this way cardigan has to be added to everything else
+# upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
+# lower_long_group = ['jeans', 'pants','tights']
+# lower_short_group = ['skirt','shorts']
+# sock_group = ['leggings','stockings','socks']
+# accessories_group = ['bag','belt','eyewear']
+# footwear_group = ['footwear','boots','shoes','sandals']
+# wrappy_things_group = ['shawl','scarf']
+# eyewear_group = ['eyewear','glasses','sunglasses','shades']
+
+    new_labels = constants.pixlevel_categories_v3
+    converted_results = [[] for i in new_labels]  #list of empty lists to populate
+    for item in hydra_results:
+        n_matched = 0
+        logging.debug('item '+str(item))
+        for label in new_labels:
+            logging.debug('label '+str(label))
+            if label == '':
+                continue
+            if label in item:
+                i = new_labels.index(label)
+                converted_results[i].append(hydra_results[item])
+                n_matched += 1
+                print('using {} for {}, i {} newresult {} n_matched {} '.format(label,item,i,converted_results[i],n_matched))
+
+        if n_matched == 0 :
+            logging.warning('didnt get match for {}'.format(item))
+
+        elif n_matched > 1 :
+            logging.warning('got several matches for {}'.format(item))
+
+    print('converted results:'+str(converted_results))
+    for i in range(len(converted_results)):
+        print('result {}:{} cat {}'.format(i,converted_results[i],new_labels[i]))
+    return converted_results
 
 if __name__=="__main__":
 

@@ -725,7 +725,6 @@ def get_multilabel_output_using_nfc(url_or_np_array):
     print('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-
 def get_multilabel_output_using_post(url_or_arr):
     '''
     get hydra details on an image
@@ -755,7 +754,6 @@ def zero_graylevels_not_in_ml(graylevels,ml_values,threshold=0.7,ml_to_nd_conver
                 graylevels[:,:,nd_index] = 0
     return graylevels
 
-
 def count_values(mask,labels=None):
     image_size = mask.shape[0]*mask.shape[1]
     uniques = np.unique(mask)
@@ -770,7 +768,6 @@ def count_values(mask,labels=None):
         pixelcounts[unique]=pixelcount
     return pixelcounts
 
-
 def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,median_factor=1.0,
                                      multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
@@ -782,7 +779,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
     retval = combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_output,multilabel_threshold=multilabel_threshold,
                                      median_factor=median_factor,
-                                     multilabel_to_ultimate21_conversion=multilabel_to_ultimate21_conversion,
+                                     multilabel_to_pixlevel_conversion=multilabel_to_ultimate21_conversion,
                                      multilabel_labels=multilabel_labels, face=face,
                                      output_layer = output_layer,required_image_size=required_image_size,
                                      do_graylevel_zeroing=do_graylevel_zeroing)
@@ -790,7 +787,7 @@ def combine_neurodoll_and_multilabel(url_or_np_array,multilabel_threshold=0.7,me
 
 
 def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel,multilabel_threshold=0.7,median_factor=1.0,
-                                     multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21,
+                                     multilabel_to_pixlevel_conversion=constants.binary_classifier_categories_to_ultimate_21,
                                      multilabel_labels=constants.binary_classifier_categories, face=None,
                                      output_layer = 'pixlevel_sigmoid_output',required_image_size=(224,224),
                                      do_graylevel_zeroing=False,thresholds=constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
@@ -890,6 +887,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 #Currently the decisions are based only on ml results without taking into acct the nd results.
 #In future possibly inorporate nd as well, first do a head-to-head test of nd vs ml
 #############################################################################################
+
     #1. take winning upper cover,  donate losers to winner
     #2. take winning upper under, donate losers to winner
     #3. take winning lower cover, donate losers to winner.
@@ -976,21 +974,21 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     else:
         lower_winner_value = lower_cover_winner_value
         lower_winner_index = lower_cover_winner_index
-    upper_winner_nd_index = multilabel_to_ultimate21_conversion[upper_winner_index]
-    lower_winner_nd_index = multilabel_to_ultimate21_conversion[lower_winner_index]
+    upper_winner_nd_index = multilabel_to_pixlevel_conversion[upper_winner_index]
+    lower_winner_nd_index = multilabel_to_pixlevel_conversion[lower_winner_index]
     print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_winner_value,
                                                                              lower_winner_index,lower_winner_nd_index,lower_winner_value))
 #1. take max upper cover , donate losers to winner
 #this actually might not be always right, e.g. jacket+ sweater
 #todo  - #1 - 4 can be put into a function since they are nearly identical
-    neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
+    neurodoll_upper_cover_index = multilabel_to_pixlevel_conversion[upper_cover_winner_index]
     if neurodoll_upper_cover_index is None:
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_cover_index])
         logging.debug('donating to upper cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_cover_index)+' ml index '+str(upper_cover_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
         for i in upper_cover_indexlist: #whole_body donated to upper_under
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
@@ -1000,14 +998,14 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index, n,len(x)))
 
 #2. take max upper under, donate losers to winner
-    neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
+    neurodoll_upper_under_index = multilabel_to_pixlevel_conversion[upper_under_winner_index]
     if neurodoll_upper_under_index is None:
         logging.warning('nd upper cover index {}  has no conversion '.format(upper_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_upper_under_index])
         logging.debug('donating to upper under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_under_index)+' ml index '+str(upper_under_winner_index)+ ', checking mls '+str(upper_under_indexlist))
         for i in upper_under_indexlist: #upper under losers donated to upper under winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             print('nd index {} ml index {}'.format(nd_index,i))
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
@@ -1017,14 +1015,14 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('upper under ndindex {} {} donated to upper under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_under_index,n))
 
 #3. take max lower cover, donate losers to winner.
-    neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
+    neurodoll_lower_cover_index = multilabel_to_pixlevel_conversion[lower_cover_winner_index]
     if neurodoll_lower_cover_index is None:
         logging.warning('nd lower cover index {}  has no conversion '.format(lower_cover_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_cover_index])
         logging.debug('donating to lower cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_cover_index)+' ml index '+str(lower_cover_winner_index)+ ', checking mls '+str(lower_cover_indexlist))
         for i in lower_cover_indexlist: #lower cover losers donated to lower cover winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
@@ -1033,14 +1031,14 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('lower cover ndindex {} {} donated to lower cover winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_cover_index,n))
 
 #4. take max lower under, donate losers to winner.
-    neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
+    neurodoll_lower_under_index = multilabel_to_pixlevel_conversion[lower_under_winner_index]
     if neurodoll_lower_under_index is None:
         logging.warning('nd lower under index {}  has no conversion '.format(lower_under_winner_index))
     else:
         n = len(final_mask[final_mask==neurodoll_lower_under_index])
         logging.debug('donating to lower under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_under_index)+' ml index '+str(lower_under_winner_index)+ ', checking mls '+str(lower_under_indexlist))
         for i in lower_under_indexlist: #lower under losers donated to lower under winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             if nd_index is None:
                 logging.warning('ml index {} has no conversion '.format(i))
                 continue
@@ -1067,7 +1065,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 # its a little different tho since in multilabel you cant compare directly two items to one , e.g. if part1 = 0.6, part2 = 0.6, and whole=0.99, you
 # should prob go with whole even tho part1+part2>whole
 #########################
-    neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
+    neurodoll_wholebody_index = multilabel_to_pixlevel_conversion[whole_body_winner_index]
     if neurodoll_wholebody_index is None:
         logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
 
@@ -1083,7 +1081,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
         for i in upper_under_indexlist:  #donate upper_under to whole_body
     #todo fix the case of suit (which can have upper_under)
             #ideally, do this for dress - suit and overalls can have upper_under
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             if nd_index is None:
                 logging.debug('upper cover nd index for {} has no conversion '.format(i))
                 continue
@@ -1093,7 +1091,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             n = final_mask[final_mask==neurodoll_wholebody_index]
             logging.info('n in final mask from wholebody:'+str(n))
         for i in lower_cover_indexlist: #donate lower_cover to whole_body
-            nd_index = multilabel_to_ultimate21_conversion[i]
+            nd_index = multilabel_to_pixlevel_conversion[i]
             final_mask[final_mask==nd_index] = neurodoll_wholebody_index
             logging.info('adding lowercover nd index {} '.format(nd_index))
             n = final_mask[final_mask==neurodoll_wholebody_index]
@@ -1115,7 +1113,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
         logging.info('case 2. one part {} < upper under {} but > lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
 #if overalls, donate loewr_cover and lower_under to overalls
         if whole_body_winner_index == multilabel_labels.index('overalls'):
-            neurodoll_whole_body_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
+            neurodoll_whole_body_index = multilabel_to_pixlevel_conversion[whole_body_winner_index]
             n = len(final_mask[final_mask==neurodoll_wholebody_index])
             logging.info('n in final mask from wholebody (overall) alone:'+str(n))
             for i in upper_cover_indexlist:
@@ -1123,7 +1121,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             for i in upper_under_indexlist:
                 pass #upper under ok with overalls
             for i in lower_cover_indexlist: #lower cover donated to overalls
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion '.format(i))
                     continue
@@ -1132,7 +1130,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
                 n = len(final_mask[final_mask==neurodoll_wholebody_index])
                 logging.info('n in final mask from wholebody alone:'+str(n))
             for i in lower_under_indexlist: #lower under donated to overalls - this can conceivably go wrong e.g. with short overalls and stockings
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion '.format(i))
                     continue
@@ -1150,7 +1148,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
                 logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
                 #todo - actually only wholebody pixels in the upper half of the image should be donated
                 for i in whole_body_indexlist: #whole_body donated to upper_under
-                    nd_index = multilabel_to_ultimate21_conversion[i]
+                    nd_index = multilabel_to_pixlevel_conversion[i]
                     if nd_index is None:
                         logging.warning('ml index {} has no conversion (4upper)'.format(i))
                         continue            #donate upper pixels to upper_winner
@@ -1174,7 +1172,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
                 logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
                 #todo - actually only wholebody pixels in the upper half of the image should be donated
                 for i in whole_body_indexlist: #whole_body donated to upper_under
-                    nd_index = multilabel_to_ultimate21_conversion[i]
+                    nd_index = multilabel_to_pixlevel_conversion[i]
                     if nd_index is None:
                         logging.warning('ml index {} has no conversion (4lower)'.format(i))
                         continue
@@ -1212,7 +1210,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
             #todo - actually only wholebody pixels in the upper half of the image should be donated
             for i in whole_body_indexlist: #whole_body donated to upper_under
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion (4upper)'.format(i))
                     continue            #donate upper pixels to upper_winner
@@ -1236,7 +1234,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
             #todo - actually only wholebody pixels in the upper half of the image should be donated
             for i in whole_body_indexlist: #whole_body donated to upper_under
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion (4lower)'.format(i))
                     continue
@@ -1258,14 +1256,14 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 # donate top of wholebody to greater of upper cover/upper under (yes this is arbitrary and possibly wrong)
 # donate bottom pixels of wholebody to greater of lower cover/lower under (again somewhat arbitrary)
 # this also could get combined with #2,3 I suppose
-# neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index] #
+# neurodoll_upper_cover_index = multilabel_to_pixlevel_conversion[upper_cover_winner_index] #
         logging.debug('after case three pixel values look like')
         count_values(final_mask,labels=constants.ultimate_21)
 
 
     elif (whole_body_winner_value<lower_cover_winner_value) and (whole_body_winner_value<upper_under_winner_value):
         logging.info('case 4.one part {} < upper under {} and < lower cover {}'.format(whole_body_winner_value,upper_under_winner_value,lower_cover_winner_value))
-        neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
+        neurodoll_lower_cover_index = multilabel_to_pixlevel_conversion[lower_cover_winner_index]
 # donate whole-body pixels to upper winner
         if upper_winner_nd_index is None:
             logging.warning('nd wholebody index {} ml index {} has no conversion '.format(upper_winner_nd_index,upper_winner_index))
@@ -1275,7 +1273,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('n in final mask from wholebody before donation to upper winner {} px,nd {} (lower {} px,nd {}'.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
             #todo - actually only wholebody pixels in the upper half of the image should be donated
             for i in whole_body_indexlist: #whole_body donated to upper_under
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion (4upper)'.format(i))
                     continue            #donate upper pixels to upper_winner
@@ -1299,7 +1297,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
             logging.info('n in final mask from wholebody after donation to upper winner {} px,nd {} , lower winner {} px, nd {} '.format(n1,upper_winner_nd_index,n2,lower_winner_nd_index))
             #todo - actually only wholebody pixels in the upper half of the image should be donated
             for i in whole_body_indexlist: #whole_body donated to upper_under
-                nd_index = multilabel_to_ultimate21_conversion[i]
+                nd_index = multilabel_to_pixlevel_conversion[i]
                 if nd_index is None:
                     logging.warning('ml index {} has no conversion (4lower)'.format(i))
                     continue
@@ -1329,7 +1327,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     if(0):
         for i in range(len(thresholded_multilabel)):
             if thresholded_multilabel[i]:
-                neurodoll_index = multilabel_to_ultimate21_conversion[i]
+                neurodoll_index = multilabel_to_pixlevel_conversion[i]
                 if neurodoll_index is None:
                     print('no mapping from index {} (label {}) to neurodoll'.format(i,multilabel_labels[i]))
                     continue
@@ -1377,74 +1375,56 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 
     return final_mask
 
-def combine_neurodoll_v3labels_and_multilabel_using_graylevel(url_or_np_array,graylevel_nd_output,multilabel_as_u21,multilabel_threshold=0.7,
-                                     median_factor=1.0,multilabel_labels=constants.ultimate_21,
-                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=True):
-    '''
-    try product of multilabel and nd output and taking argmax
-    multilabel_to_ultimate21_conversion=constants.web_tool_categories_v1_to_ultimate_21 , or
-    multilabel_to_ultimate21_conversion=constants.binary_classifier_categories_to_ultimate_21
-    multilabel_labels=constants.web_tool_categories    , or
-    multilabel_labels=constants.binary_classifier_categories
-    multilabel - this should be in a form that the converter can deal with
-    '''
 
-    pdb.set_trace()
 
-    print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
-#
-#logging results locally
+
+
+
+def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
+    #next two lines can be paralleled
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
+    multilabel_output = get_multilabel_output(url_or_np_array)
+    multilabel_as_u21 = multilabel_output  #maybe some conversion needed here
     thedir = './images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
-        orig_filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
+        filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
     elif type(url_or_np_array) == np.ndarray:
         hash = hashlib.sha1()
         hash.update(str(time.time()))
         name_base = 'orig'+hash.hexdigest()[:10]
-        orig_filename = os.path.join(thedir,name_base)
-        image = url_or_np_array
-    if image is None:
-        logging.debug('got None in grabcut_using_neurodoll_output')
-    print('writing orig to '+orig_filename+'.jpg')
-    cv2.imwrite(orig_filename+'.jpg',image)
-#    multilabel = get_multilabel_output(url_or_np_array)  this is now in calling function to allow use with other multilabel sources (eg hydra)
-#    multilabel = get_multilabel_output_using_nfc(url_or_np_array)
-    #take only labels above a threshold on the multilabel result
-    #possible other way to do this: multiply the neurodoll mask by the multilabel result and threshold that product
-    multilabel = multilabel_as_u21
-    if multilabel is None:
-        logging.debug('None result from multilabel')
-        return None
-    thresholded_multilabel = [ml>multilabel_threshold for ml in multilabel] #
-    logging.info('orig label:'+str(multilabel)+' len:'+str(len(multilabel)))
-#    print('incoming label:'+str(multilabel))
-#    logging.info('thresholded label:'+str(thresholded_multilabel))
-    for i in range(len(thresholded_multilabel)):
-        if thresholded_multilabel[i]:
-            logging.info(multilabel_labels[i]+' is over threshold')
-#    print('multilabel to u21 conversion:'+str(multilabel_to_ultimate21_conversion))
-#    print('multilabel labels:'+str(multilabel_labels))
+        filename = os.path.join(thedir,name_base)
+    filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
+    combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
+                                                              required_image_size=(224,224),orig_filename=filename)
 
-    #todo - this may be wrong later if we start taking both nd and multilabel into acct. Maybe ml thinks theres nothing there but nd thinks there is...
-    if np.equal(thresholded_multilabel,0).all():  #all labels 0 - nothing found
-        logging.debug('no items found')
-        return #
 
+
+def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel,multilabel_threshold=0.5,
+                                     median_factor=1.0,multilabel_labels=constants.ultimate_21,
+                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=True,orig_filename=None):
+    '''
+    1. decide on wholebody vs 2part using multilabel(hydra)  results
+    2. donate losing pixels to winning
+    3. return paperdoll-style result using hydra categories
+    '''
+
+    pdb.set_trace()
+    print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
+    logging.info('multi label:'+str(multilabel)+' len:'+str(len(multilabel)))
+    print('incoming multilabel:'+str(multilabel))
 
     #todo take out this extra call when sure abot do_graylevel_zeroing
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
     pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
-    print('before graylevel zeroing:')
-    count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
-
     if do_graylevel_zeroing:  #kill the graylevels not in the ml list
+        print('counts before graylevel zeroing:')
+        count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
         graylevel_nd_output = zero_graylevels_not_in_ml(graylevel_nd_output,multilabel,threshold=0.7)
-
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
-    print('after graylevel zeroing:')
+        pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+        pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
+    print('counts (after posible graylevel zeroing):')
     count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
@@ -1963,6 +1943,10 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(url_or_np_array,gr
     count_values(final_mask,labels=constants.ultimate_21)
 
     return final_mask
+
+    graylevel_nd_output = get_all_category_graylevels(url_or_np_array,output_layer=output_layer,required_image_size=required_image_size)
+    multilabel_output = get_multilabel_output(url_or_np_array)
+
 
 
 def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,lower_winner_nd_index,multilabel_to_ultimate21_conversion,y_split):
