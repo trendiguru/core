@@ -308,10 +308,11 @@ def hydra_to_pixlevel_v3(hydra_results):
 # footwear_group = ['footwear','boots','shoes','sandals']
 # wrappy_things_group = ['shawl','scarf']
 # eyewear_group = ['eyewear','glasses','sunglasses','shades']
-
+    print('incoming dict:'+str(hydra_results))
+    results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
     converted_results = [[] for i in new_labels]  #list of empty lists to populate
-    for item in hydra_results:
+    for item in results_dict:
         n_matched = 0
         logging.debug('item '+str(item))
         for label in new_labels:
