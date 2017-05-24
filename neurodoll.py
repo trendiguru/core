@@ -1489,35 +1489,47 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     final_mask = np.copy(pixlevel_categorical_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
-    whole_body_ml_values = multilabel[1]
+    whole_body_ml_values = np.array(multilabel[1])
     print('wholebody ml_values:'+str(whole_body_ml_values))
     whole_body_winner = whole_body_ml_values.argmax()
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
     print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
 
-    upper_cover_ml_values = multilabel[5]
+    upper_cover_ml_values = np.array(multilabel[5])
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
-    upper_cover_winner = upper_cover_ml_values.argmax()
-    upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
-    print('winning upper_cover index :'+str(upper_cover_winner)+' value:'+str(upper_cover_winner_value))
+    if upper_cover_ml_values != []:
+        upper_cover_winner = upper_cover_ml_values.argmax()
+        upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
+        print('winning upper_cover index :'+str(upper_cover_winner)+' value:'+str(upper_cover_winner_value))
+    else:
+        upper_cover_winner_value=0
 
-    upper_under_ml_values = multilabel[4]
+    upper_under_ml_values = np.array(multilabel[4])
     print('upper_under ml_values:'+str(upper_under_ml_values))
-    upper_under_winner = upper_under_ml_values.argmax()
-    upper_under_winner_value=upper_under_ml_values[upper_under_winner]
-    print('winning upper_under index :'+str(upper_under_winner)+' value:'+str(upper_under_winner_value))
+    if upper_under_ml_values != []:
+        upper_under_winner = upper_under_ml_values.argmax()
+        upper_under_winner_value=upper_under_ml_values[upper_under_winner]
+        print('winning upper_under index :'+str(upper_under_winner)+' value:'+str(upper_under_winner_value))
+    else:
+        upper_under_winner_value=0
 
-    lower_cover_long_ml_values = multilabel[6]
+    lower_cover_long_ml_values = np.array(multilabel[6])
     print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
-    lower_cover_long_winner = lower_cover_long_ml_values.argmax()
-    lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
-    print('winning lower_long  index :'+str(lower_cover_long_winner)+' value:'+str(lower_cover_long_winner_value))
+    if lower_cover_long_ml_values!=[]:
+        lower_cover_long_winner = lower_cover_long_ml_values.argmax()
+        lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
+        print('winning lower_long  index :'+str(lower_cover_long_winner)+' value:'+str(lower_cover_long_winner_value))
+    else:
+        lower_cover_long_winner=0
 
-    lower_cover_short_ml_values = multilabel[7]
+    lower_cover_short_ml_values = np.array(multilabel[7])
     print('lower_under ml_values:'+str(lower_cover_short_ml_values))
-    lower_cover_short_winner = lower_cover_short_ml_values.argmax()
-    lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
-    print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
+    if lower_cover_short_ml_values !=[]:
+        lower_cover_short_winner = lower_cover_short_ml_values.argmax()
+        lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
+        print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
+    else:
+        lower_cover_short_winner = 0
 
     #for use later, decide on a winner between upper cover and upper under
     # WHY do this when both can be there?
