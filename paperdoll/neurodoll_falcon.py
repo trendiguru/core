@@ -3,7 +3,7 @@ __author__ = 'liorsabag'
 # labels for multilabel image-level categorization are in constants.web_tool_categories (also 21 labels)
 """
 run this like:
-gunicorn -b :8080 -w 1 -k gevent -n nd --timeout 120 trendi.neurodoll_falcon:api
+gunicorn -b :8080 -w 1 -k gevent -n nd --timeout 120 trendi.paperdoll.neurodoll_falcon:api
 assuming the docker was started with port 8084 specified e.g.
 nvidia-docker run -it -v /data:/data -p 8080:8080 --name nd eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2
 """
