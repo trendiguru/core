@@ -255,7 +255,7 @@ def infer_one(url_or_np_array,required_image_size=(224,224),output_layer=OUTPUT_
     count_values(out,labels=constants.ultimate_21)
     return out,LABELS
 
-def threshold_pixlevel(out,item_area_thresholds = constants.pixlevel_v3_min_area_thresholds):
+def threshold_pixlevel(out,item_area_thresholds = constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
 #TODO - make the threshold per item ,e.g. small shoes are ok and should be left in
 #done
     logging.debug('thresholding pixlevel areas using thresholds:'+str(item_area_thresholds))
@@ -266,7 +266,7 @@ def threshold_pixlevel(out,item_area_thresholds = constants.pixlevel_v3_min_area
         ratio = float(pixelcount)/image_size
 #        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
         threshold = item_area_thresholds[unique]
-        print('index {}  ratio {} threshold {}'.format(unique,ratio,threshold))
+        print('index {} {}  ratio {} threshold {}'.format(unique,labels[unique],  ratio,threshold))
         if ratio < threshold:
 #            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
             out[out==unique] = 0  #set label with small number of pixels to 0 (background)
