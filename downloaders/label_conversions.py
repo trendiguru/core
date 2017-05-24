@@ -10,7 +10,7 @@ import json
 from trendi.classifier_stuff.caffe_nns import conversion_utils
 import pdb
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 from trendi import constants
 from trendi import Utils
@@ -309,7 +309,7 @@ def hydra_to_pixlevel_v3(hydra_results):
 # wrappy_things_group = ['shawl','scarf']
 # eyewear_group = ['eyewear','glasses','sunglasses','shades']
    # pdb.set_trace()
-    print('incoming dict:'+str(hydra_results))
+    logging.debug('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
     converted_results = [[] for i in new_labels]  #list of empty lists to populate
@@ -323,66 +323,66 @@ def hydra_to_pixlevel_v3(hydra_results):
                 i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.whole_body_group]):
                 i = new_labels.index('whole_body_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into whole_body {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into whole_body {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.swimwear_group]):
                 i = new_labels.index('whole_body_tight_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into whole_body_tight'.format(item))
+                logging.debug('matched {} into whole_body_tight'.format(item))
             elif any([i in item for i in constants.undies_group]):
                 i = new_labels.index('undie_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into undies {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into undies {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.upper_under_group]):
                 i = new_labels.index('upper_under_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into upper_under {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into upper_under {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.upper_cover_group]):
                 i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.lower_long_group]):
                 i = new_labels.index('lower_cover_long_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into lower_cover_long {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into lower_cover_long {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.lower_short_group]):
                 i = new_labels.index('lower_cover_short_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into lower_cover_short {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into lower_cover_short {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.footwear_group]):
                 i = new_labels.index('footwear_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into footwear {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into footwear {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.wrappy_things_group]):
                 i = new_labels.index('wraparound_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into wraparound {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into wraparound {}'.format(item,results_dict[item]))
             elif any([i in item for i in constants.accessories_group]):
                 i = new_labels.index('bag')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into bag {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into bag {}'.format(item,results_dict[item]))
             elif 'cardigan' in item:
                 i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
 
         except:
             e = sys.exc_info()[0]
-            print( "<p>Error: %s</p>" % e )
+            logging.warning( "<p>Error: %s</p>" % e )
 
         if n_matched == 0 :
             logging.warning('didnt get match for {}'.format(item))
