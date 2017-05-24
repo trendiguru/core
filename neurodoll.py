@@ -1414,7 +1414,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
  #   pdb.set_trace()
     print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
-    multilabel = label_conversions.hydra_to_pixlevel_v3(hydra_multilabel)
+    multilabel = label_conversions.hydra_to_pixlevel_v3(hydra_multilabel) #gives list of lists one list for each pixlevel v3 group
     logging.info('multi label:'+str(multilabel)+' len:'+str(len(multilabel)))
     print('hydra multilabel:'+str(hydra_multilabel))
     print('converted multilabel:'+str(multilabel))
@@ -1461,12 +1461,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 #Currently the decisions are based only on ml results without taking into acct the nd results.
 #In future possibly inorporate nd as well, first do a head-to-head test of nd vs ml
 #############################################################################################
-    #1. take winning upper cover,  donate losers to winner
-    #2. take winning upper under, donate losers to winner
-    #3. take winning lower cover, donate losers to winner.
-    #4. take winning lower under, donate losers to winner
-    #5. decide on whole body item (dress, suit, overall) vs. non-whole body (two part e.g. skirt+top) items.
-    #6. if wholebody beats two-part - donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
+    #1. using ml results decide on whole body item (dress, suit, overall) vs. non-whole body (two part e.g. skirt+top) items.
+            #max(whole body confidences) vs max(upper_cover), max(upper_UNDER), max(lower_cover), etc
+    #2. if wholebody beats two-part - donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
+    #3. take winning upper cover,  donate losers to winner
+    #4. take winning upper under, donate losers to winner
+    #5. take winning lower cover, donate losers to winner.
+    #6. take winning lower under, donate losers to winner
     #?  if no upper cover and no upper under and no whole-body: take max of all those and donate losers to winner
 
     #upper_cover: jacket, coat, blazer etc
@@ -1551,84 +1552,25 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     lower_winner_nd_index = multilabel_to_ultimate21_conversion[lower_winner_index]
     print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_winner_value,
                                                                              lower_winner_index,lower_winner_nd_index,lower_winner_value))
-#1. take max upper cover , donate losers to winner
-#this actually might not be always right, e.g. jacket+ sweater
-#todo  - #1 - 4 can be put into a function since they are nearly identical
-    neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
-    if neurodoll_upper_cover_index is None:
-        logging.warning('nd upper cover index {}  has no conversion '.format(upper_cover_winner_index))
-    else:
-        n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-        logging.debug('donating to upper cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_cover_index)+' ml index '+str(upper_cover_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
-        for i in upper_cover_indexlist: #whole_body donated to upper_under
-            nd_index = multilabel_to_ultimate21_conversion[i]
-            if nd_index is None:
-                logging.warning('ml index {} has no conversion '.format(i))
-                continue
-            x = final_mask[final_mask==nd_index]
-            final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
-            n = len(final_mask[final_mask==neurodoll_upper_cover_index])
-            logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index, n,len(x)))
-
-#2. take max upper under, donate losers to winner
-    neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
-    if neurodoll_upper_under_index is None:
-        logging.warning('nd upper cover index {}  has no conversion '.format(upper_under_winner_index))
-    else:
-        n = len(final_mask[final_mask==neurodoll_upper_under_index])
-        logging.debug('donating to upper under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_under_index)+' ml index '+str(upper_under_winner_index)+ ', checking mls '+str(upper_under_indexlist))
-        for i in upper_under_indexlist: #upper under losers donated to upper under winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
-            print('nd index {} ml index {}'.format(nd_index,i))
-            if nd_index is None:
-                logging.warning('ml index {} has no conversion '.format(i))
-                continue
-            final_mask[final_mask==nd_index] = neurodoll_upper_under_index
-            n = len(final_mask[final_mask==neurodoll_upper_under_index])
-            logging.info('upper under ndindex {} {} donated to upper under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_under_index,n))
-
-#3. take max lower cover, donate losers to winner.
-    neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
-    if neurodoll_lower_cover_index is None:
-        logging.warning('nd lower cover index {}  has no conversion '.format(lower_cover_winner_index))
-    else:
-        n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-        logging.debug('donating to lower cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_cover_index)+' ml index '+str(lower_cover_winner_index)+ ', checking mls '+str(lower_cover_indexlist))
-        for i in lower_cover_indexlist: #lower cover losers donated to lower cover winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
-            if nd_index is None:
-                logging.warning('ml index {} has no conversion '.format(i))
-                continue
-            final_mask[final_mask==nd_index] = neurodoll_lower_cover_index
-            n = len(final_mask[final_mask==neurodoll_lower_cover_index])
-            logging.info('lower cover ndindex {} {} donated to lower cover winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_cover_index,n))
-
-#4. take max lower under, donate losers to winner.
-    neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
-    if neurodoll_lower_under_index is None:
-        logging.warning('nd lower under index {}  has no conversion '.format(lower_under_winner_index))
-    else:
-        n = len(final_mask[final_mask==neurodoll_lower_under_index])
-        logging.debug('donating to lower under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_under_index)+' ml index '+str(lower_under_winner_index)+ ', checking mls '+str(lower_under_indexlist))
-        for i in lower_under_indexlist: #lower under losers donated to lower under winner
-            nd_index = multilabel_to_ultimate21_conversion[i]
-            if nd_index is None:
-                logging.warning('ml index {} has no conversion '.format(i))
-                continue
-            final_mask[final_mask==nd_index] = neurodoll_lower_under_index
-            n = len(final_mask[final_mask==neurodoll_lower_under_index])
-            logging.info('lower under ndindex {} {} donated to lower under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_under_index,n))
-
-    logging.debug('after step 4, pixelcounts look like:')
-    count_values(final_mask,labels=constants.ultimate_21)
-
 #########################
-# 5. WHOLEBODY VS TWO-PART
+# 1. WHOLEBODY VS TWO-PART
 # decide on whole body item (dress, suit, overall) vs. non-whole body items.
-# case 1 wholebody>upper_under>lower_cover
-# case 2 upper_under>wholebody>lower_cover
+    #do this using the multilabel results. maybe take stats on occurences for improvement
+# case 1 - wholebody wins  - ( wholebody>max(upper_under/cover>lower_coverlong/short)
+# case 2 - two piece wins  - donate wholebody to best two-
+
+#forget about this approach:
+# case 1 wholebody>max(upper_under/cover>lower_coverlong/short)
+# case 2 upper_under/cover>wholebody>lower_cover
 # case 3 lower_cover>wholebody>upper-under
 # case 4 lower_cover,upper_under > wholebody
+
+#case 1,4 -
+
+# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
+
 #consider reducing this to nadav's method:
 #    whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
 #    partly_sum = np.sum([item.values()[0] for item in mask_sizes['upper_under']]) +\
@@ -1893,6 +1835,79 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     foreground = np.array((pixlevel_categorical_output>0)*1)  #*1 turns T/F into 1/0
     final_mask = final_mask * foreground # only keep stuff that was part of original fg - this is already  true
     # unless we start adding pixvalues that didn't 'win'
+
+
+#1. take max upper cover , donate losers to winner
+#this actually might not be always right, e.g. jacket+ sweater
+#todo  - #1 - 4 can be put into a function since they are nearly identical
+    neurodoll_upper_cover_index = multilabel_to_ultimate21_conversion[upper_cover_winner_index]
+    if neurodoll_upper_cover_index is None:
+        logging.warning('nd upper cover index {}  has no conversion '.format(upper_cover_winner_index))
+    else:
+        n = len(final_mask[final_mask==neurodoll_upper_cover_index])
+        logging.debug('donating to upper cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_cover_index)+' ml index '+str(upper_cover_winner_index)+ ', checking mls '+str(upper_cover_indexlist))
+        for i in upper_cover_indexlist: #whole_body donated to upper_under
+            nd_index = multilabel_to_ultimate21_conversion[i]
+            if nd_index is None:
+                logging.warning('ml index {} has no conversion '.format(i))
+                continue
+            x = final_mask[final_mask==nd_index]
+            final_mask[final_mask==nd_index] = neurodoll_upper_cover_index
+            n = len(final_mask[final_mask==neurodoll_upper_cover_index])
+            logging.info('upper cover ndindex {} {} donated to upper cover winner nd {} , now {} pixels, lenx {} '.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_cover_index, n,len(x)))
+
+#2. take max upper under, donate losers to winner
+    neurodoll_upper_under_index = multilabel_to_ultimate21_conversion[upper_under_winner_index]
+    if neurodoll_upper_under_index is None:
+        logging.warning('nd upper cover index {}  has no conversion '.format(upper_under_winner_index))
+    else:
+        n = len(final_mask[final_mask==neurodoll_upper_under_index])
+        logging.debug('donating to upper under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_upper_under_index)+' ml index '+str(upper_under_winner_index)+ ', checking mls '+str(upper_under_indexlist))
+        for i in upper_under_indexlist: #upper under losers donated to upper under winner
+            nd_index = multilabel_to_ultimate21_conversion[i]
+            print('nd index {} ml index {}'.format(nd_index,i))
+            if nd_index is None:
+                logging.warning('ml index {} has no conversion '.format(i))
+                continue
+            final_mask[final_mask==nd_index] = neurodoll_upper_under_index
+            n = len(final_mask[final_mask==neurodoll_upper_under_index])
+            logging.info('upper under ndindex {} {} donated to upper under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_upper_under_index,n))
+
+#3. take max lower cover, donate losers to winner.
+    neurodoll_lower_cover_index = multilabel_to_ultimate21_conversion[lower_cover_winner_index]
+    if neurodoll_lower_cover_index is None:
+        logging.warning('nd lower cover index {}  has no conversion '.format(lower_cover_winner_index))
+    else:
+        n = len(final_mask[final_mask==neurodoll_lower_cover_index])
+        logging.debug('donating to lower cover winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_cover_index)+' ml index '+str(lower_cover_winner_index)+ ', checking mls '+str(lower_cover_indexlist))
+        for i in lower_cover_indexlist: #lower cover losers donated to lower cover winner
+            nd_index = multilabel_to_ultimate21_conversion[i]
+            if nd_index is None:
+                logging.warning('ml index {} has no conversion '.format(i))
+                continue
+            final_mask[final_mask==nd_index] = neurodoll_lower_cover_index
+            n = len(final_mask[final_mask==neurodoll_lower_cover_index])
+            logging.info('lower cover ndindex {} {} donated to lower cover winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_cover_index,n))
+
+#4. take max lower under, donate losers to winner.
+    neurodoll_lower_under_index = multilabel_to_ultimate21_conversion[lower_under_winner_index]
+    if neurodoll_lower_under_index is None:
+        logging.warning('nd lower under index {}  has no conversion '.format(lower_under_winner_index))
+    else:
+        n = len(final_mask[final_mask==neurodoll_lower_under_index])
+        logging.debug('donating to lower under winner, initial n :'+str(n)+' for ndindex '+str(neurodoll_lower_under_index)+' ml index '+str(lower_under_winner_index)+ ', checking mls '+str(lower_under_indexlist))
+        for i in lower_under_indexlist: #lower under losers donated to lower under winner
+            nd_index = multilabel_to_ultimate21_conversion[i]
+            if nd_index is None:
+                logging.warning('ml index {} has no conversion '.format(i))
+                continue
+            final_mask[final_mask==nd_index] = neurodoll_lower_under_index
+            n = len(final_mask[final_mask==neurodoll_lower_under_index])
+            logging.info('lower under ndindex {} {} donated to lower under winner nd {}, now {} pixels'.format(nd_index,constants.ultimate_21[nd_index],neurodoll_lower_under_index,n))
+
+    logging.debug('after step 4, pixelcounts look like:')
+    count_values(final_mask,labels=constants.ultimate_21)
+
 
     #7. if no lower cover and no whole-body was decided upon above: take max of lowercover items , donate losers to winner
     #8. take at most one lower under, donate losers to winner

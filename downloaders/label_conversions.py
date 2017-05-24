@@ -317,63 +317,69 @@ def hydra_to_pixlevel_v3(hydra_results):
         n_matched = 0
         logging.debug('item '+str(item))
         try:
-            if any([i in item for i in constants.whole_body_group]):
+        #elif here so that each item gets match to only one group
+        #do specific ones first so that: 'sweatshirt'  matches upper cover instead of upper_under(which includes 'shirt' that would match 'sweatshirt)
+            if 'blazer' in item or 'sweatshirt' in item or 'sweater' in item :
+                i = new_labels.index('upper_cover_items')
+                converted_results[i].append(results_dict[item])
+                n_matched += 1
+                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.whole_body_group]):
                 i = new_labels.index('whole_body_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-                print('matched {} {} into whole_body'.format(item,))
-            if any([i in item for i in constants.swimwear_group]):
+                print('matched {} into whole_body {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.swimwear_group]):
                 i = new_labels.index('whole_body_tight_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.undies_group]):
+                print('matched {} into whole_body_tight'.format(item))
+            elif any([i in item for i in constants.undies_group]):
                 i = new_labels.index('undie_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.upper_under_group]):
+                print('matched {} into undies {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.upper_under_group]):
                 i = new_labels.index('upper_under_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.upper_cover_group]):
+                print('matched {} into upper_under {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.upper_cover_group]):
                 i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.lower_long_group]):
+                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.lower_long_group]):
                 i = new_labels.index('lower_cover_long_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.lower_short_group]):
+                print('matched {} into lower_cover_long {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.lower_short_group]):
                 i = new_labels.index('lower_cover_short_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.footwear_group]):
+                print('matched {} into lower_cover_short {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.footwear_group]):
                 i = new_labels.index('footwear_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.wrappy_things_group]):
+                print('matched {} into footwear {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.wrappy_things_group]):
                 i = new_labels.index('wraparound_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if any([i in item for i in constants.accessories_group]):
+                print('matched {} into wraparound {}'.format(item,results_dict[item]))
+            elif any([i in item for i in constants.accessories_group]):
                 i = new_labels.index('bag')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if 'cardigan' in item:
+                print('matched {} into bag {}'.format(item,results_dict[item]))
+            elif 'cardigan' in item:
                 i = new_labels.index('upper_cover_items')
                 converted_results[i].append(results_dict[item])
                 n_matched += 1
-            if 'blazer' in item:
-                i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-            if 'sweatshirt' in item:
-                i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-            if 'sweater' in item:
-                i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
+                print('matched {} into upper_cover {}'.format(item,results_dict[item]))
+
         except:
             e = sys.exc_info()[0]
             print( "<p>Error: %s</p>" % e )
@@ -393,7 +399,13 @@ if __name__=="__main__":
 
     file = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels/93586_var95.png'
     dir  = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels'
-    fashionista_to_ultimate_21_dir(dir)
+#    fashionista_to_ultimate_21_dir(dir)
+
+    multilabel={u'data':
+    {u't-shirt_45000': 0.022, u'shorts_binary_h_iter_50000': 0.006, u'stockings_30000': 0.004, u'top_hydra_iter_25000': 0.533, u'pants_hydra_iter_10000': 0.175, u'blazer_h_iter_15000': 0.0, u'dress_hydra_iter_50000': 0.598, u'belt_95000': 0.015, u'cardigan_binary_h_iter_25000': 0.511, u'jeans_binary_h_iter_10000': 0.102, u'tracksuit_80000': 0.0, u'coat_binary_h_iter_50000': 0.008, u'lingerie_binary_h_iter_50000': 0.0, u'blouse_45000': 0.284, u'hat_hydra_iter_60000': 0.011, u'sweatshirt_binary_h_iter_16000': 0.001, u'backpack_hydra_iter_2000': 0.001, u'shorts_binary_h_iter_30000_charles': 0.003, u'relevant_irrelevant_iter_10000': 0.638, u'skirt_binary_h_iter_50000': 0.987, u'leggings_80000': 0.232, u'url': u'http://s4.thisnext.com/media/largest_dimension/6DA7E812.jpg', u'sweater_binary_h_iter_50000': 0.116, u'jacket_binary_h_iter_50000': 0.007, u'footwear_50000': 0.954, u'suit_65000': 0.143, u'bag_55000': 0.011}}
+    hydra_to_pixlevel_v3(multilabel)
+
+
 
 #    imutils.show_mask_with_labels(file,constants.fashionista_categories_augmented_zero_based,visual_output=True)
 #    newmask = fashionista_to_ultimate_21(file)
