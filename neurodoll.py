@@ -873,7 +873,7 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
     else:
         # BETTER TO SEND A FACE
         y_split = np.round(0.4 * final_mask.shape[0])
-    print('y split {} face {}'.format(y_split,face))
+    print('the y split {} face {}'.format(y_split,face))
 
     #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
     #namely : for top , decide if its a top or dress or jacket
@@ -1404,7 +1404,8 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 
 def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,hydra_multilabel,multilabel_threshold=0.5,
                                      median_factor=1.0,multilabel_labels=constants.ultimate_21,
-                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=False,orig_filename=None):
+                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=False,orig_filename=None,
+                                                              labels=constants.pixlevel_categories_v3):
     '''
     1. decide on wholebody vs 2part using multilabel(hydra)  results
     2. donate losing pixels to winning
@@ -1430,7 +1431,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
         pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     print('counts (after posible graylevel zeroing):')
-    count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
+    count_values(pixlevel_categorical_output,labels=labels)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
@@ -1448,7 +1449,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     else:
         # BETTER TO SEND A FACE
         y_split = np.round(0.4 * final_mask.shape[0])
-    print('y split {} face {}'.format(y_split,face))
+    print('a y split {} face {}'.format(y_split,face))
 
     #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
     #namely : for top , decide if its a top or dress or jacket
@@ -1471,88 +1472,72 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     #6. take winning lower under, donate losers to winner
     #?  if no upper cover and no upper under and no whole-body: take max of all those and donate losers to winner
 
-    #upper_cover: jacket, coat, blazer etc
-    #upper under: shirt, top, blouse etc
-    #lower cover: skirt, pants, shorts
-    #lower under: tights, leggings
+# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
 
-    whole_body_indexlist = [multilabel_labels.index(s) for s in  ['dress', 'suit','overalls']] #swimsuits could be added here
-    upper_cover_indexlist = [multilabel_labels.index(s) for s in  ['cardigan', 'coat','jacket','sweater','sweatshirt']]
-    upper_under_indexlist = [multilabel_labels.index(s) for s in  ['top']]
-    lower_cover_indexlist = [multilabel_labels.index(s) for s in  ['jeans','pants','shorts','skirt']]
-    lower_under_indexlist = [multilabel_labels.index(s) for s in  ['stocking']]
+# pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pajamas' ]
+# pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
+# pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
+# pixlevel3_upper_under = ['shirt']  #nite this is intead of top
+# pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
+# pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
+# pixlevel3_lower_cover_short = ['shorts','skirt']
+# pixlevel3_wraparwounds = ['shawl','scarf']
+# pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
     final_mask = np.copy(pixlevel_categorical_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
-    print('wholebody indices:'+str(whole_body_indexlist))
-    for i in whole_body_indexlist:
-        print multilabel_labels[i]
-    whole_body_ml_values = np.array([multilabel[i] for i in whole_body_indexlist])
+    whole_body_ml_values = multilabel[1]
     print('wholebody ml_values:'+str(whole_body_ml_values))
     whole_body_winner = whole_body_ml_values.argmax()
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
-    whole_body_winner_index=whole_body_indexlist[whole_body_winner]
-    print('winning index:'+str(whole_body_winner)+' mlindex:'+str(whole_body_winner_index)+' value:'+str(whole_body_winner_value))
+    print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
 
-    print('uppercover indices:'+str(upper_cover_indexlist))
-    for i in upper_cover_indexlist:
-        print multilabel_labels[i]
-    upper_cover_ml_values = np.array([multilabel[i] for i in  upper_cover_indexlist])
+    upper_cover_ml_values = multilabel[5]
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
     upper_cover_winner = upper_cover_ml_values.argmax()
     upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
-    upper_cover_winner_index=upper_cover_indexlist[upper_cover_winner]
-    print('winning upper_cover:'+str(upper_cover_winner)+' mlindex:'+str(upper_cover_winner_index)+' value:'+str(upper_cover_winner_value))
+    print('winning upper_cover index :'+str(upper_cover_winner)+' value:'+str(upper_cover_winner_value))
 
-    print('upperunder indices:'+str(upper_under_indexlist))
-    for i in upper_under_indexlist:
-        print multilabel_labels[i]
-    upper_under_ml_values = np.array([multilabel[i] for i in  upper_under_indexlist])
+    upper_under_ml_values = multilabel[4]
     print('upper_under ml_values:'+str(upper_under_ml_values))
     upper_under_winner = upper_under_ml_values.argmax()
     upper_under_winner_value=upper_under_ml_values[upper_under_winner]
-    upper_under_winner_index=upper_under_indexlist[upper_under_winner]
-    print('winning upper_under:'+str(upper_under_winner)+' mlindex:'+str(upper_under_winner_index)+' value:'+str(upper_under_winner_value))
+    print('winning upper_under index :'+str(upper_under_winner)+' value:'+str(upper_under_winner_value))
 
-    print('lowercover indices:'+str(lower_cover_indexlist))
-    for i in lower_cover_indexlist:
-        print multilabel_labels[i]
-    lower_cover_ml_values = np.array([multilabel[i] for i in lower_cover_indexlist])
-    print('lower_cover ml_values:'+str(lower_cover_ml_values))
-    lower_cover_winner = lower_cover_ml_values.argmax()
-    lower_cover_winner_value=lower_cover_ml_values[lower_cover_winner]
-    lower_cover_winner_index=lower_cover_indexlist[lower_cover_winner]
-    print('winning lower_cover:'+str(lower_cover_winner)+' mlindex:'+str(lower_cover_winner_index)+' value:'+str(lower_cover_winner_value))
+    lower_cover_long_ml_values = multilabel[6]
+    print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
+    lower_cover_long_winner = lower_cover_long_ml_values.argmax()
+    lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
+    print('winning lower_long  index :'+str(lower_cover_long_winner)+' value:'+str(lower_cover_long_winner_value))
 
-    print('lowerunder indices:'+str(lower_under_indexlist))
-    for i in lower_under_indexlist:
-        print multilabel_labels[i]
-    lower_under_ml_values = np.array([multilabel[i] for i in  lower_under_indexlist])
-    print('lower_under ml_values:'+str(lower_under_ml_values))
-    lower_under_winner = lower_under_ml_values.argmax()
-    lower_under_winner_value=lower_under_ml_values[lower_under_winner]
-    lower_under_winner_index=lower_under_indexlist[lower_under_winner]
-    print('winning lower_under:'+str(lower_under_winner)+' mlindex:'+str(lower_under_winner_index)+' value:'+str(lower_under_winner_value))
+    lower_cover_short_ml_values = multilabel[7]
+    print('lower_under ml_values:'+str(lower_cover_short_ml_values))
+    lower_cover_short_winner = lower_cover_short_ml_values.argmax()
+    lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
+    print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
 
     #for use later, decide on a winner between upper cover and upper under
+    # WHY do this when both can be there?
     if upper_under_winner_value > upper_cover_winner_value:
         upper_winner_value = upper_under_winner_value
-        upper_winner_index = upper_under_winner_index
+        logging.debug('upper under {} > upper cover {}'.format(upper_under_winner_value,upper_cover_winner_value))
     else:
         upper_winner_value = upper_cover_winner_value
-        upper_winner_index = upper_cover_winner_index
-    #for use later, decide on a winner between lower cover and lower under
-    if lower_under_winner_value > lower_cover_winner_value:
-        lower_winner_value = lower_under_winner_value
-        lower_winner_index = lower_under_winner_index
+        logging.debug('upper under {} <= upper cover {}'.format(upper_under_winner_value,upper_cover_winner_value))
+
+    #for use later, decide on a winner between lower cover long and short
+    if lower_cover_long_winner_value > lower_cover_short_winner_value:
+        lower_winner_value = lower_cover_long_winner_value
+        lower_winner_index = lower_cover_long_winner
+        logging.debug('lower cover long {} > lower cover short {}'.format(lower_cover_long_winner_value,lower_cover_short_winner_value))
     else:
-        lower_winner_value = lower_cover_winner_value
-        lower_winner_index = lower_cover_winner_index
-    upper_winner_nd_index = multilabel_to_ultimate21_conversion[upper_winner_index]
-    lower_winner_nd_index = multilabel_to_ultimate21_conversion[lower_winner_index]
-    print('upper winner {} nd {} val {} lower winner {} nd {} val {}'.format(upper_winner_index,upper_winner_nd_index,upper_winner_value,
-                                                                             lower_winner_index,lower_winner_nd_index,lower_winner_value))
+        lower_winner_value = lower_cover_short_winner_value
+        lower_winner_index = lower_cover_short_winner
+        logging.debug('lower cover long {} <= lower cover short {}'.format(lower_cover_long_winner_value,lower_cover_short_winner_value))
+
 #########################
 # 1. WHOLEBODY VS TWO-PART
 # decide on whole body item (dress, suit, overall) vs. non-whole body items.
@@ -1566,11 +1551,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # case 3 lower_cover>wholebody>upper-under
 # case 4 lower_cover,upper_under > wholebody
 
-#case 1,4 -
-
-# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-#                           'bag','belt','eyewear','hat','tie','skin']
 
 #consider reducing this to nadav's method:
 #    whole_sum = np.sum([item.values()[0] for item in mask_sizes['whole_body']])
@@ -1581,6 +1561,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # its a little different tho since in multilabel you cant compare directly two items to one , e.g. if part1 = 0.6, part2 = 0.6, and whole=0.99, you
 # should prob go with whole even tho part1+part2>whole
 #########################
+    non_whole_body_max = max(lower_cover_short_winner_value,lower_cover_long_winner_value,upper_under_winner_value)
+    if whole_body_winner_value>non_whole_body_max:
+        print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
+    else:
+        print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
+
+
     neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
     if neurodoll_wholebody_index is None:
         logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))

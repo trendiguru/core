@@ -308,6 +308,17 @@ def hydra_to_pixlevel_v3(hydra_results):
 # footwear_group = ['footwear','boots','shoes','sandals']
 # wrappy_things_group = ['shawl','scarf']
 # eyewear_group = ['eyewear','glasses','sunglasses','shades']
+
+# pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pajamas' ]
+# pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
+# pixlevel3_level_undies = ['mens_swimwear','mens_underwear','panties']
+# pixlevel3_upper_under = ['shirt']  #nite this is intead of top
+# pixlevel3_upper_cover = ['cardigan','coat','jacket','sweatshirt','sweater','blazer','vest','poncho']
+# pixlevel3_lower_cover_long = ['jeans','pants','stocking','legging','socks']
+# pixlevel3_lower_cover_short = ['shorts','skirt']
+# pixlevel3_wraparwounds = ['shawl','scarf']
+# pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
+
    # pdb.set_trace()
     logging.debug('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
