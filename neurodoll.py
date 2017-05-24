@@ -1404,7 +1404,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 
 def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,hydra_multilabel,multilabel_threshold=0.5,
                                      median_factor=1.0,multilabel_labels=constants.ultimate_21,
-                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=True,orig_filename=None):
+                                     face=None,required_image_size=(224,224),do_graylevel_zeroing=False,orig_filename=None):
     '''
     1. decide on wholebody vs 2part using multilabel(hydra)  results
     2. donate losing pixels to winning
@@ -1415,13 +1415,14 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
  #   pdb.set_trace()
     print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
     multilabel = label_conversions.hydra_to_pixlevel_v3(hydra_multilabel) #gives list of lists one list for each pixlevel v3 group
-    logging.info('multi label:'+str(multilabel)+' len:'+str(len(multilabel)))
+#    logging.info('multi label:'+str(multilabel)+' len:'+str(len(multilabel)))
     print('hydra multilabel:'+str(hydra_multilabel))
     print('converted multilabel:'+str(multilabel))
 
     #todo take out this extra call when sure abot do_graylevel_zeroing
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
-    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
+    #donate instead of remove small areas so dont do next line (thresold_pixlevel)
+#    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     if do_graylevel_zeroing:  #kill the graylevels not in the ml list
         print('counts before graylevel zeroing:')
         count_values(pixlevel_categorical_output,labels=constants.ultimate_21)
