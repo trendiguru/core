@@ -1599,21 +1599,33 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
+         #lower short beats lower_long, donate long to short and wholebody to longtop
         if lower_cover_short_winner_value>lower_cover_long_winner_value:
+            #donate lower long to lower short
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
-#            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
             donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
-        else:
+            #donate wholebody to upper_under and bottom to lower_short
+            whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
+            upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
+            lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
+            donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
+
+        else:  #lower long beats lower_short, donate short to long and whole to long
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
-#            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
             donate_graylevels(final_mask,donor_cat_indices,recipient_index)
-            donate_to_upper_and_lower(modified_graylevels,donor_indexlist,upper_winner_nd_index,lower_winner_nd_index,multilabel_to_ultimate21_conversion,y_split)
+            #donate whole to upper_under, lower_long
+            whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
+            upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
+            lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
+            donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index)
 
-    pixlevel_categorical_output = final_mask.argmax(axis=2) #the returned mask is HxWxC so take max along C
+
+
+    pixlevel_categorical_output = modified_graylevels.argmax(axis=2) #the returned mask is HxWxC so take max along C
     neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
     if neurodoll_wholebody_index is None:
         logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
