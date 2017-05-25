@@ -1401,19 +1401,14 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 
-def v3_graylevels_to_u21_cats(graylevels,multilabel):
-    # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-#                           'bag','belt','eyewear','hat','tie','skin']
-#ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
-#               'top']
+def v3_graylevels_to_u21_cats(pixlevel_categorical,multilabel,two_part=True):
     '''
-    take v3 graylevels and convert to ultimate_21 using multilabel
+    take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
     :param graylevels:
     :param multilabel:
     :return:
     '''
+
     whole_body_ml_values = np.array(multilabel[1])
     print('wholebody ml_values:'+str(whole_body_ml_values))
     whole_body_winner = whole_body_ml_values.argmax()
@@ -1455,6 +1450,21 @@ def v3_graylevels_to_u21_cats(graylevels,multilabel):
         print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
     else:
         lower_cover_short_winner = 0
+
+    # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
+#ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
+#               'top']
+    #convert whole_body to the winning whole_body
+    whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
+    (pixlevel_categorical==whole_body_index)*
+
+    if two_part:
+
+
+
 
 
 def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,hydra_multilabel,multilabel_threshold=0.5,
