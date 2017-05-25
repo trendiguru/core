@@ -1401,6 +1401,61 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 
+def v3_graylevels_to_u21_cats(graylevels,multilabel):
+    # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
+#ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
+#               'top']
+    '''
+    take v3 graylevels and convert to ultimate_21 using multilabel
+    :param graylevels:
+    :param multilabel:
+    :return:
+    '''
+    whole_body_ml_values = np.array(multilabel[1])
+    print('wholebody ml_values:'+str(whole_body_ml_values))
+    whole_body_winner = whole_body_ml_values.argmax()
+    whole_body_winner_value=whole_body_ml_values[whole_body_winner]
+    print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
+
+    upper_cover_ml_values = np.array(multilabel[5])
+    print('upper_cover ml_values:'+str(upper_cover_ml_values))
+    if upper_cover_ml_values != []:
+        upper_cover_winner = upper_cover_ml_values.argmax()
+        upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
+        print('winning upper_cover index :'+str(upper_cover_winner)+' value:'+str(upper_cover_winner_value))
+    else:
+        upper_cover_winner_value=0
+
+    upper_under_ml_values = np.array(multilabel[4])
+    print('upper_under ml_values:'+str(upper_under_ml_values))
+    if upper_under_ml_values != []:
+        upper_under_winner = upper_under_ml_values.argmax()
+        upper_under_winner_value=upper_under_ml_values[upper_under_winner]
+        print('winning upper_under index :'+str(upper_under_winner)+' value:'+str(upper_under_winner_value))
+    else:
+        upper_under_winner_value=0
+
+    lower_cover_long_ml_values = np.array(multilabel[6])
+    print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
+    if lower_cover_long_ml_values!=[]:
+        lower_cover_long_winner = lower_cover_long_ml_values.argmax()
+        lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
+        print('winning lower_long  index :'+str(lower_cover_long_winner)+' value:'+str(lower_cover_long_winner_value))
+    else:
+        lower_cover_long_winner=0
+
+    lower_cover_short_ml_values = np.array(multilabel[7])
+    print('lower_under ml_values:'+str(lower_cover_short_ml_values))
+    if lower_cover_short_ml_values !=[]:
+        lower_cover_short_winner = lower_cover_short_ml_values.argmax()
+        lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
+        print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
+    else:
+        lower_cover_short_winner = 0
+
 
 def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,hydra_multilabel,multilabel_threshold=0.5,
                                      median_factor=1.0,multilabel_labels=constants.ultimate_21,
@@ -1591,11 +1646,12 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         for id in donor_cat_indices:
             print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[i],
                                                          whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
-        donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
+        modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
 
 # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
 #                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
 #                           'bag','belt','eyewear','hat','tie','skin']
+
 
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
@@ -1610,7 +1666,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
             lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
+            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
+            v3_graylevels_to_u21_cats(modified_graylevels,multilabel)
 
         else:  #lower long beats lower_short, donate short to long and whole to long
             donor_cat_indices = []
@@ -1621,7 +1678,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
             lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
-            donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index)
+            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index)
 
 
 
