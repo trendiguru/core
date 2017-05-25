@@ -1401,7 +1401,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 
-def v3_graylevels_to_u21_cats(pixlevel_categorical,multilabel,two_part=True):
+def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,hydra_output,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
     :param graylevels:
@@ -1442,6 +1442,8 @@ def v3_graylevels_to_u21_cats(pixlevel_categorical,multilabel,two_part=True):
     else:
         lower_cover_long_winner=0
 
+    converted_multilabel=label_conversions.hydra_to_u21(hydra_output)
+
     lower_cover_short_ml_values = np.array(multilabel[7])
     print('lower_under ml_values:'+str(lower_cover_short_ml_values))
     if lower_cover_short_ml_values !=[]:
@@ -1457,11 +1459,29 @@ def v3_graylevels_to_u21_cats(pixlevel_categorical,multilabel,two_part=True):
 #ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
 #               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
 #               'top']
+# whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pajamas','jumpsuit']
+# swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
+# undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
+# upper_cover_group = ['coat', 'jacket']
+# upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
+# #put cardigan back and just use all the others specifically for dress, cuz this way cardigan has to be added to everything else
+# upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
+# lower_long_group = ['jeans', 'pants','tights']
+# lower_short_group = ['skirt','shorts']
+# sock_group = ['leggings','stockings','socks']
+# accessories_group = ['bag','belt','eyewear']
+# footwear_group = ['footwear','boots','shoes','sandals']
+# wrappy_things_group = ['shawl','scarf']
+# eyewear_group = ['eyewear','glasses','sunglasses','shades']
+    v3_whole_body_to_u21=[5,18,12,12,5,5,12,18]
+#    v3_swimwear_to_u21
+#    v3_undies_to_u21
+    v3_upper_cover_to_u21=[4,4]
+    v3_upper_middle_to_u21
+    u21_results = np.zeros_like(pixlevel_v3_categorical)
     #convert whole_body to the winning whole_body
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
-    (pixlevel_categorical==whole_body_index)*
-
-    if two_part:
+    u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*
 
 
 
