@@ -1591,7 +1591,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         for id in donor_cat_indices:
             print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[i],
                                                          whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
-        donate_pixels(final_mask,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
+        donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
 
 # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
 #                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
@@ -1604,13 +1604,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
 #            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            donate_pixels(modified_graylevels,donor_cat_indices,recipient_index)
+            donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
         else:
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
 #            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
-            donate_pixels(final_mask,donor_cat_indices,recipient_index)
+            donate_graylevels(final_mask,donor_cat_indices,recipient_index)
             donate_to_upper_and_lower(modified_graylevels,donor_indexlist,upper_winner_nd_index,lower_winner_nd_index,multilabel_to_ultimate21_conversion,y_split)
 
     pixlevel_categorical_output = final_mask.argmax(axis=2) #the returned mask is HxWxC so take max along C
@@ -2053,7 +2053,17 @@ def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,l
         n2 = len(final_mask[final_mask==lower_winner_nd_index])
         logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
-def donate_pixels(mask_layers,donor_layers,recipient_layer):
+def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
+    logging.info('donating from whole_body  {} to  upper under {} and lower cover {}'.format(donor_index,upper_winner_index,lower_winner_index))
+    logging.debug('donating nd layer {} - top goes to upper_under and bottom to lower_under'.format(donor_index))
+    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_nd_index,y_split))
+    graylevels[0:y_split,:,upper_winner_index] = graylevels[0:y_split,:,donor_index]
+    graylevels[y_split:,:,lower_winner_index] = graylevels[y_split:,:,donor_index]
+    graylevels[:,:,donor_index=0]
+    return graylevels
+
+
+def donate_graylevels(mask_layers,donor_layers,recipient_layer):
     '''
     donate pixel values - mask layers are the n grayscale ayers
     :param mask_layers:
