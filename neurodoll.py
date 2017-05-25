@@ -1486,6 +1486,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # pixlevel3_wraparwounds = ['shawl','scarf']
 # pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
+#possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
+
     final_mask = np.copy(pixlevel_categorical_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
@@ -1578,6 +1580,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
+        donate_pixels(final_mask,donor_cats = )
 
 
     neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
@@ -2019,6 +2022,20 @@ def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,l
         n2 = len(final_mask[final_mask==lower_winner_nd_index])
         logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
+def donate_pixels(mask_layers,donor_layers,recipient_layer):
+    '''
+    donate pixel values - mask layers are the n grayscale ayers
+    :param mask_layers:
+    :param donor_layers: list of which layers are donating
+    :param recipient_layer: which layer is receiving
+    :return:
+    '''
+    initial_sum=np.sum(mask_layers)
+    for d in donor_layers:
+        mask_layers[:,:,recipient_layer] += mask_layers[:,:,d]
+        mask_layers[:,:,d] = 0
+    final_sum=np.sum(mask_layers)
+    print('donate pixels: initial sum {} final sum {}'.format(initial_sum,final_sum))
 
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
