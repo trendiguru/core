@@ -1489,6 +1489,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 #possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
 
     final_mask = np.copy(pixlevel_categorical_output)
+    modified_graylevels = np.copy(graylevel_nd_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
     whole_body_ml_values = np.array(multilabel[1])
@@ -1557,7 +1558,10 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # decide on whole body item (dress, suit, overall) vs. non-whole body items.
     #do this using the multilabel results. maybe take stats on occurences for improvement
 # case 1 - wholebody wins  - ( wholebody>max(upper_under/cover>lower_coverlong/short)
-# case 2 - two piece wins  - donate wholebody to best two-
+# case 2 - two piece wins  - donate wholebody to
+#            a. upper_cover if upper_cover>upper_under (ml results)
+#            b. upper_under if upper_cover<upper_cover
+#            c. winner of lower_cover_short, lower_cover_long
 
 #forget about this approach:
 # case 1 wholebody>max(upper_under/cover>lower_coverlong/short)
@@ -1575,14 +1579,41 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # its a little different tho since in multilabel you cant compare directly two items to one , e.g. if part1 = 0.6, part2 = 0.6, and whole=0.99, you
 # should prob go with whole even tho part1+part2>whole
 #########################
+    #note the below case allows for whole_body and upper_cover to coexist which is unlikely but possible, eg dress+jacket
     non_whole_body_max = max(lower_cover_short_winner_value,lower_cover_long_winner_value,upper_under_winner_value)
     if whole_body_winner_value>non_whole_body_max:
         print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
+        donor_cat_indices = []
+        donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
+        donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
+        donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_under_items'))
+        whole_body_index=1
+        for id in donor_cat_indices:
+            print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[i],
+                                                         whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
+        donate_pixels(final_mask,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
+
+# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
+
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
-        donate_pixels(final_mask,donor_cats = )
+        if lower_cover_short_winner_value>lower_cover_long_winner_value:
+            donor_cat_indices = []
+            donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
+#            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
+            recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
+            donate_pixels(modified_graylevels,donor_cat_indices,recipient_index)
+        else:
+            donor_cat_indices = []
+            donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
+#            donor_cat_indices.append(constants.pixlevel_categories_v3.index('whole_body_items'))
+            recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
+            donate_pixels(final_mask,donor_cat_indices,recipient_index)
+            donate_to_upper_and_lower(modified_graylevels,donor_indexlist,upper_winner_nd_index,lower_winner_nd_index,multilabel_to_ultimate21_conversion,y_split)
 
-
+    pixlevel_categorical_output = final_mask.argmax(axis=2) #the returned mask is HxWxC so take max along C
     neurodoll_wholebody_index = multilabel_to_ultimate21_conversion[whole_body_winner_index]
     if neurodoll_wholebody_index is None:
         logging.warning('nd wholebody index {} ml index {} has no conversion '.format(neurodoll_wholebody_index,whole_body_winner_index))
@@ -2036,6 +2067,7 @@ def donate_pixels(mask_layers,donor_layers,recipient_layer):
         mask_layers[:,:,d] = 0
     final_sum=np.sum(mask_layers)
     print('donate pixels: initial sum {} final sum {}'.format(initial_sum,final_sum))
+    return mask_layers
 
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
