@@ -2001,7 +2001,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     multilabel_output = get_multilabel_output(url_or_np_array)
 
 
-
 def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,lower_winner_nd_index,multilabel_to_ultimate21_conversion,y_split):
     logging.info('donating from whole_body  {} to  upper under {} and lower cover {}'.format(donor_indexlist,upper_winner_nd_index,lower_winner_nd_index))
     if upper_winner_nd_index is None:
