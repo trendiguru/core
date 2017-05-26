@@ -1479,6 +1479,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     print('counts (after posible graylevel zeroing):')
     count_values(pixlevel_categorical_output,labels=labels)
+    count_values(final_mask,labels=labels)
     foreground = np.array((pixlevel_categorical_output>0) * 1)
     background = np.array((pixlevel_categorical_output==0) * 1)
     #    item_masks =  nfc.pd(image, get_all_graylevels=True)
@@ -1673,6 +1674,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index,y_split)
 
         #note recalc final mask after donation
+        print('counting just bfore v4 2 u21')
+        count_values(final_mask,labels=labels)
         v3_graylevels_to_u21_cats(final_mask,multilabel)
 
 
