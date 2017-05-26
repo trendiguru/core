@@ -1702,26 +1702,28 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
          #lower short beats lower_long, donate long to short and wholebody to longtop
         if lower_cover_short_winner_value>lower_cover_long_winner_value:
             #donate lower long to lower short
+            print('lower cover short wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
             donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
             #donate wholebody to upper_under and bottom to lower_short
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
-            upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
+            upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
             lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
             v3_graylevels_to_u21_cats(final_mask,hydra_multilabel)
         #note recalc final mask after donation
 
         else:  #lower long beats lower_short, donate short to long and whole to long
+            print('lower cover long wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
             donate_graylevels(final_mask,donor_cat_indices,recipient_index)
             #donate whole to upper_under, lower_long
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
-            upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
+            upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
             lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index)
 
