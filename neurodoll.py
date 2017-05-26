@@ -1424,9 +1424,9 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
 #    v3_undies_to_u21
     v3_upper_cover_to_u21=[4,4]
     u21_results = np.zeros_like(pixlevel_v3_categorical)
-    converted = label_conversions.hydra_to_u21(multilabel)
+#    converted = label_conversions.hydra_to_u21(multilabel)
     print('incoming ml:'+str(multilabel))
-    print('test conversion hydra-u21:'+str(converted))
+#    print('test conversion hydra-u21:'+str(converted))
     #convert whole_body to the winning whole_body
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
     for u in np.unique(pixlevel_v3_categorical):
