@@ -1595,7 +1595,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
     print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
 
-    upper_cover_ml_values = np.array(multilabel[5])
+    upper_cover_ml_values = np.array([v for k,v in multilabel[5].iteritems()])
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
     if upper_cover_ml_values != []:
         upper_cover_winner = upper_cover_ml_values.argmax()
@@ -1604,7 +1604,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     else:
         upper_cover_winner_value=0
 
-    upper_under_ml_values = np.array(multilabel[4])
+    upper_under_ml_values = np.array([v for k,v in multilabel[4].iteritems()])
     print('upper_under ml_values:'+str(upper_under_ml_values))
     if upper_under_ml_values != []:
         upper_under_winner = upper_under_ml_values.argmax()
@@ -1613,7 +1613,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     else:
         upper_under_winner_value=0
 
-    lower_cover_long_ml_values = np.array(multilabel[6])
+    lower_cover_long_ml_values = np.array([v for k,v in multilabel[6].iteritems()])
     print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
     if lower_cover_long_ml_values!=[]:
         lower_cover_long_winner = lower_cover_long_ml_values.argmax()
@@ -1622,7 +1622,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     else:
         lower_cover_long_winner=0
 
-    lower_cover_short_ml_values = np.array(multilabel[7])
+    lower_cover_short_ml_values = np.array([v for k,v in multilabel[7].iteritems()])
     print('lower_under ml_values:'+str(lower_cover_short_ml_values))
     if lower_cover_short_ml_values !=[]:
         lower_cover_short_winner = lower_cover_short_ml_values.argmax()
