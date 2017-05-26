@@ -442,25 +442,28 @@ def multilabels_from_hydra_to_u21_cat(hydra_cat):
     '''
 
     n_matched=0
-
+    labels = constants.ultimate_21
     if hydra_cat == 't-shirt' or hydra_cat == 'shirt' or hydra_cat=='blouse':
         u21 = 'top'
-        return u21
+        return labels.index(u21)
     if hydra_cat == 'tracksuit':
         u21 = 'suit' #converting tracksuit to suit , if we are limited to u21 this is as good as i can do right now
-        return u21
+        return labels.index(u21)
     if hydra_cat == 'cardigan':
         u21 = 'sweater'
-        return u21
+        return labels.index(u21)
     if hydra_cat == 'jacket':
         u21 = 'coat' #converting jacket to coat ....
-        return u21
+        return labels.index(u21)
     if hydra_cat == 'sweatshirt':
         u21 = 'top' #converting jacket to coat ....
-        return u21
+        return labels.index(u21)
     if hydra_cat == 'footwear':
         u21 = 'shoe' #converting jacket to coat ....
-        return u21
+        return labels.index(u21)
+    if hydra_cat == 'lingerie':
+        u21 = 'dress' #converting lingerie to dress ....
+        return labels.index(u21)
 
     for u21 in constants.ultimate_21:
         if hydra_cat in u21:
@@ -470,7 +473,7 @@ def multilabels_from_hydra_to_u21_cat(hydra_cat):
     if n_matched>1:
         logging.warning('got more than one match in mlfhtuc ')
     if n_matched:
-        return match
+        return labels.index(match)
     logging.warning('didnt find match for '+str(hydra_cat))
     return None
 
@@ -503,7 +506,7 @@ if __name__=="__main__":
         if d is not {}:
             for m,v in d.iteritems():
                 u = multilabels_from_hydra_to_u21_cat(m)
-                print('u {} m {}'.format(u,m))
+                print('u {} index {} multi {}'.format(constants.ultimate_21[u],u,m))
 
 #    imutils.show_mask_with_labels(file,constants.fashionista_categories_augmented_zero_based,visual_output=True)
 #    newmask = fashionista_to_ultimate_21(file)

@@ -1402,6 +1402,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 
+
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
@@ -1438,7 +1439,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
         print('maxkey '+str(maxkey))
-        u21_cat = multilabels_from_hydra_to_u21_cat(maxkey)
+        u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
         if not u21_cat:
             continue
         n=constants.ultimate_21.index(u21_cat) #should be desired cat
