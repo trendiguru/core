@@ -1536,6 +1536,14 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
     print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
 
+######saving interim for debug
+    name = orig_filename+'_stage0output.png'
+    print('combined png name:'+name+' orig filename '+orig_filename)
+    final_mask = modified_graylevels.argmax(axis=2)
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
+
     upper_cover_ml_values = np.array([v for k,v in multilabel[5].iteritems()])
     print('upper_cover ml_values:'+str(upper_cover_ml_values))
     if upper_cover_ml_values != []:
@@ -1634,6 +1642,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
                                                          whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
         modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
 
+######saving interim for debug
+        name = orig_filename+'_stage1output.png'
+        print('combined png name:'+name+' orig filename '+orig_filename)
+        final_mask = modified_graylevels.argmax(axis=2)
+        cv2.imwrite(name,final_mask)
+        nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
     ############  TWO PART
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
@@ -1652,6 +1667,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index,y_split)
 # donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
 
+    ######saving interim for debug
+            name = orig_filename+'_stage2output.png'
+            print('combined png name:'+name+' orig filename '+orig_filename)
+            final_mask = modified_graylevels.argmax(axis=2)
+            cv2.imwrite(name,final_mask)
+            nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
 
         else:  #lower long beats lower_short, donate short to long and whole to long
             print('lower cover long wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
@@ -1663,7 +1685,15 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
             lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
+
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index,y_split)
+######saving interim for debug
+            name = orig_filename+'_stage3output.png'
+            print('combined png name:'+name+' orig filename '+orig_filename)
+            final_mask = modified_graylevels.argmax(axis=2)
+            cv2.imwrite(name,final_mask)
+            nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
 
     #note recalc final mask after donation
     print('counting just bfore v3 2 u21')
