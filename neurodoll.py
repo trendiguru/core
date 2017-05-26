@@ -1401,19 +1401,6 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
                                                               required_image_size=(224,224),orig_filename=filename)
 
-def multilabels_from_hydra_to_u21_cat(hydra_cat):
-    n_matched=0
-    for u21 in constants.ultimate_21:
-        if hydra_cat in u21:
-            logging.debug('matching hydra {} to u21 {}'.format(hydra_cat,u21))
-            n_matched+=1
-            match = u21
-    if n_matched>1:
-        logging.warning('got more than one match in mlfhtuc ')
-    if n_matched:
-        return match
-    logging.warning('didnt find match for '+str(hydra_cat))
-    return None
 
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''

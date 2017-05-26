@@ -435,6 +435,46 @@ def hydra_to_pixlevel_v3(hydra_results):
         print('result {}:{} cat {}'.format(i,converted_results[i],new_labels[i]))
     return converted_results
 
+def multilabels_from_hydra_to_u21_cat(hydra_cat):
+    '''this is for conversion within neurodoll - after getting a hydra result we wind up with a dict
+    which should then get converted to u21, this is for the latter
+    it translates the hydra dict terms into u21 terms (category names not indices)
+    '''
+
+    n_matched=0
+
+    if hydra_cat == 't-shirt' or hydra_cat == 'shirt' or hydra_cat=='blouse':
+        u21 = 'top'
+        return u21
+    if hydra_cat == 'tracksuit':
+        u21 = 'suit' #converting tracksuit to suit , if we are limited to u21 this is as good as i can do right now
+        return u21
+    if hydra_cat == 'cardigan':
+        u21 = 'sweater'
+        return u21
+    if hydra_cat == 'jacket':
+        u21 = 'coat' #converting jacket to coat ....
+        return u21
+    if hydra_cat == 'sweatshirt':
+        u21 = 'top' #converting jacket to coat ....
+        return u21
+    if hydra_cat == 'footwear':
+        u21 = 'shoe' #converting jacket to coat ....
+        return u21
+
+    for u21 in constants.ultimate_21:
+        if hydra_cat in u21:
+            logging.debug('matching hydra {} to u21 {}'.format(hydra_cat,u21))
+            n_matched+=1
+            match = u21
+    if n_matched>1:
+        logging.warning('got more than one match in mlfhtuc ')
+    if n_matched:
+        return match
+    logging.warning('didnt find match for '+str(hydra_cat))
+    return None
+
+
 if __name__=="__main__":
 
     file = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels/93586_var95.png'
@@ -450,9 +490,20 @@ if __name__=="__main__":
      u'relevant_irrelevant_iter_10000': 0.638, u'skirt_binary_h_iter_50000': 0.987, u'leggings_80000': 0.232,
      u'url': u'http://s4.thisnext.com/media/largest_dimension/6DA7E812.jpg', u'sweater_binary_h_iter_50000': 0.116,
      u'jacket_binary_h_iter_50000': 0.007, u'footwear_50000': 0.954, u'suit_65000': 0.143, u'bag_55000': 0.011}}
-    hydra_to_pixlevel_v3(multilabel)
+#    hydra_to_pixlevel_v3(multilabel)
 
 
+    ml2 = [{}, {'tracksuit': 0.0, 'dress': 0.598, 'suit': 0.143}, {'lingerie': 0.0}, {},
+           {'t-shirt': 0.022, 'blouse': 0.284, 'shirt': 0.533},
+           {'cardigan': 0.511, 'blazer': 0.0, 'coat': 0.008, 'sweater': 0.116, 'jacket': 0.007, 'sweatshirt': 0.001},
+           {'legging': 0.232, 'jeans': 0.102, 'stocking': 0.004, 'pants': 0.175},
+           {'skirt': 0.987, 'shorts': 0.003},
+           {'footwear': 0.954}, {}, {}, {}, {}, {}, {}, {}]
+    for d in ml2:
+        if d is not {}:
+            for m,v in d.iteritems():
+                u = multilabels_from_hydra_to_u21_cat(m)
+                print('u {} m {}'.format(u,m))
 
 #    imutils.show_mask_with_labels(file,constants.fashionista_categories_augmented_zero_based,visual_output=True)
 #    newmask = fashionista_to_ultimate_21(file)
