@@ -1386,7 +1386,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     multilabel_output = get_multilabel_output(url_or_np_array)
     multilabel_as_u21 = multilabel_output  #maybe some conversion needed here
-    thedir = './images'
+    thedir='/data/production/caffemodels_and_protos/neurodoll/images'
     Utils.ensure_dir(thedir)
     if isinstance(url_or_np_array, basestring):
         image = url_to_image(url_or_np_array)
@@ -1403,49 +1403,6 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 
 
 
-def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
-    '''
-    take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
-    to decide which ultamte21 label to give to each ultimate21 cat
-    :param graylevels:
-    :param multilabel:raw multilabel results
-    :return:
-    '''
-    #ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
-#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
-#               'top']
-
-#    pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-#                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-#                          'bag','belt','eyewear','hat','tie','skin']
-
-
-    v3_whole_body_to_u21=[5,18,12,12,5,5,12,18]
-#    v3_swimwear_to_u21
-#    v3_undies_to_u21
-    v3_upper_cover_to_u21=[4,4]
-    u21_results = np.zeros_like(pixlevel_v3_categorical)
-    u21_results[:,:]=0 #np.zeros initializes with float not int
-#    converted = label_conversions.hydra_to_u21(multilabel)
-    print('incoming ml:'+str(multilabel))
-#    print('test conversion hydra-u21:'+str(converted))
-    #convert whole_body to the winning whole_body
-    whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
-    for u in np.unique(pixlevel_v3_categorical):
-        print('working on index {} {} from nd'.format(u,constants.pixlevel_categories_v3[u]))
-        if multilabel[u] == {}:
-            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
-            continue
-        print('ml value:'+str(multilabel[u]))
-   #     values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
-        maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
-        print('maxkey '+str(maxkey))
-        u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
-        print('u2 index {} cat {} maxkey {}'.format(u21_cat,constants.ultimate_21[u21_cat],maxkey))
-        if not u21_cat:
-            continue
-        u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
-    return u21_results
 
 
 
@@ -1453,7 +1410,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
 def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,hydra_multilabel,multilabel_threshold=0.5,
                                      median_factor=1.0,multilabel_labels=constants.ultimate_21,
                                      face=None,required_image_size=(224,224),do_graylevel_zeroing=False,orig_filename=None,
-                                                              labels=constants.pixlevel_categories_v3):
+                                     labels=constants.pixlevel_categories_v3):
     '''
     1. decide on wholebody vs 2part using multilabel(hydra)  results
     2. donate losing pixels to winning
@@ -1528,6 +1485,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
 #possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
 
+######saving interim for debug
+    name = orig_filename+'_stage0output.png'
+    print('combined png name:'+name+' orig filename '+orig_filename)
+    final_mask = modified_graylevels.argmax(axis=2)
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
 
     whole_body_ml_values = np.array([v for k,v in multilabel[1].iteritems()])  #does not necessadily preserve order
     print('ml1:'+str(multilabel[1]))
@@ -1536,12 +1500,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
     print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
 
-######saving interim for debug
-    name = orig_filename+'_stage0output.png'
-    print('combined png name:'+name+' orig filename '+orig_filename)
-    final_mask = modified_graylevels.argmax(axis=2)
-    cv2.imwrite(name,final_mask)
-    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
 
     upper_cover_ml_values = np.array([v for k,v in multilabel[5].iteritems()])
@@ -1784,6 +1742,51 @@ def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,
     graylevels[y_split:,:,lower_winner_index] = graylevels[y_split:,:,donor_index]
     graylevels[:,:,donor_index]=0
     return graylevels
+
+def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
+    '''
+    take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
+    to decide which ultamte21 label to give to each ultimate21 cat
+    :param graylevels:
+    :param multilabel:raw multilabel results
+    :return:
+    '''
+    #ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+#               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
+#               'top']
+
+#    pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                          'bag','belt','eyewear','hat','tie','skin']
+
+
+    v3_whole_body_to_u21=[5,18,12,12,5,5,12,18]
+#    v3_swimwear_to_u21
+#    v3_undies_to_u21
+    v3_upper_cover_to_u21=[4,4]
+    u21_results = np.zeros_like(pixlevel_v3_categorical)
+    u21_results[:,:]=0 #np.zeros initializes with float not int
+#    converted = label_conversions.hydra_to_u21(multilabel)
+    print('incoming ml:'+str(multilabel))
+#    print('test conversion hydra-u21:'+str(converted))
+    #convert whole_body to the winning whole_body
+    whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
+    for u in np.unique(pixlevel_v3_categorical):
+        print('working on index {} {} from nd'.format(u,constants.pixlevel_categories_v3[u]))
+        if multilabel[u] == {}:
+            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
+            continue
+        print('ml value:'+str(multilabel[u]))
+   #     values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
+        maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
+        print('maxkey '+str(maxkey))
+        u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
+        print('u2 index {} cat {} maxkey {}'.format(u21_cat,constants.ultimate_21[u21_cat],maxkey))
+        if not u21_cat:
+            continue
+        u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
+    return u21_results
+
 
 
 def donate_graylevels(mask_layers,donor_layers,recipient_layer):

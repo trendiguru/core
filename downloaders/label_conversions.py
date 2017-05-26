@@ -10,7 +10,7 @@ import json
 from trendi.classifier_stuff.caffe_nns import conversion_utils
 import pdb
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 from trendi import constants
 from trendi import Utils
