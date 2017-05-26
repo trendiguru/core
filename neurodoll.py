@@ -1431,6 +1431,13 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     modified_graylevels = np.copy(graylevel_nd_output)
     logging.info('size of final mask '+str(final_mask.shape))
 
+######saving incoming mask for debug
+    name = orig_filename+'_stage0output.png'
+    print('combined png name:'+name+' orig filename '+orig_filename)
+    final_mask = modified_graylevels.argmax(axis=2)
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+
 
     #donate instead of remove small areas so dont do next line (thresold_pixlevel)
 #    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
@@ -1484,13 +1491,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
 #possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
-
-######saving interim for debug
-    name = orig_filename+'_stage0output.png'
-    print('combined png name:'+name+' orig filename '+orig_filename)
-    final_mask = modified_graylevels.argmax(axis=2)
-    cv2.imwrite(name,final_mask)
-    nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
 
     whole_body_ml_values = np.array([v for k,v in multilabel[1].iteritems()])  #does not necessadily preserve order
@@ -1668,12 +1668,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
     #save graymask, this should be identical to nd except no threshold on low amt of pixels
-    graymask_filename = orig_filename+'_origmask.png'
-    print('original mask file:'+graymask_filename)
-    cv2.imwrite(graymask_filename,pixlevel_categorical_output)
-    nice_output = imutils.show_mask_with_labels(graymask_filename,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
-    print('pixcount in original mask')
-    count_values(final_mask,labels=constants.pixlevel_categories_v3)
 
 ##    foreground = np.array((pixlevel_categorical_output>0)*1)  #*1 turns T/F into 1/0
  #   final_mask = final_mask * foreground # only keep stuff that was part of original fg - this is already  true
