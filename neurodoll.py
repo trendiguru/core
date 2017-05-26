@@ -1432,7 +1432,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     for u in np.unique(pixlevel_v3_categorical):
         print('working on index {} from multilabel'.format(u))
         if multilabel[u] == {}:
-            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3))
+            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
             continue
         values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
