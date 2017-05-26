@@ -1432,14 +1432,16 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     #convert whole_body to the winning whole_body
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
     for u in np.unique(pixlevel_v3_categorical):
-        print('working on index {} from multilabel'.format(u))
+        print('working on index {} {} from nd'.format(u,constants.pixlevel_categories_v3))
         if multilabel[u] == {}:
             print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
             continue
-        values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
+        print('ml value:'+str(multilabel[u]))
+   #     values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
         print('maxkey '+str(maxkey))
         u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
+        print('u2 index {} cat {} maxkey {}'.format(u21_cat,constants.ultimate_21[u21_cat],maxkey))
         if not u21_cat:
             continue
         u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
