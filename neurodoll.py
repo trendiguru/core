@@ -1442,8 +1442,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
         if not u21_cat:
             continue
-        n=constants.ultimate_21.index(u21_cat) #should be desired cat
-        u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*n
+        u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
 
 
 
