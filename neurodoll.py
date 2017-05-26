@@ -1516,6 +1516,11 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
     #todo take out this extra call when sure abot do_graylevel_zeroing
     pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    final_mask = np.copy(pixlevel_categorical_output)
+    modified_graylevels = np.copy(graylevel_nd_output)
+    logging.info('size of final mask '+str(final_mask.shape))
+
+
     #donate instead of remove small areas so dont do next line (thresold_pixlevel)
 #    pixlevel_categorical_output = threshold_pixlevel(pixlevel_categorical_output) #threshold out the small areas
     if do_graylevel_zeroing:  #kill the graylevels not in the ml list
@@ -1582,11 +1587,9 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
 #possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
 
-    final_mask = np.copy(pixlevel_categorical_output)
-    modified_graylevels = np.copy(graylevel_nd_output)
-    logging.info('size of final mask '+str(final_mask.shape))
 
-    whole_body_ml_values = np.array(multilabel[1])
+    whole_body_ml_values = np.array([v for k,v in multilabel[1].iteritems])
+    print('ml1:'+str(multilabel[1]))
     print('wholebody ml_values:'+str(whole_body_ml_values))
     whole_body_winner = whole_body_ml_values.argmax()
     whole_body_winner_value=whole_body_ml_values[whole_body_winner]
