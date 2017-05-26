@@ -1405,7 +1405,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
     :param graylevels:
-    :param multilabel:
+    :param multilabel:raw multilabel results
     :return:
     '''
 

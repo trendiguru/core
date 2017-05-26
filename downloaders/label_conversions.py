@@ -288,6 +288,12 @@ def hydra_to_u21(hydra_results):
     return converted_results
 
 def hydra_to_pixlevel_v3(hydra_results):
+    '''
+    convert hydra to pixlevel v3 - a randomly ordered list of confidences for every pixlevel cat
+    e.g. for 'whole_body' we return '[0.9,0.5] which is NOT ORDERED as of now
+    :param hydra_results:
+    :return:
+    '''
     #pixlevelv3 are groups like whole_body, so the translation here will be into arrays
     #e.g. if we got dress=0.9 and suit=0.8 and shirt=0.5 from hydra, translate it to [[0.9,0.8],.....[0.5..]...]
 
@@ -323,7 +329,7 @@ def hydra_to_pixlevel_v3(hydra_results):
     logging.debug('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
-#    converted_results = [[] for i in new_labels]  #list of empty lists to populate
+    converted_results = [[] for i in new_labels]  #list of empty lists to populate
     l1 = [0 for i in constants.pixlevel3_whole_body]
     l2 = [0 for i in constants.pixlevel3_whole_body_tight]
     l3 = [0 for i in constants.pixlevel3_level_undies]
@@ -334,7 +340,7 @@ def hydra_to_pixlevel_v3(hydra_results):
     l8 = [0 for i in constants.pixlevel3__pixlevel_footwear]
     l9 = [0 for i in constants.pixlevel3_wraparwounds]
     #a list for everything in pxilevel cats v3
-    converted_results = [l1,l2,l3,l4,l5,l6,l7,l8,l9,[0],[0],[0],[0],[0],[0]]
+ #   converted_results = [l1,l2,l3,l4,l5,l6,l7,l8,l9,[0],[0],[0],[0],[0],[0]]
 
     for item in results_dict:
         n_matched = 0
