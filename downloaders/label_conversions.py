@@ -289,8 +289,9 @@ def hydra_to_u21(hydra_results):
 
 def hydra_to_pixlevel_v3(hydra_results):
     '''
-    convert hydra to pixlevel v3 - a randomly ordered list of confidences for every pixlevel cat
-    e.g. for 'whole_body' we return '[0.9,0.5] which is NOT ORDERED as of now
+    convert hydra to pixlevel v3 -
+    a dict of confidences for every pixlevel cat, with names to keep track of which conf is which
+    e.g. for 'whole_body' we return '[{'dress':0.9,'overalls':0.5]
     :param hydra_results:
     :return:
     '''
@@ -300,20 +301,6 @@ def hydra_to_pixlevel_v3(hydra_results):
 # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
 #                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
 #                           'bag','belt','eyewear','hat','tie','skin']
-# whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pajamas','jumpsuit']
-# swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
-# undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
-# upper_cover_group = ['coat', 'jacket']
-# upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
-# #put cardigan back and just use all the others specifically for dress, cuz this way cardigan has to be added to everything else
-# upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
-# lower_long_group = ['jeans', 'pants','tights']
-# lower_short_group = ['skirt','shorts']
-# sock_group = ['leggings','stockings','socks']
-# accessories_group = ['bag','belt','eyewear']
-# footwear_group = ['footwear','boots','shoes','sandals']
-# wrappy_things_group = ['shawl','scarf']
-# eyewear_group = ['eyewear','glasses','sunglasses','shades']
 
 # pixlevel3_whole_body = ['dress','suit','overalls','tracksuit','sarong','robe','pajamas' ]
 # pixlevel3_whole_body_tight = ['womens_swimwear_nonbikini','womens_swimwear_bikini','lingerie','bra']
@@ -325,89 +312,122 @@ def hydra_to_pixlevel_v3(hydra_results):
 # pixlevel3_wraparwounds = ['shawl','scarf']
 # pixlevel3__pixlevel_footwear = ['boots','shoes','sandals']
 
-   # pdb.set_trace()
     logging.debug('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
-    converted_results = [[] for i in new_labels]  #list of empty lists to populate
-    l1 = [0 for i in constants.pixlevel3_whole_body]
-    l2 = [0 for i in constants.pixlevel3_whole_body_tight]
-    l3 = [0 for i in constants.pixlevel3_level_undies]
-    l4 = [0 for i in constants.pixlevel3_upper_under]
-    l5 = [0 for i in constants.pixlevel3_upper_cover]
-    l6 = [0 for i in constants.pixlevel3_lower_cover_long]
-    l7 = [0 for i in constants.pixlevel3_lower_cover_short]
-    l8 = [0 for i in constants.pixlevel3__pixlevel_footwear]
-    l9 = [0 for i in constants.pixlevel3_wraparwounds]
-    #a list for everything in pxilevel cats v3
- #   converted_results = [l1,l2,l3,l4,l5,l6,l7,l8,l9,[0],[0],[0],[0],[0],[0]]
-
+    converted_results = [{} for i in new_labels]  #list of empty lists to populate
     for item in results_dict:
         n_matched = 0
         logging.debug('item '+str(item))
         try:
         #elif here so that each item gets match to only one group
         #do specific ones first so that: 'sweatshirt'  matches upper cover instead of upper_under(which includes 'shirt' that would match 'sweatshirt)
-            if 'blazer' in item or 'sweatshirt' in item or 'sweater' in item :
+            if 'blazer' in item  in item :
                 i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
+                converted_results[i]['blazer']=results_dict[item]
                 n_matched += 1
                 logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.whole_body_group]):
-                i = new_labels.index('whole_body_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into whole_body {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.swimwear_group]):
-                i = new_labels.index('whole_body_tight_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into whole_body_tight'.format(item))
-            elif any([i in item for i in constants.undies_group]):
-                i = new_labels.index('undie_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into undies {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.upper_under_group]):
-                i = new_labels.index('upper_under_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into upper_under {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.upper_cover_group]):
+            if  'sweatshirt' in item  :
                 i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
+                converted_results[i]['sweatshirt']=results_dict[item]
                 n_matched += 1
                 logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.lower_long_group]):
-                i = new_labels.index('lower_cover_long_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into lower_cover_long {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.lower_short_group]):
-                i = new_labels.index('lower_cover_short_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into lower_cover_short {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.footwear_group]):
-                i = new_labels.index('footwear_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into footwear {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.wrappy_things_group]):
-                i = new_labels.index('wraparound_items')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into wraparound {}'.format(item,results_dict[item]))
-            elif any([i in item for i in constants.accessories_group]):
-                i = new_labels.index('bag')
-                converted_results[i].append(results_dict[item])
-                n_matched += 1
-                logging.debug('matched {} into bag {}'.format(item,results_dict[item]))
-            elif 'cardigan' in item:
+            if  'sweater' in item :
                 i = new_labels.index('upper_cover_items')
-                converted_results[i].append(results_dict[item])
+                converted_results[i]['sweater']=results_dict[item]
                 n_matched += 1
                 logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+
+            for potential_match in constants.pixlevel3_whole_body:
+                if potential_match in item:
+                    i = new_labels.index('whole_body_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into whole_body {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_whole_body_tight:
+                if potential_match in item:
+                    i = new_labels.index('whole_body_tight_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into whole_body_tight {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_level_undies:
+                if potential_match in item:
+                    i = new_labels.index('undie_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into undie_items {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_upper_under:
+                if potential_match in item:
+                    i = new_labels.index('upper_under_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_under {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_upper_cover:
+                if potential_match in item:
+                    i = new_labels.index('upper_cover_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_lower_cover_long:
+                if potential_match in item:
+                    i = new_labels.index('lower_cover_long_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_lower_cover_short:
+                if potential_match in item:
+                    i = new_labels.index('lower_cover_short_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_wraparwounds:
+                if potential_match in item:
+                    i = new_labels.index('wraparound_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
+            for potential_match in constants.pixlevel3_footwear:
+                if potential_match in item:
+                    i = new_labels.index('footwear_items')
+                    converted_results[i][item]=results_dict[item]
+                    n_matched += 1
+                    logging.debug('matched {} into upper_cover {}'.format(item,results_dict[item]))
+                if n_matched:
+                    if n_matched>1:
+                        logging.warning('got more than one match for {}'.format(i))
+                    continue
 
         except:
             e = sys.exc_info()[0]

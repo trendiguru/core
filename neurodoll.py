@@ -1674,6 +1674,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 # should prob go with whole even tho part1+part2>whole
 #########################
     #note the below case allows for whole_body and upper_cover to coexist which is unlikely but possible, eg dress+jacket
+    pdb.set_trace()
+
     non_whole_body_max = max(lower_cover_short_winner_value,lower_cover_long_winner_value,upper_under_winner_value)
     if whole_body_winner_value>non_whole_body_max:
         print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
@@ -2184,7 +2186,7 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer):
         mask_layers[:,:,recipient_layer] += mask_layers[:,:,d]
         mask_layers[:,:,d] = 0
     final_sum=np.sum(mask_layers)
-    print('donate pixels: initial sum {} final sum {}'.format(initial_sum,final_sum))
+    print('donate graylevels: initial sum {} final sum {}'.format(initial_sum,final_sum))
     return mask_layers
 
 if __name__ == "__main__":
