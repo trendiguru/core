@@ -1680,6 +1680,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     pdb.set_trace()
 
     non_whole_body_max = max(lower_cover_short_winner_value,lower_cover_long_winner_value,upper_under_winner_value)
+    ############  WHOLE BODAAAY
     if whole_body_winner_value>non_whole_body_max:
         print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
         donor_cat_indices = []
@@ -1692,11 +1693,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
                                                          whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
         modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
 
-# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-#                           'bag','belt','eyewear','hat','tie','skin']
-
-
+    ############  TWO PART
     else:
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
          #lower short beats lower_long, donate long to short and wholebody to longtop
@@ -1711,7 +1708,9 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
             lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
+            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index,y_split)
+# donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
+
             v3_graylevels_to_u21_cats(final_mask,hydra_multilabel)
         #note recalc final mask after donation
 
@@ -1725,7 +1724,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
             lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
-            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index)
+            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index,y_split)
 
 
 
@@ -2171,7 +2170,7 @@ def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,l
 def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
     logging.info('donating from whole_body  {} to  upper under {} and lower cover {}'.format(donor_index,upper_winner_index,lower_winner_index))
     logging.debug('donating nd layer {} - top goes to upper_under and bottom to lower_under'.format(donor_index))
-    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_nd_index,y_split))
+    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_index,y_split))
     graylevels[0:y_split,:,upper_winner_index] = graylevels[0:y_split,:,donor_index]
     graylevels[y_split:,:,lower_winner_index] = graylevels[y_split:,:,donor_index]
     graylevels[:,:,donor_index]=0
