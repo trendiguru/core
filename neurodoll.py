@@ -1666,6 +1666,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         #note recalc final mask after donation
         print('counting just bfore v4 2 u21')
         count_values(final_mask,labels=labels)
+        final_mask = modified_graylevels.argmax(axis=2)
+        print('final mask size '+str(final_mask.shape))
         v3_graylevels_to_u21_cats(final_mask,multilabel)
 
 
