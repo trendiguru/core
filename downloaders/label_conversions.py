@@ -323,7 +323,18 @@ def hydra_to_pixlevel_v3(hydra_results):
     logging.debug('incoming dict:'+str(hydra_results))
     results_dict = hydra_results['data']
     new_labels = constants.pixlevel_categories_v3
-    converted_results = [[] for i in new_labels]  #list of empty lists to populate
+#    converted_results = [[] for i in new_labels]  #list of empty lists to populate
+    l1 = [0 for i in constants.pixlevel3_whole_body]
+    l2 = [0 for i in constants.pixlevel3_whole_body_tight]
+    l3 = [0 for i in constants.pixlevel3_level_undies]
+    l4 = [0 for i in constants.pixlevel3_upper_under]
+    l5 = [0 for i in constants.pixlevel3_upper_cover]
+    l6 = [0 for i in constants.pixlevel3_lower_cover_long]
+    l7 = [0 for i in constants.pixlevel3_lower_cover_short]
+    l8 = [0 for i in constants.pixlevel3__pixlevel_footwear]
+    l9 = [0 for i in constants.pixlevel3_wraparwounds]
+    converted_results = [l1,l2,l3,l4,l5,l6,l7,l8,l9,[0],[0],[0],[0],[0],[0]]
+
     for item in results_dict:
         n_matched = 0
         logging.debug('item '+str(item))
