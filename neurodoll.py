@@ -1404,6 +1404,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
+    to decide which ultamte21 label to give to each ultimate21 cat
     :param graylevels:
     :param multilabel:raw multilabel results
     :return:
@@ -1477,11 +1478,18 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
 #    v3_swimwear_to_u21
 #    v3_undies_to_u21
     v3_upper_cover_to_u21=[4,4]
-    v3_upper_middle_to_u21
     u21_results = np.zeros_like(pixlevel_v3_categorical)
+    converted = label_conversions.hydra_to_u21(multilabel)
+    print('test conversion hydra-u21:'+str(converted))
     #convert whole_body to the winning whole_body
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
-    u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*
+    for u in np.unique(pixlevel_v3_categorical):
+        print('working on index {} from multilabel'.format(u))
+        if u==0: #bgnd
+            pass
+        if u==1: #whole body
+            u21_results
+            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*
 
 
 
@@ -1697,7 +1705,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under')
             lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index)
-            v3_graylevels_to_u21_cats(modified_graylevels,multilabel)
+            v3_graylevels_to_u21_cats(final_mask,hydra_multilabel)
+        #note recalc final mask after donation
 
         else:  #lower long beats lower_short, donate short to long and whole to long
             donor_cat_indices = []
