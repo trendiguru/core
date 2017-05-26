@@ -1401,6 +1401,13 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
                                                               required_image_size=(224,224),orig_filename=filename)
 
+def multilabels_from_hydra_to_u21_cat(hydra_cat):
+    for u21 in constants.ultimate_21:
+        if hydra_cat in u21:
+            print('matching hydra {} to u21 {}'.format(hydra_cat,u21))
+        return u21
+    print('didnt find match for '+str(hydra_cat))
+    return None
 
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
@@ -1437,7 +1444,10 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
         print('maxkey '+str(maxkey))
-        n=1 #should be desired cat
+        u21_cat = multilabels_from_hydra_to_u21_cat(maxkey)
+        if not u21_cat:
+            continue
+        n=constants.ultimate_21.index(u21_cat) #should be desired cat
         u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*n
 
 
