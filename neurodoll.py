@@ -19,6 +19,7 @@ import time
 import pdb
 import requests
 import json
+import operator
 
 from trendi import constants
 from trendi.utils import imutils
@@ -1409,88 +1410,35 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     :param multilabel:raw multilabel results
     :return:
     '''
-
-    whole_body_ml_values = np.array(multilabel[1])
-    print('wholebody ml_values:'+str(whole_body_ml_values))
-    whole_body_winner = whole_body_ml_values.argmax()
-    whole_body_winner_value=whole_body_ml_values[whole_body_winner]
-    print('winning index:'+str(whole_body_winner)+' value:'+str(whole_body_winner_value))
-
-    upper_cover_ml_values = np.array(multilabel[5])
-    print('upper_cover ml_values:'+str(upper_cover_ml_values))
-    if upper_cover_ml_values != []:
-        upper_cover_winner = upper_cover_ml_values.argmax()
-        upper_cover_winner_value=upper_cover_ml_values[upper_cover_winner]
-        print('winning upper_cover index :'+str(upper_cover_winner)+' value:'+str(upper_cover_winner_value))
-    else:
-        upper_cover_winner_value=0
-
-    upper_under_ml_values = np.array(multilabel[4])
-    print('upper_under ml_values:'+str(upper_under_ml_values))
-    if upper_under_ml_values != []:
-        upper_under_winner = upper_under_ml_values.argmax()
-        upper_under_winner_value=upper_under_ml_values[upper_under_winner]
-        print('winning upper_under index :'+str(upper_under_winner)+' value:'+str(upper_under_winner_value))
-    else:
-        upper_under_winner_value=0
-
-    lower_cover_long_ml_values = np.array(multilabel[6])
-    print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
-    if lower_cover_long_ml_values!=[]:
-        lower_cover_long_winner = lower_cover_long_ml_values.argmax()
-        lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
-        print('winning lower_long  index :'+str(lower_cover_long_winner)+' value:'+str(lower_cover_long_winner_value))
-    else:
-        lower_cover_long_winner=0
-
-    converted_multilabel=label_conversions.hydra_to_u21(hydra_output)
-
-    lower_cover_short_ml_values = np.array(multilabel[7])
-    print('lower_under ml_values:'+str(lower_cover_short_ml_values))
-    if lower_cover_short_ml_values !=[]:
-        lower_cover_short_winner = lower_cover_short_ml_values.argmax()
-        lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
-        print('winning lower_short index :'+str(lower_cover_short_winner)+' value:'+str(lower_cover_short_winner_value))
-    else:
-        lower_cover_short_winner = 0
-
-    # pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-#                           'bag','belt','eyewear','hat','tie','skin']
-#ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
+    #ultimate_21 = ['bgnd','bag','belt','blazer','coat','dress','eyewear','face','hair','hat',
 #               'jeans','leggings','pants','shoe','shorts','skin','skirt','stockings','suit','sweater',
 #               'top']
-# whole_body_group = ['dress','suit','overalls','tracksuit', 'sarong','robe','pajamas','jumpsuit']
-# swimwear_group = ['womens_swimwear_nonbikini','bikini','mens_swimwear']
-# undies_group = ['bra','panties','babydoll','lingerie','mens_underwear']
-# upper_cover_group = ['coat', 'jacket']
-# upper_middle_group = ['blazer','sweatshirt', 'hoodie', 'sweater', 'vest', 'poncho'] #cardigan is not here on purpose since it often goes w dress but sweater does not - check this....
-# #put cardigan back and just use all the others specifically for dress, cuz this way cardigan has to be added to everything else
-# upper_under_group = ['top','shirt','t-shirt', 'button-down', 'blouse', 'polo', 'henley', 'tube', 'tanktop']
-# lower_long_group = ['jeans', 'pants','tights']
-# lower_short_group = ['skirt','shorts']
-# sock_group = ['leggings','stockings','socks']
-# accessories_group = ['bag','belt','eyewear']
-# footwear_group = ['footwear','boots','shoes','sandals']
-# wrappy_things_group = ['shawl','scarf']
-# eyewear_group = ['eyewear','glasses','sunglasses','shades']
+
+#    pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                          'bag','belt','eyewear','hat','tie','skin']
+
+
     v3_whole_body_to_u21=[5,18,12,12,5,5,12,18]
 #    v3_swimwear_to_u21
 #    v3_undies_to_u21
     v3_upper_cover_to_u21=[4,4]
     u21_results = np.zeros_like(pixlevel_v3_categorical)
     converted = label_conversions.hydra_to_u21(multilabel)
+    print('incoming ml:'+str(multilabel))
     print('test conversion hydra-u21:'+str(converted))
     #convert whole_body to the winning whole_body
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
     for u in np.unique(pixlevel_v3_categorical):
         print('working on index {} from multilabel'.format(u))
-        if u==0: #bgnd
-            pass
-        if u==1: #whole body
-            u21_results
-            n=1 #should be desired cat
-            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*n
+        if multilabel[u] == {}:
+            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3))
+            continue
+        values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
+        maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
+        print('maxkey '+str(maxkey))
+        n=1 #should be desired cat
+        u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*n
 
 
 
@@ -1711,8 +1659,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index,y_split)
 # donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
 
-            v3_graylevels_to_u21_cats(final_mask,hydra_multilabel)
-        #note recalc final mask after donation
 
         else:  #lower long beats lower_short, donate short to long and whole to long
             print('lower cover long wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
@@ -1726,6 +1672,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
             modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index,y_split)
 
+        #note recalc final mask after donation
+        v3_graylevels_to_u21_cats(final_mask,multilabel)
 
 
     pixlevel_categorical_output = modified_graylevels.argmax(axis=2) #the returned mask is HxWxC so take max along C
