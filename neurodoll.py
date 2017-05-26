@@ -1402,11 +1402,17 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 def multilabels_from_hydra_to_u21_cat(hydra_cat):
+    n_matched=0
     for u21 in constants.ultimate_21:
         if hydra_cat in u21:
-            print('matching hydra {} to u21 {}'.format(hydra_cat,u21))
-        return u21
-    print('didnt find match for '+str(hydra_cat))
+            logging.debug('matching hydra {} to u21 {}'.format(hydra_cat,u21))
+            n_matched+=1
+            match = u21
+    if n_matched>1:
+        logging.warning('got more than one match in mlfhtuc ')
+    if n_matched:
+        return match
+    logging.warning('didnt find match for '+str(hydra_cat))
     return None
 
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
@@ -1431,6 +1437,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
 #    v3_undies_to_u21
     v3_upper_cover_to_u21=[4,4]
     u21_results = np.zeros_like(pixlevel_v3_categorical)
+    u21_results[:,:]=0 #np.zeros initializes with float not int
 #    converted = label_conversions.hydra_to_u21(multilabel)
     print('incoming ml:'+str(multilabel))
 #    print('test conversion hydra-u21:'+str(converted))
