@@ -1489,7 +1489,8 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
             pass
         if u==1: #whole body
             u21_results
-            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*
+            n=1 #should be desired cat
+            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*n
 
 
 
