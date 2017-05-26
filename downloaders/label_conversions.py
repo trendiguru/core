@@ -333,6 +333,7 @@ def hydra_to_pixlevel_v3(hydra_results):
     l7 = [0 for i in constants.pixlevel3_lower_cover_short]
     l8 = [0 for i in constants.pixlevel3__pixlevel_footwear]
     l9 = [0 for i in constants.pixlevel3_wraparwounds]
+    #a list for everything in pxilevel cats v3
     converted_results = [l1,l2,l3,l4,l5,l6,l7,l8,l9,[0],[0],[0],[0],[0],[0]]
 
     for item in results_dict:

@@ -1401,7 +1401,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                                                               required_image_size=(224,224),orig_filename=filename)
 
 
-def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,hydra_output,two_part=True):
+def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
     :param graylevels:
