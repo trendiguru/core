@@ -1488,8 +1488,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
     first_time_thru = True  #hack to dtermine image size coming back from neurodoll
 
- #   final_mask = np.zeros([224,224])
-    final_mask = np.zeros(pixlevel_categorical_output.shape[:])
     print('final_mask shape '+str(final_mask.shape))
 
     if face:
@@ -1499,18 +1497,6 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         y_split = np.round(0.4 * final_mask.shape[0])
     print('a y split {} face {}'.format(y_split,face))
 
-    #the grabcut results dont seem too hot so i am moving to a 'nadav style' from-nd-and-ml-to-results system
-    #namely : for top , decide if its a top or dress or jacket
-    # for bottom, decide if dress/pants/skirt
-    #decide on one bottom
- #   for i in range(len(thresholded_multilabel)):
- #       if multilabel_labels[i] in ['dress', 'jeans','shorts','pants','skirt','suit','overalls'] #missing from list is various swimwear which arent getting returned from nd now anyway
-
-#############################################################################################
-#Make some conclusions nadav style.
-#Currently the decisions are based only on ml results without taking into acct the nd results.
-#In future possibly inorporate nd as well, first do a head-to-head test of nd vs ml
-#############################################################################################
     #1. using ml results decide on whole body item (dress, suit, overall) vs. non-whole body (two part e.g. skirt+top) items.
             #max(whole body confidences) vs max(upper_cover), max(upper_UNDER), max(lower_cover), etc
     #2. if wholebody beats two-part - donate all non-whole-body pixels to whole body (except upper-cover (jacket/blazer etc)  and lower under-stockings)
