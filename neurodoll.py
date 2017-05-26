@@ -1588,7 +1588,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 #possible improvement - compare nd and multilabel results for 'combined confidence' e.g. based on # pixels
 
 
-    whole_body_ml_values = np.array([v for k,v in multilabel[1].iteritems])
+    whole_body_ml_values = np.array([v for k,v in multilabel[1].iteritems()])  #does not necessadily preserve order
     print('ml1:'+str(multilabel[1]))
     print('wholebody ml_values:'+str(whole_body_ml_values))
     whole_body_winner = whole_body_ml_values.argmax()
