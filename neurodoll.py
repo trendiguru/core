@@ -2167,7 +2167,7 @@ def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,
     logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_nd_index,y_split))
     graylevels[0:y_split,:,upper_winner_index] = graylevels[0:y_split,:,donor_index]
     graylevels[y_split:,:,lower_winner_index] = graylevels[y_split:,:,donor_index]
-    graylevels[:,:,donor_index=0]
+    graylevels[:,:,donor_index]=0
     return graylevels
 
 
