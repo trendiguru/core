@@ -51,5 +51,5 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ] #
-    for u in urls+url:
+    for u in urls+[url]:
         nd(u,get_combined_results=True)
