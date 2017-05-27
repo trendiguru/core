@@ -1396,8 +1396,10 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
         hash.update(str(time.time()))
         name_base = 'orig'+hash.hexdigest()[:10]
         filename = os.path.join(thedir,name_base)
+        image = url_or_np_array
     filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
     print('using name {} for saving results'.format(filename))
+    cv2.imwrite(filename,image)
     combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
                                                               required_image_size=(224,224),orig_filename=filename)
 
