@@ -443,7 +443,7 @@ def multilabels_from_hydra_to_u21_cat(hydra_cat):
 
     n_matched=0
     labels = constants.ultimate_21
-    logging.debug('attempting to match '.format(hydra_cat))
+    logging.debug('attempting to match {}'.format(hydra_cat))
     if hydra_cat == 't-shirt' or hydra_cat == 'shirt' or hydra_cat=='blouse':
         u21 = 'top'
         return labels.index(u21)
