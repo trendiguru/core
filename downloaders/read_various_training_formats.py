@@ -988,7 +988,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
         cv2.imshow('out',img_arr)
-        cv2.waitKey(0)
+        cv2.waitKey(1)
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     '''
@@ -1035,6 +1035,7 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
         img2[:,:]=fillval
         img2[top:,left:right,:]=img_arr[top:,left:right,:]##
         img_arr = img2#
+        raw_input('ret to cont')
         #
         # top=bb_x1y1x2y2[1]+lower_margin
         # left = bb_x1y1x2y2[0]
@@ -1051,6 +1052,7 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
         img2[:,:,:]=fillval
         img2[top:bottom,left:right,:]=img_arr[top:bottom,left:right,:]
         img_arr = img2
+        raw_input('ret to cont')
 
     return img_arr
 
