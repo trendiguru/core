@@ -1830,6 +1830,7 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer,labels=constants.
     :param recipient_layer: which layer is receiving
     :return:
     '''
+    pdb.set_trace()
     print('donating graylevels from {} to {}, shape {}'.format(donor_layers,recipient_layer,mask_layers.shape))
     mask = np.argmax(mask_layers,axis=2)
     print('pixel count before donation')
