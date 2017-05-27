@@ -580,7 +580,7 @@ pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','u
 
 pixlevel_v3_min_area_thresholds = [0.01,0.01,0.01,0.01,0.01,
                                    0.01,0.01,0.01,0.01,0.01,
-                       0.001,0.001,0.001,0.001,0.001,0.01]
+                       0.005,0.001,0.001,0.001,0.001,0.01]
 
 
 ultimate_21_to_pixlevel_v3 = [0,10,11,5,5,1,12,None,None,13,6,6,6,8,7,15,7,6,1,5,4]
