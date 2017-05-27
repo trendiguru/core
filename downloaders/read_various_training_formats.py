@@ -1032,7 +1032,7 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
         img2=copy.copy(img_arr)
         img2[:,:]=fillval
         img2[top:,left:right,:]=img_arr[top:,left:right,:]
-        img_arr = img2
+        img_arr = img2#
         #
         # top=bb_x1y1x2y2[1]+lower_margin
         # left = bb_x1y1x2y2[0]
