@@ -1195,6 +1195,14 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
             print('writing: '+line)
             fp.write(line+'\n')
 
+def deepfashion_folder_to_cat(dir_to_cat,dir):
+    for tup in dir_to_cat:
+        if tup[0]==dir:
+            print('matched {} to {}'.format(dir,tup[1]))
+            return tup[1]
+    print('coulndt find match for '+str(dir))
+    return None
+
 def deepfashion_to_tg_hydra(folderpath='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/img'):
     '''
     generate list of deepfashion folders and corresponding categories from our list (map is using constants.deep_fashion_to_trendi_map)

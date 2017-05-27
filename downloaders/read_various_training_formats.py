@@ -955,10 +955,13 @@ def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category
     :param bbfile:
     :return:
     '''
-    pardir = Utils.parent_dir(bbfile)
+    dir = Utils.parent_dir(bbfile)
+    pardir = Utils.parent_dir(dir)
     print('pardir '+str(pardir))
     with open(bbfile,'r') as fp:
         lines = fp.readlines()
+    dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
+    print(dir_to_catlist[0])
     for line in lines:
         if not '.jpg' in line:
             #first and second lines are metadata
@@ -969,9 +972,12 @@ def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category
         y1=int(y1)
         y2=int(y2)
         print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+        image_dir = Utils.parent_dir(image_name)
+        create_nn_imagelsts.deep_fashion_folder_to_cat(dir_to_catlist,dir)
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+        cv2.imshow('out',img_arr)
         cv2.waitKey(0)
 
 
