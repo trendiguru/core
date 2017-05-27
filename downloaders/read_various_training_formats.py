@@ -1010,12 +1010,14 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     fillval = 255
     swatch = img_arr[0:20,0:20,:]
     fillval = np.mean(swatch,axis=(0,1))
+    fillval = np.array(fillval,dtype=np.uint8)
     print('fillval:'+str(fillval))
+    h,w = img_arr.shape[0:2]
     if pixlevel_v3_cat=='upper_cover_items' or pixlevel_v3_cat == 'upper_under_items':
         top=0
-        bottom=bb_x1y1x2y2[3]-upper_margin
-        left = bb_x1y1x2y2[0]+side_margin
-        right = bb_x1y1x2y2[2]-side_margin
+        bottom=max(0,bb_x1y1x2y2[3]-upper_margin)
+        left = max(0,bb_x1y1x2y2[0]-side_margin)
+        right = min(w,bb_x1y1x2y2[2]+side_margin)
         img2=copy.copy(img_arr)
         img2[:,:]=fillval
         img2[top:bottom,left:right,:]=img_arr[top:bottom,left:right,:]
@@ -1026,9 +1028,9 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
         # right = bb_x1y1x2y2[2]
         # img_arr[bottom:,left:right]=fillval
     elif pixlevel_v3_cat=='lower_cover_long_items' or pixlevel_v3_cat == 'lower_cover_short_items':
-        top=bb_x1y1x2y2[1]+lower_margin
-        left = bb_x1y1x2y2[0]+side_margin
-        right = bb_x1y1x2y2[2]-side_margin
+        top=min(h,bb_x1y1x2y2[1]+lower_margin)
+        left = max(0,bb_x1y1x2y2[0]-side_margin)
+        right = min(w,bb_x1y1x2y2[2]+side_margin)
         img2=copy.copy(img_arr)
         img2[:,:]=fillval
         img2[top:,left:right,:]=img_arr[top:,left:right,:]##
@@ -1041,10 +1043,10 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     elif pixlevel_v3_cat=='whole_body_items':
         pass
     else:
-        top=bb_x1y1x2y2[1]+lower_margin
-        bottom=bb_x1y1x2y2[3]-upper_margin
-        left = bb_x1y1x2y2[0]+side_margin
-        right = bb_x1y1x2y2[2]-side_margin
+        top=min(h,bb_x1y1x2y2[1]+lower_margin)
+        bottom=max(0,bb_x1y1x2y2[3]-upper_margin)
+        left = max(0,bb_x1y1x2y2[0]-side_margin)
+        right = min(w,bb_x1y1x2y2[2]+side_margin)
         img2=copy.copy(img_arr)
         img2[:,:,:]=fillval
         img2[top:bottom,left:right,:]=img_arr[top:bottom,left:right,:]
