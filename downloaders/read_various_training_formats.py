@@ -944,6 +944,38 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
+
+def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt'):
+    '''
+    first lines of file looks like
+    289222
+    image_name  x_1  y_1  x_2  y_2
+    img/Sheer_Pleated-Front_Blouse/img_00000001.jpg                        072 079 232 273
+
+    :param bbfile:
+    :return:
+    '''
+    pardir = Utils.parent_dir(bbfile)
+    print('pardir '+str(pardir))
+    with open(bbfile,'r') as fp:
+        lines = fp.readlines()
+    for line in lines:
+        if not '.jpg' in line:
+            #first and second lines are metadata
+            continue
+        image_name,x1,y1,x2,y2 = line.split()
+        x1=int(x1)
+        x2=int(x2)
+        y1=int(y1)
+        y2=int(y2)
+        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+        image_path = os.path.join(pardir,image_name)
+        img_arr=cv2.imread(image_path)
+        cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+        cv2.waitKey(0)
+
+
+
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
@@ -1056,11 +1088,15 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 
 if __name__ == "__main__":
-    bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
-    imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
-    d = yolo_to_tgdict(bbfile,img_file=None,visual_output=True)
-    print('tgdict: '+str(d))
-    apidict = tgdict_to_api_dict(d)
-    print('apidict:'+str(apidict))
+
+    read_deepfashion_bbfile()
+
+    # bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
+    # imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
+    # d = yolo_to_tgdict(bbfile,img_file=None,visual_output=True)
+    # print('tgdict: '+str(d))
+    # apidict = tgdict_to_api_dict(d)
+    # print('apidict:'+str(apidict))
+
   #  inspect_yolo_annotations(dir='/data/jeremy/image_dbs/hls/kyle/',yolo_annotation_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hatlabels/',img_folder='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat',manual_verification=True)
    # txt_to_tgdict()
