@@ -945,13 +945,16 @@ def convert_x1x2y1y2_to_yolo(size, box):
     return (x,y,w,h)
 
 
-def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt'):
+def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt'):
     '''
     first lines of file looks like
     289222
     image_name  x_1  y_1  x_2  y_2
     img/Sheer_Pleated-Front_Blouse/img_00000001.jpg                        072 079 232 273
 
+    convert the parent dir to a hydra cat using ready function
+    convert hydra to pixlevel v3
+    black out irrelevant areas (lower part for top cats, top part for lower cats, nothing for whole body or anything else
     :param bbfile:
     :return:
     '''
@@ -960,6 +963,7 @@ def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category
     print('pardir '+str(pardir))
     with open(bbfile,'r') as fp:
         lines = fp.readlines()
+    print('getting deepfashion categoy translations')
     dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
     print(dir_to_catlist[0])
     for line in lines:
@@ -973,7 +977,8 @@ def read_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category
         y2=int(y2)
         print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
         image_dir = Utils.parent_dir(image_name)
-        create_nn_imagelsts.deep_fashion_folder_to_cat(dir_to_catlist,dir)
+        image_dir = image_dir.split('/')[-1]
+        create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
@@ -1095,7 +1100,7 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    read_deepfashion_bbfile()
+    read_and_convert_deepfashion_bbfile()
 
     # bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
     # imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
