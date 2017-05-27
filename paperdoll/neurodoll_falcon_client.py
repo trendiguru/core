@@ -42,10 +42,10 @@ if __name__ == "__main__":
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
             'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
-            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg', #### check
+         #   'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
             'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
-            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',  #####check
             'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
             'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
