@@ -1767,16 +1767,20 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     whole_body_index = constants.pixlevel_categories_v3.index('whole_body_items')
     for u in np.unique(pixlevel_v3_categorical):
         print('working on nd index {} {} from nd, ml {}'.format(u,constants.pixlevel_categories_v3[u],multilabel[u]))
+        if u==0:
+            continue
+        if multilabel[u] == {}:
+            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
+            u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(u)
+            print('converting hydra with no opinion {} to u21 {}'.format(u,u21_cat))
+            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
+            continue
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
         u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(maxkey)
         if not u21_cat:
             logging.warning('got no u21 category for '+str(constants.pixlevel_categories_v3[u]))
             continue
         print('u21 index {} cat {} maxkey {}'.format(u21_cat,constants.ultimate_21[u21_cat],maxkey))
-        if multilabel[u] == {}:
-            print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
-            u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
-            continue
    #     values = np.array([v for k,v in multilabel[u].iteritems()])  #does not necessadily preserve order
         u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
         nonzero_count=np.nonzero(u21_results)
@@ -1785,7 +1789,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
 
 
 
-def donate_graylevels(mask_layers,donor_layers,recipient_layer):
+def donate_graylevels(mask_layers,donor_layers,recipient_layer,labels=constants.pixlevel_categories_v3):
     '''
     donate pixel values - mask layers are the n grayscale ayers
     :param mask_layers:
@@ -1794,12 +1798,18 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer):
     :return:
     '''
     print('donating graylevels from {} to {}, shape {}'.format(donor_layers,recipient_layer,mask_layers.shape))
+    mask = np.argmax(mask_layers,axis=2)
+    print('pixel before after donation')
+    count_values(mask,labels)
     initial_sum=np.sum(mask_layers)
     for d in donor_layers:
         mask_layers[:,:,recipient_layer] += mask_layers[:,:,d]
         mask_layers[:,:,d] = 0
     final_sum=np.sum(mask_layers)
     print('donate graylevels: initial sum {} final sum {}'.format(initial_sum,final_sum))
+    mask = np.argmax(mask_layers,axis=2)
+    print('pixel count after donation')
+    count_values(mask,labels)
     return mask_layers
 
 if __name__ == "__main__":
