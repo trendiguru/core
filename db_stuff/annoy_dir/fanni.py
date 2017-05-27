@@ -5,6 +5,8 @@ import annoy
 from ...constants import db
 from ..general import db_utils
 
+FOREST_DIR = os.getenv("FOREST_DIR", "/root/forests/")
+
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
     """"
@@ -48,7 +50,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     for now the tree is saved only on the annoy server
     >>> the search can only run on that server!!!
     """
-    name = '/home/developer/annoyJungle/' + col_name+"/"+category+'_forest.ann'
+    name = FOREST_DIR + col_name+"/"+category+'_forest.ann'
     forest.save(name)
     print ("%s forest in planted! come here for picnics..." % category)
 
@@ -102,13 +104,13 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
     """
     use annoy to quickly chop down the database and return only the top 1000 trees
     """
-    log_name = '/home/developer/yonti/annoy.log'
+    log_name = FOREST_DIR + 'annoy.log'
     if type(fingerprint)==dict:
         fingerprint = fingerprint['color']
     print('searching for top 1000 items in %s' %(col_name))
     s = time()
     forest = annoy.AnnoyIndex(696, distance_function)
-    name = '/home/developer/annoyJungle/' + col_name + "/" + category + '_forest.ann'
+    name = FOREST_DIR + col_name + "/" + category + '_forest.ann'
     t1= time()
     forest.load(name)
     t2 = time()
@@ -130,7 +132,7 @@ def lumberjack(col_name,category,fingerprint, distance_function='angular', num_o
 
 
 def load_all_forests():
-    base = '/home/developer/annoyJungle'
+    base = FOREST_DIR
     tmp = os.listdir(base)
     fs = []
     for dir_name in tmp:
