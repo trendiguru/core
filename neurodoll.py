@@ -1407,6 +1407,12 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     #next two lines can be paralleled
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
+    if graylevel_nd_output is None:
+        if isinstance(url_or_np_array,basestring):
+            logging.error('didnt get graylevel nd output or '+str(url_or_np_array))
+        else:
+            logging.error('didnt get graylevel nd output')
+
     multilabel_output = get_multilabel_output(url_or_np_array)
     multilabel_as_u21 = multilabel_output  #maybe some conversion needed here
     thedir='/data/production/caffemodels_and_protos/neurodoll/images'
