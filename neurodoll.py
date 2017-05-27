@@ -275,6 +275,29 @@ def threshold_pixlevel(out,item_area_thresholds = constants.pixlevel_v3_min_area
             logging.debug(str(unique) + ' is under area threshold, new ratio '+str(ratio))
     return(out)
 
+
+def threshold_graylevels(graylevels,item_area_thresholds = constants.pixlevel_v3_min_area_thresholds,labels=constants.pixlevel_categories_v3):
+    '''
+    check which graylevels have  pixels >< threshold claimed, kill those graylevels
+    '''
+    out=np.argmax(graylevels,axis=2)
+    logging.debug('thresholding gray levels using thresholds:'+str(item_area_thresholds))
+    image_size = out.shape[0]*out.shape[1]
+    uniques = np.unique(out)
+    for unique in uniques:
+        pixelcount = len(out[out==unique])
+        ratio = float(pixelcount)/image_size
+#        logging.debug('i {} pixels {} tot {} ratio {} threshold {} ratio<thresh {}'.format(unique,pixelcount,image_size,ratio,threshold,ratio<threshold))
+        threshold = item_area_thresholds[unique]
+        print('index {} {} n {} ratio {} threshold {}'.format(unique,labels[unique],pixelcount,  ratio,threshold))
+        if ratio < threshold:
+#            logging.debug('kicking out index '+str(unique)+' with ratio '+str(ratio))
+            out[out==unique] = 0  #set label with small number of pixels to 0 (background)
+            graylevels[:,:,unique]=0
+            logging.debug(str(unique) + ' is under area threshold')
+    return(graylevels)
+
+
 def get_multilabel_output(url_or_np_array,required_image_size=(224,224),multilabel_source='hydra'):
 #################################
 #todo - parallelize the first if#
@@ -1620,7 +1643,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
+            modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
             #donate wholebody to upper_under and bottom to lower_short
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
@@ -1641,7 +1664,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             donor_cat_indices = []
             donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
             recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
-            donate_graylevels(final_mask,donor_cat_indices,recipient_index)
+            modified_graylevels = donate_graylevels(final_mask,donor_cat_indices,recipient_index)
             #donate whole to upper_under, lower_long
             whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
             upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
@@ -1655,6 +1678,12 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
             cv2.imwrite(name,final_mask)
             nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
+    modified_graylevels = threshold_graylevels(modified_graylevels)
+    name = orig_filename+'_stage4output.png'
+    print('combined png name:'+name+' orig filename '+orig_filename)
+    final_mask = modified_graylevels.argmax(axis=2)
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
     #note recalc final mask after donation
     print('counting just bfore v3 2 u21')
