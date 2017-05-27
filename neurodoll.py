@@ -1799,7 +1799,7 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer,labels=constants.
     '''
     print('donating graylevels from {} to {}, shape {}'.format(donor_layers,recipient_layer,mask_layers.shape))
     mask = np.argmax(mask_layers,axis=2)
-    print('pixel before after donation')
+    print('pixel count before donation')
     count_values(mask,labels)
     initial_sum=np.sum(mask_layers)
     for d in donor_layers:
