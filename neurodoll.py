@@ -1656,14 +1656,14 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     #note recalc final mask after donation
     print('counting just bfore v3 2 u21')
     count_values(final_mask,labels=labels)
-    final_mask = modified_graylevels.argmax(axis=2)
+#    final_mask = modified_graylevels.argmax(axis=2)
     print('final mask size '+str(final_mask.shape))
     final_mask = v3_graylevels_to_u21_cats(final_mask,multilabel)
     print('final mask pixcount')
     count_values(final_mask,labels=constants.ultimate_21)
 
     #write file (for debugging)
-    name = orig_filename+'_combinedoutput.png'
+    name = orig_filename+'_finaloutput.png'
     print('combined png name:'+name+' orig filename '+orig_filename)
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.ultimate_21,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
