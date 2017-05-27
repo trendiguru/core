@@ -1443,7 +1443,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     hydra_multilabel is a dictionary not a list  - {netname:conf,....}
     '''
 
-    print('combining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
+    print('\n\ncombining multilabel w. neurodoll_v3. required imsize:'+str(required_image_size))
     multilabel = label_conversions.hydra_to_pixlevel_v3(hydra_multilabel) #gives list of lists one list for each pixlevel v3 group
 #    logging.info('multi label:'+str(multilabel)+' len:'+str(len(multilabel)))
     print('hydra multilabel:'+str(hydra_multilabel))
