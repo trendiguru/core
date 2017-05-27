@@ -1759,6 +1759,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         print('working on nd index {} {} from nd, ml {}'.format(u,constants.pixlevel_categories_v3[u],multilabel[u]))
         if u==0:
             continue
+        pdb.set_trace()
         if multilabel[u] == {}:
             print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
             reverse_lookup = {v:k for k,v in constants.ultimate_21_dict.iteritems()}
