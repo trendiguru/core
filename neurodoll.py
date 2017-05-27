@@ -1412,6 +1412,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
             logging.error('didnt get graylevel nd output or '+str(url_or_np_array))
         else:
             logging.error('didnt get graylevel nd output')
+        return None
 
     multilabel_output = get_multilabel_output(url_or_np_array)
     multilabel_as_u21 = multilabel_output  #maybe some conversion needed here
@@ -1455,7 +1456,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     print('hydra multilabel:'+str(hydra_multilabel))
     print('converted multilabel:'+str(multilabel))
     print('graylevel shape'+str(graylevel_nd_output.shape))
-    pdb.set_trace()
+   # pdb.set_trace()
     #todo take out this extra call when sure abot do_graylevel_zeroing
     pixlevel_categorical_output = np.argmax(graylevel_nd_output,axis=2) #the returned mask is HxWxC so take max along C
     final_mask = np.copy(pixlevel_categorical_output)
