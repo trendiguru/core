@@ -1728,15 +1728,6 @@ def donate_to_upper_and_lower(final_mask,donor_indexlist,upper_winner_nd_index,l
         n2 = len(final_mask[final_mask==lower_winner_nd_index])
         logging.info('n in final mask from wholebody donation to upper {} and lower {}:'.format(n1,n2))
 
-def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
-    logging.info('donating from whole_body  {} to  upper under {} and lower cover {}'.format(donor_index,upper_winner_index,lower_winner_index))
-    logging.debug('donating nd layer {} - top goes to upper_under and bottom to lower_under'.format(donor_index))
-    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_index,y_split))
-    graylevels[0:y_split,:,upper_winner_index] = graylevels[0:y_split,:,donor_index]
-    graylevels[y_split:,:,lower_winner_index] = graylevels[y_split:,:,donor_index]
-    graylevels[:,:,donor_index]=0
-    return graylevels
-
 def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
     '''
     take v3 categorical (category per pixel) output and convert to ultimate_21 using multilabel
@@ -1811,6 +1802,24 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer,labels=constants.
     print('pixel count after donation')
     count_values(mask,labels)
     return mask_layers
+
+
+def donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split,labels=constants.pixlevel_categories_v3):
+    logging.info('donating from {} {} to  {} {} and  {} {}'.format(donor_index,labels[donor_index],upper_winner_index,labels[upper_winner_index],lower_winner_index,labels[lower_winner_index]))
+    logging.debug('first adding from upper part of nd {}  to nd {}, ysplit {}'.format(donor_index,upper_winner_index,y_split))
+    mask = np.argmax(graylevels,axis=2)
+    print('pixel count before 2part donation')
+    count_values(mask,labels)
+    #add upper part to upper winner index
+    graylevels[0:y_split,:,upper_winner_index] += graylevels[0:y_split,:,donor_index]
+    #add lower part to lower winner index
+    graylevels[y_split:,:,lower_winner_index] += graylevels[y_split:,:,donor_index]
+    graylevels[:,:,donor_index]=0
+    mask = np.argmax(graylevels,axis=2)
+    print('pixel count after 2part donation')
+    count_values(mask,labels)
+    return graylevels
+
 
 if __name__ == "__main__":
     outmat = np.zeros([256*4,256*21],dtype=np.uint8)
