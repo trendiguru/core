@@ -1076,7 +1076,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     dest = cv2.cvtColor(dest,cv2.COLOR_HSV2BGR)
 
     bar_height = int(float(h)/len(uniques))
-    bar_width = 150
+    bar_width = 170
     colorbar = np.zeros([h,bar_width])
     i = 0
     logging.debug('len labels:'+str(len(labels)))
