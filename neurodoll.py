@@ -1546,7 +1546,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         upper_under_winner_value=0
 
     lower_cover_long_ml_values = np.array([v for k,v in multilabel[6].iteritems()])
-    print('lower_cover ml_values:'+str(lower_cover_long_ml_values))
+    print('lower_cover_long ml_values:'+str(lower_cover_long_ml_values))
     if lower_cover_long_ml_values!=[]:
         lower_cover_long_winner = lower_cover_long_ml_values.argmax()
         lower_cover_long_winner_value=lower_cover_long_ml_values[lower_cover_long_winner]
@@ -1555,7 +1555,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         lower_cover_long_winner=0
 
     lower_cover_short_ml_values = np.array([v for k,v in multilabel[7].iteritems()])
-    print('lower_under ml_values:'+str(lower_cover_short_ml_values))
+    print('lower_cover_short ml_values:'+str(lower_cover_short_ml_values))
     if lower_cover_short_ml_values !=[]:
         lower_cover_short_winner = lower_cover_short_ml_values.argmax()
         lower_cover_short_winner_value=lower_cover_short_ml_values[lower_cover_short_winner]
@@ -1619,7 +1619,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_under_items'))
-#        donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_covder_items')) #not sure whether to add these since they may coexist
+        #maybe check if upper_cover has a high value ...
+#        donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_cover_items')) #not sure whether to add these since they may coexist
         whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
         for id in donor_cat_indices:
             print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[id],
@@ -1634,49 +1635,52 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
     ############  TWO PART
-    else:
+    else:  #donate lower loser to winner - upper can stay since uppercover and upperunder can coexist
         print('nonwhole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
-         #lower short beats lower_long, donate long to short and wholebody to longtop
+        if upper_under_winner_value > upper_cover_winner_value:
+            print('upper under wins according to ml (cover {} vs under {}'.format(upper_cover_winner_value,upper_under_winner_value))
+            upper_winner_value = upper_under_winner_value
+            upper_winner_index = constants.pixlevel_categories_v3.index('upper_under_items')
+            upper_loser_index = constants.pixlevel_categories_v3.index('upper_cover_items')
+        else:
+            print('upper cover wins according to ml (cover {} vs under {}'.format(upper_cover_winner_value,upper_under_winner_value))
+            upper_winner_value = upper_cover_winner_value
+            upper_winner_index = constants.pixlevel_categories_v3.index('upper_cover_items')
+            upper_loser_index = constants.pixlevel_categories_v3.index('upper_under_items')
+
         if lower_cover_short_winner_value>lower_cover_long_winner_value:
-            #donate lower long to lower short
             print('lower cover short wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
-            donor_cat_indices = []
-            donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
-            recipient_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
-            #donate wholebody to upper_under and bottom to lower_short
-            whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
-            upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
-            lower_cover_short_index=constants.pixlevel_categories_v3.index('lower_cover_short_items')
-            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_short_index,y_split)
+            lower_winner_value = lower_cover_short_winner_value
+            lower_winner_index = constants.pixlevel_categories_v3.index('lower_cover_short_items')
+            lower_loser_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
+        else :
+            print('lower cover long wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
+            lower_winner_value = lower_cover_long_winner_value
+            lower_winner_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
+            lower_loser_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
+
+        print('upper winner {} {} loser {} {}'.format(upper_winner_index,constants.pixlevel_categories_v3[upper_winner_index],upper_loser_index,constants.pixlevel_categories_v3[upper_loser_index]))
+        print('lower winner {} {} loser {} {}'.format(lower_winner_index,constants.pixlevel_categories_v3[lower_winner_index],lower_loser_index,constants.pixlevel_categories_v3[lower_loser_index]))
+
+    #donate lower loser to winner
+        donor_cat_indices = []
+        donor_cat_indices.append(lower_loser_index)
+        recipient_index = lower_winner_index
+        modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,recipient_index)
+        whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
+        upper_under_index = constants.pixlevel_categories_v3.index('upper_under_items')
+
+        #ARBITRARY addition of wholebody to upper_under instead of uppercover, maybe compare those or do half-half or acc. to hydra...
+        modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_winner_index,y_split)
+
 # donate_graylevels_upper_and_lower(graylevels,donor_index,upper_winner_index,lower_winner_index,y_split):
 
-    ######saving interim for debug
-            name = orig_filename+'_stage2output.png'
-            print('combined png name:'+name+' orig filename '+orig_filename)
-            final_mask = modified_graylevels.argmax(axis=2)
-            cv2.imwrite(name,final_mask)
-            nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
-
-
-        else:  #lower long beats lower_short, donate short to long and whole to long
-            print('lower cover long wins according to ml (s {} vs l {}'.format(lower_cover_short_winner_value,lower_cover_long_winner_value))
-            donor_cat_indices = []
-            donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
-            recipient_index = constants.pixlevel_categories_v3.index('lower_cover_long_items')
-            modified_graylevels = donate_graylevels(final_mask,donor_cat_indices,recipient_index)
-            #donate whole to upper_under, lower_long
-            whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
-            upper_under_index=constants.pixlevel_categories_v3.index('upper_under_items')
-            lower_cover_long_index=constants.pixlevel_categories_v3.index('lower_cover_long_items')
-
-            modified_graylevels = donate_graylevels_upper_and_lower(modified_graylevels,whole_body_index,upper_under_index,lower_cover_long_index,y_split)
 ######saving interim for debug
-            name = orig_filename+'_stage3output.png'
-            print('combined png name:'+name+' orig filename '+orig_filename)
-            final_mask = modified_graylevels.argmax(axis=2)
-            cv2.imwrite(name,final_mask)
-            nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
+    name = orig_filename+'_stage3output.png'
+    print('combined png name:'+name+' orig filename '+orig_filename)
+    final_mask = modified_graylevels.argmax(axis=2)
+    cv2.imwrite(name,final_mask)
+    nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
     modified_graylevels = threshold_graylevels(modified_graylevels)
     name = orig_filename+'_stage4output.png'
@@ -1686,7 +1690,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
     #note recalc final mask after donation
-    print('counting just bfore v3 2 u21')
+    print('counting after stage4')
     count_values(final_mask,labels=labels)
 #    final_mask = modified_graylevels.argmax(axis=2)
     print('final mask size '+str(final_mask.shape))
@@ -1830,7 +1834,6 @@ def donate_graylevels(mask_layers,donor_layers,recipient_layer,labels=constants.
     :param recipient_layer: which layer is receiving
     :return:
     '''
-    pdb.set_trace()
     print('donating graylevels from {} to {}, shape {}'.format(donor_layers,recipient_layer,mask_layers.shape))
     mask = np.argmax(mask_layers,axis=2)
     print('pixel count before donation')
