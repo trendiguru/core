@@ -1761,7 +1761,11 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
             continue
         if multilabel[u] == {}:
             print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
-            u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(u)
+            reverse_lookup = {v:k for k,v in constants.ultimate_21_dict.iteritems()}
+            if not u in reverse_lookup:
+                logging.debug('could not fnd {} in reversedict {}'.format(u,reverse_lookup))
+                continue
+            u21_cat = constants.reverse_lookup[u]
             if not u21_cat:
                 logging.warning('got no u21 category in inner check for '+str(constants.pixlevel_categories_v3[u]))
                 continue
