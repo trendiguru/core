@@ -1773,8 +1773,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
             else:
                 logging.warning('got no u21 category in inner check for '+str(constants.pixlevel_categories_v3[u])+' '+pixlevel_label)
                 continue
-            pixlevel_index = constants.pixlevel_categories_v3.index(u)
-            print('converting hydra with no opinion {} to u21 {}'.format(u,u21_cat))
+            print('converting hydra with no opinion {} [] to u21 {}'.format(u,constants.pixlevel_categories_v3[u],u21_cat,constants.ultimate_21[u21_cat]))
             u21_results=u21_results+(pixlevel_v3_categorical==u)*u21_cat
             continue
         maxkey= max(multilabel[u].iteritems(), key=operator.itemgetter(1))[0]
