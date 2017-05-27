@@ -1449,9 +1449,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     print('hydra multilabel:'+str(hydra_multilabel))
     print('converted multilabel:'+str(multilabel))
 
-    pdb.set_trace()
     #todo take out this extra call when sure abot do_graylevel_zeroing
-    pixlevel_categorical_output = graylevel_nd_output.argmax(axis=2) #the returned mask is HxWxC so take max along C
+    pixlevel_categorical_output = np.argmax(graylevel_nd_output,axis=2) #the returned mask is HxWxC so take max along C
     final_mask = np.copy(pixlevel_categorical_output)
     modified_graylevels = np.copy(graylevel_nd_output)
     logging.info('size of final mask '+str(final_mask.shape))
