@@ -24,7 +24,8 @@ from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
-
+import copy
+import numpy as np
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -984,10 +985,72 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
             print('tgcat {} v3cat {}'.format(tgcat,pixlevel_v3_cat))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
+        img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
         cv2.imshow('out',img_arr)
         cv2.waitKey(0)
 
+def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
+    '''
+    this is for training a pixlevel v3 net with single bb per image
+    so we need to remove the stuff that wasnt bounded , ie anything outside box
+    except - for upper_cover and upper_under, can keep top , kill anything below lower bb bound
+    for lower_cover_long/short , kill anything above upper bb bound
+
+    :param img_arr:
+    :param pixlevel_v3_cat:
+    :return:
+    '''
+    upper_frac =  0.1  #kill this many pixels above lower bb bound too
+    lower_frac = 0.1 #kill this many below  upper bound
+    side_frac = 0.05
+    upper_margin=int(upper_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    lower_margin=int(lower_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    fillval = 255
+    swatch = img_arr[0:20,0:20,:]
+    fillval = np.mean(swatch,axis=(0,1))
+    print('fillval:'+str(fillval))
+    if pixlevel_v3_cat=='upper_cover_items' or pixlevel_v3_cat == 'upper_under_items':
+        top=0
+        bottom=bb_x1y1x2y2[3]-upper_margin
+        left = bb_x1y1x2y2[0]+side_margin
+        right = bb_x1y1x2y2[2]-side_margin
+        img2=copy.copy(img_arr)
+        img2[:,:]=fillval
+        img2[top:bottom,left:right,:]=img_arr[top:bottom,left:right,:]
+        img_arr = img2
+        #
+        # bottom=bb_x1y1x2y2[3]-upper_margin
+        # left = bb_x1y1x2y2[0]
+        # right = bb_x1y1x2y2[2]
+        # img_arr[bottom:,left:right]=fillval
+    elif pixlevel_v3_cat=='lower_cover_long_items' or pixlevel_v3_cat == 'lower_cover_short_items':
+        top=bb_x1y1x2y2[1]+lower_margin
+        left = bb_x1y1x2y2[0]+side_margin
+        right = bb_x1y1x2y2[2]-side_margin
+        img2=copy.copy(img_arr)
+        img2[:,:]=fillval
+        img2[top:,left:right,:]=img_arr[top:,left:right,:]
+        img_arr = img2
+        #
+        # top=bb_x1y1x2y2[1]+lower_margin
+        # left = bb_x1y1x2y2[0]
+        # right = bb_x1y1x2y2[2]
+        # img_arr[0:top,left:right,:]=fillval
+    elif pixlevel_v3_cat=='whole_body_items':
+        pass
+    else:
+        top=bb_x1y1x2y2[1]+lower_margin
+        bottom=bb_x1y1x2y2[3]-upper_margin
+        left = bb_x1y1x2y2[0]+side_margin
+        right = bb_x1y1x2y2[2]-side_margin
+        img2=copy.copy(img_arr)
+        img2[:,:,:]=fillval
+        img2[top:bottom,left:right,:]=img_arr[top:bottom,left:right,:]
+        img_arr = img2
+
+    return img_arr
 
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',

@@ -761,9 +761,9 @@ trendi_to_pixlevel_v3_map = {'coat':'upper_cover_items','blazer':'upper_cover_it
                              'poncho':'whole_body_items','tank':'upper_under_items', 'sarong':'wraparound_items',
                               'skirt':'lower_cover_short_items','hoodie':'upper_cover_items'}
 
-pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
-                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
-                          'bag','belt','eyewear','hat','tie','skin']
+# pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+#                           'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+#                           'bag','belt','eyewear','hat','tie','skin']
 
 nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
                                 'skirt', 'intimate']},
