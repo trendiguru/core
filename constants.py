@@ -757,7 +757,7 @@ trendi_to_pixlevel_v3_map = {'coat':'upper_cover_items','blazer':'upper_cover_it
                              'jeans':'lower_cover_long_items','legging':'lower_cover_long_items',
                              'mens_swimwear':'whole_body_tight_items','dress':'whole_body_items','robe':'whole_body_items',
                              'pajamas':'whole_body_items','jumpsuit':'whole_body_items', 'blouse':'upper_under_items',
-                             'cardigan':'upper_cover_items','henley':'upper_under_items','jacket':'upper_cover_items',''
+                             'cardigan':'upper_cover_items','henley':'upper_under_items',
                              'poncho':'whole_body_items','tank':'upper_under_items', 'sarong':'wraparound_items',
                               'skirt':'lower_cover_short_items','hoodie':'upper_cover_items'}
 

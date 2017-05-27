@@ -978,7 +978,10 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
         image_dir = Utils.parent_dir(image_name)
         image_dir = image_dir.split('/')[-1]
-        create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
+        tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
+        if tgcat is not None:
+            pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+            print('tgcat {} v3cat {}'.format(tgcat,pixlevel_v3_cat))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
