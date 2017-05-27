@@ -1596,9 +1596,10 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_short_items'))
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('lower_cover_long_items'))
         donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_under_items'))
-        whole_body_index=1
+#        donor_cat_indices.append(constants.pixlevel_categories_v3.index('upper_covder_items')) #not sure whether to add these since they may coexist
+        whole_body_index=constants.pixlevel_categories_v3.index('whole_body_items')
         for id in donor_cat_indices:
-            print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[i],
+            print('donating layer {} {} to {} {}'.format(id,constants.pixlevel_categories_v3[id],
                                                          whole_body_index,constants.pixlevel_categories_v3[whole_body_index]))
         modified_graylevels = donate_graylevels(modified_graylevels,donor_cat_indices,whole_body_index) #donate nonwholebody to wholebody
 
