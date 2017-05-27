@@ -1763,6 +1763,9 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         if multilabel[u] == {}:
             print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
             u21_cat = label_conversions.multilabels_from_hydra_to_u21_cat(u)
+            if not u21_cat:
+                logging.warning('got no u21 category in inner check for '+str(constants.pixlevel_categories_v3[u]))
+                continue
             print('converting hydra with no opinion {} to u21 {}'.format(u,u21_cat))
             u21_results=u21_results+(pixlevel_v3_categorical==whole_body_index)*u21_cat
             continue
