@@ -749,6 +749,22 @@ deep_fashion_to_trendi_map = {'anorak':'coat','blazer':'blazer','bomber':'jacket
                               'sweater':'sweater','tank':'tank','tee':'tee','jeans':'jeans','sarong':'sarong',
                               'shorts':'shorts','skirt':'skirt','dress':'dress','jumpsuit':'jumpsuit','robe':'robe','hoodie':'hoodie'}
 
+
+trendi_to_pixlevel_v3_map = {'coat':'upper_cover_items','blazer':'upper_cover_items','jacket':'upper_cover_items',
+                             'button-down':'upper_under_items','sweatshirt':'upper_cover_items',
+                              'tee':'upper_under_items','sweater':'upper_cover_items',
+                             'pants':'lower_cover_long_items','shorts':'lower_cover_short_items',
+                             'jeans':'lower_cover_long_items','legging':'lower_cover_long_items',
+                             'mens_swimwear':'whole_body_tight_items','dress':'whole_body_items','robe':'whole_body_items',
+                             'pajamas':'whole_body_items','jumpsuit':'whole_body_items', 'blouse':'upper_under_items',
+                             'cardigan':'upper_cover_items','henley':'upper_under_items','jacket':'upper_cover_items',''
+                             'poncho':'whole_body_items','tank':'upper_under_items', 'sarong':'wraparound_items',
+                              'skirt':'lower_cover_short_items','hoodie':'upper_cover_items'}
+
+pixlevel_categories_v3 = ['bgnd','whole_body_items', 'whole_body_tight_items','undie_items','upper_under_items',
+                          'upper_cover_items','lower_cover_long_items','lower_cover_short_items','footwear_items','wraparound_items',
+                          'bag','belt','eyewear','hat','tie','skin']
+
 nonlogic_clothing = [{'pants': ['jeans', 'stockings', 'jumper', 'suit', 'tights', 'leggings', 'shorts', 'romper',
                                 'skirt', 'intimate']},
                      {'skirt': ['pants', 'jeans', 'shorts', 'romper', 'jumper']},
