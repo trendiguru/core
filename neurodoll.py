@@ -1881,7 +1881,7 @@ if __name__ == "__main__":
             'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
             'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
     ] #
-    test_nd_alone = True
+    test_nd_alone = False
     if test_nd_alone:
         raw_input('start test_nd_alone')
         for url in urls:

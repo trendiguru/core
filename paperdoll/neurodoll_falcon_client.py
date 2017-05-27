@@ -36,4 +36,20 @@ def nd(image_array_or_url, category_index=None,get_multilabel_results=None,get_c
     
 if __name__ == "__main__":
     url = 'https://s-media-cache-ak0.pinimg.com/736x/ae/d7/24/aed7241fcb27ad888cabefb82696b553.jpg'
-    nd(url)
+    urls = ['http://healthyceleb.com/wp-content/uploads/2014/03/Nargis-Fakhri-Main-Tera-Hero-Trailer-Launch.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2015/02/1.4.jpg',
+            'http://diamondfilms.com.au/wp-content/uploads/2014/08/Fashion-Photography-Sydney-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/main-1.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/1.-Strategic-Skin-Showing.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/3.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/02/4.jpg',
+            'http://pinmakeuptips.com/wp-content/uploads/2016/03/Adding-Color-to-Your-Face.jpg',
+            'http://images5.fanpop.com/image/photos/26400000/Cool-fashion-pics-fashion-pics-26422922-493-700.jpg',
+            'http://allforfashiondesign.com/wp-content/uploads/2013/05/style-39.jpg',
+            'http://s6.favim.com/orig/65/cool-fashion-girl-hair-Favim.com-569888.jpg',
+            'http://s4.favim.com/orig/49/cool-fashion-girl-glasses-jeans-Favim.com-440515.jpg',
+            'http://s5.favim.com/orig/54/america-blue-cool-fashion-Favim.com-525532.jpg',
+            'http://favim.com/orig/201108/25/cool-fashion-girl-happiness-high-Favim.com-130013.jpg'
+    ] #
+    for u in urls+url:
+        nd(u,get_combined_results=True)
