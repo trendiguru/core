@@ -1760,7 +1760,7 @@ def v3_graylevels_to_u21_cats(pixlevel_v3_categorical,multilabel,two_part=True):
         if u==0:
             continue
         if multilabel[u] == {}:
-            pdb.set_trace()
+      #      pdb.set_trace()
             print('empty ml for index {} {}'.format(u,constants.pixlevel_categories_v3[u]))
             pixlevel_label = constants.pixlevel_categories_v3[u]
             if pixlevel_label in constants.ultimate_21:
