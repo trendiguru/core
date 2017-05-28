@@ -1431,7 +1431,7 @@ def sharp6(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
 
     #the following will be 28x28  (/8)
     n.conv4_0,n.relu4_0,n.bn4_0,n.scale4_0 = conv_relu_bn(n.pool3,n_output=512,kernel_size=5,pad='preserve')
-    n.conv4_1,n.relu4_1,n.bn4_1,n.scale4_1 = conv_relu_bn(n.cov4_0,n_output=512,kernel_size=3,pad='preserve')
+    n.conv4_1,n.relu4_1,n.bn4_1,n.scale4_1 = conv_relu_bn(n.conv4_0,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_2,n.relu4_2,n.bn4_2,n.scale4_2 = conv_relu_bn(n.conv4_1,n_output=512,kernel_size=3,pad='preserve')
     n.conv4_3,n.relu4_3,n.bn4_3,n.scale4_3 = conv_relu_bn(n.conv4_2,n_output=512,kernel_size=3,pad='preserve',stage=stage)
     n.pool4 = L.Pooling(n.conv4_3, kernel_size=2, stride=2, pool=P.Pooling.MAX)

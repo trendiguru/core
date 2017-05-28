@@ -1018,6 +1018,10 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
 
     convert the parent dir to a hydra cat using ready function
     convert hydra to pixlevel v3
+
+    final freqs from deepfashion for pixlevel_categories_v3 were:
+    freq [0, 7412, 30, 0, 6575, 4159, 1765, 3110, 0, 2, 0, 0, 0, 0, 0, 0]
+
     black out irrelevant areas (lower part for top cats, top part for lower cats, nothing for whole body or anything else
     :param bbfile:
     :return:
