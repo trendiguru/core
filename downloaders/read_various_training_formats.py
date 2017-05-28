@@ -967,48 +967,50 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     print('pardir '+str(pardir))
     with open(bbfile,'r') as fp:
         lines = fp.readlines()
+        fp.close
     print('getting deepfashion categoy translations')
     dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
     print(dir_to_catlist[0])
-    for line in lines:
-        if not '.jpg' in line:
-            #first and second lines are metadata
-            continue
-        image_name,x1,y1,x2,y2 = line.split()
-        x1=int(x1)
-        x2=int(x2)
-        y1=int(y1)
-        y2=int(y2)
-        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
-        image_dir = Utils.parent_dir(image_name)
-        image_dir = image_dir.split('/')[-1]
-        tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
-        if tgcat is None:
-            print('got no tg cat fr '+str(image_dir))
-        pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
-        if pixlevel_v3_cat == 'upper_under_items':
-            continue #look at some other cats to make sure everything ok
-        pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
-        print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
-        image_path = os.path.join(pardir,image_name)
-        img_arr=cv2.imread(image_path)
-#        cv2.imshow('out',img_arr)
-        mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
-#        img_arr2=img_arr*mask[:,:,np.newaxis]
-        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
-        # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-        # cv2.imshow('out1',img_arr2)
-        # cv2.waitKey(0)
-        maskname = image_path.replace('.jpg','.png')
-        print('writing mask to '+str(maskname))
-        res = cv2.imwrite(maskname,mask)
-        if not res:
-            logging.warning('bad save result '+str(res)+' for '+str(maskname))
+    with open(labelfile,'a+') as fp2:
+        for line in lines:
+            if not '.jpg' in line:
+                #first and second lines are metadata
+                continue
+            image_name,x1,y1,x2,y2 = line.split()
+            x1=int(x1)
+            x2=int(x2)
+            y1=int(y1)
+            y2=int(y2)
+            print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+            image_dir = Utils.parent_dir(image_name)
+            image_dir = image_dir.split('/')[-1]
+            tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
+            if tgcat is None:
+                print('got no tg cat fr '+str(image_dir))
+                continue
+            pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+            if pixlevel_v3_cat == 'upper_under_items':
+                continue #look at some other cats to make sure everything ok
+            pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+            print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
+            image_path = os.path.join(pardir,image_name)
+            img_arr=cv2.imread(image_path)
+    #        cv2.imshow('out',img_arr)
+            mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+    #        img_arr2=img_arr*mask[:,:,np.newaxis]
+            mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
+            # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            # cv2.imshow('out1',img_arr2)
+            # cv2.waitKey(0)
+            maskname = image_path.replace('.jpg','.png')
+            print('writing mask to '+str(maskname))
+            res = cv2.imwrite(maskname,mask)
+            if not res:
+                logging.warning('bad save result '+str(res)+' for '+str(maskname))
 
-        line = image_path+' '+maskname+'\n'
-        Utils.ensure_file(labelfile)
-        with open(labelfile,'a+') as fp:
-            fp.write(line)
+            line = image_path+' '+maskname+'\n'
+            Utils.ensure_file(labelfile)
+            fp2.write(line)
  #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
 #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
 
