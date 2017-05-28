@@ -974,6 +974,9 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         if tgcat is None:
             print('got no tg cat fr '+str(image_dir))
             return
+        if not tgcat in constants.trendi_to_pixlevel_v3_map:
+            print('didnt get cat for {} {}'.format(tgcat,line))
+            return
         # if not(tgcat is 'lower_cover_long_items' or tgcat is 'lower_cover_short_items' or tgcat is 'bag' or tgcat is 'belt'):
         #     return
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
