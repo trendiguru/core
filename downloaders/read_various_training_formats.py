@@ -1031,7 +1031,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         nagla = []
         for j in range(n):
             nagla.append((lines[i*n+j],labelfile,dir_to_catlist,visual_output,pardir ))
-            print('nagla length '+str(len(nagla)))
+            print('nagla len {} index {}'.format(len(nagla),i*n+j))
         p.map(convert_deepfashion_helper,nagla)
 #            p.close()
 #            p.join()
