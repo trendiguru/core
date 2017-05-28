@@ -1036,7 +1036,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     #        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
         for i in range(len(lines)/n):
             print('doing nagla {}'.format(i))
-            print('freq '+str(frequencies))
+#            print('freq '+str(frequencies))
 
     #            p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
             nagla = []
