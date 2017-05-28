@@ -952,7 +952,7 @@ def convert_x1x2y1y2_to_yolo(size, box):
 #def partial_helper = partial(convert_deepfashion_helper,)
 
 def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir)):
-    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
+#    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
  #   raw_input()
 
     if not '.jpg' in line:
@@ -1031,7 +1031,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         nagla = []
         for j in range(n):
             nagla.append((lines[i*n+j],labelfile,dir_to_catlist,visual_output,pardir ))
-            print('nagla len {} index {}'.format(len(nagla),i*n+j))
+    #        print('nagla len {} index {}'.format(len(nagla),i*n+j))
         p.map(convert_deepfashion_helper,nagla)
 #            p.close()
 #            p.join()
