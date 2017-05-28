@@ -1119,7 +1119,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     right = min(w,bb_x1y1x2y2[2]-side_margin)
     mask[top:bottom,left:right] = cv2.GC_FGD
 
-    print('imgarr shape b4r gc '+str(img_arr.shape))
+    logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
     try:
         #TODO - try more than 1 grabcut call in itr
@@ -1142,7 +1142,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
         cv2.imshow('after gc',img_arr)
         cv2.waitKey(0)
 
-    print('imgarr shape after gc '+str(img_arr.shape))
+    logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
