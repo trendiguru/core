@@ -2032,19 +2032,37 @@ if __name__ == "__main__":
     print('starting to generate net')
 #    proto = vgg16('thedb')
 #    proto = unet('thedb')
-    proto = sharp2('thedb',stage='train')
 #    proto = test_convbnrelu('thedb')
 #    proto = correct_deconv(str(proto))
+
+#sharp2
+    # proto = sharp2('thedb',stage='train')
+    # proto = replace_pythonlayer(str(proto),stage='train')
+    # with open('train.prototxt','w') as f:
+    #     f.write(str(proto))
+    #     f.close()
+    #
+    # proto = sharp2('thedb',stage='test')
+    # proto = replace_pythonlayer(str(proto),stage='test')
+    # with open('val.prototxt','w') as f:
+    #     f.write(str(proto))
+    #     f.close()
+
+#sharp6
+    proto = sharp6('thedb',stage='train')
     proto = replace_pythonlayer(str(proto),stage='train')
-    with open('train.prototxt','w') as f:
+    with open('s6_train.prototxt','w') as f:
         f.write(str(proto))
         f.close()
 
-    proto = sharp2('thedb',stage='test')
+    proto = sharp6('thedb',stage='test')
     proto = replace_pythonlayer(str(proto),stage='test')
-    with open('val.prototxt','w') as f:
+    with open('s6_val.prototxt','w') as f:
         f.write(str(proto))
         f.close()
+
+
+
 #    estimate_mem('val.prototxt')
 
 #    caffe.set_device(2)
