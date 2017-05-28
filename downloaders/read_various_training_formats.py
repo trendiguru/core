@@ -965,7 +965,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         x2=int(x2)
         y1=int(y1)
         y2=int(y2)
-        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+ #       print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
         image_dir = Utils.parent_dir(image_name)
         image_dir = image_dir.split('/')[-1]
         tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
@@ -987,7 +987,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         # cv2.imshow('out1',img_arr2)
         # cv2.waitKey(0)
         maskname = image_path.replace('.jpg','.png')
-        print('writing mask to '+str(maskname))
+#        print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
