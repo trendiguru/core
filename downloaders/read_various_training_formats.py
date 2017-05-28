@@ -985,10 +985,11 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
             print('tgcat {} v3cat {}'.format(tgcat,pixlevel_v3_cat))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
-        img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
+        mask = grabcut_bb(img_arr,[x1,y1,x2,y2])  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+ #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
         cv2.imshow('out',img_arr)
-        cv2.waitKey(1)
+        cv2.waitKey(0)
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     '''
@@ -1056,6 +1057,71 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
 
     return img_arr
 
+def grabcut_bb(img_arr,bb_x1y1x2y2):
+    '''
+    grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
+     then kill anything outside of bb
+    :param img_arr:
+    :param bb_x1y1x2y2:
+    :return:
+    '''
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    mask = np.zeros(img_arr.shape[:2], np.uint8)
+    h,w = img_arr.shape[0:2]
+
+    upper_frac =  0.2  #kill this many pixels above lower bb bound too
+    lower_frac = 0.2 #kill this many below  upper bound
+    side_frac = 0.2
+    upper_margin=int(upper_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    lower_margin=int(lower_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+
+    #start with everything bg
+    mask[:,:] = cv2.GC_BGD
+
+    #big box (except for outer margin ) is pr_bg
+    pr_bg_frac = 0.05
+    pr_bg_margin_ud= int(pr_bg_frac*(h))
+    pr_bg_margin_lr= int(pr_bg_frac*(w))
+    mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
+
+    #everything in bb+margin is pr_fgd
+    pr_fg_frac = 0.0
+    pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    pr_bg_margin_lr= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
+
+    #everything in small box within bb is  fg
+    top=max(0,bb_x1y1x2y2[1]+lower_margin)
+    bottom=min(h,bb_x1y1x2y2[1]-lower_margin)
+    left = max(0,bb_x1y1x2y2[0]+side_margin)
+    right = min(w,bb_x1y1x2y2[2]-side_margin)
+    mask[top:bottom,left:right] = cv2.GC_FGD
+
+    print('imgarr shape b4r gc '+str(img_arr.shape))
+    rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
+    try:
+        #TODO - try more than 1 grabcut call in itr
+        itr = 5
+        cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
+    except:
+        print('grabcut exception '+str(e))
+        return img_arr
+    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
+    #kill anything no t in gc
+    mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+    #kill anything out of bb
+    mask2[:bb_x1y1x2y2[1],0:w]=0
+    mask2[bb_x1y1x2y2[3]:,0:w]=0
+    mask2[0:h,0:bb_x1y1x2y2[0]]=0
+    mask2[0:h,bb_x1y1x2y2[2]:w]=0
+    img_arr = img_arr*mask2[:,:,np.newaxis]
+#    plt.imshow(img),plt.colorbar(),plt.show()
+
+    print('imgarr shape after gc '+str(img_arr.shape))
+    return mask2
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
