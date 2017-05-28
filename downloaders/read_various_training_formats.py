@@ -948,7 +948,7 @@ def convert_x1x2y1y2_to_yolo(size, box):
     return (x,y,w,h)
 
 
-def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt',filefilter='250x250.jpg'):
+def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False):
     '''
     first lines of file looks like
     289222
@@ -985,12 +985,14 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         if tgcat is None:
             print('got no tg cat fr '+str(image_dir))
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+        if pixlevel_v3_cat == 'upper_under_items':
+            continue #look at some other cats to make sure everything ok
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
 #        cv2.imshow('out',img_arr)
-        mask = grabcut_bb(img_arr,[x1,y1,x2,y2])  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+        mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
 #        img_arr2=img_arr*mask[:,:,np.newaxis]
         mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
         # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
@@ -1123,7 +1125,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
     try:
         #TODO - try more than 1 grabcut call in itr
-        itr = 3
+        itr = 1
         cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
     except:
         print('grabcut exception '+str(e))
@@ -1131,11 +1133,11 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
 #    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
     #kill anything no t in gc
     mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
-    #kill anything out of bb
-    mask2[:bb_x1y1x2y2[1],0:w]=0
-    mask2[bb_x1y1x2y2[3]:,0:w]=0
-    mask2[0:h,0:bb_x1y1x2y2[0]]=0
-    mask2[0:h,bb_x1y1x2y2[2]:w]=0
+    #kill anything out of bb (except head)
+#    mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+    mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+    mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+    mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     if(visual_output):
         img_arr = img_arr*mask2[:,:,np.newaxis]
 #    plt.imshow(img),plt.colorbar(),plt.show()
