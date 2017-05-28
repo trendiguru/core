@@ -1020,7 +1020,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
     print(dir_to_catlist[0])
     print('{} lines in bbfile'.format(len(lines)))
-    n=2
+    n=12  #yeah there is some way to get nproc from system , sue me
     p=Pool(processes=n)
 #        p.map(convert_deepfashion_helper,((line,fp2,labelfile,dir_to_catlist,visual_output,pardir ) for line in lines))
 #        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
