@@ -996,7 +996,8 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         # cv2.waitKey(0)
         maskname = image_path.replace('.jpg','.png')
         print('writing mask to '+str(maskname))
-        cv2.imwrite(maskname,mask)
+        res = cv2.imwrite(maskname,mask)
+        print('save result '+str(res))
 
         line = image_path+' '+maskname+'\n'
         Utils.ensure_file(labelfile)
