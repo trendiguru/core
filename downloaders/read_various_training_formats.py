@@ -977,7 +977,6 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         frequencies[pixlevel_v3_index]+=1
-        print('freq '+str(frequencies))
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
@@ -1016,7 +1015,9 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     :param bbfile:
     :return:
     '''
+    global frequencies
     dir = Utils.parent_dir(bbfile)
+
     pardir = Utils.parent_dir(dir)
     print('pardir '+str(pardir))
     with open(bbfile,'r') as fp:
@@ -1034,6 +1035,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     #        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
         for i in range(len(lines)/n):
             print('doing nagla {}'.format(i))
+            print('freq '+str(frequencies))
 
     #            p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
             nagla = []
