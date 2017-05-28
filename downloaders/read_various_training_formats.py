@@ -946,7 +946,7 @@ def convert_x1x2y1y2_to_yolo(size, box):
     return (x,y,w,h)
 
 
-def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt'):
+def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt',filefilter='250x250.jpg'):
     '''
     first lines of file looks like
     289222
