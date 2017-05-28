@@ -986,19 +986,27 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
-        #        cv2.imshow('out',img_arr)
         mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
-        #        img_arr2=img_arr*mask[:,:,np.newaxis]
-        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
-        # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-        # cv2.imshow('out1',img_arr2)
-        # cv2.waitKey(0)
+
+    # make new img with extraneous removed
+        img_arr2=img_arr*mask[:,:,np.newaxis]
+        if(1):
+            cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('gc',img_arr2)
+            cv2.imshow('orig',img_arr)
+            cv2.waitKey(0)
+        gc_img_name = image_path.replace('.jpg','_gc.png')
+        res = cv2.imwrite(gc_img_name,img_arr2)
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
+
+        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
         maskname = image_path.replace('.jpg','.png')
 #        print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
-        line = image_path+' '+maskname+'\n'
+        line = gc_img_name+' '+maskname+'\n'
         Utils.ensure_file(labelfile)
         fp2.write(line)
         fp2.close()
@@ -1112,7 +1120,6 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
         frequencies[pixlevel_v3_index]+=1
         print('freq '+str(frequencies))
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
-
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     '''
@@ -1294,7 +1301,6 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc200
                 else:
                     print('not accepting image')
 
-
 def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True,movie=False):
     '''
         read file like:
@@ -1357,7 +1363,6 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
     if movie:
         out.release()
-
 
 
 if __name__ == "__main__":
