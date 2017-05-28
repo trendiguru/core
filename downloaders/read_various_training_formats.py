@@ -989,8 +989,6 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
                 print('got no tg cat fr '+str(image_dir))
                 continue
             pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
-            if pixlevel_v3_cat == 'upper_under_items':
-                continue #look at some other cats to make sure everything ok
             pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
             print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
             image_path = os.path.join(pardir,image_name)
