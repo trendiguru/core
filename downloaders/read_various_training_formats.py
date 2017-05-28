@@ -1090,6 +1090,8 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
 
         image_name,x1,y1,x2,y2 = line.split()
 #        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+        image_dir = Utils.parent_dir(image_name)
+        image_dir = image_dir.split('/')[-1]
         tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
         if tgcat is None:
             print('got no tg cat fr '+str(image_name))
