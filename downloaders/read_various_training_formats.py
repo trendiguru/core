@@ -18,7 +18,9 @@ import os
 from os import listdir, getcwd
 from os.path import join
 import json
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
@@ -997,7 +999,8 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         maskname = image_path.replace('.jpg','.png')
         print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
-        print('save result '+str(res))
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(maskname))
 
         line = image_path+' '+maskname+'\n'
         Utils.ensure_file(labelfile)
