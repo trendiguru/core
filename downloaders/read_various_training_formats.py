@@ -974,6 +974,8 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         if tgcat is None:
             print('got no tg cat fr '+str(image_dir))
             return
+        # if not(tgcat is 'lower_cover_long_items' or tgcat is 'lower_cover_short_items' or tgcat is 'bag' or tgcat is 'belt'):
+        #     return
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         frequencies[pixlevel_v3_index]+=1
@@ -1002,7 +1004,8 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
-                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False,
+                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
+                                        filefilter='250x250.jpg',visual_output=True,
                                         multiprocess_it=True):
     '''
     first lines of file looks like
@@ -1051,6 +1054,60 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     else:
         for line in lines:
             convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
+
+def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
+                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
+                                        filefilter='250x250.jpg',visual_output=True,
+                                        multiprocess_it=True):
+    '''
+    first lines of file looks like
+    289222
+    image_name  x_1  y_1  x_2  y_2
+    img/Sheer_Pleated-Front_Blouse/img_00000001.jpg                        072 079 232 273
+
+    convert the parent dir to a hydra cat using ready function
+    convert hydra to pixlevel v3
+    black out irrelevant areas (lower part for top cats, top part for lower cats, nothing for whole body or anything else
+    :param bbfile:
+    :return:
+    '''
+    global frequencies
+    dir = Utils.parent_dir(bbfile)
+
+    pardir = Utils.parent_dir(dir)
+    print('pardir '+str(pardir))
+    with open(bbfile,'r') as fp:
+        lines = fp.readlines()
+        fp.close
+    print('getting deepfashion categoy translations')
+    dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
+    print(dir_to_catlist[0])
+    print('{} lines in bbfile'.format(len(lines)))
+
+     for line in lines:
+        convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
+#    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
+ #   raw_input()
+        if not '.jpg' in line:
+            return     #first and second lines are metadata
+
+        image_name,x1,y1,x2,y2 = line.split()
+        #       print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+        tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
+        if tgcat is None:
+            print('got no tg cat fr '+str(image_name))
+            return
+        if not(tgcat is 'lower_cover_long_items' or tgcat is 'lower_cover_short_items' or tgcat is 'bag' or tgcat is 'belt'):
+            return
+        pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+        pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+        frequencies[pixlevel_v3_index]+=1
+        print('freq '+str(frequencies))
+        print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
+
+#       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
+        #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
+
 
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
