@@ -19,8 +19,10 @@ from os import listdir, getcwd
 from os.path import join
 import json
 import logging
-
 logging.basicConfig(level=logging.INFO)
+from multiprocessing import Pool
+from functools import partial
+from itertools import repeat
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
@@ -947,6 +949,52 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
+#def partial_helper = partial(convert_deepfashion_helper,)
+
+def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir)):
+    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
+ #   raw_input()
+
+    if not '.jpg' in line:
+        return     #first and second lines are metadata
+
+    with open(labelfile,'a+') as fp2:
+        image_name,x1,y1,x2,y2 = line.split()
+        x1=int(x1)
+        x2=int(x2)
+        y1=int(y1)
+        y2=int(y2)
+        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+        image_dir = Utils.parent_dir(image_name)
+        image_dir = image_dir.split('/')[-1]
+        tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
+        if tgcat is None:
+            print('got no tg cat fr '+str(image_dir))
+            return
+        pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+        pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+        print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
+        image_path = os.path.join(pardir,image_name)
+        img_arr=cv2.imread(image_path)
+        #        cv2.imshow('out',img_arr)
+        mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+        #        img_arr2=img_arr*mask[:,:,np.newaxis]
+        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
+        # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+        # cv2.imshow('out1',img_arr2)
+        # cv2.waitKey(0)
+        maskname = image_path.replace('.jpg','.png')
+        print('writing mask to '+str(maskname))
+        res = cv2.imwrite(maskname,mask)
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(maskname))
+        line = image_path+' '+maskname+'\n'
+        Utils.ensure_file(labelfile)
+        fp2.write(line)
+        fp2.close()
+        #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
+        #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
+
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False):
@@ -971,46 +1019,27 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     print('getting deepfashion categoy translations')
     dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
     print(dir_to_catlist[0])
-    with open(labelfile,'a+') as fp2:
-        for line in lines:
-            if not '.jpg' in line:
-                #first and second lines are metadata
-                continue
-            image_name,x1,y1,x2,y2 = line.split()
-            x1=int(x1)
-            x2=int(x2)
-            y1=int(y1)
-            y2=int(y2)
-            print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
-            image_dir = Utils.parent_dir(image_name)
-            image_dir = image_dir.split('/')[-1]
-            tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
-            if tgcat is None:
-                print('got no tg cat fr '+str(image_dir))
-                continue
-            pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
-            pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
-            print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
-            image_path = os.path.join(pardir,image_name)
-            img_arr=cv2.imread(image_path)
-    #        cv2.imshow('out',img_arr)
-            mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
-    #        img_arr2=img_arr*mask[:,:,np.newaxis]
-            mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
-            # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-            # cv2.imshow('out1',img_arr2)
-            # cv2.waitKey(0)
-            maskname = image_path.replace('.jpg','.png')
-            print('writing mask to '+str(maskname))
-            res = cv2.imwrite(maskname,mask)
-            if not res:
-                logging.warning('bad save result '+str(res)+' for '+str(maskname))
+    print('{} lines in bbfile'.format(len(lines)))
+    n=2
+    p=Pool(processes=n)
+#        p.map(convert_deepfashion_helper,((line,fp2,labelfile,dir_to_catlist,visual_output,pardir ) for line in lines))
+#        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
+    for i in range(len(lines)/n):
+        print('doing nagla {}'.format(i))
 
-            line = image_path+' '+maskname+'\n'
-            Utils.ensure_file(labelfile)
-            fp2.write(line)
- #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
-#        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
+#            p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+        nagla = []
+        for j in range(n):
+            nagla.append((lines[i*n+j],labelfile,dir_to_catlist,visual_output,pardir ))
+            print('nagla length '+str(len(nagla)))
+        p.map(convert_deepfashion_helper,nagla)
+#            p.close()
+#            p.join()
+           # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+          # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+
+    # for line in lines:
+    #     convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
 
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):

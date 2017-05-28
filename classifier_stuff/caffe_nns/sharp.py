@@ -1497,7 +1497,9 @@ def sharp6(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     n.deconv11 = L.Deconvolution(n.conv10_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     convolution_param = dict(num_output=256,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
-    n.conv11_1,n.relu11_1,n.bn11_1,n.scale11_1 = conv_relu_bn(n.deconv11,n_output=256,kernel_size=3,pad='preserve',stage=stage)
+
+    n.conv11_0,n.relu11_0,n.bn11_0,n.scale11_0 = conv_relu_bn(n.deconv11,n_output=256,kernel_size=3,pad='preserve',stage=stage)
+    n.conv11_1,n.relu11_1,n.bn11_1,n.scale11_1 = conv_relu_bn(n.conv11_0,n_output=256,kernel_size=3,pad='preserve',stage=stage)
     n.conv3_cross1,n.relu3_cross1,n.bn3_cross_1,n.scale3_cross1 = conv_relu_bn(n.conv3_3,n_output=256,kernel_size=3,pad='preserve')
     n.conv3_cross2,n.relu3_cross2,n.bn3_cross_2,n.scale3_cross2 = conv_relu_bn(n.conv3_cross1,n_output=256,kernel_size=3,pad='preserve')
     bottom=[n.conv3_cross2, n.conv11_1]
@@ -1508,7 +1510,8 @@ def sharp6(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     n.deconv12 = L.Deconvolution(n.conv11_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     convolution_param = dict(num_output=128,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
-    n.conv12_1,n.relu12_1,n.bn12_1,n.scale12_1 = conv_relu_bn(n.deconv12,n_output=128,kernel_size=3,pad='preserve',stage=stage)
+    n.conv12_0,n.relu12_0,n.bn12_0,n.scale12_0 = conv_relu_bn(n.deconv12,n_output=128,kernel_size=3,pad='preserve',stage=stage)
+    n.conv12_1,n.relu12_1,n.bn12_1,n.scale12_1 = conv_relu_bn(n.conv12_0,n_output=128,kernel_size=3,pad='preserve',stage=stage)
     n.conv2_cross1,n.relu2_cross1,n.bn2_cross_1,n.scale2_cross1 = conv_relu_bn(n.conv2_2,n_output=128,kernel_size=3,pad='preserve')
     n.conv2_cross2,n.relu2_cross2,n.bn2_cross_2,n.scale2_cross2 = conv_relu_bn(n.conv2_cross1,n_output=128,kernel_size=3,pad='preserve')
     bottom=[n.conv2_cross2, n.conv12_1]
@@ -1519,7 +1522,8 @@ def sharp6(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
     n.deconv13 = L.Deconvolution(n.conv12_2,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
                     convolution_param = dict(num_output=64,pad = 0,kernel_size=2,stride = 2,
                     weight_filler=dict(type='xavier'),bias_filler=dict(type='constant',value=0.2)))
-    n.conv13_1,n.relu13_1,n.bn13_1,n.scale13_1 = conv_relu_bn(n.deconv13,n_output=64,kernel_size=3,pad='preserve',stage=stage)
+    n.conv13_0,n.relu13_0,n.bn13_0,n.scale13_0 = conv_relu_bn(n.deconv13,n_output=64,kernel_size=3,pad='preserve',stage=stage)
+    n.conv13_1,n.relu13_1,n.bn13_1,n.scale13_1 = conv_relu_bn(n.conv13_0,n_output=64,kernel_size=3,pad='preserve',stage=stage)
     n.conv1_cross1,n.relu1_cross1,n.bn1_cross_1,n.scale1_cross1 = conv_relu_bn(n.conv1_2,n_output=64,kernel_size=3,pad='preserve')
     n.conv1_cross2,n.relu1_cross2,n.bn1_cross_2,n.scale1_cross2 = conv_relu_bn(n.conv1_cross1,n_output=64,kernel_size=3,pad='preserve')
     bottom=[n.conv1_cross2, n.conv13_1]
