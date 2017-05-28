@@ -977,6 +977,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         frequencies[pixlevel_v3_index]+=1
+        print('freq '+str(frequencies))
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
