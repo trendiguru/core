@@ -1086,16 +1086,14 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
 
     for line in lines:
         if not '.jpg' in line:
-            return     #first and second lines are metadata
+            continue     #first and second lines are metadata
 
         image_name,x1,y1,x2,y2 = line.split()
 #        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
         tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
         if tgcat is None:
             print('got no tg cat fr '+str(image_name))
-            return
-        if not(tgcat is 'lower_cover_long_items' or tgcat is 'lower_cover_short_items' or tgcat is 'bag' or tgcat is 'belt'):
-            return
+            continue
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         frequencies[pixlevel_v3_index]+=1
