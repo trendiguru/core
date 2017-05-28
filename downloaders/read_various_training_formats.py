@@ -951,14 +951,16 @@ def convert_x1x2y1y2_to_yolo(size, box):
 
 #def partial_helper = partial(convert_deepfashion_helper,)
 
+
+frequencies = [0 for i in constants.pixlevel_categories_v3]
+
 def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir)):
 #    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
  #   raw_input()
-
+    global frequencies
     if not '.jpg' in line:
         return     #first and second lines are metadata
 
-    frequencies = [0 for i in constants.pixlevel_categories_v3]
     with open(labelfile,'a+') as fp2:
         image_name,x1,y1,x2,y2 = line.split()
         x1=int(x1)
