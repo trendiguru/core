@@ -1097,8 +1097,9 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
             print('got no tg cat fr '+str(image_name))
             continue
         if not tgcat in constants.trendi_to_pixlevel_v3_map:
-            print('didnt get get cat for {} {}'.format(tgcat,line))
+            print('didnt get cat for {} {}'.format(tgcat,line))
             raw_input('ret to cont')
+            continue
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
         frequencies[pixlevel_v3_index]+=1
