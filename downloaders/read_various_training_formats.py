@@ -958,6 +958,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
     if not '.jpg' in line:
         return     #first and second lines are metadata
 
+    frequencies = [0 for i in constants.pixlevel_categories_v3]
     with open(labelfile,'a+') as fp2:
         image_name,x1,y1,x2,y2 = line.split()
         x1=int(x1)
@@ -973,6 +974,8 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
             return
         pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
         pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+        frequencies[pixlevel_v3_index]+=1
+        print('freq '+str(frequencies))
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
@@ -997,7 +1000,8 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
-                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False):
+                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False,
+                                        multiprocess_it=True):
     '''
     first lines of file looks like
     289222
@@ -1020,26 +1024,28 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
     dir_to_catlist = create_nn_imagelsts.deepfashion_to_tg_hydra()
     print(dir_to_catlist[0])
     print('{} lines in bbfile'.format(len(lines)))
-    n=12  #yeah there is some way to get nproc from system , sue me
-    p=Pool(processes=n)
-#        p.map(convert_deepfashion_helper,((line,fp2,labelfile,dir_to_catlist,visual_output,pardir ) for line in lines))
-#        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
-    for i in range(len(lines)/n):
-        print('doing nagla {}'.format(i))
 
-#            p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
-        nagla = []
-        for j in range(n):
-            nagla.append((lines[i*n+j],labelfile,dir_to_catlist,visual_output,pardir ))
-    #        print('nagla len {} index {}'.format(len(nagla),i*n+j))
-        p.map(convert_deepfashion_helper,nagla)
-#            p.close()
-#            p.join()
-           # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
-          # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+    if multiprocess_it:
+        n=12  #yeah there is some way to get nproc from system , sue me
+        p=Pool(processes=n)
+    #        p.map(convert_deepfashion_helper,((line,fp2,labelfile,dir_to_catlist,visual_output,pardir ) for line in lines))
+    #        p.map(convert_deepfashion_helper,zip(lines,repeat(fp2),repeat(labelfile),repeat(dir_to_catlist),repeat(visual_output),repeat(pardir) ))
+        for i in range(len(lines)/n):
+            print('doing nagla {}'.format(i))
 
-    # for line in lines:
-    #     convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
+    #            p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+            nagla = []
+            for j in range(n):
+                nagla.append((lines[i*n+j],labelfile,dir_to_catlist,visual_output,pardir ))
+        #        print('nagla len {} index {}'.format(len(nagla),i*n+j))
+            p.map(convert_deepfashion_helper,nagla)
+    #            p.close()
+    #            p.join()
+               # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+              # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
+    else:
+        for line in lines:
+            convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
 
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
