@@ -1198,7 +1198,7 @@ def textfile_for_pixlevel_kaggle(imagesdir,labelsdir=None,imagefilter='.tif',lab
 def deepfashion_folder_to_cat(dir_to_cat,dir):
     for tup in dir_to_cat:
         if tup[0]==dir:
-            print('matched {} to {}'.format(dir,tup[1]))
+   #         print('matched {} to {}'.format(dir,tup[1]))
             return tup[1]
     print('coulndt find match for '+str(dir))
     return None
