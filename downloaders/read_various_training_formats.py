@@ -1084,7 +1084,7 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
     print(dir_to_catlist[0])
     print('{} lines in bbfile'.format(len(lines)))
 
-     for line in lines:
+    for line in lines:
         convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
 #    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
  #   raw_input()
