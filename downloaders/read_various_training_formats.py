@@ -948,7 +948,8 @@ def convert_x1x2y1y2_to_yolo(size, box):
     return (x,y,w,h)
 
 
-def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False):
+def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
+                                        labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',filefilter='250x250.jpg',visual_output=False):
     '''
     first lines of file looks like
     289222
@@ -1006,7 +1007,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
 
         line = image_path+' '+maskname+'\n'
         Utils.ensure_file(labelfile)
-        with open(labelfile,'a') as fp:
+        with open(labelfile,'a+') as fp:
             fp.write(line)
  #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
 #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
