@@ -1085,14 +1085,11 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
     print('{} lines in bbfile'.format(len(lines)))
 
     for line in lines:
-        convert_deepfashion_helper(line,fp2,labelfile,dir_to_catlist,visual_output,pardir)
-#    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
- #   raw_input()
         if not '.jpg' in line:
             return     #first and second lines are metadata
 
         image_name,x1,y1,x2,y2 = line.split()
-        #       print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
+#        print('file {} x1 {} y1 {} x2 {} y2 {}'.format(image_name,x1,y2,x2,y2))
         tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
         if tgcat is None:
             print('got no tg cat fr '+str(image_name))
@@ -1104,10 +1101,6 @@ def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/categor
         frequencies[pixlevel_v3_index]+=1
         print('freq '+str(frequencies))
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
-
-#       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
-        #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
-
 
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
