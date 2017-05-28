@@ -946,7 +946,7 @@ def convert_x1x2y1y2_to_yolo(size, box):
     return (x,y,w,h)
 
 
-def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt'):
+def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',labelfile='df_pixlabels.txt'):
     '''
     first lines of file looks like
     289222
@@ -980,16 +980,31 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
         image_dir = Utils.parent_dir(image_name)
         image_dir = image_dir.split('/')[-1]
         tgcat = create_nn_imagelsts.deepfashion_folder_to_cat(dir_to_catlist,image_dir)
-        if tgcat is not None:
-            pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
-            print('tgcat {} v3cat {}'.format(tgcat,pixlevel_v3_cat))
+        if tgcat is None:
+            print('got no tg cat fr '+str(image_dir))
+        pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+        pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+        print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
+#        cv2.imshow('out',img_arr)
         mask = grabcut_bb(img_arr,[x1,y1,x2,y2])  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+#        img_arr2=img_arr*mask[:,:,np.newaxis]
+        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index
+        # cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+        # cv2.imshow('out1',img_arr2)
+        # cv2.waitKey(0)
+        maskname = image_path.replace('.jpg','.png')
+        print('writing mask to '+str(maskname))
+        cv2.imwrite(maskname,mask)
+
+        line = image_path+' '+maskname+'\n'
+        Utils.ensure_file(labelfile)
+        with open(labelfile,'a') as fp:
+            fp.write(line)
  #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
-        cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-        cv2.imshow('out',img_arr)
-        cv2.waitKey(0)
+#        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
+
 
 def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
     '''
@@ -1057,7 +1072,7 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
 
     return img_arr
 
-def grabcut_bb(img_arr,bb_x1y1x2y2):
+def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
@@ -1104,21 +1119,24 @@ def grabcut_bb(img_arr,bb_x1y1x2y2):
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
     try:
         #TODO - try more than 1 grabcut call in itr
-        itr = 5
+        itr = 3
         cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
     except:
         print('grabcut exception '+str(e))
         return img_arr
-    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
+#    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
     #kill anything no t in gc
-    mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+    mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
     #kill anything out of bb
     mask2[:bb_x1y1x2y2[1],0:w]=0
     mask2[bb_x1y1x2y2[3]:,0:w]=0
     mask2[0:h,0:bb_x1y1x2y2[0]]=0
     mask2[0:h,bb_x1y1x2y2[2]:w]=0
-    img_arr = img_arr*mask2[:,:,np.newaxis]
+    if(visual_output):
+        img_arr = img_arr*mask2[:,:,np.newaxis]
 #    plt.imshow(img),plt.colorbar(),plt.show()
+        cv2.imshow('after gc',img_arr)
+        cv2.waitKey(0)
 
     print('imgarr shape after gc '+str(img_arr.shape))
     return mask2
