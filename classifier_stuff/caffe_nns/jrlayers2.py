@@ -175,7 +175,7 @@ class JrPixlevel(caffe.Layer):
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
-            multiprocess=False
+            multiprocess=False  ###DO THIS!!!!!
             if multiprocess:
                 pool = multiprocessing.Pool(4)
                 output = pool.map(self.load_image_and_mask_helper, range(self.batch_size))
