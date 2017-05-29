@@ -71,6 +71,7 @@ class JrPixlevel(caffe.Layer):
         self.images_processed_counter = 0
         self.start_time = time.time()
         self.analysis_time = time.time()
+        self.cpu_count = multiprocessing.cpu_count()
         print('##############')
         print('params coming into jrlayers2')
         print('batchsize {}'.format(self.batch_size))
@@ -175,13 +176,16 @@ class JrPixlevel(caffe.Layer):
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
-            multiprocess=False  ###DO THIS!!!!!
+            multiprocess=True  ###DO THIS!!!!!
             if multiprocess:
-                pool = multiprocessing.Pool(4)
+                pool = multiprocessing.Pool(self.cpu_count)
                 output = pool.map(self.load_image_and_mask_helper, range(self.batch_size))
+                i =0
                 for o in output:
+                    self.next_idx()  #this may only work if using random indexing not sequential...check that different images are getting sent to batch
                     all_data[i,...]=o[0]
                     all_labels[i,...]=o[1]
+                    i=i+1
             else:
                 for i in range(self.batch_size):
                     data, label = self.load_image_and_mask()
