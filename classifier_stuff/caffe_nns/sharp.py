@@ -482,7 +482,8 @@ def jr_resnet_test(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initia
 def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                  lr_mult=(1,1),decay_mult=(2,0),weight_filler='xavier',use_global_stats=False,image_dims=(224,224)): #global stats false for train, true for test/deploy
     '''
-    resnet 50: n_bs = [2,3,5,2]  this
+    resnet 50: n_bs = [2,3,5,2]
+    a Unet based on resnet with crossconnections from  data and every final B (i think)
     :param n_bs: number of 'B' units for each 'A' unit
     :param lr_mult:
     :param decay_mult:
@@ -695,6 +696,9 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
     resnet 50: n_bs = [2,3,5,2]  this
     :param n_bs: number of 'B' units for each 'A' unit
+    resnet is composed of what you could describe in regex as (AB+)+
+    e.g. ABBABBBABBBBBABB , A and B units built in own functions below
+    see http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006
     :param source:
     :param batch_size:
     :param nout_initial:
@@ -704,7 +708,11 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     :return:
     '''
     data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
-    transform_param=dict(crop_size=227, mean_value=[104, 117, 123], mirror=True)
+#    transform_param=dict(crop_size=227, mean_value=[104, 117, 123], mirror=True)
+
+    #not sure why this was originally 227 but that number pops up every once in a while, netscope says 224
+    #and its a multiple of 32 which gpus like so 224 it is
+    transform_param=dict(crop_size=224, mean_value=[104, 117, 123], mirror=True)
     # the net itself
     conv = L.Convolution(data, kernel_size=7, stride=2,
                                 num_output=nout_initial, pad=3, bias_term=False, weight_filler=dict(type='msra'))
@@ -712,16 +720,18 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
 
-    loss = L.SoftmaxWithLoss(relu, label)
-    acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
-    print(type(loss),type(acc))
-    return to_proto(acc)
+    # loss = L.SoftmaxWithLoss(relu, label)
+    # acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+    # print(type(loss),type(acc))
+    # return to_proto(acc)
 
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
     residual = max_pool(relu, 3, stride=2)
     # n.b. this is being done without a pad
+
+    #First AB+ unit - different only since its bottom is different, could make into one by an if
     nout = 64
     kernel_sizes = (1,3)
     strides = (1,1)
@@ -730,6 +740,7 @@ def jr_resnet(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     for j in range(n_bs[0]):
         l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
+    #all subsequent AB+ units
     for i in range(1,len(n_bs)):
         nout = nout * 2
         print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
@@ -998,7 +1009,6 @@ def sharpmask(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage
 #    }
 #}
     #the following will be 7x7 (original /32).
-
 #    n.reshape8 = L.Reshape(n.fc7,
 #                            param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                            reshape_param = {'shape':{'dim':[0,128,7,7] }})    # batchsize X infer X 7 X 7 , infer should=6272/49=128
@@ -1245,7 +1255,6 @@ def sharp2(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
     return n.to_proto()
 
-
 def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='train'):
     '''
     see https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-vgg_ilsvrc_16_layers_deploy-prototxt
@@ -1385,7 +1394,6 @@ def sharp5(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='t
 #    n.deconv1 = L.Deconvolution(n.conv6_3,param=[dict(lr_mult=lr_mult1,decay_mult=decay_mult1),dict(lr_mult=lr_mult2,decay_mult=decay_mult2)],
 #                convolution_param=[dict(num_output=512,bias_term=False,kernel_size=2,stride=2)])
     return n.to_proto()
-
 
 def sharp6(db,mean_value=[112.0,112.0,112.0],imsize=(224,224),n_cats=21,stage='train'):
     '''

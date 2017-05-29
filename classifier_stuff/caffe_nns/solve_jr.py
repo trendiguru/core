@@ -105,7 +105,13 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
 
 
     #copycmd = 'cp -r '+outdir + ' ' + host_dirname
+    #copy to server
     scpcmd = 'rsync -avz '+outdir + ' root@104.155.22.95:/var/www/results/'+type+'/'
+
+    #put in standard dir
+    standard_dir = '/data/results/'+type+'/'
+    Utils.ensure_dir(standard_dir)
+    scpcmd2 = 'rsync -avz '+outdir + ' /data/results/'+type+'/'
 
     i = 0
     losses = []
@@ -212,6 +218,7 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     ##
     #   subprocess.call(copycmd,shell=True)
         subprocess.call(scpcmd,shell=True)
+        subprocess.call(scpcmd2,shell=True)
 
 
 def expfunc(x,asymptote,timeconst,x0):
