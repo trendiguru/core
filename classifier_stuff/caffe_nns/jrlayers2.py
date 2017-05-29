@@ -134,9 +134,9 @@ class JrPixlevel(caffe.Layer):
             good_label_files = []
             print('checking image files')
             for ind in range(len(self.imagefiles)):
-                img_arr = self.load_image(ind)
+                img_arr = cv2.imread(self.imagefiles[ind] #would be simpler to ditch that func and use cv2.imread, its never otherwise used
                 if img_arr is not None:
-                    label_arr = self.load_label_image(ind)
+                    label_arr = cv2.imread(self.labelfiles[ind])
                     if label_arr is not None:
                         #shapes match bet image and  mask
                         if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
@@ -228,63 +228,63 @@ class JrPixlevel(caffe.Layer):
 #        return full_filename
         return filename
 
-    def load_image(self,idx):
-        """
-        Load input image and preprocess for Caffe:
-        - cast to float
-        - switch channels RGB -> BGR
-        - subtract mean
-        - transpose to channel x height x width order
-        """
-        while(1):
-            filename = self.imagefiles[idx]
-#            full_filename=os.path.join(self.images_dir,filename)
-#            print('the imagefile:'+full_filename+' index:'+str(idx))
-            label_filename=self.determine_label_filename(idx)
-            if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
-                print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(filename))
-                self.next_idx()
-            else:
-                break
-        im = Image.open(filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
+#     def load_image(self,idx):
+#         """
+#         Load input image and preprocess for Caffe:
+#         - cast to float
+#         - switch channels RGB -> BGR
+#         - subtract mean
+#         - transpose to channel x height x width order
+#         """
+#         while(1):
+#             filename = self.imagefiles[idx]
+# #            full_filename=os.path.join(self.images_dir,filename)
+# #            print('the imagefile:'+full_filename+' index:'+str(idx))
+#             label_filename=self.determine_label_filename(idx)
+#             if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
+#                 print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(filename))
+#                 self.next_idx()
+#             else:
+#                 break
+#         im = Image.open(filename)
+#         if self.new_size:
+#             im = im.resize(self.new_size,Image.ANTIALIAS)
+#
+#         in_ = np.array(im, dtype=np.float32)
+#         if in_ is None:
+#             logging.warning('could not get image '+full_filename)
+#             return None
+# #        print(full_filename+ ' has dims '+str(in_.shape))
+#         in_ = in_[:,:,::-1]  #rgb->bgr
+# #        in_ -= self.mean
+#         in_ = in_.transpose((2,0,1))   #hwc->cwh
+# #	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+#         return in_
 
-        in_ = np.array(im, dtype=np.float32)
-        if in_ is None:
-            logging.warning('could not get image '+full_filename)
-            return None
-#        print(full_filename+ ' has dims '+str(in_.shape))
-        in_ = in_[:,:,::-1]  #rgb->bgr
-#        in_ -= self.mean
-        in_ = in_.transpose((2,0,1))   #hwc->cwh
-#	print('uniques of img:'+str(np.unique(in_))+' shape:'+str(in_.shape))
-        return in_
-
-    def load_label_image(self, idx):
-        """
-        Load label image as 1 x height x width integer array of label indices.
-        The leading singleton dimension is required by the loss.
-        """
-        full_filename = self.determine_label_filename(idx)
-        im = Image.open(full_filename)
-        if im is None:
-            print(' COULD NOT LOAD FILE '+full_filename)
-            logging.warning('couldnt load file '+full_filename)
-        if self.new_size:
-            im = im.resize(self.new_size,Image.ANTIALIAS)
-
-        in_ = np.array(im, dtype=np.uint8)
-
-        if len(in_.shape) == 3:
-#            logging.warning('got 3 layer img as mask, taking first layer')
-            in_ = in_[:,:,0]
-    #        in_ = in_ - 1
- #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
- #       print(full_filename+' has dims '+str(in_.shape))
-        label = copy.copy(in_[np.newaxis, ...])
-#        print('after extradim shape:'+str(label.shape))
-        return label
+#     def load_label_image(self, idx):
+#         """
+#         Load label image as 1 x height x width integer array of label indices.
+#         The leading singleton dimension is required by the loss.
+#         """
+#         full_filename = self.determine_label_filename(idx)
+#         im = Image.open(full_filename)
+#         if im is None:
+#             print(' COULD NOT LOAD FILE '+full_filename)
+#             logging.warning('couldnt load file '+full_filename)
+#         if self.new_size:
+#             im = im.resize(self.new_size,Image.ANTIALIAS)
+#
+#         in_ = np.array(im, dtype=np.uint8)
+#
+#         if len(in_.shape) == 3:
+# #            logging.warning('got 3 layer img as mask, taking first layer')
+#             in_ = in_[:,:,0]
+#     #        in_ = in_ - 1
+#  #       print('uniques of label:'+str(np.unique(in_))+' shape:'+str(in_.shape))
+#  #       print(full_filename+' has dims '+str(in_.shape))
+#         label = copy.copy(in_[np.newaxis, ...])
+# #        print('after extradim shape:'+str(label.shape))
+#         return label
 
     def load_image_and_mask_helper(self,idxs):
         #this is to alow multiprocess to send an unneeded argument , probably there is some way to multiprocess without args
