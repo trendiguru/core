@@ -224,8 +224,9 @@ class JrPixlevel(caffe.Layer):
             filename = filename.split('.jpg')[0]
             filename = filename+self.labelfile_suffix
 
-        full_filename=os.path.join(self.labels_dir,filename)
-        return full_filename
+#        full_filename=os.path.join(self.labels_dir,filename)
+#        return full_filename
+        return filename
 
     def load_image(self,idx):
         """
@@ -237,15 +238,15 @@ class JrPixlevel(caffe.Layer):
         """
         while(1):
             filename = self.imagefiles[idx]
-            full_filename=os.path.join(self.images_dir,filename)
+#            full_filename=os.path.join(self.images_dir,filename)
 #            print('the imagefile:'+full_filename+' index:'+str(idx))
             label_filename=self.determine_label_filename(idx)
-            if not(os.path.isfile(label_filename) and os.path.isfile(full_filename)):
-                print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(full_filename))
+            if not(os.path.isfile(label_filename) and os.path.isfile(filename)):
+                print('ONE OF THESE IS NOT A FILE:'+str(label_filename)+','+str(filename))
                 self.next_idx()
             else:
                 break
-        im = Image.open(full_filename)
+        im = Image.open(filename)
         if self.new_size:
             im = im.resize(self.new_size,Image.ANTIALIAS)
 
