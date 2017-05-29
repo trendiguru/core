@@ -538,15 +538,15 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if x_room<0 or y_room<0:
             logging.debug('crop {} is larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
             if x_room<y_room:
-                factor = float(crop_size[1])/width #assumes crop is x,y not y,x
+                factor = float(crop_size[1]+2)/width #assumes crop is x,y not y,x
                 resize_size = (int(height*factor),crop_size[1])
             else:
-                factor = float(crop_size[0])/height
+                factor = float(crop_size[0]+2)/height #add 1 since rounding can cause output to be one pix too small
                 resize_size = (crop_size[0],int(width*factor))
             logging.warning('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
             img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
             if(mask_arr is not None):
-                print('uniques b4 '+str(np.unique(mask_arr)))
+                print('uniques beffg '+str(np.unique(mask_arr)))
                 mask_arr=imutils.resize_keep_aspect(mask_arr,output_size=resize_size,careful_with_the_labels=True)
                 print('uniques aft '+str(np.unique(mask_arr)))
 
