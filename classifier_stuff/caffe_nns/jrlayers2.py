@@ -179,7 +179,9 @@ class JrPixlevel(caffe.Layer):
             multiprocess=True  ###DO THIS!!!!!
             if multiprocess:
                 pool = multiprocessing.Pool(self.cpu_count)
-                output = pool.map(self.load_image_and_mask_helper, range(self.batch_size))
+                output = pool.map(load_image_and_mask_helper2, [self for i in range(self.batch_size)])
+#                output = pool.map(self.load_image_and_mask_helper,  range(self.batch_size))
+                #hits cPickle.PicklingError: Can't pickle <type 'instancemethod'>: attribute lookup __builtin__.instancemethod failed
                 i =0
                 for o in output:
                     self.next_idx()  #this may only work if using random indexing not sequential...check that different images are getting sent to batch
@@ -418,7 +420,11 @@ class JrPixlevel(caffe.Layer):
 
 
 
-
+def load_image_and_mask_helper2(pixobj):
+    #this is to alow multiprocess to send an unneeded argument , probably there is some way to multiprocess without args
+    #without this hack but this works and is easy
+    out1,out2=pixobj.load_image_and_mask()
+    return out1,out2
 
     def squared_cubed(self,x):
         return x**2,x**3
