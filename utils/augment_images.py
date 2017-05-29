@@ -546,7 +546,9 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             logging.warning('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
             img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
             if(mask_arr is not None):
+                print('uniques b4 '+str(np.unique(mask_arr)))
                 mask_arr=imutils.resize_keep_aspect(mask_arr,output_size=resize_size,careful_with_the_labels=True)
+                print('uniques aft '+str(np.unique(mask_arr)))
 
         height,width = img_arr.shape[0:2]
         x_room = width - crop_size[1]
