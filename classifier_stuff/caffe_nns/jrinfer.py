@@ -551,8 +551,8 @@ def do_seg_tests(net, iter, save_dir, n_images, output_layer='score', gt_layer='
     overall_acc = np.diag(hist).sum() / hist.sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', overall_acc
     # per-class accuracy
-    if hist.sum(1)==0:
-        acc=0
+    # if hist.sum(1)==0: hist.sum(1) is like an  array i think
+    #     acc=0
     else:
         acc = np.diag(hist) / hist.sum(1)
     print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
