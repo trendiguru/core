@@ -138,8 +138,10 @@ class JrPixlevel(caffe.Layer):
                 if img_arr is not None:
                     label_arr = self.load_label_image(ind)
                     if label_arr is not None:
+                        #shapes match bet image and  mask
                         if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
-                            if label_arr.shape[2] >= self.augment_crop_size[0] and label_arr.shape[3] >= self.augment_crop_size[1]
+                            #image is big enough to crop out the min imsize for net (could be dealt with by resizing....)
+                            if label_arr.shape[1] >= self.augment_crop_size[1] and label_arr.shape[2] >= self.augment_crop_size[2]
                                 print('match index {} name {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],img_arr.shape,label_arr.shape))
                                 good_img_files.append(self.imagefiles[ind])
                                 good_label_files.append(self.labelfiles[ind])
