@@ -141,12 +141,12 @@ class JrPixlevel(caffe.Layer):
                         #shapes match bet image and  mask
                         if label_arr.shape[0:2] == img_arr.shape[0:2]:  #the last dim is # channels (3 for img and dne for label
                             #image is big enough to crop out the min imsize for net (could be dealt with by resizing....)
-                            if label_arr.shape[0] >= self.augment_crop_size[0] and label_arr.shape[1] >= self.augment_crop_size[1]:
-                                print('match index {} names {} {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
-                                good_img_files.append(self.imagefiles[ind])
-                                good_label_files.append(self.labelfiles[ind])
-                            else:
-                                print('image too small ind {} names {} {} imsize {} lsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
+                            # if label_arr.shape[0] >= self.augment_crop_size[0] and label_arr.shape[1] >= self.augment_crop_size[1]:
+                            #     print('match index {} names {} {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
+                            #     good_img_files.append(self.imagefiles[ind])
+                            #     good_label_files.append(self.labelfiles[ind])
+                            # else:
+                            #     print('image too small ind {} names {} {} imsize {} lsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
                         else:
                              print('shapes dont match ind {} names {} {} imsize {} lsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
                 else:

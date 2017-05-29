@@ -297,7 +297,7 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
         if x_room<0 or y_room<0:
-            logging.warning('crop {} is still larger than incoming image {} !!!!! something went wrong'.format(crop_size,img_arr.shape[0:2]))
+            logging.info('crop {} is still larger than incoming image {} !!!!! something went wrong'.format(crop_size,img_arr.shape[0:2]))
 
     eps = 0.1
 
@@ -530,6 +530,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     height,width = img_arr.shape[0:2]
 
     if crop_size:
+        #WIP fix too small images here - embed into black bgnd of sufficient size
+#        if img_arr.shape[0]<
         #calculate headroom left after crop. actual crop is random within that headroom iirc
         x_room = width - crop_size[1]
         y_room = height - crop_size[0]
@@ -541,8 +543,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             else:
                 factor = float(crop_size[0])/height
                 resize_size = (width,int(crop_size[1]*factor))
-            logging.debug('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
+            logging.warning('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
             img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
+            if(mask_arr):
+                mask_arr=imutils.resize_keep_aspect(mask_arr,output_size=resize_size,careful_with_the_labels=True)
 
         height,width = img_arr.shape[0:2]
         x_room = width - crop_size[1]
