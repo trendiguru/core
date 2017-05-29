@@ -134,7 +134,7 @@ class JrPixlevel(caffe.Layer):
             good_label_files = []
             print('checking image files')
             for ind in range(len(self.imagefiles)):
-                img_arr = cv2.imread(self.imagefiles[ind] #would be simpler to ditch that func and use cv2.imread, its never otherwise used
+                img_arr = cv2.imread(self.imagefiles[ind]) #would be simpler to ditch that func and use cv2.imread, its never otherwise used
                 if img_arr is not None:
                     label_arr = cv2.imread(self.labelfiles[ind])
                     if label_arr is not None:
