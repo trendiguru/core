@@ -480,7 +480,8 @@ def jr_resnet_test(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initia
 
 
 def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
-                 lr_mult=(1,1),decay_mult=(2,0),weight_filler='xavier',use_global_stats=False,image_dims=(224,224)): #global stats false for train, true for test/deploy
+                 lr_mult=(1,1),decay_mult=(2,0),weight_filler='xavier',use_global_stats=False,image_dims=(224,224)):
+    #global stats false for train, true for test/deploy, possibly can be left out and default is ok
     '''
     resnet 50: n_bs = [2,3,5,2]
     a Unet based on resnet with crossconnections from  data and every final B (i think)
@@ -506,7 +507,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                                 num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
     current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
-    print('dims after conv1 '+str(current_dims)+' originally '+str(ixge_dims))
+    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
