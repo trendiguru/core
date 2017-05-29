@@ -986,23 +986,24 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
-        mask = grabcut_bb(img_arr,[x1,y1,x2,y2],visual_output=visual_output)  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
+        mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
 
     # make new img with extraneous removed
-        img_arr2=img_arr*mask[:,:,np.newaxis]
-        if(1):
-            cv2.rectangle(img_arr2,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+        if(visual_output):
             cv2.imshow('gc',img_arr2)
+            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
             cv2.imshow('orig',img_arr)
             cv2.waitKey(0)
-        gc_img_name = image_path.replace('.jpg','_gc.png')
+        gc_img_name = image_path.replace('.jpg','_gc.jpg')
+
+        print('writing img to '+str(gc_img_name))
         res = cv2.imwrite(gc_img_name,img_arr2)
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
 
         mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
         maskname = image_path.replace('.jpg','.png')
-#        print('writing mask to '+str(maskname))
+        print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
@@ -1016,7 +1017,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
-                                        filefilter='250x250.jpg',visual_output=False,
+                                        filefilter='250x250.jpg',visual_output=True,
                                         multiprocess_it=True):
     '''
     first lines of file looks like
@@ -1191,6 +1192,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
+    return mask and gc image
     :param img_arr:
     :param bb_x1y1x2y2:
     :return:
@@ -1247,14 +1249,14 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
     mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+    img_arr = img_arr*mask2[:,:,np.newaxis]
     if(visual_output):
-        img_arr = img_arr*mask2[:,:,np.newaxis]
 #    plt.imshow(img),plt.colorbar(),plt.show()
         cv2.imshow('after gc',img_arr)
         cv2.waitKey(0)
 
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
-    return mask2
+    return mask2,img_arr
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
