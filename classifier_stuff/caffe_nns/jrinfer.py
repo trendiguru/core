@@ -551,7 +551,10 @@ def do_seg_tests(net, iter, save_dir, n_images, output_layer='score', gt_layer='
     overall_acc = np.diag(hist).sum() / hist.sum()
     print '>>>', datetime.now(), 'Iteration', iter, 'overall accuracy', overall_acc
     # per-class accuracy
-    acc = np.diag(hist) / hist.sum(1)
+    if hist.sum(1)==0:
+        acc=0
+    else:
+        acc = np.diag(hist) / hist.sum(1)
     print '>>>', datetime.now(), 'Iteration', iter, 'acc per class', str(acc)
     print '>>>', datetime.now(), 'Iteration', iter, 'mean accuracy', np.nanmean(acc)
     # per-class IU
