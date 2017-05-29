@@ -131,7 +131,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter
-            if type == 'single_label' or type == 'pixlevel': #test, may not work for pixlevel?
+#            if type == 'single_label' or type == 'pixlevel': #test, may not work for pixlevel? #indeed does not work for pix
+            if type == 'single_label' : #test, may not work for pixlevel? #indeed does not work for pix
                 accuracy = solver.net.blobs['accuracy'].data
                 accuracy_list[i] = accuracy
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss)+' acc:'+str(accuracy))

@@ -404,10 +404,9 @@ class JrPixlevel(caffe.Layer):
             out2 = out2[:,:,0]
         out2 = copy.copy(out2[np.newaxis, ...])
 
-        self.analysis_time_out = time.time()
-
         dt_in = time.time()-self.analysis_time
-        dt_out = time.time()-self.analysis_time_out
+        dt_out = self.analysis_time -self.analysis_time_out
+        dt_tot = time.time - self.analysis_time_out
         total_elapsed_time = time.time() - self.start_time
         self.analysis_time_out = time.time()
         self.images_processed_counter += 1
@@ -416,7 +415,8 @@ class JrPixlevel(caffe.Layer):
               ' images processed., tin '+str(round(dt_in,3))+
               ' tout '+str(round(dt_out,3))+
               ' tin '+str(round(dt_in,3))+
-              ' ttot '+str(round(total_elapsed_time,3))+
+              ' ttot '+str(round(dt_tot,3))+
+              ' tglob '+str(round(total_elapsed_time,3))+
               ' tpi '+str(round(float(total_elapsed_time)/self.images_processed_counter,3)))
         return out1,out2
 
