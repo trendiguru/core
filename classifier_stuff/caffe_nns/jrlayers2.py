@@ -128,7 +128,7 @@ class JrPixlevel(caffe.Layer):
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
-        check_files = False
+        check_files = True
         if(check_files):
             good_img_files = []
             good_label_files = []
@@ -139,10 +139,14 @@ class JrPixlevel(caffe.Layer):
                     label_arr = self.load_label_image(ind)
                     if label_arr is not None:
                         if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
-                            good_img_files.append(self.imagefiles[ind])
-                            good_label_files.append(self.labelfiles[ind])
+                            if label_arr.shape[2] >= self.augment_crop_size[0] and label_arr.shape[3] >= self.augment_crop_size[1]
+                                print('match index {} name {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],img_arr.shape,label_arr.shape))
+                                good_img_files.append(self.imagefiles[ind])
+                                good_label_files.append(self.labelfiles[ind])
+                            else:
+                                print('image too small index {}  {} image {} and label {}'.format(ind,self.imagefiles[ind[],img_arr.shape,label_arr.shape))
                         else:
-                            print('match , image {} and label {}'.format(img_arr.shape,label_arr.shape))
+                            print('shapes not same for image index  {} shape {} and label  {}'.format(ind,img_arr.shape,label_arr.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
             self.imagefiles = good_img_files
