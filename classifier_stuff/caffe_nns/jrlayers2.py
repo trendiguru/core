@@ -366,6 +366,8 @@ class JrPixlevel(caffe.Layer):
         logging.debug('img/mask sizes in jrlayers2: {} and {}, cropsize {} maxangle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 #        print('img/mask sizes in jrlayers2: {} and {}, cropsize {} angle {}'.format(in_.shape,label_in_.shape,self.augment_crop_size,self.augment_max_angle))
 
+        print('uniques b4 '+str(np.unique(label_in_)))
+
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
             max_angle = self.augment_max_angle,
@@ -378,6 +380,7 @@ class JrPixlevel(caffe.Layer):
             crop_size=self.augment_crop_size,
             show_visual_output=self.augment_show_visual_output)
 
+        print('uniques after '+str(np.unique(out2)))
         if self.save_visual_output:
             lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
             name = "".join(lst)
