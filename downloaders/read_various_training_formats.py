@@ -1073,7 +1073,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
 
 def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
-                                        filefilter='250x250.jpg',visual_output=True,
+                                        filefilter='250x250.jpg',visual_output=False,
                                         multiprocess_it=True):
     '''
     first lines of file looks like
