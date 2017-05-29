@@ -142,13 +142,13 @@ class JrPixlevel(caffe.Layer):
                         if label_arr.shape[1:3] == img_arr.shape[1:3]:  #the first dim is # channels (3 for img and 1 for label
                             #image is big enough to crop out the min imsize for net (could be dealt with by resizing....)
                             if label_arr.shape[1] >= self.augment_crop_size[1] and label_arr.shape[2] >= self.augment_crop_size[2]:
-                                print('match index {} name {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],img_arr.shape,label_arr.shape))
+                                print('match index {} names {} {} imagesize {} and labelsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
                                 good_img_files.append(self.imagefiles[ind])
                                 good_label_files.append(self.labelfiles[ind])
                             else:
-                                print('image too small index {}  {} image {} and label {}'.format(ind,self.imagefiles[ind[],img_arr.shape,label_arr.shape))
+                                print('image too small ind {} names {} {} imsize {} lsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
                         else:
-                            print('shapes not same for image index  {} shape {} and label  {}'.format(ind,img_arr.shape,label_arr.shape))
+                             print('shapes dont match ind {} names {} {} imsize {} lsize {}'.format(ind,self.imagefiles[ind],self.labelfiles[ind],img_arr.shape,label_arr.shape))
                 else:
                     print('got bad image:'+self.imagefiles[ind])
             self.imagefiles = good_img_files
