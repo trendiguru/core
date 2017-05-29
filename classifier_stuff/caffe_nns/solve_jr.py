@@ -220,12 +220,10 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         subprocess.call(scpcmd,shell=True)
         subprocess.call(scpcmd2,shell=True)
 
-
 def expfunc(x,asymptote,timeconst,x0):
     eps = 10**-5
     y = asymptote * (1-np.exp(-(x-x0)/(timeconst)))
     print('as {} tm {} x0 {}'.format(asymptote,timeconst,x0))
-
     return y
 #    return a * np.exp(-b * x) + c
 #a * np.exp(-b * x) + c

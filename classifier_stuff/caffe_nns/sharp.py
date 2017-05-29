@@ -506,7 +506,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                                 num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
     current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
-    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
+    print('dims after conv1 '+str(current_dims)+' originally '+str(ixge_dims))
     batch_norm = L.BatchNorm(conv, in_place=True)
     scale = L.Scale(batch_norm, bias_term=True, in_place=True)
     relu = L.ReLU(scale, in_place=True)
@@ -536,13 +536,6 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l_cross[current_cross_layer] = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
     l = l_cross[current_cross_layer]
     current_cross_layer += 1
-#    l_cross0 = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-
-#    l = l_cross0
-
-    # loss = L.SoftmaxWithLoss(l, label)
-    # acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
-    # return to_proto(loss, acc)
 
 
     ##########remaining AB...B's (stride(2,1) for A and (1,1) for B)
@@ -593,6 +586,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l = reshape
     raw_input('ret to cont')
 
+#I think the first deconv should be here no?
     #Rest of U - going back up
     for i in range(len(n_bs)-1,0,-1):
         #get the cross
