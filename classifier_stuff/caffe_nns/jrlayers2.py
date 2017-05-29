@@ -128,7 +128,7 @@ class JrPixlevel(caffe.Layer):
         logging.debug('initial self.idx is :'+str(self.idx)+' type:'+str(type(self.idx)))
 
         ##check that all images are openable and have labels
-        check_files = True
+        check_files = False
         if(check_files):
             good_img_files = []
             good_label_files = []
