@@ -13,6 +13,7 @@ import string
 import time
 import multiprocessing
 import lmdb
+from multiprocessing.pool import ThreadPool as TPool
 
 from trendi.utils import augment_images
 from trendi.utils import imutils
@@ -178,9 +179,10 @@ class JrPixlevel(caffe.Layer):
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
             multiprocess=True  ###DO THIS!!!!!
             if multiprocess:
-                pool = multiprocessing.Pool(self.cpu_count)
-                output = pool.map(load_image_and_mask_helper2, [self for i in range(self.batch_size)])
-#                output = pool.map(self.load_image_and_mask_helper,  range(self.batch_size))
+#                pool = multiprocessing.Pool(self.cpu_count)
+                pool = TPool(self.cpu_count)
+                output = pool.map(self.load_image_and_mask_helper,  range(self.batch_size))
+#                output = pool.map(load_image_and_mask_helper2, [self for i in range(self.batch_size)])
                 #hits cPickle.PicklingError: Can't pickle <type 'instancemethod'>: attribute lookup __builtin__.instancemethod failed
                 i =0
                 for o in output:
