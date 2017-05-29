@@ -55,9 +55,9 @@ class JrPixlevel(caffe.Layer):
         self.save_visual_output = params.get('save_visual_output',False)
         self.augment_images = params.get('augment',False)
         self.augment_max_angle = params.get('augment_max_angle',10)
-        self.augment_max_offset_x = params.get('augment_max_offset_x',10)
-        self.augment_max_offset_y = params.get('augment_max_offset_y',10)
-        self.augment_max_scale = params.get('augment_max_scale',1.2)
+        self.augment_max_offset_x = params.get('augment_max_offset_x',20)
+        self.augment_max_offset_y = params.get('augment_max_offset_y',20)
+        self.augment_max_scale = params.get('augment_max_scale',1.3)
         self.augment_max_noise_level = params.get('augment_max_noise_level',0)
         self.augment_max_blur = params.get('augment_max_blur',0)
         self.augment_do_mirror_lr = params.get('augment_do_mirror_lr',True)
@@ -66,7 +66,7 @@ class JrPixlevel(caffe.Layer):
         self.augment_show_visual_output = params.get('augment_show_visual_output',False)
         self.augment_save_visual_output = params.get('augment_save_visual_output',False)
         self.augment_distribution = params.get('augment_distribution','uniform')
-        self.n_labels = params.get('n_labels',21)
+        self.n_labels = params.get('n_labels',16)
         self.fwd_pass_counter = 0
         self.images_processed_counter = 0
         self.start_time = time.time()

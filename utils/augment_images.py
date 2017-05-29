@@ -477,20 +477,15 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     add color shifting
     fix blur / noise
     ''' #
-   # logging.debug('db A')
-   # logging.debug('cv2file:'+str(cv2.__file__))
     start_time = time.time()
     if isinstance(img_filename_or_nparray,basestring):
  #       logging.debug('db A filename:'+img_filename_or_nparray)
         img_arr = cv2.imread(img_filename_or_nparray)
-  #      logging.debug('db B')
     else:
         img_arr = img_filename_or_nparray
     if img_arr is None:
         logging.warning('didnt get input image '+str(img_filename_or_nparray))
         return
-
-    #logging.debug('db B')
     mask_arr = None
     if mask_filename_or_nparray is not None:
         if isinstance(mask_filename_or_nparray,basestring):
@@ -499,7 +494,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         else:
             mask_arr = mask_filename_or_nparray
         if mask_arr is None:
- #           logging.warning('didnt get mask image '+str(mask_filename_or_nparray))
+            logging.warning('didnt get mask image '+str(mask_filename_or_nparray))
             return
 #convert mask img to binary multichannel image
         mask_arr = mask_to_multichannel(mask_arr,n_mask_channels)
@@ -507,15 +502,6 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
     #check that mask size and img size are equal
         if mask_arr.shape[0]!=img_arr.shape[0] or mask_arr.shape[1]!= img_arr.shape[1]:
             print('WARNING shape mismatch (no crop) in augment images, forcing reshape - imgshape {} maskshape {}'.format(img_arr.shape,mask_arr.shape))
-
-  #      logging.debug('augment input:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
-
-#        logging.debug('mask shape:'+str(mask_arr.shape))
-
-
-   # logging.debug('db C')
-
-#    logging.debug('db 1')
 
     angle = 0
     offset_x = 0
@@ -544,11 +530,11 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                 factor = float(crop_size[0]+2)/height #add 1 since rounding can cause output to be one pix too small
                 resize_size = (crop_size[0],int(width*factor))
             logging.warning('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
-            img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
+            img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=False) #img not labels
             if(mask_arr is not None):
-                print('uniques beffg '+str(np.unique(mask_arr)))
-                mask_arr=imutils.resize_keep_aspect(mask_arr,output_size=resize_size,careful_with_the_labels=True)
-                print('uniques aft '+str(np.unique(mask_arr)))
+  #              print('uniques beffg '+str(np.unique(mask_arr)))
+                mask_arr=imutils.resize_keep_aspect(mask_arr,output_size=resize_size,careful_with_the_labels=True) #labels not img
+   #             print('uniques aft '+str(np.unique(mask_arr)))
 
         height,width = img_arr.shape[0:2]
         x_room = width - crop_size[1]

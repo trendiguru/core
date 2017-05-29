@@ -13,7 +13,7 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist(net, save_dir, dataset, layer='score', gt='label'):
+def compute_hist_score(net, save_dir, dataset, layer='score', gt='label'):
     n_cl = net.blobs[layer].channels
     if save_dir:
         os.mkdir(save_dir)
@@ -41,7 +41,7 @@ def do_seg_tests(net, iter, save_format, dataset, layer='score', gt='label'):
     n_cl = net.blobs[layer].channels
     if save_format:
         save_format = save_format.format(iter)
-    hist, loss = compute_hist(net, save_format, dataset, layer, gt)
+    hist, loss = compute_hist_score(net, save_format, dataset, layer, gt)
     # mean loss
     print '>>>', datetime.now(), 'Iteration', iter, 'loss', loss
     # overall accuracy
