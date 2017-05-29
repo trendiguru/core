@@ -561,6 +561,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     pad = 3
     kernel_size = 7
     stride = 1
+    print('dims before avgpool '+str(current_dims))
     residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=kernel_size, stride=stride)
 #    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
 
@@ -1974,6 +1975,9 @@ def correct_deconv(proto):
     return outstring
 
 def replace_pythonlayer(proto,stage='train'):
+    '''the built in stuff doesnt appear to be able to handle a custom python layer
+    so here i replcae by hand
+    '''
     pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
     if stage == 'test':
         pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
