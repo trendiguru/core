@@ -112,8 +112,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
     iters = []
 #    loss_avg = [0]*n_iter
     loss_avg = np.zeros(n_iter)
-#    accuracy_avg = [0]*n_iter
-    accuracy_avg = np.zeros(n_iter)
+#    accuracy_list = [0]*n_iter
+    accuracy_list = np.zeros(n_iter)
     tot_iters = 0
     iter_list = []
     accuracy_list = []
@@ -131,9 +131,9 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             loss_avg[i] = loss
             losses.append(loss)
             tot_iters = tot_iters + steps_per_iter
-            if type == 'single_label':
+            if type == 'single_label' or type == 'pixlevel': #test, may not work for pixlevel?
                 accuracy = solver.net.blobs['accuracy'].data
-                accuracy_avg[i] = accuracy
+                accuracy_list[i] = accuracy
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss)+' acc:'+str(accuracy))
             else:
                 print('iter '+str(i*steps_per_iter)+' loss:'+str(loss))
@@ -157,18 +157,20 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
         #for test net:
     #    solver.test_nets[0].forward()  # test net (there can be more than one)
     #    progress_plot.lossplot(loss_outputname)  this hits tkinter problem
-        if type == 'multilabel':
+        if type == 'multilabel': #here accuracy is a list....jesus who wrote this
             precision,recall,accuracy,tp,tn,fp,fn = multilabel_accuracy.check_acc(test_net, num_samples=n_tests, threshold=0.5, gt_layer=label_layer,estimate_layer=estimate_layer)
-            print('solve.py: p {} r {} a {} tp {} tn {} fp {} fn {}'.format(precision,recall,accuracy,tp,tn,fp,fn))
             n_occurences = [tp[i]+fn[i] for i in range(len(tp))]
             multilabel_accuracy.write_html(precision,recall,accuracy,n_occurences,threshold,weights,positives=True,dir=outdir,name=outname,classlabels=classlabels)
             avg_accuracy = np.mean(accuracy)
+            print('solve.py: loss {} p {} r {} a {} tp {} tn {} fp {} fn {}'.format(averaged_loss,precision,recall,accuracy,tp,tn,fp,fn))
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,avg_accuracy)
 
         elif type == 'pixlevel':
                     # number of tests for pixlevel
-            s = 'avg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
+            s = '#########\navg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
+            avg_accuracy = np.mean(accuracy)
+            print('accuracy mean {} std {}'.format(avg_accuracy,np.std(accuracy_list)))
             val = range(0,n_tests) #
             results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
 #            results_dict = jrinfer.seg_tests(test_net,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
@@ -180,11 +182,11 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,overall_acc,mean_acc,mean_ion,fwavacc)
 
         elif type == 'single_label':
-            averaged_acc = np.average(accuracy_avg)
+            averaged_acc = np.average(accuracy_list)
             accuracy_list.append(averaged_acc)
-            s = 'avg tr loss over last {} steps is {}, acc:{}'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc)
+            s = 'avg tr loss over last {} steps is {}, acc:{} std {'.format(n_iter*steps_per_iter,averaged_loss,averaged_acc,np.std(accuracy_list))
             print(s)
-#            print accuracy_avg
+#            print accuracy_list
             s2 = '{}\t{}\t{}\n'.format(tot_iters,averaged_loss,averaged_acc)
 
             acc = single_label_accuracy.single_label_acc(weights,testproto,net=test_net,label_layer='label',estimate_layer=estimate_layer,n_tests=n_tests,classlabels=classlabels,save_dir=outdir)
