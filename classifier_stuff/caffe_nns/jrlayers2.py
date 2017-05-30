@@ -328,7 +328,8 @@ class JrPixlevel(caffe.Layer):
                 self.next_idx()
                 continue
                 ####todo - check that the image is coming in correctly wrt color etc
-            im = Image.open(filename)
+#            im = Image.open(filename)
+            im = cv2.imread(filename)
             if im is None:
                 logging.warning('could not get image1 '+filename)
                 self.next_idx()
@@ -340,7 +341,7 @@ class JrPixlevel(caffe.Layer):
                 im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=False)
                 print('resized image, end shape {} '.format(im.shape))
             in_ = np.array(im, dtype=np.float32)
-            in_ = in_[:,:,::-1]   #RGB -> BGR
+#            in_ = in_[:,:,::-1]   #RGB -> BGR no need since using cv2.imread which gives bgr
             if in_ is None:
                 logging.warning('could not get image2 '+filename)
                 self.next_idx()
@@ -350,6 +351,7 @@ class JrPixlevel(caffe.Layer):
             The leading singleton dimension is required by the loss.
             """
             im = Image.open(label_filename)
+            im = cv2.imread(label_filename)
             if im is None:
                 logging.warning('could not get label1 '+filename)
                 self.next_idx()
