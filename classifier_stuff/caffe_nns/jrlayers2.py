@@ -84,7 +84,7 @@ class JrPixlevel(caffe.Layer):
         print('##############')
         print('waiting for you to read the above')
         t0=time.time()
-        while(time.time()-t0 < 10 ): #to allow keypress disable whihc seems harder than i thought it was going to be
+        while(time.time()-t0 < 2 ): #to allow keypress disable whihc seems harder than i thought it was going to be
             time.sleep(0.1)
         # two tops: data and label
         if len(top) != 2:
@@ -422,8 +422,8 @@ class JrPixlevel(caffe.Layer):
         self.analysis_time_out = time.time()
         self.images_processed_counter += 1
 
-        print(str(self.fwd_pass_counter)+' fwd passes, '+str(self.images_processed_counter)+
-              ' images processed., tin '+str(round(dt_in,3))+
+        print(str(self.fwd_pass_counter)+' fwd passes, '+
+              str(self.images_processed_counter)+' images processed.' +
               ' tout '+str(round(dt_out,3))+
               ' tin '+str(round(dt_in,3))+
               ' ttot '+str(round(dt_tot,3))+
