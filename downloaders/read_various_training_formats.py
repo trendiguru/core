@@ -1192,6 +1192,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
+     also anything thats utter white or blacak should get prbgd
     return mask and gc image
     :param img_arr:
     :param bb_x1y1x2y2:
