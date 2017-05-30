@@ -495,7 +495,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l_cross = [None for k in range(len(n_bs)+2)]
     current_cross_layer = 0
     current_dims = np.array(image_dims)
-    data, label = L.Data(source=source, batch_size=batch_size, ntop=2)
+    data, label = L.Data(source=source, batch_size=batch_size, ntop=2) #see if tihs can be changed to python datalayer
     transform_param=dict(crop_size=224, mean_value=[104, 117, 123], mirror=True)
     l_cross[current_cross_layer] = data
     current_cross_layer+=1
