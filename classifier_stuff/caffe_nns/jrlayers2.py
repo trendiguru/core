@@ -78,7 +78,7 @@ class JrPixlevel(caffe.Layer):
         print('params coming into jrlayers2')
         print('batchsize {}'.format(self.batch_size))
         print('imfile {} \nmean {}  \nrandinit {} \nrandpick {}'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
-        print('seed {} \nresize {} \nbatchsize {} \naugment \n{} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('seed {} \nresize {} \nbatchsize {} \naugment {} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {}'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
         print('##############')
@@ -336,8 +336,9 @@ class JrPixlevel(caffe.Layer):
 
             if self.resize:
 #                im = im.resize(self.resize,Image.ANTIALIAS)
+                print('resizing image, start shape {} '.format(im.shape))
                 im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=False)
-                print('resizing image')
+                print('resized image, end shape {} '.format(im.shape))
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]   #RGB -> BGR
             if in_ is None:
@@ -355,9 +356,10 @@ class JrPixlevel(caffe.Layer):
                 continue
             if self.resize:
                 #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
+                print('resizing mask, start shape {} '.format(im.shape))
                 im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=True)
+                print('resized mask, end shape {} '.format(im.shape))
 #                im = im.resize(self.resize,Image.ANTIALIAS)
-                print('resizing mask')
             if im is None:
                 logging.warning('couldnt load label '+label_filename)
                 self.next_idx()
