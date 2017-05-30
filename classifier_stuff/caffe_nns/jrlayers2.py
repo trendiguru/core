@@ -332,7 +332,8 @@ class JrPixlevel(caffe.Layer):
                 continue
 
             if self.resize:
-                im = im.resize(self.resize,Image.ANTIALIAS)
+#                im = im.resize(self.resize,Image.ANTIALIAS)
+                im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=False)
                 print('resizing image')
             in_ = np.array(im, dtype=np.float32)
             in_ = in_[:,:,::-1]   #RGB -> BGR
@@ -351,7 +352,8 @@ class JrPixlevel(caffe.Layer):
                 continue
             if self.resize:
                 #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
-                im = im.resize(self.resize,Image.ANTIALIAS)
+                im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=True)
+#                im = im.resize(self.resize,Image.ANTIALIAS)
                 print('resizing mask')
             if im is None:
                 logging.warning('couldnt load label '+label_filename)
