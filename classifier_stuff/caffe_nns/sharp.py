@@ -562,7 +562,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
     current_cross_layer-=1
     pad = 3
-    kernel_size = 7
+    kernel_size = 8
     stride = 1
     print('dims before avgpool '+str(current_dims))
     residual = L.Pooling(l, pool=P.Pooling.AVE, kernel_size=kernel_size, stride=stride)
@@ -573,7 +573,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     print('dims after maxpool2 '+str(current_dims))
 
     n_output_filters = math.ceil(float(nout)/(current_dims[0]*current_dims[1])) #arbitrary
-    n_neurons = int(math.ceil(current_dims[0]*current_dims[1]*n_output_filters))
+    n_neurons = int(math.ceil(current_dims[0]*current_dims[1]*n_output_filters)) *2
     print('orig filters {} x {} y {} n_filt {} neurons {} '.format(nout,current_dims[0],current_dims[1],n_output_filters,n_neurons))
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
@@ -591,70 +591,41 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l = reshape
     raw_input('ret to cont')
 
-#I think the first deconv should be here no?
     #Rest of U - going back up
-    for i in range(len(n_bs)-1,0,-1):
+    kernel_sizes = (1,3)
+    strides = (1,1)
+    for i in range(len(n_bs),0,-1):
         #get the cross
         print('doing cross for {} with layers {} and {}'.format(current_cross_layer,l_cross[current_cross_layer],reshape))
         bottom = [l_cross[current_cross_layer], l]
         current_cross_layer -= 1
         l = L.Concat(*bottom) #param=dict(concat_dim=1))
-        strides = (2,1)
+        strides = (1,1) #keep stride at 1 to avoid downsample like on way in
         l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         strides = (1,1)
         print('doing {} Bs for A[{}], nout {}'.format(n_bs[i],i,nout))
         for j in range(n_bs[i]):
             l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
         nout=nout/2
+        kernel_size = 2
+        stride = 2
+        pad = 0
+        initial_deconv_value = 1.0/(stride*stride)
+        print('initial deconv value '+str(initial_deconv_value))
+        deconv = L.Deconvolution(l,
+                                param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
+    #                            num_output=64,
+                                convolution_param = dict(num_output=nout, pad = 0,
+                                kernel_size=kernel_size,
+                                stride = stride,
+    #                            weight_filler= {'type':'xavier'},
+                                weight_filler= {'type':'constant','value':initial_deconv_value},
+                                bias_filler= {'type':'constant','value':0.0}) )
+        l=deconv
+        current_dims = stride*(current_dims-1) + kernel_size - 2 * pad
+        print('dims after deconv1 '+str(current_dims))
 
-    nout = 64
-    kernel_sizes = (1,3)
-    strides = (1,1)
-    bottom = [l_cross[current_cross_layer], l]
-    current_cross_layer -= 1
-    l = L.Concat(*bottom) #param=dict(concat_dim=1))
-    l = jr_resnet_A(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
-    print('doing {} Bs for initial A'.format(n_bs[0]))
-    for j in range(n_bs[0]):
-        nout = nout * 2
-        l = jr_resnet_B(l,nout=nout,kernel_sizes=kernel_sizes,strides=strides,use_global_stats=use_global_stats)
 
-    kernel_size = 2
-    stride = 2
-    pad = 0
-    initial_deconv_value = 1.0/(stride*stride)
-    print('initial deconv value '+str(initial_deconv_value))
-    deconv1 = L.Deconvolution(reshape,
-                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
-#                            num_output=64,
-                            convolution_param = dict(num_output=nout, pad = 0,
-                            kernel_size=kernel_size,
-                            stride = stride,
-#                            weight_filler= {'type':'xavier'},
-                            weight_filler= {'type':'constant','value':initial_deconv_value},
-                            bias_filler= {'type':'constant','value':0.0}) )
-    current_dims = stride*(current_dims-1) + kernel_size - 2 * pad
-    print('dims after deconv1 '+str(current_dims))
-
-    bottom = [l_cross[current_cross_layer], deconv1]
-    current_cross_layer -= 1
-    l = L.Concat(*bottom) #param=dict(concat_dim=1))
-
-    stride=2
-    kernel_size = 7
-    pad = 2
-    initial_deconv_value = 1.0/(stride*stride)
-    print('initial deconv value '+str(initial_deconv_value))
-    #bttom should be bottom not deconv1
-    deconv2 = L.Deconvolution(l,
-                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
-#                            num_output=64,
-                            convolution_param = dict(num_output=512, pad = 0,
-                            kernel_size=kernel_size,
-                            stride = stride,
-#                            weight_filler= {'type':'xavier'},
-                            weight_filler= {'type':'constant','value':initial_deconv_value},
-                            bias_filler= {'type':'constant','value':0.0}) )
 
 
 #       stride_data[i] * (input_dim - 1)  + kernel_extent - 2 * pad_data[i];
@@ -1981,9 +1952,9 @@ def replace_pythonlayer(proto,stage='train'):
     '''the built in stuff doesnt appear to be able to handle a custom python layer
     so here i replcae by hand
     '''
-    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
+    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
     if stage == 'test':
-        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
+        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
 #    print pythonlayer
     in_data = False
     lines = proto.split('\n')
