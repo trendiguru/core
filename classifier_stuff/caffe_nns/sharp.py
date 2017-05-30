@@ -594,7 +594,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     #Rest of U - going back up
     kernel_sizes = (1,3)
     strides = (1,1)
-    for i in range(len(n_bs),0,-1):
+    for i in range(len(n_bs)-1,0,-1):
         #get the cross
         print('doing cross for {} with layers {} and {}'.format(current_cross_layer,l_cross[current_cross_layer],reshape))
         bottom = [l_cross[current_cross_layer], l]
@@ -646,13 +646,21 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     stride = 2
     pad = 0
 
-    bottom = [l_cross[current_cross_layer], deconv2]
-    current_cross_layer -= 1
-    l = L.Concat(*bottom) #param=dict(concat_dim=1))
 #use this eg in a subsequent conv or two
+    deconv = L.Deconvolution(l,
+                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
+#                            num_output=64,
+                            convolution_param = dict(num_output=nout, pad = 0,
+                            kernel_size=kernel_size,
+                            stride = stride,
+#                            weight_filler= {'type':'xavier'},
+                            weight_filler= {'type':'constant','value':initial_deconv_value},
+                            bias_filler= {'type':'constant','value':0.0}) )
+    l=deconv
 
-    loss = L.SoftmaxWithLoss(deconv2, label)
-    acc = L.Accuracy(deconv2, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
+
+    loss = L.SoftmaxWithLoss(l, label)
+    acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     #
     #
     # loss = L.SoftmaxWithLoss(l, label)
