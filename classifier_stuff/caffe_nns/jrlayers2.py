@@ -407,7 +407,7 @@ class JrPixlevel(caffe.Layer):
             cv2.imwrite(maskname,out2)
             imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_check_legend.jpg',save_images=True)
 #        out1 = out1[:,:,::-1]   #RGB -> BGR - not necesary since this is done above (line 303)
-        print('out1 shape {} type {} 2 shape {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
+        ('out1 shape {} type {} 2 shape {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
         if len(out2.shape) == 3:
