@@ -979,44 +979,19 @@ def inspect_multilabel_textfile(filename = 'tb_cats_from_webtool.txt'):
                 # cv2.imshow("image", img_arr)
                 # cv2.waitKey(0)
 
-def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21):
+def inspect_pixlevel_textfile(filename = 'images_and_labelsfile.txt',labels=constants.ultimate_21,replace_this=None,with_this=None):
     with open(filename,'r') as fp:
         for line in fp:
             print line
             path1 = line.split()[0]
-#            img_arr = cv2.imread(path1)
-#            cv2.imshow('image',img_arr)
-
             path2 = line.split()[1]
+            if replace_this and with_this:
+                # base=os.path.basename(path2)
+                # path2=os.path.join(replace_pardir,base)
+                path1=path2.replace(replace_this,with_this)
+                path2=path2.replace(replace_this,with_this)
+                print('new paths '+str(path1)+' ,'+str(path2))
             imutils.show_mask_with_labels(path2,labels=labels,original_image=path1,visual_output=True)
-
-def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
-    '''
-    writes (destructively) files with _train.txt and _test.txt based on filename, with sizes determined by fraction
-    :param filename: input catsfile
-    :param fraction: ratio test:train
-    :return:
-    '''
-    with open(filename,'r') as fp:
-        lines = fp.readlines()
-        print('file {} has lines like {}'.format(filename,lines[0]))
-        random.shuffle(lines)
-        n_lines = len(lines)
-        train_lines = lines[0:int(n_lines*(1-fraction))]
-        test_lines = lines[int(n_lines*(1-fraction)):]
-        train_name = filename[0:-4] + '_train.txt'
-        test_name = filename[0:-4] + '_test.txt'
-        print('{} files written to {} and {} files written to {}'.format(len(train_lines),train_name,len(test_lines),test_name))
-        with open(train_name,'w') as trfp:
-            trfp.writelines(train_lines)
-            trfp.close()
-        with open(test_name,'w') as tefp:
-            tefp.writelines(test_lines)
-            tefp.close()
-    #report how many in each class
-        inspect_single_label_textfile(filename = train_name,visual_output=False,randomize=False)
-        inspect_single_label_textfile(filename = test_name,visual_output=False,randomize=False)
-
 
 def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_output=False,randomize=False,cut_the_crap=False):
     '''
@@ -1092,6 +1067,33 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
                     Utils.ensure_dir(dest_dir)
                     print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
                     shutil.move(mask_filename,dest_dir)
+
+def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
+    '''
+    writes (destructively) files with _train.txt and _test.txt based on filename, with sizes determined by fraction
+    :param filename: input catsfile
+    :param fraction: ratio test:train
+    :return:
+    '''
+    with open(filename,'r') as fp:
+        lines = fp.readlines()
+        print('file {} has lines like {}'.format(filename,lines[0]))
+        random.shuffle(lines)
+        n_lines = len(lines)
+        train_lines = lines[0:int(n_lines*(1-fraction))]
+        test_lines = lines[int(n_lines*(1-fraction)):]
+        train_name = filename[0:-4] + '_train.txt'
+        test_name = filename[0:-4] + '_test.txt'
+        print('{} files written to {} and {} files written to {}'.format(len(train_lines),train_name,len(test_lines),test_name))
+        with open(train_name,'w') as trfp:
+            trfp.writelines(train_lines)
+            trfp.close()
+        with open(test_name,'w') as tefp:
+            tefp.writelines(test_lines)
+            tefp.close()
+    #report how many in each class
+        inspect_single_label_textfile(filename = train_name,visual_output=False,randomize=False)
+        inspect_single_label_textfile(filename = test_name,visual_output=False,randomize=False)
 
 def balance_cats(filename='tb_cats_from_webtool.txt', ratio_neg_pos=1.0,n_cats=2,outfilename=None,shuffle=True):
     '''
