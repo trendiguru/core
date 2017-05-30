@@ -176,8 +176,8 @@ def dosolve(weights,solverproto,testproto,type='single_label',steps_per_iter=1,n
                     # number of tests for pixlevel
             s = '#########\navg loss over last {} steps is {}'.format(n_iter*steps_per_iter,averaged_loss)
             print(s)
-            avg_accuracy = np.mean(accuracy)
-            print('accuracy mean {} std {}'.format(avg_accuracy,np.std(accuracy_list)))
+            # avg_accuracy = np.mean(accuracy)
+            # print('accuracy mean {} std {}'.format(avg_accuracy,np.std(accuracy_list)))
             val = range(0,n_tests) #
             results_dict = jrinfer.seg_tests(solver,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)
 #            results_dict = jrinfer.seg_tests(test_net,  val, output_layer=estimate_layer,gt_layer='label',outfilename=outname,save_dir=outdir,labels=classlabels)

@@ -404,7 +404,7 @@ def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)
     return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
 
-def compute_hist_infer(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(104.0, 116.7, 122.7),denormalize=False):
+def compute_hist_infer(net, save_dir, n_images, layer='score', gt='label',labels=constants.ultimate_21,mean=(104.0, 116.7, 122.7),denormalize=True):
     '''
     note the save of data (original image) wont work with a  batchnorm layer since this is changing mean/stdv of data layer in-place
     :param net:
