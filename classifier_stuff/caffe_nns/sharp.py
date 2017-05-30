@@ -515,7 +515,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
     l_cross[current_cross_layer] = conv  #could do this before the bn/relu
     current_cross_layer+=1
-    residual = max_pool(relu, kernel_size, stride=2)
+    residual = max_pool(relu, kernel_size=3, stride=2)
 
   #  relu1 = conv_factory_relu(data, nout_initial, kernel_sizes = (1,7), stride=1)
  #   relu2 = conv_factory_relu(relu1, nout_initial, kernel_size=3, stride=1)
