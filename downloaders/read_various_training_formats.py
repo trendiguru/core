@@ -1220,6 +1220,13 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     pr_bg_margin_lr= int(pr_bg_frac*(w))
     mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
 
+#add white and black vals as pr bgd
+    whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
+    #fmi this could also be done with whitevals==[255,255,255]).all(-1)
+    mask=mask+np.where(whitevals!=0)*cv2.GC_PR_BGD
+    blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
+    mask=mask+np.where(blackvals!=0)*cv2.GC_PR_BGD
+
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
     pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
