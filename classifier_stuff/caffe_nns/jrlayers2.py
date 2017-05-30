@@ -78,7 +78,7 @@ class JrPixlevel(caffe.Layer):
         print('params coming into jrlayers2')
         print('batchsize {}'.format(self.batch_size))
         print('imfile {} \nmean {}  \nrandinit {} \nrandpick {}'.format(self.images_and_labels_file, self.mean,self.random_init, self.random_pick))
-        print('seed {} \nresize \n{} \nbatchsize {} \naugment \n{} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
+        print('seed {} \nresize {} \nbatchsize {} \naugment \n{} \naugmaxangle {}'.format(self.seed,self.resize,self.batch_size,self.augment_images,self.augment_max_angle))
         print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {}'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
         print('##############')
@@ -403,6 +403,7 @@ class JrPixlevel(caffe.Layer):
             cv2.imwrite(maskname,out2)
             imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_legend.jpg',save_images=True)
 #        out1 = out1[:,:,::-1]   #RGB -> BGR - not necesary since this is done above (line 303)
+        print('out1 shape {} type {} 2 shape {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
         out1 -= self.mean  #assumes means are BGR order, not RGB
         out1 = out1.transpose((2,0,1))  #wxhxc -> cxwxh
         if len(out2.shape) == 3:
