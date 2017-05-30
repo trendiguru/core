@@ -1222,7 +1222,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
 
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
-    #fmi this could also be done with whitevals==[255,255,255]).all(-1)
+    #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
     mask=mask+np.where(whitevals!=0)*cv2.GC_PR_BGD
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
     mask=mask+np.where(blackvals!=0)*cv2.GC_PR_BGD

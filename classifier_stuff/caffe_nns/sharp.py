@@ -480,7 +480,8 @@ def jr_resnet_test(n_bs = [2,3,5,2],source='trainfile',batch_size=10,nout_initia
 
 
 def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
-                 lr_mult=(1,1),decay_mult=(2,0),weight_filler='xavier',use_global_stats=False,image_dims=(224,224)):
+                 lr_mult=(1,1),decay_mult=(2,0),weight_filler='xavier',use_global_stats=False,image_dims=(256,256)):
+    #going with 256 as a power of 2 making upsamling cleaner (maxpool on 27 leads to 14 and upsampling 14 leads to 28...)
     #global stats false for train, true for test/deploy, possibly can be left out and default is ok
     '''
     resnet 50: n_bs = [2,3,5,2]
