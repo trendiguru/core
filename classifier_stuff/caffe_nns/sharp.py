@@ -1979,9 +1979,9 @@ def replace_pythonlayer(proto,stage='train'):
     '''the built in stuff doesnt appear to be able to handle a custom python layer
     so here i replcae by hand
     '''
-    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
+    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
     if stage == 'test':
-        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"augment_crop_size\\\":(224,224), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
+        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_test.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
 #    print pythonlayer
     in_data = False
     lines = proto.split('\n')
@@ -2057,19 +2057,30 @@ if __name__ == "__main__":
     #     f.close()
 
 #sharp6
-    proto = sharp6('thedb',stage='train')
+    # proto = sharp6('thedb',stage='train')
+    # proto = replace_pythonlayer(str(proto),stage='train')
+    # with open('s6_train.prototxt','w') as f:
+    #     f.write(str(proto))
+    #     f.close()
+    #
+    # proto = sharp6('thedb',stage='test')
+    # proto = replace_pythonlayer(str(proto),stage='test')
+    # with open('s6_val.prototxt','w') as f:
+    #     f.write(str(proto))
+    #     f.close()
+
+
+#resU
+    proto = jr_resnet_u()
     proto = replace_pythonlayer(str(proto),stage='train')
-    with open('s6_train.prototxt','w') as f:
+    with open('train.prototxt','w') as f:
         f.write(str(proto))
         f.close()
-
-    proto = sharp6('thedb',stage='test')
+    proto = jr_resnet_u()
     proto = replace_pythonlayer(str(proto),stage='test')
-    with open('s6_val.prototxt','w') as f:
+    with open('val.prototxt','w') as f:
         f.write(str(proto))
         f.close()
-
-
 
 #    estimate_mem('val.prototxt')
 
