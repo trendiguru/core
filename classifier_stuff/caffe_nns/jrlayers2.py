@@ -72,6 +72,7 @@ class JrPixlevel(caffe.Layer):
         self.images_processed_counter = 0
         self.start_time = time.time()
         self.analysis_time = time.time()
+        self.analysis_time_out = time.time()
         self.cpu_count = multiprocessing.cpu_count()
         print('##############')
         print('params coming into jrlayers2')
@@ -405,7 +406,7 @@ class JrPixlevel(caffe.Layer):
         out2 = copy.copy(out2[np.newaxis, ...])
 
         dt_in = time.time()-self.analysis_time
-        dt_out = self.analysis_time -self.analysis_time_out
+        dt_out = self.analysis_time - self.analysis_time_out
         dt_tot = time.time - self.analysis_time_out
         total_elapsed_time = time.time() - self.start_time
         self.analysis_time_out = time.time()
