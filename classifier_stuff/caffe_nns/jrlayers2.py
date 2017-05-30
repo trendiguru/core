@@ -82,7 +82,10 @@ class JrPixlevel(caffe.Layer):
         print('augmaxdx {} \naugmaxdy {} \naugmaxscale {} \naugmaxnoise {} \naugmaxblur {}'.format(self.augment_max_offset_x,self.augment_max_offset_y,self.augment_max_scale,self.augment_max_noise_level,self.augment_max_blur))
         print('augmirrorlr {} \naugmirrorud {} \naugcrop {} \naugvis {}'.format(self.augment_do_mirror_lr,self.augment_do_mirror_ud,self.augment_crop_size,self.augment_show_visual_output))
         print('##############')
-
+        print('waiting for you to read the above')
+        t0=time.time()
+        while(time.time()-t0 < 10 ): #to allow keypress disable whihc seems harder than i thought it was going to be
+            time.sleep(0.1)
         # two tops: data and label
         if len(top) != 2:
             raise Exception("Need to define two tops: data and label.")
