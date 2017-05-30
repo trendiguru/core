@@ -417,7 +417,7 @@ class JrPixlevel(caffe.Layer):
 
         dt_in = time.time()-self.analysis_time
         dt_out = self.analysis_time - self.analysis_time_out
-        dt_tot = time.time - self.analysis_time_out
+        dt_tot = time.time() - self.analysis_time_out
         total_elapsed_time = time.time() - self.start_time
         self.analysis_time_out = time.time()
         self.images_processed_counter += 1
