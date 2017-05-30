@@ -181,7 +181,7 @@ class JrPixlevel(caffe.Layer):
         else:
             all_data = np.zeros((self.batch_size,3,self.augment_crop_size[0],self.augment_crop_size[1]))      #Batchsizex3channelsxWxH
             all_labels = np.zeros((self.batch_size,1, self.augment_crop_size[0],self.augment_crop_size[1]) )
-            multiprocess=True  ###DO THIS!!!!!
+            multiprocess=False  ###DO THIS!!!!!  running out of threads...
             if multiprocess:
 #                pool = multiprocessing.Pool(self.cpu_count)
                 pool = TPool(self.cpu_count)
