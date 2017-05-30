@@ -337,9 +337,9 @@ class JrPixlevel(caffe.Layer):
 
             if self.resize:
 #                im = im.resize(self.resize,Image.ANTIALIAS)
-                print('resizing image, start shape {} '.format(im.shape))
+                logging.debug('resizing image, start shape {} '.format(im.shape))
                 im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=False)
-                print('resized image, end shape {} '.format(im.shape))
+                logging.debug('resized image, end shape {} '.format(im.shape))
             in_ = np.array(im, dtype=np.float32)
 #            in_ = in_[:,:,::-1]   #RGB -> BGR no need since using cv2.imread which gives bgr
             if in_ is None:
@@ -358,9 +358,9 @@ class JrPixlevel(caffe.Layer):
                 continue
             if self.resize:
                 #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
-                print('resizing mask, start shape {} '.format(im.shape))
+                logging.debug('resizing mask, start shape {} '.format(im.shape))
                 im = imutils.resize_keep_aspect(im,output_size=self.resize,careful_with_the_labels=True)
-                print('resized mask, end shape {} '.format(im.shape))
+                logging.debug('resized mask, end shape {} '.format(im.shape))
 #                im = im.resize(self.resize,Image.ANTIALIAS)
             if im is None:
                 logging.warning('couldnt load label '+label_filename)
