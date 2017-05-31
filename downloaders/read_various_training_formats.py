@@ -1231,7 +1231,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     mask=mask+np.array([blackvals!=0])*cv2.GC_PR_BGD
     print('after blackwhite '+str(nprbgd))
-    np.where((mask==2)|(mask==0),0,1).astype('uint8')
+    np.where((mask==2)|(mask==0),0,1).astype('uint8'n)
 
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0

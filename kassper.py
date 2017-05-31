@@ -134,6 +134,7 @@ def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clo
         return mask2
 
 def skin_detection(image_arr, face=None):
+#this seems to have two probs, 1. loop over pixels in python and 2. return is within outer loop???
     '''
     return mask with skin as 255 and the rest 0
     todo - if a face is given use that to determine skintone
@@ -152,6 +153,23 @@ def skin_detection(image_arr, face=None):
         n=np.count_nonzero(mask)
         print('skin pixels:'+str(n))
         return mask
+
+def skin_detection_fast(image_arr, face=None):
+    '''
+    return mask with skin as 255 and the rest 0
+    todo - if a face is given use that to determine skintone
+    :param image_arr:
+    :param face:
+    :return:
+    '''
+    ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
+    mask1 = cv2.inRange(image_arr,[0,0,0],[220,255,255])
+    mask2 = cv2.inRange(image_arr,[0,0,0],[133,255,255])
+    mask3 = cv2.inRange(image_arr,[0,0,0],[255,255,120])
+    mask = mask1*mask2*mask3
+    n=np.count_nonzero(mask)
+    print('skin pixels:'+str(n))
+    return mask
 
 # def create_item_mask(image):
 #     """
