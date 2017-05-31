@@ -691,6 +691,10 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     l=conv
 
     nout=1
+    kernel_size = 2
+    stride = 2
+    pad = 0
+
     deconv = L.Deconvolution(l,
                             param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
 #                            num_output=64,
