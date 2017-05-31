@@ -570,10 +570,13 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
 
     #bottom of U
     current_dims = np.divide(current_dims-kernel_size+2*pad,stride)+1
+
     print('dims after avgpool '+str(current_dims))
 
+    current_dims=np.array([8,8]) ##calc is wrong for whatever reason
+
     n_output_filters = math.ceil(float(nout)/(current_dims[0]*current_dims[1])) #arbitrary
-    n_neurons = int(math.ceil(current_dims[0]*current_dims[1]*n_output_filters)) *2
+    n_neurons = int(math.ceil(current_dims[0]*current_dims[1]*n_output_filters))
     print('orig filters {} x {} y {} n_filt {} neurons {} '.format(nout,current_dims[0],current_dims[1],n_output_filters,n_neurons))
     fc = L.InnerProduct(residual,param= \
                         [dict(lr_mult=lr_mult[0]),
@@ -585,7 +588,6 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     # loss = L.SoftmaxWithLoss(relu, label)
     # acc = L.Accuracy(relu, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
     # return to_proto(loss, acc)
-    current_dims=np.array([8,8]) ##calc is wrong for whatever reason
     print('dims for reshape '+str(current_dims))
 
     reshape = L.Reshape(relu, reshape_param = dict(shape=dict(dim=[0,-1,current_dims[0],current_dims[1]])))     # batchsize X infer X 7 X 7 , infer should=6272/49=128
