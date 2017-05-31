@@ -2007,9 +2007,9 @@ def replace_pythonlayer(proto,stage='train'):
     '''the built in stuff doesnt appear to be able to handle a custom python layer
     so here i replcae by hand
     '''
-    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
+    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/df_yama10_v3_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
     if stage == 'test':
-        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
+        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/df_yama10_v3_train.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
 #    print pythonlayer
     in_data = False
     lines = proto.split('\n')
