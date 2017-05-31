@@ -645,11 +645,26 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     #                     weight_filler=dict(type=weight_filler),
     #                     num_output=2)
 
+    kernel_size = 3
+    stride = 1
+    pad = 1
+
+#use this eg in a subsequent conv or two
+    conv = L.Convolution(l, kernel_size=kernel_size, stride=stride,
+                                num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+#    n_neurons = (W-F+2P)/S + 1  W-orig width, F-filter size(kernel), P-pad S-stride
+    current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
+    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
+    batch_norm = L.BatchNorm(conv, in_place=True)
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    l=conv
+
+    nout=nout/2
     kernel_size = 2
     stride = 2
     pad = 0
 
-#use this eg in a subsequent conv or two
     deconv = L.Deconvolution(l,
                             param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
 #                            num_output=64,
@@ -660,7 +675,32 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
                             weight_filler= {'type':'constant','value':initial_deconv_value},
                             bias_filler= {'type':'constant','value':0.0}) )
     l=deconv
+    nout=nout/2
 
+    kernel_size = 3
+    stride = 1
+    pad = 1
+#use this eg in a subsequent conv or two
+    conv = L.Convolution(l, kernel_size=kernel_size, stride=stride,
+                                num_output=nout_initial, pad=pad, bias_term=False, weight_filler=dict(type='msra'))
+    current_dims = (current_dims-kernel_size+2*pad)/stride + 1 # W-orig width, F-filter size(kernel), P-pad S-stride
+    print('dims after conv1 '+str(current_dims)+' originally '+str(image_dims))
+    batch_norm = L.BatchNorm(conv, in_place=True)
+    scale = L.Scale(batch_norm, bias_term=True, in_place=True)
+    relu = L.ReLU(scale, in_place=True)
+    l=conv
+
+    nout=1
+    deconv = L.Deconvolution(l,
+                            param=[dict(lr_mult=lr_mult[0],decay_mult=decay_mult[0]),dict(lr_mult=lr_mult[1],decay_mult=decay_mult[1])],
+#                            num_output=64,
+                            convolution_param = dict(num_output=nout, pad = 0,
+                            kernel_size=kernel_size,
+                            stride = stride,
+#                            weight_filler= {'type':'xavier'},
+                            weight_filler= {'type':'constant','value':initial_deconv_value},
+                            bias_filler= {'type':'constant','value':0.0}) )
+    l=deconv
 
     loss = L.SoftmaxWithLoss(l, label)
     acc = L.Accuracy(l, label, include=dict(phase=getattr(caffe_pb2, 'TEST')))
@@ -1963,9 +2003,9 @@ def replace_pythonlayer(proto,stage='train'):
     '''the built in stuff doesnt appear to be able to handle a custom python layer
     so here i replcae by hand
     '''
-    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
+    pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_train_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":9 }\"\n    }\n  }\n'
     if stage == 'test':
-        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"data\"\n    top: \"label\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
+        pythonlayer = 'layer {\n    name: \"data\"\n    type: \"Python\"\n    top: \"Data1\"\n    top: \"Data2\"\n    python_param {\n    module: \"jrlayers2\"\n    layer: \"JrPixlevel\"\n    param_str: \"{\\\"images_and_labels_file\\\": \\\"/data/jeremy/image_dbs/pixlevel/pixlevel_fullsize_test_labels_v3.txt\\\", \\\"mean\\\": (104.0, 116.7, 122.7),\\\"augment\\\":True,\\\"resize\\\":(300,300),\\\"augment_crop_size\\\":(256,256), \\\"batch_size\\\":1 }\"\n    }\n  }\n'
 #    print pythonlayer
     in_data = False
     lines = proto.split('\n')
