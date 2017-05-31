@@ -485,6 +485,8 @@ def compute_hist_infer(net, save_dir, n_images, layer='score', gt='label',labels
         loss += net.blobs['loss'].data.flat[0]
     if isinstance(loss,list):
         return hist, loss[0] / n_images #not surewhy loss is coming in as list
+    elif isinstance(n_images,list):
+        return hist, loss / n_images[0] #not surewhy loss is coming in as list
     else:
         return hist, loss / n_images
 
