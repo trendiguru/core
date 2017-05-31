@@ -1017,13 +1017,13 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
-                                        filefilter='250x250.jpg',visual_output=False,
+                                        filefilter='250x250.jpg',visual_output=True,
                                         multiprocess_it=True):
     '''
-    first lines of file looks like
+    first 2 lines of file are count and description, then data (imgpath x1 y1 x2 y2) - looks like
     289222
     image_name  x_1  y_1  x_2  y_2
-    img/Sheer_Pleated-Front_Blouse/img_00000001.jpg                        072 079 232 273
+    img/Sheer_Pleated-Front_Blouse/img_00000001.jpg 072 079 232 273
 
     convert the parent dir to a hydra cat using ready function
     convert hydra to pixlevel v3
@@ -1069,7 +1069,7 @@ def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fash
               # p.map(convert_deepfashion_helper,(lines[i*n+j],fp2,labelfile,dir_to_catlist,visual_output,pardir ))
     else:
         for line in lines:
-            convert_deepfashion_helper(line,labelfile,dir_to_catlist,visual_output,pardir)
+            convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir))
 
 def count_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
@@ -1220,12 +1220,18 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     pr_bg_margin_lr= int(pr_bg_frac*(w))
     mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
 
+
+#prevent masks frrom adding together by doing boolean or
+    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+    print('n4 blackwhite '+str(nprbgd))
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
     #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
-    mask=mask+np.where(whitevals!=0)*cv2.GC_PR_BGD
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
-    mask=mask+np.where(blackvals!=0)*cv2.GC_PR_BGD
+    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+    mask=mask+np.array([blackvals!=0])*cv2.GC_PR_BGD
+    print('after blackwhite '+str(nprbgd))
+    np.where((mask==2)|(mask==0),0,1).astype('uint8')
 
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
@@ -1247,7 +1253,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
         itr = 1
         cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
     except:
-        print('grabcut exception '+str(e))
+        print('grabcut exception ')
         return img_arr
 #    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
     #kill anything no t in gc
@@ -1377,7 +1383,7 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    read_and_convert_deepfashion_bbfile()
+    read_and_convert_deepfashion_bbfile(multiprocess_it=False)
 
     # bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
     # imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
