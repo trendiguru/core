@@ -690,7 +690,7 @@ def jr_resnet_u(n_bs=[2,3,5,2],source='trainfile',batch_size=10,nout_initial=64,
     relu = L.ReLU(scale, in_place=True)
     l=conv
 
-    nout=1
+    nout=16
     kernel_size = 2
     stride = 2
     pad = 0
