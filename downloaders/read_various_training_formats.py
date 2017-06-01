@@ -1003,6 +1003,13 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
             logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
 
         mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
+
+        skin_index = constants.pixlevel_categories_v3.index('skin')
+        skin_mask = kassper.skin_detection_fast(img_arr) * skin_index
+        mask = np.where(skin_mask!=0,skin_mask,mask)
+        imutils.count_values(mask,constants.pixlevel_categories_v3)
+        imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,visual_output=True)
+
         maskname = image_path.replace('.jpg','.png')
         print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
@@ -1189,6 +1196,18 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
 
     return img_arr
 
+def fadeout(img_arr, bb_x1y1x2y2,gc_img):
+    '''
+    tkae img, gc img, and bb, add background but fade it out outside of bb
+    :param img_arr:
+    :param bb_x1y1x2y2:
+    :param gc_img:
+    :return:
+    '''
+    fadeout = np.zeros_like(img_arr)
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]
+    fadeout[0:bb_x1y1x2y2[1],:]=np.arange(start=0,stop=1,step=1.0/bb_x1y1x2y2[1])
+
 def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
@@ -1199,6 +1218,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     :param bb_x1y1x2y2:
     :return:
     '''
+    orig_arr = copy.copy(img_arr)
     labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
@@ -1274,10 +1294,6 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     imutils.count_values(mask,labels)
     imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
-    skinmask = kassper.skin_detection_fast(img_arr)
-    imutils.count_values(skinmask,['bg','skin'])
-    imutils.show_mask_with_labels(skinmask,['bg','skin'],visual_output=True)
-
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
@@ -1297,9 +1313,33 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     img_arr = img_arr*mask2[:,:,np.newaxis]
 
-    negmask = mask2[mask[:,:,0]==0]
+    fadeout = np.zeros([h,w],dtype=np.uint8 )
+    fadefrac = 0.1
+    fade_dist_ud = int(fadefrac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    fade_dist_rl = int(fadefrac*(bb_x1y1x2y2[2]-bb_x1y1x2y2[0]))
+
+    fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_ud)
+    fademat = np.tile(fadevec,(w,1))
+    fademat=fademat.transpose()*255
+    fadeout[bb_x1y1x2y2[1]-fade_dist_ud:bb_x1y1x2y2[1],:]=fademat
+    fadeout[bb_x1y1x2y2[3]:bb_x1y1x2y2[3]+fade_dist_ud,:]=(1-fademat)
+
+    fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_rl)
+    fademat = np.tile(fadevec,(1,h))
+    fadeout[:,bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0],:]=fademat
+    fadeout[:,bb_x1y1x2y2[2]+fade_dist_rl:bb_x1y1x2y2[0],:]=(1-fademat)
+
+    cv2.imshow('fade',fadeout)
+    cv2.waitKey(0)
+    mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+    mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+    mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+    mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+    img_arr = img_arr*mask2[:,:,np.newaxis]
+
+    negmask = np.where(mask2==0,1,0).astype('uint8')
     imutils.show_mask_with_labels(negmask,['0','1','2','3'])
-    bgnd_arr = img_arr*(negmask[:,:,np.newaxis])
+    bgnd_arr = orig_arr*(negmask[:,:,np.newaxis])
     cv2.imshow('bgnd arr',bgnd_arr)
     cv2.waitKey(0)
     if(visual_output):
