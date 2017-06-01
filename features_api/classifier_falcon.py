@@ -3,21 +3,27 @@ import traceback
 import falcon
 from jaweson import json, msgpack
 from ..features.feature import Feature
+from ..features.config import FEATURES
+from ..Utils import get_cv2_img_array
 
 class ClassifierResource(object):
     def __init__(self, feature_name, gpu_device=None):
         # self.feature = import_module(".{0}".format(feature_name), package)
         self.feature = Feature(feature_name)
+        self.labels = FEATURES[feature_name].get("labels")
         self.feature.load(gpu_device=gpu_device)
 
     def on_get(self, req, resp):
-        """Handles GET requests"""
-        quote = {
-            'quote': 'I\'ve always been more interested in {0} than in the past.'.format(self.feature.name),
-            'author': 'Grace Hopper'
-        }
-
-        resp.body = json.dumps(quote)
+        ret = {"success": False}
+        try:
+            image_url = req.get_param("imageUrl")
+            ret = {"data": self.feature.execute(image_url),
+                   "labels": self.labels,
+                   "success": True}    
+        except Exception as e:
+            ret["error"] = str(e)
+            ret["trace"] = traceback.format_exc()
+        resp.body = json.dumps(ret)
 
     def on_post(self, req, resp):
         ret = {"success": False}

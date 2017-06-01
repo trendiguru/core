@@ -1,20 +1,31 @@
 __author__ = 'yonatan'
 
+import traceback
 import falcon
 import numpy as np
 from jaweson import json, msgpack
 from ..yonatan import new_genderDetector
+from ..Utils import get_cv2_img_array
+import dlib
 
 
 class NeuralResource:
+    def __init__(self):
+        self.face_detector = dlib.get_frontal_face_detector()
+    
     def on_get(self, req, resp):
-        """Handles GET requests"""
-        quote = {
-            'quote': 'I\'ve always been more interested in the future than in the past.',
-            'author': 'Grace Hopper'
-        }
-
-        resp.body = json.dumps(quote)
+        ret = {"success": False}
+        try:
+            image_url = req.get_param("imageUrl")
+            image = get_cv2_img_array(image_url)
+            face_rects = self.face_detector(image, 1)
+            faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in face_rects]
+            ret = {"data": new_genderDetector.theDetector(image, faces[0]),
+                   "success": True}    
+        except Exception as e:
+            ret["error"] = str(e)
+            ret["trace"] = traceback.format_exc()
+        resp.body = json.dumps(ret)
 
     def on_post(self, req, resp):
         ret = {"success": False}
