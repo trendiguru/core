@@ -1198,6 +1198,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     :param bb_x1y1x2y2:
     :return:
     '''
+    labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
 
@@ -1222,26 +1223,20 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
 #prevent masks frrom adding together by doing boolean or
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
-    print('n b4 blackwhite '+str(nprbgd))
-
-    cv2.imwrite('perimeter.jpg',img_arr)
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
-#add white and black vals as pr bgd
-    whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
-    mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
-    #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
-    blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
-    mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
-    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
-    cv2.imwrite('temp.jpg',img_arr)
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
-    print('after blackwhite '+str(nprbgd))
-
+    print('after bigbox '+str(nprbgd))
+#    cv2.imwrite('perimeter.jpg',img_arr)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    imutils.count_values(mask,labels=labels)
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
     pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
     pr_bg_margin_lr= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
     mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
+
+
+    print('after middlebox '+str(nprbgd))
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    imutils.count_values(mask,labels)
 
     #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
     #a coat over a shirt and the sirt is visible
@@ -1254,8 +1249,22 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
 
-    print('mask unqieus '+str(np.unique(mask)))
+    print('after innerbox ')
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
+    imutils.count_values(mask,labels)
+
+
+#add white and black vals as pr bgd
+    whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
+    mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
+    #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
+    blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
+    mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
+    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+
+    print('after blackwhite ')
     imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
+    imutils.count_values(mask,labels)
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
@@ -1266,7 +1275,6 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     except:
         print('grabcut exception ')
         return img_arr
-    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
     #kill anything no t in gc
     mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
     #kill anything out of bb (except head)
@@ -1275,7 +1283,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     img_arr = img_arr*mask2[:,:,np.newaxis]
-    negmask = 1-mask2
+    negmask = mask2[mask==0]
     imutils.show_mask_with_labels(negmask,['0','1','2','3'])
     bgnd_arr = img_arr*(negmask[:,:,np.newaxis])
     cv2.imshow('bgnd arr',bgnd_arr)

@@ -1842,6 +1842,20 @@ def bb_with_text(img_arr,bb_xywh,text):
     cv2.putText(img_arr,text,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
     return img_arr
 
+def count_values(mask,labels=None):
+    image_size = mask.shape[0]*mask.shape[1]
+    uniques = np.unique(mask)
+    pixelcounts = {}
+    for unique in uniques:
+        pixelcount = len(mask[mask==unique])
+        ratio = float(pixelcount)/image_size
+        if labels is not None:
+            print('class {} {} count {} ratio {}'.format(unique,labels[unique],pixelcount,ratio))
+        else:
+            print('class {} count {} ratio {}'.format(unique,pixelcount,ratio))
+        pixelcounts[unique]=pixelcount
+    return pixelcounts
+
 host = socket.gethostname()
 # print('host:'+str(host))
 
