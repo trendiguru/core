@@ -1254,6 +1254,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
 
+    print('full mask blackwhite '+str(nprbgd))
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
+
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
     try:
