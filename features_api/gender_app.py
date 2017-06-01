@@ -8,13 +8,16 @@ from ..yonatan import new_genderDetector
 
 class NeuralResource:
     def on_get(self, req, resp):
-        """Handles GET requests"""
-        quote = {
-            'quote': 'I\'ve always been more interested in the future than in the past.',
-            'author': 'Grace Hopper'
-        }
-
-        resp.body = json.dumps(quote)
+        ret = {"success": False}
+        try:
+            image_url = req.get_param("imageUrl")
+            ret = {"data": self.feature.execute(image_url),
+                   "labels": self.labels,
+                   "success": True}    
+        except Exception as e:
+            ret["error"] = str(e)
+            ret["trace"] = traceback.format_exc()
+        resp.body = json.dumps(ret)
 
     def on_post(self, req, resp):
         ret = {"success": False}
