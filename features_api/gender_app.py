@@ -1,5 +1,6 @@
 __author__ = 'yonatan'
 
+import traceback
 import falcon
 import numpy as np
 from jaweson import json, msgpack
