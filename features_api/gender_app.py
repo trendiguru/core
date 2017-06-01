@@ -5,8 +5,8 @@ import falcon
 import numpy as np
 from jaweson import json, msgpack
 from ..yonatan import new_genderDetector
+from ..Utils import get_cv2_img_array
 import dlib
-import cv2
 
 
 class NeuralResource:
