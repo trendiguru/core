@@ -4,15 +4,22 @@ import falcon
 import numpy as np
 from jaweson import json, msgpack
 from ..yonatan import new_genderDetector
+import dlib
+import cv2
 
 
 class NeuralResource:
+    def __init__(self):
+        self.face_detector = dlib.get_frontal_face_detector()
+    
     def on_get(self, req, resp):
         ret = {"success": False}
         try:
             image_url = req.get_param("imageUrl")
-            ret = {"data": self.feature.execute(image_url),
-                   "labels": self.labels,
+            image = get_cv2_img_array(image_url)
+            face_rects = self.face_detector(image, 1)
+            faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in face_rects]
+            ret = {"data": new_genderDetector(image, faces[0]),
                    "success": True}    
         except Exception as e:
             ret["error"] = str(e)
