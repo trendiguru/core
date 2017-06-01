@@ -167,7 +167,7 @@ def skin_detection_fast(image_arr, face=None):
     mask2 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([133,255,255]))
     mask3 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([255,255,120]))
     mask = mask1*mask2*mask3
-    mask = np.where(mask!=0).astype('uint8')  #return a 0,1 mask , easier for multiplication #
+    mask = np.where(mask==0,0,1).astype('uint8')  #return a 0,1 mask , easier for multiplication #
     n=np.count_nonzero(mask)
     print('skin pixels:'+str(n))
     return mask
