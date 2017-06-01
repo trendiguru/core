@@ -987,34 +987,38 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
         image_path = os.path.join(pardir,image_name)
         img_arr=cv2.imread(image_path)
-        mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])  # NOT WORKING for some reason - my bad need to multiply by mask, thats where gc result goes
-
+        mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])
     # make new img with extraneous removed
-        if(visual_output):
-            cv2.imshow('gc',img_arr2)
-            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-            cv2.imshow('orig',img_arr)
-            cv2.waitKey(0)
-        gc_img_name = image_path.replace('.jpg','_gc.jpg')
-
-        print('writing img to '+str(gc_img_name))
-        res = cv2.imwrite(gc_img_name,img_arr2)
-        if not res:
-            logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
 
         mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
 
         skin_index = constants.pixlevel_categories_v3.index('skin')
         skin_mask = kassper.skin_detection_fast(img_arr) * skin_index
         mask = np.where(skin_mask!=0,skin_mask,mask)
+
+        gc_img_name = image_path.replace('.jpg','_gc.jpg')
+        print('writing img to '+str(gc_img_name))
+        res = cv2.imwrite(gc_img_name,img_arr2)
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
+
         imutils.count_values(mask,constants.pixlevel_categories_v3)
-        imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,visual_output=True)
+        imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,original_image=gc_img_name,visual_output=True)
 
         maskname = image_path.replace('.jpg','.png')
         print('writing mask to '+str(maskname))
         res = cv2.imwrite(maskname,mask)
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
+
+        img_arr2=np.where(skin_mask!=0,img_arr,img_arr2)
+        if(visual_output):
+            cv2.imshow('gc',img_arr2)
+      #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('orig',img_arr)
+            cv2.waitKey(0)
+
+
         line = gc_img_name+' '+maskname+'\n'
         Utils.ensure_file(labelfile)
         fp2.write(line)
@@ -1240,8 +1244,8 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
 #    cv2.imwrite('perimeter.jpg',img_arr)
-    imutils.count_values(mask,labels=labels)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+#     imutils.count_values(mask,labels=labels)
+#     imutils.show_mask_with_labels(mask,labels,visual_output=True)
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
     pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
@@ -1249,9 +1253,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
 
 
-    print('after middlebox '+str(nprbgd))
-    imutils.count_values(mask,labels)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    # print('after middlebox '+str(nprbgd))
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
     #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
     #a coat over a shirt and the sirt is visible
@@ -1277,10 +1281,10 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
         mask[top:bottom,left:right] = cv2.GC_PR_FGD
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
-    print('after innerbox ')
-    imutils.count_values(mask,labels)
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
-    print('unqies '+str(np.unique(mask)))
+    # print('after innerbox ')
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
+    # print('unqies '+str(np.unique(mask)))
 
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
@@ -1313,21 +1317,22 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     img_arr = img_arr*mask2[:,:,np.newaxis]
 
-    fadeout = np.zeros([h,w],dtype=np.uint8 )
+    fadeout = np.zeros([h,w],dtype=np.float )
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=1.0
     fadefrac = 0.1
     fade_dist_ud = int(fadefrac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
     fade_dist_rl = int(fadefrac*(bb_x1y1x2y2[2]-bb_x1y1x2y2[0]))
 
     fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_ud)
-    fademat = np.tile(fadevec,(w,1))
-    fademat=fademat.transpose()*255
-    fadeout[bb_x1y1x2y2[1]-fade_dist_ud:bb_x1y1x2y2[1],:]=fademat
-    fadeout[bb_x1y1x2y2[3]:bb_x1y1x2y2[3]+fade_dist_ud,:]=(1-fademat)
+    fademat = np.tile(fadevec,(bb_x1y1x2y2[2]-bb_x1y1x2y2[0],1))
+    fademat=fademat.transpose()
+    fadeout[bb_x1y1x2y2[1]-fade_dist_ud:bb_x1y1x2y2[1],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=fademat
+    fadeout[bb_x1y1x2y2[3]:bb_x1y1x2y2[3]+fade_dist_ud,bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=(1-fademat)
 
     fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_rl)
-    fademat = np.tile(fadevec,(1,h))
-    fadeout[:,bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0],:]=fademat
-    fadeout[:,bb_x1y1x2y2[2]+fade_dist_rl:bb_x1y1x2y2[0],:]=(1-fademat)
+    fademat = np.tile(fadevec,(bb_x1y1x2y2[3]-bb_x1y1x2y2[1],1))
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]]=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],fademat)
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]:bb_x1y1x2y2[2]+fade_dist_rl]=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],(1-fademat))
 
     cv2.imshow('fade',fadeout)
     cv2.waitKey(0)
@@ -1339,7 +1344,11 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
     negmask = np.where(mask2==0,1,0).astype('uint8')
     imutils.show_mask_with_labels(negmask,['0','1','2','3'])
-    bgnd_arr = orig_arr*(negmask[:,:,np.newaxis])
+ #   fadeout = fadeout/255.0 #this was defined as float so its ok
+    fillval = np.mean([orig_arr[0:20,0:20]])
+    bgnd_arr = np.zeros_like(orig_arr)
+    bgnd_arr[:,:]=fillval
+    bgnd_arr = bgnd_arr+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
     cv2.imshow('bgnd arr',bgnd_arr)
     cv2.waitKey(0)
     if(visual_output):
