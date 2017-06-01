@@ -1206,12 +1206,6 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask = np.zeros(img_arr.shape[:2], np.uint8)
     h,w = img_arr.shape[0:2]
 
-    upper_frac =  0.2  #kill this many pixels above lower bb bound too
-    lower_frac = 0.2 #kill this many below  upper bound
-    side_frac = 0.2
-    upper_margin=int(upper_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    lower_margin=int(lower_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
 
     #start with everything bg
     mask[:,:] = cv2.GC_BGD
@@ -1226,8 +1220,8 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
 #    cv2.imwrite('perimeter.jpg',img_arr)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
     imutils.count_values(mask,labels=labels)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
     pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
@@ -1236,15 +1230,29 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
 
     print('after middlebox '+str(nprbgd))
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
     imutils.count_values(mask,labels)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
     #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
     #a coat over a shirt and the sirt is visible
-    top=max(0,bb_x1y1x2y2[1]+lower_margin)
-    bottom=min(h,bb_x1y1x2y2[1]-lower_margin)
-    left = max(0,bb_x1y1x2y2[0]+side_margin)
-    right = min(w,bb_x1y1x2y2[2]-side_margin)
+    center_frac=0.1
+    side_frac = 0.1
+
+    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    upper_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    lower_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+
+    center_y=(bb_x1y1x2y2[1]+bb_x1y1x2y2[3])/2
+    center_x=(bb_x1y1x2y2[0]+bb_x1y1x2y2[2])/2
+    top=max(0,center_y-upper_margin)
+    bottom=min(h,center_y+lower_margin)
+    left = max(0,center_x-side_margin)
+    right = min(w,center_x+side_margin)
+    print('fg box t {} b {} l {} r {}'.format(top,bottom,left,right))
+    if top>bottom:
+        temp=top
+        top=bottom
+        bottom=temp
     if clothing_type == 'upper_cover':
         mask[top:bottom,left:right] = cv2.GC_PR_FGD
     else:
@@ -1252,8 +1260,8 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
     mask[top:bottom,left:right] = cv2.GC_FGD
     print('after innerbox ')
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
     imutils.count_values(mask,labels)
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
     print('unqies '+str(np.unique(mask)))
 
 #add white and black vals as pr bgd
@@ -1265,10 +1273,11 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
 
     print('after blackwhite ')
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
     imutils.count_values(mask,labels)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
     skinmask = kassper.skin_detection_fast(img_arr)
+    imutils.count_values(skinmask,['bg','skin'])
     imutils.show_mask_with_labels(skinmask,['bg','skin'],visual_output=True)
 
 
