@@ -20,7 +20,7 @@ class NeuralResource:
             image = get_cv2_img_array(image_url)
             face_rects = self.face_detector(image, 1)
             faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in face_rects]
-            ret = {"data": new_genderDetector(image, faces[0]),
+            ret = {"data": new_genderDetector.theDetector(image, faces[0]),
                    "success": True}    
         except Exception as e:
             ret["error"] = str(e)
