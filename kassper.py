@@ -163,9 +163,9 @@ def skin_detection_fast(image_arr, face=None):
     :return:
     '''
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
-    mask1 = cv2.inRange(image_arr,[0,0,0],[220,255,255])
-    mask2 = cv2.inRange(image_arr,[0,0,0],[133,255,255])
-    mask3 = cv2.inRange(image_arr,[0,0,0],[255,255,120])
+    mask1 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([220,255,255]))
+    mask2 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([133,255,255]))
+    mask3 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([255,255,120]))
     mask = mask1*mask2*mask3
     n=np.count_nonzero(mask)
     print('skin pixels:'+str(n))

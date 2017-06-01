@@ -1257,8 +1257,6 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
         mask[top:bottom,left:right] = cv2.GC_PR_FGD
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
-
-    mask[top:bottom,left:right] = cv2.GC_FGD
     print('after innerbox ')
     imutils.count_values(mask,labels)
     imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
