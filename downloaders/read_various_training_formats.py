@@ -1188,7 +1188,7 @@ def remove_irrelevant_parts_of_image(img_arr,bb_x1y1x2y2,pixlevel_v3_cat):
 
     return img_arr
 
-def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
+def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
@@ -1220,18 +1220,22 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     pr_bg_margin_lr= int(pr_bg_frac*(w))
     mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
 
-
 #prevent masks frrom adding together by doing boolean or
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
-    print('n4 blackwhite '+str(nprbgd))
+    print('n b4 blackwhite '+str(nprbgd))
+
+    cv2.imwrite('temp.jpg',img_arr)
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
+    mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
     #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
+    mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
-    mask=mask+np.array([blackvals!=0])*cv2.GC_PR_BGD
+    cv2.imwrite('temp.jpg',img_arr)
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
     print('after blackwhite '+str(nprbgd))
-    np.where((mask==2)|(mask==0),0,1).astype('uint8'n)
 
     #everything in bb+margin is pr_fgd
     pr_fg_frac = 0.0
@@ -1239,12 +1243,16 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     pr_bg_margin_lr= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
     mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
 
-    #everything in small box within bb is  fg
+    #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
+    #a coat over a shirt and the sirt is visible
     top=max(0,bb_x1y1x2y2[1]+lower_margin)
     bottom=min(h,bb_x1y1x2y2[1]-lower_margin)
     left = max(0,bb_x1y1x2y2[0]+side_margin)
     right = min(w,bb_x1y1x2y2[2]-side_margin)
-    mask[top:bottom,left:right] = cv2.GC_FGD
+    if clothing_type == 'upper_cover':
+        mask[top:bottom,left:right] = cv2.GC_PR_FGD
+    else:
+        mask[top:bottom,left:right] = cv2.GC_FGD
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
@@ -1255,7 +1263,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False):
     except:
         print('grabcut exception ')
         return img_arr
-#    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
+    print('bg {} prbg {} prfg {} fg {}'.format(cv2.GC_BGD,cv2.GC_PR_BGD,cv2.GC_PR_FGD,cv2.GC_FGD))
     #kill anything no t in gc
     mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
     #kill anything out of bb (except head)
