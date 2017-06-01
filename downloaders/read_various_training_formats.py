@@ -23,13 +23,14 @@ logging.basicConfig(level=logging.INFO)
 from multiprocessing import Pool
 from functools import partial
 from itertools import repeat
+import copy
+import numpy as np
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
-import copy
-import numpy as np
+from trendi import kassper
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
@@ -1249,10 +1250,11 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
 
+    mask[top:bottom,left:right] = cv2.GC_FGD
     print('after innerbox ')
     imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
     imutils.count_values(mask,labels)
-
+    print('unqies '+str(np.unique(mask)))
 
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
@@ -1263,8 +1265,12 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
 
     print('after blackwhite ')
-    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
+    imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
     imutils.count_values(mask,labels)
+
+    skinmask = kassper.skin_detection_fast(img_arr)
+    imutils.show_mask_with_labels(skinmask,['bg','skin'],visual_output=True)
+
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
@@ -1283,7 +1289,8 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     img_arr = img_arr*mask2[:,:,np.newaxis]
-    negmask = mask2[mask==0]
+
+    negmask = mask2[mask[:,:,0]==0]
     imutils.show_mask_with_labels(negmask,['0','1','2','3'])
     bgnd_arr = img_arr*(negmask[:,:,np.newaxis])
     cv2.imshow('bgnd arr',bgnd_arr)
