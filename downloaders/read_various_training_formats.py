@@ -1224,7 +1224,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('n b4 blackwhite '+str(nprbgd))
 
-    cv2.imwrite('temp.jpg',img_arr)
+    cv2.imwrite('perimeter.jpg',img_arr)
     imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
@@ -1254,7 +1254,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
 
-    print('full mask blackwhite '+str(nprbgd))
+    print('mask unqieus '+str(np.unique(mask)))
     imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],original_image='temp.jpg',visual_output=True)
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
@@ -1275,6 +1275,11 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
     img_arr = img_arr*mask2[:,:,np.newaxis]
+    negmask = 1-mask2
+    imutils.show_mask_with_labels(negmask,['0','1','2','3'])
+    bgnd_arr = img_arr*(negmask[:,:,np.newaxis])
+    cv2.imshow('bgnd arr',bgnd_arr)
+    cv2.waitKey(0)
     if(visual_output):
 #    plt.imshow(img),plt.colorbar(),plt.show()
         cv2.imshow('after gc',img_arr)
