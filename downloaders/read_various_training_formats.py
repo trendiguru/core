@@ -1011,7 +1011,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
 
-        img_arr2=np.where(skin_mask!=0,img_arr,img_arr2)
+        img_arr2=np.where(skin_mask!=0[:,:,np.newaxis],img_arr,img_arr2)
         if(visual_output):
             cv2.imshow('gc',img_arr2)
       #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
