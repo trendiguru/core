@@ -18,7 +18,7 @@ class ClassifierResource(object):
         try:
             image_url = req.get_param("imageUrl")
             ret = {"data": self.feature.execute(image_url),
-                   "labels: self.labels,
+                   "labels": self.labels,
                    "success": True}    
         except Exception as e:
             ret["error"] = str(e)
