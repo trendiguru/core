@@ -1370,8 +1370,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
     skin_index = constants.pixlevel_categories_v3.index('skin')
     skin_mask = kassper.skin_detection_fast(orig_arr) * 255
-    cv2.imshow('skin',skin_mask)
-
+    if visual_output:
+        cv2.imshow('skin',skin_mask)
+        cv2.waitKey(0)
 
 
     fadeout = np.where(skin_mask!=0,skin_mask,fadeout)
