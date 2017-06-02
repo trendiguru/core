@@ -393,6 +393,7 @@ class JrPixlevel(caffe.Layer):
             cv2.imwrite(name+'.jpg',in_)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,label_in_)
+            print('writing images to {} and {}'.format(name+'.jpg',maskname))
             imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_check_legend.jpg',save_images=True)
 
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
@@ -412,6 +413,7 @@ class JrPixlevel(caffe.Layer):
             cv2.imwrite(name+'.jpg',out1)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
+            print('writing images to {} and {}'.format(name+'.jpg',maskname))
             imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_check_legend.jpg',save_images=True)
 
         logging.debug('uniques after '+str(np.unique(out2)))
