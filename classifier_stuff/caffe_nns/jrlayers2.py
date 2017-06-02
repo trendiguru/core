@@ -74,6 +74,7 @@ class JrPixlevel(caffe.Layer):
         self.analysis_time = time.time()
         self.analysis_time_out = time.time()
         self.cpu_count = multiprocessing.cpu_count()
+        self.save_dir='./image_saves/'
         print('##############')
         print('params coming into jrlayers2')
         print('batchsize {}'.format(self.batch_size))
@@ -389,7 +390,7 @@ class JrPixlevel(caffe.Layer):
 
         if self.save_visual_output:
             lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
-            name = "".join(lst)
+            name = os.path.join(self.save_dir,"".join(lst))
             cv2.imwrite(name+'.jpg',in_)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,label_in_)
@@ -409,7 +410,7 @@ class JrPixlevel(caffe.Layer):
             show_visual_output=self.augment_show_visual_output)
 
         if self.save_visual_output:
-            name = name+"after_aug"
+            name = name+"after_aug")
             cv2.imwrite(name+'.jpg',out1)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
