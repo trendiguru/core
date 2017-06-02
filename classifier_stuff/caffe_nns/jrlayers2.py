@@ -350,7 +350,7 @@ class JrPixlevel(caffe.Layer):
             Load label image as 1 x height x width integer array of label indices.
             The leading singleton dimension is required by the loss.
             """
-            im = Image.open(label_filename)
+#            im = Image.open(label_filename)
             im = cv2.imread(label_filename)
             if im is None:
                 logging.warning('could not get label1 '+filename)
@@ -386,6 +386,15 @@ class JrPixlevel(caffe.Layer):
 
         logging.debug('uniques b4 '+str(np.unique(label_in_)))
 
+
+        if self.save_visual_output:
+            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
+            name = "".join(lst)
+            cv2.imwrite(name+'.jpg',in_)
+            maskname = name+'_mask.png'
+            cv2.imwrite(maskname,label_in_)
+            imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_check_legend.jpg',save_images=True)
+
         out1, out2 = augment_images.generate_image_onthefly(in_, mask_filename_or_nparray=label_in_,
             gaussian_or_uniform_distributions=self.augment_distribution,
             max_angle = self.augment_max_angle,
@@ -398,14 +407,14 @@ class JrPixlevel(caffe.Layer):
             crop_size=self.augment_crop_size,
             show_visual_output=self.augment_show_visual_output)
 
-        logging.debug('uniques after '+str(np.unique(out2)))
         if self.save_visual_output:
-            lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
-            name = "".join(lst)
+            name = name+"after_aug"
             cv2.imwrite(name+'.jpg',out1)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
             imutils.show_mask_with_labels(maskname,labels=constants.pixlevel_categories_v3,original_image=name+'.jpg',visual_output=False,savename=name+'_check_legend.jpg',save_images=True)
+
+        logging.debug('uniques after '+str(np.unique(out2)))
 #        out1 = out1[:,:,::-1]   #RGB -> BGR - not necesary since this is done above (line 303)
         ('out1 shape {} type {} 2 shape {} type {}'.format(out1.shape,type(out1),out2.shape,type(out2)))
         out1 -= self.mean  #assumes means are BGR order, not RGB
@@ -899,13 +908,13 @@ class JrMultilabel(caffe.Layer):
                 logging.debug( "Error {} in jrlayers2 checking image {}".format(e,filename))
                 self.next_idx()
                 continue
-            try:
-                in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
-            except:
-                e = sys.exc_info()[0]
-                logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
-                self.next_idx()
-                continue
+            # try:
+            #     in_ = in_[:,:,::-1]  #RGB->BGR - since we're using PIL Image to read in .  The caffe default is BGR so at inference time images are read in as BGR
+            # except:
+            #     e = sys.exc_info()[0]
+            #     logging.debug( "Error in jrlayers2 transposing image rgb->bgr: %s" % e )
+            #     self.next_idx()
+            #     continue
 
 #############end added code to avoid cv2.imread############
 
