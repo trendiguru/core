@@ -354,7 +354,7 @@ class JrPixlevel(caffe.Layer):
             im = cv2.imread(label_filename)
             if im is None:
                 logging.warning('could not get label1 '+filename)
-                self.next_idx()
+                self.next_idx() #
                 continue
             if self.resize:
                 #this should be done with imutils.resize_keep_aspect(...careful_with_the_labels=True), no ???
