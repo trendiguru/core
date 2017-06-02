@@ -1326,13 +1326,15 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_ud)
     fademat = np.tile(fadevec,(bb_x1y1x2y2[2]-bb_x1y1x2y2[0],1))
     fademat=fademat.transpose()
-    fadeout[bb_x1y1x2y2[1]-fade_dist_ud:bb_x1y1x2y2[1],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=fademat
-    fadeout[bb_x1y1x2y2[3]:bb_x1y1x2y2[3]+fade_dist_ud,bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=(1-fademat)
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[1]+fade_dist_ud,bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=fademat #top
+    fadeout[bb_x1y1x2y2[3]-fade_dist_ud:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=(1-fademat) #bottom
 
     fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_rl)
     fademat = np.tile(fadevec,(bb_x1y1x2y2[3]-bb_x1y1x2y2[1],1))
-    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]]=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],fademat)
-    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]:bb_x1y1x2y2[2]+fade_dist_rl]=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],(1-fademat))
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[0]+fade_dist_rl]=fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[0]+fade_dist_rl]*fademat
+        #np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],fademat)
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]]=    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]] * (1-fademat)
+    #=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],(1-fademat))
 
     cv2.imshow('fade',fadeout)
     cv2.waitKey(0)
