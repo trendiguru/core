@@ -165,6 +165,7 @@ def skin_detection_fast(image_arr, face=None):
     '''
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
     mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
+    mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))
     # mask2 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([133,255,255]))
     # mask3 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([255,255,120]))
     # mask = mask1*mask2*mask3

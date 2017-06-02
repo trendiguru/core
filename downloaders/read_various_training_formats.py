@@ -989,12 +989,42 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         img_arr=cv2.imread(image_path)
         mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])
     # make new img with extraneous removed
+        if(visual_output):
+            cv2.imshow('after gc',img_arr2)
+      #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('orig',img_arr)
+            cv2.waitKey(0)
+
 
         mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
 
         skin_index = constants.pixlevel_categories_v3.index('skin')
         skin_mask = kassper.skin_detection_fast(img_arr) * skin_index
-        mask = np.where(skin_mask!=0,skin_mask,mask)
+        mask2 = np.where(skin_mask!=0,skin_mask,mask)
+        overlap = np.bitwise_and(skin_mask,mask)
+        mask3 = np.where(overlap!=0,mask,mask2)
+
+        prefer_skin=False
+        if prefer_skin:
+            #take skin instead of gc in case of overlap
+            mask = mask2
+        else:
+            #take gc instaeda of skin in case of overlap
+            mask=mask3
+     #   if(visual_output):
+      #
+      #       imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3)
+      #       imutils.show_mask_with_labels(mask2,constants.pixlevel_categories_v3)
+      #       imutils.show_mask_with_labels(mask3,constants.pixlevel_categories_v3)
+      #       imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3)
+      # #
+      #       cv2.imshow('mask1',mask)
+      # #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+      #       cv2.imshow('mask2',mask2)
+      #       cv2.imshow('mask3',mask3)
+      #       cv2.imshow('overlap',overlap)
+      #
+      #       cv2.waitKey(0)
 
         gc_img_name = image_path.replace('.jpg','_gc.jpg')
         print('writing img to '+str(gc_img_name))
@@ -1011,11 +1041,11 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 #        img_arr2=np.where(skin_mask!=0[:,:,np.newaxis],img_arr,img_arr2)
         if(visual_output):
-            cv2.imshow('gc',img_arr2)
-      #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-            cv2.imshow('orig',img_arr)
-            cv2.waitKey(0)
-            imutils.count_values(mask,constants.pixlevel_categories_v3)
+      #       cv2.imshow('gc',img_arr2)
+      # #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+      #       cv2.imshow('orig',img_arr)
+      #       cv2.waitKey(0)
+      #       imutils.count_values(mask,constants.pixlevel_categories_v3)
             imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,original_image=gc_img_name,visual_output=True)
 
 
@@ -1029,7 +1059,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
-                                        filefilter='250x250.jpg',visual_output=True,
+                                        filefilter='250x250.jpg',visual_output=False,
                                         multiprocess_it=True):
     '''
     first 2 lines of file are count and description, then data (imgpath x1 y1 x2 y2) - looks like
@@ -1342,6 +1372,8 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     skin_mask = kassper.skin_detection_fast(orig_arr) * 255
     cv2.imshow('skin',skin_mask)
 
+
+
     fadeout = np.where(skin_mask!=0,skin_mask,fadeout)
 
 #    mask2 = np.where(skin_mask!=0,constants.pixlevel_categories_v3.index('skin'),mask2)
@@ -1355,7 +1387,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     # mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
 #    img_arr = img_arr*mask2[:,:,np.newaxis]
     #can use img_arr (after gc) here instead of orig_arr
-    img_arr = (orig_arr*fadeout[:,:,np.newaxis]).astype('uint8')
+    dofade=False
+    if dofade:
+        img_arr = (orig_arr*fadeout[:,:,np.newaxis]).astype('uint8')
     # cv2.imshow('after orig*fadeout',img_arr)
     img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
     # cv2.imshow('after skin add',img_arr)
@@ -1364,12 +1398,15 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
  #    negmask = np.where(mask2==0,1,0).astype('uint8')
  #    imutils.show_mask_with_labels(negmask,['0','1','2','3'])
  # #   fadeout = fadeout/255.0 #this was defined as float so its ok
- #    fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
- #    print('fillval '+str(fillval))
- #    bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
- #    bgnd_arr[:,:]=fillval
- #    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
- #
+    fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
+    print('fillval '+str(fillval))
+    bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
+    bgnd_arr[:,:]=fillval
+#    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
+
+    img_arr = np.where(img_arr==0,bgnd_arr,img_arr)
+
+
  #    cv2.imshow('bgnd arr',bgnd_arr)
  #    cv2.waitKey(0)
     if(visual_output):
