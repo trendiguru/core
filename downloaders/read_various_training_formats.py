@@ -1002,8 +1002,6 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
 
-        imutils.count_values(mask,constants.pixlevel_categories_v3)
-        imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,original_image=gc_img_name,visual_output=True)
 
         maskname = image_path.replace('.jpg','.png')
         print('writing mask to '+str(maskname))
@@ -1011,12 +1009,14 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         if not res:
             logging.warning('bad save result '+str(res)+' for '+str(maskname))
 
-        img_arr2=np.where(skin_mask!=0[:,:,np.newaxis],img_arr,img_arr2)
+#        img_arr2=np.where(skin_mask!=0[:,:,np.newaxis],img_arr,img_arr2)
         if(visual_output):
             cv2.imshow('gc',img_arr2)
       #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
             cv2.imshow('orig',img_arr)
             cv2.waitKey(0)
+            imutils.count_values(mask,constants.pixlevel_categories_v3)
+            imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,original_image=gc_img_name,visual_output=True)
 
 
         line = gc_img_name+' '+maskname+'\n'
@@ -1294,9 +1294,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
 
-    print('after blackwhite ')
-    imutils.count_values(mask,labels)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    # print('after blackwhite ')
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
@@ -1319,6 +1319,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
     fadeout = np.zeros([h,w],dtype=np.float )
     fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=1.0
+#    fadeout[0:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=1.0
     fadefrac = 0.1
     fade_dist_ud = int(fadefrac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
     fade_dist_rl = int(fadefrac*(bb_x1y1x2y2[2]-bb_x1y1x2y2[0]))
@@ -1336,23 +1337,41 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]]=    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]] * (1-fademat)
     #=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],(1-fademat))
 
-    cv2.imshow('fade',fadeout)
-    cv2.waitKey(0)
-    mask2[:bb_x1y1x2y2[1],0:w]=0  #top
-    mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
-    mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
-    mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
-    img_arr = img_arr*mask2[:,:,np.newaxis]
 
-    negmask = np.where(mask2==0,1,0).astype('uint8')
-    imutils.show_mask_with_labels(negmask,['0','1','2','3'])
- #   fadeout = fadeout/255.0 #this was defined as float so its ok
-    fillval = np.mean([orig_arr[0:20,0:20]])
-    bgnd_arr = np.zeros_like(orig_arr)
-    bgnd_arr[:,:]=fillval
-    bgnd_arr = bgnd_arr+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
-    cv2.imshow('bgnd arr',bgnd_arr)
-    cv2.waitKey(0)
+    skin_index = constants.pixlevel_categories_v3.index('skin')
+    skin_mask = kassper.skin_detection_fast(orig_arr) * 255
+    cv2.imshow('skin',skin_mask)
+
+    fadeout = np.where(skin_mask!=0,skin_mask,fadeout)
+
+#    mask2 = np.where(skin_mask!=0,constants.pixlevel_categories_v3.index('skin'),mask2)
+
+
+    # cv2.imshow('fade',fadeout)
+    # cv2.waitKey(0)
+    # mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+    # mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+    # mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+    # mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+#    img_arr = img_arr*mask2[:,:,np.newaxis]
+    #can use img_arr (after gc) here instead of orig_arr
+    img_arr = (orig_arr*fadeout[:,:,np.newaxis]).astype('uint8')
+    # cv2.imshow('after orig*fadeout',img_arr)
+    img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
+    # cv2.imshow('after skin add',img_arr)
+    # cv2.waitKey(0)
+
+ #    negmask = np.where(mask2==0,1,0).astype('uint8')
+ #    imutils.show_mask_with_labels(negmask,['0','1','2','3'])
+ # #   fadeout = fadeout/255.0 #this was defined as float so its ok
+ #    fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
+ #    print('fillval '+str(fillval))
+ #    bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
+ #    bgnd_arr[:,:]=fillval
+ #    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
+ #
+ #    cv2.imshow('bgnd arr',bgnd_arr)
+ #    cv2.waitKey(0)
     if(visual_output):
 #    plt.imshow(img),plt.colorbar(),plt.show()
         cv2.imshow('after gc',img_arr)
