@@ -65,7 +65,7 @@ def check_if_relevant_and_enqueue(image_url, page_url, products):
     relevance = background_removal.image_is_relevant(small_img, use_caffe=False, image_url=image_url)
 
     if relevance.is_relevant:
-        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': face.tolist()} for face in relevance.faces],
+        image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': list(face)} for face in relevance.faces],
                      'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
         db.iip.insert_one(image_obj)
 
