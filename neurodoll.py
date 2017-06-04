@@ -1455,9 +1455,10 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
             json.dump(multilabel_output,fp,indent=4)
             fp.close()
 
-        with open(htmlname,'rw+') as fp2:
+        with open(htmlname,'rw') as fp2:
             lines = fp2.readlines()
             newlines = [legendname,pngname,jpgname,multilabelname]+lines
+            print('len lines:'+str(len(newlines)))
             fp2.seek(0)
             fp2.writelines(newlines)
             fp2.close()
