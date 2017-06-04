@@ -1445,7 +1445,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
 
     print('saving json to '+multilabelname)
-    with open(multilabelname) as fp:
+    with open(multilabelname,'w') as fp:
         json.dump(multilabel_output,fp,indent=4)
     return final_mask
 #    return {'mask':final_mask,'multilabel':multilabel_output}
