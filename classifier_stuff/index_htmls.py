@@ -145,12 +145,13 @@ def write_index_html_with_images(dir, files):
         print('writing line for file:'+file)
         fullpath = os.path.join(dir,file)
         print('path:'+fullpath)
-        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
-        print('modtime:'+modtime)
+#        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
+#        print('modtime:'+modtime)
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
         if file[-4:] == '.jpg' or file[-4:] == '.png':
             print('jpg line for '+file)
-            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' + modtime+'\n')
+#            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' + modtime+'\n')
+            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' +'\n')
         else:
             print('nonjpg line for '+file)
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
