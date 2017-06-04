@@ -150,7 +150,8 @@ def write_index_html_with_images(dir, files,indexname=None):
 #        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
 #        print('modtime:'+modtime)
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
-        if file[-4:] == '.jpg' or file[-4:] == '.png':
+        if '.jpg' in file or '.png' in file:
+:
             print('jpg line for '+file)
 #            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' + modtime+'\n')
             f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' +'\n')
