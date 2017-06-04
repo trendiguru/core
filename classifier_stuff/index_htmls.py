@@ -108,7 +108,7 @@ def make_index(dir):
 def write_index_html(dir, files,indexname=None):
     '''makes a page with links to all files in dir
     '''
-    if not indexname:
+    if  indexname is None:
         indexname = os.path.join(dir,'index.html')
     print('writing to '+str(indexname))
     f = open(indexname, 'w')
