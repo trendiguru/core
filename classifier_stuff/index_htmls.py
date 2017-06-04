@@ -127,10 +127,11 @@ def write_index_html(dir, files,indexname=None):
     f.write('</html>\n')
     f.close
 
-def write_index_html_with_images(dir, files):
+def write_index_html_with_images(dir, files,indexname=None):
     '''makes a page with image links to all files in dir
     '''
-    indexname = os.path.join(dir,'index.html')
+    if  indexname is None:
+        indexname = os.path.join(dir,'index.html')
     print('writing to '+str(indexname))
     f = open(indexname, 'w')
     # write html file
