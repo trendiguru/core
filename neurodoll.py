@@ -1459,11 +1459,13 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                 fp.close()
         except:
             print(sys.exc_info()[0])
+        print('reading')
         Utils.ensure_file(htmlname)
         with open(htmlname,'r') as fp2:
             lines = fp2.readlines()
             fp2.close()
 
+        print('writing')
         newlines = [legendname,pngname,jpgname,multilabelname]+lines
         with open(htmlname,'w') as fp3:
             fp3.writelines(newlines)
