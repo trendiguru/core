@@ -1440,7 +1440,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     multilabelname = wwwname+'.txt'
     cv2.imwrite(pngname,final_mask)
     cv2.imwrite(jpgname,image)
-    nice_output = imutils.show_mask_with_labels(pngname,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
+    nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
 
     with open(multilabelname) as fp:
         json.dump(multilabel_output,fp,indent=4)
