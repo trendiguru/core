@@ -1438,10 +1438,13 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     pngname = wwwname+'.png'
     jpgname = wwwname+'.jpg'
     multilabelname = wwwname+'.txt'
+    print('saving png to '+pngname)
     cv2.imwrite(pngname,final_mask)
+    print('saving jpg to '+jpgname)
     cv2.imwrite(jpgname,image)
     nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
 
+    print('saving json to '+multilabelname)
     with open(multilabelname) as fp:
         json.dump(multilabel_output,fp,indent=4)
     return final_mask
@@ -1634,6 +1637,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 
     non_whole_body_max = max(lower_cover_short_winner_value,lower_cover_long_winner_value,upper_under_winner_value)
     ############  WHOLE BODAAAY
+    print('\nDB 50')
     if whole_body_winner_value>non_whole_body_max:
         print('whole body wins according to ml ({} vs {}'.format(whole_body_winner_value,non_whole_body_max))
         donor_cat_indices = []
@@ -1710,6 +1714,8 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
     cv2.imwrite(name,final_mask)
     nice_output = imutils.show_mask_with_labels(name,constants.pixlevel_categories_v3,save_images=True,original_image=orig_filename+'.jpg',visual_output=False)
 
+    print('\nDB 99')
+
     #note recalc final mask after donation
     print('counting after stage4')
     count_values(final_mask,labels=labels)
@@ -1729,7 +1735,7 @@ def combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_outpu
 ##    foreground = np.array((pixlevel_categorical_output>0)*1)  #*1 turns T/F into 1/0
  #   final_mask = final_mask * foreground # only keep stuff that was part of original fg - this is already  true
     # unless we start adding pixvalues that didn't 'win'
-
+    print('\nDB END')
     return final_mask
 
 
