@@ -1439,7 +1439,6 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     if save_for_www:
         try:
             wwwpath = '/data/www'
-            wwwpath=''
             wwwname = os.path.join(wwwpath,os.path.basename(filename))
             pngname = wwwname+'.png'
             jpgname = wwwname+'.jpg'
@@ -1466,7 +1465,9 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                 fp2.close()
 
             print('writing')
-            newlines = [legendname+'\n',pngname+'\n',jpgname+'\n',multilabelname+'\n']+lines
+
+            newlines = [os.path.basename(legendname)+'\n',os.path.basename(pngname)+'\n',
+                        os.path.basename(jpgname)+'\n',os.path.basename(multilabelname)+'\n']+lines
             with open(htmlname,'w') as fp3:
                 fp3.writelines(newlines)
                 fp3.close()
