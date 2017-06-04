@@ -554,11 +554,12 @@ def ensure_dir(f):
         os.makedirs(f)
 
 def ensure_file(fname):
-    fhandle = open(fname, 'a')
-    try:
-        os.utime(fname, None)
-    finally:
-        fhandle.close()
+    if not os.path.exists(fname):
+        fhandle = open(fname, 'a')
+        try:
+            os.utime(fname, None)
+        finally:
+            fhandle.close()
 
 
 def immediate_subdirs(dir):
