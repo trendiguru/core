@@ -229,12 +229,12 @@ def mask_to_multichannel(mask_arr,n_channels):
 
 def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
                     gaussian_or_uniform_distributions='uniform',
-                   max_angle = 5,
-                   max_offset_x = 5,max_offset_y = 5,
-                   max_scale=1.2,
-                   max_noise_level= 0,noise_type='gauss',
-                   max_blur=0,
-                   max_color_rotation=0,
+                   max_angle = 15,
+                   max_offset_x = 20,max_offset_y = 20,
+                   max_scale=1.1,min_scale=0.5,
+                   max_noise_level= 10,noise_type='gauss',
+                   max_blur=10,
+                   max_color_rotation=10,
                    do_mirror_lr=True,do_mirror_ud=False,
                    crop_size=None,  #in (h,w)
                    visual_output=False,save_visual_output=False,save_path=None):
@@ -292,6 +292,7 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
                 #todo  - resize the bb too
             logging.debug('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
             img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
+            bb_list_xywh = resize_bbs(bb_list_xywh,img_arr.shape)
 
         height,width = img_arr.shape[0:2]
         x_room = width - crop_size[1]
@@ -406,6 +407,16 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
         #cv2.imwrite(name,img_arr)
     return img_arr
 
+def resize_bbs(bblist_xywh,orig_shape,new_shape,img_arr=None):
+    x_factor = new_shape[1]/orig_shape[1]
+    y_factor = new_shape[0]/orig_shape[0]
+    print('resize factor : {},{}'.format(x_factor,y_factor))
+    resized_bbs = []
+    for bb in bblist_xywh:
+        bb_out = [bb[0]*x_factor,bb[1]*y_factor,bb[2]*x_factor,bb[3]*y_factor]
+        resized_bbs.append(bb_out)
+        if img_arr is not None:
+            imutils.bb_with_text(img_arr,bb_out,'resized')
 
 def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
     for bb in bb_list_xywh:
@@ -797,7 +808,9 @@ if __name__=="__main__":
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
-    if(1):
+    img = '/media/jeremy/9FBD-1B00/data/olympics/'
+
+    if(0):
         dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
         images = [f for f in os.listdir(dir)]
         for image in images:
@@ -843,7 +856,7 @@ if __name__=="__main__":
             print('')
             cv2.destroyAllWindows()
 
-    while(1):
+    while(0):
         generate_image_onthefly(img_filename, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                     max_offset_x = 10,max_offset_y = 10,
