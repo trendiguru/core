@@ -1452,11 +1452,13 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
         print('saving json to '+multilabelname)
         print('ml output '+str(multilabel_output))
         Utils.ensure_file(multilabelname)
-        with open(multilabelname,'w') as fp:
-            print('dumping')
-            json.dump(multilabel_output,fp,indent=4)
-            fp.close()
-
+        try:
+            with open(multilabelname,'w') as fp:
+                print('dumping')
+                json.dump(multilabel_output,fp,indent=4)
+                fp.close()
+        except:
+            print(sys.exc_info()[0])
         Utils.ensure_file(htmlname)
         with open(htmlname,'rw') as fp2:
             lines = fp2.readlines()
