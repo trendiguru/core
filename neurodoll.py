@@ -1471,7 +1471,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
                 fp3.writelines(newlines)
                 fp3.close()
 
-            index_htmls.write_index_html_with_images(wwwpath,newlines)
+            index_htmls.write_index_html_with_images(wwwpath,newlines,indexname='/data/www/index.html')
 
         except:
             print(sys.exc_info()[0])
