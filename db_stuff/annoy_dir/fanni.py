@@ -5,7 +5,7 @@ import annoy
 from ...constants import db
 from ..general import db_utils
 
-FOREST_DIR = os.getenv("FOREST_DIR", "/root/forests/")
+FOREST_DIR = os.getenv("FOREST_DIR", "/root/forests")
 
 
 def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_function='angular'):
@@ -50,7 +50,7 @@ def plantAnnoyForest(col_name, category, num_of_trees, hold=True,distance_functi
     for now the tree is saved only on the annoy server
     >>> the search can only run on that server!!!
     """
-    name = FOREST_DIR + col_name+"/"+category+'_forest.ann'
+    name = FOREST_DIR + "/" + col_name + "/" + category + '_forest.ann'
     forest.save(name)
     print ("%s forest in planted! come here for picnics..." % category)
 
