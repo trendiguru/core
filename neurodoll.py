@@ -1439,6 +1439,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     if save_for_www:
         try:
             wwwpath = '/data/www'
+            wwwpath=''
             wwwname = os.path.join(wwwpath,os.path.basename(filename))
             pngname = wwwname+'.png'
             jpgname = wwwname+'.jpg'
