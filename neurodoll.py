@@ -1433,20 +1433,35 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     final_mask = combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
                                                               required_image_size=(224,224),orig_filename=filename)
 
-    wwwpath = '/data/www'
-    wwwname = os.path.join(wwwpath,os.path.basename(filename))
-    pngname = wwwname+'.png'
-    jpgname = wwwname+'.jpg'
-    multilabelname = wwwname+'.txt'
-    print('saving png to '+pngname)
-    cv2.imwrite(pngname,final_mask)
-    print('saving jpg to '+jpgname)
-    cv2.imwrite(jpgname,image)
-    nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
+###########saving results for www
+    save_for_www = True
+    if save_for_www:
+        wwwpath = '/data/www'
+        wwwname = os.path.join(wwwpath,os.path.basename(filename))
+        pngname = wwwname+'.png'
+        jpgname = wwwname+'.jpg'
+        multilabelname = wwwname+'.txt'
+        print('saving png to '+pngname)
+        cv2.imwrite(pngname,final_mask)
+        print('saving jpg to '+jpgname)
+        cv2.imwrite(jpgname,image)
+        nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
+        legendname = jpgname.replace('.jpg','_legend.jpg')
+        htmlname = os.path.join(wwwname,'results.html')
 
-    print('saving json to '+multilabelname)
-    with open(multilabelname,'w') as fp:
-        json.dump(multilabel_output,fp,indent=4)
+        print('saving json to '+multilabelname)
+        print('ml output '+str(multilabel_output))
+        with open(multilabelname,'w+') as fp:
+            json.dump(multilabel_output,fp,indent=4)
+            fp.close()
+
+        with open(htmlname,'rw+') as fp2:
+            lines = fp2.readlines()
+            newlines = [legendname,pngname,jpgname,multilabelname]+lines
+            fp2.seek(0)
+            fp2.writelines(newlines)
+            fp2.close()
+
     return final_mask
 #    return {'mask':final_mask,'multilabel':multilabel_output}
 
