@@ -1451,7 +1451,7 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 
         print('saving json to '+multilabelname)
         print('ml output '+str(multilabel_output))
-        with open(multilabelname,'w+') as fp:
+        with open(multilabelname,'w') as fp:
             json.dump(multilabel_output,fp,indent=4)
             fp.close()
 
