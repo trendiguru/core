@@ -1436,40 +1436,41 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
 ###########saving results for www
     save_for_www = True
     if save_for_www:
-        wwwpath = '/data/www'
-        wwwname = os.path.join(wwwpath,os.path.basename(filename))
-        pngname = wwwname+'.png'
-        jpgname = wwwname+'.jpg'
-        multilabelname = wwwname+'.txt'
-        print('saving png to '+pngname)
-        cv2.imwrite(pngname,final_mask)
-        print('saving jpg to '+jpgname)
-        cv2.imwrite(jpgname,image)
-        nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
-        legendname = jpgname.replace('.jpg','_legend.jpg')
-        htmlname = os.path.join(wwwname,'results.html')
-
-        print('saving json to '+multilabelname)
-        print('ml output '+str(multilabel_output))
-        Utils.ensure_file(multilabelname)
         try:
+            wwwpath = '/data/www'
+            wwwname = os.path.join(wwwpath,os.path.basename(filename))
+            pngname = wwwname+'.png'
+            jpgname = wwwname+'.jpg'
+            multilabelname = wwwname+'.txt'
+            print('saving png to '+pngname)
+            cv2.imwrite(pngname,final_mask)
+            print('saving jpg to '+jpgname)
+            cv2.imwrite(jpgname,image)
+            nice_output = imutils.show_mask_with_labels(final_mask,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
+            legendname = jpgname.replace('.jpg','_legend.jpg')
+            htmlname = os.path.join(wwwname,'results.html')
+
+            print('saving json to '+multilabelname)
+            print('ml output '+str(multilabel_output))
+            Utils.ensure_file(multilabelname)
             with open(multilabelname,'w') as fp:
                 print('dumping')
                 json.dump(multilabel_output,fp,indent=4)
                 fp.close()
+            print('reading')
+            Utils.ensure_file(htmlname)
+            print('ensured '+htmlname)
+            with open(htmlname,'r') as fp2:
+                lines = fp2.readlines()
+                fp2.close()
+
+            print('writing')
+            newlines = [legendname,pngname,jpgname,multilabelname]+lines
+            with open(htmlname,'w') as fp3:
+                fp3.writelines(newlines)
+                fp3.close()
         except:
             print(sys.exc_info()[0])
-        print('reading')
-        Utils.ensure_file(htmlname)
-        with open(htmlname,'r') as fp2:
-            lines = fp2.readlines()
-            fp2.close()
-
-        print('writing')
-        newlines = [legendname,pngname,jpgname,multilabelname]+lines
-        with open(htmlname,'w') as fp3:
-            fp3.writelines(newlines)
-            fp3.close()
 
     return final_mask
 #    return {'mask':final_mask,'multilabel':multilabel_output}
