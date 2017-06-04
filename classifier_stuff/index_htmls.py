@@ -138,10 +138,10 @@ def write_index_html_with_images(dir, files):
     f.write('nn classifier / fingerprint results \n')
     f.write('<br>')
     for file in files:
-        f.write('<br>\n')
         if file == '':
             continue
-
+        f.write('<br>\n')
+        file.replace('\n','')
         fullpath = os.path.join(dir,file)
         modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
