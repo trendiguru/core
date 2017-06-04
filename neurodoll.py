@@ -1427,11 +1427,21 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
         name_base = 'orig'+hash.hexdigest()[:10]
         filename = os.path.join(thedir,name_base)
         image = url_or_np_array
-    filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
+ #   filename = os.path.join(thedir,url_or_np_array.split('/')[-1]).replace('.jpg','')
     print('using name {} for saving results'.format(filename))
     cv2.imwrite(filename+'.jpg',image)
-    combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
+    final_mask = combine_neurodoll_v3labels_and_multilabel_using_graylevel(graylevel_nd_output,multilabel_as_u21,face=None,
                                                               required_image_size=(224,224),orig_filename=filename)
+
+    wwwpath = '/data/www'
+    wwwname = os.path.join(wwwpath,os.path.basename(filename))
+    pngname = wwwname+'.png'
+    jpgname = wwwname+'.jpg'
+    cv2.imwrite(pngname,final_mask)
+    cv2.imwrite(jpgname,image)
+    nice_output = imutils.show_mask_with_labels(pngname,constants.pixlevel_categories_v3,save_images=True,original_image=jpgname,visual_output=False)
+
+    return {'mask':final_mask,'multilabel':multilabel_output}
 
 
 
