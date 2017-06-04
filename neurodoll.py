@@ -30,6 +30,7 @@ from trendi.paperdoll import binary_multilabel_falcon_client3 as bmfc3
 from trendi.paperdoll import hydra_tg_falcon_client
 from trendi.paperdoll import neurodoll_falcon_client as nfc
 from trendi.downloaders import label_conversions
+from trendi.classifier_stuff import index_htmls
 #REQUIREMENTS FOR THIS TO RUN
 #These files have to exist
 #modelpath = '/home/jeremy/caffenets/production/ResNet-101-test.prototxt'
@@ -1469,6 +1470,9 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
             with open(htmlname,'w') as fp3:
                 fp3.writelines(newlines)
                 fp3.close()
+
+            index_htmls.write_index_html_with_images(wwwpath,newlines)
+
         except:
             print(sys.exc_info()[0])
 
