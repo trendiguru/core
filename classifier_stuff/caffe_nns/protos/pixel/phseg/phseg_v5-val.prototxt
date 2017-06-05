@@ -10,7 +10,7 @@ layer {
     module: "jrlayer2"
     layer: "JrPixlevel"
 #    param_str: "{\"images_and_labels_file\": \"/home/jeremy/image_dbs/colorful_fashion_parsing_data/images_and_labelsfile_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(224,224), \"batch_size\":3,\"save_visual_output\":False }"
-    param_str: "{\"images_and_labels_file\": \"/data/jeremy/image_dbs/pixlevel/df_yama10_v3_train.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(448,448), \"batch_size\":8,\"save_visual_output\":False }"
+    param_str: "{\"images_and_labels_file\": \"/data/jeremy/image_dbs/pixlevel/df_yama10_v3_test.txt\", \"mean\": (104.0, 116.7, 122.7),\"augment\":True,\"augment_crop_size\":(448,448), \"batch_size\":8,\"save_visual_output\":False }"
 
   }
  }
@@ -85,4 +85,4 @@ layer { bottom: 'u0d'               top: 'u0d'   name: 'relu_u0d'       type: RE
 
 layer { bottom: 'u0d'               top: 'score' name: 'conv_u0d-score' type: CONVOLUTION  blobs_lr: 1 blobs_lr: 2 weight_decay: 1 weight_decay: 0  convolution_param { engine: CAFFE num_output: 2 pad: 0 kernel_size: 1 weight_filler { type: 'xavier' }} }
 layer { bottom: 'score' bottom: 'label' top: 'loss'  name: 'loss'   type: SOFTMAX_LOSS include: { phase: TRAIN }}
-#layer { bottom: 'score' bottom: 'label' top: 'loss'  name: 'loss'   type: SOFTMAX_LOSS loss_param { ignore_label: 2 }include: { phase: TRAIN }}
+#layer { bottom: 'score' bottom: 'label' top: 'loss'  name: 'loss'   type: SOFTMAX_LOSS loss_param { ignore_lab
