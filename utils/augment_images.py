@@ -378,6 +378,7 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+
     bb_list_xywh = warp_bbs(bb_list_xywh)
     if crop_size:
         if crop_dx is None:
@@ -439,19 +440,22 @@ def warp_bbs(bblist_xywh,M):
     :param M:
     :return:
     '''
-    M =
+    bbs_out=[]
     for bb in bblist_xywh:
         bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
-        bbs_out=cv2.transform(bbs_xy_chans)
         print('bbs out '+str(bbs_out))
+        src = np.array([
+            [bb[0],bb[1]],  #tl
+            [bb[0]+bb[2],bb[1]], #tr
+            [bb[0],bb[1]+bb[3]],  #bl
+            [bb[0]+bb[2],bb[1]+bb[3]]],  #br
+             dtype = "float32")
+        dst=cv2.transform(bbs_xy_chans,M)
+        bbs_out.append(dst)
 
-def test_warp_bbs(annotationfile='/home/jeremy/projects/core/images/female1_yololabels.txt',
-                   imgfile='/home/jeremy/projects/core/images/female1.jpg'):
-    bblist,img_arr = inspect_yolo_annotation(annotationfile,imgfile)
-
-    bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file):
-    bbs =
-    img_arr=cv2.imread(imgfile)
+def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
+                   img_file='/home/jeremy/projects/core/images/female1.jpg'):
+    bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file)
     if img_arr is None:
         print('none img arr')
         return
@@ -465,6 +469,11 @@ def test_warp_bbs(annotationfile='/home/jeremy/projects/core/images/female1_yolo
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
     print('M:'+str(M))
+    warped_bbs = warp_bbs(bbs,M)
+    height,width=img_arr.shape[0:2]
+    warped_image = cv2.warpAffine(img_arr,M,(width,height))
+    read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
+
 
 
 def test_flip_bbs(imgfile='images/female1.jpg'):
@@ -848,6 +857,8 @@ if __name__=="__main__":
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
+
+    test_warp_bbs()
 
     if(0):
         dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
