@@ -804,6 +804,8 @@ def add_noise(image, noise_typ,level):
 if __name__=="__main__":
     print('running main')
     img_filename = '../images/female1.jpg'
+
+
     img_filename = '../images/female1_256x256.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'

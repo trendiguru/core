@@ -1443,7 +1443,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
     classes = constants.hls_yolo_categories
-    print('inspecting yolo annotations in '+dir)
+    print('inspecting yolo annotations in '+annotation_dir)
     for f in annotation_files:
         print('trying '+f)
         annotation_base = os.path.basename(f)
@@ -1489,6 +1489,10 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
 def inspect_yolo_annotation(annotation_file,img_file):
     classes = constants.hls_yolo_categories
     img_arr = cv2.imread(img_file)
+    if img_arr is None:
+        logging.warning('got no image')
+        return
+    h,w = img_arr.shape[0:2]
     with open(annotation_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -1574,6 +1578,61 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
         out.release()
 
 
+def augment_yolo_bbs(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/',
+                             yolo_annotation_folder='object-detection-crowdailabels',img_folder='object-detection-crowdai',
+                               annotation_filter='.txt',image_filter='.jpg'):
+#    bbs,img_arr = inspect_yolo_annotation(lblname,img_filename)
+    #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
+    annotation_dir = os.path.join(dir,yolo_annotation_folder)
+    verified_dir = os.path.join(dir,verified_folder)
+    Utils.ensure_dir(verified_dir)
+    img_dir = os.path.join(dir,img_folder)
+    annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    classes = constants.hls_yolo_categories
+    print('inspecting yolo annotations in '+annotation_dir)
+    for f in annotation_files:
+        print('trying '+f)
+        annotation_base = os.path.basename(f)
+        imgfile = annotation_base.replace(annotation_filter,image_filter)
+        img_path = os.path.join(img_dir,imgfile)
+        img_arr = cv2.imread(img_path)
+        if img_arr is None:
+            print('coulndt get '+img_path)
+            continue
+        h,w = img_arr.shape[0:2]
+        with open(f,'r') as fp:
+            lines = fp.readlines()
+            for line in lines:
+                if line.strip() == '':
+                    print('empty line')
+                    continue
+                print('got line:'+line)
+                if line.strip()[0]=='#':
+                    print('commented line')
+                    continue
+                object_class,bb0,bb1,bb2,bb3 = line.split()
+                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+                classname = classes[int(object_class)]
+                print('class {} bb_xywh {}'.format(classname,bb_xywh))
+                cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
+                img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
+                cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+                cv2.imshow('img',img_arr)
+
+            fp.close()
+            print('(a)ccept, any other key to not accept '+str(f))
+            k=cv2.waitKey(0)
+            if manual_verification:
+                if k == ord('a'):
+                    base = os.path.basename(f)
+                    verified_path = os.path.join(verified_dir,base)
+                    print('accepting images, wriing to '+str(verified_path))
+                    with open(verified_path,'w') as fp2:
+                        fp2.writelines(lines)
+                else:
+                    print('not accepting image')
+
+
 if __name__ == "__main__":
 
     inspect_yolo_annotation('/home/jeremy/projects/core/images/female1_yololabels.txt',
@@ -1584,7 +1643,7 @@ if __name__ == "__main__":
     #                          yolo_annotation_folder='labels',img_folder='images',manual_verification=False)
     #
     inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/',
-                              yolo_annotation_folder='labels_2007-2012',img_folder='images_2007-2012',manual_verification=False)
+                              yolo_annotation_folder='annotations_2007-2012',img_folder='images_2007-2012',manual_verification=False)
 
 #    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
 
