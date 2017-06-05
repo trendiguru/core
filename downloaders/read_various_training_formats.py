@@ -1418,7 +1418,9 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2,img_arr
 
-def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc2007/VOCdevkit/VOC2007',yolo_annotation_folder='labelsaugmented',img_folder='images_augmented',
+
+def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
+                             yolo_annotation_folder='object-detection-crowdailabels',img_folder='object-detection-crowdai',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
     annotation_dir = os.path.join(dir,yolo_annotation_folder)
@@ -1436,6 +1438,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/hls/voc200
         img_arr = cv2.imread(img_path)
         if img_arr is None:
             print('coulndt get '+img_path)
+            continue
         h,w = img_arr.shape[0:2]
         with open(f,'r') as fp:
             lines = fp.readlines()
@@ -1529,7 +1532,8 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    inspect_yolo_annotations()
+    inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/VOC2005_1',
+                             yolo_annotation_folder='labels',img_folder='images',manual_verification=False)
 
 #    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
 
