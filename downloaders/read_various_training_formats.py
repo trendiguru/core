@@ -31,7 +31,7 @@ from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
 from trendi import kassper
-from trendi.utils import augment_images
+#from trendi.utils import augment_images
 
 def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
     '''
