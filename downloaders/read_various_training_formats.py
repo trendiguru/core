@@ -1529,7 +1529,9 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
+    inspect_yolo_annotations()
+
+#    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
 
     # bbfile = '/data/olympics/olympics_augmentedlabels/10031828_augmented.txt'
     # imgfile =  '/data/olympics/olympics_augmented/10031828_augmented.jpg'
