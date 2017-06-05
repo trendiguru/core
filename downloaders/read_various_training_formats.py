@@ -1457,7 +1457,10 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
         with open(f,'r') as fp:
             lines = fp.readlines()
             for line in lines:
-                print(line)
+                if line.strip == '':
+                    print('empty line')
+                    continue
+                print('got line:'+line)
                 if line.strip()[0]=='#':
                     print('commented line')
                     continue
