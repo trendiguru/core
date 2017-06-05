@@ -410,7 +410,7 @@ class JrPixlevel(caffe.Layer):
             show_visual_output=self.augment_show_visual_output)
 
         if self.save_visual_output:
-            name = name+"after_aug")
+            name = name+"after_aug"
             cv2.imwrite(name+'.jpg',out1)
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,out2)
