@@ -441,17 +441,26 @@ def warp_bbs(bblist_xywh,M):
     :return:
     '''
     bbs_out=[]
+  #  bblist_xywh = [bblist_xywh[0]]
     for bb in bblist_xywh:
         bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
         print('bbs out '+str(bbs_out))
+        print('Mshape '+str(M.shape))
+#        print('cols {}'.format(M.cols))
         src = np.array([
             [bb[0],bb[1]],  #tl
             [bb[0]+bb[2],bb[1]], #tr
             [bb[0],bb[1]+bb[3]],  #bl
             [bb[0]+bb[2],bb[1]+bb[3]]],  #br
              dtype = "float32")
-        dst=cv2.transform(bbs_xy_chans,M)
+     #   src = src.transpose()
+        print('sshape '+str(src.shape))
+        dst = np.dot(src,M[:,0:2]) +M[:,2]
+        print('dest:{}'.format(dst))
+    #    dst=cv2.transform(src,M)
         bbs_out.append(dst)
+
+        return bbs_out
 
 def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
                    img_file='/home/jeremy/projects/core/images/female1.jpg'):
@@ -460,7 +469,7 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
         print('none img arr')
         return
     center = (img_arr.shape[0]/2,img_arr.shape[1]/2)
-    angle = 10
+    angle = 0
     scale = 1
     offset_x = 0
     offset_y = 0
@@ -472,8 +481,18 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
     warped_bbs = warp_bbs(bbs,M)
     height,width=img_arr.shape[0:2]
     warped_image = cv2.warpAffine(img_arr,M,(width,height))
-    read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
-
+    for bb in warped_bbs:
+        for i in range(bb.shape[0]):
+            bbi=(int(bb[i,0]),int(bb[i,1]))
+            print('bb0 '+str(bbi))
+            cv2.circle(warped_image,bbi,10,(100,255,100))
+    #     cv2.circle(warped_image,(bb[0,:]),10,(100,255,100))
+    #     cv2.circle(warped_image,(bb[1,:]),10,(100,100,255))
+    #     cv2.circle(warped_image,(bb[2,:]),10,(255,100,100))
+    #     cv2.circle(warped_image,(bb[3,:]),10,(255,255,100))
+    # #read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
+            cv2.imshow('out',warped_image)
+        cv2.waitKey(0)
 
 
 def test_flip_bbs(imgfile='images/female1.jpg'):

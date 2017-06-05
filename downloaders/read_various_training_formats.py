@@ -1525,7 +1525,7 @@ def show_annotations_xywh(bb_xywh,img_arr):
         return
     h,w = img_arr.shape[0:2]
     for bb in bb_xywh:
-        print('bb_xywh {} {} h{} w{}'.format(bb,h,w))
+        print('bb_xywh {} h{} w{}'.format(bb,h,w))
         cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),color=[100,255,100],thickness=2)
         img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
         cv2.imshow('img',img_arr)
