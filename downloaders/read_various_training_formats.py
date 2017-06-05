@@ -1457,7 +1457,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
         with open(f,'r') as fp:
             lines = fp.readlines()
             for line in lines:
-                if line.strip == '':
+                if line.strip() == '':
                     print('empty line')
                     continue
                 print('got line:'+line)
@@ -1485,6 +1485,30 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                         fp2.writelines(lines)
                 else:
                     print('not accepting image')
+
+def inspect_yolo_annotation(annotation_file,img_file):
+    classes = constants.hls_yolo_categories
+    img_arr = cv2.imread(img_file)
+    with open(annotation_file,'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if line.strip() == '':
+                print('empty line')
+                continue
+            print('got line:'+line)
+            if line.strip()[0]=='#':
+                print('commented line')
+                continue
+            object_class,bb0,bb1,bb2,bb3 = line.split()
+            bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+            classname = classes[int(object_class)]
+            print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
+            cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
+            img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
+            cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+            cv2.imshow('img',img_arr)
+        cv2.imshow('out',img_arr)
+        cv2.waitKey(0)
 
 def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True,movie=False):
     '''
@@ -1552,9 +1576,8 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    inspect_yolo_annotations(dir='/home/jeremy/projects/core/',
-                             yolo_annotation_folder='images',img_folder='images',manual_verification=False,
-                             annotation_filter='_yololabels.txt')
+    inspect_yolo_annotation('/home/jeremy/projects/core/images/female1_yololabels.txt',
+                            '/home/jeremy/projects/core/images/female1.jpg')
 
 
     # inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/VOC2005_1',

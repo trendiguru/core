@@ -1645,6 +1645,16 @@ def negatives_for_hydra(web_prefix='https://tg-training.storage.googleapis.com',
 
 
 if __name__ == "__main__": #
+
+    dir = '/home/jeremy/projects/core/'
+    iamge_dir = 'images'
+    annotation_dir='images'
+    from trendi.downloaders import read_various_training_formats
+    read_various_training_formats.inspect_yolo_annotations(dir='/home/jeremy/projects/core/',
+                             yolo_annotation_folder='images',img_folder='images',manual_verification=False,
+                             annotation_filter='_yololabels.txt')
+
+
 #    write_cats_from_db_to_textfile()
 #    split_to_trainfile_and_testfile()
 #    inspect_textfile()
