@@ -1422,6 +1422,20 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                              yolo_annotation_folder='object-detection-crowdailabels',img_folder='object-detection-crowdai',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
+    '''
+    the yolo annotations are like
+    object1_class bb0 bb1 bb2 bb3
+    object2_class bb0 bb1 bb2 bb3
+    where the bbs are x_center,y_center,width,height in percentages of image size
+    :param dir:
+    :param yolo_annotation_folder:
+    :param img_folder:
+    :param annotation_filter:
+    :param image_filter:
+    :param manual_verification:
+    :param verified_folder:
+    :return:
+    '''
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
     annotation_dir = os.path.join(dir,yolo_annotation_folder)
     verified_dir = os.path.join(dir,verified_folder)
@@ -1534,6 +1548,9 @@ if __name__ == "__main__":
 
     inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/VOC2005_1',
                              yolo_annotation_folder='labels',img_folder='images',manual_verification=False)
+
+    inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/',
+                             yolo_annotation_folder='labels_2007-2012',img_folder='images_2007-2012',manual_verification=False)
 
 #    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
 
