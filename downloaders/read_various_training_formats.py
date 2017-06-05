@@ -1494,6 +1494,7 @@ def inspect_yolo_annotation(annotation_file,img_file):
         logging.warning('got no image')
         return
     h,w = img_arr.shape[0:2]
+    bbs=[]
     with open(annotation_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -1506,6 +1507,7 @@ def inspect_yolo_annotation(annotation_file,img_file):
                 continue
             object_class,bb0,bb1,bb2,bb3 = line.split()
             bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+            bbs.append(bb_xywh)
             classname = classes[int(object_class)]
             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
             cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
@@ -1514,6 +1516,7 @@ def inspect_yolo_annotation(annotation_file,img_file):
             cv2.imshow('img',img_arr)
         cv2.imshow('out',img_arr)
         cv2.waitKey(0)
+    return(bbs,img_arr)
 
 def show_annotations_xywh(bb_xywh,img_arr):
     classes = constants.hls_yolo_categories
@@ -1637,8 +1640,8 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
             k=cv2.waitKey(0)
 
 #test augs
-            augment_images.transform_image_and_bbs(img_arr,bb_list_xywh)
-
+            img_arr,bb_list = augment_images.transform_image_and_bbs(img_arr,bb_list_xywh)
+            show_annotations_xywh(bb_list,img_arr)
 
 if __name__ == "__main__":
 

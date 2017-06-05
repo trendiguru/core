@@ -11,6 +11,7 @@ import inspect
 from trendi.utils import imutils
 from trendi import constants
 from trendi import Utils
+from trendi.downloaders import read_various_training_formats
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("simple_example")
@@ -341,7 +342,7 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
         flip_lr = np.random.randint(2)
         if flip_lr:
      #       logging.debug('db D1')
-            img_array = cv2.flip(img_array,1)
+            img_array = cv2.flip(img_arr,1)
             bb_list_xywh = flip_bbs(bb_list_xywh,flip_rl=True)
     if do_mirror_ud:
         flip_ud = np.random.randint(2)
@@ -377,6 +378,7 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+    bb_list_xywh = warp_bbs(bb_list_xywh)
     if crop_size:
         if crop_dx is None:
             crop_dx = 0
@@ -429,6 +431,41 @@ def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
             bb[1] = bottom_margin
         print('final bb {}'.format(bb))
     return bb_list_xywh
+
+def warp_bbs(bblist_xywh,M):
+    '''
+    apply affine xfrom matrix m to bbs
+    :param bblist_xywh:
+    :param M:
+    :return:
+    '''
+    M =
+    for bb in bblist_xywh:
+        bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
+        bbs_out=cv2.transform(bbs_xy_chans)
+        print('bbs out '+str(bbs_out))
+
+def test_warp_bbs(annotationfile='/home/jeremy/projects/core/images/female1_yololabels.txt',
+                   imgfile='/home/jeremy/projects/core/images/female1.jpg'):
+    bblist,img_arr = inspect_yolo_annotation(annotationfile,imgfile)
+
+    bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file):
+    bbs =
+    img_arr=cv2.imread(imgfile)
+    if img_arr is None:
+        print('none img arr')
+        return
+    center = (img_arr.shape[0]/2,img_arr.shape[1]/2)
+    angle = 10
+    scale = 1
+    offset_x = 0
+    offset_y = 0
+    M = cv2.getRotationMatrix2D(center, angle,scale)
+#    logging.debug('db G')
+    M[0,2]=M[0,2]+offset_x
+    M[1,2]=M[1,2]+offset_y
+    print('M:'+str(M))
+
 
 def test_flip_bbs(imgfile='images/female1.jpg'):
     img_arr=cv2.imread(imgfile)
