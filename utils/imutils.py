@@ -1787,7 +1787,7 @@ def x1y1x2y2_to_xywh(bb):
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
 
-def xywh_to_yolo(bb_xywh,image_dims):
+def xywh_to_yolo(bb_xywh,dims_hxw):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
@@ -1799,10 +1799,10 @@ def xywh_to_yolo(bb_xywh,image_dims):
     '''
     x_center = bb_xywh[0]+bb_xywh[2]/2.0   #x1+w/2
     y_center = bb_xywh[1]+bb_xywh[3]/2.0    #y1+h/2
-    x_p = float(x_center)/image_dims[0]    #center x as %
-    y_p = float(y_center)/image_dims[1]   #center y as %
-    w_p = float(bb_xywh[2])/image_dims[0] #width as %
-    h_p = float(bb_xywh[3])/image_dims[1]  #height as %
+    x_p = float(x_center)/dims_hxw[1]    #center x as %
+    y_p = float(y_center)/dims_hxw[0]   #center y as %
+    w_p = float(bb_xywh[2])/dims_hxw[1] #width as %
+    h_p = float(bb_xywh[3])/dims_hxw[0]  #height as %
     return([x_p,y_p,w_p,h_p])
 
 def x1x2y1y2_to_yolo(size, box):

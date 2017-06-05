@@ -1458,6 +1458,9 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
             lines = fp.readlines()
             for line in lines:
                 print(line)
+                if line.strip()[0]=='#':
+                    print('commented line')
+                    continue
                 object_class,bb0,bb1,bb2,bb3 = line.split()
                 bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
                 classname = classes[int(object_class)]
@@ -1546,11 +1549,16 @@ def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=Tru
 
 if __name__ == "__main__":
 
-    inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/VOC2005_1',
-                             yolo_annotation_folder='labels',img_folder='images',manual_verification=False)
+    inspect_yolo_annotations(dir='/home/jeremy/projects/core/',
+                             yolo_annotation_folder='images',img_folder='images',manual_verification=False,
+                             annotation_filter='_yololabels.txt')
 
+
+    # inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/VOC2005_1',
+    #                          yolo_annotation_folder='labels',img_folder='images',manual_verification=False)
+    #
     inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/VOCdevkit/',
-                             yolo_annotation_folder='labels_2007-2012',img_folder='images_2007-2012',manual_verification=False)
+                              yolo_annotation_folder='labels_2007-2012',img_folder='images_2007-2012',manual_verification=False)
 
 #    read_and_convert_deepfashion_bbfile(multiprocess_it=False,visual_output=True)
 
