@@ -70,8 +70,9 @@ class NeurodollResource:
                 combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
                 ret['combined_output'] = combined_output
                 ret['mask'] = combined_output
+                ret['show_results'] = True
                 if combined_output is not None:
-                    raise falcon.HTTPFound("http://13.69.27.202:8099/")
+                    ret['success'] = True
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
@@ -103,12 +104,14 @@ class NeurodollResource:
                 else:
                     ret["error"] = "No mask from ND"
 
-
+        
         except Exception as e:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
-            url = req.get_param('image')
-            ret['url'] = url
+        
+        if ret["success"] and ret["show_results"]:
+            raise falcon.HTTPFound("http://13.69.27.202:8099/")
+        
         resp.data = json.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
