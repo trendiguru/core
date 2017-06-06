@@ -73,7 +73,7 @@ class NeurodollResource:
                 if combined_output is not None:
                     ret['results_page'] = "http://13.69.27.202:8099/"
                     ret['success'] = True
-                    ret['found_categories'] = np.unique(combined_output)
+                    ret['found_categories'] = list(np.unique(combined_output))
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
