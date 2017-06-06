@@ -30,7 +30,7 @@ class NeurodollResource:
 
     def on_get(self, req, resp):
         """Handles GET requests"""
-        print "Reached on_get, send to post"
+        print "Reached on_get"
         category_index = req.get_param('categoryIndex')
         if category_index:
             print('got req for category index '+str(category_index))
