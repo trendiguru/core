@@ -229,188 +229,6 @@ def mask_to_multichannel(mask_arr,n_channels):
     return output_arr
 #
 
-def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
-                    gaussian_or_uniform_distributions='uniform',
-                   max_angle = 15,
-                   max_offset_x = 20,max_offset_y = 20,
-                   max_scale=1.1,min_scale=0.5,
-                   max_noise_level= 10,noise_type='gauss',
-                   max_blur=10,
-                   max_color_rotation=10,
-                   do_mirror_lr=True,do_mirror_ud=False,
-                   crop_size=None,  #in (h,w)
-                   visual_output=False,save_visual_output=False,save_path=None):
-    '''
-    generates a bunch of variations of image by rotating, translating, noising etc, also xform bb list (list of bbs in [x,y,w,h] form expected)
-    if you don't want a particular xform set n_whatever = 0
-    original image dimensions are preserved
-
-    :param img_filename_or_nparray:
-    :param bb_list_xywh:
-    :param gaussian_or_uniform_distributions:
-    :param max_angle:
-    :param max_offset_x:
-    :param max_offset_y:
-    :param max_scale:
-    :param max_noise_level:
-    :param noise_type:
-    :param max_blur:
-    :param max_color_rotation:
-    :param do_mirror_lr:
-    :param do_mirror_ud:
-    :param crop_size:
-    :param visual_output:
-    :param save_visual_output:
-    :param save_path:
-    :return:
-    '''
-    img_arr = Utils.get_cv2_img_array(img_filename_or_nparray)
-
-    angle = 0
-    offset_x = 0
-    offset_y = 0
-    scale = 0
-    noise_level = 0
-    blur = 0
-    crop_dx = 0
-    crop_dy = 0
-    x_room = 0
-    y_room = 0
-    height,width = img_arr.shape[0:2]
-
-    if crop_size:
-        #calculate headroom left after crop. actual crop is random within that headroom iirc
-        x_room = width - crop_size[1]
-        y_room = height - crop_size[0]
-        if x_room<0 or y_room<0:
-            logging.debug('crop {} is larger than incoming image {} so I need to resize'.format(crop_size,img_arr.shape[0:2]))
-            if x_room<y_room:
-                factor = float(crop_size[1])/width
-                resize_size = (int(height*factor),crop_size[1])
-                #todo - resize the bb too
-            else:
-                factor = float(crop_size[0])/height
-                resize_size = (width,int(crop_size[1]*factor))
-                #todo  - resize the bb too
-            logging.debug('resizing {} to {} so as to accomodate crop to {}'.format(img_arr.shape[0:2],resize_size,crop_size))
-            img_arr=imutils.resize_keep_aspect(img_arr,output_size=resize_size,careful_with_the_labels=True)
-            bb_list_xywh = resize_bbs(bb_list_xywh,img_arr.shape)
-
-        height,width = img_arr.shape[0:2]
-        x_room = width - crop_size[1]
-        y_room = height - crop_size[0]
-        if x_room<0 or y_room<0:
-            logging.info('crop {} is still larger than incoming image {} !!!!! something went wrong'.format(crop_size,img_arr.shape[0:2]))
-
-    eps = 0.1
-
-    if gaussian_or_uniform_distributions == 'gaussian':
-        angle = np.random.normal(0,max_angle)
-        offset_x = np.random.normal(0,max_offset_x)
-        offset_y = np.random.normal(0,max_offset_y)
-        scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
-        noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
-        blur = max(0,np.random.normal(0,max_blur)) #blur >= 0
-        if x_room:
-            crop_dx = max(-float(x_room)/2,int(np.random.normal(0,float(x_room)/2)))
-            crop_dx = min(crop_dx,float(x_room)/2)
-        if y_room:
-            crop_dy = max(-float(y_room)/2,int(np.random.normal(0,float(y_room)/2)))
-            crop_dy = min(crop_dy,float(y_room)/2)
-
-    else:  #uniform distributed random numbers
-        angle = np.random.uniform(-max_angle,max_angle)
-        offset_x = np.random.uniform(-max_offset_x,max_offset_x)
-        offset_y = np.random.uniform(-max_offset_y,max_offset_y)
-        scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
-        noise_level = np.random.uniform(0,max_noise_level)
-        blur = np.random.uniform(0,max_blur)
-        if x_room:
-            crop_dx = int(np.random.uniform(0,float(x_room)/2))
-        if y_room:
-            crop_dy = int(np.random.uniform(0,float(y_room)/2))
-
-    if len(img_arr.shape) == 3:
-        depth = img_arr.shape[2]
-    else:
-        depth = 1
-    center = (width/2,height/2)
-  #  logging.debug('db C')
-
-    flip_lr = 0
-    flip_ud = 0
-    if do_mirror_lr:
-        flip_lr = np.random.randint(2)
-        if flip_lr:
-     #       logging.debug('db D1')
-            img_array = cv2.flip(img_arr,1)
-            bb_list_xywh = flip_bbs(bb_list_xywh,flip_rl=True)
-    if do_mirror_ud:
-        flip_ud = np.random.randint(2)
-        if flip_ud:
-            img_array = cv2.flip(img_array,0)
-            bb_list_xywh = flip_bbs(bb_list_xywh,flip_ud=True)
-    logging.debug('augment w {} h {} cropdx {} cropdy {} cropsize {} depth {} fliplr {} flipdud {} center {} angle {} scale {} offx {} offy {}'.format(
-        width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
-
-#    img_arr = do_xform(img_arr,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
-
-
-   #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
-#    logging.debug('db D')
- #       logging.debug('db D2')
-
-#    logging.debug('db E')
-
-# Python: cv2.transform(src, m[, dst]) -> dst
-#http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
-    if blur:  #untested
-        img_array = cv2.blur(img_array,(int(blur),int(blur)))   #fails if blur is nonint or 0
-
-    if noise_level:  #untested
-        img_array = add_noise(img_array,noise_type,noise_level)
-#    logging.debug('db F')
-
-  #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
-    M = cv2.getRotationMatrix2D(center, angle,scale)
-#    logging.debug('db G')
-    M[0,2]=M[0,2]+offset_x
-    M[1,2]=M[1,2]+offset_y
- #   print('M='+str(M))
-#                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
-    img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
-    bb_list_xywh = warp_bbs(bb_list_xywh,M,img_array.shape[0:2])
-
-    if crop_size:
-        if crop_dx is None:
-            crop_dx = 0
-        if crop_dy is None:
-            crop_dy = 0
-        left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
-        right = int(round(left + crop_size[1]))
-        top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
-        bottom = int(round(top + crop_size[0]))
-        logging.debug('incoming wxh {}x{} cropsize {}'.format(width,height,crop_size))
- #       print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
-        if depth!=1:
-            img_array = img_array[top:bottom,left:right,:]
-            #print img_arr.shape
-        else:
-            img_array = img_array[top:bottom,left:right]
-
-
-    if visual_output:
-        logging.debug('img_arr shape:'+str(img_arr.shape))
-        cv2.imshow('xformed',img_arr)
-        k = cv2.waitKey(0)
-
-    if save_path:
-        lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(10)]
-        name = "".join(lst)+'.jpg'
-        cv2.imwrite(save_path,img_arr)
-        #cv2.imwrite(name,img_arr)
-    return img_arr
-
 def resize_bbs(bblist_xywh,orig_shape,new_shape,img_arr=None):
     x_factor = new_shape[1]/orig_shape[1]
     y_factor = new_shape[0]/orig_shape[0]
@@ -553,6 +371,19 @@ def test_flip_bbs(imgfile='images/female1.jpg'):
     cv2.imshow('flip',im2)
     cv2.waitKey(0)
 
+def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right))
+    for bb in bblist_xywh:
+        x1=bb[0]
+        y1=bb[1]
+        x2=bb[0]+bb[2]
+        y2=bb[1]+bb[3]
+        new_bb=[(x1-left,y1-top,bb[2],bb[3]]
+        if
+
+
+    bb_list_xywh = crop_bblist(bb_list_xywh,(height,width),(top,bottom,left,right))
+
+    bb_list_xywh = crop_bblist(bb_list_xywh,(height,width))
 
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
@@ -799,35 +630,24 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
             img_array = img_array[top:bottom,left:right]
     return img_array
 #  raw_input('enter to cont')
-def do_xform_bblist_xywh(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
+
+def do_xform_bblist_xywh(bb_list_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
     #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
 #    logging.debug('db D')
     if flip_lr:
  #       logging.debug('db D1')
-        img_array = cv2.flip(img_array,1)
+        flip_bbs((height,width),bb_list_xywh,flip_rl=True,flip_ud=False)
+#        img_array = cv2.flip(img_array,1)
  #       logging.debug('db D2')
 
     if flip_ud:
-        img_array = cv2.flip(img_array,0)
-#    logging.debug('db E')
+        flip_bbs((height,width),bb_list_xywh,flip_rl=False,flip_ud=True)
 
-# Python: cv2.transform(src, m[, dst]) -> dst
-#http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
-    if blur:  #untested
-        img_array = cv2.blur(img_array,(int(blur),int(blur)))   #fails if blur is nonint or 0
-
-    if noise_level:  #untested
-        img_array = add_noise(img_array,noise_type,noise_level)
-#    logging.debug('db F')
-
-  #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
     M = cv2.getRotationMatrix2D(center, angle,scale)
-#    logging.debug('db G')
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
- #   print('M='+str(M))
-#                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
-    img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+
+    bb_list_xywh = warp_bbs(bb_list_xywh,M,(height,width))
     if crop_size:
         if crop_dx is None:
             crop_dx = 0
@@ -839,12 +659,8 @@ def do_xform_bblist_xywh(img_array,width,height,crop_dx,crop_dy,crop_size,depth,
         bottom = int(round(top + crop_size[0]))
         logging.debug('incoming wxh {}x{} cropsize {}'.format(width,height,crop_size))
  #       print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
-        if depth!=1:
-            img_array = img_array[top:bottom,left:right,:]
-            #print img_arr.shape
-        else:
-            img_array = img_array[top:bottom,left:right]
-    return img_array
+        bb_list_xywh = crop_bblist(bb_list_xywh,(height,width),(top,bottom,left,right))
+    return bb_list_xywh
 
 def generate_images_for_directory(fulldir,**args):
     only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
