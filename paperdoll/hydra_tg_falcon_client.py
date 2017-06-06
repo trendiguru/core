@@ -18,6 +18,7 @@ def hydra_tg(image_arrary_or_url,thresholds=constants.hydra_tg_thresholds):
     print('data in hydra_tg_falcon_cllient:'+str(data))
 #    dumped_data = json.dumps({"imageUrl": image_arrary_or_url})
 #    resp = requests.get(CLASSIFIER_ADDRESS, dumped_data)
+    print('data being sent to classifier at:'+str(data))
     resp = requests.get(CLASSIFIER_ADDRESS, data)
     if  200 <= resp.status_code < 300:
         return json.loads(resp.content)
