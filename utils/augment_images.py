@@ -395,9 +395,9 @@ def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_
         return
     height,width=img_arr.shape[0:2]
     top = 160
-    bottom = height - 100
-    left = 80
-    right = width -120
+    bottom = height - 330
+    left = 290
+    right = width -270
     cropped_image = img_arr[top:bottom,left:right]
     cropped_bbs = crop_bblist(bbs,(height,width),(top,bottom,left,right))
     for bb in cropped_bbs:
