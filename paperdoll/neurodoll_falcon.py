@@ -27,62 +27,26 @@ class NeurodollResource:
     def __init__(self):
         print "Loaded Resource"
 
-
     def on_get(self, req, resp):
-        """Handles GET requests"""
         print "Reached on_get"
-        category_index = req.get_param('categoryIndex')
-        if category_index:
-            print('got req for category index '+str(category_index))
-            category_index = int(category_index)
-
-        threshold = req.get_param('threshold')
-        if threshold:
-            print('got threshold '+str(threshold))
-
-        get_multilabel_results = req.get_param('getMultilabelResults')
-        if get_multilabel_results:
-            print('got req for multi:'+str(get_multilabel_results))
-            get_multilabel_results = get_multilabel_results in ["true", "True", True]
-
-        get_combined_results = req.get_param('getCombinedResults')
-        if get_combined_results in ["true", "True", True]:
-            print('got req for  combined:'+str(get_combined_results))
-            get_combined_results = True
-
-        get_layer_output = req.get_param('getLayerOutput')
-        if get_layer_output:
-            print('got req for layer output:'+str(get_layer_output))
-
-        get_all_graylevels = req.get_param('getAllGrayLevels')
-        if get_all_graylevels in ["true", "True", True]:
-            print('got req for all graylevels:'+str(get_all_graylevels))
-            get_all_graylevels = True
-
-        get_category_graylevel = req.get_param('getCategoryGraylevel')
-        if get_category_graylevel:
-            print('got req for graylevel:'+str(get_category_graylevel))
-
-
-        posted_url = req.get_param('imageUrl')
-        if posted_url:
-            print('got url:'+posted_url)
-
+        
         ret = {"success": False}
+        
+        # Query Params
+        category_index = req.get_param_as_int('categoryIndex')
+        threshold = req.get_param('threshold')
+        get_multilabel_results = req.get_param_as_bool('getMultilabelResults')
+        get_combined_results = req.get_param_as_bool('getCombinedResults')
+        get_layer_output = req.get_param_as_bool('getLayerOutput')
+        get_all_graylevels = req.get_param_as_bool('getAllGrayLevels')
+        get_category_graylevel = req.get_param_as_bool('getCategoryGraylevel')
+
+        image_url = req.get_param('imageUrl', required=True)
 
         try:
-            if posted_url:
-                img = Utils.get_cv2_img_array(posted_url)
-            else:
-                data = msgpack.loads(req.stream.read())
-                img = data.get("image")
-            print('got img of type:'+str(type(img)))
-#            if get_yolo_results:
-#                yolo_output = mydet.get_yolo_results(img)
-#                ret['yolo_output'] = yolo_output
-#                print('yolo output:'+str(yolo_output))
+            img = Utils.get_cv2_img_array(image_url)
 
-        #all graylevel outputs
+            #all graylevel outputs
             if get_all_graylevels:
                 all_graylevel_output = neurodoll.get_all_category_graylevels(img)
                 ret['all_graylevel_output'] = all_graylevel_output
@@ -91,7 +55,7 @@ class NeurodollResource:
                     ret["success"] = True
 
 
-        # multilabel alone
+            # multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll.get_multilabel_output(img)
                 ret['multilabel_output'] = multilabel_output
@@ -100,23 +64,16 @@ class NeurodollResource:
                     ret["success"] = True
                 # ret["success"] = bool(multilabel_output)
 
-        # combined multilabel and nd
+            # combined multilabel and nd
             if get_combined_results:
-
-                #for old nd with all cats
-#                combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
-                #for new nd with 'v3 cats' - upper cover , fullbody etc.
-                try:
-                    combined_output = None
-                    combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
-                    ret['combined_output'] = combined_output
-                    ret['mask'] = combined_output
-                except:
-                    print('error in combine_neurodoll_v3labels_and_multilabel_using_graylevel ')
+                combined_output = None
+                combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
+                ret['combined_output'] = combined_output
+                ret['mask'] = combined_output
                 if combined_output is not None:
                     ret["success"] = True
 
-        # yonti style - single category mask
+            # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
 
             if category_index:
@@ -129,19 +86,15 @@ class NeurodollResource:
                 if ret["mask"] is not None:
                     ret["success"] = True
 
-        # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
+            # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
             if get_layer_output:
                 ret["layer_output"] = neurodoll.get_layer_output(img,layer=get_layer_output)
-
-#                url_or_np_array,required_image_size=(256,256),layer='myfc7'
-
-
                 if ret["layer_output"] is not None:
                     ret["success"] = True
                 else:
                     ret["error"] = "no layer output obtained"
 
-        # regular neurodoll call
+            # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:
                 print "No special params, inferring..."
                 ret["mask"],labels = neurodoll.infer_one(img)
@@ -156,67 +109,36 @@ class NeurodollResource:
             ret["error"] = traceback.format_exc()
             url = req.get_param('image')
             ret['url'] = url
-        resp.data = msgpack.dumps(ret)
-        resp.content_type = 'application/x-msgpack'
+        resp.data = json.dumps(ret)
+        resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
-
-#        return(ret)
-
+        return(ret)
 
     def on_post(self, req, resp):
         print "Reached on_post"
-        category_index = req.get_param('categoryIndex')
-        if category_index:
-            print('got req for category index '+str(category_index))
-            category_index = int(category_index)
-
-        threshold = req.get_param('threshold')
-        if threshold:
-            print('got threshold '+str(threshold))
-
-        get_multilabel_results = req.get_param('getMultilabelResults')
-        if get_multilabel_results:
-            print('got req for multi:'+str(get_multilabel_results))
-            get_multilabel_results = get_multilabel_results in ["true", "True", True]
-
-        get_combined_results = req.get_param('getCombinedResults')
-        if get_combined_results in ["true", "True", True]:
-            print('got req for  combined:'+str(get_combined_results))
-            get_combined_results = True
-
-        get_layer_output = req.get_param('getLayerOutput')
-        if get_layer_output:
-            print('got req for layer output:'+str(get_layer_output))
-
-        get_all_graylevels = req.get_param('getAllGrayLevels')
-        if get_all_graylevels in ["true", "True", True]:
-            print('got req for all graylevels:'+str(get_all_graylevels))
-            get_all_graylevels = True
-
-        get_category_graylevel = req.get_param('getCategoryGraylevel')
-        if get_category_graylevel:
-            print('got req for graylevel:'+str(get_category_graylevel))
-
-
-        posted_url = req.get_param('imageUrl')
-        if posted_url:
-            print('got url:'+posted_url)
-
+        
         ret = {"success": False}
+        
+        # Query Params
+        category_index = req.get_param_as_int('categoryIndex')
+        threshold = req.get_param('threshold')
+        get_multilabel_results = req.get_param_as_bool('getMultilabelResults')
+        get_combined_results = req.get_param_as_bool('getCombinedResults')
+        get_layer_output = req.get_param_as_bool('getLayerOutput')
+        get_all_graylevels = req.get_param_as_bool('getAllGrayLevels')
+        get_category_graylevel = req.get_param_as_bool('getCategoryGraylevel')
+
+        image_url = req.get_param('imageUrl')
 
         try:
-            if posted_url:
-                img = Utils.get_cv2_img_array(posted_url)
+            if image_url:
+                img = Utils.get_cv2_img_array(image_url)
             else:
                 data = msgpack.loads(req.stream.read())
                 img = data.get("image")
-            print('got img of type:'+str(type(img)))
-#            if get_yolo_results:
-#                yolo_output = mydet.get_yolo_results(img)
-#                ret['yolo_output'] = yolo_output
-#                print('yolo output:'+str(yolo_output))
 
-        #all graylevel outputs
+
+            #all graylevel outputs
             if get_all_graylevels:
                 all_graylevel_output = neurodoll.get_all_category_graylevels(img)
                 ret['all_graylevel_output'] = all_graylevel_output
@@ -225,7 +147,7 @@ class NeurodollResource:
                     ret["success"] = True
 
 
-        # multilabel alone
+            # multilabel alone
             if get_multilabel_results:
                 multilabel_output = neurodoll.get_multilabel_output(img)
                 ret['multilabel_output'] = multilabel_output
@@ -234,23 +156,16 @@ class NeurodollResource:
                     ret["success"] = True
                 # ret["success"] = bool(multilabel_output)
 
-        # combined multilabel and nd
+            # combined multilabel and nd
             if get_combined_results:
-
-                #for old nd with all cats
-#                combined_output = neurodoll.combine_neurodoll_and_multilabel(img)
-                #for new nd with 'v3 cats' - upper cover , fullbody etc.
-                try:
-                    combined_output = None
-                    combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
-                    ret['combined_output'] = combined_output
-                    ret['mask'] = combined_output
-                except:
-                    print('error in combine_neurodoll_v3labels_and_multilabel_using_graylevel ')
+                combined_output = None
+                combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
+                ret['combined_output'] = combined_output
+                ret['mask'] = combined_output
                 if combined_output is not None:
                     ret["success"] = True
 
-        # yonti style - single category mask
+            # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
 
             if category_index:
@@ -263,19 +178,15 @@ class NeurodollResource:
                 if ret["mask"] is not None:
                     ret["success"] = True
 
-        # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
+            # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
             if get_layer_output:
                 ret["layer_output"] = neurodoll.get_layer_output(img,layer=get_layer_output)
-
-#                url_or_np_array,required_image_size=(256,256),layer='myfc7'
-
-
                 if ret["layer_output"] is not None:
                     ret["success"] = True
                 else:
                     ret["error"] = "no layer output obtained"
 
-        # regular neurodoll call
+            # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:
                 print "No special params, inferring..."
                 ret["mask"],labels = neurodoll.infer_one(img)
