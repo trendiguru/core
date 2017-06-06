@@ -379,8 +379,8 @@ def transform_image_and_bbs(img_filename_or_nparray,bb_list_xywh,
  #   print('M='+str(M))
 #                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
     img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+    bb_list_xywh = warp_bbs(bb_list_xywh,M,img_array.shape[0:2])
 
-    bb_list_xywh = warp_bbs(bb_list_xywh)
     if crop_size:
         if crop_dx is None:
             crop_dx = 0
@@ -564,7 +564,8 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
                    max_color_rotation=0,
                    do_mirror_lr=True,do_mirror_ud=False,
                    crop_size=None,
-                    show_visual_output=False,save_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21):
+                    show_visual_output=False,save_visual_output=False,mask_filename_or_nparray=None,n_mask_channels=21,
+                            bblist_xywh=None):
     '''
     generates a bunch of variations of image by rotating, translating, noising etc
     total # images generated is n_angles*n_offsets_x*n_offsets_y*n_noises*n_scales*etc, these are done in nested loops
@@ -735,6 +736,9 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             cv2.imwrite(maskname,mask_arr)
 #        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
+
+      if bblist_xywh is not None:
+        bblist_xywh = do_xform_bblist_xywh[bblist_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y]
     #cleanup image - not required since we broke img into channels
    #     for u in np.unique(output_img):
     #        if not u in input_file_or_np_arr:
@@ -795,6 +799,53 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
             img_array = img_array[top:bottom,left:right]
     return img_array
 #  raw_input('enter to cont')
+def do_xform_bblist_xywh(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
+    #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
+#    logging.debug('db D')
+    if flip_lr:
+ #       logging.debug('db D1')
+        img_array = cv2.flip(img_array,1)
+ #       logging.debug('db D2')
+
+    if flip_ud:
+        img_array = cv2.flip(img_array,0)
+#    logging.debug('db E')
+
+# Python: cv2.transform(src, m[, dst]) -> dst
+#http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#void%20transform%28InputArray%20src,%20OutputArray%20dst,%20InputArray%20m%29
+    if blur:  #untested
+        img_array = cv2.blur(img_array,(int(blur),int(blur)))   #fails if blur is nonint or 0
+
+    if noise_level:  #untested
+        img_array = add_noise(img_array,noise_type,noise_level)
+#    logging.debug('db F')
+
+  #  print('center {0} angle {1} scale {2} h {3} w {4} dx {5} dy {6} noise {7} blur {8}'.format(center,angle, scale,height,width,offset_x,offset_y,noise_level,blur))
+    M = cv2.getRotationMatrix2D(center, angle,scale)
+#    logging.debug('db G')
+    M[0,2]=M[0,2]+offset_x
+    M[1,2]=M[1,2]+offset_y
+ #   print('M='+str(M))
+#                                xformed_img_arr  = cv2.warpAffine(noised,  M, (width,height),dst=dest,borderMode=cv2.BORDER_TRANSPARENT)
+    img_array  = cv2.warpAffine(img_array,  M, (width,height),borderMode=cv2.BORDER_REPLICATE)
+    if crop_size:
+        if crop_dx is None:
+            crop_dx = 0
+        if crop_dy is None:
+            crop_dy = 0
+        left = int(round(max(0,round(float(width-crop_size[1])/2) - crop_dx)))
+        right = int(round(left + crop_size[1]))
+        top = int(round(max(0,round(float(height-crop_size[0])/2) - crop_dy)))
+        bottom = int(round(top + crop_size[0]))
+        logging.debug('incoming wxh {}x{} cropsize {}'.format(width,height,crop_size))
+ #       print('left {} right {} top {} bottom {} crop_dx {} crop_dy {} csize {} xroom {} yroom {}'.format(left,right,top,bottom,crop_dx,crop_dy,crop_size,x_room,y_room))
+        if depth!=1:
+            img_array = img_array[top:bottom,left:right,:]
+            #print img_arr.shape
+        else:
+            img_array = img_array[top:bottom,left:right]
+    return img_array
+
 def generate_images_for_directory(fulldir,**args):
     only_files = [f for f in os.listdir(fulldir) if os.path.isfile(os.path.join(fulldir, f))]
     for a_file in only_files:
