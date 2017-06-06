@@ -1443,28 +1443,28 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
             pngname = wwwname+'.png'
             jpgname = wwwname+'.jpg'
             multilabelname = wwwname+'.txt'
-            print('saving png to '+pngname)
+            print('WWW - saving png to '+pngname)
             cv2.imwrite(pngname,final_mask)
-            print('saving jpg to '+jpgname)
+            print('WWW - saving jpg to '+jpgname)
             cv2.imwrite(jpgname,image)
             nice_output = imutils.show_mask_with_labels(final_mask,constants.ultimate_21,save_images=True,original_image=jpgname,visual_output=False)
             legendname = jpgname.replace('.jpg','_legend.jpg')
             htmlname = os.path.join('/data/www','results.html')
 
-            print('saving json to '+multilabelname)
-            print('ml output '+str(multilabel_output))
+            print('WWW - saving json to '+multilabelname)
+            print('WWW - ml output '+str(multilabel_output))
             Utils.ensure_file(multilabelname)
             with open(multilabelname,'w') as fp:
-                print('dumping')
+                print('WWW - dumping')
                 json.dump(multilabel_output,fp,indent=4)
                 fp.close()
-            print('reading '+htmlname)
+            print('WWW -reading '+htmlname)
             Utils.ensure_file(htmlname)
             with open(htmlname,'r') as fp2:
                 lines = fp2.readlines()
                 fp2.close()
 
-            print('writing')
+            print('WWW - writing')
 
             newlines = [os.path.basename(legendname)+'\n',os.path.basename(pngname)+'\n',
                         os.path.basename(jpgname)+'\n',os.path.basename(multilabelname)+'\n']+lines
