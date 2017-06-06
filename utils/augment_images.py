@@ -372,19 +372,23 @@ def test_flip_bbs(imgfile='images/female1.jpg'):
     cv2.waitKey(0)
 
 def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right))
+    new_bblist = []
     for bb in bblist_xywh:
         x1=bb[0]
         y1=bb[1]
         x2=bb[0]+bb[2]
         y2=bb[1]+bb[3]
-        new_bb=[(x1-left,y1-top,bb[2],bb[3]]
-        if
+        new_x1=x1-left if x1>left else 0
+        new_y1=y1-top if y1>top else 0
+        new_x2=x2 if right>x2 else right
+        new_y2=y2 if bottom>y2 else bottom
+        new_bb=[new_x1,new_y1,new_x2-new_x1,new_y2-new_y1]
+        new_bblist.append(new_bb)
+    return new_bblist
 
-
-    bb_list_xywh = crop_bblist(bb_list_xywh,(height,width),(top,bottom,left,right))
-
-    bb_list_xywh = crop_bblist(bb_list_xywh,(height,width))
-
+def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
+                   img_file='/home/jeremy/projects/core/images/female1.jpg'):
+    pass
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
