@@ -305,6 +305,7 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224),multilab
 #################################
 
     if multilabel_from_binaries:
+        print('getting ml from binaries')
         dic1 = bmfc.mlb(url_or_np_array)
         if not dic1['success']:
             logging.debug('nfc mlb not a success')
@@ -324,7 +325,9 @@ def get_multilabel_output(url_or_np_array,required_image_size=(224,224),multilab
         return output
 
     elif multilabel_source == 'hydra':
+        print('getting ml from hydra')
         dict = hydra_tg_falcon_client.hydra_tg(url_or_np_array)
+        print('returning {}'.format(dict))
         return dict
 
     else:
