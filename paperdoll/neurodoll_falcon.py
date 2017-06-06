@@ -12,6 +12,7 @@ nvidia-docker run -it -v /data:/data -p 8080:8080 --name nd eu.gcr.io/test-paper
 import traceback
 import falcon
 from jaweson import json, msgpack
+import numpy as np
 
 from .. import neurodoll
     #, neurodoll_single_category
@@ -66,13 +67,13 @@ class NeurodollResource:
 
             # combined multilabel and nd
             if get_combined_results:
-                combined_output = None
                 combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
-                ret['combined_output'] = combined_output
-                ret['mask'] = combined_output
-                ret['show_results'] = True
+                # ret['combined_output'] = combined_output
+                # ret['mask'] = combined_output
                 if combined_output is not None:
+                    ret['results_page'] = "http://13.69.27.202:8099/"
                     ret['success'] = True
+                    ret['found_categories'] = list(np.unique(combined_output))
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
@@ -109,7 +110,7 @@ class NeurodollResource:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
         
-        if ret["success"] and ret["show_results"]:
+        if ret["success"] and ret.get("redirect"):
             raise falcon.HTTPFound("http://13.69.27.202:8099/")
         
         resp.data = json.dumps(ret)
