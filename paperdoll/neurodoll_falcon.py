@@ -71,7 +71,7 @@ class NeurodollResource:
                 ret['combined_output'] = combined_output
                 ret['mask'] = combined_output
                 if combined_output is not None:
-                    falcon.HTTPFound("http://13.69.27.202:8099/")
+                    raise falcon.HTTPFound("http://13.69.27.202:8099/")
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
