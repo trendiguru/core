@@ -457,7 +457,7 @@ def warp_bbs(bblist_xywh,M):
         print('sshape '+str(src.shape))
         dst = np.dot(src,M[:,0:2]) +M[:,2]
         print('dest:{}'.format(dst))
-    #    dst=cv2.transform(src,M)
+        dst=cv2.transform(src,M)
         bbs_out.append(dst)
 
         return bbs_out

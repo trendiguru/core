@@ -30,6 +30,8 @@ class NeurodollResource:
 
     def on_get(self, req, resp):
         """Handles GET requests"""
+        print "Reached on_get, send to post"
+        self.on_post(req,resp)
         quote = {
             'quote': 'I\'ve always been more interested in the future than in the past.',
             'author': 'Grace Hopper'
