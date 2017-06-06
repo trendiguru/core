@@ -44,7 +44,7 @@ class NeurodollResource:
         image_url = req.get_param('imageUrl', required=True)
 
         try:
-            img = Utils.get_cv2_img_array(image_url)
+            img = image_url # Utils.get_cv2_img_array(image_url)
 
             #all graylevel outputs
             if get_all_graylevels:
@@ -70,8 +70,9 @@ class NeurodollResource:
                 combined_output = neurodoll.combine_neurodoll_v3labels_and_multilabel(img)
                 ret['combined_output'] = combined_output
                 ret['mask'] = combined_output
+                ret['show_results'] = True
                 if combined_output is not None:
-                    ret["success"] = True
+                    ret['success'] = True
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
@@ -103,12 +104,14 @@ class NeurodollResource:
                 else:
                     ret["error"] = "No mask from ND"
 
-
+        
         except Exception as e:
             traceback.print_exc()
             ret["error"] = traceback.format_exc()
-            url = req.get_param('image')
-            ret['url'] = url
+        
+        if ret["success"] and ret["show_results"]:
+            raise falcon.HTTPFound("http://13.69.27.202:8099/")
+        
         resp.data = json.dumps(ret)
         resp.content_type = 'application/json'
         resp.status = falcon.HTTP_200
@@ -132,7 +135,7 @@ class NeurodollResource:
 
         try:
             if image_url:
-                img = Utils.get_cv2_img_array(image_url)
+                img = image_url # Utils.get_cv2_img_array(image_url)
             else:
                 data = msgpack.loads(req.stream.read())
                 img = data.get("image")
