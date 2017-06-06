@@ -159,7 +159,8 @@ class NeurodollResource:
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
-        return(ret)
+
+#        return(ret)
 
 
     def on_post(self, req, resp):
