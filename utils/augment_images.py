@@ -346,7 +346,7 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
 #     cv2.circle(warped_image,(bb[2,:]),10,(255,100,100))
 #     cv2.circle(warped_image,(bb[3,:]),10,(255,255,100))
 # #read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
-        cv2.imshow('out',warped_image)
+    cv2.imshow('out',warped_image)
     cv2.waitKey(0)
 
 
@@ -371,7 +371,7 @@ def test_flip_bbs(imgfile='images/female1.jpg'):
     cv2.imshow('flip',im2)
     cv2.waitKey(0)
 
-def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right))
+def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right)):
     new_bblist = []
     for bb in bblist_xywh:
         x1=bb[0]
@@ -380,15 +380,39 @@ def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right))
         y2=bb[1]+bb[3]
         new_x1=x1-left if x1>left else 0
         new_y1=y1-top if y1>top else 0
-        new_x2=x2 if right>x2 else right
-        new_y2=y2 if bottom>y2 else bottom
+        new_x2=x2-left if right>x2-left else right
+        new_y2=y2-top if bottom>y2-top else bottom
         new_bb=[new_x1,new_y1,new_x2-new_x1,new_y2-new_y1]
         new_bblist.append(new_bb)
     return new_bblist
 
 def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
                    img_file='/home/jeremy/projects/core/images/female1.jpg'):
-    pass
+    bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file)
+    orig_img = copy.copy(img_arr)
+    if img_arr is None:
+        print('none img arr')
+        return
+    height,width=img_arr.shape[0:2]
+    top = 120
+    bottom = height - 100
+    left = 80
+    right = width -120
+    cropped_image = img_arr[top:bottom,left:right]
+    cropped_bbs = crop_bblist(bbs,(height,width),(top,bottom,left,right))
+    for bb in cropped_bbs:
+        print('bb0 '+str(bb))
+        cropped_image = imutils.bb_with_text(cropped_image,bb,'cropped',boxcolor=[255,255.200])
+        # for pt in bb:
+        #     cv2.circle(warped_image,pt,10,(100,255,100))
+#     cv2.circle(warped_image,(bb[0,:]),10,(100,255,100))
+#     cv2.circle(warped_image,(bb[1,:]),10,(100,100,255))
+#     cv2.circle(warped_image,(bb[2,:]),10,(255,100,100))
+#     cv2.circle(warped_image,(bb[3,:]),10,(255,255,100))
+# #read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
+    cv2.imshow('out',cropped_image)
+    cv2.waitKey(0)
+
 
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
@@ -572,14 +596,11 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
         return img_arr,mask_arr
 
-      if bblist_xywh is not None:
+    if bblist_xywh is not None:
         bblist_xywh = do_xform_bblist_xywh[bblist_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y]
-    #cleanup image - not required since we broke img into channels
-   #     for u in np.unique(output_img):
-    #        if not u in input_file_or_np_arr:
-#   #             print('found new val in target:'+str(u))
-     #           output_img[output_img==u] = 0
-############
+        return img_arr,bblist_xywh
+        #assuming that there is either mask or bblist not both
+
     if save_visual_output:
         lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(10)]
         name = "".join(lst)+'.jpg'
@@ -785,7 +806,8 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    test_warp_bbs()
+    test_crop_bblist()
+#    test_warp_bbs()
 
     if(0):
         dir = '/home/jeremy/Dropbox/tg/pixlabels/test_256x256_novariations'
