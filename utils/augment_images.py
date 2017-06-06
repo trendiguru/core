@@ -7,6 +7,7 @@ import time
 import string
 import random
 import inspect
+import copy
 
 from trendi.utils import imutils
 from trendi import constants
@@ -433,7 +434,7 @@ def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
         print('final bb {}'.format(bb))
     return bb_list_xywh
 
-def warp_bbs(bblist_xywh,M):
+def warp_bbs(bblist_xywh,M,img_arr=None):
     '''
     apply affine xfrom matrix m to bbs
     :param bblist_xywh:
@@ -443,33 +444,64 @@ def warp_bbs(bblist_xywh,M):
     bbs_out=[]
   #  bblist_xywh = [bblist_xywh[0]]
     for bb in bblist_xywh:
-        bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
-        print('bbs out '+str(bbs_out))
+  #      bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
+  #      print('bbs out '+str(bbs_out))
         print('Mshape '+str(M.shape))
 #        print('cols {}'.format(M.cols))
+#         src = np.array([
+#             [bb[0],bb[1]],  #tl
+#             [bb[0]+bb[2],bb[1]], #tr
+#             [bb[0],bb[1]+bb[3]],  #bl
+#             [bb[0]+bb[2],bb[1]+bb[3]]],  #br
+#              dtype = "float32")
+#      #   src = src.transpose()
+#         print('sshape '+str(src.shape))
+#         dst = np.dot(src,M[:,0:2]) +M[:,2]
+#         print('dest from npdot:{}'.format(dst))
         src = np.array([
-            [bb[0],bb[1]],  #tl
-            [bb[0]+bb[2],bb[1]], #tr
-            [bb[0],bb[1]+bb[3]],  #bl
-            [bb[0]+bb[2],bb[1]+bb[3]]],  #br
+            [[bb[0],bb[1]]],  #tl
+            [[bb[0]+bb[2],bb[1]]], #tr
+            [[bb[0],bb[1]+bb[3]]],  #bl
+            [[bb[0]+bb[2],bb[1]+bb[3]]]],  #br
              dtype = "float32")
-     #   src = src.transpose()
-        print('sshape '+str(src.shape))
-        dst = np.dot(src,M[:,0:2]) +M[:,2]
-        print('dest:{}'.format(dst))
-        dst=cv2.transform(src,M)
-        bbs_out.append(dst)
+        dst2=cv2.transform(src,M)
+#        print('dst from cv2'+str(dst2))
+        dst_bb = [(int(i[0][0]),int(i[0][1])) for i in dst2]
+#        print('original dstbb '+str(dst_bb))
+        minx=dst_bb[0][0]
+        miny=dst_bb[0][1]
+        maxx=dst_bb[0][0]
+        maxy=dst_bb[0][1]
+        for pt in dst_bb:
+            if img_arr is not None:
+                cv2.circle(img_arr,pt,10,(200,155,100))
+            if pt[0]<minx:
+                minx=pt[0]
+            elif pt[0]>maxx:
+                maxx=pt[0]
+            if pt[1]<miny:
+                miny=pt[1]
+            elif pt[1]>maxy:
+                maxy=pt[1]
 
-        return bbs_out
+        dst_bb=[minx,miny,maxx-minx,maxy-miny]
+ #       print('dst_bb:'+str(dst_bb))
+        bbs_out.append(dst_bb)
+    # if img_arr is not None:
+    #     cv2.imshow('circs',img_arr)
+    #     cv2.waitKey(0)
+  #  print('bbs out')
+    return bbs_out
 
 def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
                    img_file='/home/jeremy/projects/core/images/female1.jpg'):
     bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file)
+    orig_img = copy.copy(img_arr)
     if img_arr is None:
         print('none img arr')
         return
     center = (img_arr.shape[0]/2,img_arr.shape[1]/2)
-    angle = 0
+    angle = 10
     scale = 1
     offset_x = 0
     offset_y = 0
@@ -478,21 +510,21 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
     M[0,2]=M[0,2]+offset_x
     M[1,2]=M[1,2]+offset_y
     print('M:'+str(M))
-    warped_bbs = warp_bbs(bbs,M)
     height,width=img_arr.shape[0:2]
     warped_image = cv2.warpAffine(img_arr,M,(width,height))
+    warped_bbs = warp_bbs(bbs,M,warped_image)
     for bb in warped_bbs:
-        for i in range(bb.shape[0]):
-            bbi=(int(bb[i,0]),int(bb[i,1]))
-            print('bb0 '+str(bbi))
-            cv2.circle(warped_image,bbi,10,(100,255,100))
-    #     cv2.circle(warped_image,(bb[0,:]),10,(100,255,100))
-    #     cv2.circle(warped_image,(bb[1,:]),10,(100,100,255))
-    #     cv2.circle(warped_image,(bb[2,:]),10,(255,100,100))
-    #     cv2.circle(warped_image,(bb[3,:]),10,(255,255,100))
-    # #read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
-            cv2.imshow('out',warped_image)
-        cv2.waitKey(0)
+        print('bb0 '+str(bb))
+        warped_image = imutils.bb_with_text(warped_image,bb,'out')
+        # for pt in bb:
+        #     cv2.circle(warped_image,pt,10,(100,255,100))
+#     cv2.circle(warped_image,(bb[0,:]),10,(100,255,100))
+#     cv2.circle(warped_image,(bb[1,:]),10,(100,100,255))
+#     cv2.circle(warped_image,(bb[2,:]),10,(255,100,100))
+#     cv2.circle(warped_image,(bb[3,:]),10,(255,255,100))
+# #read_various_training_formats.show_annotations_xywh(warped_bbs,warped_image)
+        cv2.imshow('out',warped_image)
+    cv2.waitKey(0)
 
 
 def test_flip_bbs(imgfile='images/female1.jpg'):
