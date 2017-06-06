@@ -434,19 +434,20 @@ def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
         print('final bb {}'.format(bb))
     return bb_list_xywh
 
-def warp_bbs(bblist_xywh,M,img_arr=None):
+def warp_bbs(bblist_xywh,M,dims_hw,img_arr=None):
     '''
     apply affine xfrom matrix m to bbs
     :param bblist_xywh:
     :param M:
-    :return:
+    :return: bblist_xywh after affine xform
     '''
     bbs_out=[]
   #  bblist_xywh = [bblist_xywh[0]]
+    print('Mshape '+str(M.shape))
+    print('img dims '+str(dims_hw))
     for bb in bblist_xywh:
   #      bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
   #      print('bbs out '+str(bbs_out))
-        print('Mshape '+str(M.shape))
 #        print('cols {}'.format(M.cols))
 #         src = np.array([
 #             [bb[0],bb[1]],  #tl
@@ -483,7 +484,10 @@ def warp_bbs(bblist_xywh,M,img_arr=None):
                 miny=pt[1]
             elif pt[1]>maxy:
                 maxy=pt[1]
-
+        minx = max(0,minx)
+        miny = max(0,miny)
+        maxx = min(dims_hw[1],maxx)
+        maxy = min(dims_hw[0],maxy)
         dst_bb=[minx,miny,maxx-minx,maxy-miny]
  #       print('dst_bb:'+str(dst_bb))
         bbs_out.append(dst_bb)
@@ -493,6 +497,7 @@ def warp_bbs(bblist_xywh,M,img_arr=None):
   #  print('bbs out')
     return bbs_out
 
+
 def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yololabels.txt',
                    img_file='/home/jeremy/projects/core/images/female1.jpg'):
     bbs,img_arr = read_various_training_formats.inspect_yolo_annotation(annotation_file,img_file)
@@ -501,10 +506,10 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
         print('none img arr')
         return
     center = (img_arr.shape[0]/2,img_arr.shape[1]/2)
-    angle = 10
-    scale = 1
-    offset_x = 0
-    offset_y = 0
+    angle = 20
+    scale = 1.3
+    offset_x = 20
+    offset_y = 30
     M = cv2.getRotationMatrix2D(center, angle,scale)
 #    logging.debug('db G')
     M[0,2]=M[0,2]+offset_x
@@ -512,7 +517,7 @@ def test_warp_bbs(annotation_file='/home/jeremy/projects/core/images/female1_yol
     print('M:'+str(M))
     height,width=img_arr.shape[0:2]
     warped_image = cv2.warpAffine(img_arr,M,(width,height))
-    warped_bbs = warp_bbs(bbs,M,warped_image)
+    warped_bbs = warp_bbs(bbs,M,img_arr.shape[0:2],img_arr=warped_image)
     for bb in warped_bbs:
         print('bb0 '+str(bb))
         warped_image = imutils.bb_with_text(warped_image,bb,'out')
