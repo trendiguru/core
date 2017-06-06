@@ -496,7 +496,7 @@ def interleaved_dir_of_dirs_to_lmdb(dbname,dir_of_dirs,positive_filter=None,max_
 
     #You can also open up and inspect an existing LMDB database from Python:
 # assuming here that dataum.data, datum.channels, datum.width etc all exist as in dir_of_dirs_to_lmdb
-def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_dir,resize=None,avg_pixval=None,max_pixval=None,
+def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir=None,label_dir=None,imagesfile=None,resize=None,avg_pixval=None,max_pixval=None,
                      use_visual_output=False,imgsuffix='.jpg',labelsuffix='.png',do_shuffle=False,maxfiles=1000000000,labels=None):
     '''
     this puts data images and label images into separate dbs
@@ -517,10 +517,21 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
 # maybe try randomize instead of interleave, cn use del list[index]
     print
     print('writing to lmdb {} lbldb {} filter {} lblsuffix {} resize {} avgPixval {} max {}'.format(image_dbname,label_dbname,imgsuffix,labelsuffix,resize,avg_pixval,max_pixval))
-    if imgsuffix:
-        imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
+    if imagesfile:
+        imagefiles = []
+        labelfiles = []
+        with open(imagesfile,'r') as fp:
+            lines = fp.readlines()
+            fp.close()
+        for line in lines:
+            img,lbl = line.split()
+        imagefiles.append(img)
+        labelfiles.append(lbl)
     else:
-        imagefiles = [f for f in os.listdir(image_dir)]
+        if imgsuffix:
+            imagefiles = [f for f in os.listdir(image_dir) if imgsuffix in f]
+        else:
+            imagefiles = [f for f in os.listdir(image_dir)]
     imagefiles.sort()
     if do_shuffle:
         random.shuffle(imagefiles)
@@ -540,8 +551,12 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
 
     with env_image.begin(write=True) as txn_image:      # txn is a Transaction object
         with env_label.begin(write=True) as txn_label:      # txn is a Transaction object
+            n=0
             for a_file in imagefiles:
-                label_file = a_file.split(imgsuffix)[0]+labelsuffix
+                if imagesfile:
+                    label_file = labelfiles[n]
+                else:
+                    label_file = a_file.split(imgsuffix)[0]+labelsuffix
                 full_image_name = os.path.join(image_dir,a_file)
                 full_label_name = os.path.join(label_dir,label_file)
                 #label_name = a_file.split(imgsuffix)[0]
@@ -680,6 +695,9 @@ def label_images_and_images_to_lmdb(image_dbname,label_dbname,image_dir,label_di
                     e = sys.exc_info()[0]
                     logging.warning('some problem with label lmdb:'+str(e))
                 print
+                n=n+1
+            #end of for loop over images/labels
+
         env_label.close()
     env_image.close()
     return image_number
