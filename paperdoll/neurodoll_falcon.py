@@ -44,7 +44,7 @@ class NeurodollResource:
         image_url = req.get_param('imageUrl', required=True)
 
         try:
-            img = Utils.get_cv2_img_array(image_url)
+            img = image_url # Utils.get_cv2_img_array(image_url)
 
             #all graylevel outputs
             if get_all_graylevels:
@@ -132,7 +132,7 @@ class NeurodollResource:
 
         try:
             if image_url:
-                img = Utils.get_cv2_img_array(image_url)
+                img = image_url # Utils.get_cv2_img_array(image_url)
             else:
                 data = msgpack.loads(req.stream.read())
                 img = data.get("image")
