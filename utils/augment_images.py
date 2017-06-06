@@ -399,9 +399,15 @@ def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_
     left = 290
     right = width -270
     cropped_image = img_arr[top:bottom,left:right]
+    print('cropped size '+str(cropped_image.shape))
     cropped_bbs = crop_bblist(bbs,(height,width),(top,bottom,left,right))
     for bb in cropped_bbs:
         print('bb0 '+str(bb))
+        assert(bb[0]>=0),'x1 < 0'
+        assert(bb[1]>=0),'y1 < 0'
+        assert(bb[2]+bb[0]<=cropped_image.shape[1]),'x2 > w'
+        assert(bb[3]+bb[1]<=cropped_image.shape[0]),'y2 > h'
+        assert(1>2),'test'
         cropped_image = imutils.bb_with_text(cropped_image,bb,'cropped',boxcolor=[255,255.200])
         # for pt in bb:
         #     cv2.circle(warped_image,pt,10,(100,255,100))
