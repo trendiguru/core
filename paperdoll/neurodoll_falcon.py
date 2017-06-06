@@ -31,13 +31,17 @@ class NeurodollResource:
     def on_get(self, req, resp):
         """Handles GET requests"""
         print "Reached on_get, send to post"
-        self.on_post(req,resp)
+        ret = self.on_post(req,resp)
+        resp.data = msgpack.dumps(ret)
+        resp.content_type = 'application/x-msgpack'
+        resp.status = falcon.HTTP_200
+
         quote = {
             'quote': 'I\'ve always been more interested in the future than in the past.',
             'author': 'Grace Hopper'
         }
         print('neurodollresource got get request')
-        resp.body = json.dumps(quote)
+#        resp.body = json.dumps(quote)
 
     def on_post(self, req, resp):
         print "Reached on_post"
@@ -169,7 +173,7 @@ class NeurodollResource:
         resp.data = msgpack.dumps(ret)
         resp.content_type = 'application/x-msgpack'
         resp.status = falcon.HTTP_200
-
+        return(ret)
 
 api = falcon.API()
 api.add_route('/nd/', NeurodollResource())
