@@ -826,7 +826,7 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
     print('{} lines in {}'.format(len(lines),train_testfile))
     for line in lines:
         if replace_this is not None:
-            line.replace(replace_this,with_this)
+            line = line.replace(replace_this,with_this)
         print('got line '+str(line))
         tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=False,classlabels=constants.hls_yolo_categories)
         annotations = tgdict['annotations']

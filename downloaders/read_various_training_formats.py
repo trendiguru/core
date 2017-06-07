@@ -230,17 +230,26 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
     '''
 #    img_file = txt_file.replace('.txt','.png')
+    print('yolo to tgdict {} {} '.format(txt_file,img_file))
     if txt_file is not None and img_file is None:
         txt_dir = os.path.dirname(txt_file)
         par_dir = Utils.parent_dir(txt_file)
-        img_dir = par_dir.replace('labels','')
+        if 'labels' in par_dir:
+            img_dir = par_dir.replace('labels','')
         img_name = os.path.basename(txt_file).replace('.txt',img_suffix)
         img_file = os.path.join(img_dir,img_name)
         print('looking for image file '+img_file)
     elif img_file is not None and txt_file is None:
         img_dir = os.path.dirname(img_file)
-        par_dir = Utils.parent_dir(img_file)
-        labels_dir = par_dir+'labels'
+        par_dir = Utils.parent_dir(img_dir)
+
+        if '/images' in par_dir:
+            labels_dir = par_dir.replace('/images','/labels')
+        elif 'images' in par_dir:
+            labels_dir = par_dir.replace('images','')
+            labels_dir = os.path.join(labels_dir,'labels')
+        else:
+            labels_dir = par_dir+'labels'
         lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
         print('looking for image file '+txt_file)
