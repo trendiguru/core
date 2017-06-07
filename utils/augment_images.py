@@ -820,14 +820,18 @@ def add_noise(image, noise_typ,level):
         return noisy
 
 def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
-        visual_output=False,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy',labels_dir='labels'):
+        visual_output=False,replace_this=None,with_this=None,labels_dir='labels'):
     with open(train_testfile,'r') as fp:
         lines = fp.readlines()
     print('{} lines in {}'.format(len(lines),train_testfile))
     for line in lines:
         if replace_this is not None:
             line.replace(replace_this,with_this)
-        read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=False,classlabels=constants.hls_yolo_categories):
+        print('got line '+str(line))
+        tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=False,classlabels=constants.hls_yolo_categories)
+        annotations = tgdict['annotations']
+        print(annotations)
+
 
 
 
@@ -840,7 +844,7 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    augment_bbs(visual_output=True)
+    augment_bbs(visual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
 #    test_crop_bblist()
 #    test_warp_bbs()
 

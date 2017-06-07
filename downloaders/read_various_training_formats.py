@@ -220,7 +220,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def yolo_to_tgdict(txt_file,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories):
+def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -230,13 +230,23 @@ def yolo_to_tgdict(txt_file,img_file=None,visual_output=False,img_suffix='.jpg',
     {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
     '''
 #    img_file = txt_file.replace('.txt','.png')
-    if img_file is None:
+    if txt_file is not None and img_file is None:
         txt_dir = os.path.dirname(txt_file)
         par_dir = Utils.parent_dir(txt_file)
         img_dir = par_dir.replace('labels','')
         img_name = os.path.basename(txt_file).replace('.txt',img_suffix)
         img_file = os.path.join(img_dir,img_name)
         print('looking for image file '+img_file)
+    elif img_file is not None and txt_file is None:
+        img_dir = os.path.dirname(img_file)
+        par_dir = Utils.parent_dir(img_file)
+        labels_dir = par_dir+'labels'
+        lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
+        txt_file = os.path.join(labels_dir,lbl_name)
+        print('looking for image file '+txt_file)
+
+    print('lblfile {} imgfile {}'.format(txt_file,img_file))
+
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
