@@ -238,17 +238,16 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
             img_dir = par_dir.replace('labels','')
         img_name = os.path.basename(txt_file).replace('.txt',img_suffix)
         img_file = os.path.join(img_dir,img_name)
-        print('looking for image file '+img_file)
+        logging.debug('looking for image file '+img_file)
     elif img_file is not None and txt_file is None:
         img_dir = os.path.dirname(img_file)
         par_dir = Utils.parent_dir(img_dir)
-        print('pardir {} imgdir {}'.format(par_dir,img_dir))
+        logging.debug('pardir {} imgdir {}'.format(par_dir,img_dir))
         labels_dir = os.path.join(par_dir,'labels')
         lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
-        print('looking for lbl file '+txt_file+' LABELNAME '+str(lbl_name))
 
-    print('lblfile {} imgfile {}'.format(txt_file,img_file))
+    logging.debug('lblfile {} imgfile {}'.format(txt_file,img_file))
 
     img_arr = cv2.imread(img_file)
     if img_arr is None:
@@ -262,8 +261,11 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     result_dict['dimensions_h_w_c'] = img_arr.shape
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
-        print('{} bbs found'.format(len(lines)))
+        logging.debug('{} bbs found'.format(len(lines)))
         for line in lines:
+            if line.strip()[0]=='#':
+                logging.debug('got comment line')
+                continue
             class_index,x,y,w,h = line.split()
             x_p=float(x)
             y_p=float(y)
@@ -279,16 +281,17 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
             x2 = x_center+w/2
             y1 = y_center-h/2
             y2 = y_center+h/2
-            print('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(class_index,x_center,y_center,w,h,x1,y1,x2,y2))
+            logging.info('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(class_index,x_center,y_center,w,h,x1,y1,x2,y2))
             if visual_output:
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
                 cv2.imshow('img',img_arr)
             object_dict={}
             object_dict['bbox_xywh'] = [x1,y1,w,h]
             object_dict['object']=class_label
+            result_dict['annotations'].append(object_dict)
         if visual_output:
             cv2.waitKey(0)
-        result_dict['annotations'].append(object_dict)
+
     return result_dict
 
 def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
