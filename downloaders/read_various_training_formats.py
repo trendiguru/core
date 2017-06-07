@@ -242,23 +242,18 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     elif img_file is not None and txt_file is None:
         img_dir = os.path.dirname(img_file)
         par_dir = Utils.parent_dir(img_dir)
-
-        if '/images' in par_dir:
-            labels_dir = par_dir.replace('/images','/labels')
-        elif 'images' in par_dir:
-            labels_dir = par_dir.replace('images','')
-            labels_dir = os.path.join(labels_dir,'labels')
-        else:
-            labels_dir = par_dir+'labels'
+        print('pardir {} imgdir {}'.format(par_dir,img_dir))
+        labels_dir = os.path.join(par_dir,'labels')
         lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
-        print('looking for image file '+txt_file)
+        print('looking for lbl file '+txt_file+' LABELNAME '+str(lbl_name))
 
     print('lblfile {} imgfile {}'.format(txt_file,img_file))
 
     img_arr = cv2.imread(img_file)
     if img_arr is None:
         print('problem reading {}'.format(img_file))
+        return
     image_h,image_w = img_arr.shape[0:2]
     result_dict = {}
  #   result_dict['data']=[]
