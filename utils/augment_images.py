@@ -539,7 +539,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             offset_y = np.random.normal(0,max_offset_y)
         if max_scale and min_scale:
             #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
-            scale = max(eps,np.random.normal(max_scale+min_scale)/2.0,np.abs(max_scale-min_scale)/2.0)) #make sure scale >= eps
+            scale = max(eps,np.random.normal(max_scale+min_scale)/2.0,np.abs(max_scale-min_scale)/2.0) #make sure scale >= eps
         elif max_scale:
             #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
             scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2.0)) #make sure scale >= eps
@@ -561,7 +561,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             offset_y = np.random.uniform(-max_offset_y,max_offset_y)
         if max_scale and min_scale:
             #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
-            scale = np.random.uniform(min_scale,max_scale)) #make sure scale >= eps
+            scale = np.random.uniform(min_scale,max_scale) #make sure scale >= eps
         elif max_scale:
     #        print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
             scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
@@ -843,7 +843,7 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         for annotation in annotations:
             bbox_xywh=annotation['bbox_xywh']
             bbox_list.append(bbox_xywh)
-        generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10)
+        generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
      #   raw_input('ret to cont')
 
 if __name__=="__main__":

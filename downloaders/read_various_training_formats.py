@@ -33,7 +33,8 @@ from trendi import constants
 from trendi import kassper
 #from trendi.utils import augment_images
 
-def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual_output=True):
+def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
+                    image_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
     which has a file for each image, filenames 000000.txt, 000001.txt etc, each file has a line like:
@@ -59,21 +60,59 @@ def read_kitti(dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',visual
     :return:
     '''
 
-    files = os.listdir(dir)
+    files = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
     files.sort()
+    types=[]
+    all_annotations = []
     for f in files:
     #    filename = os.path.join(dir,'%06d.txt'%i)
         if not os.path.exists(f):
             print('{} not found'.format(f))
         else:
             with open(f,'r' ) as fp:
-                line = fp.read()
-                print(line)
-                try:
-                    type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
-                except:
-                    print("error:", sys.exc_info()[0])
-                print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
+                lines = fp.readlines()
+                for line in lines:
+                    print(line)
+                    result_dict = {}
+                 #   result_dict['data']=[]
+                    f_dir = os.path.dirname(f)
+                    par_dir = Utils.parent_dir(f_dir)
+                    f_base = os.path.basename(f)
+
+                    img_file = os.path.join(image_dir,f_base)
+                    result_dict['filename']=img_file
+                    result_dict['annotations']=[]
+                    img_arr = cv2.imread(img_file)
+                    if img_arr is None:
+                        logging.warning('could not get img arr for {}'.format(img_file))
+                    else:
+                        result_dict['dimensions_h_w_c'] = img_arr.shape
+                    try:
+                        type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
+                    except:
+                        print("error:", sys.exc_info()[0])
+                    print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
+                    tg_type = constants.kitti_to_hls_map[type]
+                    bb_xywh = [x1,y1,(x2-x1),(y2-y1)]
+                    if not type in types:
+                        types.append(type)
+                        print('types:'+str(types))
+                    object_dict={}
+                    object_dict['bbox_xywh'] = bb_xywh
+                    object_dict['object']= tg_type
+                    result_dict['annotations'].append(object_dict)
+                if visual_output:
+                    cv2.imshow('yolo2tgdict',img_arr)
+                    cv2.waitKey(0)
+
+    print types
+
+
+    if jsonfile == None:
+        jsonfile = txtfile.replace('.csv','.json').replace('.txt','.json')
+    with open(jsonfile,'w') as fp:
+        json.dump(all_annotations,fp,indent=4)
+        fp.close()
 
 
 def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False,label_destination='labels'):
@@ -142,7 +181,6 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
     if visual_output:
         cv2.destroyAllWindows()
 
-
 def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_dir=None,overwrite=True):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
@@ -183,7 +221,6 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     fp.close()
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
-
 def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None):
     '''
     this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
@@ -1711,7 +1748,10 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
 
 if __name__ == "__main__":
 
-    augment_yolo_bbs()
+    kitti_to_tgdict()
+#
+    #     augment_yolo_bbs()
+
     # inspect_yolo_annotation('/home/jeremy/projects/core/images/female1_yololabels.txt',
     #                         '/home/jeremy/projects/core/images/female1.jpg')
     #
