@@ -242,14 +242,14 @@ def resize_bbs(bblist_xywh,orig_shape,new_shape,img_arr=None):
 
 def flip_bbs(image_dims_h_w, bb_list_xywh,flip_rl=False,flip_ud=False):
     for bb in bb_list_xywh:
-        print('initial bb {}'.format(bb))
+        logging.debug('initial bb {}'.format(bb))
         if flip_rl:
             right_margin = image_dims_h_w[1]-(bb[0]+bb[2])    #width - right bb edge
             bb[0] = right_margin
         if flip_ud:
             bottom_margin = image_dims_h_w[0]-(bb[1]+bb[3])    #height - bottom bb edge
             bb[1] = bottom_margin
-        print('final bb {}'.format(bb))
+        logging.debug('final bb {}'.format(bb))
     return bb_list_xywh
 
 def warp_bbs(bblist_xywh,M,dims_hw,img_arr=None):
@@ -424,7 +424,7 @@ def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_
 def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distributions='uniform',
                    max_angle = 5,
                    max_offset_x = 5,max_offset_y = 5,
-                   max_scale=1.2,
+                   max_scale=1.2,min_scale=0.8,
                    max_noise_level= 0,noise_type='gauss',
                    max_blur=0,
                    max_color_rotation=0,
@@ -537,9 +537,12 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             offset_x = np.random.normal(0,max_offset_x)
         if max_offset_y:
             offset_y = np.random.normal(0,max_offset_y)
-        if max_scale:
+        if max_scale and min_scale:
             #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
-            scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2)) #make sure scale >= eps
+            scale = max(eps,np.random.normal(max_scale+min_scale)/2.0,np.abs(max_scale-min_scale)/2.0)) #make sure scale >= eps
+        elif max_scale:
+            #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
+            scale = max(eps,np.random.normal(1,np.abs(1.0-max_scale)/2.0)) #make sure scale >= eps
         if max_noise_level:
             noise_level = max(0,np.random.normal(0,max_noise_level)) #noise >= 0
         if max_blur:
@@ -556,7 +559,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             offset_x = np.random.uniform(-max_offset_x,max_offset_x)
         if max_offset_y:
             offset_y = np.random.uniform(-max_offset_y,max_offset_y)
-        if max_scale:
+        if max_scale and min_scale:
+            #         print('gscale limits {} {}'.format(1,np.abs(1.0-max_scale)/2))
+            scale = np.random.uniform(min_scale,max_scale)) #make sure scale >= eps
+        elif max_scale:
     #        print('uscale limits {} {}'.format(1-np.abs(1-max_scale),1+np.abs(1-max_scale)))
             scale = np.random.uniform(1-np.abs(1-max_scale),1+np.abs(1-max_scale))
         if max_noise_level:
@@ -603,7 +609,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
 #        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
 
     if bblist_xywh is not None:
-        bblist_xywh = do_xform_bblist_xywh[bblist_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y]
+        bblist_xywh = do_xform_bblist_xywh(bblist_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y)
 
 
     if save_visual_output:
@@ -619,7 +625,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         else:
             if bblist_xywh:
                 for bb in bblist_xywh:
-                    cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,0,255],thickness=5)
+                    cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,50,100],thickness=2)
             cv2.imshow('augmented',img_arr)
             cv2.waitKey(0)
 
@@ -831,10 +837,14 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         print('got line '+str(line))
         tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=True,classlabels=constants.hls_yolo_categories)
         annotations = tgdict['annotations']
-        print('annotations:'+str(annotations))
-
-
-
+        filename = tgdict['filename']
+        print('file {}\nannotations {}'.format(filename,annotations))
+        bbox_list = []
+        for annotation in annotations:
+            bbox_xywh=annotation['bbox_xywh']
+            bbox_list.append(bbox_xywh)
+        generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10)
+     #   raw_input('ret to cont')
 
 if __name__=="__main__":
     print('running main')

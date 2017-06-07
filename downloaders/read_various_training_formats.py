@@ -284,12 +284,12 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
             logging.info('class {} x_c {} y_c {} w {} h {} x x1 {} y1 {} x2 {} y2 {}'.format(class_index,x_center,y_center,w,h,x1,y1,x2,y2))
             if visual_output:
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
-                cv2.imshow('img',img_arr)
             object_dict={}
             object_dict['bbox_xywh'] = [x1,y1,w,h]
             object_dict['object']=class_label
             result_dict['annotations'].append(object_dict)
         if visual_output:
+            cv2.imshow('yolo2tgdict',img_arr)
             cv2.waitKey(0)
 
     return result_dict
