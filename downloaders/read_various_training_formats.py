@@ -1518,6 +1518,55 @@ def inspect_yolo_annotation(annotation_file,img_file):
         cv2.waitKey(0)
     return(bbs,img_arr)
 
+
+###this all seems covered by yolo_to_tgdict, jeez
+# def read_yolo_annotations(img_file,annotation_file=None,
+#             replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy',labels_dir='labels',
+#             classes=constants.hls_yolo_categories):
+#     '''
+#     read yolo annotation, give json with bb_xywh
+#     :param annotation_file:
+#     :param img_file:
+#     :return:
+#     '''
+#     if annotation_file is not None:
+#         pass
+#     else:
+#         if replace_this is not None:
+#             img_file.replace(replace_this,with_this)
+#         pardir = Utils.parent_dir(img_file)
+#         lbldir = os.path.join(pardir,labels_dir)
+#         lblname = os.path.basename(img_file).replace('.jpg','txt')
+#         annotation_file = os.path.join(lbldir,lblname)
+#
+#     img_arr=cv2.imread(img_file)
+#     if img_arr is  None:
+#         print('{} seems bad'.format(img_arr))
+#     h,w=img_arr.shape[0:2]
+#     print('checking label at {}'.format(annotation_file))
+#     bbs=[]
+#     res = {}
+#     with open(annotation_file,'r') as fp:
+#         lines = fp.readlines()
+#         for line in lines:
+#             if line.strip() == '':
+#                 print('empty line')
+#                 continue
+#             print('got line:'+line)
+#             if line.strip()[0]=='#':
+#                 print('commented line')
+#                 continue
+#             object_class,bb0,bb1,bb2,bb3 = line.split()
+#             bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+#             bbs.append(bb_xywh)
+#             classname = classes[int(object_class)]
+#             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
+#         res['bbs_xywh']=bbs
+#         res['filename']=annotation_file
+#         print(res)
+#         return(res)
+
+
 def show_annotations_xywh(bb_xywh,img_arr):
     classes = constants.hls_yolo_categories
     if img_arr is None:

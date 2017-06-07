@@ -827,13 +827,13 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
     for line in lines:
         if replace_this is not None:
             line.replace(replace_this,with_this)
+        read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=False,classlabels=constants.hls_yolo_categories):
+
 
 
 if __name__=="__main__":
     print('running main')
     img_filename = '../images/female1.jpg'
-
-
     img_filename = '../images/female1_256x256.jpg'
     image_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/images/train_200x150'
     label_dir = '/home/jeremy/image_dbs/colorful_fashion_parsing_data/labels_200x150'
