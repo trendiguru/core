@@ -382,7 +382,9 @@ def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right)):
         new_y1=y1-top if y1>top else 0
         new_x2=x2-left if right>x2-left else right
         new_y2=y2-top if bottom>y2-top else bottom
-        new_bb=[new_x1,new_y1,new_x2-new_x1,new_y2-new_y1]
+        new_w = new_x2-new_x1 if  new_x2-new_x1 <= right-left else right-left
+        new_h = new_y2-new_y1 if  new_y2-new_y1 <= bottom-top else bottom-top
+        new_bb=[new_x1,new_y1,new_w,new_h
         new_bblist.append(new_bb)
     return new_bblist
 
