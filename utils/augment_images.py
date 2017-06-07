@@ -601,17 +601,35 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             maskname = name+'_mask.png'
             cv2.imwrite(maskname,mask_arr)
 #        logging.debug('augment output:img arr size {} mask size {}'.format(img_arr.shape,mask_arr.shape))
-        return img_arr,mask_arr
 
     if bblist_xywh is not None:
         bblist_xywh = do_xform_bblist_xywh[bblist_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y]
-        return img_arr,bblist_xywh
-        #assuming that there is either mask or bblist not both
+
 
     if save_visual_output:
         lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(10)]
         name = "".join(lst)+'.jpg'
         cv2.imwrite(name,img_arr)
+        if mask_arr is not None:
+            cv2.imwrite(name.replace('.jpg','.png'),mask_arr)
+    if show_visual_output:
+        if mask_arr:
+            labels = {i:str(i) for i in range(max(np.unique(mask_arr)))}
+            imutils.show_mask_with_labels(mask_arr,labels,original_image=img_arr,visual_output=True)
+        else:
+            if bblist_xywh:
+                for bb in bblist_xywh:
+                    cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,0,255],thickness=5)
+            cv2.imshow('augmented',img_arr)
+            cv2.waitKey(0)
+
+                #assuming that there is either mask or bblist not both
+
+
+    if mask_arr is not None:
+        return img_arr,mask_arr
+    elif bblist_xywh is not None:
+        return img_arr,bblist_xywh
     return img_arr
 
 
@@ -801,6 +819,15 @@ def add_noise(image, noise_typ,level):
         noisy = image + image * gauss
         return noisy
 
+def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
+        visual_output=False,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy',labels_dir='labels'):
+    with open(train_testfile,'r') as fp:
+        lines = fp.readlines()
+    print('{} lines in {}'.format(len(lines),train_testfile))
+    for line in lines:
+        if replace_this is not None:
+            line.replace(replace_this,with_this)
+
 
 if __name__=="__main__":
     print('running main')
@@ -813,7 +840,8 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    test_crop_bblist()
+    augment_bbs(visual_output=True)
+#    test_crop_bblist()
 #    test_warp_bbs()
 
     if(0):
