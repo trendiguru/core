@@ -382,8 +382,8 @@ def crop_bblist(bblist_xywh,(height,width),(top,bottom,left,right)):
         new_y1=y1-top if y1>top else 0
         new_x2=x2-left if right>x2-left else right
         new_y2=y2-top if bottom>y2-top else bottom
-        new_w = new_x2-new_x1 if  new_x2-new_x1 <= right-left else right-left
-        new_h = new_y2-new_y1 if  new_y2-new_y1 <= bottom-top else bottom-top
+        new_w = new_x2-new_x1 if  new_x1+ new_x2-new_x1 <= right-left else right-left-new_x1
+        new_h = new_y2-new_y1 if  new_y1+new_y2-new_y1 <= bottom-top else bottom-top - new_y1
         new_bb=[new_x1,new_y1,new_w,new_h]
         new_bblist.append(new_bb)
     return new_bblist
@@ -409,7 +409,6 @@ def test_crop_bblist(annotation_file='/home/jeremy/projects/core/images/female1_
         assert(bb[1]>=0),'y1 < 0'
         assert(bb[2]+bb[0]<=cropped_image.shape[1]),'x2 > w'
         assert(bb[3]+bb[1]<=cropped_image.shape[0]),'y2 > h'
-        assert(1>2),'test'
         cropped_image = imutils.bb_with_text(cropped_image,bb,'cropped',boxcolor=[255,255.200])
         # for pt in bb:
         #     cv2.circle(warped_image,pt,10,(100,255,100))
