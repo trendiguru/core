@@ -33,8 +33,8 @@ from trendi import constants
 from trendi import kassper
 #from trendi.utils import augment_images
 
-def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
-                    image_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
+def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
+                    image_dir = '/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
                     write_json=True,jsonfile=None):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
@@ -85,12 +85,18 @@ def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls
                     img_arr = cv2.imread(img_file)
                     if img_arr is None:
                         logging.warning('could not get img arr for {}'.format(img_file))
+                        h,w=10000,10000
                     else:
                         result_dict['dimensions_h_w_c'] = img_arr.shape
+                        h,w=img_arr.shape[0:2]
                     try:
                         type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
                     except:
                         print("error:", sys.exc_info()[0])
+                    x1=max(0,int(x1))
+                    y1=max(0,int(y1))
+                    x2=min(w,int(x2))
+                    y2=max(h,int(y2))
                     print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
                     tg_type = constants.kitti_to_hls_map[type]
                     if tg_type is None:
