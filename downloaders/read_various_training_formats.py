@@ -93,10 +93,10 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
                         type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
                     except:
                         print("error:", sys.exc_info()[0])
-                    x1=max(0,int(x1))
-                    y1=max(0,int(y1))
-                    x2=min(w,int(x2))
-                    y2=max(h,int(y2))
+                    x1=max(0,int(float(x1)))
+                    y1=max(0,int(float(y1)))
+                    x2=min(w,int(float(x2)))
+                    y2=max(h,int(float(y2)))
                     print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
                     tg_type = constants.kitti_to_hls_map[type]
                     if tg_type is None:
