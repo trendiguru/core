@@ -33,8 +33,8 @@ from trendi import constants
 from trendi import kassper
 #from trendi.utils import augment_images
 
-def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
-                    image_dir = '/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
+def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/training/label_2',
+                    image_dir = '/data/jeremy/image_dbs/hls/kitti/training/image_2',visual_output=True,
                     write_json=True,jsonfile=None,img_suffix='.png',label_suffix='.txt'):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
@@ -65,73 +65,89 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
     files.sort()
     types=[]
     all_annotations = []
+    n=0
+    n_tot = len(files)
     for f in files:
     #    filename = os.path.join(dir,'%06d.txt'%i)
+        n=n+1
+        print('{}/{} {}'.format(n,n_tot,f))
         if not os.path.exists(f):
             print('{} not found'.format(f))
+            continue
+        result_dict = {}
+     #   result_dict['data']=[]
+        f_dir = os.path.dirname(f)
+        par_dir = Utils.parent_dir(f_dir)
+        f_base = os.path.basename(f)
+        img_base = f_base.replace(label_suffix,img_suffix)
+        img_file = os.path.join(image_dir,img_base)
+        result_dict['filename']=img_file
+        result_dict['annotations']=[]
+        img_arr = cv2.imread(img_file)
+        if img_arr is None:
+            logging.warning('could not get img arr for {}'.format(img_file))
+            h,w=10000,10000
         else:
-            with open(f,'r' ) as fp:
-                lines = fp.readlines()
-                n_tot = len(lines)
-                n=0
-                for line in lines:
-                    n=n+1
-                    print('{}/{} '.format(n,n_tot)+line)
-                    result_dict = {}
-                 #   result_dict['data']=[]
-                    f_dir = os.path.dirname(f)
-                    par_dir = Utils.parent_dir(f_dir)
-                    f_base = os.path.basename(f)
-                    img_base = f_base.replace(label_suffix,img_suffix)
-                    img_file = os.path.join(image_dir,img_base)
-                    result_dict['filename']=img_file
-                    result_dict['annotations']=[]
-                    img_arr = cv2.imread(img_file)
-                    if img_arr is None:
-                        logging.warning('could not get img arr for {}'.format(img_file))
-                        h,w=10000,10000
-                    else:
-                        result_dict['dimensions_h_w_c'] = img_arr.shape
-                        h,w=img_arr.shape[0:2]
-                        print('got image h{} x w{} '.format(h,w))
-                    try:
-                        type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
-                    except:
-                        print("error:", sys.exc_info()[0])
-                    print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
-                    x1=max(0,int(float(x1)))
-                    y1=max(0,int(float(y1)))
-                    x2=min(w,int(float(x2)))
-                    y2=min(h,int(float(y2)))
-                    tg_type = constants.kitti_to_hls_map[type]
-                    print('converted: {} x1 {} y1 {} x2 {} y2 {}'.format(tg_type,x1,y1,x2,y2))
-                    if tg_type is None:
-                        logging.info('tgtype for {} is None, moving on'.format(type))
-                    bb_xywh = [x1,y1,(x2-x1),(y2-y1)]
-                    if not type in types: #this is keeping track of all types seen in case above list is incomplete
-                        types.append(type)
-                        print('types:'+str(types))
-                    object_dict={}
-                    object_dict['bbox_xywh'] = bb_xywh
-                    object_dict['object']= tg_type
-                    object_dict['original_object'] = type
-                    result_dict['annotations'].append(object_dict)
+            result_dict['dimensions_h_w_c'] = img_arr.shape
+            h,w=img_arr.shape[0:2]
+            print('got image h{} x w{} '.format(h,w))
+        with open(f,'r' ) as fp:
+            lines = fp.readlines()
+            n_line=0
+            n_lines=len(lines)
+            for line in lines:
+                n_line=n_line+1
+                print('{}/{} '.format(n_line,n_lines)+ line)
+                try:
+                    elements = line.split()
+                    type=elements[0]
+                    truncated=elements[1]
+                    occluded=elements[2]
+                    alpha=elements[3]
+                    x1=int(float(elements[4]))
+                    y1=int(float(elements[5]))
+                    x2=int(float(elements[6]))
+                    y2=int(float(elements[7]))
+                except:
+                    print("error getting elements from line:", sys.exc_info()[0])
+                print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
+                x1=max(0,x1)
+                y1=max(0,y1)
+                x2=min(w,x2)
+                y2=min(h,y2)
+                tg_type = constants.kitti_to_hls_map[type]
+                print('converted: {} x1 {} y1 {} x2 {} y2 {}'.format(tg_type,x1,y1,x2,y2))
+                if tg_type is None:
+                    logging.info('tgtype for {} is None, moving on'.format(type))
+                    continue
+                bb_xywh = [x1,y1,(x2-x1),(y2-y1)]
+                if not type in types: #this is keeping track of all types seen in case above list is incomplete
+                    types.append(type)
+                    print('types:'+str(types))
+                object_dict={}
+                object_dict['bbox_xywh'] = bb_xywh
+                object_dict['object']= tg_type
+                object_dict['original_object'] = type
+                result_dict['annotations'].append(object_dict)
                 if visual_output:
-                    cv2.imshow('yolo2tgdict',img_arr)
-                    cv2.waitKey(0)
-            all_annotations.append(result_dict)
+                    print('drawing bb')
+                    img_arr=imutils.bb_with_text(img_arr,bb_xywh,tg_type)
+            if visual_output:
+                cv2.imshow('kitti2tgdict',img_arr)
+                cv2.waitKey(0)
+        all_annotations.append(result_dict)
 
-        if write_json:
-            print('writing json')
-            if jsonfile == None:
-                labeldir_alone = label_dir.split('/')[-1]
-                par_dir = Utils.parent_dir(label_dir)
-                jsonfile = os.path.join(par_dir,labeldir_alone+'.json')
-                print('jsonfile:'+str(jsonfile))
-            Utils.ensure_file(jsonfile)
-            with open(jsonfile,'a') as fp:
-                json.dump(all_annotations,fp,indent=4)
-                fp.close()
+    if write_json:
+        print('writing json')
+        if jsonfile == None:
+            labeldir_alone = label_dir.split('/')[-1]
+            par_dir = Utils.parent_dir(label_dir)
+            jsonfile = os.path.join(par_dir,labeldir_alone+'.json')
+            print('jsonfile:'+str(jsonfile))
+        Utils.ensure_file(jsonfile)
+        with open(jsonfile,'w   ') as fp:
+            json.dump(all_annotations,fp,indent=4)
+            fp.close()
 
 
 def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False,label_destination='labels'):
