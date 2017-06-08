@@ -35,7 +35,7 @@ from trendi import kassper
 
 def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
                     image_dir = '/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
-                    write_json=True,jsonfile=None,img_suffix='.jpg',label_suffix='.txt'):
+                    write_json=True,jsonfile=None,img_suffix='.png',label_suffix='.txt'):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
     which has a file for each image, filenames 000000.txt, 000001.txt etc, each file has a line like:
@@ -99,7 +99,7 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
                     x1=max(0,int(float(x1)))
                     y1=max(0,int(float(y1)))
                     x2=min(w,int(float(x2)))
-                    y2=max(h,int(float(y2)))
+                    y2=min(h,int(float(y2)))
                     tg_type = constants.kitti_to_hls_map[type]
                     print('converted: {} x1 {} y1 {} x2 {} y2 {}'.format(tg_type,x1,y1,x2,y2))
                     if tg_type is None:
