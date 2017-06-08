@@ -1638,6 +1638,52 @@ def show_annotations_xywh(bb_xywh,img_arr):
     cv2.imshow('out',img_arr)
     cv2.waitKey(0)
 
+def inspect_tg_dict(d,visual_output=True,check_img_existence=True):
+    '''
+        read file like:
+        [{'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105} ,...]
+    :param jsonfile:
+    :return:
+    '''
+
+    filename = d['filename']
+    annotations = d['annotations']
+    n_bbs = len(annotations)
+    print('filename {} with {} annotations'.format(filename,n_bbs))
+    if 'dimensions_h_w_c' in d:
+        dims = d['dimensions_h_w_c']
+        print('dimensions {}'.format(dims))
+    for object_dict in annotations:
+        bb_xywh = object_dict['bbox_xywh']
+        object_type = object_dict['object']
+
+    print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
+    if check_img_existence:
+        if not os.path.exists(filename):
+            print('WARNNING could not find '+filename+' WARNING')
+    if visual_output:
+        img_arr = cv2.imread(filename)
+        if img_arr is None:
+            print('WARNNING could not read '+filename+' WARNING')
+
+    for annotation in annotations:
+        object = annotation['object']
+        bb_xywh = annotation['bbox_xywh']
+        if visual_output:
+            imutils.bb_with_text(img_arr,bb_xywh,object)
+        if not object in object_counts:
+            object_counts[object] = 1
+        else:
+            object_counts[object] = object_counts[object] + 1
+    if visual_output:
+        cv2.imshow('out',img_arr)
+        cv2.waitKey(0)
+        if movie:
+            out.write(img_arr)
+
+
+
 def inspect_json(jsonfile='rio.json',visual_output=False,check_img_existence=True,movie=False):
     '''
         read file like:
