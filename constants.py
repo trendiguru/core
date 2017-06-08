@@ -337,8 +337,9 @@ hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shir
                        'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
 
 
-kitti_to_hls_map = {'Pedestrian':'person', 'Truck':'truck', 'Car':'car', 'Cyclist':'person', 'DontCare':'None', 'Misc':'None', 'Van':'truck', 'Tram':'truck', 'Person_sitting':'person']
-
+kitti_to_hls_map = {'Pedestrian':'person', 'Truck':'truck', 'Car':'car', 'Cyclist':'person', 'DontCare':None,
+                    'Misc':None, 'Van':'truck', 'Tram':'truck', 'Person_sitting':'person'}
+#only stickler is ;'cyclist', is that a bicyucle or a person , chose person since people are better than bikes (usually)
 
 
 #van changed to bus to allow use of pascal voc#

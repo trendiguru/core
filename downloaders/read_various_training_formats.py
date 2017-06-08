@@ -93,8 +93,10 @@ def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls
                         print("error:", sys.exc_info()[0])
                     print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
                     tg_type = constants.kitti_to_hls_map[type]
+                    if tg_type is None:
+                        logging.info('tgtype for {} is None, moving on'.format(type))
                     bb_xywh = [x1,y1,(x2-x1),(y2-y1)]
-                    if not type in types:
+                    if not type in types: #this is keeping track of all types seen in case above list is incomplete
                         types.append(type)
                         print('types:'+str(types))
                     object_dict={}
@@ -104,6 +106,7 @@ def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls
                 if visual_output:
                     cv2.imshow('yolo2tgdict',img_arr)
                     cv2.waitKey(0)
+            all_annotations.append(result_dict)
 
     print types
 
