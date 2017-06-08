@@ -19,7 +19,7 @@ from os import listdir, getcwd
 from os.path import join
 import json
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 from multiprocessing import Pool
 from functools import partial
 from itertools import repeat
@@ -1570,7 +1570,6 @@ def inspect_yolo_annotation(annotation_file,img_file):
             cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
             img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
             cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
-            cv2.imshow('img',img_arr)
         cv2.imshow('out',img_arr)
         cv2.waitKey(0)
     return(bbs,img_arr)
@@ -1654,33 +1653,25 @@ def inspect_tg_dict(d,visual_output=True,check_img_existence=True):
     if 'dimensions_h_w_c' in d:
         dims = d['dimensions_h_w_c']
         print('dimensions {}'.format(dims))
-    for object_dict in annotations:
-        bb_xywh = object_dict['bbox_xywh']
-        object_type = object_dict['object']
 
-    print('file {}\n{} annotations {}\nsid {}'.format(filename,n_bbs,annotations,sid))
     if check_img_existence:
         if not os.path.exists(filename):
-            print('WARNNING could not find '+filename+' WARNING')
+            logging.warning('could not find '+filename+' WARNING')
+
     if visual_output:
         img_arr = cv2.imread(filename)
         if img_arr is None:
-            print('WARNNING could not read '+filename+' WARNING')
+            logging.warning('could not read '+filename+' WARNING')
+
 
     for annotation in annotations:
         object = annotation['object']
         bb_xywh = annotation['bbox_xywh']
         if visual_output:
             imutils.bb_with_text(img_arr,bb_xywh,object)
-        if not object in object_counts:
-            object_counts[object] = 1
-        else:
-            object_counts[object] = object_counts[object] + 1
     if visual_output:
         cv2.imshow('out',img_arr)
         cv2.waitKey(0)
-        if movie:
-            out.write(img_arr)
 
 
 
