@@ -123,10 +123,10 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
                 labeldir_alone = label_dir.split('/')[-1]
                 par_dir = Utils.parent_dir(label_dir)
                 jsonfile = os.path.join(par_dir,labeldir_alone+'.json')
-                print('jsonfile:')
-                with open(jsonfile,'w') as fp:
-                    json.dump(all_annotations,fp,indent=4)
-                    fp.close()
+                print('jsonfile:'+str(jsonfile))
+            with open(jsonfile,'w') as fp:
+                json.dump(all_annotations,fp,indent=4)
+                fp.close()
 
 
 def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False,label_destination='labels'):
