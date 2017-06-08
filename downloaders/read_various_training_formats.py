@@ -35,7 +35,7 @@ from trendi import kassper
 
 def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
                     image_dir = '/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
-                    write_json=True,jsonfile=None):
+                    write_json=True,jsonfile=None,img_suffix='.jpg',label_suffix='.txt'):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
     which has a file for each image, filenames 000000.txt, 000001.txt etc, each file has a line like:
@@ -79,7 +79,8 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
                     f_dir = os.path.dirname(f)
                     par_dir = Utils.parent_dir(f_dir)
                     f_base = os.path.basename(f)
-                    img_file = os.path.join(image_dir,f_base)
+                    img_base = f_base.replace(label_suffix,img_suffix)
+                    img_file = os.path.join(image_dir,img_base)
                     result_dict['filename']=img_file
                     result_dict['annotations']=[]
                     img_arr = cv2.imread(img_file)
@@ -89,16 +90,18 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
                     else:
                         result_dict['dimensions_h_w_c'] = img_arr.shape
                         h,w=img_arr.shape[0:2]
+                        print('got image h{} x w{} '.format(h,w))
                     try:
                         type,truncated,occluded,x1,y1,x2,y2,h,w,l,x,y,z,ry,score = line.split()
                     except:
                         print("error:", sys.exc_info()[0])
+                    print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
                     x1=max(0,int(float(x1)))
                     y1=max(0,int(float(y1)))
                     x2=min(w,int(float(x2)))
                     y2=max(h,int(float(y2)))
-                    print('{} {} x1 {} y1 {} x2 {} y2 {}'.format(f,type,x1,y1,x2,y2))
                     tg_type = constants.kitti_to_hls_map[type]
+                    print('converted: {} x1 {} y1 {} x2 {} y2 {}'.format(tg_type,x1,y1,x2,y2))
                     if tg_type is None:
                         logging.info('tgtype for {} is None, moving on'.format(type))
                     bb_xywh = [x1,y1,(x2-x1),(y2-y1)]
