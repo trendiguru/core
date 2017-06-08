@@ -72,8 +72,11 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
         else:
             with open(f,'r' ) as fp:
                 lines = fp.readlines()
+                n_tot = len(lines)
+                n=0
                 for line in lines:
-                    print(line)
+                    n=n+1
+                    print('{}/{} '.format(n,n_tot)+line)
                     result_dict = {}
                  #   result_dict['data']=[]
                     f_dir = os.path.dirname(f)
@@ -119,12 +122,14 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/data_object_labe
             all_annotations.append(result_dict)
 
         if write_json:
+            print('writing json')
             if jsonfile == None:
                 labeldir_alone = label_dir.split('/')[-1]
                 par_dir = Utils.parent_dir(label_dir)
                 jsonfile = os.path.join(par_dir,labeldir_alone+'.json')
                 print('jsonfile:'+str(jsonfile))
-            with open(jsonfile,'w') as fp:
+            Utils.ensure_file(jsonfile)
+            with open(jsonfile,'a') as fp:
                 json.dump(all_annotations,fp,indent=4)
                 fp.close()
 
