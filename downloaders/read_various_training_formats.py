@@ -34,7 +34,8 @@ from trendi import kassper
 #from trendi.utils import augment_images
 
 def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_label_2',
-                    image_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True):
+                    image_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/kitti/data_object_image_2',visual_output=True,
+                    write_json=True,jsonfile=None):
     '''
     reads data at http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
     which has a file for each image, filenames 000000.txt, 000001.txt etc, each file has a line like:
@@ -78,7 +79,6 @@ def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls
                     f_dir = os.path.dirname(f)
                     par_dir = Utils.parent_dir(f_dir)
                     f_base = os.path.basename(f)
-
                     img_file = os.path.join(image_dir,f_base)
                     result_dict['filename']=img_file
                     result_dict['annotations']=[]
@@ -102,20 +102,22 @@ def kitti_to_tgdict(label_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls
                     object_dict={}
                     object_dict['bbox_xywh'] = bb_xywh
                     object_dict['object']= tg_type
+                    object_dict['original_object'] = type
                     result_dict['annotations'].append(object_dict)
                 if visual_output:
                     cv2.imshow('yolo2tgdict',img_arr)
                     cv2.waitKey(0)
             all_annotations.append(result_dict)
 
-    print types
-
-
-    if jsonfile == None:
-        jsonfile = txtfile.replace('.csv','.json').replace('.txt','.json')
-    with open(jsonfile,'w') as fp:
-        json.dump(all_annotations,fp,indent=4)
-        fp.close()
+        if write_json:
+            if jsonfile == None:
+                labeldir_alone = label_dir.split('/')[-1]
+                par_dir = Utils.parent_dir(label_dir)
+                jsonfile = os.path.join(par_dir,labeldir_alone+'.json')
+                print('jsonfile:')
+                with open(jsonfile,'w') as fp:
+                    json.dump(all_annotations,fp,indent=4)
+                    fp.close()
 
 
 def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch',gt_file='refined.idl',class_no=0,visual_output=False,label_destination='labels'):
