@@ -568,7 +568,7 @@ def tg_class_from_pascal_class(pascal_class,tg_classes):
             return tg_ind
     return None
 
-def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_categories):
+def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories):
     '''
     input- dict in 'tg format' which is like this
        {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
@@ -617,12 +617,35 @@ def write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_cat
             fp.write(line)
         fp.close()
 
+def json_to_yolo(jsonfile):
+    '''   input- json arr of dicts in 'tg format' which is like this
+       {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],
+    output : for yolo - https://pjreddie.com/darknet/yolo/ looking lie
+    <object-class> <x> <y> <width> <height>
+    where x,y,width,height are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
+    e.g. JPEGImages  labels
+    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+    '''
+    print('converting json annotations in '+jsonfile+' to yolo')
+    with open(jsonfile,'r') as fp:
+        annotation_list = json.load(fp)
+        for tg_dict in annotation_list:
+            tgdict_to_yolo(tg_dict)
+
+
+
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
     #to deal with driving file from autti
 #   wget  http://bit.ly/udacity-annotations-autti
     all_annotations = txt_to_tgdict(txtfile=autti_txt,image_dir=None,parsemethod=parse_autti)
     for tg_dict in all_annotations:
-        write_yolo_from_tgdict(tg_dict)
+        tgdict_to_yolo(tg_dict)
 
     json_name = autti_txt.replace('.csv','.json')
     inspect_json(json_name)
@@ -633,7 +656,7 @@ def udacity_csv_to_yolo(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/objec
 
     all_annotations = csv_to_tgdict(udacity_csv=udacity_csv,parsemethod=parse_udacity)
     for tg_dict in all_annotations:
-        write_yolo_from_tgdict(tg_dict)
+        tgdict_to_yolo(tg_dict)
 
     json_name = udacity_csv.replace('.csv','.json')
     inspect_json(json_name)
@@ -721,7 +744,7 @@ to tgformat (while at it write to json) which looks like
             }
         ],   }, ...
 
-and use write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo_categories)
+and use tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories)
  to finally write yolo trainfiles
     :param jsonfile:
     :return:
@@ -757,7 +780,7 @@ and use write_yolo_from_tgdict(tg_dict,label_dir=None,classes=constants.hls_yolo
                 cv2.imshow('bboxes',img_arr)
                 cv2.waitKey(0)
             all_tgdicts.append(tgdict)
-            write_yolo_from_tgdict(tgdict,label_dir=None,classes=constants.hls_yolo_categories)
+            tgdict_to_yolo(tgdict,label_dir=None,classes=constants.hls_yolo_categories)
     json_out = os.path.join(images_dir,'annotations.json')
     with open(json_out,'w') as fp:
         json.dump(all_tgdicts,fp,indent=4)
