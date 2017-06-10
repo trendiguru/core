@@ -639,10 +639,13 @@ def json_to_yolo(jsonfile,split_to_test_and_train=True):
     :return:
     '''
     print('converting json annotations in '+jsonfile+' to yolo')
+    trainfile = 'yolo_train.txt'
     with open(jsonfile,'r') as fp:
         annotation_list = json.load(fp)
         for tg_dict in annotation_list:
-            tgdict_to_yolo(tg_dict)
+            tgdict_to_yolo(tg_dict,yolo_trainfile=trainfile)
+
+    split
 
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
     #to deal with driving file from autti
