@@ -629,9 +629,7 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             cv2.imshow('augmented',img_arr)
             cv2.waitKey(0)
 
-                #assuming that there is either mask or bblist not both
-
-
+  #assuming that there is either mask or bblist not both
     if mask_arr is not None:
         return img_arr,mask_arr
     elif bblist_xywh is not None:
@@ -825,8 +823,8 @@ def add_noise(image, noise_typ,level):
         noisy = image + image * gauss
         return noisy
 
-def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
-        visual_output=False,replace_this=None,with_this=None,labels_dir='labels'):
+def augment_yolo_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
+        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,filefilter='kitti'):
     with open(train_testfile,'r') as fp:
         lines = fp.readlines()
     print('{} lines in {}'.format(len(lines),train_testfile))
@@ -835,7 +833,7 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
             line = line.replace(replace_this,with_this)
         line = line.replace('\n','')
         print('got line '+str(line))
-        tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=True,classlabels=constants.hls_yolo_categories)
+        tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories)
         annotations = tgdict['annotations']
         filename = tgdict['filename']
         print('file {}\nannotations {}'.format(filename,annotations))
@@ -843,7 +841,13 @@ def augment_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         for annotation in annotations:
             bbox_xywh=annotation['bbox_xywh']
             bbox_list.append(bbox_xywh)
-        generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+        for n in range(n_augmentations):
+            img_arr,bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+            new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+'.jpg'
+            for i in len(annotations):
+                annotation['bbox_xywh']=bbox_list[i]
+            read_various_training_formats.tgdict_to_yolo(tgdict)
+
      #   raw_input('ret to cont')
 
 if __name__=="__main__":
@@ -855,7 +859,7 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    augment_bbs(visual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
+    augment_yolo_bbs(visual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
 #    test_crop_bblist()
 #    test_warp_bbs()
 

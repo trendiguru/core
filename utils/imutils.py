@@ -9,7 +9,7 @@ import hashlib
 import shutil
 import logging
 import time
-logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
+logging.basicConfig(level=logging.DEBUG)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
 import shutil
 # So this file can be imported on servers where joblib is not installed
@@ -1833,7 +1833,7 @@ def yolo_to_xywh(bb_yolo,image_dims_HxW):  #should change this to HxW and all ca
     h = float(bb_yolo[3])*image_dims_HxW[0]  #height pixels
     x=x_center-w/2
     y=y_center-h/2
-   # print('in {} dims {} out {} {} {} {}'.format(bb_yolo,image_dims,x,y,w,h))
+    logging.debug('in {} dims {} out(xywh) {} {} {} {}'.format(bb_yolo,image_dims_HxW,x,y,w,h))
     return([int(x),int(y),int(w),int(h)])
 
 def bb_with_text(img_arr,bb_xywh,text,boxcolor=None):

@@ -366,6 +366,61 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
 
     return result_dict
 
+def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
+    '''
+    input- dict in 'tg format' which is like this
+       {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
+    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105}
+    That json can then be used to generate yolo or frcnn training files
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    <object-class> <x> <y> <width> <height>
+    where those are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
+    e.g. JPEGImages  labels
+    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    also writes a line in the yolo_trainfile . This is all getting called by json_to_yolo
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+    '''
+    img_filename = tg_dict['filename']
+    annotations = tg_dict['annotations']
+    sid = None
+    if 'sid' in tg_dict:
+        sid = tg_dict['sId']
+    dims = tg_dict['dimensions_h_w_c']
+    im_h,im_w=(dims[0],dims[1])
+    print('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
+    if label_dir is None:
+        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
+        img_diralone = os.path.dirname(img_filename).split('/')[-1]
+        label_diralone = img_diralone+'labels'
+        label_dir= os.path.join(img_parent,label_diralone)
+        Utils.ensure_dir(label_dir)
+     #   label_dir = os.path.join(img_parent,label_ext)
+        print('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
+    label_path = os.path.join(label_dir,label_name)
+    print('writing to '+str(label_path))
+    with open(label_path,'w') as fp:
+        for annotation in annotations:
+            bb_xywh = annotation['bbox_xywh']
+            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
+
+            print('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
+            object = annotation['object']
+            class_number = classes.index(object)
+            line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
+            fp.write(line)
+        fp.close()
+    Utils.ensure_file(yolo_trainfile)
+    with open(yolo_trainfile,'a') as fp2:
+        fp2.write(img_filename+'\n')
+        fp2.close()
+
 def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
     if labeldir is None:
         labeldir = os.path.join(Utils.parent_dir(imagedir),'labels')
@@ -567,61 +622,6 @@ def tg_class_from_pascal_class(pascal_class,tg_classes):
             tg_ind = tg_classes.index(tg)
             return tg_ind
     return None
-
-def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
-    '''
-    input- dict in 'tg format' which is like this
-       {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
-    {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105}
-    That json can then be used to generate yolo or frcnn training files
-    output : for yolo - https://pjreddie.com/darknet/yolo/
-    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
-    <object-class> <x> <y> <width> <height>
-    where those are percentages...
-    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
-    e.g. JPEGImages  labels
-    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
-    also writes a line in the yolo_trainfile . This is all getting called by json_to_yolo
-    :param img_path:
-    :param bb_xywh:
-    :param class_number:
-    :param destination_dir:
-    :return:
-    '''
-    img_filename = tg_dict['filename']
-    annotations = tg_dict['annotations']
-    sid = None
-    if 'sid' in tg_dict:
-        sid = tg_dict['sId']
-    dims = tg_dict['dimensions_h_w_c']
-    im_h,im_w=(dims[0],dims[1])
-    print('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
-    if label_dir is None:
-        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
-        img_diralone = os.path.dirname(img_filename).split('/')[-1]
-        label_diralone = img_diralone+'labels'
-        label_dir= os.path.join(img_parent,label_diralone)
-        Utils.ensure_dir(label_dir)
-     #   label_dir = os.path.join(img_parent,label_ext)
-        print('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
-    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
-    label_path = os.path.join(label_dir,label_name)
-    print('writing to '+str(label_path))
-    with open(label_path,'w') as fp:
-        for annotation in annotations:
-            bb_xywh = annotation['bbox_xywh']
-            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
-
-            print('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
-            object = annotation['object']
-            class_number = classes.index(object)
-            line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
-            fp.write(line)
-        fp.close()
-    Utils.ensure_file(yolo_trainfile)
-    with open(yolo_trainfile,'a') as fp2:
-        fp2.write(img_filename+'\n')
-        fp2.close()
 
 def json_to_yolo(jsonfile,split_to_test_and_train=True):
     '''   input- json arr of dicts in 'tg format' which is like this
