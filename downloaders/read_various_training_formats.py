@@ -623,9 +623,6 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         fp2.write(img_filename+'\n')
         fp2.close()
 
-
-
-
 def json_to_yolo(jsonfile,split_to_test_and_train=True):
     '''   input- json arr of dicts in 'tg format' which is like this
        {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],
@@ -646,7 +643,6 @@ def json_to_yolo(jsonfile,split_to_test_and_train=True):
         annotation_list = json.load(fp)
         for tg_dict in annotation_list:
             tgdict_to_yolo(tg_dict)
-
 
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
     #to deal with driving file from autti
@@ -716,7 +712,6 @@ def convert_kyle(dir='/home/jeremy/Dropbox/tg/hls_tagging/person_wearing_backpac
     gts = [os.path.join(dir,f) for f in dir if filter in f]
     for gt_file in gts:
         yolodict = read_various_training_formats.kyle_dicts_to_yolo()
-
 
 def kyle_dicts_to_yolo(dir='/data/jeremy/image_dbs/hls/kyle/person_wearing_hat/annotations_hat',visual_output=True):
     '''
@@ -793,7 +788,6 @@ and use tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categor
     with open(json_out,'w') as fp:
         json.dump(all_tgdicts,fp,indent=4)
         fp.close()
-
 
 def csv_to_tgdict(udacity_csv='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv',image_dir=None,classes=constants.hls_yolo_categories,visual_output=False,manual_verification=False,jsonfile=None,parsemethod=parse_udacity,delimiter='\t',readmode='r'):
     '''
