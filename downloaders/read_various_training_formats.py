@@ -568,7 +568,7 @@ def tg_class_from_pascal_class(pascal_class,tg_classes):
             return tg_ind
     return None
 
-def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories):
+def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
     '''
     input- dict in 'tg format' which is like this
        {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
@@ -581,6 +581,7 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories)
     it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
     e.g. JPEGImages  labels
     and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    also writes a line in the yolo_trainfile . This is all getting called by json_to_yolo
     :param img_path:
     :param bb_xywh:
     :param class_number:
@@ -609,15 +610,23 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories)
     with open(label_path,'w') as fp:
         for annotation in annotations:
             bb_xywh = annotation['bbox_xywh']
-            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_w,im_h))
+            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
+
             print('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
             object = annotation['object']
             class_number = classes.index(object)
             line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
             fp.write(line)
         fp.close()
+    Utils.ensure_file(yolo_trainfile)
+    with open(yolo_trainfile,'a') as fp2:
+        fp2.write(img_filename+'\n')
+        fp2.close()
 
-def json_to_yolo(jsonfile):
+
+
+
+def json_to_yolo(jsonfile,split_to_test_and_train=True):
     '''   input- json arr of dicts in 'tg format' which is like this
        {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h]}],
     output : for yolo - https://pjreddie.com/darknet/yolo/ looking lie
@@ -637,7 +646,6 @@ def json_to_yolo(jsonfile):
         annotation_list = json.load(fp)
         for tg_dict in annotation_list:
             tgdict_to_yolo(tg_dict)
-
 
 
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
@@ -1578,12 +1586,10 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                     print('commented line')
                     continue
                 object_class,bb0,bb1,bb2,bb3 = line.split()
-                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(h,w))
                 classname = classes[int(object_class)]
                 print('class {} bb_xywh {}'.format(classname,bb_xywh))
-                cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
-                img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
-                cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
+                img_arr = imutils.bb_with_text(img_arr,bb_xywh,classname)
                 cv2.imshow('img',img_arr)
 
             fp.close()
@@ -1618,7 +1624,7 @@ def inspect_yolo_annotation(annotation_file,img_file):
                 print('commented line')
                 continue
             object_class,bb0,bb1,bb2,bb3 = line.split()
-            bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+            bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(h,w))
             bbs.append(bb_xywh)
             classname = classes[int(object_class)]
             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
@@ -1825,7 +1831,7 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
                     print('commented line')
                     continue
                 object_class,bb0,bb1,bb2,bb3 = line.split()
-                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
+                bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(h,w))
                 bb_list_xywh.append(bb_xywh)
                 classname = classes[int(object_class)]
                 print('class {} bb_xywh {}'.format(classname,bb_xywh))
