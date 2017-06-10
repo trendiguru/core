@@ -1541,6 +1541,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                              yolo_annotation_folder='object-detection-crowdailabels',img_folder='object-detection-crowdai',
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
     '''
+    todo - this should call inspect_yolo_annotation to save duplicate code
     the yolo annotations are like
     object1_class bb0 bb1 bb2 bb3
     object2_class bb0 bb1 bb2 bb3
@@ -1578,7 +1579,8 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                 if line.strip() == '':
                     print('empty line')
                     continue
-                print('got line:'+line)
+                print('got line:'+line.strip('\n'))
+                print('for image {} dims h{}Xw{}:'.format(imgfile,h,w))
                 if line.strip()[0]=='#':
                     print('commented line')
                     continue
@@ -1625,10 +1627,8 @@ def inspect_yolo_annotation(annotation_file,img_file):
             bbs.append(bb_xywh)
             classname = classes[int(object_class)]
             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
-            cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=[100,255,100],thickness=2)
-            img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2+[100,50,100]
-            cv2.putText(img_arr,classname,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, [255,0,255])
-        cv2.imshow('out',img_arr)
+            imutils.bb_with_text(img_arr,bb_xywh,classname)
+        cv2.imshow('yolo_inspector',img_arr)
         cv2.waitKey(0)
     return(bbs,img_arr)
 

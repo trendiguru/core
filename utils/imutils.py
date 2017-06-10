@@ -1827,10 +1827,10 @@ def yolo_to_xywh(bb_yolo,image_dims_HxW):  #should change this to HxW and all ca
     :return:
     '''
 
-    x_center = float(bb_yolo[0])*image_dims_HxW[0]    #center x in pixels
-    y_center = float(bb_yolo[1])*image_dims_HxW[1]   #center y pixels
-    w = float(bb_yolo[2])*image_dims_HxW[0] #width pixels
-    h = float(bb_yolo[3])*image_dims_HxW[1]  #height pixels
+    x_center = float(bb_yolo[0])*image_dims_HxW[1]    #center x in pixels
+    y_center = float(bb_yolo[1])*image_dims_HxW[0]   #center y pixels
+    w = float(bb_yolo[2])*image_dims_HxW[1] #width pixels
+    h = float(bb_yolo[3])*image_dims_HxW[0]  #height pixels
     x=x_center-w/2
     y=y_center-h/2
    # print('in {} dims {} out {} {} {} {}'.format(bb_yolo,image_dims,x,y,w,h))
