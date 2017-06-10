@@ -844,10 +844,11 @@ def augment_yolo_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_d
         for n in range(n_augmentations):
             img_arr,bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
             new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+'.jpg'
+            tgdict['filename']=new_imgfile
             for i in len(annotations):
                 annotation['bbox_xywh']=bbox_list[i]
             read_various_training_formats.tgdict_to_yolo(tgdict)
-
+            cv2.imwrite(new_imgfile)
      #   raw_input('ret to cont')
 
 if __name__=="__main__":
@@ -859,7 +860,7 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    augment_yolo_bbs(visual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
+    augment_yolo_bbs(train_testfile='/data/jeremy/image_dbsvisual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
 #    test_crop_bblist()
 #    test_warp_bbs()
 
