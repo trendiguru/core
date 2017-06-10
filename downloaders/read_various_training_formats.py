@@ -645,7 +645,7 @@ def json_to_yolo(jsonfile,split_to_test_and_train=True):
         for tg_dict in annotation_list:
             tgdict_to_yolo(tg_dict,yolo_trainfile=trainfile)
 
-    split
+    create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile)
 
 def autti_txt_to_yolo(autti_txt='/media/jeremy/9FBD-1B00/image_dbs/hls/object-dataset/labels.csv'):
     #to deal with driving file from autti
