@@ -827,7 +827,7 @@ def add_noise(image, noise_typ,level):
         return noisy
 
 def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
-        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,path_filter='kitti'):
+        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,path_filter=None,path_antifilter='rio'):
     '''
     takes a bunch of yolos and augments using generate_image_onthefly, right now for generating smaller objects
     :param file_list:
@@ -847,8 +847,10 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
             line = line.replace(replace_this,with_this)
         line = line.replace('\n','')
         print('got line '+str(line))
-        if not path_filter in line:
+        if path_filter and not path_filter in line:
             logging.debug('didnt find {} in {}, skipping'.format(path_filter,line))
+        if path_antifilter and path_antifilter in line:
+            logging.debug('found {} in {}, skipping'.format(path_antifilter,line))
         tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories)
         if tgdict is None:
             logging.warning('couldnt get dict for  {}, continuing to next'.format(line))
