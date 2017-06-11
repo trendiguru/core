@@ -9,7 +9,7 @@ import hashlib
 import shutil
 import logging
 import time
-logging.basicConfig(level=logging.DEBUG)  #debug is actually lower than info: critical/error/warning/info/debug
+logging.basicConfig(level=logging.INFO)  #debug is actually lower than info: critical/error/warning/info/debug
 import numpy as np
 import shutil
 # So this file can be imported on servers where joblib is not installed

@@ -14,7 +14,7 @@ from trendi import constants
 from trendi import Utils
 from trendi.downloaders import read_various_training_formats
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("simple_example")
 logger.setLevel(logging.DEBUG)
 
@@ -841,6 +841,7 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
     '''
     with open(file_list,'r') as fp:
         lines = fp.readlines()
+        fp.close()
     print('{} lines in {}'.format(len(lines),file_list))
     for line in lines:
         if replace_this is not None:
@@ -879,6 +880,10 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
                 annotations[i]['bbox_xywh']=new_bbox_list[i]
             read_various_training_formats.tgdict_to_yolo(tgdict)
             cv2.imwrite(new_imgfile,img_arr)
+
+            with open(file_list,'a') as fp2:
+                fp2.write(new_imgfile+'\n')
+                fp2.close()
      #   raw_input('ret to cont')
 
 if __name__=="__main__":

@@ -19,7 +19,7 @@ from os import listdir, getcwd
 from os.path import join
 import json
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 from multiprocessing import Pool
 from functools import partial
 from itertools import repeat
