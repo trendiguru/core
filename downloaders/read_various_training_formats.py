@@ -1596,7 +1596,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
         else:
             imgfile = annotation_base[:-4]+'.jpg'
             img_path = os.path.join(img_dir,imgfile)
-            if not os.exists(img_path):  #yecch
+            if not os.path.exists(img_path):  #yecch , this shouldnt actually get used but still
                 imgfile = annotation_base[:-4]+'.png'
                 img_path = os.path.join(img_dir,imgfile)
         img_arr = cv2.imread(img_path)
@@ -1635,7 +1635,35 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                 else:
                     print('not accepting image')
 
+def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter='rio',replace_this=None,with_this=None):
+    '''
+    read the trainingfile that yolo reads (list of image files, labels in parallel dirs)
+    '''
+    with open(trainingfile,'r') as fp:
+        lines = fp.readlines()
+        fp.close()
+    if lines is None or lines == []:
+        print('got nothin from {}'.format(trainingfile))
+        return None
+    print('{} files in {}'.format(len(lines),trainingfile))
+    for line in lines:
+        if filter and not filter in line:
+            logging.debug('no {} in {} '.format(filter,line))
+            continue
+        logging.debug('line:'+str(line))
+        img_path = line.strip('\n')
+        if replace_this:
+            img_path=img_path.replace(replace_this,with_this)
+        img_dir = os.path.dirname(img_path)
+        if yolo_annotation_folder is None:
+            yolo_annotation_folder = img_dir+'labels'
+        yolo_annotation_basename = os.path.basename(img_path).replace('.jpg','.txt').replace('.png','.txt')
+        yolo_annotation_file = os.path.join(yolo_annotation_folder,yolo_annotation_basename)
+        inspect_yolo_annotation(yolo_annotation_file,img_path)
+
+
 def inspect_yolo_annotation(annotation_file,img_file):
+    print('inspecting annotation {} img {}'.format(annotation_file,img_file))
     classes = constants.hls_yolo_categories
     img_arr = cv2.imread(img_file)
     if img_arr is None:
