@@ -869,7 +869,8 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
             if img_arr is None:
                 logging.warning('couldnt get {}, continuing to next'.format(filename))
 
-            new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+'.jpg'
+            suffix = line[-4:]  #keep augmented and orig images of same type, people
+            new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+suffix
             print('saving new image, annotation for {}'.format(new_imgfile))
             tgdict['filename']=new_imgfile
             for i in range(len(annotations)):

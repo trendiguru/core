@@ -269,13 +269,16 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     :param trainfile:
     :return:
     '''
-    files = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
+    if filter:
+        files = [os.path.join(image_dir,f) for f in os.listdir(image_dir) if filter in f]
+    else:
+        files = [os.path.join(image_dir,f) for f in os.listdir(image_dir)]
     print('{} files w filter {} in {}'.format(len(files),filter,image_dir))
     if check_for_bbfiles:
         if bb_dir == None:
             labeldir = os.path.basename(image_dir)+'labels'
             bb_dir = os.path.join(Utils.parent_dir(image_dir),labeldir)
-        print('checkin for bbs in '+bb_dir+' leafdir '+str(labeldir))
+        print('checkin for bbs in '+bb_dir)
     if len(files) == 0:
         print('no files fitting {} in {}, stopping'.format(filter,image_dir))
         return
@@ -283,7 +286,11 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     with open(trainfile,'a+') as fp:
         for f in files:
             if check_for_bbfiles:
-                bbfile = os.path.basename(f).replace(filter,'.txt')
+                if filter:
+                    bbfile = os.path.basename(f).replace(filter,'.txt')
+                else:
+                    bbfile = os.path.basename(f)[:-4]+'.txt'
+
                 bbpath = os.path.join(bb_dir,bbfile)
                 if os.path.exists(bbpath):
                     fp.write(f+'\n')
@@ -1575,14 +1582,23 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
     verified_dir = os.path.join(dir,verified_folder)
     Utils.ensure_dir(verified_dir)
     img_dir = os.path.join(dir,img_folder)
-    annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    if image_filter:
+        annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
+    else:
+        annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir)]
     classes = constants.hls_yolo_categories
     print('inspecting {} yolo annotations in {}'.format(len(annotation_files),annotation_dir))
     for f in annotation_files:
         print('trying '+f)
         annotation_base = os.path.basename(f)
-        imgfile = annotation_base.replace(annotation_filter,image_filter)
-        img_path = os.path.join(img_dir,imgfile)
+        if image_filter:
+            imgfile = annotation_base.replace(annotation_filter,image_filter)
+        else:
+            imgfile = annotation_base[:-4]+'.jpg'
+            img_path = os.path.join(img_dir,imgfile)
+            if not os.exists(img_path):  #yecch
+                imgfile = annotation_base[:-4]+'.png'
+                img_path = os.path.join(img_dir,imgfile)
         img_arr = cv2.imread(img_path)
         if img_arr is None:
             print('coulndt get '+img_path)
