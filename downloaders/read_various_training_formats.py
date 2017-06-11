@@ -299,7 +299,13 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     where x,y,w,h are relative to image width, height.  It looks like x,y are bb center, not topleft corner - see voc_label.py in .convert(size,box) func
     :param txt_file:
     :return:  a 'tgdict' which looks like
-    {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
+        {   "dimensions_h_w_c": [360,640,3],  "filename": "/data/olympics/olympics/9908661.jpg",
+        "annotations": [
+            {
+               "bbox_xywh": [89, 118, 64,44 ],
+                "object": "car"
+            } ...  ]   }
+
     using convention that label dir is at same level as image dir and has 'labels' tacked on to end of dirname
     '''
 #    img_file = txt_file.replace('.txt','.png')
@@ -317,7 +323,7 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         img_base = os.path.basename(img_file)
         par_dir = Utils.parent_dir(img_dir)
         logging.debug('pardir {} imgdir {}'.format(par_dir,img_dir))
-        labels_dir = os.path.join(par_dir,img_base+'labels')
+        labels_dir = img_dir+'labels'
         lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
 
@@ -325,9 +331,13 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
 
     img_arr = cv2.imread(img_file)
     if img_arr is None:
-        logging.warning('problem reading {}'.format(img_file))
-        return
+        logging.warning('problem reading {}, returning'.format(img_file))
+        return None
     image_h, image_w = img_arr.shape[0:2]
+    result_dict = {}
+    result_dict['filename']=img_file
+    result_dict['dimensions_h_w_c']=img_arr.shape
+    result_dict['annotations']=[]
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         logging.debug('{} bbs found'.format(len(lines)))

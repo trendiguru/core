@@ -624,9 +624,10 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
             imutils.show_mask_with_labels(mask_arr,labels,original_image=img_arr,visual_output=True)
         else:
             if bblist_xywh:
+                img_copy = copy.copy(img_arr)
                 for bb in bblist_xywh:
-                    cv2.rectangle(img_arr,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,50,100],thickness=2)
-            cv2.imshow('augmented',img_arr)
+                    cv2.rectangle(img_copy,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,50,100],thickness=2)
+            cv2.imshow('augmented',img_copy)
             cv2.waitKey(0)
 
   #assuming that there is either mask or bblist not both
@@ -688,6 +689,8 @@ def do_xform(img_array,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip
 def do_xform_bblist_xywh(bb_list_xywh,width,height,crop_dx,crop_dy,crop_size,depth,flip_lr,flip_ud,blur,noise_level,center,angle,scale,offset_x,offset_y):
     #todo this can all be cleaned up by putting more of the generate_image_on_thefly code here
 #    logging.debug('db D')
+    logging.debug('augmenting bbs w {}  h {} dx {} dy {} crop {} lr {} ud {} center {} andgle {} scale {} offx {} offy {}'.
+        format(width,height,crop_dx,crop_dy,crop_size,flip_lr,flip_ud,center,angle,scale,offset_x,offset_y))
     if flip_lr:
  #       logging.debug('db D1')
         flip_bbs((height,width),bb_list_xywh,flip_rl=True,flip_ud=False)
@@ -859,16 +862,19 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
             bbox_xywh=annotation['bbox_xywh']
             bbox_list.append(bbox_xywh)
         for n in range(n_augmentations):
-            img_arr,bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+            print('orig bbox list:'+str(bbox_list))
+            img_arr,new_bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+            print('new bbox list:'+str(new_bbox_list))
             if img_arr is None:
                 logging.warning('couldnt get {}, continuing to next'.format(filename))
 
             new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+'.jpg'
+            print('saving new image, annotation for {}'.format(new_imgfile))
             tgdict['filename']=new_imgfile
-            for i in len(annotations):
-                annotation['bbox_xywh']=bbox_list[i]
+            for i in range(len(annotations)):
+                annotations[i]['bbox_xywh']=new_bbox_list[i]
             read_various_training_formats.tgdict_to_yolo(tgdict)
-            cv2.imwrite(new_imgfile)
+            cv2.imwrite(new_imgfile,img_arr)
      #   raw_input('ret to cont')
 
 if __name__=="__main__":
