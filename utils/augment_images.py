@@ -823,17 +823,34 @@ def add_noise(image, noise_typ,level):
         noisy = image + image * gauss
         return noisy
 
-def augment_yolo_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
-        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,filefilter='kitti'):
-    with open(train_testfile,'r') as fp:
+def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
+        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,path_filter='kitti'):
+    '''
+    takes a bunch of yolos and augments using generate_image_onthefly, right now for generating smaller objects
+    :param file_list:
+    :param visual_output:
+    :param replace_this:
+    :param with_this:
+    :param labels_dir:
+    :param n_augmentations:
+    :param path_filter:   require filepaths to contain this string (to only augment certain dbs)
+    :return:
+    '''
+    with open(file_list,'r') as fp:
         lines = fp.readlines()
-    print('{} lines in {}'.format(len(lines),train_testfile))
+    print('{} lines in {}'.format(len(lines),file_list))
     for line in lines:
         if replace_this is not None:
             line = line.replace(replace_this,with_this)
         line = line.replace('\n','')
         print('got line '+str(line))
+        if not path_filter in line:
+            logging.debug('didnt find {} in {}, skipping'.format(path_filter,line))
         tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories)
+        if tgdict is None:
+            logging.warning('couldnt get dict for  {}, continuing to next'.format(line))
+            continue
+
         annotations = tgdict['annotations']
         filename = tgdict['filename']
         print('file {}\nannotations {}'.format(filename,annotations))
@@ -843,6 +860,9 @@ def augment_yolo_bbs(train_testfile='/media/jeremy/9FBD-1B00/data/jeremy/image_d
             bbox_list.append(bbox_xywh)
         for n in range(n_augmentations):
             img_arr,bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+            if img_arr is None:
+                logging.warning('couldnt get {}, continuing to next'.format(filename))
+
             new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+'.jpg'
             tgdict['filename']=new_imgfile
             for i in len(annotations):
@@ -860,7 +880,8 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    augment_yolo_bbs(train_testfile='/data/jeremy/image_dbsvisual_output=True,replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy')
+    augment_yolo_bbs(file_list='/data/jeremy/image_dbs/hls/kitti/training/yolo_train_test.txt',visual_output=True,
+                     replace_this='/mnt/',with_this='/data/jeremy/image_dbs/')
 #    test_crop_bblist()
 #    test_warp_bbs()
 

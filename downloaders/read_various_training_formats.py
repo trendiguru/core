@@ -300,9 +300,10 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     :param txt_file:
     :return:  a 'tgdict' which looks like
     {"data": [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]}
+    using convention that label dir is at same level as image dir and has 'labels' tacked on to end of dirname
     '''
 #    img_file = txt_file.replace('.txt','.png')
-    print('yolo to tgdict {} {} '.format(txt_file,img_file))
+    logging.debug('yolo to tgdict {} {} '.format(txt_file,img_file))
     if txt_file is not None and img_file is None:
         txt_dir = os.path.dirname(txt_file)
         par_dir = Utils.parent_dir(txt_file)
@@ -313,24 +314,20 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         logging.debug('looking for image file '+img_file)
     elif img_file is not None and txt_file is None:
         img_dir = os.path.dirname(img_file)
+        img_base = os.path.basename(img_file)
         par_dir = Utils.parent_dir(img_dir)
         logging.debug('pardir {} imgdir {}'.format(par_dir,img_dir))
-        labels_dir = os.path.join(par_dir,'labels')
+        labels_dir = os.path.join(par_dir,img_base+'labels')
         lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
 
-    logging.debug('lblfile {} imgfile {}'.format(txt_file,img_file))
+    logging.info('lblfile {} imgfile {}'.format(txt_file,img_file))
 
     img_arr = cv2.imread(img_file)
     if img_arr is None:
-        print('problem reading {}'.format(img_file))
+        logging.warning('problem reading {}'.format(img_file))
         return
-    image_h,image_w = img_arr.shape[0:2]
-    result_dict = {}
- #   result_dict['data']=[]
-    result_dict['filename']=img_file
-    result_dict['annotations']=[]
-    result_dict['dimensions_h_w_c'] = img_arr.shape
+    image_h, image_w = img_arr.shape[0:2]
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         logging.debug('{} bbs found'.format(len(lines)))
