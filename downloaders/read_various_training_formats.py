@@ -60,6 +60,11 @@ def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/training/label_2
     :param dir:
     :return:
     '''
+    #todo - use perspective transform (useful for hls...) along the lines of below, maybe use semirandom trapezoid for 4 points
+    # pts1 = np.float32([[56,65],[368,52],[28,387],[389,390]])
+    # pts2 = np.float32([[0,0],[300,0],[0,300],[300,300]])
+    # M = cv2.getPerspectiveTransform(pts1,pts2)
+    # dst = cv2.warpPerspective(img,M,(300,300))
 
     files = [os.path.join(label_dir,f) for f in os.listdir(label_dir)]
     files.sort()
@@ -338,6 +343,9 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     result_dict['filename']=img_file
     result_dict['dimensions_h_w_c']=img_arr.shape
     result_dict['annotations']=[]
+    if not os.path.exists(txt_file):
+        logging.warning('yolo2tgdict could not find {}, returning '.format(txt_file))
+        return
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         logging.debug('{} bbs found'.format(len(lines)))
@@ -1569,7 +1577,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
     img_dir = os.path.join(dir,img_folder)
     annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
     classes = constants.hls_yolo_categories
-    print('inspecting yolo annotations in '+annotation_dir)
+    print('inspecting {} yolo annotations in {}'.format(len(annotation_files),annotation_dir))
     for f in annotation_files:
         print('trying '+f)
         annotation_base = os.path.basename(f)
