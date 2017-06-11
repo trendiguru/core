@@ -863,7 +863,8 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
             bbox_list.append(bbox_xywh)
         for n in range(n_augmentations):
             print('orig bbox list:'+str(bbox_list))
-            img_arr,new_bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_list,max_angle=10,max_scale=1.1,min_scale=0.5)
+            bbox_to_send=copy.copy(bbox_list) #func can modify arg it seems
+            img_arr,new_bbox_list = generate_image_onthefly(filename,show_visual_output=True,bblist_xywh=bbox_to_send,max_angle=10,max_scale=1.1,min_scale=0.5)
             print('new bbox list:'+str(new_bbox_list))
             if img_arr is None:
                 logging.warning('couldnt get {}, continuing to next'.format(filename))
