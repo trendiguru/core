@@ -390,6 +390,7 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
 
 def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
     '''
+    changing save dir to be same as img dir
     input- dict in 'tg format' which is like this
        {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId':104}],
     {'filename':'image423.jpg','annotations':[{'object':'person','bbox_xywh':[x,y,w,h]},{'object':'person','bbox_xywh':[x,y,w,h],'sId',105}
@@ -420,7 +421,8 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         img_parent = Utils.parent_dir(os.path.dirname(img_filename))
         img_diralone = os.path.dirname(img_filename).split('/')[-1]
         label_diralone = img_diralone+'labels'
-        label_dir= os.path.join(img_parent,label_diralone)
+        # label_dir= os.path.join(img_parent,label_diralone)
+        label_dir = os.path.dirname(img_filename) #keep labels and imgs in same dir, yolo is apparently ok with that
         Utils.ensure_dir(label_dir)
      #   label_dir = os.path.join(img_parent,label_ext)
         logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
