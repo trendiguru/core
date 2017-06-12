@@ -351,7 +351,7 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     result_dict['dimensions_h_w_c']=img_arr.shape
     result_dict['annotations']=[]
     if not os.path.exists(txt_file):
-        logging.warning('yolo2tgdict could not find {}, returning '.format(txt_file))
+        logging.warning('yolo2tgdict could not find {}, trying replacing "images" with "labels" '.format(txt_file))
         #try alternate path replacing 'images' with 'labels'
         if 'images' in img_file:
             img_dir = os.path.dirname(img_file)
