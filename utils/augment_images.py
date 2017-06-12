@@ -850,8 +850,10 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         print('got line '+str(line))
         if path_filter and not path_filter in line:
             logging.debug('didnt find {} in {}, skipping'.format(path_filter,line))
+            continue
         if path_antifilter and path_antifilter in line:
             logging.debug('found {} in {}, skipping'.format(path_antifilter,line))
+            continue
         tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories)
         if tgdict is None:
             logging.warning('couldnt get dict for  {}, continuing to next'.format(line))
