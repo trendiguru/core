@@ -415,7 +415,7 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         sid = tg_dict['sId']
     dims = tg_dict['dimensions_h_w_c']
     im_h,im_w=(dims[0],dims[1])
-    print('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
+    logging.debug('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
     if label_dir is None:
         img_parent = Utils.parent_dir(os.path.dirname(img_filename))
         img_diralone = os.path.dirname(img_filename).split('/')[-1]
@@ -423,7 +423,7 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         label_dir= os.path.join(img_parent,label_diralone)
         Utils.ensure_dir(label_dir)
      #   label_dir = os.path.join(img_parent,label_ext)
-        print('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+        logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
     label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
     label_path = os.path.join(label_dir,label_name)
     print('writing to '+str(label_path))
@@ -432,7 +432,7 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
             bb_xywh = annotation['bbox_xywh']
             bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
 
-            print('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
+            logging.debug('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
             object = annotation['object']
             class_number = classes.index(object)
             line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'

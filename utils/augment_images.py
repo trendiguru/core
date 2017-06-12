@@ -261,8 +261,8 @@ def warp_bbs(bblist_xywh,M,dims_hw,img_arr=None):
     '''
     bbs_out=[]
   #  bblist_xywh = [bblist_xywh[0]]
-    print('Mshape '+str(M.shape))
-    print('img dims '+str(dims_hw))
+    logging.debug('Mshape '+str(M.shape))
+    logging.debug('img dims '+str(dims_hw))
     for bb in bblist_xywh:
   #      bbs_xy_chans = np.array([[bb[0],bb[1]],[bb[0]+bb[2],bb[1]+bb[3]]])
   #      print('bbs out '+str(bbs_out))
