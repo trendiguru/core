@@ -352,7 +352,18 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     result_dict['annotations']=[]
     if not os.path.exists(txt_file):
         logging.warning('yolo2tgdict could not find {}, returning '.format(txt_file))
-        return
+        #try alternate path replacing 'images' with 'labels'
+        if 'images' in img_file:
+            img_dir = os.path.dirname(img_file)
+            img_base = os.path.basename(img_file)
+            labels_dir = img_dir.replace('images','labels')
+            lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
+            txt_file = os.path.join(labels_dir,lbl_name)
+            if not os.path.exists(txt_file):
+                logging.warning('yolo2tgdict could not find {}, returning '.format(txt_file))
+                return
+        else:
+            return
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         logging.debug('{} bbs found'.format(len(lines)))
