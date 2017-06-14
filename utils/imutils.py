@@ -580,6 +580,14 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
     return output_img
 #dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
 
+def mask_to_rects(mask):
+    '''
+    given mask (eg from pixel level, not binary but several discrete values),
+    find boudning boxes for 'reasonably large' blobs, maybe return just one per mask value ?
+    :param mask:
+    :return:
+    '''
+
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
     '''Takes an image name, resize it and crop the center square
