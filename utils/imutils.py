@@ -600,7 +600,7 @@ def mask_to_rects(mask):
             img = img[:,:,0] #take first channel;
         n_pixels = np.shape(np.where(img!=0))[1]  #length of 1xn vector
         print('size of mask=={} is {} (shape {})'.format(u,n_pixels,np.shape(np.where(img!=0))[1]))
-        if u!=-1:
+        if 0:
             # thismask = img*255
             # show_mask_with_labels(thismask,labels=constants.ultimate_21,visual_output=True)
             cv2.imshow("mask=={}".format(u), img)
@@ -618,7 +618,7 @@ def mask_to_rects(mask):
         print('n contours:'+str(len(contours)))
         min_contour_size = 500
         n_contour = 0
-        im3 = img.copy()
+        im3 = np.zeros_like(img)
         max_area = 0
         next_area = 0
         n_max = 0
@@ -635,16 +635,16 @@ def mask_to_rects(mask):
                 print('contour length of contour  {} is {}'.format(n_contour,cnt_len))
                 cv2.drawContours(im3,contours,n_contour,(50,255,50),2)
 #                cv2.imshow('current contour',im3)
-            cv2.imshow('big contours',im3)
-            cv2.waitKey(0)
             n_contour+=1
 
+        cv2.imshow('big contours',im3)
+        cv2.waitKey(0)
+
         cv2.drawContours(im3,contours,n_max,(244,100,150),5)
-        cv2.imshow('biggest contours',im3)
-
-
-
-
+        x,y,w,h = cv2.boundingRect(contours[n_max])
+        cv2.rectangle(im3,(x,y),(x+w,y+h),(255,255,0),2)
+        cv2.imshow('the biggest contour(s)',im3)
+        print('contour {} is biggest at len {}, {} is second at {}'.format(n_max,max_area,n_next,next_area))
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
     '''Takes an image name, resize it and crop the center square
