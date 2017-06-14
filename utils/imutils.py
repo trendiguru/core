@@ -620,7 +620,7 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
       #   cv2.waitKey(0)
 
         print('n contours:'+str(len(contours)))
-        min_area_size = 500  #this is kind of arbitrary , trying to keep out small blobs
+        min_area_size = 1000  #this is kind of arbitrary , trying to keep out small blobs
         n_contour = 0
         im3 = np.zeros_like(img)
         max_area = 0
