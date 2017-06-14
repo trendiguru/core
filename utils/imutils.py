@@ -30,6 +30,7 @@ import string
 import random
 
 from trendi import background_removal
+from trendi.paperdoll import neurodoll_falcon_client
 
 os.environ['REDIS_HOST']='10'
 os.environ['MONGO_HOST']='10'
@@ -587,6 +588,62 @@ def mask_to_rects(mask):
     :param mask:
     :return:
     '''
+    uniques = np.unique(mask)
+    show_mask_with_labels(mask,labels=constants.ultimate_21,visual_output=True)
+
+    for u in uniques :
+        if u == 0:
+            continue #not intstd in bgnd
+        img = np.array((mask==u)*255,dtype=np.uint8)
+        if len(img.shape)==3:
+            print('got multichan image , taking 1st')
+            img = img[:,:,0] #take first channel;
+        n_pixels = np.shape(np.where(img!=0))[1]  #length of 1xn vector
+        print('size of mask=={} is {} (shape {})'.format(u,n_pixels,np.shape(np.where(img!=0))[1]))
+        if u!=-1:
+            # thismask = img*255
+            # show_mask_with_labels(thismask,labels=constants.ultimate_21,visual_output=True)
+            cv2.imshow("mask=={}".format(u), img)
+            cv2.waitKey(0)
+
+#        contours = cv2.findContours(img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE,contours)
+  #      contours = cv2.findContours(im2, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        im2, contours, hierarchy = cv2.findContours(img.copy(),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) #igc.copy() required here , this seems like it must be a cv2 bug
+#        print('contours for {}: {}'.format(u,conts))
+      #  cv2.drawContours(img*255,contours,-1,0,01)
+        cv2.drawContours(im2,contours,-1,(100,255,100),5)
+        cv2.imshow('contours',im2)
+        cv2.waitKey(0)
+
+        print('n contours:'+str(len(contours)))
+        min_contour_size = 500
+        n_contour = 0
+        im3 = img.copy()
+        max_area = 0
+        next_area = 0
+        n_max = 0
+        n_next = 0
+        for cnt in contours:
+            cnt_len = cv2.arcLength(cnt, True)
+            cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
+            if cnt_len>max_area:
+                next_area=max_area
+                n_next = n_max
+                max_area=cnt_len
+                n_max = n_contour
+            if  cv2.contourArea(cnt) > min_contour_size : #and cv2.isContourConvex(cnt):
+                print('contour length of contour  {} is {}'.format(n_contour,cnt_len))
+                cv2.drawContours(im3,contours,n_contour,(50,255,50),2)
+#                cv2.imshow('current contour',im3)
+            cv2.imshow('big contours',im3)
+            cv2.waitKey(0)
+            n_contour+=1
+
+        cv2.drawContours(im3,contours,n_max,(244,100,150),5)
+        cv2.imshow('biggest contours',im3)
+
+
+
 
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
@@ -1890,14 +1947,31 @@ if __name__ == "__main__":
 #        dir = '/home/jeremy/projects/core/images'
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
 
-    dir = '/home/jeremy/Dropbox/tg/color_snatches'
-    files = [os.path.join(dir,f) for f in os.listdir(dir)]
-    for file in files:
-        print('file '+file)
-        im1=cv2.imread(file)
-        cv2.imshow('im1',im1)
-        cv2.waitKey(0)
-        dominant_colors(im1)
+    if(1): #test mask to bbs
+        # url = 'http://s-media-cache-ak0.pinimg.com/736x/fe/5d/f7/fe5df7e80093f674ecc79a9f30069a8a.jpg'
+        # start=time.time()
+        # retval = neurodoll_falcon_client.nd(url,get_combined_results=True)
+        #
+        # elapsed = time.time()-start
+        # print('elapsed time in nd:'+str(elapsed))
+        # if retval['success']:
+        #     print('got nd')
+        #     cv2.imwrite('/home/jeremy/projects/core/images/dress_mask_u21.png',retval['mask'])
+        #     mask_to_rects(retval['mask'])
+        # else:
+        #     print('did not get good mask from ndfc')
+        mask = cv2.imread('/home/jeremy/projects/core/images/dress_mask_u21.png')
+        mask_to_rects(mask)
+
+    if(0) :  #test dominant colors
+        dir = '/home/jeremy/Dropbox/tg/color_snatches'
+        files = [os.path.join(dir,f) for f in os.listdir(dir)]
+        for file in files:
+            print('file '+file)
+            im1=cv2.imread(file)
+            cv2.imshow('im1',im1)
+            cv2.waitKey(0)
+            dominant_colors(im1)
 
 
 #     dir = '/home/jeremy/tg/pd_output'
