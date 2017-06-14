@@ -581,7 +581,7 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
     return output_img
 #dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
 
-def mask_to_rects(mask,visual_output=None,labels=constants.ultimate_21):
+def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
     '''
     given mask (eg from pixel level, not binary but several discrete values),
     find boudning boxes for 'reasonably large' blobs, maybe return just one per mask value ?
@@ -654,7 +654,8 @@ def mask_to_rects(mask,visual_output=None,labels=constants.ultimate_21):
             cv2.imshow('the biggest contour(s)',im3)
             cv2.waitKey(0)
         print('contour {} is biggest at len {}, {} is second at {}'.format(n_max,max_area,n_next,next_area))
-        bbs[labels[u]] = [x,y,w,h]
+        if max_area>min_contour_size:
+            bbs[labels[u]] = [x,y,w,h]
     return(bbs)
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
