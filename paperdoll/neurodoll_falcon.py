@@ -169,6 +169,7 @@ class NeurodollResource:
                 ret['combined_output'] = combined_output
                 ret['mask'] = combined_output
                 if combined_output is not None:
+                    ret["bbs"]=imutils.mask_to_rects(ret['mask'])
                     ret["success"] = True
 
             # yonti style - single category mask
@@ -196,9 +197,9 @@ class NeurodollResource:
             if not get_multilabel_results and not get_combined_results and not category_index:
                 print "No special params, inferring..."
                 ret["mask"],labels = neurodoll.infer_one(img)
-                ret["bbs"]=
                 if ret["mask"] is not None:
                     ret["success"] = True
+                    ret["bbs"]=imutils.mask_to_rects(ret["mask"])
                 else:
                     ret["error"] = "No mask from ND"
 
