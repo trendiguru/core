@@ -19,8 +19,8 @@ from .. import neurodoll
 #from .. import neurodoll_with_multilabel
 from .. import constants
 # from .darknet.pyDarknet import mydet
-from trendi import Utils
-
+#from trendi import Utils
+from trendi.utils import imutils
 
 print "Done with imports"
 
@@ -74,6 +74,7 @@ class NeurodollResource:
                     ret['results_page'] = "http://13.69.27.202:8099/"
                     ret['success'] = True
                     ret['found_categories'] = list(np.unique(combined_output))
+                    ret['bbs'] = imutils.mask_to_rects(combined_output)
 
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
@@ -102,6 +103,7 @@ class NeurodollResource:
                 ret["mask"],labels = neurodoll.infer_one(img)
                 if ret["mask"] is not None:
                     ret["success"] = True
+                    ret["bbs"] = imutils.mask_to_rects(ret["mask"])
                 else:
                     ret["error"] = "No mask from ND"
 
@@ -194,6 +196,7 @@ class NeurodollResource:
             if not get_multilabel_results and not get_combined_results and not category_index:
                 print "No special params, inferring..."
                 ret["mask"],labels = neurodoll.infer_one(img)
+                ret["bbs"]=
                 if ret["mask"] is not None:
                     ret["success"] = True
                 else:
