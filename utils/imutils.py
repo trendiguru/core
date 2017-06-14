@@ -620,7 +620,7 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
       #   cv2.waitKey(0)
 
         print('n contours:'+str(len(contours)))
-        min_contour_size = 500  #this is kind of arbitrary , trying to keep out small blobs
+        min_area_size = 500  #this is kind of arbitrary , trying to keep out small blobs
         n_contour = 0
         im3 = np.zeros_like(img)
         max_area = 0
@@ -630,13 +630,14 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
         for cnt in contours:
             cnt_len = cv2.arcLength(cnt, True)
             cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
-            if cnt_len>max_area:  #instead of just keeping max one could also try to bound all contours
+            area  = cv2.contourArea(cnt)
+            if area > max_area:  #instead of just keeping max one could also try to bound all contours
                 next_area=max_area
                 n_next = n_max
-                max_area=cnt_len
+                max_area=area
                 n_max = n_contour
-            if  cv2.contourArea(cnt) > min_contour_size : #and cv2.isContourConvex(cnt):
-                print('contour length of contour  {} is {}'.format(n_contour,cnt_len))
+            if  area > min_area_size : #and cv2.isContourConvex(cnt):
+                print('contour area of contour  {} is {}'.format(n_contour,area))
                 if visual_output:
                     cv2.drawContours(im3,contours,n_contour,(50,255,50),2)
 #                    cv2.imshow('current contour',im3)
@@ -654,7 +655,7 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
             cv2.imshow('the biggest contour(s)',im3)
             cv2.waitKey(0)
         print('contour {} is biggest at len {}, {} is second at {}'.format(n_max,max_area,n_next,next_area))
-        if max_area>min_contour_size:
+        if max_area>min_area_size:
             bbs[labels[u]] = [x,y,w,h]
     return(bbs)
 
