@@ -581,7 +581,7 @@ def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size 
     return output_img
 #dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
 
-def mask_to_rects(mask,visual_output=None):
+def mask_to_rects(mask,visual_output=None,labels=constants.ultimate_21):
     '''
     given mask (eg from pixel level, not binary but several discrete values),
     find boudning boxes for 'reasonably large' blobs, maybe return just one per mask value ?
@@ -590,11 +590,14 @@ def mask_to_rects(mask,visual_output=None):
     '''
     uniques = np.unique(mask)
     if visual_output:
-        show_mask_with_labels(mask,labels=constants.ultimate_21,visual_output=True)
-    bbs=[]
+        show_mask_with_labels(mask,labels=labels,visual_output=True)
+    bbs={}
     for u in uniques :
-        if u == 0:
+        if u == 0 :
             continue #not intstd in bgnd
+        if 'skin' in labels:
+            if u==labels.index('skin'):
+                continue #not intstd in skin
         img = np.array((mask==u)*255,dtype=np.uint8)
         if len(img.shape)==3:
             print('got multichan image , taking 1st')
@@ -651,7 +654,7 @@ def mask_to_rects(mask,visual_output=None):
             cv2.imshow('the biggest contour(s)',im3)
             cv2.waitKey(0)
         print('contour {} is biggest at len {}, {} is second at {}'.format(n_max,max_area,n_next,next_area))
-        bbs.append([x,y,w,h])
+        bbs[labels[u]] = [x,y,w,h]
     return(bbs)
 
 def resize_and_crop_maintain_bb( input_file_or_np_arr, output_file=None, output_width = 150, output_height = 200,use_visual_output=False,bb=None):
