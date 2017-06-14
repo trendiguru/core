@@ -620,7 +620,7 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
       #   cv2.waitKey(0)
 
         print('n contours:'+str(len(contours)))
-        min_contour_size = 500
+        min_contour_size =   #this is kind of arbitrary , trying to keep out small blobs
         n_contour = 0
         im3 = np.zeros_like(img)
         max_area = 0
@@ -630,7 +630,7 @@ def mask_to_rects(mask,visual_output=False,labels=constants.ultimate_21):
         for cnt in contours:
             cnt_len = cv2.arcLength(cnt, True)
             cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
-            if cnt_len>max_area:
+            if cnt_len>max_area:  #instead of just keeping max one could also try to bound all contours
                 next_area=max_area
                 n_next = n_max
                 max_area=cnt_len
