@@ -20,6 +20,9 @@ import pdb
 import requests
 import json
 import operator
+import gevent
+from gevent import socket
+
 
 from trendi import constants
 from trendi.utils import imutils
@@ -1411,6 +1414,13 @@ def combine_neurodoll_and_multilabel_using_graylevel(url_or_np_array,graylevel_n
 def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     #next two lines can be paralleled
     print('starting combine_neurodoll_v3labels_and_multilabel')
+
+    print('testing gevent')
+    urls = ['www.google.com', 'www.example.com', 'www.python.org']
+    jobs = [gevent.spawn(socket.gethostbyname, url) for url in urls]
+    gevent.joinall(jobs, timeout=2)
+    [job.value for job in jobs]
+
     print('getting graylevel output')
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
     print('GOT GRAYLEVEL output')

@@ -1974,7 +1974,7 @@ if __name__ == "__main__":
         # else:
         #     print('did not get good mask from ndfc')
         mask = cv2.imread('/home/jeremy/projects/core/images/dress_mask_u21.png')
-        bbs = mask_to_rects(mask)
+        bbs = mask_to_rects(mask,visual_output=True)
         print('bbs:{}'.format(bbs))
 
     if(0) :  #test dominant colors
