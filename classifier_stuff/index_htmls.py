@@ -144,9 +144,9 @@ def write_index_html_with_images(dir, files,indexname=None):
             continue
         f.write('<br>\n')
         file.replace('\n','')
-        print('writing line for file:'+file)
+       # logging.debug('writing line for file:'+file)
         fullpath = os.path.join(dir,file)
-        print('path:'+fullpath)
+    #    print('path:'+fullpath)
 #        modtime = time.ctime(latest_mtime_in_dir(fullpath)) #   os.path.getmtime(fullpath))
 #        print('modtime:'+modtime)
        # f.write('<a href=\"' + str(file) + '\">' + str(file) + ' <\\a>\n')
@@ -155,7 +155,7 @@ def write_index_html_with_images(dir, files,indexname=None):
 #            f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' + modtime+'\n')
             f.write('<a href=\"'+str(file)+'\">'+str(file)+'<img src = \"'+file+'\" style=\"width:300px\"></a> ' +'\n')
         else:
-            print('nonjpg line for '+file)
+ #           print('nonjpg line for '+file)
 #            f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + modtime+'\n')
             f.write('<a href=\"' + str(file) + '\">' + str(file) + ' </a> ' + '\n')
 
