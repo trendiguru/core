@@ -1419,7 +1419,8 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     urls = ['www.google.com', 'www.example.com', 'www.python.org']
     jobs = [gevent.spawn(socket.gethostbyname, url) for url in urls]
     gevent.joinall(jobs, timeout=2)
-    [job.value for job in jobs]
+    gevent_results = [job.value for job in jobs]
+    print('gevent results '+str(gevent_results))
 
     print('getting graylevel output')
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)
