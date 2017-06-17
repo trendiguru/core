@@ -1223,6 +1223,102 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
 
+def catalog_images_to_pixlevel(dir,visual_output=False, filter='.jpg',cats=constants.ultimate_21,forced_cat=None,label_dir=None):
+    '''
+    take catalog images (usu with uniform bgnd and large figure ), gc the fg , implant on some background (maybe noise) and generate mask
+    do all this without bb, assume figure is middle of image
+    :param dir:
+    :param visual_output:
+    :param filter:
+    :return:
+    '''
+
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    if forced_cat:
+        tgcat = forced_cat
+    else:
+        for cat in cats:
+            if cat in dir:
+                print('cat {} appears in dir {} so this appears to be a dir of {}'.format(cat,dir,cat))
+            tgcat = cat
+    print('using category {}'.format(tg_cat))
+
+    pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
+    pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
+    frequencies[pixlevel_v3_index]+=1
+    print('freq '+str(frequencies))
+    print('tgcat {} v3cat {} index {}'.format(tgcat,pixlevel_v3_cat,pixlevel_v3_index))
+
+    for file in files:
+        img_arr=cv2.imread(file)
+        mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])
+    # make new img with extraneous removed
+        if(visual_output):
+            cv2.imshow('after gc',img_arr2)
+      #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('orig',img_arr)
+            cv2.waitKey(0)
+
+
+        mask = np.where((mask!=0),1,0).astype('uint8') * pixlevel_v3_index  #mask should be from (0,1) but just in case...
+
+        skin_index = constants.pixlevel_categories_v3.index('skin')
+        skin_mask = kassper.skin_detection_fast(img_arr) * skin_index
+        mask2 = np.where(skin_mask!=0,skin_mask,mask)
+        overlap = np.bitwise_and(skin_mask,mask)
+        mask3 = np.where(overlap!=0,mask,mask2)
+
+        prefer_skin=False
+        if prefer_skin:
+            #take skin instead of gc in case of overlap
+            mask = mask2
+        else:
+            #take gc instaeda of skin in case of overlap
+            mask=mask3
+        if(visual_output):
+
+            imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3)
+            imutils.show_mask_with_labels(mask2,constants.pixlevel_categories_v3)
+            imutils.show_mask_with_labels(mask3,constants.pixlevel_categories_v3)
+            imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3)
+      #
+            cv2.imshow('mask1',mask)
+      #       cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('mask2',mask2)
+            cv2.imshow('mask3',mask3)
+            cv2.imshow('overlap',overlap)
+
+            cv2.waitKey(0)
+
+        gc_img_name = image_path.replace('.jpg','_gc.jpg')
+        print('writing img to '+str(gc_img_name))
+        res = cv2.imwrite(gc_img_name,img_arr2)
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(gc_img_name))
+
+
+        maskname = image_path.replace('.jpg','.png')
+        print('writing mask to '+str(maskname))
+        res = cv2.imwrite(maskname,mask)
+        if not res:
+            logging.warning('bad save result '+str(res)+' for '+str(maskname))
+
+    #        img_arr2=np.where(skin_mask!=0[:,:,np.newaxis],img_arr,img_arr2)
+        if(visual_output):
+            cv2.imshow('gc',img_arr2)
+            cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
+            cv2.imshow('orig',img_arr)
+            cv2.waitKey(0)
+            imutils.count_values(mask,constants.pixlevel_categories_v3)
+            imutils.show_mask_with_labels(mask,constants.pixlevel_categories_v3,original_image=gc_img_name,visual_output=True)
+
+
+        line = gc_img_name+' '+maskname+'\n'
+        Utils.ensure_file(labelfile)
+        fp2.write(line)
+        fp2.close()
+
+
 
 def read_and_convert_deepfashion_bbfile(bbfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/Anno/list_bbox.txt',
                                         labelfile='/data/jeremy/image_dbs/deep_fashion/category_and_attribute_prediction/df_pixlabels.txt',
