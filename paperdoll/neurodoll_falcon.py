@@ -38,23 +38,11 @@ class NeurodollResource:
         threshold = req.get_param('threshold')
         get_multilabel_results = req.get_param_as_bool('getMultilabelResults')
         get_combined_results = req.get_param_as_bool('getCombinedResults')
-        get_layer_output = req.get_param_as_bool('getLayerOutput')
-        get_all_graylevels = req.get_param_as_bool('getAllGrayLevels')
-        get_category_graylevel = req.get_param_as_bool('getCategoryGraylevel')
 
         image_url = req.get_param('imageUrl', required=True)
 
         try:
             img = image_url # Utils.get_cv2_img_array(image_url)
-
-            #all graylevel outputs
-            if get_all_graylevels:
-                all_graylevel_output = neurodoll.get_all_category_graylevels(img)
-                ret['all_graylevel_output'] = all_graylevel_output
-                if all_graylevel_output is not None:
-                    print('all graylevel output shape:'+str(all_graylevel_output.shape))
-                    ret["success"] = True
-
 
             # multilabel alone
             if get_multilabel_results:
@@ -79,23 +67,6 @@ class NeurodollResource:
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
 
-            if category_index:
-                if threshold:
-                    print('neurodoll falcon sending img and threshold to get_cat_gl_masked_thresholded')
-                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index,threshold=threshold)
-                else:
-                    print('neurodoll falcon sending img without threshold to get_cat_gl_masked_thresholded')
-                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index)
-                if ret["mask"] is not None:
-                    ret["success"] = True
-
-            # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
-            if get_layer_output:
-                ret["layer_output"] = neurodoll.get_layer_output(img,layer=get_layer_output)
-                if ret["layer_output"] is not None:
-                    ret["success"] = True
-                else:
-                    ret["error"] = "no layer output obtained"
 
             # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:
@@ -126,13 +97,9 @@ class NeurodollResource:
         ret = {"success": False}
         
         # Query Params
-        category_index = req.get_param_as_int('categoryIndex')
         threshold = req.get_param('threshold')
         get_multilabel_results = req.get_param_as_bool('getMultilabelResults')
         get_combined_results = req.get_param_as_bool('getCombinedResults')
-        get_layer_output = req.get_param_as_bool('getLayerOutput')
-        get_all_graylevels = req.get_param_as_bool('getAllGrayLevels')
-        get_category_graylevel = req.get_param_as_bool('getCategoryGraylevel')
 
         image_url = req.get_param('imageUrl')
 
@@ -142,16 +109,6 @@ class NeurodollResource:
             else:
                 data = msgpack.loads(req.stream.read())
                 img = data.get("image")
-
-
-            #all graylevel outputs
-            if get_all_graylevels:
-                all_graylevel_output = neurodoll.get_all_category_graylevels(img)
-                ret['all_graylevel_output'] = all_graylevel_output
-                if all_graylevel_output is not None:
-                    print('all graylevel output shape:'+str(all_graylevel_output.shape))
-                    ret["success"] = True
-
 
             # multilabel alone
             if get_multilabel_results:
@@ -175,23 +132,6 @@ class NeurodollResource:
             # yonti style - single category mask
             ret["label_dict"] = constants.ultimate_21_dict
 
-            if category_index:
-                if threshold:
-                    print('neurodoll falcon sending img and threshold to get_cat_gl_masked_thresholded')
-                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index,threshold=threshold)
-                else:
-                    print('neurodoll falcon sending img without threshold to get_cat_gl_masked_thresholded')
-                    ret["mask"] = neurodoll.get_category_graylevel_masked_thresholded(img, category_index)
-                if ret["mask"] is not None:
-                    ret["success"] = True
-
-            # layer output for yonti - default is last fc layer (myfc7) but any can be accessed (put layer name as argument)
-            if get_layer_output:
-                ret["layer_output"] = neurodoll.get_layer_output(img,layer=get_layer_output)
-                if ret["layer_output"] is not None:
-                    ret["success"] = True
-                else:
-                    ret["error"] = "no layer output obtained"
 
             # regular neurodoll call
             if not get_multilabel_results and not get_combined_results and not category_index:

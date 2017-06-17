@@ -1,6 +1,10 @@
+from __future__ import print_function
+
 '''
-generally for reading db's having bb's
+generally for reading db's having bb's or pixlevel
 pascal voc
+kitti
+mapillary
 http://host.robots.ox.ac.uk/pascal/VOC/databases.html#VOC2005_2
 
 '''
@@ -25,6 +29,16 @@ from functools import partial
 from itertools import repeat
 import copy
 import numpy as np
+import time
+
+#for mapillary, got lazy and not using cv2 instead of original PIL
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+
+from PIL import Image
+
+
 
 from trendi import Utils
 from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
@@ -171,9 +185,9 @@ def read_rmptfmp_write_yolo(images_dir='/data/jeremy/image_dbs/hls/data.vision.e
     with open(os.path.join(images_dir,gt_file),'r') as fp:
         lines = fp.readlines()
         for line in lines:
-            print line
+            print(line)
             elements = re.findall(r"[-\w']+",line)
-            print elements
+            print(elements)
         #    elements = line.split
             imgname = line.split()[0].replace('"','').replace(':','').replace('\n','')#.replace('.png','_0.png')
         #    print('img name '+str(imgname))
@@ -1704,53 +1718,103 @@ def inspect_yolo_annotation(annotation_file,img_file):
         cv2.waitKey(0)
     return(bbs,img_arr)
 
+def apply_color_map(image_array, labels):
+    color_array = np.zeros((image_array.shape[0], image_array.shape[1], 3), dtype=np.uint8)
 
-###this all seems covered by yolo_to_tgdict, jeez
-# def read_yolo_annotations(img_file,annotation_file=None,
-#             replace_this='/data/jeremy',with_this='/media/jeremy/9FBD-1B00/data/jeremy',labels_dir='labels',
-#             classes=constants.hls_yolo_categories):
-#     '''
-#     read yolo annotation, give json with bb_xywh
-#     :param annotation_file:
-#     :param img_file:
-#     :return:
-#     '''
-#     if annotation_file is not None:
-#         pass
-#     else:
-#         if replace_this is not None:
-#             img_file.replace(replace_this,with_this)
-#         pardir = Utils.parent_dir(img_file)
-#         lbldir = os.path.join(pardir,labels_dir)
-#         lblname = os.path.basename(img_file).replace('.jpg','txt')
-#         annotation_file = os.path.join(lbldir,lblname)
-#
-#     img_arr=cv2.imread(img_file)
-#     if img_arr is  None:
-#         print('{} seems bad'.format(img_arr))
-#     h,w=img_arr.shape[0:2]
-#     print('checking label at {}'.format(annotation_file))
-#     bbs=[]
-#     res = {}
-#     with open(annotation_file,'r') as fp:
-#         lines = fp.readlines()
-#         for line in lines:
-#             if line.strip() == '':
-#                 print('empty line')
-#                 continue
-#             print('got line:'+line)
-#             if line.strip()[0]=='#':
-#                 print('commented line')
-#                 continue
-#             object_class,bb0,bb1,bb2,bb3 = line.split()
-#             bb_xywh = imutils.yolo_to_xywh([float(bb0),float(bb1),float(bb2),float(bb3)],(w,h))
-#             bbs.append(bb_xywh)
-#             classname = classes[int(object_class)]
-#             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
-#         res['bbs_xywh']=bbs
-#         res['filename']=annotation_file
-#         print(res)
-#         return(res)
+    for label_id, label in enumerate(labels):
+        # set all pixels with the current label to the color of the current label
+        color_array[image_array == label_id] = label["color"]
+
+    return color_array
+
+def mapillary_people_only(dir='/data/jeremy/image_dbs/hls/mapillary/',visual_output=False):
+    # a nice example
+    os.chdir(dir)
+    # read in config file
+    with open('config.json') as config_file:
+        config = json.load(config_file)
+    # in this example we are only interested in the labels
+    labels = config['labels']
+
+    # print labels
+    print("There are {} labels in the config file".format(len(labels)))
+    for label_id, label in enumerate(labels):
+        print("{:>30} ({:2d}): {:<50} has instances: {}".format(label["readable"], label_id, label["name"], label["instances"]))
+    #for converting the humans , labels of interest are
+    # Person (19): human--person
+    # Bicyclist (20): human--rider--bicyclist
+    # Motorcyclist (21): human--rider--motorcyclist
+    # Other Rider (22): human--rider--other-rider
+    label_id_person=19
+    label_id_bicyclist=20
+    label_id_motorcyclist=21
+    label_id_other_rider=22
+
+    # set up paths for every image
+    keys = [f[:-4] for f in os.listdir('training/images/')]
+    for key in keys:
+
+        image_path = "training/images/{}.jpg".format(key)
+        label_path = "training/labels/{}.png".format(key)
+        instance_path = "training/instances/{}.png".format(key)
+
+        # load images
+        base_image = Image.open(image_path)
+        label_image = Image.open(label_path)
+        instance_image = Image.open(instance_path)
+
+        # convert labeled data to numpy arrays for better handling
+        label_array = np.array(label_image)
+        instance_array = np.array(instance_image, dtype=np.uint16)
+
+
+        # now we split the instance_array into labels and instance ids
+        instance_label_array = np.array(instance_array / 256, dtype=np.uint8)
+        instance_ids_array = np.array(instance_array % 256, dtype=np.uint8)
+
+        unique_labels = np.unique(label_array)
+        if not(label_id_person in unique_labels or label_id_bicyclist in unique_labels or label_id_motorcyclist in unique_labels or label_id_other_rider in unique_labels):
+            print('no person in this image')
+            continue
+
+        people_only_array = np.zeros((label_array.shape[0], label_array.shape[1]), dtype=np.uint8)
+
+        people_only_array[label_array == label_id_person] = 1  #labels here are people=1, everything else=0
+        people_only_array[label_array == label_id_bicyclist] = 1
+        people_only_array[label_array == label_id_motorcyclist] = 1
+        people_only_array[label_array == label_id_other_rider] = 1
+
+        label_array=people_only_array
+        # for visualization, we apply the colors stored in the config
+        colored_label_array = apply_color_map(label_array, labels)
+        colored_instance_label_array = apply_color_map(instance_label_array, labels)
+        if visual_output:
+            # plot the result
+            fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(20,15))
+
+            ax[0][0].imshow(base_image)
+            ax[0][0].get_xaxis().set_visible(False)
+            ax[0][0].get_yaxis().set_visible(False)
+            ax[0][0].set_title("Base image")
+            ax[0][1].imshow(colored_label_array)
+            ax[0][1].get_xaxis().set_visible(False)
+            ax[0][1].get_yaxis().set_visible(False)
+            ax[0][1].set_title("Labels")
+            ax[1][0].imshow(instance_ids_array)
+            ax[1][0].get_xaxis().set_visible(False)
+            ax[1][0].get_yaxis().set_visible(False)
+            ax[1][0].set_title("Instance IDs")
+            ax[1][1].imshow(colored_instance_label_array)
+            ax[1][1].get_xaxis().set_visible(False)
+            ax[1][1].get_yaxis().set_visible(False)
+            ax[1][1].set_title("Labels from instance file (identical to labels above)")
+        #    raw_input('ret to cont')
+            plt.show()
+            time.sleep(0.1)
+            plt.close()
+        #    fig.savefig('MVD_plot.png')
+
+
 
 
 def show_annotations_xywh(bb_xywh,img_arr):
@@ -1918,7 +1982,8 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
 
 if __name__ == "__main__":
 
-    kitti_to_tgdict()
+    mapillary_people_only(visual_output=True)
+#    kitti_to_tgdict()
 #
     #     augment_yolo_bbs()
 
