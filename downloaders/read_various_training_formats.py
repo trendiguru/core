@@ -1223,7 +1223,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
 
-def catalog_images_to_pixlevel(dir,visual_output=False, filter='.jpg',cats=constants.ultimate_21,forced_cat=None,label_dir=None):
+def catalog_image_to_pixlevel_mask(dir,visual_output=False, filter='.jpg',cats=constants.ultimate_21,forced_cat=None,label_dir=None):
     '''
     take catalog images (usu with uniform bgnd and large figure ), gc the fg , implant on some background (maybe noise) and generate mask
     do all this without bb, assume figure is middle of image
