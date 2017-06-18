@@ -16,11 +16,25 @@ def test_skin_from_face(img_arr):
 
             for face in faces:
                 print('cascade face:{}'.format(face))
-                cv2.rectangle(img_ff_cascade,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),5)
-                fsc = background_removal.face_skin_color_estimation()
+                cv2.rectangle(img_ff_cascade,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),2)
+                fsc = face_skin_color_estimation(img_arr,face)
                 print('face skin color {}'.format(fsc))
             cv2.imshow('ffcascade',img_ff_cascade)
+            cv2.waitKey(0)
 
+def face_skin_color_estimation(image, face_rect):
+    x, y, w, h = face_rect
+    face_image = image[y:y + h, x:x + w, :]
+    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+    bins = 180
+    n_pixels = face_image.shape[0] * face_image.shape[1]
+    hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
+    hist_hue = np.divide(hist_hue, n_pixels)
+    skin_hue_list = []
+    for l in range(0, 180):
+        if hist_hue[l] > 0.013:
+            skin_hue_list.append(l)
+    return skin_hue_list
 
 def compare_detection_methods(img_arr):
     cv2.imshow('orig',img_arr)
