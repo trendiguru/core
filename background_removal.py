@@ -15,6 +15,7 @@ from . import ccv_facedetector as ccv
 from . import kassper
 import time
 from functools import partial
+import sklearn
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -475,6 +476,46 @@ def face_skin_color_estimation(image, face_rect):
         if hist_hue[l] > 0.013:
             skin_hue_list.append(l)
     return skin_hue_list
+
+
+def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
+    '''
+    get params of skin color - gaussian approx for h,s,v (independently)
+    :param image:
+    :param face_rect:
+    :param visual_output:
+    :return: [(h_mean,h_std),(s_mean,s_std),(v_mean,v_std)]
+    '''
+
+    x, y, w, h = face_rect
+    face_image = image[y:y + h, x:x + w, :]
+    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+    n_pixels = face_image.shape[0]*face_image.shape[1]
+    print('npixels:'+str(n_pixels))
+    # p0 is the initial guess for the fitting coefficients (A, mu and sigma above)
+    # Define some test data which is close to Gaussian
+    gmm = sklearn.mixture.GMM()
+#    r = gmm.fit(face_hsv) # GMM requires 2D data as of sklearn version 0.16
+    channels = [np.ravel(face_hsv[:,:,0]),np.ravel(face_hsv[:,:,1]),np.ravel(face_hsv[:,:,2])]
+    labels = ['h','s','v']
+    results = []
+    for data,label in zip(channels,labels):
+        r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
+        print("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
+        results.append((r.means_[0, 0], r.covars_[0, 0]))
+        hist, bin_edges = np.histogram(data, density=False)
+        bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+        p0 = [1., 0., 1.]
+        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
+        # Get the fitted curve
+
+        if visual_output:
+            plt.plot(bin_centres, hist,'.-', label='Test data '+label)
+        # Finally, lets get the fitting parameters, i.e. the mean and standard deviation:
+    if visual_output:
+        plt.legend()
+        plt.show()
+    return results
 
 
 def simple_mask_grabcut(image, rect=None, mask=None):

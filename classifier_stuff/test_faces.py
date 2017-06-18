@@ -1,6 +1,11 @@
 __author__ = 'Nadav Paz'
+
+import numpy as np
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 import os
 import cv2
+import sklearn.mixture
 
 from trendi import background_removal
 
@@ -17,24 +22,84 @@ def test_skin_from_face(img_arr):
             for face in faces:
                 print('cascade face:{}'.format(face))
                 cv2.rectangle(img_ff_cascade,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),2)
-                fsc = face_skin_color_estimation(img_arr,face)
+                fsc = face_skin_color_estimation_gmm(img_arr,face,visual_output=True)
                 print('face skin color {}'.format(fsc))
             cv2.imshow('ffcascade',img_ff_cascade)
             cv2.waitKey(0)
+
+
+# Define model function to be used to fit to the data above:
+def gauss(x, *p):
+    A, mu, sigma = p
+    return A*np.exp(-(x-mu)**2/(2.*sigma**2))
+
+
 
 def face_skin_color_estimation(image, face_rect):
     x, y, w, h = face_rect
     face_image = image[y:y + h, x:x + w, :]
     face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
-    bins = 180
-    n_pixels = face_image.shape[0] * face_image.shape[1]
-    hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
-    hist_hue = np.divide(hist_hue, n_pixels)
-    skin_hue_list = []
-    for l in range(0, 180):
-        if hist_hue[l] > 0.013:
-            skin_hue_list.append(l)
-    return skin_hue_list
+    n_pixels = face_image.shape[0]*face_image.shape[1]
+    print('npixels:'+str(n_pixels))
+    # p0 is the initial guess for the fitting coefficients (A, mu and sigma above)
+    # Define some test data which is close to Gaussian
+    channels = [np.ravel(face_hsv[:,:,0]),np.ravel(face_hsv[:,:,1]),np.ravel(face_hsv[:,:,2])]
+    labels = ['h','s','v']
+    for data,label in zip(channels,labels):
+        hist, bin_edges = np.histogram(data, density=False)
+        bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+        p0 = [1., 0., 1.]
+        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
+        # Get the fitted curve
+        hist_fit = gauss(bin_centres, *coeff)
+        plt.plot(bin_centres, hist,'.-', label='Test data '+label)
+        plt.plot(bin_centres, hist_fit, 'o-',label='Fitted data '+label)
+        # Finally, lets get the fitting parameters, i.e. the mean and standard deviation:
+        print 'Fitted mean = ', coeff[1]
+        print 'Fitted standard deviation = ', coeff[2]
+        print('coeff 0 '+str(coeff[0]))
+    plt.legend()
+    plt.show()
+
+def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
+    '''
+    get params of skin color - gaussian approx for h,s,v (independently)
+    :param image:
+    :param face_rect:
+    :param visual_output:
+    :return: [(h_mean,h_std),(s_mean,s_std),(v_mean,v_std)]
+    '''
+
+    x, y, w, h = face_rect
+    face_image = image[y:y + h, x:x + w, :]
+    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+    n_pixels = face_image.shape[0]*face_image.shape[1]
+    print('npixels:'+str(n_pixels))
+    # p0 is the initial guess for the fitting coefficients (A, mu and sigma above)
+    # Define some test data which is close to Gaussian
+    gmm = sklearn.mixture.GMM()
+#    r = gmm.fit(face_hsv) # GMM requires 2D data as of sklearn version 0.16
+    channels = [np.ravel(face_hsv[:,:,0]),np.ravel(face_hsv[:,:,1]),np.ravel(face_hsv[:,:,2])]
+    labels = ['h','s','v']
+    results = []
+    for data,label in zip(channels,labels):
+        r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
+        print("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
+        results.append((r.means_[0, 0], r.covars_[0, 0]))
+        hist, bin_edges = np.histogram(data, density=False)
+        bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+        p0 = [1., 0., 1.]
+        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
+        # Get the fitted curve
+
+        if visual_output:
+            plt.plot(bin_centres, hist,'.-', label='Test data '+label)
+        # Finally, lets get the fitting parameters, i.e. the mean and standard deviation:
+    if visual_output:
+        plt.legend()
+        plt.show()
+    return results
+
 
 def compare_detection_methods(img_arr):
     cv2.imshow('orig',img_arr)
