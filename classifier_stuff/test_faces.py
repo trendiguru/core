@@ -4,7 +4,7 @@ import cv2
 
 from trendi import background_removal
 
-def test_skin_from_face(img_arr)
+def test_skin_from_face(img_arr):
     ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
     print('ffcas:'+str(ff_cascade))
     if ff_cascade['are_faces'] :
@@ -70,7 +70,8 @@ def check_dir(dir):
         if img_arr is None:
             print('got none img arr for {}'.format(f))
             continue
-        compare_detection_methods(img_arr)
+#        compare_detection_methods(img_arr)
+        test_skin_from_face(img_arr)
 
 if __name__ == "__main__":
     dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/suit/'
