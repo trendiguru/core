@@ -90,6 +90,7 @@ def find_face_cascade(image, max_num_of_faces=10):
 def find_face_dlib(image, max_num_of_faces=10):
     faces = detector(image, 1)
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
+    print('dlib found {} faces'+str(len(faces)))
     if not len(faces):
         return {'are_faces': False, 'faces': []}
     final_faces = choose_faces(image, faces, max_num_of_faces)
@@ -114,7 +115,7 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
         print("Detection {}, score: {}, face_type:{}".format(
             d, scores[i], idx[i]))
 
-    print("Done in %.3f s." % (time.time() - start))
+    print("dlib found {} faces in {} s.".format(len(faces),(time.time() - start)))
 
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
