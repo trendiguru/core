@@ -45,6 +45,8 @@ from trendi.classifier_stuff.caffe_nns import create_nn_imagelsts
 from trendi.utils import imutils
 from trendi import constants
 from trendi import kassper
+from trendi import background_removal
+
 #from trendi.utils import augment_images
 
 def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/training/label_2',
@@ -1120,7 +1122,6 @@ def convert_x1x2y1y2_to_yolo(size, box):
 #def partial_helper = partial(convert_deepfashion_helper,)
 
 
-frequencies = [0 for i in constants.pixlevel_categories_v3]
 
 def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir)):
 #    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
@@ -1223,7 +1224,7 @@ def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pard
         #       img_arr=remove_irrelevant_parts_of_image(img_arr,[x1,y1,x2,y2],pixlevel_v3_cat)
         #        imutils.show_mask_with_labels(maskname,constants.pixlevel_categories_v3,original_image=image_path,visual_output=False)
 
-def catalog_image_to_pixlevel_mask(dir,visual_output=False, filter='.jpg',cats=constants.ultimate_21,forced_cat=None,label_dir=None):
+def catalog_image_to_pixlevel_mask_nobb(dir,visual_output=False, filter='.jpg',cats=constants.ultimate_21,forced_cat=None,label_dir=None):
     '''
     take catalog images (usu with uniform bgnd and large figure ), gc the fg , implant on some background (maybe noise) and generate mask
     do all this without bb, assume figure is middle of image
@@ -1241,7 +1242,7 @@ def catalog_image_to_pixlevel_mask(dir,visual_output=False, filter='.jpg',cats=c
             if cat in dir:
                 print('cat {} appears in dir {} so this appears to be a dir of {}'.format(cat,dir,cat))
             tgcat = cat
-    print('using category {}'.format(tg_cat))
+    print('using category {}'.format(tgcat))
 
     pixlevel_v3_cat = constants.trendi_to_pixlevel_v3_map[tgcat]
     pixlevel_v3_index = constants.pixlevel_categories_v3.index(pixlevel_v3_cat)
@@ -1251,7 +1252,7 @@ def catalog_image_to_pixlevel_mask(dir,visual_output=False, filter='.jpg',cats=c
 
     for file in files:
         img_arr=cv2.imread(file)
-        mask,img_arr2 = grabcut_bb(img_arr,[x1,y1,x2,y2])
+        mask,img_arr2 = grabcut_no_bb(img_arr)
     # make new img with extraneous removed
         if(visual_output):
             cv2.imshow('after gc',img_arr2)
@@ -1680,6 +1681,185 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2,img_arr
+
+def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
+    '''
+    grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
+     then kill anything outside of bb
+     also anything thats utter white or blacak should get prbgd
+    return mask and gc image
+    :param img_arr:
+    :param bb_x1y1x2y2:
+    :return:
+    '''
+    orig_arr = copy.copy(img_arr)
+    labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
+    bgdmodel = np.zeros((1, 65), np.float64)
+    fgdmodel = np.zeros((1, 65), np.float64)
+
+    mask = np.zeros(img_arr.shape[:2], np.uint8)
+    h,w = img_arr.shape[0:2]
+
+
+    #start with everything bg
+    mask[:,:] = cv2.GC_BGD
+
+    #big box (except for outer margin ) is pr_bg
+    pr_bg_frac = 0.05
+    pr_bg_margin_ud= int(pr_bg_frac*(h))
+    pr_bg_margin_lr= int(pr_bg_frac*(w))
+    mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
+
+#prevent masks frrom adding together by doing boolean or
+    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+    print('after bigbox '+str(nprbgd))
+
+#    cv2.imwrite('perimeter.jpg',img_arr)
+#     imutils.count_values(mask,labels=labels)
+#     imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    #everything in bb+margin is pr_fgd
+    pr_fg_frac = 0.0
+    pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    pr_bg_margin_lr= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
+
+
+    # print('after middlebox '+str(nprbgd))
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
+
+    #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
+    #a coat over a shirt and the sirt is visible
+    center_frac=0.1
+    side_frac = 0.1
+
+    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    upper_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    lower_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+
+    center_y=(bb_x1y1x2y2[1]+bb_x1y1x2y2[3])/2
+    center_x=(bb_x1y1x2y2[0]+bb_x1y1x2y2[2])/2
+    top=max(0,center_y-upper_margin)
+    bottom=min(h,center_y+lower_margin)
+    left = max(0,center_x-side_margin)
+    right = min(w,center_x+side_margin)
+    print('fg box t {} b {} l {} r {}'.format(top,bottom,left,right))
+    if top>bottom:
+        temp=top
+        top=bottom
+        bottom=temp
+    if clothing_type == 'upper_cover':
+        mask[top:bottom,left:right] = cv2.GC_PR_FGD
+    else:
+        mask[top:bottom,left:right] = cv2.GC_FGD
+    # print('after innerbox ')
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
+    # print('unqies '+str(np.unique(mask)))
+
+#add white and black vals as pr bgd
+    whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
+    mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
+    #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
+    blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([1,1,1]))
+    mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
+    nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+
+    # print('after blackwhite ')
+    # imutils.count_values(mask,labels)
+    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
+
+
+    logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
+    rect = (bb_x1y1x2y2[0],bb_x1y1x2y2[1],bb_x1y1x2y2[2],bb_x1y1x2y2[3])
+    try:
+        #TODO - try more than 1 grabcut call in itr
+        itr = 1
+        cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
+    except:
+        print('grabcut exception ')
+        return img_arr
+    #kill anything no t in gc
+    mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
+    #kill anything out of bb (except head)
+#    mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+    mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+    mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+    mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+    img_arr = img_arr*mask2[:,:,np.newaxis]
+
+    fadeout = np.zeros([h,w],dtype=np.float )
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=1.0
+#    fadeout[0:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=1.0
+    fadefrac = 0.1
+    fade_dist_ud = int(fadefrac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
+    fade_dist_rl = int(fadefrac*(bb_x1y1x2y2[2]-bb_x1y1x2y2[0]))
+
+    fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_ud)
+    fademat = np.tile(fadevec,(bb_x1y1x2y2[2]-bb_x1y1x2y2[0],1))
+    fademat=fademat.transpose()
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[1]+fade_dist_ud,bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=fademat #top
+    fadeout[bb_x1y1x2y2[3]-fade_dist_ud:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]]=(1-fademat) #bottom
+
+    fadevec = np.arange(start=0,stop=1,step=1.0/fade_dist_rl)
+    fademat = np.tile(fadevec,(bb_x1y1x2y2[3]-bb_x1y1x2y2[1],1))
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[0]+fade_dist_rl]=fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[0]+fade_dist_rl]*fademat
+        #np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],fademat)
+    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]]=    fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[2]-fade_dist_rl:bb_x1y1x2y2[2]] * (1-fademat)
+    #=np.maximum(fadeout[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]-fade_dist_rl:bb_x1y1x2y2[0]],(1-fademat))
+
+
+    skin_index = constants.pixlevel_categories_v3.index('skin')
+    skin_mask = kassper.skin_detection_fast(orig_arr) * 255
+    if visual_output:
+        cv2.imshow('skin',skin_mask)
+        cv2.waitKey(0)
+
+
+    fadeout = np.where(skin_mask!=0,skin_mask,fadeout)
+
+#    mask2 = np.where(skin_mask!=0,constants.pixlevel_categories_v3.index('skin'),mask2)
+
+
+    # cv2.imshow('fade',fadeout)
+    # cv2.waitKey(0)
+    # mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+    # mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+    # mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+    # mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+#    img_arr = img_arr*mask2[:,:,np.newaxis]
+    #can use img_arr (after gc) here instead of orig_arr
+    dofade=False
+    if dofade:
+        img_arr = (orig_arr*fadeout[:,:,np.newaxis]).astype('uint8')
+    # cv2.imshow('after orig*fadeout',img_arr)
+    img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
+    # cv2.imshow('after skin add',img_arr)
+    # cv2.waitKey(0)
+
+ #    negmask = np.where(mask2==0,1,0).astype('uint8')
+ #    imutils.show_mask_with_labels(negmask,['0','1','2','3'])
+ # #   fadeout = fadeout/255.0 #this was defined as float so its ok
+    fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
+    print('fillval '+str(fillval))
+    bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
+    bgnd_arr[:,:]=fillval
+#    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
+
+    img_arr = np.where(img_arr==0,bgnd_arr,img_arr)
+
+
+ #    cv2.imshow('bgnd arr',bgnd_arr)
+ #    cv2.waitKey(0)
+    if(visual_output):
+#    plt.imshow(img),plt.colorbar(),plt.show()
+        cv2.imshow('after gc',img_arr)
+        cv2.waitKey(0)
+
+    logging.debug('imgarr shape after gc '+str(img_arr.shape))
+    return mask2,img_arr
+
+
 
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',

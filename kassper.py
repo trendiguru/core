@@ -2,7 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-# from . import background_removal
+from . import background_removal
 
 
 def clutter_removal(image, thresh):     # non-recursive
@@ -63,48 +63,6 @@ def get_mask(image):
                 mask[i][j] = 255
     return mask
 
-
-# def skin_removal(gc_image, image):
-#     rect = (0, 0, image.shape[1] - 1, image.shape[0] - 1)
-#     bgdmodel = np.zeros((1, 65), np.float64)
-#     fgdmodel = np.zeros((1, 65), np.float64)
-#     ycrcb = cv2.cvtColor(gc_image, cv2.COLOR_BGR2YCR_CB)
-#     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-#     face_rect = background_removal.find_face_cascade(image)
-#     if len(face_rect) > 0:
-#         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-#         x, y, w, h = face_rect[0]
-#         face_image = image[y:y + h, x:x + w, :]
-#         face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
-#         bins = 180
-#         n_pixels = face_image.shape[0] * face_image.shape[1]
-#         hist_hue = cv2.calcHist([face_hsv], [0], None, [bins], [0, 180])
-#         hist_hue = np.divide(hist_hue, n_pixels)
-#         skin_hue_list = []
-#         for l in range(0, 180):
-#             if hist_hue[l] > 0.013:
-#                 skin_hue_list.append(l)
-#         for i in range(0, gc_image.shape[0]):
-#             for j in range(0, gc_image.shape[1]):
-#                 if hsv[i][j][0] in skin_hue_list and ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < \
-#                         ycrcb[i][j][2] < 120:
-#                     mask[i][j] = 2
-#                 else:
-#                     mask[i][j] = 3
-#     else:
-#         for i in range(0, gc_image.shape[0]):
-#             for j in range(0, gc_image.shape[1]):
-#                 if ycrcb[i][j][0] > 0 and 133 < ycrcb[i][j][1] < 173 and 80 < ycrcb[i][j][2] < 120:
-#                     mask[i][j] = 2
-#                 else:
-#                     mask[i][j] = 3
-#     cv2.grabCut(gc_image, mask, rect, bgdmodel, fgdmodel, 1, cv2.GC_INIT_WITH_MASK)
-#     mask2 = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
-#     # without_skin = background_removal.get_masked_image(gc_image, mask2)
-#     # return without_skin
-#     return mask2
-
-
 def skin_detection_with_grabcut(gc_image, image, face=None, skin_or_clothes='clothes'):
     rect = (0, 0, gc_image.shape[1] - 1, gc_image.shape[0] - 1)
     bgdmodel = np.zeros((1, 65), np.float64)
@@ -163,8 +121,21 @@ def skin_detection_fast(image_arr, face=None):
     :param face:
     :return:
     '''
+
+    ff_cascade = background_removal.find_face_cascade(image_arr, max_num_of_faces=10)
+    print('ffcascade:'+str(ff_cascade))
+    if ff_cascade['are_faces'] :
+        faces = ff_cascade['faces']
+        if faces == []:
+            print('ffascade reported faces but gave none')
+        else:
+            face = background_removal.choose_faces(faces,1)
+            skin_colors = background_removal.face_skin_color_estimation_gmm(image_arr,face)
+
+
+
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
-    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
+#    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
     mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))
     # mask2 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([133,255,255]))
     # mask3 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([255,255,120]))
