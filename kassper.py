@@ -2,7 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-from . import background_removal
+from trendi import background_removal
 
 
 def clutter_removal(image, thresh):     # non-recursive

@@ -154,6 +154,7 @@ def check_dir(dir):
 
 if __name__ == "__main__":
     dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/suit/'
+    dir = '/data/jeremy/image_dbs/mongo/amazon_us_female/suit/'
     check_dir(dir)
     # subdirs = [os.path.join(dir, d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
     # print('{} subdirs in {}'.format(len(subdirs),dir))

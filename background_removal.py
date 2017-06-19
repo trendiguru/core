@@ -16,6 +16,7 @@ from . import kassper
 import time
 from functools import partial
 import sklearn
+from matplotlib import plt
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -489,15 +490,16 @@ def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
 
     x, y, w, h = face_rect
     face_image = image[y:y + h, x:x + w, :]
-    face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+  # face_hsv = cv2.cvtColor(face_image, cv2.COLOR_BGR2HSV)
+    face_YCrCb = cv2.cvtColor(face_image, cv2.COLOR_BGR2YCrCb)
     n_pixels = face_image.shape[0]*face_image.shape[1]
     print('npixels:'+str(n_pixels))
     # p0 is the initial guess for the fitting coefficients (A, mu and sigma above)
     # Define some test data which is close to Gaussian
     gmm = sklearn.mixture.GMM()
 #    r = gmm.fit(face_hsv) # GMM requires 2D data as of sklearn version 0.16
-    channels = [np.ravel(face_hsv[:,:,0]),np.ravel(face_hsv[:,:,1]),np.ravel(face_hsv[:,:,2])]
-    labels = ['h','s','v']
+    channels = [np.ravel(face_YCrCb[:,:,0]),np.ravel(face_YCrCb[:,:,1]),np.ravel(face_YCrCb[:,:,2])]
+    labels = ['Y','Cr','Cb']
     results = []
     for data,label in zip(channels,labels):
         r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
@@ -505,8 +507,8 @@ def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
         results.append((r.means_[0, 0], r.covars_[0, 0]))
         hist, bin_edges = np.histogram(data, density=False)
         bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
-        p0 = [1., 0., 1.]
-        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
+#        p0 = [1., 0., 1.]
+#        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
         # Get the fitted curve
 
         if visual_output:
