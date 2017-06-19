@@ -2,6 +2,8 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
+import sklearn
+
 #from trendi import background_removal
 
 def clutter_removal(image, thresh):     # non-recursive
@@ -122,9 +124,38 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None):
     '''
 
 
-    if not ycrcb_ranges:
+    if not ycrcb_ranges and not face:
         ycrcb_ranges = [[90,240],[140,170],[95,130]]  #default ranges, possibly overrriden by ranges eg from face
         #note background removal_
+
+    if face:
+        margin = 0.1
+        x = int(face[0]+face[2]*margin)
+        y = int(face[1]+face[3]*margin)
+        w = int(face[2]*(1-2*margin))
+        h = int(face[3]*(1-2*margin))
+        face_image = image_arr[y:y + h, x:x + w, :]
+        face_YCrCb = cv2.cvtColor(face_image, cv2.COLOR_BGR2YCrCb)
+        n_pixels = face_image.shape[0]*face_image.shape[1]
+        print('npixels:'+str(n_pixels))
+        # p0 is the initial guess for the fitting coefficients (A, mu and sigma above)
+        # Define some test data which is close to Gaussian
+        gmm = sklearn.mixture.GMM()
+    #    r = gmm.fit(face_hsv) # GMM requires 2D data as of sklearn version 0.16
+        channels = [np.ravel(face_YCrCb[:,:,0]),np.ravel(face_YCrCb[:,:,1]),np.ravel(face_YCrCb[:,:,2])]
+        labels = ['Y','Cr','Cb']
+        results = []
+        for data,label in zip(channels,labels):
+            r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
+            print("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
+            results.append((r.means_[0, 0], np.sqrt(r.covars_[0, 0])))
+        f = 0.8
+        ycrcb_ranges = [[90,240], #,int(fsc[0][0]-(fsc[0][1]/f)),  #change means, stdvs to ranges.  force y chan to known range
+             # int(fsc[0][0]+(fsc[0][1]/f))],
+              [int(results[1][0]-(results[1][1]/f)),
+              int(results[1][0]+(results[1][1]/f))],
+              [int(results[2][0]-(results[2][1]/f)),
+              int(results[2][0]+(results[2][1]/f))]]
 
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
 #    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))

@@ -1115,7 +1115,7 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     elif type(mask_filename_or_img_array) == np.ndarray:
         img_arr = mask_filename_or_img_array
         mask_filename='./output.jpg'
-        if original_image is not None:
+        if original_image is not None and isinstance(original_image,basestring):
             mask_filename = original_image
     else:
         logging.warning('got something other than a filename (string) or img array')
@@ -1205,7 +1205,8 @@ def show_mask_with_labels(mask_filename_or_img_array,labels,original_image=None,
     combined[:,0:w_colorbar]=dest_colorbar
     combined[:,w_colorbar:w_colorbar+w]=dest
     if original_image is not None:
-        orig_arr = cv2.imread(original_image)
+        orig_arr = Utils.get_cv2_img_array(original_image)
+#        orig_arr = cv2.imread(original_image)
         if orig_arr is not None:
             height, width = orig_arr.shape[:2]
             logging.debug('show_mask_with_labels:got original image:'+str(original_image)+' shape:'+str(orig_arr.shape))
