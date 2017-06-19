@@ -1698,18 +1698,38 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     fgdmodel = np.zeros((1, 65), np.float64)
     mask = np.zeros(img_arr.shape[:2], np.uint8)
     h,w = img_arr.shape[0:2]
-    #start with everything bg
-    mask[:,:] = cv2.GC_BGD
 
-    #big box (except for outer margin ) is pr_bg
-    pr_bg_frac = 0.05
-    pr_bg_margin_ud= int(pr_bg_frac*(h))
-    pr_bg_margin_lr= int(pr_bg_frac*(w))
-    mask[pr_bg_margin_ud:h-pr_bg_margin_ud,pr_bg_margin_lr:w-pr_bg_margin_lr] = cv2.GC_PR_BGD
+    #start with everything pr_bg
+    mask[:,:] = cv2.GC_PR_BGD
 
+    #outermost  box is _bg
+    bg_frac = 0.05
+    bg_margin_ud= int(bg_frac*(h))
+    bg_margin_lr= int(bg_frac*(w))
+    mask[0:bg_margin_ud,:] = cv2.GC_BGD
+    mask[h-bg_margin_ud:h,:] = cv2.GC_BGD
+    mask[:,0:bg_margin_lr] = cv2.GC_BGD
+    mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
+
+
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
 #prevent masks frrom adding together by doing boolean or
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
+
+    #see if theres a face
+    ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
+    if ff_cascade['are_faces'] :
+        faces = ff_cascade['faces']
+        if faces == []:
+            print('ffascade reported faces but gave none')
+        else:
+            face = background_removal.choose_faces(img_arr,faces,1)
+            print('got face: {}'.format(face))
+            likely_fg_tl = face[0]
+            likely_fg_tl = face[0]
+
+            mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
     if clothing_type == 'upper_cover':
         mask[top:bottom,left:right] = cv2.GC_PR_FGD
@@ -2217,7 +2237,16 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
 
 if __name__ == "__main__":
 
-    mapillary_people_only(visual_output=True)
+    dir = '/data/jeremy/image_dbs/mongo/amazon_us_female/suit/'
+    files = [os.path.join(dir,f) for f in os.listdir(dir)]
+    for f in files:
+        img_arr = cv2.imread(f)
+        if img_arr is None:
+            print('got none for {}'.format(f))
+            continue
+        grabcut_no_bb(img_arr,clothing_type='suit')
+
+    #mapillary_people_only(visual_output=True)
 #    kitti_to_tgdict()
 #
     #     augment_yolo_bbs()
