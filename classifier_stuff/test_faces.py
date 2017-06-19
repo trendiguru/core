@@ -8,6 +8,7 @@ import cv2
 import sklearn.mixture
 
 from trendi import background_removal
+from trendi import kassper
 
 def test_skin_from_face(img_arr):
     ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
@@ -21,9 +22,28 @@ def test_skin_from_face(img_arr):
 
             for face in faces:
                 print('cascade face:{}'.format(face))
+                #make smaller rectanbgle to include less hair/bg
+                margin = 0.1
+                smaller_face = [int(face[0]+face[2]*margin),int(face[1]+face[3]*margin),int(face[2]*(1-2*margin)), int(face[3]*(1-2*margin))]
+                face = smaller_face
                 cv2.rectangle(img_ff_cascade,(face[0],face[1]),(face[0]+face[2],face[1]+face[3]),(255,100,0),2)
-                fsc = face_skin_color_estimation_gmm(img_arr,face,visual_output=True)
+#                fsc = face_skin_color_estimation_gmm(img_arr,face,visual_output=True)
+
+                fsc = background_removal.face_skin_color_estimation_gmm(img_arr,face,visual_output=True)
                 print('face skin color {}'.format(fsc))
+                f=0.5
+                ranges = [[90,240], #,int(fsc[0][0]-(fsc[0][1]/f)),  #change means, stdvs to ranges.  force y chan to known range
+                         # int(fsc[0][0]+(fsc[0][1]/f))],
+                          [int(fsc[1][0]-(fsc[1][1]/f)),
+                          int(fsc[1][0]+(fsc[1][1]/f))],
+                          [int(fsc[2][0]-(fsc[2][1]/f)),
+                          int(fsc[2][0]+(fsc[2][1]/f))]]
+                print('ranges:'+str(ranges))
+
+                mask = kassper.skin_detection_fast(img_arr,ycrcb_ranges = ranges)
+                cv2.imshow('skin mask',mask*255)
+                mask2 = kassper.skin_detection_fast(img_arr)
+                cv2.imshow('skin mask_norange',mask2*255)
             cv2.imshow('ffcascade',img_ff_cascade)
             cv2.waitKey(0)
 

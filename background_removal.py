@@ -16,7 +16,7 @@ from . import kassper
 import time
 from functools import partial
 import sklearn
-from matplotlib import plt
+from matplotlib import pyplot as plt
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -504,14 +504,14 @@ def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
     for data,label in zip(channels,labels):
         r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
         print("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
-        results.append((r.means_[0, 0], r.covars_[0, 0]))
-        hist, bin_edges = np.histogram(data, density=False)
-        bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+        results.append((r.means_[0, 0], np.sqrt(r.covars_[0, 0])))
 #        p0 = [1., 0., 1.]
 #        coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
         # Get the fitted curve
 
         if visual_output:
+            hist, bin_edges = np.histogram(data, density=False)
+            bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
             plt.plot(bin_centres, hist,'.-', label='Test data '+label)
         # Finally, lets get the fitting parameters, i.e. the mean and standard deviation:
     if visual_output:

@@ -2,8 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-from trendi import background_removal
-
+#from trendi import background_removal
 
 def clutter_removal(image, thresh):     # non-recursive
     mask = get_mask(image)
@@ -112,7 +111,7 @@ def skin_detection(image_arr, face=None):
         print('skin pixels:'+str(n))
         return mask
 
-def skin_detection_fast(image_arr, face=None):
+def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None):
     '''
     return mask with skin as 255 and the rest 0
     todo - if a face is given use that to determine skintone
@@ -122,21 +121,15 @@ def skin_detection_fast(image_arr, face=None):
     :return:
     '''
 
-    ff_cascade = background_removal.find_face_cascade(image_arr, max_num_of_faces=10)
-    print('ffcascade:'+str(ff_cascade))
-    if ff_cascade['are_faces'] :
-        faces = ff_cascade['faces']
-        if faces == []:
-            print('ffascade reported faces but gave none')
-        else:
-            face = background_removal.choose_faces(faces,1)
-            skin_colors = background_removal.face_skin_color_estimation_gmm(image_arr,face)
 
-
+    if not ycrcb_ranges:
+        ycrcb_ranges = [[90,240],[140,170],[95,130]]  #default ranges, possibly overrriden by ranges eg from face
+        #note background removal_
 
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
 #    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
-    mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))
+#    mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))
+    mask = cv2.inRange(ycrcb,np.array([ycrcb_ranges[0][0],ycrcb_ranges[1][0],ycrcb_ranges[2][0]]),np.array([ycrcb_ranges[0][1],ycrcb_ranges[1][1],ycrcb_ranges[2][1]]))
     # mask2 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([133,255,255]))
     # mask3 = cv2.inRange(ycrcb,np.array([0,0,0]),np.array([255,255,120]))
     # mask = mask1*mask2*mask3
@@ -145,23 +138,6 @@ def skin_detection_fast(image_arr, face=None):
     print('skin pixels:'+str(n))
     return mask
 
-# def create_item_mask(image):
-#     """
-#     this function will manage the isolation of the item and will create it's mask
-#     :param image: 3d numpy array (BGR)
-#     :return: 2d numpy array annotated mask with
-#              0 = background
-#              1 = skin
-#              2 = the item
-#     """
-#     h, w = image.shape[:2]
-#     mask = 2*np.ones((h, w), dtype=np.uint8)
-#     h_margin = int(0.05*h)
-#     w_margin = int(0.05*w)
-#     mask[h_margin:h-h_margin, w_margin:w-w_margin] = 3
-#     wo_bckgnd_mask = background_removal.simple_mask_grabcut(image, mask=mask)
-#     skin_mask = skin_detection_with_grabcut(background_removal.get_masked_image(image, wo_bckgnd_mask.astype(np.uint8)),
-#                                             image, skin_or_clothes='skin')
-#     outmask = np.where(wo_bckgnd_mask == 255, 255, 0)
-#     outmask = np.where(skin_mask == 255, 100, outmask)
-#     return outmask
+def skin_detection_fast_with_gc(image_arr, face=None,ycrcb_ranges=None):
+    #WIP  -  this is turning into unceccsary feinshmecking,improve later if nec.
+    skin_mask = skin_detection_fast(image_arr,face=face,ycrcb_ranges=ycrcb_ranges)

@@ -1696,11 +1696,8 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
-
     mask = np.zeros(img_arr.shape[:2], np.uint8)
     h,w = img_arr.shape[0:2]
-
-
     #start with everything bg
     mask[:,:] = cv2.GC_BGD
 
@@ -1714,48 +1711,10 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
 
-#    cv2.imwrite('perimeter.jpg',img_arr)
-#     imutils.count_values(mask,labels=labels)
-#     imutils.show_mask_with_labels(mask,labels,visual_output=True)
-    #everything in bb+margin is pr_fgd
-    pr_fg_frac = 0.0
-    pr_bg_margin_ud= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    pr_bg_margin_lr= int(pr_bg_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    mask[bb_x1y1x2y2[1]:bb_x1y1x2y2[3],bb_x1y1x2y2[0]:bb_x1y1x2y2[2]] = cv2.GC_PR_FGD
-
-
-    # print('after middlebox '+str(nprbgd))
-    # imutils.count_values(mask,labels)
-    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
-
-    #everything in small box within bb is  fg (unless upper cover in which case its probably - maybe its
-    #a coat over a shirt and the sirt is visible
-    center_frac=0.1
-    side_frac = 0.1
-
-    side_margin= int(side_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    upper_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-    lower_margin=int(center_frac*(bb_x1y1x2y2[3]-bb_x1y1x2y2[1]))
-
-    center_y=(bb_x1y1x2y2[1]+bb_x1y1x2y2[3])/2
-    center_x=(bb_x1y1x2y2[0]+bb_x1y1x2y2[2])/2
-    top=max(0,center_y-upper_margin)
-    bottom=min(h,center_y+lower_margin)
-    left = max(0,center_x-side_margin)
-    right = min(w,center_x+side_margin)
-    print('fg box t {} b {} l {} r {}'.format(top,bottom,left,right))
-    if top>bottom:
-        temp=top
-        top=bottom
-        bottom=temp
     if clothing_type == 'upper_cover':
         mask[top:bottom,left:right] = cv2.GC_PR_FGD
     else:
         mask[top:bottom,left:right] = cv2.GC_FGD
-    # print('after innerbox ')
-    # imutils.count_values(mask,labels)
-    # imutils.show_mask_with_labels(mask,['bg','fg','prbg','prfg'],visual_output=True)
-    # print('unqies '+str(np.unique(mask)))
 
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
