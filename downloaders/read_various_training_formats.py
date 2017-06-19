@@ -1712,13 +1712,14 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
 
-    imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
 #prevent masks frrom adding together by doing boolean or
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
 
     #see if theres a face
     ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
+    likely_fg_bb = None
     if ff_cascade['are_faces'] :
         faces = ff_cascade['faces']
         if faces == []:
@@ -1726,15 +1727,23 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
         else:
             face = background_removal.choose_faces(img_arr,faces,1)
             print('got face: {}'.format(face))
-            likely_fg_tl = face[0]
-            likely_fg_tl = face[0]
+            extra_height=5 #as measured in faces
+            extra_width=3
+            likely_fg_bb = [face[0]+face[2],face[1]-face[3],face[2]*extra_height,face[3]*extra_width]
+    if likely_fg_bb is None: #assume middle of image
+        top_margin=.10 #as measured in % of image height
+        bottom_margin=0.1
+        left_margin= 0.2
+        right_margin= 0.2
+        likely_fg_bb = [int(top_margin*h),int(left_margin*W),h*(1-(top_margin+bottom_margin)),w*(1-(left_margin+right_margin))]
 
-            mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
-    if clothing_type == 'upper_cover':
-        mask[top:bottom,left:right] = cv2.GC_PR_FGD
-    else:
-        mask[top:bottom,left:right] = cv2.GC_FGD
+    mask[likely_fg_bb[0]:likely_fg_bb[0]+likely_fg_bb[2],likely_fg_bb[1]:likely_fg_bb[1]+likely_fg_bb[3]] = cv2.GC_PR_FGD
+
+    # if clothing_type == 'upper_cover':
+    #     mask[top:bottom,left:right] = cv2.GC_PR_FGD
+    # else:
+    #     mask[top:bottom,left:right] = cv2.GC_FGD
 
 #add white and black vals as pr bgd
     whitevals = cv2.inRange(img_arr,np.array([254,254,254]),np.array([255,255,255]))
@@ -1744,9 +1753,9 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
 
-    # print('after blackwhite ')
-    # imutils.count_values(mask,labels)
-    # imutils.show_mask_with_labels(mask,labels,visual_output=True)
+    print('after blackwhite ')
+    imutils.count_values(mask,labels)
+    imutils.show_mask_with_labels(mask,labels,visual_output=True)
 
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
