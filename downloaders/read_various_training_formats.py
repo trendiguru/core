@@ -1887,8 +1887,6 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
     if visual_output:
         imutils.show_mask_with_labels(mask,gc_mask_labels,original_image=img_arr)
 
-
-
 #label skin
     print(labels)
     skin_index = labels.index('skin')
@@ -1899,6 +1897,10 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
         if face:
             human_bgd = Utils.get_cv2_img_array(human_bgd)
             bgnd_arr = imutils.resize_keep_aspect(human_bgd,output_size=(img_arr.shape[0],img_arr.shape[1]))
+        elif inhuman_bgnd is not None: #brick wall or table or the like for clothing items alone
+            inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
+            bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
+
     elif inhuman_bgnd is not None: #brick wall or table or the like for clothing items alone
         inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
         bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
