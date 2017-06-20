@@ -503,6 +503,26 @@ def resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (25
     return output_img
 #dst = cv2.inpaint(img,mask,3,cv2.INPAINT_TELEA)
 
+def resize_by_adding_border(img_arr,output_size,visual_output=False,copy_edge_pixels=False):
+    img_arr = Utils.get_cv2_img_array(img_arr)
+    if img_arr.shape[0]>output_size[0] or img_arr.shape[1]>output_size[1]:
+        logging.warning('image to be bordered larger than requested size')
+        img_arr = resize_keep_aspect(img_arr,output_size=output_size)
+        return img_arr #this is not really what was asked for but it keeps the peace
+    border_sizes = (output_size[0] - img_arr.shape[0],output_size[1] - img_arr.shape[1])
+    new_image = np.zeros([output_size[0],output_size[1],3],dtype=np.uint8)
+    top = border_sizes[0]/2
+    bottom = top + img_arr.shape[0]
+    left = border_sizes[1]/2
+    right = left + img_arr.shape[1]
+    new_image[top:bottom,left:right] = img_arr
+    print('top {} bot {} d {} l {} r {} d {} imgarr {} '.format(top,bottom,bottom-top,left,right,right-left,img_arr.shape))
+    if visual_output:
+        cv2.imshow('resized from {} to {}'.format(img_arr.shape,new_image.shape),new_image)
+        cv2.imshow('orig',img_arr)
+        cv2.waitKey(0)
+    return(new_image)
+
 def undo_resize_keep_aspect(input_file_or_np_arr, output_file=None, output_size = (256,256),use_visual_output=False,careful_with_the_labels=False):
     '''
     Takes an image name/arr, resize keeping aspect ratio, filling extra areas with edge values
@@ -1943,6 +1963,8 @@ host = socket.gethostname()
 # print('host:'+str(host))
 
 if __name__ == "__main__":
+    img=cv2.imread('../images/female1.jpg')
+    resize_by_adding_border(img,output_size=(900,1000),visual_output=True)
 #    test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='test')
  #   test_or_training_textfile('/home/jr/python-packages/trendi/classifier_stuff/caffe_nns/only_train',test_or_train='train')
 #    Utils.remove_duplicate_files('/media/jr/Transcend/my_stuff/tg/tg_ultimate_image_db/ours/pd_output_brain1/')
@@ -1961,7 +1983,7 @@ if __name__ == "__main__":
 #        dir = '/home/jeremy/projects/core/images'
 #        resize_and_crop_maintain_bb_on_dir(dir, output_width = 448, output_height = 448,use_visual_output=True)
 
-    if(1): #test mask to bbs
+    if(0): #test mask to bbs
         # url = 'http://s-media-cache-ak0.pinimg.com/736x/fe/5d/f7/fe5df7e80093f674ecc79a9f30069a8a.jpg'
         # start=time.time()
         # retval = neurodoll_falcon_client.nd(url,get_combined_results=True)

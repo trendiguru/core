@@ -1685,22 +1685,26 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
 
 
 def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
-                                swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept',
-                                person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept'):
-    files = [os.path.join(dir,f) for f in os.listdir(catalog_images_dir)]
-    human_bgnds =  = [os.path.join(person_bgnds_dir,f) for f in os.listdir(person_bgnds_dir)]
-    inhuman_bgnds =  = [os.path.join(swatch_bgnds_dir,f) for f in os.listdir(swatch_bgnds_dir)]
-    dress_index = constants.pixlevel_categories_v3.index('dress')
+                                swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/textures/kept',
+                                person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept'):
+    files = [os.path.join(catalog_images_dir,f) for f in os.listdir(catalog_images_dir)]
+    human_bgnds = [os.path.join(person_bgnds_dir,f) for f in os.listdir(person_bgnds_dir)]
+    inhuman_bgnds = [os.path.join(swatch_bgnds_dir,f) for f in os.listdir(swatch_bgnds_dir)]
+    dress_index = constants.pixlevel_categories_v3.index('whole_body_items')
     for f in files:
         img_arr = cv2.imread(f)
         if img_arr is None:
             print('got none for {}'.format(f))
             continue
 
-        human_bgnd = random.choice(human_bgnds)
-        inhuman_bgnd = random.choice(inhuman_bgnds)
-        image_to_pixlevel_no_bb(img_arr,clothing_indices=[dress_index],human_bgd = human_bgnd,inhuman_bgnd = inhuman_bgnd)
-
+        human_bgnd = Utils.get_cv2_img_array(random.choice(human_bgnds))
+        inhuman_bgnd = Utils.get_cv2_img_array(random.choice(inhuman_bgnds))
+        print('sizes: img {} human bgnd {} inbgnd {}'.format(img_arr.shape,human_bgnd.shape,inhuman_bgnd.shape))
+        human_bgnd = imutils.resize_keep_aspect(human_bgnd,output_size=(400,400))
+        human_bgnd = imutils.resize_keep_aspect(human_bgnd,output_size=(400,400))
+        img_arr = imutils.resize_by_adding_border(img_arr,output_size=(400,400))
+        mask,img = image_to_pixlevel_no_bb(img_arr,clothing_indices=[dress_index],human_bgd = human_bgnd,inhuman_bgnd = inhuman_bgnd,visual_output=False)
+        imutils.show_mask_with_labels(mask,labels=constants.pixlevel_categories_v3,original_image=img,visual_output=True)
 
 
 def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3,human_bgd=None,inhuman_bgnd=None):
@@ -1734,7 +1738,8 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
     gc_mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
 
-    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+    if visual_output:
+        imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
 #prevent gc_masks frrom adding together by doing boolean or
     nprbgd = np.sum(gc_mask==cv2.GC_PR_BGD)
     print('after bigbox '+str(nprbgd))
@@ -1839,7 +1844,8 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
 
 
     gc_mask = np.where(skin_mask!=0,cv2.GC_FGD,gc_mask)
-    imutils.show_mask_with_labels(gc_mask,gc_mask_labels,visual_output=True,original_image=img_arr)
+    if visual_output:
+        imutils.show_mask_with_labels(gc_mask,gc_mask_labels,visual_output=True,original_image=img_arr)
 
     img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
 
@@ -1889,11 +1895,11 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
     mask[skin_mask!=0] = skin_index
 
     bgnd_arr = None
-    if human_bgd: #street scenes or the like for people
+    if human_bgd is not None: #street scenes or the like for people
         if face:
             human_bgd = Utils.get_cv2_img_array(human_bgd)
             bgnd_arr = imutils.resize_keep_aspect(human_bgd,output_size=(img_arr.shape[0],img_arr.shape[1]))
-    elif inhuman_bgnd: #brick wall or table or the like for clothing items alone
+    elif inhuman_bgnd is not None: #brick wall or table or the like for clothing items alone
         inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
         bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
 
@@ -2314,15 +2320,7 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
             show_annotations_xywh(bb_list,img_arr)
 
 if __name__ == "__main__":
-
-    dir = '/data/jeremy/image_dbs/mongo/amazon_us_female/dress/'
-    files = [os.path.join(dir,f) for f in os.listdir(dir)]
-    for f in files:
-        img_arr = cv2.imread(f)
-        if img_arr is None:
-            print('got none for {}'.format(f))
-            continue
-        image_to_pixlevel_no_bb(img_arr,clothing_indices=[1],human_bgd = '/home/jeremy/Desktop/test_bgnd.jpg',inhuman_bgnd = '/home/jeremy/Desktop/test_bgnd2.jpg')
+    dir_of_catalog_images_to_pixlevel()
 
     #mapillary_people_only(visual_output=True)
 #    kitti_to_tgdict()
