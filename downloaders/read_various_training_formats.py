@@ -1682,39 +1682,40 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2,img_arr
 
-def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
+def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
      also anything thats utter white or blacak should get prbgd
     return mask and gc image
     :param img_arr:
-    :param bb_x1y1x2y2:
+    :param clotihing indices - first is top, second is bottom , or only is wholebody
     :return:
     '''
     orig_arr = copy.copy(img_arr)
     labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
-    mask = np.zeros(img_arr.shape[:2], np.uint8)
+    gc_mask = np.zeros(img_arr.shape[:2], np.uint8)  #gc_mask for gc with prFg etc
+    mask= np.zeros(img_arr.shape[:2],np.uint8) #mask(also a gc_mask) with item numbers
     h,w = img_arr.shape[0:2]
 
     #start with everything pr_bg
-    mask[:,:] = cv2.GC_PR_BGD
+    gc_mask[:,:] = cv2.GC_PR_BGD
 
     #outermost  box is _bg
     bg_frac = 0.05
     bg_margin_ud= int(bg_frac*(h))
     bg_margin_lr= int(bg_frac*(w))
-    mask[0:bg_margin_ud,:] = cv2.GC_BGD
-    mask[h-bg_margin_ud:h,:] = cv2.GC_BGD
-    mask[:,0:bg_margin_lr] = cv2.GC_BGD
-    mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
+    gc_mask[0:bg_margin_ud,:] = cv2.GC_BGD
+    gc_mask[h-bg_margin_ud:h,:] = cv2.GC_BGD
+    gc_mask[:,0:bg_margin_lr] = cv2.GC_BGD
+    gc_mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
 
-#     imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
-# #prevent masks frrom adding together by doing boolean or
-#     nprbgd = np.sum(mask==cv2.GC_PR_BGD)
+#     imutils.show_gc_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+# #prevent gc_masks frrom adding together by doing boolean or
+#     nprbgd = np.sum(gc_mask==cv2.GC_PR_BGD)
 #     print('after bigbox '+str(nprbgd))
 
     #see if theres a face   1-501510371 refno
@@ -1747,50 +1748,50 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
 
 
     print('likely fg bb:{}'.format(likely_fg_bb))
-    mask[likely_fg_bb[1]:likely_fg_bb[1]+likely_fg_bb[3],likely_fg_bb[0]:likely_fg_bb[0]+likely_fg_bb[2]] = cv2.GC_PR_FGD
+    gc_mask[likely_fg_bb[1]:likely_fg_bb[1]+likely_fg_bb[3],likely_fg_bb[0]:likely_fg_bb[0]+likely_fg_bb[2]] = cv2.GC_PR_FGD
 
     # print('after face/margins ')
-    # imutils.count_values(mask,labels)
-    # imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
+    # imutils.count_values(gc_mask,labels)
+    # imutils.show_gc_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
 
     # if clothing_type == 'upper_cover':
-    #     mask[top:bottom,left:right] = cv2.GC_PR_FGD
+    #     gc_mask[top:bottom,left:right] = cv2.GC_PR_FGD
     # else:
-    #     mask[top:bottom,left:right] = cv2.GC_FGD
+    #     gc_mask[top:bottom,left:right] = cv2.GC_FGD
     print('after mainbox b4 blackwhite ')
-    imutils.count_values(mask,labels)
+    imutils.count_values(gc_mask,labels)
 #add white and black vals as pr bgd
     white_tolerance = 5 #anything from 255-this to 255 is called white bgnd
     black_tolerance = 5 #anything from 0 to this is called black gbgnd
     whitevals = cv2.inRange(img_arr,np.array([255-white_tolerance,255-white_tolerance,255-white_tolerance]),np.array([255,255,255]))
-    mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
+    gc_mask[np.array(whitevals)!=0]=cv2.GC_PR_BGD
     #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([black_tolerance,black_tolerance,black_tolerance]))
-    mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
+    gc_mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
 
-    print('after blackwhite w {} b {}'.format(np.nonzero(whitevals),np.nonzero(blackvals)))
-    imutils.count_values(mask,labels)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
+    print('after blackwhite w {} b {}'.format(np.count_nonzero(whitevals),np.count_nonzero(blackvals)))
+    imutils.count_values(gc_mask,labels)
+    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (0,0,1,1)
     try:
         #TODO - try more than 1 grabcut call in itr
         itr = 1
-        cv2.grabCut(img=img_arr,mask=mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
+        cv2.grabCut(img=img_arr,mask=gc_mask, rect=rect,bgdModel= bgdmodel,fgdModel= fgdmodel,iterCount= itr, mode=cv2.GC_INIT_WITH_MASK)
     except:
         print('grabcut exception '+str( sys.exc_info()[0]))
         print(sys.exc_info())
         print(sys.exc_info()[1])
         return img_arr
 
-    mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
+    gc_mask2 = np.where((gc_mask==2)|(gc_mask==0),0,1).astype('uint8')  ##0 and 2 are bgd and pr_bgd
     #kill anything out of bb (except head)
-#    mask2[:bb_x1y1x2y2[1],0:w]=0  #top
-#     mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
-#     mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
-#     mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
-    img_arr = img_arr*mask2[:,:,np.newaxis]
+#    gc_mask2[:bb_x1y1x2y2[1],0:w]=0  #top
+#     gc_mask2[bb_x1y1x2y2[3]:,0:w]=0    #bottom
+#     gc_mask2[0:h,0:bb_x1y1x2y2[0]]=0   #left
+#     gc_mask2[0:h,bb_x1y1x2y2[2]:w]=0   #right
+    img_arr = img_arr*gc_mask2[:,:,np.newaxis]
 
     if visual_output:
         cv2.imshow('right after gc',img_arr)
@@ -1806,10 +1807,45 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
         cv2.imshow('skin',skin_mask)
         cv2.waitKey(0)
 
-    mask = np.where(skin_mask!=0,cv2.GC_FGD,mask)
-    imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
+    gc_mask = np.where(skin_mask!=0,cv2.GC_FGD,gc_mask)
+    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
 
     img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
+
+#take out white black aftewr gc too since gc sometimes includes these
+    #add white and black vals as pr bgd
+    white_tolerance = 5 #anything from 255-this to 255 is called white bgnd
+    black_tolerance = 5 #anything from 0 to this is called black gbgnd
+    whitevals = cv2.inRange(img_arr,np.array([255-white_tolerance,255-white_tolerance,255-white_tolerance]),np.array([255,255,255]))
+    #fmi this could also be done with whitevals= (img_arr==[255,255,255]).all(-1))
+    blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([black_tolerance,black_tolerance,black_tolerance]))
+    img_arr = np.where(whitevals[:,:,np.newaxis]!=0 ,0,img_arr)
+    img_arr = np.where(blackvals[:,:,np.newaxis]!=0 ,0,img_arr)
+
+    if visual_output:
+        cv2.imshow('img after skin',img_arr)
+        cv2.waitKey(0)
+
+
+    #now create maskfrom img_arr (explouting gc action)
+    #either two part or one part
+    if len(clothing_indices)==2:
+        if face:
+            n_heads_for_ysplit = 3
+            y_split = face[1]+face[3]*n_heads_for_ysplit
+        mask[0:y_split,:] = clothing_indices[0] * np.array([img_arr!=0])[0:y_split,:]
+        mask[y_split:,:] = clothing_indices[1] * np.array([img_arr!=0])[y_split:,:]
+        #prob try gc on this would be better
+    elif len(clothing_indices) == 1 :
+        mask = np.where(img_arr!=0, clothing_indices[0],0)
+    else:
+        print('3 parts not dealt with ')
+
+#label skin
+    print(labels)
+    skin_index = labels.index('skin')
+    mask[skin_mask!=0] = skin_index
+
 
     fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
     print('fillval '+str(fillval))
@@ -1817,18 +1853,19 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     bgnd_arr[:,:]=fillval
 #    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
 
-    img_arr = np.where(img_arr==0,bgnd_arr,img_arr)
+    img_arr = np.where(img_arr==0,bgnd_arr,img_arr)   #to give bgnd, can also fill in
 
 
  #    cv2.imshow('bgnd arr',bgnd_arr)
  #    cv2.waitKey(0)
     if(visual_output):
 #    plt.imshow(img),plt.colorbar(),plt.show()
+        imutils.show_mask_with_labels(mask,labels,original_image=orig_arr)
         cv2.imshow('after gc',img_arr)
         cv2.waitKey(0)
 
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
-    return mask2,img_arr
+    return mask,img_arr
 
 
 
@@ -2236,7 +2273,7 @@ if __name__ == "__main__":
         if img_arr is None:
             print('got none for {}'.format(f))
             continue
-        grabcut_no_bb(img_arr,clothing_type='suit')
+        grabcut_no_bb(img_arr,clothing_indices=[1])
 
     #mapillary_people_only(visual_output=True)
 #    kitti_to_tgdict()
