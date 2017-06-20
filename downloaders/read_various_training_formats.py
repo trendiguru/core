@@ -1757,7 +1757,8 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     #     mask[top:bottom,left:right] = cv2.GC_PR_FGD
     # else:
     #     mask[top:bottom,left:right] = cv2.GC_FGD
-
+    print('after mainbox b4 blackwhite ')
+    imutils.count_values(mask,labels)
 #add white and black vals as pr bgd
     white_tolerance = 5 #anything from 255-this to 255 is called white bgnd
     black_tolerance = 5 #anything from 0 to this is called black gbgnd
@@ -1767,7 +1768,7 @@ def grabcut_no_bb(img_arr,visual_output=True,clothing_type=None):
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([black_tolerance,black_tolerance,black_tolerance]))
     mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
 
-    print('after blackwhite ')
+    print('after blackwhite w {} b {}'.format(np.nonzero(whitevals),np.nonzero(blackvals)))
     imutils.count_values(mask,labels)
     imutils.show_mask_with_labels(mask,labels,visual_output=True,original_image=img_arr)
 

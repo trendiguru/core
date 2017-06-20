@@ -2,7 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-import sklearn
+import sklearn.mixture
 
 #from trendi import background_removal
 
