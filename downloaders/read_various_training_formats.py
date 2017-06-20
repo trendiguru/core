@@ -30,6 +30,7 @@ from itertools import repeat
 import copy
 import numpy as np
 import time
+import random
 
 #for mapillary, got lazy and not using cv2 instead of original PIL
 import json
@@ -1683,16 +1684,22 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     return mask2,img_arr
 
 
-def dir_of_catalog_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
+def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
                                 swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept',
                                 person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept'):
     files = [os.path.join(dir,f) for f in os.listdir(catalog_images_dir)]
+    human_bgnds =  = [os.path.join(person_bgnds_dir,f) for f in os.listdir(person_bgnds_dir)]
+    inhuman_bgnds =  = [os.path.join(swatch_bgnds_dir,f) for f in os.listdir(swatch_bgnds_dir)]
+    dress_index = constants.pixlevel_categories_v3.index('dress')
     for f in files:
         img_arr = cv2.imread(f)
         if img_arr is None:
             print('got none for {}'.format(f))
             continue
-        image_to_pixlevel_no_bb(img_arr,clothing_indices=[1],human_bgd = '/home/jeremy/Desktop/test_bgnd.jpg',inhuman_bgnd = '/home/jeremy/Desktop/test_bgnd2.jpg')
+
+        human_bgnd = random.choice(human_bgnds)
+        inhuman_bgnd = random.choice(inhuman_bgnds)
+        image_to_pixlevel_no_bb(img_arr,clothing_indices=[dress_index],human_bgd = human_bgnd,inhuman_bgnd = inhuman_bgnd)
 
 
 
