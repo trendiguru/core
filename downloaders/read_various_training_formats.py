@@ -1682,6 +1682,20 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2,img_arr
 
+
+def dir_of_catalog_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
+                                swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept',
+                                person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/street\ scene\ -\ Google\ Search_files/kept'):
+    files = [os.path.join(dir,f) for f in os.listdir(catalog_images_dir)]
+    for f in files:
+        img_arr = cv2.imread(f)
+        if img_arr is None:
+            print('got none for {}'.format(f))
+            continue
+        image_to_pixlevel_no_bb(img_arr,clothing_indices=[1],human_bgd = '/home/jeremy/Desktop/test_bgnd.jpg',inhuman_bgnd = '/home/jeremy/Desktop/test_bgnd2.jpg')
+
+
+
 def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3,human_bgd=None,inhuman_bgnd=None):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
