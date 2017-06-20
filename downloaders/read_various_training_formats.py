@@ -1682,7 +1682,7 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask2,img_arr
 
-def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3):
+def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3,human_bgd=None,inhuman_bgnd=None):
     '''
     grabcut with subsection of bb as fg, outer border of image bg, prbg to bb, prfg from bb to subsection
      then kill anything outside of bb
@@ -1693,7 +1693,7 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
     :return:
     '''
     orig_arr = copy.copy(img_arr)
-    labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
+    gc_mask_labels = ['bg','fg','prbg','prfg'] #this is the order of cv2 values cv2.BG etc
     bgdmodel = np.zeros((1, 65), np.float64)
     fgdmodel = np.zeros((1, 65), np.float64)
     gc_mask = np.zeros(img_arr.shape[:2], np.uint8)  #gc_mask for gc with prFg etc
@@ -1713,10 +1713,10 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
     gc_mask[:,w-bg_margin_lr:w] = cv2.GC_BGD
 
 
-#     imutils.show_gc_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
-# #prevent gc_masks frrom adding together by doing boolean or
-#     nprbgd = np.sum(gc_mask==cv2.GC_PR_BGD)
-#     print('after bigbox '+str(nprbgd))
+    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+#prevent gc_masks frrom adding together by doing boolean or
+    nprbgd = np.sum(gc_mask==cv2.GC_PR_BGD)
+    print('after bigbox '+str(nprbgd))
 
     #see if theres a face   1-501510371 refno
     ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
@@ -1736,9 +1736,9 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
     if likely_fg_bb is None: #assume middle of image
         top_margin=.10 #as measured in % of image height
         bottom_margin=0.1
-        left_margin= 0.2
-        right_margin= 0.2
-        likely_fg_bb = [int(top_margin*h),int(left_margin*w),h*(1-(top_margin+bottom_margin)),w*(1-(left_margin+right_margin))]
+        left_margin= 0.3
+        right_margin= 0.3
+        likely_fg_bb = [int(left_margin*w),int(top_margin*h),w*(1-(left_margin+right_margin)),h*(1-(top_margin+bottom_margin))]
 
     print('pre-check likely fg bb:{} h {} w {} shape {} '.format(likely_fg_bb,h,w,img_arr.shape))
     #make sure nothing out of bounds
@@ -1752,14 +1752,14 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
 
     # print('after face/margins ')
     # imutils.count_values(gc_mask,labels)
-    # imutils.show_gc_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+    # imutils.show_mask_with_labels(gc_mask,gc_mask_labels,visual_output=True,original_image=img_arr)
 
     # if clothing_type == 'upper_cover':
     #     gc_mask[top:bottom,left:right] = cv2.GC_PR_FGD
     # else:
     #     gc_mask[top:bottom,left:right] = cv2.GC_FGD
     print('after mainbox b4 blackwhite ')
-    imutils.count_values(gc_mask,labels)
+    imutils.count_values(gc_mask,gc_mask_labels)
 #add white and black vals as pr bgd
     white_tolerance = 5 #anything from 255-this to 255 is called white bgnd
     black_tolerance = 5 #anything from 0 to this is called black gbgnd
@@ -1769,9 +1769,9 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
     blackvals = cv2.inRange(img_arr,np.array([0,0,0]),np.array([black_tolerance,black_tolerance,black_tolerance]))
     gc_mask[np.array(blackvals)!=0]=cv2.GC_PR_BGD
 
-    print('after blackwhite w {} b {}'.format(np.count_nonzero(whitevals),np.count_nonzero(blackvals)))
-    imutils.count_values(gc_mask,labels)
-    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+    # print('after blackwhite w {} b {}'.format(np.count_nonzero(whitevals),np.count_nonzero(blackvals)))
+    # imutils.count_values(gc_mask,gc_mask_labels)
+    # imutils.show_mask_with_labels(gc_mask,gc_mask_labels,visual_output=True,original_image=img_arr)
 
     logging.debug('imgarr shape b4r gc '+str(img_arr.shape))
     rect = (0,0,1,1)
@@ -1797,18 +1797,28 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
         cv2.imshow('right after gc',img_arr)
         cv2.waitKey(0)
 
-
     skin_index = constants.pixlevel_categories_v3.index('skin')
     if face is not None:
-        skin_mask = kassper.skin_detection_fast(orig_arr,face=face) * 255
+        skin_mask = kassper.skin_detection_fast(orig_arr) * 255  #sdfdsf
+#        skin_mask = kassper.skin_detection_fast(orig_arr,face=face) * 255
     else:
         skin_mask = kassper.skin_detection_fast(orig_arr) * 255
+    # if visual_output:
+    #     cv2.imshow('skin',skin_mask)
+    #     cv2.waitKey(0)
+
+    #erode skin to eliminate 1x1 edges detected as skin
+    kernel = np.ones((3,3),np.uint8)
+    skin_mask = cv2.erode(skin_mask,kernel,iterations = 1)
+    skin_mask = cv2.dilate(skin_mask,kernel,iterations = 1)
+
     if visual_output:
-        cv2.imshow('skin',skin_mask)
+        cv2.imshow('skin after erode/dilate',skin_mask)
         cv2.waitKey(0)
 
+
     gc_mask = np.where(skin_mask!=0,cv2.GC_FGD,gc_mask)
-    imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
+    imutils.show_mask_with_labels(gc_mask,gc_mask_labels,visual_output=True,original_image=img_arr)
 
     img_arr = np.where(skin_mask[:,:,np.newaxis]!=0,orig_arr,img_arr)
 
@@ -1827,7 +1837,7 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
         cv2.waitKey(0)
 
 
-    #now create maskfrom img_arr (explouting gc action)
+    #now create mask from img_arr (exploiting gc action)
     #either two part or one part
     if len(clothing_indices)==2:
         if face:
@@ -1841,16 +1851,36 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
     else:
         print('3 parts not dealt with ')
 
+
+#remove anything above bottom of head box
+    if face:
+        extra_decapitation = int(face[3]*0.2)
+        mask[0:face[1]+face[3]+extra_decapitation,:] = 0
+
+    if visual_output:
+        imutils.show_mask_with_labels(mask,gc_mask_labels,original_image=img_arr)
+
+
+
 #label skin
     print(labels)
     skin_index = labels.index('skin')
     mask[skin_mask!=0] = skin_index
 
+    bgnd_arr = None
+    if human_bgd: #street scenes or the like for people
+        if face:
+            human_bgd = Utils.get_cv2_img_array(human_bgd)
+            bgnd_arr = imutils.resize_keep_aspect(human_bgd,output_size=(img_arr.shape[0],img_arr.shape[1]))
+    elif inhuman_bgnd: #brick wall or table or the like for clothing items alone
+        inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
+        bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
 
-    fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
-    print('fillval '+str(fillval))
-    bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
-    bgnd_arr[:,:]=fillval
+    if bgnd_arr == None:
+        fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
+        print('fillval '+str(fillval))
+        bgnd_arr = np.zeros_like(orig_arr).astype('uint8')
+        bgnd_arr[:,:]=fillval
 #    bgnd_arr = np.where(fadeout!=0,(fadeout[:,:,np.newaxis]*bgnd_arr),bgnd_arr)  #+orig_arr*(fadeout[:,:,np.newaxis]).astype('uint8')
 
     img_arr = np.where(img_arr==0,bgnd_arr,img_arr)   #to give bgnd, can also fill in
@@ -1860,14 +1890,12 @@ def grabcut_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.p
  #    cv2.waitKey(0)
     if(visual_output):
 #    plt.imshow(img),plt.colorbar(),plt.show()
-        imutils.show_mask_with_labels(mask,labels,original_image=orig_arr)
+        imutils.show_mask_with_labels(mask,labels,original_image=img_arr,visual_output=True)
         cv2.imshow('after gc',img_arr)
         cv2.waitKey(0)
 
     logging.debug('imgarr shape after gc '+str(img_arr.shape))
     return mask,img_arr
-
-
 
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
@@ -2273,7 +2301,7 @@ if __name__ == "__main__":
         if img_arr is None:
             print('got none for {}'.format(f))
             continue
-        grabcut_no_bb(img_arr,clothing_indices=[1])
+        image_to_pixlevel_no_bb(img_arr,clothing_indices=[1],human_bgd = '/home/jeremy/Desktop/test_bgnd.jpg',inhuman_bgnd = '/home/jeremy/Desktop/test_bgnd2.jpg')
 
     #mapillary_people_only(visual_output=True)
 #    kitti_to_tgdict()
