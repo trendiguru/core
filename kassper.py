@@ -126,17 +126,17 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
 
 
     if not ycrcb_ranges and not face:
-        y_mid = int((30+210)/2.0)
-        y_spread = 210-30
-        cr_mid = int((133+175)/2.0)
-        cr_spread = 175-133
+        y_mid = int((90+240)/2.0)
+        y_spread = (240-90)/2.0
+        cr_mid = int((133+173)/2.0)
+        cr_spread = (175-133)/2.0
         cb_mid = int((80+120)/2.0)
-        cb_spread = 120-80
+        cb_spread = (120-80)/2.0
         ycrcb_ranges = [[int(y_mid-y_spread*tol),int(y_mid+y_spread*tol)],
                         [int(cr_mid-cr_spread*tol),int(cr_mid+cr_spread*tol)],
                         [int(cb_mid-cb_spread*tol),int(cb_mid+cb_spread*tol)]]  #default ranges, possibly overrriden by ranges eg from face
 
-#        ycrcb_ranges = [[90,240],(140,170,[95,130]]  #default ranges, possibly overrriden by ranges eg from face
+#        ycrcb_ranges = [[90,240],[140,170],[95,130]]  #default ranges, possibly overrriden by ranges eg from face
 
 
         #note background removal_
@@ -170,6 +170,7 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
               [int(results[2][0]-(results[2][1]*tol)),
               int(results[2][0]+(results[2][1]*tol))]]
 
+    print('skin ranges:'+str(ycrcb_ranges))
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
 #    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
 #    mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))

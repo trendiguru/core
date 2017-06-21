@@ -1689,14 +1689,18 @@ def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/media/jeremy/9FBD-1B0
                                 person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept',
                                 destination_img_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_images',
                                 destination_label_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_labels',
-                                      manual_oversight=True):
+                                      manual_oversight=False):
     files = [os.path.join(catalog_images_dir,f) for f in os.listdir(catalog_images_dir)]
     human_bgnds = [os.path.join(person_bgnds_dir,f) for f in os.listdir(person_bgnds_dir)]
     inhuman_bgnds = [os.path.join(swatch_bgnds_dir,f) for f in os.listdir(swatch_bgnds_dir)]
     dress_index = constants.pixlevel_categories_v3.index('whole_body_items')
     Utils.ensure_dir(destination_img_dir)
     Utils.ensure_dir(destination_label_dir)
+    n=0
+    n_tot = len(files)
     for f in files:
+        n=n+1
+        print('doing {}/{} {}'.format(n,n_tot,f))
         img_arr = cv2.imread(f)
         if img_arr is None:
             print('got none for {}'.format(f))
@@ -1704,7 +1708,7 @@ def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/media/jeremy/9FBD-1B0
 
         human_bgnd = Utils.get_cv2_img_array(random.choice(human_bgnds))
         inhuman_bgnd = Utils.get_cv2_img_array(random.choice(inhuman_bgnds))
-        print('sizes: {} {} human bgnd {} inbgnd {}'.format(f,img_arr.shape,human_bgnd.shape,inhuman_bgnd.shape))
+        logging.debug('sizes: {} human bgnd {} inbgnd {}'.format(img_arr.shape,human_bgnd.shape,inhuman_bgnd.shape))
         dest_imagesize=(300,300) #chosen to get figures to fit into bgnd - bgnd resized, figure not (margin added instead)
         human_bgnd = cv2.resize(human_bgnd,dest_imagesize) #dont worry about warping just fill all image
         inhuman_bgnd = cv2.resize(inhuman_bgnd,dest_imagesize)
@@ -1839,11 +1843,12 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
         cv2.waitKey(0)
 
     skin_index = constants.pixlevel_categories_v3.index('skin')
+    skin_tolerance = 1.0
     if face is not None:
  #       skin_mask = kassper.skin_detection_fast(orig_arr) * 255  #sdfdsf
-        skin_mask = kassper.skin_detection_fast(orig_arr,face=face,tol=0.8) * 255
+        skin_mask = kassper.skin_detection_fast(orig_arr,face=face,tol=skin_tolerance) * 255
     else:
-        skin_mask = kassper.skin_detection_fast(orig_arr,tol=0.8) * 255
+        skin_mask = kassper.skin_detection_fast(orig_arr,tol=skin_tolerance) * 255
     # if visual_output:
     #     cv2.imshow('skin',skin_mask)
     #     cv2.waitKey(0)
@@ -2353,7 +2358,14 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
             show_annotations_xywh(bb_list,img_arr)
 
 if __name__ == "__main__":
-    dir_of_catalog_images_to_pixlevel()
+    dir_of_catalog_images_to_pixlevel(manual_oversight=False)
+    # dir_of_catalog_images_to_pixlevel(catalog_images_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
+    #                             swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/textures/kept',
+    #                             person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept',
+    #                             destination_img_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_images',
+    #                             destination_label_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_labels',
+    #                                   manual_oversight=False)
+
 
     #mapillary_people_only(visual_output=True)
 #    kitti_to_tgdict()
