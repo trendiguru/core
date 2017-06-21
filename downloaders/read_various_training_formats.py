@@ -1684,13 +1684,18 @@ def grabcut_bb(img_arr,bb_x1y1x2y2,visual_output=False,clothing_type=None):
     return mask2,img_arr
 
 
-def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
+def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
                                 swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/textures/kept',
-                                person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept'):
+                                person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept',
+                                destination_img_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_images',
+                                destination_label_dir = '/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress_labels',
+                                      manual_oversight=True):
     files = [os.path.join(catalog_images_dir,f) for f in os.listdir(catalog_images_dir)]
     human_bgnds = [os.path.join(person_bgnds_dir,f) for f in os.listdir(person_bgnds_dir)]
     inhuman_bgnds = [os.path.join(swatch_bgnds_dir,f) for f in os.listdir(swatch_bgnds_dir)]
     dress_index = constants.pixlevel_categories_v3.index('whole_body_items')
+    Utils.ensure_dir(destination_img_dir)
+    Utils.ensure_dir(destination_label_dir)
     for f in files:
         img_arr = cv2.imread(f)
         if img_arr is None:
@@ -1699,13 +1704,23 @@ def dir_of_catalog_images_to_pixlevel(catalog_images_dir='/data/jeremy/image_dbs
 
         human_bgnd = Utils.get_cv2_img_array(random.choice(human_bgnds))
         inhuman_bgnd = Utils.get_cv2_img_array(random.choice(inhuman_bgnds))
-        print('sizes: img {} human bgnd {} inbgnd {}'.format(img_arr.shape,human_bgnd.shape,inhuman_bgnd.shape))
-        human_bgnd = imutils.resize_keep_aspect(human_bgnd,output_size=(400,400))
-        human_bgnd = imutils.resize_keep_aspect(human_bgnd,output_size=(400,400))
-        img_arr = imutils.resize_by_adding_border(img_arr,output_size=(400,400))
+        print('sizes: {} {} human bgnd {} inbgnd {}'.format(f,img_arr.shape,human_bgnd.shape,inhuman_bgnd.shape))
+        dest_imagesize=(300,300) #chosen to get figures to fit into bgnd - bgnd resized, figure not (margin added instead)
+        human_bgnd = cv2.resize(human_bgnd,dest_imagesize) #dont worry about warping just fill all image
+        inhuman_bgnd = cv2.resize(inhuman_bgnd,dest_imagesize)
+        img_arr = imutils.resize_by_adding_border(img_arr,output_size=dest_imagesize)
         mask,img = image_to_pixlevel_no_bb(img_arr,clothing_indices=[dress_index],human_bgd = human_bgnd,inhuman_bgnd = inhuman_bgnd,visual_output=False)
-        imutils.show_mask_with_labels(mask,labels=constants.pixlevel_categories_v3,original_image=img,visual_output=True)
-
+        save = True
+        if manual_oversight:
+            imutils.show_mask_with_labels(mask,labels=constants.pixlevel_categories_v3,original_image=img,visual_output=True)
+            k=cv2.waitKey(0)
+            print('k='+str(k))
+        if save:
+            dest_imgname = os.path.join(destination_img_dir,os.path.basename(f))
+            cv2.imwrite(dest_imgname,img)
+            dest_lblname = os.path.join(destination_label_dir,os.path.basename(f)).replace('.jpg','.png')
+            cv2.imwrite(dest_lblname,mask)
+            print('wrote img to {} and label to {}'.format(dest_imgname,dest_lblname))
 
 def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=constants.pixlevel_categories_v3,human_bgd=None,inhuman_bgnd=None):
     '''
@@ -1766,14 +1781,14 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
         right_margin= 0.3
         likely_fg_bb = [int(left_margin*w),int(top_margin*h),w*(1-(left_margin+right_margin)),h*(1-(top_margin+bottom_margin))]
 
-    print('pre-check likely fg bb:{} h {} w {} shape {} '.format(likely_fg_bb,h,w,img_arr.shape))
+    logging.debug('pre-check likely fg bb:{} h {} w {} shape {} '.format(likely_fg_bb,h,w,img_arr.shape))
     #make sure nothing out of bounds
     likely_fg_bb=[max(likely_fg_bb[0],0),max(likely_fg_bb[1],0),max(likely_fg_bb[2],0),max(likely_fg_bb[3],0)]
     likely_fg_bb=[min(likely_fg_bb[0],w),min(likely_fg_bb[1],h),min(likely_fg_bb[2],w-likely_fg_bb[0]),min(likely_fg_bb[3],h-likely_fg_bb[1])]
     likely_fg_bb=[int(likely_fg_bb[0]),int(likely_fg_bb[1]),int(likely_fg_bb[2]),int(likely_fg_bb[3])]
 
 
-    print('likely fg bb:{}'.format(likely_fg_bb))
+    logging.debug('likely fg bb:{}'.format(likely_fg_bb))
     gc_mask[likely_fg_bb[1]:likely_fg_bb[1]+likely_fg_bb[3],likely_fg_bb[0]:likely_fg_bb[0]+likely_fg_bb[2]] = cv2.GC_PR_FGD
 
     # print('after face/margins ')
@@ -1784,8 +1799,8 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
     #     gc_mask[top:bottom,left:right] = cv2.GC_PR_FGD
     # else:
     #     gc_mask[top:bottom,left:right] = cv2.GC_FGD
-    print('after mainbox b4 blackwhite ')
-    imutils.count_values(gc_mask,gc_mask_labels)
+    logging.debug('after mainbox b4 blackwhite ')
+   # imutils.count_values(gc_mask,gc_mask_labels)
 #add white and black vals as pr bgd
     white_tolerance = 5 #anything from 255-this to 255 is called white bgnd
     black_tolerance = 5 #anything from 0 to this is called black gbgnd
@@ -1825,16 +1840,16 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
 
     skin_index = constants.pixlevel_categories_v3.index('skin')
     if face is not None:
-        skin_mask = kassper.skin_detection_fast(orig_arr) * 255  #sdfdsf
-#        skin_mask = kassper.skin_detection_fast(orig_arr,face=face) * 255
+ #       skin_mask = kassper.skin_detection_fast(orig_arr) * 255  #sdfdsf
+        skin_mask = kassper.skin_detection_fast(orig_arr,face=face,tol=0.8) * 255
     else:
-        skin_mask = kassper.skin_detection_fast(orig_arr) * 255
+        skin_mask = kassper.skin_detection_fast(orig_arr,tol=0.8) * 255
     # if visual_output:
     #     cv2.imshow('skin',skin_mask)
     #     cv2.waitKey(0)
 
     #erode skin to eliminate 1x1 edges detected as skin
-    kernel = np.ones((3,3),np.uint8)
+    kernel = np.ones((2,2),np.uint8)
     skin_mask = cv2.erode(skin_mask,kernel,iterations = 1)
     skin_mask = cv2.dilate(skin_mask,kernel,iterations = 1)
 
@@ -1861,6 +1876,18 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
 
     if visual_output:
         cv2.imshow('img after skin',img_arr)
+        cv2.waitKey(0)
+
+
+    #get rid of outermost pixels , they seem to wind up white a lot of time
+    kernel = np.ones((1,1),np.uint8)
+    current_nonzero = np.where(img_arr!=0,1,0)[:,:,0].astype(dtype=np.uint8)  #maynbe there a better way but this works and is easy to remember - 1st chan of nonzeros arr
+    logging.debug('n before erode:{} mask {} size {}'.format(np.count_nonzero(img_arr),np.count_nonzero(current_nonzero),current_nonzero.shape))
+    current_nonzero = cv2.erode(current_nonzero,kernel,iterations = 1)
+    img_arr = np.multiply(current_nonzero[:,:,np.newaxis],img_arr)  #should really look into operation of newaxis but blv this is kosher
+    logging.debug('n after erode:{} mask {}'.format(np.count_nonzero(img_arr),np.count_nonzero(current_nonzero)))
+    if visual_output:
+        cv2.imshow('after getting rid of outermost',img_arr)
         cv2.waitKey(0)
 
 
@@ -1895,17 +1922,21 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
     bgnd_arr = None
     if human_bgd is not None: #street scenes or the like for people
         if face:
+            print('doing bgnd human due to face')
             human_bgd = Utils.get_cv2_img_array(human_bgd)
             bgnd_arr = imutils.resize_keep_aspect(human_bgd,output_size=(img_arr.shape[0],img_arr.shape[1]))
         elif inhuman_bgnd is not None: #brick wall or table or the like for clothing items alone
+            print('doing bgnd inhuman due to no face')
             inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
             bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
 
     elif inhuman_bgnd is not None: #brick wall or table or the like for clothing items alone
+        print('doing bgnd inhuman due to no human')
         inhuman_bgnd = Utils.get_cv2_img_array(inhuman_bgnd)
         bgnd_arr = imutils.resize_keep_aspect(inhuman_bgnd,output_size=(img_arr.shape[0],img_arr.shape[1]))
 
     if bgnd_arr == None:
+        print('doing bgnd static')
         fillval = np.mean(orig_arr[0:20,0:20],axis=(0,1))
         print('fillval '+str(fillval))
         bgnd_arr = np.zeros_like(orig_arr).astype('uint8')

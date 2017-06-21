@@ -113,19 +113,32 @@ def skin_detection(image_arr, face=None):
         print('skin pixels:'+str(n))
         return mask
 
-def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None):
+def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
     '''
     return mask with skin as 255 and the rest 0
     todo - if a face is given use that to determine skintone
     y -  cr [120...170]  cb[90..130]
     :param image_arr:
     :param face:
+    tolerance is how selective , e.g. tol=0 means select no pixels
     :return:
     '''
 
 
     if not ycrcb_ranges and not face:
-        ycrcb_ranges = [[90,240],[140,170],[95,130]]  #default ranges, possibly overrriden by ranges eg from face
+        y_mid = int((30+210)/2.0)
+        y_spread = 210-30
+        cr_mid = int((133+175)/2.0)
+        cr_spread = 175-133
+        cb_mid = int((80+120)/2.0)
+        cb_spread = 120-80
+        ycrcb_ranges = [[int(y_mid-y_spread*tol),int(y_mid+y_spread*tol)],
+                        [int(cr_mid-cr_spread*tol),int(cr_mid+cr_spread*tol)],
+                        [int(cb_mid-cb_spread*tol),int(cb_mid+cb_spread*tol)]]  #default ranges, possibly overrriden by ranges eg from face
+
+#        ycrcb_ranges = [[90,240],(140,170,[95,130]]  #default ranges, possibly overrriden by ranges eg from face
+
+
         #note background removal_
 
     if face:
@@ -152,10 +165,10 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None):
         f = 0.8
         ycrcb_ranges = [[90,240], #,int(fsc[0][0]-(fsc[0][1]/f)),  #change means, stdvs to ranges.  force y chan to known range
              # int(fsc[0][0]+(fsc[0][1]/f))],
-              [int(results[1][0]-(results[1][1]/f)),
-              int(results[1][0]+(results[1][1]/f))],
-              [int(results[2][0]-(results[2][1]/f)),
-              int(results[2][0]+(results[2][1]/f))]]
+              [int(results[1][0]-(results[1][1]*tol)),
+              int(results[1][0]+(results[1][1]*tol))],
+              [int(results[2][0]-(results[2][1]*tol)),
+              int(results[2][0]+(results[2][1]*tol))]]
 
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
 #    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))

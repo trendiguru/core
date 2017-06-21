@@ -59,7 +59,7 @@ def find_face_ccv(image_arr, max_num_of_faces=100):
             return {'are_faces': True, 'faces': choose_faces(image_arr, faces, max_num_of_faces)}
 
 
-def find_face_cascade(image, max_num_of_faces=10):
+def find_face_cascade(image, max_num_of_faces=10,check_relevance=True):
     gray = cv2.cvtColor(image, constants.BGR2GRAYCONST)
     face_cascades = [
         cv2.CascadeClassifier(os.path.join(constants.classifiers_folder, 'haarcascade_frontalface_alt2.xml')),
@@ -86,7 +86,7 @@ def find_face_cascade(image, max_num_of_faces=10):
             break
     if len(faces) == 0:
         return {'are_faces': False, 'faces': []}
-    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces)}
+    return {'are_faces': True, 'faces': choose_faces(image, faces, max_num_of_faces,check_relevance=check_relevance)}
 
 
 def find_face_dlib(image, max_num_of_faces=10):
@@ -117,7 +117,7 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
         print("Detection {}, score: {}, face_type:{}".format(
             d, scores[i], idx[i]))
 
-    print("dlib found {} faces in {} s.".format(len(faces),(time.time() - start)))
+    print("dlib found {} faces in {}                                                                                                                s.".format(len(faces),(time.time() - start)))
 
     faces = [[rect.left(), rect.top(), rect.width(), rect.height()] for rect in list(faces)]
     if not len(faces):
@@ -127,7 +127,7 @@ def find_face_dlib_with_scores(image, max_num_of_faces=100):
     return {'are_faces': len(faces) > 0, 'faces': faces, 'scores': scores}
 
 
-def choose_faces(image, faces_list, max_num_of_faces):
+def choose_faces(image, faces_list, max_num_of_faces,check_relevance=True):
     # in faces w = h, so biggest face will have the biggest h (we could also take w)
     biggest_face = 0
     if not isinstance(faces_list, list):
@@ -137,7 +137,7 @@ def choose_faces(image, faces_list, max_num_of_faces):
 
     relevant_faces = []
     for face in faces_list:
-        if face_is_relevant(image, face):
+        if face_is_relevant(image, face) or not check_relevance:
             # since the list is reversed sorted, the first relevant face, will be the biggest
             if biggest_face == 0:
                 biggest_face = face[3]
