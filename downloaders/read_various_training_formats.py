@@ -1761,7 +1761,7 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
         imutils.show_mask_with_labels(gc_mask,labels,visual_output=True,original_image=img_arr)
 #prevent gc_masks frrom adding together by doing boolean or
     nprbgd = np.sum(gc_mask==cv2.GC_PR_BGD)
-    print('after bigbox '+str(nprbgd))
+    logging.debug('after bigbox '+str(nprbgd))
 
     #see if theres a face   1-501510371 refno
     ff_cascade = background_removal.find_face_cascade(img_arr, max_num_of_faces=10)
@@ -1920,7 +1920,6 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
         imutils.show_mask_with_labels(mask,gc_mask_labels,original_image=img_arr)
 
 #label skin
-    print(labels)
     skin_index = labels.index('skin')
     mask[skin_mask!=0] = skin_index
 

@@ -17,6 +17,9 @@ import time
 from functools import partial
 import sklearn
 from matplotlib import pyplot as plt
+import logging
+logging.basicConfig(level=logging.INFO)
+
 
 detector = dlib.get_frontal_face_detector()
 db = constants.db
@@ -186,7 +189,7 @@ def face_is_relevant(image, face):
     x, y, w, h = face
     face_image = image[y:y + h, x:x + w, :]
     gray_face = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
-    print "face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face))
+    logging.debug("face: {0}, blurry: {1}".format(face, variance_of_laplacian(gray_face)))
     # threshold = face + 4.7 faces down = 5.7 faces
     ycrcb = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
     face_ycrcb = ycrcb[y:y + h, x:x + w, :]

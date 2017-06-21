@@ -516,7 +516,7 @@ def resize_by_adding_border(img_arr,output_size,visual_output=False,copy_edge_pi
     left = border_sizes[1]/2
     right = left + img_arr.shape[1]
     new_image[top:bottom,left:right] = img_arr
-    print('top {} bot {} d {} l {} r {} d {} imgarr {} '.format(top,bottom,bottom-top,left,right,right-left,img_arr.shape))
+    logging.debug('top {} bot {} d {} l {} r {} d {} imgarr {} '.format(top,bottom,bottom-top,left,right,right-left,img_arr.shape))
     if visual_output:
         cv2.imshow('resized from {} to {}'.format(img_arr.shape,new_image.shape),new_image)
         cv2.imshow('orig',img_arr)

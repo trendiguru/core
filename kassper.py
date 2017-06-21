@@ -3,6 +3,8 @@ __author__ = 'Nadav Paz'
 import numpy as np
 import cv2
 import sklearn.mixture
+import logging
+logging.basicConfig(level=logging.INFO)
 
 #from trendi import background_removal
 
@@ -160,7 +162,7 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
         results = []
         for data,label in zip(channels,labels):
             r = gmm.fit(data[:,np.newaxis]) # GMM requires 2D data as of sklearn version 0.16
-            print("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
+            logging.debug("mean : %f, var : %f" % (r.means_[0, 0], r.covars_[0, 0]))
             results.append((r.means_[0, 0], np.sqrt(r.covars_[0, 0])))
         f = 0.8
         ycrcb_ranges = [[90,240], #,int(fsc[0][0]-(fsc[0][1]/f)),  #change means, stdvs to ranges.  force y chan to known range
@@ -170,7 +172,7 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
               [int(results[2][0]-(results[2][1]*tol)),
               int(results[2][0]+(results[2][1]*tol))]]
 
-    print('skin ranges:'+str(ycrcb_ranges))
+    logging.debug('skin ranges:'+str(ycrcb_ranges))
     ycrcb = cv2.cvtColor(image_arr, cv2.COLOR_BGR2YCR_CB)
 #    mask = cv2.inRange(ycrcb,np.array([80,135,85]),np.array([255,180,135]))
 #    mask = cv2.inRange(ycrcb,np.array([90,140,95]),np.array([240,170,130]))
@@ -180,7 +182,7 @@ def skin_detection_fast(image_arr, face=None,ycrcb_ranges=None,tol=1):
     # mask = mask1*mask2*mask3
     mask = np.where(mask  ==0,0,1).astype('uint8')  #return a 0,1 mask , easier for multiplication #
     n=np.count_nonzero(mask)
-    print('skin pixels:'+str(n))
+    logging.debug('skin pixels:'+str(n))
     return mask
 
 def skin_detection_fast_with_gc(image_arr, face=None,ycrcb_ranges=None):
