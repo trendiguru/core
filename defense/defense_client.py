@@ -25,7 +25,7 @@ def detect_hls(img_arr, roi=[]):
         print "Make sure roi is a list in this order [x1, y1, x2, y2]"
         data["roi"] = roi
     serialized_data = msgpack.dumps(data)
-    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
+    resp = requests.post(YOLO_HLS_ADDRESS, data=serialized_data)
     return msgpack.loads(resp.content)
 
 if __name__=="__main__":
