@@ -141,7 +141,7 @@ neurodooll_queuename = 'neurodoll'
 parallel_matlab_queuename = 'pd'
 nonparallel_matlab_queuename = 'pd_nonparallel'
 caffe_path_in_container = '/opt/caffe'
-db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),port=int(os.getenv("MONGO_PORT", "27017"))).mydb
+db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "localhost"), port=int(os.getenv("MONGO_PORT", "27017"))).mydb
 #todo - it would be nice to get the following to happen automatically if you are in a docker container
 #db = pymongo.MongoClient('localhost',port=27017).mydb
 

@@ -8,7 +8,6 @@ import os
 import dlib
 import cv2
 import numpy as np
-import rq
 from . import constants
 from . import Utils
 from . import ccv_facedetector as ccv
@@ -19,7 +18,7 @@ from functools import partial
 detector = dlib.get_frontal_face_detector()
 db = constants.db
 redis_conn = constants.redis_conn
-
+Relevance = collections.namedtuple('relevance', 'is_relevant faces')
 
 def image_is_relevant(image, use_caffe=False, image_url=None):
     """
@@ -32,15 +31,11 @@ def image_is_relevant(image, use_caffe=False, image_url=None):
     - "if image_is_relevant(image).is_relevant:"
     - "for face in image_is_relevant(image).faces:"
     """
-    Relevance = collections.namedtuple('relevance', 'is_relevant faces')
+
     faces_dict = find_face_dlib(image, 3)
-    # faces_dict = find_face_cascade(image, 10)
-    # if len(faces_dict['faces']) == 0:
-    #     faces_dict = find_face_ccv(image, 10)
+
+
     if not faces_dict['are_faces']:
-        # if use_caffe:
-        # return Relevance(caffeDocker_test.is_person_in_img('url', image_url).is_person, [])
-        # else:
         return Relevance(False, [])
     else:
         return Relevance(True, faces_dict['faces'])
