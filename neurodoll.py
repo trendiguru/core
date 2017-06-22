@@ -1415,12 +1415,12 @@ def combine_neurodoll_v3labels_and_multilabel(url_or_np_array):
     #next two lines can be paralleled
     print('starting combine_neurodoll_v3labels_and_multilabel')
 
-    print('testing gevent')
-    urls = ['www.google.com', 'www.example.com', 'www.python.org']
-    jobs = [gevent.spawn(socket.gethostbyname, url) for url in urls]
-    gevent.joinall(jobs, timeout=2)
-    gevent_results = [job.value for job in jobs]
-    print('gevent results '+str(gevent_results))
+    # print('testing gevent')
+    # urls = ['www.google.com', 'www.example.com', 'www.python.org']
+    # jobs = [gevent.spawn(socket.gethostbyname, url) for url in urls]
+    # gevent.joinall(jobs, timeout=2)
+    # gevent_results = [job.value for job in jobs]
+    # print('gevent results '+str(gevent_results))
 
     print('getting graylevel output')
     graylevel_nd_output = get_all_category_graylevels(url_or_np_array)

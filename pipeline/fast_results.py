@@ -76,10 +76,13 @@ def process_image(image_url, page_url, products):
 
         # TODO: parallelize with gevent
         for person in image_obj["people"]:
-            person = fake_storm.process_person(image, person)
+            person = fake_storm.process_person(image_url, person)
 
             for item in person["items"]:
                 item = fake_storm.process_item(person["_id"], item)
+                del item["image"]
+
+            del person["image"]
 
         return image_obj
     else:

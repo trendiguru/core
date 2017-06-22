@@ -55,12 +55,11 @@ def process_image(image, image_dict, products_collection, method='nd'): # page_u
     return image_dict
 
 
-def process_person(image_url, _person_dict):
-    image_id = _person_dict['image_id']
-    person_image = np.array((_person_dict['image']), dtype=np.uint8)
-    person = _person_dict
-    person['_id'] = str(bson.ObjectId())
-    person['items'] = []
+def process_person(image_url, person_dict):
+    # image_id = person['image_id']
+    person_image = np.array((person_dict['image']), dtype=np.uint8)
+    person_dict['_id'] = str(bson.ObjectId())
+    person_dict['items'] = []
     # neurodoll_falcon_client.nd(url, get_combined_results=True)
     seg_res = nd_client.nd(image_url, get_combined_results=True)
     # TODO: this is what it should be (when nd can handle it)
@@ -78,21 +77,21 @@ def process_person(image_url, _person_dict):
         pd_category = list(labels.keys())[list(labels.values()).index(num)]
         if pd_category in constants.paperdoll_relevant_categories:
             item_mask = 255 * np.array(final_mask == num, dtype=np.uint8)
-            if person['gender'] == 'Male':
+            if person_dict['gender'] == 'Male':
                 category = constants.paperdoll_paperdoll_men[pd_category]
             else:
                 category = pd_category
             item_args = {'mask': item_mask.tolist(), 'category': category, 'image': person_image.tolist(),
-                         'domain': person['domain'], 'gender': person['gender'],
-                         'products_collection': person['products_collection']}
+                         'domain': person_dict['domain'], 'gender': person_dict['gender'],
+                         'products_collection': person_dict['products_collection']}
             items.append(item_args)
             idx += 1
-    person['num_of_items'] = idx
-    person['items'] = items
-    person.pop('domain') # WHY??
+    person_dict['num_of_items'] = idx
+    person_dict['items'] = items
+    person_dict.pop('domain') # WHY??
 
 
-    return person
+    return person_dict
 
 
 def process_item(person_id, item):
