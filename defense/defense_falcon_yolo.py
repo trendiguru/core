@@ -50,7 +50,7 @@ class HLS_YOLO:
         print "Loaded Resource for HLS YOLO"
 
 
-    def on_get(self, req, resp): #
+    def on_get(self, req, resp): #/
         """Handles GET requests"""
         serializer = json
         resp.content_type = "application/json"
