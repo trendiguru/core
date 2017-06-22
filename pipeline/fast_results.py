@@ -29,19 +29,8 @@ def check_if_exists(image_url, products):
     if image_url[:4] == "data":
         return False
 
-    def check_db(images_collection, products_collection):
-        image_obj = db[images_collection].find_one({'image_urls': image_url}, {'people.items.similar_results': 1})
-        if image_obj:
-            if products_collection in image_obj['people'][0]['items'][0]['similar_results'].keys():
-                return True
-            else:
-                add_results.enqueue_call(func=page_results.add_results_from_collection,
-                                         args=(image_obj['_id'], products_collection),
-                                         ttl=2000, result_ttl=2000, timeout=2000)
-                return False
-        else:
-            return False
-    if check_db('images', products):
+
+    if check_db('images', products, image_url):
         return True
     elif db.iip.find_one({'image_urls': image_url}):
         return True
@@ -59,6 +48,18 @@ def check_if_exists(image_url, products):
     # print "after db checks: {0}".format(time.time()-start)
     # return None
 
+def check_db(images_collection, products_collection, image_url):
+    image_obj = db[images_collection].find_one({'image_urls': image_url}, {'people.items.similar_results': 1})
+    if image_obj:
+        if products_collection in image_obj['people'][0]['items'][0]['similar_results'].keys():
+            return True
+        else:
+            add_results.enqueue_call(func=page_results.add_results_from_collection,
+                                     args=(image_obj['_id'], products_collection),
+                                     ttl=2000, result_ttl=2000, timeout=2000)
+            return False
+    else:
+        return False
 
 def process_image(image_url, page_url, products):
     image = Utils.get_cv2_img_array(image_url)
