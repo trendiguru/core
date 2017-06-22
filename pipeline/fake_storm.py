@@ -62,8 +62,9 @@ def process_person(image_url, _person_dict):
     person['_id'] = str(bson.ObjectId())
     person['items'] = []
     # neurodoll_falcon_client.nd(url, get_combined_results=True)
-    # seg_res = nd_client.nd(image_url, get_combined_results=True)
-    seg_res = nd_client.nd(person_image, get_combined_results=True)
+    seg_res = nd_client.nd(image_url, get_combined_results=True)
+    # TODO: this is what it should be (when nd can handle it)
+    #seg_res = nd_client.nd(person_image, get_combined_results=True)
     if seg_res.get('success'):
         final_mask = seg_res['mask']
         labels = seg_res['label_dict']
