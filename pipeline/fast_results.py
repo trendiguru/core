@@ -3,6 +3,7 @@ from gevent import Greenlet, monkey
 import datetime
 import os
 import bson
+from bson import json_util
 import time
 from rq import push_connection, Queue
 
@@ -11,6 +12,7 @@ from .. import Utils
 from .. import constants
 from .. import background_removal
 from .. import page_results
+from . import fake_storm
 db = constants.db
 push_connection(constants.redis_conn)
 start_q = Queue('start_synced_pipeline', connection=constants.redis_conn)
@@ -28,7 +30,7 @@ def check_if_exists(image_url, products):
         return False
 
 
-    if check_db(image_url, 'images', products):
+    if check_db('images', products, image_url):
         return True
     elif db.iip.find_one({'image_urls': image_url}):
         return True
@@ -36,6 +38,7 @@ def check_if_exists(image_url, products):
         return False
     else:
         return None
+
     # greens = {collection: Greenlet.spawn(check_db, collection, products) for collection in ['images', 'irrelevant_images', 'iip']}
     # gevent.joinall(greens.values())
     # if greens['images'].value or greens['iip'].value:
@@ -45,7 +48,7 @@ def check_if_exists(image_url, products):
     # print "after db checks: {0}".format(time.time()-start)
     # return None
 
-def check_db(image_url, images_collection, products_collection):
+def check_db(images_collection, products_collection, image_url):
     image_obj = db[images_collection].find_one({'image_urls': image_url}, {'people.items.similar_results': 1})
     if image_obj:
         if products_collection in image_obj['people'][0]['items'][0]['similar_results'].keys():
@@ -58,8 +61,7 @@ def check_db(image_url, images_collection, products_collection):
     else:
         return False
 
-
-def check_if_relevant_and_enqueue(image_url, page_url, products):
+def process_image(image_url, page_url, products):
     image = Utils.get_cv2_img_array(image_url)
     if image is None:
         return False
@@ -68,10 +70,20 @@ def check_if_relevant_and_enqueue(image_url, page_url, products):
 
     if relevance.is_relevant:
         image_obj = {'people': [{'person_id': str(bson.ObjectId()), 'face': list(face)} for face in relevance.faces],
-                     'image_urls': image_url, 'page_url': page_url, 'insert_time': datetime.datetime.now()}
-        db.iip.insert_one(image_obj)
+                     'image_urls': [image_url], 'page_urls': [page_url], 'insert_time': datetime.datetime.now()}
 
-        start_q.enqueue_call(func="", args=(page_url, image_url, products, 'nd'), ttl=2000, result_ttl=2000, timeout=2000)
-        return True
+        image_obj = fake_storm.process_image(image, image_obj, products)
+
+        # TODO: parallelize with gevent
+        for person in image_obj["people"]:
+            person = fake_storm.process_person(image_url, person)
+
+            for item in person["items"]:
+                item = fake_storm.process_item(person["_id"], item)
+                del item["image"]
+
+            del person["image"]
+
+        return image_obj
     else:
         return False

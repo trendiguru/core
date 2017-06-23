@@ -1,5 +1,6 @@
 
 import traceback
+import os
 import hashlib
 import logging
 import datetime
@@ -27,12 +28,12 @@ add_results = Queue('add_results')
 lang = ""
 image_coll_name = "images"
 prod_coll_name = "products"
-geo_db_path = '/usr/local/lib/python2.7/dist-packages/maxminddb'
+geo_db_path = os.path.dirname(maxminddb.__file__)
 # GENDER_ADDRESS = "http://37.58.101.173:8357/neural/gender"
 GENDER_ADDRESS = "http://13.69.27.202:8357/gender"
 DOORMAN_ADDRESS = "http://37.58.101.173:8357/neural/doorman"
 LABEL_ADDRESS = "http://37.58.101.173:8357/neural/label"
-geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
+# geo_reader = maxminddb.open_database(geo_db_path + '/GeoLite2-Country.mmdb')
 
 # -------------------------------------- *** ASYNC-MODE *** ----------------------------------------------
 
@@ -129,7 +130,7 @@ def has_items(image_dict):
 # ----------------------------------------- ROUTE-FUNCTIONS ----------------------------------------------
 
 def get_country_from_ip(ip):
-    user_info = geo_reader.get(ip)
+    user_info = None # geo_reader.get(ip)
     if user_info:
         if 'country' in user_info.keys():
             return user_info['country']['iso_code']
