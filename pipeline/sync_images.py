@@ -93,28 +93,58 @@ class Images(object):
 
         return ret
 
-
     def on_get(self, req, resp):
-        ret = {}
         image_url = req.get_param("imageUrl")
-        pid = req.get_param("pid") or 'default'
-        if not image_url:
-            raise falcon.HTTPMissingParam('imageUrl')
-
-        products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
-        print "on_get: products_collection {0}".format(products)
-        
         start = time.time()
-        ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
-        while not ret:
-            if time.time()-start > 10:
-                break
-            time.sleep(0.25)
-            ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
-        
-        resp.status = falcon.HTTP_200 if ret else falcon.HTTP_400
-        resp.data = json_util.dumps(ret)  # + "\n"
+        ret = {}
+        method = 'nd'
+        pid = req.get_param("pid") or 'default'
+        products = 'shopstyle_US'  # page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
+
+        try:
+            exists = fast_results.check_if_exists(image_url, products)
+            if exists is not None:
+                if exists:
+                    image_obj_result = constants.db.images.find_one({"image_urls": image_url})
+                else:
+                    image_obj_result = "irrelevant"
+            else:
+
+                image_obj_result = fast_results.process_image(image_url, "dummy_page", products)
+                res = constants.db.images.insert_one(image_obj_result)
+                # slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
+
+            ret["success"] = True
+            ret["result"] = image_obj_result
+
+
+        except Exception as e:
+            ret["error"] = traceback.format_exc()
+
+        resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
+
+    # def on_get(self, req, resp):
+    #     ret = {}
+    #     image_url = req.get_param("imageUrl")
+    #     pid = req.get_param("pid") or 'default'
+    #     if not image_url:
+    #         raise falcon.HTTPMissingParam('imageUrl')
+    #
+    #     products = page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
+    #     print "on_get: products_collection {0}".format(products)
+    #
+    #     start = time.time()
+    #     ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
+    #     while not ret:
+    #         if time.time()-start > 10:
+    #             break
+    #         time.sleep(0.25)
+    #         ret = page_results.get_data_for_specific_image(image_url=image_url, products_collection=products)
+    #
+    #     resp.status = falcon.HTTP_200 if ret else falcon.HTTP_400
+    #     resp.data = json_util.dumps(ret)  # + "\n"
+    #     resp.content_type = 'application/json'
 
 
 # if __name__ == '__main__':
