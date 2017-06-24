@@ -2,7 +2,7 @@ __author__ = 'Nadav Paz'
 
 import numpy as np
 import cv2
-import sklearn.mixture
+# import sklearn.mixture
 import logging
 logging.basicConfig(level=logging.INFO)
 
