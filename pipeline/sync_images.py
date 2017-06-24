@@ -101,18 +101,20 @@ class Images(object):
         pid = req.get_param("pid") or 'default'
         products = 'shopstyle_US'  # page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
 
+        filter =  {"people.items.similar_results": 1}
+
         try:
             exists = fast_results.check_if_exists(image_url, products)
             if exists is not None:
                 if exists:
-                    image_obj_result = constants.db.images.find_one({"image_urls": image_url})
+                    slimage = constants.db.images.find_one({"image_urls": image_url}, filter)
                 else:
-                    image_obj_result = "irrelevant"
+                    slimage = "irrelevant"
             else:
 
                 image_obj_result = fast_results.process_image(image_url, "dummy_page", products)
                 res = constants.db.images.insert_one(image_obj_result)
-                slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
+                slimage = constants.db.images.find_one({"_id": res.inserted_id}, filter)
 
             ret["success"] = True
             ret["result"] = slimage
