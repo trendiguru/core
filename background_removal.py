@@ -15,7 +15,6 @@ from . import kassper
 import time
 from functools import partial
 import sklearn
-from matplotlib import pyplot as plt
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -508,6 +507,7 @@ def face_skin_color_estimation_gmm(image, face_rect,visual_output=False):
         # Get the fitted curve
 
         if visual_output:
+            from matplotlib import pyplot as plt
             hist, bin_edges = np.histogram(data, density=False)
             bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
             plt.plot(bin_centres, hist,'.-', label='Test data '+label)
