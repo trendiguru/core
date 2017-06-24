@@ -112,10 +112,10 @@ class Images(object):
 
                 image_obj_result = fast_results.process_image(image_url, "dummy_page", products)
                 res = constants.db.images.insert_one(image_obj_result)
-                # slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
+                slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
 
             ret["success"] = True
-            ret["result"] = image_obj_result
+            ret["result"] = slimage
 
 
         except Exception as e:
