@@ -101,7 +101,10 @@ class Images(object):
         pid = req.get_param("pid") or 'default'
         products = 'shopstyle_US'  # page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
 
-        filter =  {"people.items.similar_results": 1}
+        filter =  {
+            "people.items.category":1,
+            "people.items.similar_results": 1
+        }
 
         try:
             exists = fast_results.check_if_exists(image_url, products)
