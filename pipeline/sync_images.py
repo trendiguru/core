@@ -102,6 +102,7 @@ class Images(object):
         products = 'shopstyle_US'  # page_results.get_collection_from_ip_and_pid(req.env['REMOTE_ADDR'], pid)
 
         filter =  {
+            "image_urls": 1,
             "people.items.category":1,
             "people.items.similar_results": 1
         }
