@@ -3,16 +3,22 @@ import traceback
 import ctypes
 import time
 import gevent
+import os
+import sys
 from gevent import Greenlet, monkey
 monkey.patch_all(thread=False)
 from bson import json_util
 from rq import Queue
+import json
+import subprocess
+
 import falcon
 from redis import Redis
 from . import fast_results
 from .. import constants
 from .. import page_results
 from .. import simple_pool
+from trendi import Utils
 
 # Patch db for multiprocessing http://api.mongodb.com/python/current/faq.html#using-pymongo-with-multiprocessing
 # fast_results.db = pymongo.MongoClient(host=os.getenv("MONGO_HOST", "mongodb1-instance-1"),
@@ -123,12 +129,16 @@ class Images(object):
             ret["success"] = True
             ret["result"] = slimage
 
-
         except Exception as e:
             ret["error"] = traceback.format_exc()
 
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
+
+        save_for_www = True
+        if save_for_www:
+            print('saving to www')
+            save_to_www(ret)
 
     # def on_get(self, req, resp):
     #     ret = {}
@@ -164,3 +174,24 @@ def run():
 
     ret = Images().on_post(Dummy(), resp, image_url=image_url, pid='default')
     print ret, resp.data
+
+
+def save_to_www(results):
+        try:  #save locally in case i get chance to setup local server
+            filename = 'pipeline_output.html'
+            wwwpath = '/data/www'
+            wwwname = os.path.join(wwwpath,os.path.basename(filename))
+            print('WWW - saving json to '+wwwname)
+            Utils.ensure_file(wwwname)
+            with open(wwwname,'a') as fp:
+                json.dump(results,fp,indent=4)
+                fp.close()
+            print('WWW - writing')
+        except:
+            print(sys.exc_info()[0])
+
+        try:  #save to server already running
+            scpcmd = 'rsync -avz '+wwwname + ' root@13.69.27.202:'+wwwname
+            subprocess.call(scpcmd,shell=True)
+        except:
+            print(sys.exc_info()[0])

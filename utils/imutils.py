@@ -1938,8 +1938,9 @@ def yolo_to_xywh(bb_yolo,image_dims_HxW):  #should change this to HxW and all ca
 def bb_with_text(img_arr,bb_xywh,text,boxcolor=None):
     if boxcolor is None:
         boxcolor = [50,255,50]
-    text_color=[255,50,255]
-    text_bgnd_color=[20,255,80]
+    text_color=[0
+        ,50,255]
+    text_bgnd_color=[200,255,80]
     cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=boxcolor,thickness=2)
     img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]=(img_arr[bb_xywh[1]:bb_xywh[1]+20,bb_xywh[0]:bb_xywh[0]+bb_xywh[2]]/2)+np.array(text_bgnd_color)/2
     cv2.putText(img_arr,text,(bb_xywh[0]+5,bb_xywh[1]+20),cv2.FONT_HERSHEY_PLAIN, 1, text_color)
