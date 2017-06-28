@@ -182,7 +182,7 @@ def run():
 def save_to_www(results):
         try:  #save locally in case i get chance to setup local server
             filename = 'pipeline_output.html'
-            wwwpath = '/data/www'
+            wwwpath = '/home/docker-user/appengine_api/output'
             wwwname = os.path.join(wwwpath,os.path.basename(filename))
             print('WWW - saving json to '+wwwname)
             Utils.ensure_file(wwwname)
@@ -196,7 +196,9 @@ def save_to_www(results):
 
 
         try:  #save to server already running
-            scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+wwwname
+            destname = '/data/www/'+filename
+            print('copying to 13.69.27.202:'+destname)
+            scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+destname
             subprocess.call(scpcmd,shell=True)
         except:
             print(sys.exc_info())
