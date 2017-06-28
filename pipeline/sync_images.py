@@ -207,7 +207,7 @@ def save_to_www(results):
     except:
         print(sys.exc_info())
 
-    #attempt direct ftp since local save doesnt work and cant scp without local save
+    #attempt direct ftp since local save doesnt work and cant scp without local file
     try:
         import paramiko
         connection = paramiko.SSHClient()
