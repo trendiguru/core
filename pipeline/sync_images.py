@@ -185,7 +185,7 @@ def save_to_www(results):
     try:  #save locally in case i get chance to setup local server
         filename = 'pipeline_output.html'
         wwwpath = '/home/docker-user/appengine_api/output'  #this issnt shared  in docker... prob / wont be shared either
-        wwwpath = '/'
+        wwwpath = '/data/www'
         wwwname = os.path.join(wwwpath,os.path.basename(filename))
         print('WWW - saving json to '+wwwname)
         Utils.ensure_file(wwwname)
