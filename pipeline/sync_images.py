@@ -180,7 +180,7 @@ def run():
 
 
 def save_to_www(results):
-    print('attempting to save results {}'.format(results))
+ #   print('attempting to save results {}'.format(results))
 
     try:  #save locally in case i get chance to setup local server
         filename = 'pipeline_output.html'
@@ -190,7 +190,8 @@ def save_to_www(results):
         print('WWW - saving json to '+wwwname)
         Utils.ensure_file(wwwname)
         with open(wwwname,'w') as fp:
-            json.dump(results,fp,indent=4)
+#            json.dump(results,fp,indent=4)  #object is not json serializable for whatever reason
+            fp.write(str(results))
             fp.close()
         print('WWW - writing')
     except:
