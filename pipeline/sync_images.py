@@ -132,13 +132,16 @@ class Images(object):
         except Exception as e:
             ret["error"] = traceback.format_exc()
 
-        resp.data = json_util.dumps(ret)
-        resp.content_type = 'application/json'
-
         save_for_www = True
         if save_for_www:
             print('saving to www')
             save_to_www(ret)
+            ret["results_page"]="http://13.69.27.202:8099/pipeline_output.html"
+
+        resp.data = json_util.dumps(ret)
+        resp.content_type = 'application/json'
+
+
 
     # def on_get(self, req, resp):
     #     ret = {}
