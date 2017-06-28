@@ -135,8 +135,8 @@ class Images(object):
         save_for_www = True
         if save_for_www:
             print('saving to www')
-            save_to_www(ret)
             ret["results_page"]="http://13.69.27.202:8099/pipeline_output.html"
+            save_to_www(ret)
 
         resp.data = json_util.dumps(ret)
         resp.content_type = 'application/json'
@@ -180,26 +180,28 @@ def run():
 
 
 def save_to_www(results):
-        try:  #save locally in case i get chance to setup local server
-            filename = 'pipeline_output.html'
-            wwwpath = '/home/docker-user/appengine_api/output'  #this issnt shared  in docker... prob / wont be shared either
-            wwwpath = '/'
-            wwwname = os.path.join(wwwpath,os.path.basename(filename))
-            print('WWW - saving json to '+wwwname)
-            Utils.ensure_file(wwwname)
-            with open(wwwname,'w') as fp:
-                json.dump(results,fp,indent=4)
-                fp.close()
-            print('WWW - writing')
-        except:
-       #     print(sys.exc_info()[0])
-            print(sys.exc_info())
+    print('attempting to save results {}'.format(results))
+
+    try:  #save locally in case i get chance to setup local server
+        filename = 'pipeline_output.html'
+        wwwpath = '/home/docker-user/appengine_api/output'  #this issnt shared  in docker... prob / wont be shared either
+        wwwpath = '/'
+        wwwname = os.path.join(wwwpath,os.path.basename(filename))
+        print('WWW - saving json to '+wwwname)
+        Utils.ensure_file(wwwname)
+        with open(wwwname,'w') as fp:
+            json.dump(results,fp,indent=4)
+            fp.close()
+        print('WWW - writing')
+    except:
+   #     print(sys.exc_info()[0])
+        print(sys.exc_info())
 
 
-        try:  #save to server already running
-            destname = '/data/www/'+filename
-            print('copying to 13.69.27.202:'+destname)
-            scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+destname
-            subprocess.call(scpcmd,shell=True)
-        except:
-            print(sys.exc_info())
+    try:  #save to server already running
+        destname = '/data/www/'+filename
+        print('copying to 13.69.27.202:'+destname)
+        scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+destname
+        subprocess.call(scpcmd,shell=True)
+    except:
+        print(sys.exc_info())
