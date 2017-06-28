@@ -191,10 +191,12 @@ def save_to_www(results):
                 fp.close()
             print('WWW - writing')
         except:
-            print(sys.exc_info()[0])
+       #     print(sys.exc_info()[0])
+            print(sys.exc_info())
+
 
         try:  #save to server already running
-            scpcmd = 'rsync -avz '+wwwname + ' root@13.69.27.202:'+wwwname
+            scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+wwwname
             subprocess.call(scpcmd,shell=True)
         except:
             print(sys.exc_info()[0])
