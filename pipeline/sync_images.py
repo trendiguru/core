@@ -206,3 +206,20 @@ def save_to_www(results):
         subprocess.call(scpcmd,shell=True)
     except:
         print(sys.exc_info())
+
+    #attempt direct ftp since local save doesnt work and cant scp without local save
+    try:
+        import paramiko
+        connection = paramiko.SSHClient()
+        connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        connection.connect(13.69.27.202, username='root')
+        ftp = connection.open_sftp()
+
+        f = ftp.open(destname, 'w+')
+        f.write(results)
+        f.close()
+
+        ftp.close()
+        connection.close()
+    except:
+        print(sys.exc_info())
