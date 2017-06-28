@@ -199,4 +199,4 @@ def save_to_www(results):
             scpcmd = 'scp '+wwwname + ' root@13.69.27.202:'+wwwname
             subprocess.call(scpcmd,shell=True)
         except:
-            print(sys.exc_info()[0])
+            print(sys.exc_info())
