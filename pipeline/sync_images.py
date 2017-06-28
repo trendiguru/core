@@ -187,7 +187,7 @@ def save_to_www(results):
             wwwname = os.path.join(wwwpath,os.path.basename(filename))
             print('WWW - saving json to '+wwwname)
             Utils.ensure_file(wwwname)
-            with open(wwwname,'a') as fp:
+            with open(wwwname,'w') as fp:
                 json.dump(results,fp,indent=4)
                 fp.close()
             print('WWW - writing')
