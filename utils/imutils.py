@@ -1796,12 +1796,15 @@ def dominant_colors(img_arr,n_components=2):
     max_val_for_black=0.35*255 #89
     min_val_for_white=0.8*255 #204
     max_sat_for_white=0.15*255 #38
+    max_sat_for_gray=0.1*255
+    max_val_for_gray=0.8*255
+    min_val_for_gray=0.3*255
 
     if avg_sat > min_sat_for_color and avg_val > min_val_for_color and stdev_hue<max_std_for_color: #color in visible range
     #    print('got visible color')
         colors = ['red','orange','yellow','green','aqua','blue','purple','pink','red']
  #       range_edges=[20,45,70,140,180,260,290,291,340] #for range 0-360
-        range_edges=[13,22,35,70,90,130,145,170,180]
+        range_edges=[13,22,35,75,90,130,145,170,180]
         i=0
         while(avg_hue>range_edges[i]):
             i=i+1
@@ -1814,6 +1817,9 @@ def dominant_colors(img_arr,n_components=2):
     elif avg_val>min_val_for_white and avg_sat<max_sat_for_white:
        # print('got white')
         dom_color = 'white'
+    elif avg_val<max_val_for_gray and avg_val>min_val_for_gray and avg_sat<max_sat_for_gray:
+        dom_color='gray'
+
     # grab the image channels, initialize the tuple of colors,
     # the figure and the flattened feature vector
     debug=False
@@ -1853,6 +1859,16 @@ def dominant_colors(img_arr,n_components=2):
         plt.show()
     print('dominant color:'+str(dom_color))
     return dom_color
+
+def test_dominant_colors():
+    images = ['white.jpg','black.jpg','pink.jpg','red.jpg','orange.jpg','yellow.jpg','green.jpg','blue.jpg','lightblue.jpg','purple.jpg',
+              'orange.jpg','grey.jpg','turqoise.jpg']
+    for im in images:
+        path = os.path.join('/home/jeremy/projects/core/images',im)
+        img_arr = cv2.imread(path)
+        col = dominant_colors(img_arr,n_components=2)
+        print('file:{} color {}'.format(path,col))
+
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
