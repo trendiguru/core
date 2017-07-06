@@ -473,6 +473,131 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         fp2.write(img_filename+'\n')
         fp2.close()
 
+def json_vietnam_to_yolo(jsonfile,split_to_test_and_train=True):
+    '''   input- json arr of dicts in 'tg format' which is like this
+      {
+  "objects" : [
+    {
+      "label" : "Person",
+      "x_y_w_h" : [
+        1211.858,
+        166.2636,
+        49.23652,
+        55.68242
+      ]
+    }...]
+  "image_path" : "2017-07-05_18-04-54-615.png",
+  "image_w_h" : [
+    1920,
+    1080
+  ]
+    output : for yolo - https://pjreddie.com/darknet/yolo/ looking like
+    <object-class> <x> <y> <width> <height>
+    where x,y,width,height are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
+    e.g. JPEGImages  labels
+    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+
+    '''
+    print('converting json annotations in '+jsonfile+' to yolo')
+    trainfile = 'yolo_train.txt'
+    with open(jsonfile,'r') as fp:
+        annotation_list = json.load(fp)
+        for vietnam_dict in annotation_list:
+            vietnam_dict_to_yolo(vietnam_dict,yolo_trainfile=trainfile)
+
+    create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile)
+
+
+
+def vietnam_dict_to_yolo(vietnam_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
+    '''
+    changing save dir to be same as img dir
+    input- dict in 'vietnam format' which is like this
+      {
+  "objects" : [
+    {
+      "label" : "Person",
+      "x_y_w_h" : [
+        1211.858,
+        166.2636,
+        49.23652,
+        55.68242
+      ]
+    },
+    {
+      "label" : "Person",
+      "x_y_w_h" : [
+        1285.591,
+        198.1488,
+        85.77364,
+        253.7534
+      ]
+    }...]
+  "image_path" : "2017-07-05_18-04-54-615.png",
+  "image_w_h" : [
+    1920,
+    1080
+  ]
+ That json can then be used to generate yolo training files
+    output : for yolo - https://pjreddie.com/darknet/yolo/
+    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
+    <object-class> <x> <y> <width> <height>
+    where those are percentages...
+    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
+    e.g. JPEGImages  labels
+    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
+    also writes a line in the yolo_trainfile . This is all getting called by json_to_yolo
+    :param img_path:
+    :param bb_xywh:
+    :param class_number:
+    :param destination_dir:
+    :return:
+    '''
+    img_filename = vietnam_dict['image_path']
+    annotations = vietnam_dict['objects']
+    dims = vietnam_dict['image_w_h']
+    im_h,im_w=(dims[0],dims[1])
+    logging.debug('writing yolo for image {}\nannotations {}'.format(img_filename,annotations))
+    if label_dir is None:
+        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
+        img_diralone = os.path.dirname(img_filename).split('/')[-1]
+        label_diralone = img_diralone+'labels'
+        # label_dir= os.path.join(img_parent,label_diralone)
+        label_dir = os.path.dirname(img_filename) #keep labels and imgs in same dir, yolo is apparently ok with that
+        Utils.ensure_dir(label_dir)
+     #   label_dir = os.path.join(img_parent,label_ext)
+        logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
+    label_path = os.path.join(label_dir,label_name)
+    print('writing label to '+str(label_path))
+    with open(label_path,'w') as fp:
+        for annotation in annotations:
+            bb_xywh = annotation['x_y_w_h']
+            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
+
+            object = annotation['label']
+            tg_object = constants.vietnam_to_hls_map(object)
+            class_number = classes.index(tg_object)
+
+            logging.debug('dims {} bbxywh {} bbyolo {} origobj {} tgobj {} ind {}'.format((im_w,im_h),bb_xywh,bb_yolo,object,tg_object,class_number))
+
+            line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
+            fp.write(line)
+        fp.close()
+    Utils.ensure_file(yolo_trainfile)
+    with open(yolo_trainfile,'a') as fp2:
+        fp2.write(img_filename+'\n')
+        fp2.close()
+
+    return line
+
+
 def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
     if labeldir is None:
         labeldir = os.path.join(Utils.parent_dir(imagedir),'labels')

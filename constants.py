@@ -342,6 +342,10 @@ kitti_to_hls_map = {'Pedestrian':'person', 'Truck':'truck', 'Car':'car', 'Cyclis
 #only stickler is ;'cyclist', is that a bicyucle or a person , chose person since people are better than bikes (usually)
 
 
+vietnam_to_hls_map = {'Person':'person','hat':'hat','backpack':'backpack','bag':'bag','person_wearing_red_shirt':'person_wearing_red_shirt','person_wearing_blue_shirt':'person_wearing_blue_shirt',
+                       'car':'car','bus':'bus','Van':'truck','unattended_bag':'unattended_bag', 'bicycle':'bicycle',  'motorbike':'motorbike'}
+
+
 #van changed to bus to allow use of pascal voc#
 #the hat, backpack,bag are all worn on a person , unattended bag not
 #bicycle and motorbke added since they are avail thru the pascal voc sets
