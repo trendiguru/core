@@ -67,6 +67,7 @@ def multilabel_infer_one(url):
 
 def test_yolo(dir='/home/jeremy/Dropbox/tg/hls_tagging/person_wearing_backpack/annotations',filter='.txt'):
     '''
+    WIP
     run yolo on a dir having gt from kyle or elsewhere, get yolo  and compare
     :param dir:
     :return:
@@ -130,7 +131,7 @@ def compare_bb_dicts(gt_dict,guess_dict):
     also count for 0 iou
 
     :param dict1:ground truth in 'api form' {'data': [{'confidence': None, 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]}
-    :param dict2:guess in 'api form
+    :param dict2:guess in 'api form'
     :return:  n_true_positive, n_false_neg, n_false_pos, iou
     '''
     gt_data=gt_dict['data']
@@ -139,16 +140,18 @@ def compare_bb_dicts(gt_dict,guess_dict):
     false_pos = 0
     false_neg = 0
     tot_objects = 0
-    iou_avg = 0
+    iou_tot = 0
+    n = 0
     for gt_detection in gt_data:
         best_iou=0
         best_detection = None
         for guess_detection in guess_data:
             if 'already_matched' in guess_data:
+                print('already matched guess {}'.format(guess_detection))
                 continue
             iou = Utils.intersectionOverUnion(gt_detection['bbox'],guess_detection['bbox'])
-            print('checking gt {} vs {}, iou {} objects {} {}'.format(gt_detection['bbox'],guess_detection['bbox'],
-                                                                      iou,gt_detection['object'],guess_detection['object']))
+            print('checking gt {} {} vs {} {}, iou {}'.format(gt_detection['bbox'],gt_detection['object'],
+                                                                            guess_detection['bbox'],guess_detection['object'],iou))
             if iou>best_iou:
                 best_iou = iou
                 best_detection = guess_detection
@@ -157,14 +160,17 @@ def compare_bb_dicts(gt_dict,guess_dict):
             if best_detection['object'] == gt_detection['object'] and best_iou > 0:
                 print('matching object {} in gt and guess, iou {}'.format(best_detection['object'],best_iou))
                 true_pos += 1
+            else:
+                false_pos += 1
         tot_objects += 1
-        iou_avg += best_iou
-
+        iou_tot += best_iou
+        n += 1
     #check for extra guess detections
     for guess_detection in guess_data:
         if not 'already_matched' in guess_detection:
             false_pos += 1
-    return true_pos
+    iou_avg = iou_tot/n
+    return true_pos,false_pos,iou_avg
 
 ####WIP #####
 

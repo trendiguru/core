@@ -619,12 +619,12 @@ def generate_image_onthefly(img_filename_or_nparray, gaussian_or_uniform_distrib
         if mask_arr is not None:
             cv2.imwrite(name.replace('.jpg','.png'),mask_arr)
     if show_visual_output:
+        img_copy = copy.copy(img_arr)
         if mask_arr:
             labels = {i:str(i) for i in range(max(np.unique(mask_arr)))}
             imutils.show_mask_with_labels(mask_arr,labels,original_image=img_arr,visual_output=True)
         else:
             if bblist_xywh:
-                img_copy = copy.copy(img_arr)
                 for bb in bblist_xywh:
                     cv2.rectangle(img_copy,(bb[0],bb[1]),(bb[0]+bb[2],bb[1]+bb[3]),[255,50,100],thickness=2)
             cv2.imshow('augmented',img_copy)
@@ -827,7 +827,7 @@ def add_noise(image, noise_typ,level):
         return noisy
 
 def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hls/voc_rio_udacity_test.txt',
-        visual_output=False,replace_this=None,with_this=None,labels_dir='labels',n_augmentations=3,path_filter=None,path_antifilter='rio'):
+        visual_output=False,replace_this=None,with_this=None,labels_dir=None,n_augmentations=3,path_filter=None,path_antifilter='rio'):
     '''
     takes a bunch of yolos and augments using generate_image_onthefly, right now for generating smaller objects
     :param file_list:
@@ -839,6 +839,9 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
     :param path_filter:   require filepaths to contain this string (to only augment certain dbs)
     :return:
     '''
+    max_angle=7
+    max_scale=1.1
+    min_scale=0.7
     with open(file_list,'r') as fp:
         lines = fp.readlines()
         fp.close()
@@ -854,7 +857,8 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         if path_antifilter and path_antifilter in line:
             logging.debug('found {} in {}, skipping'.format(path_antifilter,line))
             continue
-        tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories)
+        tgdict = read_various_training_formats.yolo_to_tgdict(img_file=line,visual_output=visual_output,classlabels=constants.hls_yolo_categories,labels_dir_suffix=labels_dir)
+
         if tgdict is None:
             logging.warning('couldnt get dict for  {}, continuing to next'.format(line))
             continue
@@ -863,26 +867,38 @@ def augment_yolo_bbs(file_list='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/hl
         filename = tgdict['filename']
         logging.debug('file {}\nannotations {}'.format(filename,annotations))
         bbox_list = []
+        if annotations == []:
+            logging.info('no annotations, skipping')
+            continue
         for annotation in annotations:
             bbox_xywh=annotation['bbox_xywh']
             bbox_list.append(bbox_xywh)
         for n in range(n_augmentations):
             logging.debug('\norig bbox list:'+str(bbox_list))
             bbox_to_send=copy.deepcopy(bbox_list) #func can modify arg it seems
-            img_arr,new_bbox_list = generate_image_onthefly(filename,show_visual_output=visual_output,bblist_xywh=bbox_to_send,max_angle=10,max_scale=1.1,min_scale=0.5)
+            img_arr,new_bbox_list = generate_image_onthefly(filename,show_visual_output=visual_output,bblist_xywh=bbox_to_send,max_angle=max_angle,max_scale=max_scale,min_scale=min_scale)
             logging.debug('new bbox list:'+str(new_bbox_list))
             if img_arr is None:
                 logging.warning('couldnt get {}, continuing to next'.format(filename))
 
-            suffix = line[-4:]  #keep augmented and orig images of same type, people
-            new_imgfile=line.strip('.png').strip('.jpg')+'_aug'+str(n)+suffix
-            print('saving new image, annotation for {}'.format(new_imgfile))
+            #write image
+            if line[-5:] == '.jpeg':
+                suffix = line[-5:]
+            else:
+                suffix = line[-4:]  #keep augmented and orig images of same type, people
+            new_imgfile=line.strip(suffix)+'_aug'+str(n)+suffix
+            new_lblfile=line.strip(suffix)+'_aug'+str(n)+'.txt'
+            print('saving new image {}'.format(new_imgfile))
+            cv2.imwrite(new_imgfile,img_arr)
+
+            #write annotation
             tgdict['filename']=new_imgfile
             for i in range(len(annotations)):
                 annotations[i]['bbox_xywh']=new_bbox_list[i]
+            logging.debug('tgdict {}'.format(tgdict))
             read_various_training_formats.tgdict_to_yolo(tgdict)
-            cv2.imwrite(new_imgfile,img_arr)
 
+            #write file list
             with open(file_list,'a') as fp2:
                 fp2.write(new_imgfile+'\n')
                 fp2.close()
@@ -897,8 +913,10 @@ if __name__=="__main__":
 
     img = '/media/jeremy/9FBD-1B00/data/olympics/'
 
-    augment_yolo_bbs(file_list='/data/jeremy/image_dbs/hls/kitti/training/yolo_train_test.txt',visual_output=True,
-                     replace_this='/mnt/',with_this='/data/jeremy/image_dbs/')
+    file_list = '/data/jeremy/image_dbs/hls/insecam/07.05.2015_cameras_01-73filelist.txt'
+    # augment_yolo_bbs(file_list='/data/jeremy/image_dbs/hls/kitti/training/yolo_train_test.txt',visual_output=True,
+    #                  replace_this='/mnt/',with_this='/data/jeremy/image_dbs/')
+    augment_yolo_bbs(file_list=file_list,visual_output=False)
 #    test_crop_bblist()
 #    test_warp_bbs()
 

@@ -1068,7 +1068,7 @@ def inspect_single_label_textfile(filename = 'tb_cats_from_webtool.txt',visual_o
                     print('KEEPING moving {} to {}'.format(mask_filename,dest_dir))
                     shutil.move(mask_filename,dest_dir)
 
-def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05):
+def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fraction=0.05,shuffle=True):
     '''
     writes (destructively) files with _train.txt and _test.txt based on filename, with sizes determined by fraction
     :param filename: input catsfile
@@ -1077,8 +1077,12 @@ def split_to_trainfile_and_testfile(filename='tb_cats_from_webtool.txt', fractio
     '''
     with open(filename,'r') as fp:
         lines = fp.readlines()
+        if lines == []:
+            logging.warning('nothing in {}'.format(filename))
+            return
         print('file {} has lines like {}'.format(filename,lines[0]))
-        random.shuffle(lines)
+        if shuffle:
+            random.shuffle(lines)
         n_lines = len(lines)
         train_lines = lines[0:int(n_lines*(1-fraction))]
         test_lines = lines[int(n_lines*(1-fraction)):]

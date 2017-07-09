@@ -22,8 +22,10 @@ import os
 from os import listdir, getcwd
 from os.path import join
 import json
+import random
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
+
 from multiprocessing import Pool
 from functools import partial
 from itertools import repeat
@@ -278,7 +280,7 @@ def write_yolo_labels(img_path,bb_list_xywh,class_number,image_dims,destination_
     fp.close()
 #    if not os.exists(destination_path):
 #        Utils.ensure_file(destination_path)
-def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None):
+def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_test_and_train=0.05,check_for_bbfiles=True,bb_dir=None,labels_dir=None):
     '''
     this is just a list of full paths to the training images. the labels apparently need to be in parallel dir(s) called 'labels'
     note this appends to trainfile , doesnt overwrite , to facilitate building up from multiple sources
@@ -293,9 +295,12 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     print('{} files w filter {} in {}'.format(len(files),filter,image_dir))
     if check_for_bbfiles:
         if bb_dir == None:
-            labeldir = os.path.basename(image_dir)+'labels'
+            if labels_dir:
+                labeldir = os.path.basename(image_dir)+labels_dir
+            else:
+                labeldir = os.path.basename(image_dir)
             bb_dir = os.path.join(Utils.parent_dir(image_dir),labeldir)
-        print('checkin for bbs in '+bb_dir)
+        print('checking for bbs in '+bb_dir)
     if len(files) == 0:
         print('no files fitting {} in {}, stopping'.format(filter,image_dir))
         return
@@ -321,7 +326,7 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories):
+def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories,labels_dir_suffix=None,dont_write_blank=True):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -339,6 +344,9 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     '''
 #    img_file = txt_file.replace('.txt','.png')
     logging.debug('yolo to tgdict {} {} '.format(txt_file,img_file))
+    if txt_file is None and img_file is None:
+        logging.warning('yolo to tfdict got no txtfile nor imgfile')
+        return
     if txt_file is not None and img_file is None:
         txt_dir = os.path.dirname(txt_file)
         par_dir = Utils.parent_dir(txt_file)
@@ -352,9 +360,14 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         img_base = os.path.basename(img_file)
         par_dir = Utils.parent_dir(img_dir)
         logging.debug('pardir {} imgdir {}'.format(par_dir,img_dir))
-        labels_dir = img_dir+'labels'
-        lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt')
+        if labels_dir_suffix:
+            labels_dir = img_dir+labels_dir_suffix
+        else:
+            labels_dir = img_dir
+        lbl_name = os.path.basename(img_file).replace('.jpg','.txt').replace('.png','.txt').replace('.jpeg','.txt')
         txt_file = os.path.join(labels_dir,lbl_name)
+    elif img_file is not None and txt_file is not None:
+        pass
 
     logging.info('lblfile {} imgfile {}'.format(txt_file,img_file))
 
@@ -384,6 +397,8 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
     with open(txt_file,'r') as fp:
         lines = fp.readlines()
         logging.debug('{} bbs found'.format(len(lines)))
+        if lines == []:
+            logging.warning('no lines in {}'.format(txt_file))
         for line in lines:
             if line.strip()[0]=='#':
                 logging.debug('got comment line')
@@ -446,23 +461,17 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
     im_h,im_w=(dims[0],dims[1])
     logging.debug('writing yolo for file {}\nannotations {}'.format(img_filename,annotations))
     if label_dir is None:
-        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
-        img_diralone = os.path.dirname(img_filename).split('/')[-1]
-        label_diralone = img_diralone+'labels'
-        # label_dir= os.path.join(img_parent,label_diralone)
-        label_dir = os.path.dirname(img_filename) #keep labels and imgs in same dir, yolo is apparently ok with that
-        Utils.ensure_dir(label_dir)
-     #   label_dir = os.path.join(img_parent,label_ext)
-        logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
-    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
+        label_dir = os.path.dirname(img_filename)
+    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt').replace('.jpeg','.txt')
+    if label_name[-4:]!='.txt':
+        logging.warning('did not replace suffix of {} with .txt'.format(img_filename))
     label_path = os.path.join(label_dir,label_name)
-    print('writing to '+str(label_path))
+    print('writing yolo to '+str(label_path))
     with open(label_path,'w') as fp:
         for annotation in annotations:
             bb_xywh = annotation['bbox_xywh']
             bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
-
-            logging.debug('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
+            logging.info('dims {} bbxywh {} bbyolo {}'.format((im_w,im_h),bb_xywh,bb_yolo))
             object = annotation['object']
             class_number = classes.index(object)
             line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
@@ -473,25 +482,10 @@ def tgdict_to_yolo(tg_dict,label_dir=None,classes=constants.hls_yolo_categories,
         fp2.write(img_filename+'\n')
         fp2.close()
 
-def json_vietnam_to_yolo(jsonfile,split_to_test_and_train=True):
-    '''   input- json arr of dicts in 'tg format' which is like this
-      {
-  "objects" : [
-    {
-      "label" : "Person",
-      "x_y_w_h" : [
-        1211.858,
-        166.2636,
-        49.23652,
-        55.68242
-      ]
-    }...]
-  "image_path" : "2017-07-05_18-04-54-615.png",
-  "image_w_h" : [
-    1920,
-    1080
-  ]
-    output : for yolo - https://pjreddie.com/darknet/yolo/ looking like
+def json_vietnam_to_yolo(jsonfile,split_to_test_and_train=True,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile=None,check_dims=True,visual_output=True):
+    '''   input- json  dicts in 'vietname rmat' which is like this
+ {"objects":[{"label":"Private Car","x_y_w_h":[1160,223,65,59]},{"label":"Private Car","x_y_w_h":[971,354,127,85]}],"image_path":"2017-07-06_09-24-24-995.jpeg","image_w_h":[1600,900]}
+     output : for yolo - https://pjreddie.com/darknet/yolo/ looking like
     <object-class> <x> <y> <width> <height>
     where x,y,width,height are percentages...
     it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
@@ -505,97 +499,86 @@ def json_vietnam_to_yolo(jsonfile,split_to_test_and_train=True):
 
     '''
     print('converting json annotations in '+jsonfile+' to yolo')
-    trainfile = 'yolo_train.txt'
     with open(jsonfile,'r') as fp:
-        annotation_list = json.load(fp)
-        for vietnam_dict in annotation_list:
-            vietnam_dict_to_yolo(vietnam_dict,yolo_trainfile=trainfile)
+        vietnam_dict = json.load(fp)
+        img_filename = vietnam_dict['image_path']
+        annotations = vietnam_dict['objects']
+        dims = vietnam_dict['image_w_h']
+        im_h,im_w=(dims[1],dims[0])
+        logging.debug('writing yolo for image {} hxw {}x{}\nannotations {} '.format(img_filename,im_h,im_w,annotations))
+        if check_dims or visual_output:
+            if not os.path.isabs(img_filename):
+                file_path = os.path.join(os.path.dirname(jsonfile),img_filename)
+            else:
+                file_path = img_filename
+            if not  os.path.exists(file_path):
+                logging.warning('{} does not exist'.format(file_path))
+            img_arr = cv2.imread(file_path)
+            if img_arr is None:
+                logging.warning('could not find {}'.format(file_path))
+                return
+            actual_h,actual_w = img_arr.shape[0:2]
+            if actual_h!=im_h or actual_w != im_w:
+                logging.warning('image dims hw {} {} dont match json {}'.format(actual_h,actual_w,im_h,im_w))
+                return
+        if label_dir is None:
+            img_parent = Utils.parent_dir(os.path.dirname(img_filename))
+            img_diralone = os.path.dirname(img_filename).split('/')[-1]
+            label_diralone = img_diralone+'labels'
+            # label_dir= os.path.join(img_parent,label_diralone)
+            label_dir = os.path.dirname(img_filename) #keep labels and imgs in same dir, yolo is apparently ok with that
+            print('using label dir {}'.format(label_dir))
+            Utils.ensure_dir(label_dir)
+         #   label_dir = os.path.join(img_parent,label_ext)
+            logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
+        label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt').replace('.jpeg','.txt')
+        if label_name[-4:]!='.txt':
+            logging.warning('did not replace image suffix of {} with .txt'.format(img_filename))
+            return
+        label_path = os.path.join(label_dir,label_name)
+        print('writing label to '+str(label_path))
+        with open(label_path,'w') as fp:
+            for annotation in annotations:
+                bb_xywh = annotation['x_y_w_h']
+                bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
+                object = annotation['label']
+                if not object in constants.vietnam_to_hls_map:
+                    logging.warning('{} not found in constants.vietname to hls map'.format(object))
+                    raw_input('ret to cont')
+                    continue
+                tg_object = constants.vietnam_to_hls_map[object]
+                class_number = classes.index(tg_object)
+                logging.debug('wxh {} bbxywh {} bbyolo {}\norigobj {} tgobj {} ind {}'.format((im_w,im_h),bb_xywh,bb_yolo,object,tg_object,class_number))
+                line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
+                fp.write(line)
+                if visual_output:
+                    img_arr =  imutils.bb_with_text(img_arr,bb_xywh,tg_object)
+            if visual_output:
+                cv2.imshow('image',img_arr)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+            fp.close()
 
-    create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile)
+        if yolo_trainfile is None:
+            return
+        with open(yolo_trainfile,'a') as fp2:
+            fp2.write(file_path+'\n')
+            fp2.close()
 
 
-
-def vietnam_dict_to_yolo(vietnam_dict,label_dir=None,classes=constants.hls_yolo_categories,yolo_trainfile='yolo_train.txt'):
-    '''
-    changing save dir to be same as img dir
-    input- dict in 'vietnam format' which is like this
-      {
-  "objects" : [
-    {
-      "label" : "Person",
-      "x_y_w_h" : [
-        1211.858,
-        166.2636,
-        49.23652,
-        55.68242
-      ]
-    },
-    {
-      "label" : "Person",
-      "x_y_w_h" : [
-        1285.591,
-        198.1488,
-        85.77364,
-        253.7534
-      ]
-    }...]
-  "image_path" : "2017-07-05_18-04-54-615.png",
-  "image_w_h" : [
-    1920,
-    1080
-  ]
- That json can then be used to generate yolo training files
-    output : for yolo - https://pjreddie.com/darknet/yolo/
-    Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
-    <object-class> <x> <y> <width> <height>
-    where those are percentages...
-    it looks like yolo makes an assumption abt where images and label files are, namely in parallel dirs named [whatever]images and [whatever]labels:
-    e.g. JPEGImages  labels
-    and a train.txt file pointing to just the images - the label files are same names with .txt instead of .jpg
-    also writes a line in the yolo_trainfile . This is all getting called by json_to_yolo
-    :param img_path:
-    :param bb_xywh:
-    :param class_number:
-    :param destination_dir:
-    :return:
-    '''
-    img_filename = vietnam_dict['image_path']
-    annotations = vietnam_dict['objects']
-    dims = vietnam_dict['image_w_h']
-    im_h,im_w=(dims[0],dims[1])
-    logging.debug('writing yolo for image {}\nannotations {}'.format(img_filename,annotations))
-    if label_dir is None:
-        img_parent = Utils.parent_dir(os.path.dirname(img_filename))
-        img_diralone = os.path.dirname(img_filename).split('/')[-1]
-        label_diralone = img_diralone+'labels'
-        # label_dir= os.path.join(img_parent,label_diralone)
-        label_dir = os.path.dirname(img_filename) #keep labels and imgs in same dir, yolo is apparently ok with that
-        Utils.ensure_dir(label_dir)
-     #   label_dir = os.path.join(img_parent,label_ext)
-        logging.debug('yolo img parent {} labeldir {} imgalone {} lblalone {} '.format(img_parent,label_dir,img_diralone,label_diralone))
-    label_name = os.path.basename(img_filename).replace('.png','.txt').replace('.jpg','.txt')
-    label_path = os.path.join(label_dir,label_name)
-    print('writing label to '+str(label_path))
-    with open(label_path,'w') as fp:
-        for annotation in annotations:
-            bb_xywh = annotation['x_y_w_h']
-            bb_yolo = imutils.xywh_to_yolo(bb_xywh,(im_h,im_w))
-
-            object = annotation['label']
-            tg_object = constants.vietnam_to_hls_map(object)
-            class_number = classes.index(tg_object)
-
-            logging.debug('dims {} bbxywh {} bbyolo {} origobj {} tgobj {} ind {}'.format((im_w,im_h),bb_xywh,bb_yolo,object,tg_object,class_number))
-
-            line = str(class_number)+' '+str(bb_yolo[0])+' '+str(bb_yolo[1])+' '+str(bb_yolo[2])+' '+str(bb_yolo[3])+'\n'
-            fp.write(line)
-        fp.close()
+def vietnam_dir_to_yolo(dir,visual_output=False):
+    json_files = [os.path.join(dir,f) for f in os.listdir(dir) if '.json' in f]
+    yolo_trainfile = dir+'filelist.txt'
     Utils.ensure_file(yolo_trainfile)
-    with open(yolo_trainfile,'a') as fp2:
-        fp2.write(img_filename+'\n')
-        fp2.close()
+    print('{} .json files in {}'.format(len(json_files),dir))
 
-    return line
+    label_dir = dir
+    for json_file in json_files:
+        json_vietnam_to_yolo(json_file,yolo_trainfile=yolo_trainfile,label_dir=label_dir,visual_output=visual_output)
+
+
+    create_nn_imagelsts.split_to_trainfile_and_testfile(yolo_trainfile)
+    return yolo_trainfile
 
 
 def read_many_yolo_bbs(imagedir='/data/jeremy/image_dbs/hls/data.vision.ee.ethz.ch/left/',labeldir=None,img_filter='.png'):
@@ -1245,13 +1228,10 @@ def convert_x1x2y1y2_to_yolo(size, box):
     h = h*dh
     return (x,y,w,h)
 
-#def partial_helper = partial(convert_deepfashion_helper,)
 
 
 
-def convert_deepfashion_helper((line,labelfile,dir_to_catlist,visual_output,pardir)):
-#    print('args1:{}\narg2 {}\narg3 {}'.format(line,pardir,labelfile))
- #   raw_input()
+def convert_deepfashion_helper(line,labelfile,dir_to_catlist,visual_output,pardir):
     global frequencies
     if not '.jpg' in line:
         return     #first and second lines are metadata
@@ -2088,7 +2068,7 @@ def image_to_pixlevel_no_bb(img_arr,clothing_indices,visual_output=True,labels=c
 
 
 def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
-                             yolo_annotation_folder='object-detection-crowdailabels',img_folder='object-detection-crowdai',
+                             yolo_annotation_folder=None,
                                annotation_filter='.txt',image_filter='.jpg',manual_verification=True,verified_folder='verified_labels'):
     '''
     todo - this should call inspect_yolo_annotation to save duplicate code
@@ -2106,11 +2086,14 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
     :return:
     '''
     #https://www.youtube.com/watch?v=c-vhrv-1Ctg   jinjer
-    annotation_dir = os.path.join(dir,yolo_annotation_folder)
+    if yolo_annotation_folder is None:
+        annotation_dir = dir
+    else:
+        annotation_dir = yolo_annotation_folder
     verified_dir = os.path.join(dir,verified_folder)
     Utils.ensure_dir(verified_dir)
-    img_dir = os.path.join(dir,img_folder)
-    if image_filter:
+    img_dir = dir
+    if annotation_filter:
         annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir) if annotation_filter in f]
     else:
         annotation_files = [os.path.join(annotation_dir,f) for f in os.listdir(annotation_dir)]
@@ -2121,6 +2104,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
         annotation_base = os.path.basename(f)
         if image_filter:
             imgfile = annotation_base.replace(annotation_filter,image_filter)
+            img_path = os.path.join(img_dir,imgfile)
         else:
             imgfile = annotation_base[:-4]+'.jpg'
             img_path = os.path.join(img_dir,imgfile)
@@ -2129,7 +2113,7 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                 img_path = os.path.join(img_dir,imgfile)
         img_arr = cv2.imread(img_path)
         if img_arr is None:
-            print('coulndt get '+img_path)
+            print('couldnt get '+img_path)
             continue
         h,w = img_arr.shape[0:2]
         with open(f,'r') as fp:
@@ -2163,20 +2147,23 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                 else:
                     print('not accepting image')
 
-def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter='rio',replace_this=None,with_this=None):
+def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=None,replace_this=None,with_this=None):
     '''
     read the trainingfile that yolo reads (list of image files, labels in parallel dirs)
     '''
+    print('inspecting trainingfile {}'.format(trainingfile))
     with open(trainingfile,'r') as fp:
         lines = fp.readlines()
         fp.close()
+    if randomize:
+        lines = random.shuffle(lines)
     if lines is None or lines == []:
         print('got nothin from {}'.format(trainingfile))
         return None
     print('{} files in {}'.format(len(lines),trainingfile))
     for line in lines:
         if filter and not filter in line:
-            logging.debug('no {} in {} '.format(filter,line))
+            logging.warning('no {} in {} '.format(filter,line))
             continue
         logging.debug('line:'+str(line))
         img_path = line.strip('\n')
@@ -2184,14 +2171,15 @@ def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter='r
             img_path=img_path.replace(replace_this,with_this)
         img_dir = os.path.dirname(img_path)
         if yolo_annotation_folder is None:
-            yolo_annotation_folder = img_dir+'labels'
-        yolo_annotation_basename = os.path.basename(img_path).replace('.jpg','.txt').replace('.png','.txt')
+#            yolo_annotation_folder = img_dir+'labels'
+            yolo_annotation_folder = img_dir
+        yolo_annotation_basename = os.path.basename(img_path).replace('.jpg','.txt').replace('.png','.txt').replace('.jpeg','.txt')
         yolo_annotation_file = os.path.join(yolo_annotation_folder,yolo_annotation_basename)
         inspect_yolo_annotation(yolo_annotation_file,img_path)
 
 
 def inspect_yolo_annotation(annotation_file,img_file):
-    print('inspecting annotation {} img {}'.format(annotation_file,img_file))
+    print('inspecting yolo annotation {} img {}'.format(annotation_file,img_file))
     classes = constants.hls_yolo_categories
     img_arr = cv2.imread(img_file)
     if img_arr is None:
@@ -2482,7 +2470,14 @@ def augment_yolo_bbs(yolo_annotation_dir='/media/jeremy/9FBD-1B00/data/jeremy/im
             show_annotations_xywh(bb_list,img_arr)
 
 if __name__ == "__main__":
-    dir_of_catalog_images_to_pixlevel(manual_oversight=False)
+
+    dir = '/data/jeremy/image_dbs/hls/insecam/07.05.2015_cameras_01-73'
+
+    trainfile=vietnam_dir_to_yolo(dir)
+    inspect_yolo_trainingfile(trainfile)
+
+ #   dir_of_catalog_images_to_pixlevel(manual_oversight=False)
+
     # dir_of_catalog_images_to_pixlevel(catalog_images_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/mongo/amazon_us_female/dress',
     #                             swatch_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/textures/kept',
     #                             person_bgnds_dir='/media/jeremy/9FBD-1B00/data/jeremy/image_dbs/tg/backgrounds/street_scenes/kept',

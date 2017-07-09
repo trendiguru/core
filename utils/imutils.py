@@ -1869,6 +1869,13 @@ def test_dominant_colors():
         col = dominant_colors(img_arr,n_components=2)
         print('file:{} color {}'.format(path,col))
 
+def browse_images(dir,filter='.jpeg'):
+    files = [os.path.join(dir,f) for f in os.listdir(dir) if filter in f]
+    for f in files:
+        img_arr = cv2.imread(f)
+        cv2.imshow('img',img_arr)
+        cv2.waitKey(0)
+
 
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
@@ -1902,7 +1909,7 @@ def x1y1x2y2_to_xywh(bb):
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
 
-def xywh_to_yolo(bb_xywh,dims_hxw):
+def xywh_to_yolo(bb_xywh,dims_hxw,correct_out_of_bounds=True):
     '''
     output : for yolo - https://pjreddie.com/darknet/yolo/
     Darknet wants a .txt file for each image with a line for each ground truth object in the image that looks like:
@@ -1912,12 +1919,44 @@ def xywh_to_yolo(bb_xywh,dims_hxw):
     :param image_dims size of image for this bb (needed since yolo wants bb's as percentages)
     :return:
     '''
-    x_center = bb_xywh[0]+bb_xywh[2]/2.0   #x1+w/2
-    y_center = bb_xywh[1]+bb_xywh[3]/2.0    #y1+h/2
+    if correct_out_of_bounds:
+        if bb_xywh[0] > dims_hxw[1]:
+            bb_xywh[0] = dims_hxw[1]
+            logging.warning('corrected y out of bounds')
+        if bb_xywh[1] > dims_hxw[0]:
+            bb_xywh[1] = dims_hxw[0]
+            logging.warning('corrected x out of bounds!')
+        if bb_xywh[0]+bb_xywh[2] > dims_hxw[1]:
+            bb_xywh[2] = dims_hxw[1]-bb_xywh[0]
+            logging.warning('corrected x+w > image width!!')
+        if bb_xywh[1]+bb_xywh[3] > dims_hxw[0]:
+            bb_xywh[3] = dims_hxw[0]-bb_xywh[1]
+            logging.warning('corrected y+h > image height!!')
+
+    x_center = bb_xywh[0]+(bb_xywh[2]/2.0)   #x1+w/2
+    y_center = bb_xywh[1]+(bb_xywh[3]/2.0)    #y1+h/2
     x_p = float(x_center)/dims_hxw[1]    #center x as %
     y_p = float(y_center)/dims_hxw[0]   #center y as %
     w_p = float(bb_xywh[2])/dims_hxw[1] #width as %
     h_p = float(bb_xywh[3])/dims_hxw[0]  #height as %
+
+    try:
+        assert x_p<=1,'x > image width!!'
+    except:
+        logging.warning('x_p>1 bb {} out of bounds hw {}'.format(bb_xywh,dims_hxw))
+    try:
+        assert y_p<=1,'y > image height!!'
+    except:
+        logging.warning('y_p > 1 bb {} out of bounds hw {}'.format(bb_xywh,dims_hxw))
+    try:
+        assert bb_xywh[0]+bb_xywh[2]<=dims_hxw[1],'x+w > image width!!'
+    except:
+        logging.warning('x+width bb {} out of bounds hw {}'.format(bb_xywh,dims_hxw))
+    try:
+        assert bb_xywh[1]+bb_xywh[3]<=dims_hxw[0],'y+h > image height!!'
+    except:
+        logging.warning('y+height bb {} out of bounds hw {}'.format(bb_xywh,dims_hxw))
+
     return([x_p,y_p,w_p,h_p])
 
 def x1x2y1y2_to_yolo(size, box):
