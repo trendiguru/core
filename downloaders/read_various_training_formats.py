@@ -2147,7 +2147,25 @@ def inspect_yolo_annotations(dir='/media/jeremy/9FBD-1B00/data/image_dbs/hls/',
                 else:
                     print('not accepting image')
 
-def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=None,replace_this=None,with_this=None):
+def get_yolo_annotation(img_path,yolo_annotation_folder = None,visual_output=False):
+    '''
+    get yolo annotations for a given image (assume parallel .txt file in same folder or in  yolo_annotation_folder)
+    return in 'api form' namely
+    {'data': [{'confidence': None, 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]}
+    :param img_path:
+    :param yolo_annotation_folder:
+    :return:
+    '''
+    img_dir = os.path.dirname(img_path)
+    if yolo_annotation_folder is None:
+#            yolo_annotation_folder = img_dir+'labels'
+        yolo_annotation_folder = img_dir
+    yolo_annotation_basename = os.path.basename(img_path).replace('.jpg','.txt').replace('.png','.txt').replace('.jpeg','.txt')
+    yolo_annotation_file = os.path.join(yolo_annotation_folder,yolo_annotation_basename)
+    api_annotations = inspect_yolo_annotation(yolo_annotation_file,img_path,visual_output=visual_output)
+    return api_annotations
+
+def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=None,replace_this=None,with_this=,randomize=True):
     '''
     read the trainingfile that yolo reads (list of image files, labels in parallel dirs)
     '''
@@ -2178,15 +2196,28 @@ def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=No
         inspect_yolo_annotation(yolo_annotation_file,img_path)
 
 
-def inspect_yolo_annotation(annotation_file,img_file):
+def inspect_yolo_annotation(annotation_file,img_file,visual_output=True,classes = constants.hls_yolo_categories):
+    '''
+    get yolo annotations for a given image (assume parallel .txt file in same folder or in  yolo_annotation_folder)
+    return in 'api form' namely
+    {'data': [{'confidence': None, 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]}
+    :param annotation_file:
+    :param img_file:
+    :param visual_output:
+    :return:
+    '''
     print('inspecting yolo annotation {} img {}'.format(annotation_file,img_file))
-    classes = constants.hls_yolo_categories
-    img_arr = cv2.imread(img_file)
+#    classes = constants.hls_yolo_categories
+    if not os._exists(annotation_file):
+        logging.warning('annotations file {} does not exist'.format(annotation_file))
+        return None
     if img_arr is None:
-        logging.warning('got no image')
+        logging.warning('image file {} does not exist'.format(img_file))
         return
+    img_arr = cv2.imread(img_file)
     h,w = img_arr.shape[0:2]
     bbs=[]
+    annotations = {'data':[]}
     with open(annotation_file,'r') as fp:
         lines = fp.readlines()
         for line in lines:
@@ -2202,10 +2233,13 @@ def inspect_yolo_annotation(annotation_file,img_file):
             bbs.append(bb_xywh)
             classname = classes[int(object_class)]
             print('class {} bb_xywh {} yolo {} h{} w{}'.format(classname,bb_xywh,[bb0,bb1,bb2,bb3],h,w))
+            annotation_dict = {'confidence':1.0,'object':classname,'bbox':bb_xywh}
+            annotations['data'].append(annotation_dict)
             imutils.bb_with_text(img_arr,bb_xywh,classname)
-        cv2.imshow('yolo_inspector',img_arr)
-        cv2.waitKey(0)
-    return(bbs,img_arr)
+        if visual_output:
+            cv2.imshow('yolo_inspector',img_arr)
+            cv2.waitKey(0)
+    return(annotations)
 
 def apply_color_map(image_array, labels):
     color_array = np.zeros((image_array.shape[0], image_array.shape[1], 3), dtype=np.uint8)

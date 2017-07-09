@@ -65,14 +65,17 @@ def multilabel_infer_one(url):
  #   cv2.waitKey(0)
     return out.astype(np.uint8)
 
-def test_yolo(dir='/home/jeremy/Dropbox/tg/hls_tagging/person_wearing_backpack/annotations',filter='.txt'):
+def test_yolo(testfilelist='/data/jeremy/image_dbs/hls/annotations',filter='.txt'):
     '''
     WIP
     run yolo on a dir having gt from kyle or elsewhere, get yolo  and compare
     :param dir:
     :return:
     '''
-    gts = [os.path.join(dir,f) for f in dir if filter in f]
+    with open(testfilelist,'r') as fp:
+        lines = fp.readlines()
+    for line in lines:
+        img_file =
     for gt_file in gts:
         yolodict = read_various_training_formats.kyle_dicts_to_yolo(gt_file)
         apidict = read_various_training_formats.yolo_to_tgdict(yolodict)
@@ -157,6 +160,7 @@ def compare_bb_dicts(gt_dict,guess_dict):
                 best_detection = guess_detection
         if best_detection is not None:
             best_detection['already_matched']=True #this gets put into original guess_detection
+            gt_detection['already_matched']=True #this gets put into original guess_detection
             if best_detection['object'] == gt_detection['object'] and best_iou > 0:
                 print('matching object {} in gt and guess, iou {}'.format(best_detection['object'],best_iou))
                 true_pos += 1
@@ -169,8 +173,13 @@ def compare_bb_dicts(gt_dict,guess_dict):
     for guess_detection in guess_data:
         if not 'already_matched' in guess_detection:
             false_pos += 1
+            n+=1
+    for gt_detection in gt_data:
+        if not 'already_matched' in gt_detection:
+            false_neg += 1
+            n+=1
     iou_avg = iou_tot/n
-    return true_pos,false_pos,iou_avg
+    return {'tp':true_pos,'tn':false_pos,'fn':false_neg,'iou_avg':iou_avg}
 
 ####WIP #####
 
