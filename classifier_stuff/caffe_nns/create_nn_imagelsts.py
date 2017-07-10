@@ -31,8 +31,9 @@ def verify_files_in_list_exist(filelist):
     for line in lines:
         if n%100==0:
             print('checked {}/{}'.format(n,len(lines)))
-        if not os.path.exists(line):
-            print('{} does not exist!!!')
+        file = line.strip('\n')
+        if not os.path.exists(file):
+            print('{} does not exist!!!'.format(file))
         n=n+1
 
 def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
