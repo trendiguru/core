@@ -2170,11 +2170,15 @@ def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=No
     read the trainingfile that yolo reads (list of image files, labels in parallel dirs)
     '''
     print('inspecting trainingfile {}'.format(trainingfile))
+    if not os.path.exists(trainingfile):
+        print('os thinks {} does not exist'.format(trainingfile))
+    else:
+        print('{} exists'.format(trainingfile))
     with open(trainingfile,'r') as fp:
         lines = fp.readlines()
         fp.close()
     if randomize:
-        lines = random.shuffle(lines)
+        random.shuffle(lines)
     if lines is None or lines == []:
         print('got nothin from {}'.format(trainingfile))
         return None
