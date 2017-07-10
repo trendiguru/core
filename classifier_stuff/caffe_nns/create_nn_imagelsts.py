@@ -20,6 +20,20 @@ from trendi import Utils
 from trendi.yonatan import yonatan_constants
 from trendi.features import config
 
+def verify_files_in_list_exist(filelist):
+    if not os.path.exists(filelist):
+        print('did not find {}'.format(filelist))
+        return
+    with open(filelist,'r') as fp:
+        lines = fp.readlines()
+    print('{} lines in {}'.format(len(lines),filelist))
+    n=0
+    for line in lines:
+        if n%100==0:
+            print('checked {}/{}'.format(n,len(lines)))
+        if not os.path.exists(line):
+            print('{} does not exist!!!')
+        n=n+1
 
 def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
