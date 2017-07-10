@@ -28,13 +28,16 @@ def verify_files_in_list_exist(filelist):
         lines = fp.readlines()
     print('{} lines in {}'.format(len(lines),filelist))
     n=0
+    badlist = []
     for line in lines:
         if n%100==0:
             print('checked {}/{}'.format(n,len(lines)))
         file = line.strip('\n')
         if not os.path.exists(file):
             print('{} does not exist!!!'.format(file))
+            badlist.append(file)
         n=n+1
+    print('list of bad files:{}'.format(badlist))
 
 def write_cats_from_db_to_textfile(image_dir='/data/jeremy/image_dbs/tamara_berg/images',catsfile = 'tb_cats_from_webtool.txt'):
     '''
