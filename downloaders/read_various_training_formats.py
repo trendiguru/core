@@ -2165,7 +2165,7 @@ def get_yolo_annotation(img_path,yolo_annotation_folder = None,visual_output=Fal
     api_annotations = inspect_yolo_annotation(yolo_annotation_file,img_path,visual_output=visual_output)
     return api_annotations
 
-def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=None,replace_this=None,with_this=,randomize=True):
+def inspect_yolo_trainingfile(trainingfile,yolo_annotation_folder=None,filter=None,replace_this=None,with_this=None,randomize=True):
     '''
     read the trainingfile that yolo reads (list of image files, labels in parallel dirs)
     '''
