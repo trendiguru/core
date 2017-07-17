@@ -21,7 +21,7 @@ import re
 import string
 import sys
 import hashlib
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
 db = constants.db
 
@@ -814,7 +814,7 @@ def intersectionOverUnion(r1, r2):
     intersectionarea = intersectionw * intersectionh
     totarea = totarea - intersectionarea  # now totarea includes overlap only once
     iou = float(intersectionarea) / float(totarea)
-    print('totarea,intarea,iou:' + str(totarea) + ',' + str(intersectionarea) + ',' + str(iou))
+    logging.debug('totarea,intarea,iou:' + str(totarea) + ',' + str(intersectionarea) + ',' + str(iou))
     return (iou)
 
 
