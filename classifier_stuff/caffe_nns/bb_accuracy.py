@@ -5,14 +5,17 @@ import requests
 import cv2
 import logging
 logging.basicConfig(level=logging.INFO)
-
-
+import numpy as np
+import pdb
+import copy
 
 from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
 
-def compare_bb_dicts(gt_dict,guess_dict,dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'},iou_threshold=0.2):
+
+
+def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox':'bbox','object':'object','confidence':'confidence'},iou_threshold=0.2):
     '''
     given 2 dicts of bbs - find bb in dict2 having most overlap for each bb in dict1 (assuming thats the gt)
     for each gt:
@@ -55,11 +58,13 @@ def compare_bb_dicts(gt_dict,guess_dict,dict_format={'data':'data','bbox':'bbox'
 
     I am allowing this in the code below. only the matching (highest conf) prediction is marked as 'already matched'
 
-    Another case:
+    case three:
     Say that P2 also overlaps T2 and has higher IOU than with T1, then it seems that P2 should be matched with T2 and not T1
     this isn't taken care of in code below...
 
-    :param dict1:ground truth in 'api form' {'data': [{ 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]}
+    case 4 - two different guesses have same IOU with same T and same confidence
+
+    :param dict1:ground truth list [{ 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]
                 guess in same form but with confidence (gt can also have confidence 1.0)
             bbox here is xywh , aka x1 y1 w h , coords are 'regular' image coords
             (origin is top left, positive x goes right and pos y goes down)
@@ -74,129 +79,268 @@ def compare_bb_dicts(gt_dict,guess_dict,dict_format={'data':'data','bbox':'bbox'
     :return:  n_true_positive, n_false_neg, n_false_pos, avg_iou
     '''
 
+    gt_data=gt_list
+    guess_data=guess_list
 
-    gt_data=gt_dict[dict_format['data']]
-    guess_data=guess_dict[dict_format['data']]
     true_pos = 0
     false_pos = 0 #aka lonely hypothesis
     false_neg = 0  #aka lonely ground truth
     #there are no true negatives here to speak of
-    tot_gt_objects = 0
     iou_tot = 0
-    n_detections = 0
+    n_detections = 0  #this includes matching detections both above and below threshold.
     detections_over_threshold = 0
     obj_kw = dict_format['object']
     bb_kw = dict_format['bbox']
     conf_kw = dict_format['confidence']
-    for gt_detection in gt_data:
-        most_confident_detection = None
-        highest_confidence = 0
-        iou_of_most_confident_detection = 0
 
-        correct_object_guesses = [guess for guess in guess_data if guess[obj_kw]==gt_detection[obj_kw]]
-        print('matching items for {}:{} '.format(gt_detection,correct_object_guesses))
-        for guess_detection in correct_object_guesses:
-            if 'already_matched' in guess_data:
-                print('already matched guess {}'.format(guess_detection))
+    #take care of degenerate cases - no gts or no guesses or both
+    if len(gt_data) == 0 and len(guess_data) == 0:
+        return {'tp':0,'fp':0,'fn':0,'iou_avg':0,'iou_accumulator':0,'n_ious':0}
+    if len(gt_data) == 0 : #all guesses are fp
+        return {'tp':0,'fp':len(guess_data),'fn':0,'iou_avg':0,'iou_accumulator':0,'n_ious':len(guess_data)}
+    if len(guess_data) == 0 : #all gt are fn
+        return {'tp':0,'fp':0,'fn':len(gt_data),'iou_avg':0,'iou_accumulator':0,'n_ious':len(guess_data)}
+
+
+
+# first pass, determine ious of all overlapping bbs
+    iou_table = np.zeros([len(gt_data),len(guess_data)])
+    confidences = np.zeros(len(guess_data))
+    for j in range(len(guess_data)):
+        confidences[j] = guess_data[j][conf_kw]
+        for i in range(len(gt_data)):
+            if gt_data[i][obj_kw]!=guess_data[j][obj_kw]: #mismatched objects types
                 continue
-            iou = Utils.intersectionOverUnion(gt_detection[bb_kw],guess_detection[bb_kw])
-            print('checking gt {} {} vs {} {} conf {}, iou {}'.format(gt_detection[bb_kw],
-                                                            gt_detection[obj_kw],
-                                                            guess_detection[bb_kw],
-                                                            guess_detection[obj_kw],guess_detection[conf_kw],iou))
-#            if iou>best_iou :
-            if guess_detection[conf_kw]>highest_confidence and iou>0:
-                highest_confidence = guess_detection[conf_kw]
-                most_confident_detection = guess_detection
-                iou_of_most_confident_detection = iou
-                print('most confident so far')
-        if most_confident_detection is not None:
+            iou = Utils.intersectionOverUnion(gt_data[i][bb_kw],guess_data[j][bb_kw])
+            iou_table[i,j] = iou
+    print('confidences:'+str(confidences))
+
+    #resolve conflicting entries - use best match to T for given P1
+    #if P1 and P2 both have iou>0 for T, use the one with higher conf
+    #loser now has its highest match out of the running but rest still in
+
+    ious_copy = copy.copy(iou_table)
+    conflict = detect_conflict(ious_copy)
+    while(conflict is not None):
+        print('iou'+str(ious_copy))
+        print('conflict:'+str(conflict))
+        ious_copy = resolve_conflict(ious_copy,conflict,confidences)
+        conflict = detect_conflict(ious_copy)
+    print('no more conflict, iou {}'.format(ious_copy))
+
+    #now keep only highest iou in given column to avoid multiple matches
+    ious_one_per_column = np.zeros_like(ious_copy)
+    for col in range(ious_copy.shape[1]):
+        new_col = np.where(ious_copy[:,col]==np.max(ious_copy[:,col]),np.max(ious_copy[:,col]),0)
+        ious_one_per_column[:,col] = new_col
+    print('one per column:{}'.format(ious_one_per_column))
+
+    # #second pass, match bb w. highest conf to box w highest ious
+    eps = 10**-10
+    guess_matched_with_gt = np.zeros(iou_table.shape[1])
+    for row in range(ious_copy.shape[0]):
+        above_thresh = np.where(ious_one_per_column[row,:]>0,1,0)
+        n_above = np.sum(above_thresh)
+        assert n_above<2, 'More than one entry in resolved iou matrix was above thresh!'
+        if n_above == 0:
+            false_neg += 1  # best guess (if any)  has iou < thresh
+            print('nothing above threshold')
+            if np.sum(ious_one_per_column[row,:]) < eps: #no ious in this row
+                print('zero sum row ')
+                continue
+            iou_tot += np.max(ious_one_per_column[row,:])  #this will include the best lower-than-thresh detection, if any
+            index = np.argmax(ious_one_per_column[row,:])
+            guess_matched_with_gt[index] = 1
             n_detections += 1
-            most_confident_detection['already_matched']=True #this gets put into original guess_detection
-            gt_detection['already_matched']=True #this gets put into original gt_detection
-            if iou_of_most_confident_detection > iou_threshold:
-                detections_over_threshold += 1
-                true_pos += 1
-            else:
-                false_neg += 1  # best guess has iou < 0.5
-                print('best guess has iou {} < threshold {}'.format(iou_of_most_confident_detection,iou_threshold))
-        else:
-            false_neg += 1  #completely unmatched ground truth
-            print('no overlapping box found')
-        tot_gt_objects += 1
-        iou_tot += iou_of_most_confident_detection
-        print('tp {} fn {} gt objects seen {} avg_iou {} tot_iou {}'.format(true_pos,false_neg,tot_gt_objects,iou_tot/tot_gt_objects,iou_tot))
+        elif n_above == 1:
+            detections_over_threshold += 1
+            n_detections += 1
+            true_pos += 1
+            iou_tot += np.max(ious_one_per_column[row,:])
+            index = np.argmax(ious_one_per_column[row,:])
+            guess_matched_with_gt[index] = 1
+        else: #this should not happen afer conflict resolution done above
+            logging.warning('multiple matches found for object {}'.format(row))
+        print('tp {} fn {} avg_iou {} tot_iou {}'.format(true_pos,false_neg,iou_tot/n_detections,iou_tot))
+
     #check for extra guess detections
-    for guess_detection in guess_data:
-        if not 'already_matched' in guess_detection:
-            print('{} is a false pos'.format(guess_detection))
+    print('guess_matched with gt:'+str(guess_matched_with_gt))
+    for col in range(len(guess_matched_with_gt)):
+        if guess_matched_with_gt[col] == 0 :
+            print('guess {} is a false pos'.format(col))
             false_pos += 1
-    for gt_detection in gt_data:
-        if not 'already_matched' in gt_detection:
-            print('{} is a false neg'.format(gt_detection))
-            false_neg += 1
-    iou_avg = iou_tot/n_detections
-    print('final tp {} fp {} fn {} gt objects seen {} avg_iou {}'.format(true_pos,false_pos,false_neg,tot_gt_objects,iou_avg))
-    return {'tp':true_pos,'tn':false_pos,'fn':false_neg,'iou_avg':iou_avg}
+            #should false positives affect IOU ? if so put that here...
+            n_detections += 1 #yes, false pos adds 0 to iou running sum and decreases avg
+    if n_detections == 0:
+        iou_avg = 0
+        logging.warning('no detections above thresh !')
+    else:
+        iou_avg = iou_tot/n_detections
+    print('final tp {} fp {} fn {} avg_iou {}'.format(true_pos,false_pos,false_neg,iou_avg))
+    return {'tp':true_pos,'fp':false_pos,'fn':false_neg,'iou_avg':iou_avg,'iou_accumulator':iou_tot,'n_ious':n_detections}
+
+def resolve_conflict(ious_over_thresh_copy,conflict,confidences):
+    if confidences[conflict[0]]>confidences[conflict[1]]:
+        ious_over_thresh_copy[conflict[2],conflict[1]] = 0
+    else:
+        ious_over_thresh_copy[conflict[2],conflict[0]] = 0
+    return ious_over_thresh_copy
+
+def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
+                                    dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'},
+                                    iou_threshold=0.2,visual_output=True,img_arr=None):
+    classes = get_classes_in_dicts([gt_dict,guess_dict])
+    for cl in classes:
+        gts=[]
+        guesses=[]
+        for annotation in gt_dict[dict_format['data']]:
+            if annotation[dict_format['object']]==cl:
+                gts.append(annotation)
+        for annotation in guess_dict[dict_format['data']]:
+            if annotation[dict_format['object']]==cl:
+                guesses.append(annotation)
+        print('class {} gts {}\nguesses {}'.format(cl,gts,guesses))
+        if gts == []:
+            print('no gt for {}'.format(cl))
+            #count guesses for this class - taken care of in compare_bb_dicts
+        if guesses == []:
+            print('no guesses for {}'.format(cl))
+            #count gts for this class - taken care of in compare_bb_dicts
+        if visual_output:
+            display_dicts(copy.copy(img_arr),gts,guesses,dict_format=dict_format)
+        results = compare_bb_dicts(gts,guesses,dict_format=dict_format)
+        print('results for {}: {}'.format(cl,results))
+
+def display_dicts(img_arr,gts,guesses,dict_format = {'data':'data','bbox':'bbox','object':'object','confidence':'confidence'}):
+    if img_arr is None:
+        print('got none for '+img_arr)
+        return
+    for gt_obj in gts:
+        img_arr = imutils.bb_with_text(img_arr,gt_obj[dict_format['bbox']],gt_obj[dict_format['object']],boxcolor=[255,0,0])
+    for obj in guesses:
+        img_arr = imutils.bb_with_text(img_arr,obj[dict_format['bbox']],obj[dict_format['object']]+' '+str(obj['confidence']),boxcolor=[0,255,0])
+    cv2.imshow('img',img_arr)
+    cv2.waitKey(0)
+
+
+def detect_conflict(iou_matrix,iou_threshold = 0.2):
+    '''
+    test iou mat for row with two above-threshold entries P1,P2  - this means two bbs
+    are competing for a single ground truth T1 and the one with higher conf. should win - as long
+    as it has no higher-iou matches with some other ground truth T2. if it does then match P with that T
+    so comparison is  between highest-iou matches for a given P
+    :param argsorted_matrix:
+    :param iou_threshold:
+    :return:
+    '''
+  #  pdb.set_trace()
+    for col in range(iou_matrix.shape[1]):
+        if np.all(iou_matrix[:,col]<iou_threshold):
+ #           print('entire col1 {} is below thresh, no conf'.format(col))
+            continue
+        index_of_highest_in_col = np.argmax(iou_matrix[:,col])
+        for col2 in range(col+1,iou_matrix.shape[1]):
+            if np.all(iou_matrix[:,col2]<iou_threshold):
+  #              print('entire col2 {} is below thresh, no conf'.format(col2))
+                continue
+            index_of_highest_in_col2 = np.argmax(iou_matrix[:,col2])
+            if index_of_highest_in_col == index_of_highest_in_col2:
+   #             print('conflicting cols {} {} row {}'.format(col,col2,index_of_highest_in_col))
+                return(col,col2,index_of_highest_in_col) #col, col2 have same val
+ #   print('no conflict')
+    return None #no two cols of first row have same val
+
+    # def detect_conflict(iou_matrix,iou_threshold=0.5):
+#     iou_over_thresh = np.where(iou_matrix>iou_threshold,iou_matrix,0)
+#    # print('iou over thresh '+str(iou_over_thresh))
+#     for row in range(iou_over_thresh.shape[1]):
+#         flag = 0
+#         for col in range(iou_over_thresh.shape[0]):
+#             print('iou[{},{}] = {}'.format(row,col,iou_over_thresh[row,col]))
+# #            if iou_over_thresh[row,col]>iou_threshold: #if comparing ious
+#             if iou_over_thresh[row,col]==0: #if comparing argsort - 0 means best detection for that column
+#                 if flag == 1:
+#                     row2=row
+#                     col2=col
+#                     return((row1,col1),(row2,col2))
+#                 else:
+#                     flag = 1
+#                     row1=row
+#                     col1=col
+#     return None
 
 def test_compare_bb_dicts():
     img = '/home/jeremy/projects/core/images/2017-07-06_09-15-41-308.jpeg'
     gt = {   "data" : [
     { "object" : "Van",
       "bbox" : [1428,466, 98, 113 ]     },
-    { "object" : "mazda",
+    { "object" : "vw",
       "bbox" : [1306, 485, 83,64 ]     },
     { "object" : "vw",
       "bbox" : [1095,453,103,68 ]     },
-    { "object" : "austin",
+    { "object" : "vw",
       "bbox" : [1204, 479, 96, 59 ]     },
-    { "object" : "mercedes",
+    { "object" : "vw",
       "bbox" : [1010, 468, 79, 42 ]     },
-    { "object" : "subaru",
-      "bbox" : [760, 864,586,158 ] }  ] }
+    { "object" : "Van",
+      "bbox" : [760, 864,586,158 ]      },
+    { "object" : "sign",
+      "bbox" : [750,440,270,180 ]     }  ] }
 
     guess =  {   "data" : [
     { "object" : "Van",
-      "bbox" : [1400,500, 70, 70 ],'confidence':0.9     },
+      "bbox" : [1400,500, 70, 70 ],'confidence':0.91     },
     { "object" : "Van",
-      "bbox" : [1440,490, 80, 90 ],'confidence':0.8     },
-    { "object" : "mazda",
-      "bbox" : [1300, 385, 40,50 ] ,'confidence':0.8    },
-    { "object" : "XX",
-      "bbox" : [1000,433,103,68 ] ,'confidence':0.9    },
-    { "object" : "austin",
-      "bbox" : [1200, 450, 100, 100 ] ,'confidence':0.8     },
+      "bbox" : [1440,490, 80, 90 ],'confidence':0.86     },
     { "object" : "vw",
-      "bbox" : [1100, 490, 30, 50 ]  ,'confidence':0.8    },
+      "bbox" : [1300, 385, 40,50 ] ,'confidence':0.84    },
+    { "object" : "Van",
+      "bbox" : [1000,433,103,68 ] ,'confidence':0.92    },
+    { "object" : "vw",
+      "bbox" : [1200, 450, 180, 100 ] ,'confidence':0.85     },
+    { "object" : "Van", 'confidence':0.7,
+      "bbox" : [1306, 485, 83,64 ]     },
+    { "object" : "vw",
+      "bbox" : [1100, 490, 30, 50 ]  ,'confidence':0.83    },
     { "object" : "ferrari",
-      "bbox" : [1060, 350, 30, 60 ] ,'confidence':0.8     },
-    { "object" : "subaru",
+      "bbox" : [1060, 350, 30, 60 ] ,'confidence':0.82     },
+    { "object" : "Van",
       "bbox" : [750, 869,586,158 ],'confidence':0.7  },
-        { "object" : "subaru",
-      "bbox" : [740, 840,570,140 ],'confidence':0.8  }  ] }
+    { "object" : "Van",
+      "bbox" : [740, 840,570,140 ],'confidence':0.81  }  ] }
 
     img_arr = cv2.imread(img)
-    if img_arr is None:
-        print('got none for '+img)
-    for gt_obj in gt['data']:
-        img_arr = imutils.bb_with_text(img_arr,gt_obj['bbox'],gt_obj['object'],boxcolor=[255,0,0])
-    for obj in guess['data']:
-        img_arr = imutils.bb_with_text(img_arr,obj['bbox'],obj['object']+' '+str(obj['confidence']),boxcolor=[0,255,0])
-    cv2.imshow('img',img_arr)
-    cv2.waitKey(0)
+  #  pdb.set_trace()
+    compare_bb_dicts_class_by_class(gt,guess,img_arr = img_arr)
 
-    compare_bb_dicts(gt,guess)
+def get_classes_in_dict(dict,dict_format={'data':'data','object':'object'}):
+    classes = []
+#    print('looking at : '+str(dict))
+    annotations = dict[dict_format['data']]
+    for detection in annotations:
+        if not detection[dict_format['object']] in classes:
+            classes.append(detection[dict_format['object']])
+    classes.sort()
+    return classes
 
-def get_classes(detection_dicts,object_keyword='object'):
-    class_list=[]
-    for detection in detection_dicts:
-        if not object_keyword in detection:
-            logging.warning('did not find object kw {} in detection {}'.format(object_keyword,detection))
+def get_classes_in_dicts(detection_dicts,dict_format={'data':'data','object':'object'}):
+    print('***********/nCALLING GET CLASSES IN DICTS')
+    classes=[]
+    for dict in detection_dicts:
+        print('looking at dict:'+str(dict))
+        if not dict_format['data'] in dict:
+            logging.warning('did not find annotations kw {} in detection {}'.format(dict_format['data'],dict))
             continue
+        dict_classes = get_classes_in_dict(dict,dict_format=dict_format)
+        for cl in dict_classes:
+            if not cl in classes:
+                classes.append(cl)
+    classes.sort()
+    return classes
 
 def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'}):
-    gt_classes = get_classes(gt_detections,dict_format['object'])
-    guess_classes = get_classes(guess_detections,dict_format['object'])
+    gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
+    guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
@@ -347,7 +491,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
         data = {"image": img_arr} #this was hitting 'cant serialize' error
         print('using imgage as data')
     if roi:
-        print "Make sure roi is a list in this order [x1, y1, x2, y2]"
+        print("Make sure roi is a list in this order [x1, y1, x2, y2]")
         data["roi"] = roi
     serialized_data = msgpack.dumps(data)
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)

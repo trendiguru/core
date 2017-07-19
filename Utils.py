@@ -814,7 +814,7 @@ def intersectionOverUnion(r1, r2):
     intersectionarea = intersectionw * intersectionh
     totarea = totarea - intersectionarea  # now totarea includes overlap only once
     iou = float(intersectionarea) / float(totarea)
-    logging.debug('totarea,intarea,iou:' + str(totarea) + ',' + str(intersectionarea) + ',' + str(iou))
+   # logging.debug('totarea,intarea,iou:' + str(totarea) + ',' + str(intersectionarea) + ',' + str(iou))
     return (iou)
 
 
