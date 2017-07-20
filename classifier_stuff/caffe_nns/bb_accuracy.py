@@ -339,8 +339,23 @@ def get_classes_in_dicts(detection_dicts,dict_format={'data':'data','object':'ob
     return classes
 
 def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'}):
+
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
+
+def get_results_and_analyze(trainfile='voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000):
+    with open(trainfile,'r') as fp:
+        lines = fp.readlines()
+    if n_tests>len(lines):
+        n_tests = len(lines)
+    lines=lines[0:n_tests]
+    for line in lines :
+        file = line.strip('\n')
+        img_arr = cv2.imread(file)
+        if img_arr is None:
+            print('got none img arr for {}'.format(file))
+        results = bb_output_yolo_using_api(img_arr,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None)
+        print results
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
@@ -489,7 +504,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     else:
         img_arr = Utils.get_cv2_img_array(url_or_np_array)
         data = {"image": img_arr} #this was hitting 'cant serialize' error
-        print('using imgage as data')
+        print('using image as data')
     if roi:
         print("Make sure roi is a list in this order [x1, y1, x2, y2]")
         data["roi"] = roi
@@ -504,7 +519,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
 # #            joke = requests.get(JOKE_URL).json()["value"]["joke"]
 
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=data)
-    c=  result.content
+    c = result.content
     #content should be roughly in form
 #    {"data":
     # [{"confidence": 0.366, "object": "car", "bbox": [394, 49, 486, 82]},
@@ -512,8 +527,19 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     if not 'data' in c:
         print('didnt get data in result from {} on sendng {}'.format(CLASSIFIER_ADDRESS,data))
     return data
-    # t = result.text
-    # print('content {} text {}'.format(c,t))
+
+def detect_hls(img_arr, roi=[]):
+    print('using addr '+str(YOLO_HLS_ADDRESS))
+    data = {"image": img_arr}
+    if roi:
+        print "Make sure roi is a list in this order [x1, y1, x2, y2]"
+        data["roi"] = roi
+    serialized_data = msgpack.dumps(data)
+#    resp = requests.post(YOLO_HLS_ADDRESS, data=data)
+    resp = requests.post(YOLO_HLS_ADDRESS, data=serialized_data)
+    print('resp from hls:'+str(resp))
+  #  print('respcont from hls:'+str(resp.content))
+    return msgpack.loads(resp.content)
 
 if __name__ == " __main__":
     print('main')
