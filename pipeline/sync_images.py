@@ -76,7 +76,7 @@ class Images(object):
                     except:
                         pass
 
-                    for person in image_obj_result["people"]
+                    for person in image_obj_result["people"]:
                         try:
                             del person["image"]
                         except:
