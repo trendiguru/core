@@ -508,12 +508,12 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     if roi:
         print("Make sure roi is a list in this order [x1, y1, x2, y2]")
         data["roi"] = roi
-#    serialized_data = msgpack.dumps(data)#
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
     if get_or_post=='GET':
         result = requests.get(CLASSIFIER_ADDRESS,params=data)
     else:
-        result = requests.post(CLASSIFIER_ADDRESS,params=data)
+        serialized_data = msgpack.dumps(data)
+        result = requests.post(CLASSIFIER_ADDRESS,data=serialized_data)
 
     if result.status_code is not 200:
        print("Code is not 200")
