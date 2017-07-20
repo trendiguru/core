@@ -68,23 +68,26 @@ class Images(object):
                 # RELEVANCY CHECK LIOR'S POOLING
                 inputs = [(image_url, "dummy_page", products) for image_url in images_to_rel_check]
                 outs = []
+
                 for image in images_to_rel_check:
                     image_obj_result = fast_results.process_image(image, "dummy_page", products)
                     try:
                         del image_obj_result['image']
+                    except:
+                        pass
+
                     for person in image_obj_result["people"]
                         try:
                             del person["image"]
                         except:
                             pass
-                        try:
-                            for item in person["items"]:
-                                try:
-                                    del item["image"]
-                                except: 
-                                    pass
-                        except: 
-                            pass
+                        
+                        for item in person["items"]:
+                            try:
+                                del item["image"]
+                            except: 
+                                pass
+                        
                             
                     res = constants.db.images.insert_one(image_obj_result)
                     slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
