@@ -136,6 +136,23 @@ class Images(object):
             else:
 
                 image_obj_result = fast_results.process_image(image_url, "dummy_page", products)
+                try:
+                        del image_obj_result['image']
+                    except:
+                        pass
+
+                    for person in image_obj_result["people"]:
+                        try:
+                            del person["image"]
+                        except:
+                            pass
+                        
+                        for item in person["items"]:
+                            try:
+                                del item["image"]
+                            except: 
+                                pass
+                
                 res = constants.db.images.insert_one(image_obj_result)
                 slimage = constants.db.images.find_one({"_id": res.inserted_id}, filter)
 
