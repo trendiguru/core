@@ -69,7 +69,7 @@ class Images(object):
                 inputs = [(image_url, "dummy_page", products) for image_url in images_to_rel_check]
                 outs = []
                 for image in images_to_rel_check:
-                    image_obj_result = fast_results.process_image(image_url, "dummy_page", products)
+                    image_obj_result = fast_results.process_image(image, "dummy_page", products)
                     res = constants.db.images.insert_one(image_obj_result)
                     slimage = constants.db.images.find_one({"_id": res.inserted_id}, {"people.items.similar_results": 1})
                     outs.append(slimage)
