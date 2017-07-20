@@ -93,7 +93,7 @@ class HLS_YOLO:
             # b_new = json.loads(obj_text)
             # a_new = np.array(b_new)
             print('getting img_arr directly')
-            pd.Series(image).read_json(orient='values')
+            pd.read_json(image,orient='values')
         else:
             print('get request to hls yolo:' + str(req) + ' is missing both imageUrl and image param')
             raise falcon.HTTPMissingParam("imageUrl,image")
