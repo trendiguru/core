@@ -137,6 +137,7 @@ class HLS_YOLO:
         print('\nStarting HLS_YOLO (posted a post request)')
         try:
             data = serializer.loads(req.stream.read())
+            print('got here')
             img_arr = data.get("image")
             print('img arr shape {}'.format(img_arr.shape))
             roi = data.get("roi")
