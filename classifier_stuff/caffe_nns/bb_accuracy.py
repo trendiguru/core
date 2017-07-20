@@ -540,7 +540,7 @@ def detect_hls(img_arr, roi=[],CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_
         data["roi"] = roi
     serialized_data = msgpack.dumps(data)
 #    resp = requests.post(YOLO_HLS_ADDRESS, data=data)
-    resp = requests.post(YOLO_HLS_ADDRESS, data=serialized_data)
+    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
     print('resp from hls:'+str(resp))
   #  print('respcont from hls:'+str(resp.content))
     return msgpack.loads(resp.content)
