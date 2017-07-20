@@ -57,6 +57,7 @@ class HLS_YOLO:
         resp.content_type = "application/json"
         print('\nStarting HLS_YOLO (got a get request)')
         image_url = req.get_param("imageUrl")
+        image = req.get_param("image")
         r_x1 = req.get_param_as_int("x1")
         r_x2 = req.get_param_as_int("x2")
         r_y1 = req.get_param_as_int("y1")
@@ -73,10 +74,10 @@ class HLS_YOLO:
         if loc_hier_thresh is not None:
             global hier_thresh
             hier_thresh = float(loc_hier_thresh)
-        if not image_url:
-            print('get request to hls yolo:' + str(req) + ' is missing imageUrl param')
-            raise falcon.HTTPMissingParam("imageUrl")
-        else:
+        if not image_url and not image:
+            print('get request to hls yolo:' + str(req) + ' is missing both imageUrl and image param')
+            raise falcon.HTTPMissingParam("imageUrl,image")
+        elif image_url:
             try:
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
@@ -87,36 +88,36 @@ class HLS_YOLO:
                     return
             except:
                 raise falcon.HTTPBadRequest("Something went wrong in get section 1:(", traceback.format_exc())
-            try:
-                if r_x1 or r_x2 or r_y1 or r_y2:
-                    img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
-                    print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-            except:
-                raise falcon.HTTPBadRequest("Something went wrong in get section 2:(", traceback.format_exc())
-            try:
-                #which net to use - pyyolo or shell yolo , default to pyyolo
-                if not net:
-                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
-                elif net == "shell":
-                    detected = self.detect_yolo_shell(img_arr, url=image_url)
-                elif net == "pyyolo":
-                    detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
-                else:
-                    detected = self.detect_yolo_shell(img_arr, url=image_url)
-                if (r_x1, r_y1) != (0, 0):
-                    for obj in detected:
-                        try:
-                            x1, y1, x2, y2 = obj["bbox"]
-                            obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
-                        except (KeyError, TypeError):
-                            print "No valid 'bbox' in detected"
-            except:
-                raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
-            try:
-                resp.data = serializer.dumps({"data": detected})
-                resp.status = falcon.HTTP_200
-            except:
-                raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
+        try:
+            if r_x1 or r_x2 or r_y1 or r_y2:
+                img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
+                print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
+        except:
+            raise falcon.HTTPBadRequest("Something went wrong in get section 2:(", traceback.format_exc())
+        try:
+            #which net to use - pyyolo or shell yolo , default to pyyolo
+            if not net:
+                detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
+            elif net == "shell":
+                detected = self.detect_yolo_shell(img_arr, url=image_url)
+            elif net == "pyyolo":
+                detected = self.detect_yolo_pyyolo(img_arr, url=image_url)
+            else:
+                detected = self.detect_yolo_shell(img_arr, url=image_url)
+            if (r_x1, r_y1) != (0, 0):
+                for obj in detected:
+                    try:
+                        x1, y1, x2, y2 = obj["bbox"]
+                        obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
+                    except (KeyError, TypeError):
+                        print "No valid 'bbox' in detected"
+        except:
+            raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
+        try:
+            resp.data = serializer.dumps({"data": detected})
+            resp.status = falcon.HTTP_200
+        except:
+            raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
 
 
     def on_post(self, req, resp):
