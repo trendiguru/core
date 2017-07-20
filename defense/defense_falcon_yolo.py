@@ -138,6 +138,7 @@ class HLS_YOLO:
         try:
             data = serializer.loads(req.stream.read())
             img_arr = data.get("image")
+            print('img arr shape {}'.format(img_arr.shape))
             roi = data.get("roi")
             if roi:
                 r_x1, r_y1, r_x2, r_y2 = roi
