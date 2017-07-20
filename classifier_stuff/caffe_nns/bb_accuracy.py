@@ -494,7 +494,7 @@ def bb_output_using_gunicorn(url_or_np_array):
     logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None):
+def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET'):
     print('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS))
 #    CLASSIFIER_ADDRESS =   # "http://13.82.136.127:8082/hls"
     print('using yolo api addr '+str(CLASSIFIER_ADDRESS))
@@ -508,9 +508,13 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     if roi:
         print("Make sure roi is a list in this order [x1, y1, x2, y2]")
         data["roi"] = roi
-    serialized_data = msgpack.dumps(data)
+#    serialized_data = msgpack.dumps(data)#
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
-    result = requests.get(CLASSIFIER_ADDRESS,params=data)
+    if get_or_post=='GET':
+        result = requests.get(CLASSIFIER_ADDRESS,params=data)
+    else:
+        result = requests.post(CLASSIFIER_ADDRESS,params=data)
+
     if result.status_code is not 200:
        print("Code is not 200")
 #     else:
