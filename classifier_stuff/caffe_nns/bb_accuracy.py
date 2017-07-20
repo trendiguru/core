@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.INFO)
 import numpy as np
 import pdb
 import copy
+import pandas as pd
 
 from trendi import constants
 from trendi import Utils
@@ -502,8 +503,10 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
         data = {"imageUrl": url_or_np_array}
         print('using imageUrl as data')
     else:
-        img_arr = Utils.get_cv2_img_array(url_or_np_array)
-        data = {"image": img_arr} #this was hitting 'cant serialize' error
+        img_arr = url_or_np_array
+        jsonified = pd.Series(img_arr).to_json(orient='values')
+
+        data = {"image": jsonified} #this was hitting 'cant serialize' error
         print('using image as data')
     if roi:
         print("Make sure roi is a list in this order [x1, y1, x2, y2]")

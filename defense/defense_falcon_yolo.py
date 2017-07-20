@@ -19,6 +19,8 @@ from jaweson import json, msgpack
 import numpy as np
 import cv2
 import sys
+import codecs
+import pandas as pd
 
 import pyyolo
 
@@ -74,9 +76,6 @@ class HLS_YOLO:
         if loc_hier_thresh is not None:
             global hier_thresh
             hier_thresh = float(loc_hier_thresh)
-        if not image_url and not image:
-            print('get request to hls yolo:' + str(req) + ' is missing both imageUrl and image param')
-            raise falcon.HTTPMissingParam("imageUrl,image")
         elif image_url:
             try:
                 response = requests.get(image_url)
@@ -88,6 +87,16 @@ class HLS_YOLO:
                     return
             except:
                 raise falcon.HTTPBadRequest("Something went wrong in get section 1:(", traceback.format_exc())
+        elif image:
+            # file_path = "/path.json"
+            # obj_text = codecs.open(file_path, 'r', encoding='utf-8').read()
+            # b_new = json.loads(obj_text)
+            # a_new = np.array(b_new)
+            print('getting img_arr directly')
+            pd.Series(image).read_json(orient='values')
+        else:
+            print('get request to hls yolo:' + str(req) + ' is missing both imageUrl and image param')
+            raise falcon.HTTPMissingParam("imageUrl,image")
         try:
             if r_x1 or r_x2 or r_y1 or r_y2:
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
