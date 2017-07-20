@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 """
 run this like:
 gunicorn -b :8082 -w 1 -k gevent -n hls_yolo --timeout 120 trendi.defense.defense_falcon_yolo:api
-assuming the docker was started with port 8084 specified e.g.
+assuming the docker was started with port 8082 specified e.g.
 nvidia-docker run -it -v /data:/data -p 8082:8082 --name hls_yolo eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
 
@@ -79,12 +79,6 @@ class HLS_YOLO:
         else:
             try:
                 response = requests.get(image_url)
-                #print('response:'+str(response))
-                # if response is None:
-                #     print('got bad url ')
-                #     resp.data = serializer.dumps({"data": 'bad url '+image_url})
-                #     resp.status = falcon.HTTP_200
-                #     return
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
                 if img_arr == None:
                     print('got none for image array')

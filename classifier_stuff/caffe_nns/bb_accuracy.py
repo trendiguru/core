@@ -532,8 +532,8 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
         print('didnt get data in result from {} on sendng {}'.format(CLASSIFIER_ADDRESS,data))
     return c
 
-def detect_hls(img_arr, roi=[]):
-    print('using addr '+str(YOLO_HLS_ADDRESS))
+def detect_hls(img_arr, roi=[],CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS):
+    print('using addr '+str(CLASSIFIER_ADDRESS))
     data = {"image": img_arr}
     if roi:
         print "Make sure roi is a list in this order [x1, y1, x2, y2]"
