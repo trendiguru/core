@@ -343,7 +343,7 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox'
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
-def get_results_and_analyze(trainfile='voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000):
+def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000):
     with open(trainfile,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
@@ -526,7 +526,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     # {"confidence": 0.2606, "object": "car", "bbox": [0, 116, 571, 462]}, ... ]}
     if not 'data' in c:
         print('didnt get data in result from {} on sendng {}'.format(CLASSIFIER_ADDRESS,data))
-    return data
+    return c
 
 def detect_hls(img_arr, roi=[]):
     print('using addr '+str(YOLO_HLS_ADDRESS))
