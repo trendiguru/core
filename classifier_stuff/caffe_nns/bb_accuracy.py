@@ -338,7 +338,7 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         if not os.path.exists(imgfile):
             logging.warning('image file {} not foind, continuing'.format(imgfile))
             continue
-        labelfile = imgfile.replace('.jpg','.txt').replace('.jpeg','.txt').replace('.png','txt')
+        labelfile = imgfile.replace('.jpg','.txt').replace('.jpeg','.txt').replace('.png','.txt')
         if not os.path.exists(labelfile):
             logging.warning('label file {} not foind, continuing'.format(labelfile))
             continue
