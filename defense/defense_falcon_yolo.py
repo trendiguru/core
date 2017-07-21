@@ -59,6 +59,7 @@ class HLS_YOLO:
         resp.content_type = "application/json"
         print('\nStarting HLS_YOLO (got a get request)')
         image_url = req.get_param("imageUrl")
+        image = req.get_param("image")
         file = req.get_param("file")
         r_x1 = req.get_param_as_int("x1")
         r_x2 = req.get_param_as_int("x2")
