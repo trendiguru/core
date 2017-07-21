@@ -40,6 +40,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     else:
         serialized_data = msgpack.dumps(data)
         result = requests.post(CLASSIFIER_ADDRESS,data=serialized_data)
+        result = requests.post(CLASSIFIER_ADDRESS,data=data)
 
     if result.status_code is not 200:
        print("Code is not 200")
