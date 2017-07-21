@@ -65,7 +65,9 @@ def detect_hls(img_arr, roi=[],CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_
     if roi:
         print "Make sure roi is a list in this order [x1, y1, x2, y2]"
         data["roi"] = roi
-    serialized_data = msgpack.dumps(data)
+    serializer = json
+    serialized_data = serializer.dumps(data)
+#    serialized_data = msgpack.dumps(data)
 #    resp = requests.post(YOLO_HLS_ADDRESS, data=data)
     resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
     print('resp from hls:'+str(resp))
