@@ -341,10 +341,12 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
                "bbox_xywh": [89, 118, 64,44 ],
                 "object": "car"
             } ...  ]   }
-    all the keywords can be replaced by replacing the values in dict_keys, e.g. if you want to call the annotations 'data' instead then put
-                       dict_keys={'filename':'filename','dimensions_h_w_c':'dimensions_h_w_c','annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object'}):
+    all the keywords can be replaced by replacing the values in dict_keys, e.g. if you want to call the annotations 'data' instead of 'annotations' then put
+    dict_keys={'filename':'filename','dimensions_h_w_c':'dimensions_h_w_c','annotations':'data','bbox_xywh':'bbox_xywh','object':'object'}):
 
     using convention that label dir is at same level as image dir and has 'labels' tacked on to end of dirname
+
+    since yolo does bb's in % of image size we need to find image size to convert to  xywh or the like
     '''
 
 #    img_file = txt_file.replace('.txt','.png')
@@ -371,7 +373,7 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         img_base = os.path.basename(img_file)
         par_dir = Utils.parent_dir(img_dir)
         logging.debug('pardir {} imgdir {}'.format(par_dir,img_dir))
-        if labels_dir_suffix:
+        if labels_dir_suffix: #allows for use of 'xyz_labels' directory or the like parallel to dir 'xyz' containing img
             labels_dir = img_dir+labels_dir_suffix
         else:
             labels_dir = img_dir
