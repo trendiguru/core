@@ -93,8 +93,8 @@ class HLS_YOLO:
             img_arr = pd.read_json(image,orient='values')
             print('img size {}'.format(img_arr.shape))
         elif file:
-            print('getting file')
-            if not os.path.exists(image_url):
+            print('getting file {}'.format(file))
+            if not os.path.exists(file):
                 raise falcon.HTTPBadRequest("could not get file "+str(image_url), traceback.format_exc())
             img_arr = cv2.imread(file)
             print('img size {}'.format(img_arr.shape))
