@@ -70,7 +70,7 @@ class HLS_YOLO:
         loc_hier_thresh = req.get_param("hier_threshold")
 #        for k,v in req.get_param.iteritems():
 #            print('key {} value {}'.format(k,v))
-        print('params into hls yolo on_get: url {} x1 {} x2 {} y1 {} y2 {} net {} thresh {} hierthresh {}'.format(image_url,r_x1,r_x2,r_y1,r_y2,net,loc_thresh,loc_hier_thresh))
+        print('params into hls yolo on_get: url {} file {} x1 {} x2 {} y1 {} y2 {} net {} thresh {} hierthresh {}'.format(image_url,file,r_x1,r_x2,r_y1,r_y2,net,loc_thresh,loc_hier_thresh))
         if loc_thresh is not None:
             global thresh
             thresh = float(loc_thresh)
