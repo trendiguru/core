@@ -327,7 +327,7 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox'
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
-def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,replace_this='/mnt/',with_this='/data/mnt/'):
+def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,testdir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/'):
     with open(trainfile,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
@@ -335,8 +335,11 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
     lines=lines[0:n_tests]
     for line in lines :
         imgfile = line.strip('\n')
+        if testdir is not None:
+            img_base=os.path.basename(imgfile)
+            imgfile=os.path.join(testdir,img_base)
         if not os.path.exists(imgfile):
-            logging.warning('image file {} not foind, continuing'.format(imgfile))
+            logging.warning('image file {} not found, continuing'.format(imgfile))
             continue
         labelfile = imgfile.replace('.jpg','.txt').replace('.jpeg','.txt').replace('.png','.txt')
         if not os.path.exists(labelfile):
