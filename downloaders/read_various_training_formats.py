@@ -326,7 +326,9 @@ def write_yolo_trainfile(image_dir,trainfile='train.txt',filter='.png',split_to_
     if split_to_test_and_train is not None:
         create_nn_imagelsts.split_to_trainfile_and_testfile(trainfile,fraction=split_to_test_and_train)
 
-def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.jpg',classlabels=constants.hls_yolo_categories,labels_dir_suffix=None,dont_write_blank=True):
+def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.jpg',
+                   classlabels=constants.hls_yolo_categories,labels_dir_suffix=None,dont_write_blank=True,
+                   dict_keys={'filename':'filename','dimensions_h_w_c':'dimensions_h_w_c','annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object'}):
     '''
     format is
     <object-class> <x> <y> <width> <height>
@@ -339,10 +341,19 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
                "bbox_xywh": [89, 118, 64,44 ],
                 "object": "car"
             } ...  ]   }
+    all the keywords can be replaced by replacing the values in dict_keys, e.g. if you want to call the annotations 'data' instead then put
+                       dict_keys={'filename':'filename','dimensions_h_w_c':'dimensions_h_w_c','annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object'}):
 
     using convention that label dir is at same level as image dir and has 'labels' tacked on to end of dirname
     '''
+
 #    img_file = txt_file.replace('.txt','.png')
+    filename_kw = dict_keys['filename']
+    dims_kw = dict_keys['dimensions_h_w_c']
+    annotations_kw = dict_keys['annotations']
+    bbox_kw = dict_keys['bbox_xywh']
+    object_kw = dict_keys['object']
+
     logging.debug('yolo to tgdict {} {} '.format(txt_file,img_file))
     if txt_file is None and img_file is None:
         logging.warning('yolo to tfdict got no txtfile nor imgfile')
@@ -377,9 +388,9 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         return None
     image_h, image_w = img_arr.shape[0:2]
     result_dict = {}
-    result_dict['filename']=img_file
-    result_dict['dimensions_h_w_c']=img_arr.shape
-    result_dict['annotations']=[]
+    result_dict[filename_kw]=img_file
+    result_dict[dims_kw]=img_arr.shape
+    result_dict[annotations_kw]=[]
     if not os.path.exists(txt_file):
         logging.warning('yolo2tgdict could not find {}, trying replacing "images" with "labels" '.format(txt_file))
         #try alternate path replacing 'images' with 'labels'
@@ -422,9 +433,9 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
             if visual_output:
                 cv2.rectangle(img_arr,(x1,y1),(x2,y2),color=[100,255,100],thickness=2)
             object_dict={}
-            object_dict['bbox_xywh'] = [x1,y1,w,h]
-            object_dict['object']=class_label
-            result_dict['annotations'].append(object_dict)
+            object_dict[bbox_kw] = [x1,y1,w,h]
+            object_dict[object_kw]=class_label
+            result_dict[annotations_kw].append(object_dict)
         if visual_output:
             cv2.imshow('yolo2tgdict',img_arr)
             cv2.waitKey(0)

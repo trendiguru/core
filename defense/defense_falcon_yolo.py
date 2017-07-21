@@ -95,7 +95,7 @@ class HLS_YOLO:
         elif file:
             print('getting file {}'.format(file))
             if not os.path.exists(file):
-                raise falcon.HTTPBadRequest("could not get file "+str(image_url), traceback.format_exc())
+                raise falcon.HTTPBadRequest("could not get file "+str(file), traceback.format_exc())
             img_arr = cv2.imread(file)
             print('img size {}'.format(img_arr.shape))
         else:

@@ -9,11 +9,13 @@ import numpy as np
 import pdb
 import copy
 import pandas as pd
+import os
 
 from trendi import constants
 from trendi import Utils
 from trendi.utils import imutils
-
+from trendi.classifier_stuff.caffe_nns import bb_results
+from trendi.downloaders import read_various_training_formats
 
 
 def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox':'bbox','object':'object','confidence':'confidence'},iou_threshold=0.2):
@@ -248,27 +250,8 @@ def detect_conflict(iou_matrix,iou_threshold = 0.2):
             if index_of_highest_in_col == index_of_highest_in_col2:
    #             print('conflicting cols {} {} row {}'.format(col,col2,index_of_highest_in_col))
                 return(col,col2,index_of_highest_in_col) #col, col2 have same val
- #   print('no conflict')
     return None #no two cols of first row have same val
 
-    # def detect_conflict(iou_matrix,iou_threshold=0.5):
-#     iou_over_thresh = np.where(iou_matrix>iou_threshold,iou_matrix,0)
-#    # print('iou over thresh '+str(iou_over_thresh))
-#     for row in range(iou_over_thresh.shape[1]):
-#         flag = 0
-#         for col in range(iou_over_thresh.shape[0]):
-#             print('iou[{},{}] = {}'.format(row,col,iou_over_thresh[row,col]))
-# #            if iou_over_thresh[row,col]>iou_threshold: #if comparing ious
-#             if iou_over_thresh[row,col]==0: #if comparing argsort - 0 means best detection for that column
-#                 if flag == 1:
-#                     row2=row
-#                     col2=col
-#                     return((row1,col1),(row2,col2))
-#                 else:
-#                     flag = 1
-#                     row1=row
-#                     col1=col
-#     return None
 
 def test_compare_bb_dicts():
     img = '/home/jeremy/projects/core/images/2017-07-06_09-15-41-308.jpeg'
@@ -344,19 +327,26 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox'
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
-def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000):
+def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,replace_this='/mnt/',with_this='/data/mnt/'):
     with open(trainfile,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
         n_tests = len(lines)
     lines=lines[0:n_tests]
     for line in lines :
-        file = line.strip('\n')
-        img_arr = cv2.imread(file)
-        if img_arr is None:
-            print('got none img arr for {}'.format(file))
-        results = bb_output_yolo_using_api(img_arr,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None)
+        imgfile = line.strip('\n')
+        if not os.path.exists(imgfile):
+            logging.warning('image file {} not foind, continuing'.format(imgfile))
+            continue
+        labelfile = file.replace('.jpg','.txt').replace('.jpeg','.txt').replace('.png','txt')
+        if not os.path.exists(labelfile):
+            logging.warning('label file {} not foind, continuing'.format(labelfile))
+            continue
+        results = bb_results.bb_output_yolo_using_api(file,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
+        label_json = read_various_training_formats.yolo_to_tgdict()
         print results
+
+
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
