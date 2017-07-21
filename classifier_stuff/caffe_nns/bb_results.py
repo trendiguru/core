@@ -18,12 +18,12 @@ def bb_output_using_gunicorn(url_or_np_array):
     logging.debug('multilabel output:'+str(multilabel_output))
     return multilabel_output #
 
-def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET'):
+def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='imageUrl'):
     print('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS))
 #    CLASSIFIER_ADDRESS =   # "http://13.82.136.127:8082/hls"
     print('using yolo api addr '+str(CLASSIFIER_ADDRESS))
-    if isinstance(url_or_np_array,basestring): #got a url (or filename, but not dealing with that case)
-        data = {"imageUrl": url_or_np_array}
+    if isinstance(url_or_np_array,basestring): #got a url (or filename, now dealing with that case - use query='file')
+        data = {query: url_or_np_array}
         print('using imageUrl as data')
     else:
         img_arr = url_or_np_array
