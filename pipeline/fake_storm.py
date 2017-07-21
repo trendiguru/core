@@ -106,7 +106,7 @@ def process_item(person_id, item):
     coll = item['products_collection']
     prod = coll + '_' + gender
     out_item['fp'], out_item['similar_results'][coll] = find_similar_mongo.find_top_n_results(person_image,
-                                                                                              item_mask, 100,
+                                                                                              item_mask, 50,
                                                                                               item['category'],
                                                                                               prod)
     for feature in out_item['fp'].keys():
