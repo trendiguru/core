@@ -366,7 +366,7 @@ def yolo_to_tgdict(txt_file=None,img_file=None,visual_output=False,img_suffix='.
         if 'labels' in par_dir:
             img_dir = par_dir.replace('labels','')
         img_name = os.path.basename(txt_file).replace('.txt',img_suffix)
-        img_file = os.path.join(img_dir,img_name)
+        img_file = os.path.join(par_dir,img_name)
         logging.debug('looking for image file '+img_file)
     elif img_file is not None and txt_file is None:
         img_dir = os.path.dirname(img_file)
