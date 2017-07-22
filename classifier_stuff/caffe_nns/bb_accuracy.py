@@ -346,11 +346,12 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             logging.warning('label file {} not foind, continuing'.format(labelfile))
             continue
         results = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
-        label_json = read_various_training_formats.yolo_to_tgdict(labelfile)
+        gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         print('results from api:\n{}'.format(results))
-        label_json['data']=label_json['annotations']
-        del(label_json['annotations'])
-        print('ground truth:\n{}'.format(label_json))
+        gt = Utils.replace_kw(gt,'annotations','data')
+        gt = Utils.replace_kw(gt,'bbox_xywh','bbox')
+
+        print('ground truth:\n{}'.format(gt))
 
 
 

@@ -778,6 +778,9 @@ def parent_dir(path):
 def replace_kw(obj,replace_this,with_this):
     '''
     replace all occurences of replace_this in dict with with_this
+    this can be done more simply with string replacement , see
+    https://stackoverflow.com/questions/45253984/how-to-replace-all-instances-of-a-keyword-in-arbitrarily-structured-data/45254036#45254036
+
     :param obj:
     :param replace_this:
     :param with_this:
