@@ -775,22 +775,28 @@ def parent_dir(path):
 #python stuff
 #############
 
-def replace_kw(dict,replace_this,with_this):
+def replace_kw(obj,replace_this,with_this):
     '''
     replace all occurences of replace_this in dict with with_this
-    :param dict:
+    :param obj:
     :param replace_this:
     :param with_this:
     :return:
     '''
-    for k,v in dict:
-        if k==replace_this:
-            dict[with_this]=dict[replace_this]
-            del(dict[replace_this])
-        if isinstance(k,dict):
-            dict[k] = replace_kw(k,replace_this,with_this)
+    print('object is '+str(obj))
+    if isinstance(obj,dict):
+        for k,v in obj.iteritems():
+            if k==replace_this:
+                obj[with_this]=obj[replace_this]
+                del(obj[replace_this])
+            else:
+                obj[k] = replace_kw(obj[k],replace_this,with_this)
 
-    return dict
+    elif isinstance(obj,list):
+        for l in obj:
+            l = replace_kw(l,replace_this,with_this)
+
+    return obj
 
 
 ############################
