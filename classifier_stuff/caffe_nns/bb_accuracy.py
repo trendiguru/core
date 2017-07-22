@@ -350,7 +350,7 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         print('results from api:\n{}'.format(results))
         label_json['data']=label_json['annotations']
         del(label_json['annotations'])
-        print('ground truth:\n{}'.format(label_json)
+        print('ground truth:\n{}'.format(label_json))
 
 
 
