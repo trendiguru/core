@@ -20,20 +20,19 @@ def bb_output_using_gunicorn(url_or_np_array):
     return multilabel_output #
 
 def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file'):
-    print('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS))
+    logging.debug('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS))
 #    CLASSIFIER_ADDRESS =   # "http://13.82.136.127:8082/hls"
-    print('using yolo api addr '+str(CLASSIFIER_ADDRESS))
     if isinstance(url_or_np_array,basestring): #got a url (use query= 'imageUrl') or filename, use query='file' )
         data = {query: url_or_np_array}
-        print('using imageUrl as data')
+        logging.debug('using imageUrl as data')
     else:
         img_arr = url_or_np_array
         jsonified = pd.Series(img_arr).to_json(orient='values')
 
         data = {"image": jsonified} #this was hitting 'cant serialize' error
-        print('using image as data')
+        logging.debug('using image as data')
     if roi:
-        print("Make sure roi is a list in this order [x1, y1, x2, y2]")
+        logging.debug("Make sure roi is a list in this order [x1, y1, x2, y2]")
         data["roi"] = roi
 #    resp = requests.post(CLASSIFIER_ADDRESS, data=serialized_data)
     if get_or_post=='GET':

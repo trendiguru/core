@@ -771,6 +771,26 @@ def parent_dir(path):
     '''
     return os.path.abspath(os.path.join(path, os.pardir))
 
+#############
+#python stuff
+#############
+
+def replace_kw(dict,replace_this,with_this):
+    '''
+    replace all occurences of replace_this in dict with with_this
+    :param dict:
+    :param replace_this:
+    :param with_this:
+    :return:
+    '''
+    for k,v in dict:
+        if k==replace_this:
+            dict[with_this]=dict[replace_this]
+            del(dict[replace_this])
+        if isinstance(k,dict):
+            dict[k] = replace_kw(k,replace_this,with_this)
+
+    return dict
 
 
 ############################
