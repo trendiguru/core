@@ -461,6 +461,9 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
         imutils.x1y1x2y2_list_to_xywh(proposals['data'])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
+        if gt is None:
+            print('got None gt for '+labelfile)
+            continue
         print('results from api:\n{}'.format(proposals))
         proposals = Utils.replace_kw(proposals,'data','annotations')
         proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
