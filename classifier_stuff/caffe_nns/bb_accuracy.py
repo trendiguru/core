@@ -409,7 +409,7 @@ def test_multiple():
 def get_classes_in_dict(dict,dict_format={'annotations':'annotations','object':'object'}):
     classes = []
 #    print('looking at : '+str(dict))
-    annotations = dict[dict_format['data']]
+    annotations = dict[dict_format['annotations']]
     for detection in annotations:
         if not detection[dict_format['object']] in classes:
             classes.append(detection[dict_format['object']])
