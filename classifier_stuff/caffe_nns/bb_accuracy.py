@@ -471,7 +471,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         with open(proposalsfile,'a') as fp2:
             json.dump(proposals,fp2, indent=4)
             fp2.close()
-        proposals = threshold_proposals_on_confidence(proposals,confidence_threshold=confidence_threshold)
+        proposals = threshold_proposals_on_confidence(proposals,confidence_threshold)
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
