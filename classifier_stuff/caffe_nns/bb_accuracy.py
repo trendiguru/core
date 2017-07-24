@@ -18,11 +18,11 @@ from trendi.utils import imutils
 from trendi.classifier_stuff.caffe_nns import bb_results
 from trendi.downloaders import read_various_training_formats
 
-def threshold_proposals_on_confidence(guess_list,confidence_threshold,dict_format={'bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
+def threshold_proposals_on_confidence(guess_list,confidence_threshold,conf_kw='confidence'):
     thresholded_list = []
     for guess in guess_list:
   #      print('current guess '+str(guess))
-        if guess[dict_format['confidence']] >= confidence_threshold:
+        if guess[conf_kw] >= confidence_threshold:
             thresholded_list.append(guess)
     return thresholded_list
 
@@ -460,7 +460,6 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             continue
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
         imutils.x1y1x2y2_list_to_xywh(proposals['data'])
-        print('proposals aft\n{}'.format(proposals))
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         print('results from api:\n{}'.format(proposals))
         proposals = Utils.replace_kw(proposals,'data','annotations')
