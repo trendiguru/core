@@ -279,7 +279,6 @@ def display_dicts(img_arr,gts,guesses,dict_format = {'data':'data','bbox':'bbox'
     cv2.waitKey(0)
     raw_input('ret to cont')
 
-
 def detect_conflict(iou_matrix,iou_threshold = 0.2):
     '''
     test iou mat for row with two above-threshold entries P1,P2  - this means two bbs
@@ -305,7 +304,6 @@ def detect_conflict(iou_matrix,iou_threshold = 0.2):
    #             print('conflicting cols {} {} row {}'.format(col,col2,index_of_highest_in_col))
                 return(col,col2,index_of_highest_in_col) #col, col2 have same val
     return None #no two cols of first row have same val
-
 
 def test_compare_bb_dicts():
     img = '/home/jeremy/projects/core/images/2017-07-06_09-15-41-308.jpeg'
@@ -440,7 +438,8 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox'
 def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
                             testdir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
                             confidence_threshold = 0.2):
-    gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt'
+    gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels.txt'
+    proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labels.txt'
     with open(trainfile,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
@@ -460,19 +459,20 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             logging.warning('label file {} not foind, continuing'.format(labelfile))
             continue
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
-        print('{} proposals'.format(len(proposals)))
-        proposals = convert_dict_x1y1x2y2_to_xywh(proposals)
-        proposals = threshold_proposals_on_confidence(proposals,confidence_threshold=confidence_threshold)
-        print('{} proposals after threshold {} on confidence'.format(len(proposals),confidence_threshold))
+        proposals = imutils.x1y1x2y2_list_to_xywh(proposals['data'])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         print('results from api:\n{}'.format(proposals))
-        gt = Utils.replace_kw(gt,'annotations','data')
-        gt = Utils.replace_kw(gt,'bbox_xywh','bbox')
+        proposals = Utils.replace_kw(proposals,'data','annotations')
+        proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         print('ground truth:\n{}'.format(gt))
-        stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
         with open(gtfile,'a') as fp1:
-            json.dump(gt)
-
+            json.dump(gt,fp1, indent=4)
+            fp1.close()
+        with open(proposalsfile,'a') as fp2:
+            json.dump(proposals,fp2, indent=4)
+            fp2.close()
+        proposals = threshold_proposals_on_confidence(proposals,confidence_threshold=confidence_threshold)
+        stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
