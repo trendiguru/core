@@ -458,14 +458,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         if not os.path.exists(labelfile):
             logging.warning('label file {} not foind, continuing'.format(labelfile))
             continue
-        props = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
-        print('proposals b4n{}'.format(props))
-        if not 'data' in props:
-            print("something got f'ed up")
-        print('islist {}'.format(isinstance(props,basestring)))
-        print('isdict {}'.format(isinstance(props,dict)))
-        propdata = props['data']
-        imutils.x1y1x2y2_list_to_xywh(propdata)
+        proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
+        imutils.x1y1x2y2_list_to_xywh(proposals['data'])
         print('proposals aft\n{}'.format(proposals))
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         print('results from api:\n{}'.format(proposals))
