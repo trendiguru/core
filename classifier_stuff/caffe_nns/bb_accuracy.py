@@ -18,7 +18,7 @@ from trendi.utils import imutils
 from trendi.classifier_stuff.caffe_nns import bb_results
 from trendi.downloaders import read_various_training_formats
 
-def threshold_proposals_on_confidence(guess_list,confidence_threshold,dict_format={'bbox':'bbox','object':'object','confidence':'confidence'}):
+def threshold_proposals_on_confidence(guess_list,confidence_threshold,dict_format={'bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     thresholded_list = []
     for guess in guess_list:
   #      print('current guess '+str(guess))
@@ -26,7 +26,7 @@ def threshold_proposals_on_confidence(guess_list,confidence_threshold,dict_forma
             thresholded_list.append(guess)
     return thresholded_list
 
-def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox':'bbox','object':'object','confidence':'confidence'},iou_threshold=0.2):
+def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'},iou_threshold=0.2):
     '''
     given 2 dicts of bbs - find bb in dict2 having most overlap for each bb in dict1 (assuming thats the gt)
     1. throw out guesses with conf<threshold
@@ -200,7 +200,7 @@ def resolve_conflict(ious_over_thresh_copy,conflict,confidences):
     return ious_over_thresh_copy
 
 def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
-                                    dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'},
+                                    dict_format={'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'},
                                     iou_threshold=0.2,visual_output=True,all_results=None):
     '''
     takes gt and guess dicts and determines iou, n_images etc per class
@@ -266,7 +266,7 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
         all_results['n_images']+=1
     return(all_results)
 
-def display_dicts(img_arr,gts,guesses,dict_format = {'data':'data','bbox':'bbox','object':'object','confidence':'confidence'}):
+def display_dicts(img_arr,gts,guesses,dict_format = {'data':'data','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     if img_arr is None:
         print('got none for img_arr')
         return
@@ -430,7 +430,7 @@ def get_classes_in_dicts(detection_dicts,dict_format={'data':'data','object':'ob
     classes.sort()
     return classes
 
-def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox':'bbox','object':'object','confidence':'confidence'}):
+def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
 
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
