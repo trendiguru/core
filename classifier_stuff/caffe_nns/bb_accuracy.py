@@ -406,7 +406,7 @@ def test_multiple():
     #    print('guess length after thresh {}'.format(len(guess['data'])))
         stats = compare_bb_dicts_class_by_class(gt,guess,visual_output=True,all_results=stats)
 
-def get_classes_in_dict(dict,dict_format={'data':'data','object':'object'}):
+def get_classes_in_dict(dict,dict_format={'annotations':'annotations','object':'object'}):
     classes = []
 #    print('looking at : '+str(dict))
     annotations = dict[dict_format['data']]
@@ -416,7 +416,7 @@ def get_classes_in_dict(dict,dict_format={'data':'data','object':'object'}):
     classes.sort()
     return classes
 
-def get_classes_in_dicts(detection_dicts,dict_format={'data':'data','object':'object'}):
+def get_classes_in_dicts(detection_dicts,dict_format={'annotations':'annotations','object':'object'}):
     classes=[]
     for dict in detection_dicts:
         logging.debug('looking at dict:'+str(dict))
