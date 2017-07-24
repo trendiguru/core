@@ -460,6 +460,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             continue
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
         print('proposals b4n{}'.format(proposals))
+        if not 'data' in proposals:
+            print("something got f'ed up")
         propdata = proposals['data']
         imutils.x1y1x2y2_list_to_xywh(propdata)
         print('proposals aft\n{}'.format(proposals))
