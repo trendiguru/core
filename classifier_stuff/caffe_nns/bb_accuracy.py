@@ -222,10 +222,10 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
     for cl in classes:
         gts=[]
         guesses=[]
-        for annotation in gt_dict[dict_format['data']]:
+        for annotation in gt_dict[dict_format['annotations']]:
             if annotation[dict_format['object']]==cl:
                 gts.append(annotation)
-        for annotation in guess_dict[dict_format['data']]:
+        for annotation in guess_dict[dict_format['annotations']]:
             if annotation[dict_format['object']]==cl:
                 guesses.append(annotation)
         print('class {} gts {}\nguesses {}'.format(cl,gts,guesses))
