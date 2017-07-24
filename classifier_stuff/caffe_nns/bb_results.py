@@ -57,7 +57,7 @@ def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_H
     # {"confidence": 0.2606, "object": "car", "bbox": [0, 116, 571, 462]}, ... ]}
     if not 'data' in c:
         print('didnt get data in result from {} on sendng {}'.format(CLASSIFIER_ADDRESS,data))
-    return c
+    return eval(c) # c is a string, eval(c) is dict
 
 def detect_hls(img_arr, roi=[],CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS):
     print('using addr '+str(CLASSIFIER_ADDRESS))
