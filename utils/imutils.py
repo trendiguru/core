@@ -1901,10 +1901,6 @@ def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
             cv2.imshow('image',img_arr)
             cv2.waitKey(100)
 
-def x1y1x2y2_to_xywh(bb):
-    assert bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb)
-    assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
-    return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
 
 def x1y1x2y2_list_to_xywh(list_of_dicts,kw='bbox'):
     for d in list_of_dicts:
@@ -1914,7 +1910,14 @@ def x1y1x2y2_list_to_xywh(list_of_dicts,kw='bbox'):
             d[kw] = bb_xywh
         else:
             print('could not find {} in dict {}'.format(kw,d))
-    return list_of_dicts
+    return(list_of_dicts)
+
+
+def x1y1x2y2_to_xywh(bb):
+    assert bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb)
+    assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
+    return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
+
 
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
