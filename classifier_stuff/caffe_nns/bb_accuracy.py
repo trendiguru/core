@@ -462,6 +462,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         print('proposals b4n{}'.format(props))
         if not 'data' in props:
             print("something got f'ed up")
+        print('islist '.format(isinstance(props,basestring)))
+        print('isdict '.format(isinstance(props,dict)))
         propdata = props['data']
         imutils.x1y1x2y2_list_to_xywh(propdata)
         print('proposals aft\n{}'.format(proposals))
