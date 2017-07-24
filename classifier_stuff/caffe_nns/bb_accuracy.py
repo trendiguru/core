@@ -459,6 +459,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             logging.warning('label file {} not foind, continuing'.format(labelfile))
             continue
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file')
+        print('proposals\n{}'.format(proposals))
         proposals = imutils.x1y1x2y2_list_to_xywh(proposals['data'])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         print('results from api:\n{}'.format(proposals))
