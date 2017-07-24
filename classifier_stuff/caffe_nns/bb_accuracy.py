@@ -102,7 +102,7 @@ def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','ob
     n_detections = 0  #this includes matching detections both above and below threshold.
     detections_over_threshold = 0
     obj_kw = dict_format['object']
-    bb_kw = dict_format['bbox']
+    bb_kw = dict_format['bbox_xywh']
     conf_kw = dict_format['confidence']
 
 
