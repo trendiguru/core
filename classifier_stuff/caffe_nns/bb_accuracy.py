@@ -435,12 +435,12 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox'
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
-def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
-                            testdir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
+def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
+                            img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
                             confidence_threshold = 0.2):
     gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels.txt'
     proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labels.txt'
-    with open(trainfile,'r') as fp:
+    with open(imagelist,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
         n_tests = len(lines)
@@ -448,9 +448,9 @@ def get_results_and_analyze(trainfile='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
     stats=None
     for line in lines :
         imgfile = line.strip('\n')
-        if testdir is not None:
+        if img_dir is not None:
             img_base=os.path.basename(imgfile)
-            imgfile=os.path.join(testdir,img_base)
+            imgfile=os.path.join(img_dir,img_base)
         if not os.path.exists(imgfile):
             logging.warning('image file {} not found, continuing'.format(imgfile))
             continue
