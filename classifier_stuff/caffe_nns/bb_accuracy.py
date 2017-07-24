@@ -266,7 +266,7 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
         all_results['n_images']+=1
     return(all_results)
 
-def display_dicts(img_arr,gts,guesses,dict_format = {'data':'data','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
+def display_dicts(img_arr,gts,guesses,dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     if img_arr is None:
         print('got none for img_arr')
         return
@@ -351,7 +351,7 @@ def test_compare_bb_dicts():
 
 def test_multiple():
     thedir = '/home/jeremy/projects/core/images'
-    guess1={"data": [{"confidence": 0.1061, "object": "person", "bbox": [65, 77, 103, 132], "details": {"color": "green"}},
+    guess1={"annotations": [{"confidence": 0.1061, "object": "person", "bbox": [65, 77, 103, 132], "details": {"color": "green"}},
                      {"confidence": 0.1991, "object": "person", "bbox": [3, 89, 20, 143], "details": {"color": "green"}},
                      {"confidence": 0.228, "object": "person", "bbox": [9, 83, 33, 149], "details": {"color": "green"}},
                      {"confidence": 0.2978, "object": "person", "bbox": [59, 69, 99, 185], "details": {"color": "green"}},
@@ -364,17 +364,17 @@ def test_multiple():
                      {"confidence": 0.2848, "object": "person", "bbox": [200, 86, 499, 362], "details": {"color": "green"}},
                      {"confidence": 0.1348, "object": "person", "bbox": [320, 159, 499, 314], "details": {"color": "green"}},
                      {"confidence": 0.1701, "object": "person", "bbox": [69, 190, 238, 366], "details": {"color": "green"}}]}
-    gt1 = {'data': [{'bbox': [92, 10, 124, 364], 'object': 'person'}], 'dimensions_h_w_c': (375, 500, 3),
+    gt1 = {'annotations': [{'bbox': [92, 10, 124, 364], 'object': 'person'}], 'dimensions_h_w_c': (375, 500, 3),
 #           'filename': '/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/2011_004928.jpg'}
            'filename': os.path.join(thedir,'2011_004928.jpg')}
 
-    guess2={"data": [{"confidence": 0.2448, "object": "car", "bbox": [846, 552, (892-846), (597-552)], "details": {"color": "black"}},
+    guess2={"annotations": [{"confidence": 0.2448, "object": "car", "bbox": [846, 552, (892-846), (597-552)], "details": {"color": "black"}},
                      {"confidence": 0.266, "object": "car", "bbox": [927, 562, (963-927),(604-562)], "details": {"color": "black"}},
                      {"confidence": 0.2655, "object": "car", "bbox": [963, 560,(1008-963),(606-560)], "details": {"color": "black"}},
                      {"confidence": 0.4578, "object": "car", "bbox": [996, 560,(1057-996),(608-560)], "details": {"color": "black"}},
                      {"confidence": 0.1138, "object": "person", "bbox": [1305, 558,(1359-1305), 610], "details": {"color": "black"}},
                      {"confidence": 0.6018, "object": "car", "bbox": [1073, 535, (1278-1073), (683-535)], "details": {"color": "black"}}]}
-    gt2 = {'data': [{'bbox': [838, 533, 50, 68], 'object': 'truck'},
+    gt2 = {'annotations': [{'bbox': [838, 533, 50, 68], 'object': 'truck'},
                            {'bbox': [930, 563, 60, 57], 'object': 'car'},
                            {'bbox': [993, 560, 78, 56], 'object': 'car'},
                            {'bbox': [997, 565, 57, 39], 'object': 'car'},
@@ -383,13 +383,13 @@ def test_multiple():
 #           'filename': '/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/1478020901220540088.jpg'}
            'filename': os.path.join(thedir,'1478020901220540088.jpg')}
 
-    guess3 = {"data": [{"confidence": 0.7249, "object": "car", "bbox": [1146, 595, (1278-1146), (660-595)], "details": {"color": "gray"}},
+    guess3 = {"annotations": [{"confidence": 0.7249, "object": "car", "bbox": [1146, 595, (1278-1146), (660-595)], "details": {"color": "gray"}},
                        {"confidence": 0.1977, "object": "car", "bbox": [804, 625, (840-804), (654-625)], "details": {"color": "gray"}},
                        {"confidence": 0.6347, "object": "car", "bbox": [833, 618, (887-833), (664-618)], "details": {"color": "gray"}},
                        {"confidence": 0.3411, "object": "car", "bbox": [912, 622, (958-912), (658-622)], "details": {"color": "gray"}},
                        {"confidence": 0.7844, "object": "car", "bbox": [948, 612, (1044-948), (672-612)], "details": {"color": "gray"}},
                        {"confidence": 0.679, "object": "person", "bbox": [1415, 410,(1566-1415), (892-410)], "details": {"color": "gray"}}]}
-    gt3 = {'data': [{'bbox': [813, 611, 78, 62], 'object': 'car'},
+    gt3 = {'annotations': [{'bbox': [813, 611, 78, 62], 'object': 'car'},
                            {'bbox': [830, 620, 56, 45], 'object': 'car'},
                            {'bbox': [958, 607, 81, 81], 'object': 'car'},
                            {'bbox': [964, 613, 68, 63], 'object': 'car'},
@@ -402,7 +402,7 @@ def test_multiple():
     print('cwd '+str(os.getcwd()))
     for gt,guess in zip(gts,guesses):
      #   print('guess length before thresh {}'.format(len(guess['data'])))
-        guess['data'] = threshold_proposals_on_confidence(guess['data'],confidence_threshold=0.2)
+        guess['annotations'] = threshold_proposals_on_confidence(guess['annotations'],confidence_threshold=0.2)
     #    print('guess length after thresh {}'.format(len(guess['data'])))
         stats = compare_bb_dicts_class_by_class(gt,guess,visual_output=True,all_results=stats)
 
@@ -420,8 +420,8 @@ def get_classes_in_dicts(detection_dicts,dict_format={'annotations':'annotations
     classes=[]
     for dict in detection_dicts:
         logging.debug('looking at dict:'+str(dict))
-        if not dict_format['data'] in dict:
-            logging.warning('did not find annotations kw {} in detection {}'.format(dict_format['data'],dict))
+        if not dict_format['annotations'] in dict:
+            logging.warning('did not find annotations kw {} in detection {}'.format(dict_format['annotations'],dict))
             continue
         dict_classes = get_classes_in_dict(dict,dict_format=dict_format)
         for cl in dict_classes:
@@ -430,7 +430,7 @@ def get_classes_in_dicts(detection_dicts,dict_format={'annotations':'annotations
     classes.sort()
     return classes
 
-def mAP_and_iou(gt_detections,guess_detections,dict_format={'data':'data','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
+def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
 
     gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
     guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
