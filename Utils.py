@@ -777,7 +777,7 @@ def parent_dir(path):
 
 def replace_kw(obj,replace_this,with_this):
     '''
-    replace all occurences of replace_this in dict with with_this
+    replace all occurences of keyword replace_this in dict and sub-dicts thereof with with_this
     this can be done more simply with string replacement , see
     https://stackoverflow.com/questions/45253984/how-to-replace-all-instances-of-a-keyword-in-arbitrarily-structured-data/45254036#45254036
 
@@ -786,7 +786,7 @@ def replace_kw(obj,replace_this,with_this):
     :param with_this:
     :return:
     '''
-    print('object is '+str(obj))
+    logging.debug('object is '+str(obj))
     if isinstance(obj,dict):
         for k,v in obj.iteritems():
             if k==replace_this:

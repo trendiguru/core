@@ -1906,6 +1906,16 @@ def x1y1x2y2_to_xywh(bb):
     assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
     return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
 
+def x1y1x2y2_list_to_xywh(list_of_dicts,kw='bbox'):
+    for d in list_of_dicts:
+        if kw in d:
+            bb = d[kw]
+            bb_xywh = x1y1x2y2_to_xywh(bb)
+            d[kw] = bb_xywh
+        else:
+            print('could not find {} in dict {}'.format(kw,d))
+    return list_of_dicts
+
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
 
