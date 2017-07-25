@@ -112,7 +112,7 @@ def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','ob
     if len(gt_data) == 0 : #all guesses are fp
         return {'tp':0,'fp':len(guess_data),'fn':0,'iou_avg':0,'iou_accumulator':0,'n_ious':len(guess_data)}
     if len(guess_data) == 0 : #all gt are fn
-        return {'tp':0,'fp':0,'fn':len(gt_data),'iou_avg':0,'iou_accumulator':0,'n_ious':len(guess_data)}
+        return {'tp':0,'fp':0,'fn':len(gt_data),'iou_avg':0,'iou_accumulator':0,'n_ious':len(gt_data)}
 
 
 
@@ -249,9 +249,9 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
             all_results[cl]['tp']=all_results[cl]['tp']+results['tp']
             all_results[cl]['fp']=all_results[cl]['fp']+results['fp']
             all_results[cl]['fn']=all_results[cl]['fn']+results['fn']
-            all_results[cl]['iou_avg']=all_results[cl]['iou_avg']+results['iou_avg']
             all_results[cl]['iou_accumulator']=all_results[cl]['iou_accumulator']+results['iou_accumulator']
             all_results[cl]['n_ious']=all_results[cl]['n_ious']+results['n_ious']
+            all_results[cl]['iou_avg']=all_results[cl]['iou_accumulator']/all_results['n_ious']
         #update number of images per class
         at_least_one_gt = (results['tp']+results['fn'])>0
         if 'n_images_for_class' in all_results[cl]:
