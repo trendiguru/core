@@ -14,6 +14,7 @@ import cv2
 import os
 import sys
 import json
+import copy
 
 from trendi import constants
 from trendi.utils import imutils
@@ -116,7 +117,8 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
     save_path = '/data/jeremy/pyyolo/results/'
     if img_arr is None:
         print('got None img array!!')
-        None
+        return
+    img_original=copy.copy(img_arr)
     if len(img_arr.shape) == 2: #got 1-chan(gray) image
         print('got gray img')
         img_arr_bgr=np.zeros([img_arr.shape[0],img_arr.shape[1],3])
@@ -147,14 +149,21 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
         except:
             print('some trouble saving image,'+str(sys.exc_info()[0]))
     relevant_items = []
+
+###############
+#action is here
+###############
     print('getting results from get_pyyolo_results')
     yolo_results = get_local_pyyolo_results(img_arr)
     print('got results from get_pyyolo_results')
 
+    if resized:
+        img_arr = cv2.resize(img_arr,(original_size[1],original_size[0]))
+        print('de-resizing image')
     for item in yolo_results:
         print(item)
         if resized:
-            img_arr = cv2.resize(img_arr,(original_size[1],original_size[0]))
+            print('de-resizing bbs')
             item['bbox'][0]=int(item['bbox'][0]*reduction_factor)
             item['bbox'][1]=int(item['bbox'][1]*reduction_factor)
             item['bbox'][2]=int(item['bbox'][2]*reduction_factor)
@@ -169,9 +178,9 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
         assert ymin<ymax,'xmin not < xmax!!!'
 
         relevant_items.append(item)
+        imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
 
     if save_results:
-        imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
         json_name = img_path.replace('.jpg','.json')
         print('pyyolo bb image being writtten to '+str(marked_imgname))
