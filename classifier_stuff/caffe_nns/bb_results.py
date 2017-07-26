@@ -21,7 +21,8 @@ from trendi import Utils
 
 run_local_yolo=True
 if run_local_yolo:
-    print "Defense_falcon_yolo done with imports"
+    import pyyolo
+    print "bb_results done with imports"
     #run 14 aka v2
     datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
     cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
@@ -29,7 +30,6 @@ if run_local_yolo:
     darknet_path = '/data/jeremy/pyyolo_tg/pyyolo'
     thresh = 0.1
     hier_thresh = 0.5
-    import pyyolo
     new_pyyolo=True
     if new_pyyolo:
         pyyolo.init(darknet_path, datacfg, cfgfile, weightfile)
@@ -187,7 +187,7 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
     return relevant_items
 
 
-def get_local_pyyolo_results(self,img_arr, url='',classes=constants.hls_yolo_categories,method='file'):
+def get_local_pyyolo_results(img_arr, url='',classes=constants.hls_yolo_categories,method='file'):
     # from file
     relevant_bboxes = []
     if method == 'file':
