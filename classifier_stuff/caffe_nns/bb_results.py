@@ -187,7 +187,7 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
     return relevant_items
 
 
-def get_local_pyyolo_results(img_arr, url='',classes=constants.hls_yolo_categories,method='file'):
+def get_local_pyyolo_results(img_arr, url='', classes=constants.hls_yolo_categories, method='file'):
     # from file
     relevant_bboxes = []
     if method == 'file':
@@ -232,7 +232,7 @@ def get_local_pyyolo_results(img_arr, url='',classes=constants.hls_yolo_categori
         ymin = output['top']
         xmax = output['right']
         ymax = output['bottom']
-        conf = output['conf']
+        conf = output['prob']
         item = {'object':label,'bbox':[xmin,ymin,xmax,ymax],'confidence':round(conf,4)}
         h,w=img_arr.shape[0:2]
         frac = 5
