@@ -26,10 +26,15 @@ if run_local_yolo:
     datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
     cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
     weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
+    darknet_path = '/data/jeremy/pyyolo_tg/pyyolo'
     thresh = 0.1
     hier_thresh = 0.5
     import pyyolo
-    pyyolo.init(datacfg, cfgfile, weightfile)
+    new_pyyolo=True
+    if new_pyyolo:
+        pyyolo.init(darknet_path, datacfg, cfgfile, weightfile)
+    else:
+        pyyolo.init(datacfg, cfgfile, weightfile)
 
 
 # Containers must be on the same docker network for this to work (otherwise go backt o commented IP address
