@@ -46,7 +46,7 @@ weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
 #run 14 aka v2
 datacfg = '/data/jeremy/darknet/cfg/hls_v2.dat'
 cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
-weightfile = '/data/jeremy/darknet/v2/yolo_120000.weights'
+weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
 
 
 thresh = 0.1
