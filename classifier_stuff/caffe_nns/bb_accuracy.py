@@ -76,19 +76,17 @@ def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','ob
 
     case 4 - two different guesses have same IOU with same T and same confidence
 
-    :param dict1:ground truth list [{ 'object': 'bag', 'bbox': [454, 306, 512, 360]},...,]
+    :param dict1:ground truth list is a form like  [{ 'object': 'bag', 'bbox_xywh': [454, 306, 512, 360]},...,]
                 guess in same form but with confidence (gt can also have confidence 1.0)
             bbox here is xywh , aka x1 y1 w h , coords are 'regular' image coords
             (origin is top left, positive x goes right and pos y goes down)
-    :param dict2:guess in 'api form'
-    :param dict_format - this lets you use dicts in different formats, just substitute whatver term is used into the
+    :param dict2:guess in for as above but with addition of confidence
+    :param dict_format - this lets you use dicts in different formats, just substitute whatever term is used into the
     dict
-
-    e.g.         if the dict uses 'x_y_w_h' instead of 'bbox' and 'annotations' instead of 'data' and 'label'
-     instead
-     of 'object'
-    then dict_format = {'data':'annotations', 'bbox':'w_y_w_h','object:'label'}
-    :return:  n_true_positive, n_false_neg, n_false_pos, avg_iou
+    e.g.         if the dict uses 'bb' instead of 'bbox_xywh' and 'annotations' instead of 'data' and 'label'
+     instead  of 'object'   then
+     dict_format = {'data':'annotations', 'bbox_xywh':'bb','object:'label'}
+    :return:  n_true_positive, n_false_neg, n_false_pos, avg_iou, iou_accumulator (for calc of average after several runs)
     '''
 
     gt_data=gt_list
@@ -139,6 +137,7 @@ def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','ob
         logging.debug('conflict:'+str(conflict))
         ious_copy = resolve_conflict(ious_copy,conflict,confidences)
         conflict = detect_conflict(ious_copy)
+        ###NOTE TO SELF make sure that after resolving conflict that col, is still counted for false pos. eg if all its entries got zeroed
     logging.debug('no more conflict, iou {}'.format(ious_copy))
 
     #now keep only highest iou in given column to avoid multiple matches

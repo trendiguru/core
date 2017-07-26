@@ -33,12 +33,22 @@ print "Defense_falcon_yolo done with imports"
 #get yolo net and keep it in mem
 #datacfg = 'cfg/coco.data'
 #datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
+
+#'v1'
 datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
 #cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_544.cfg'
 cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_1088.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
 #cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
 #weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
 weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
+
+
+#run 14
+datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
+cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
+weightfile = '/data/jeremy/darknet/yolo_120000.weights'
+
+
 thresh = 0.1
 hier_thresh = 0.5
 pyyolo.init(datacfg, cfgfile, weightfile)

@@ -23,9 +23,10 @@ from trendi import Utils
 run_local_yolo=True
 if run_local_yolo:
     print "Defense_falcon_yolo done with imports"
-    datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
-    cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_1088.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
-    weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
+    #run 14
+    datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
+    cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
+    weightfile = '/data/jeremy/darknet/yolo_120000.weights'
     thresh = 0.1
     hier_thresh = 0.5
     pyyolo.init(datacfg, cfgfile, weightfile)
