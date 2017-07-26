@@ -34,6 +34,18 @@ print "Defense_falcon_yolo done with imports"
 #datacfg = 'cfg/coco.data'
 #datacfg = '/data/jeremy/pyyolo/darknet/cfg/coco.data'
 
+#run 14 aka v2
+datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
+cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
+weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
+
+#run 13
+datacfg = '/data/jeremy/darknet_orig/cfg/hls_v2.dat'
+cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
+weightfile = '/data/jeremy/darknet_orig/v2/yolo-voc_100000_run13.weights'
+
+
+
 #'v1'
 datacfg = '/data/jeremy/darknet_orig/cfg/hls.data'
 #cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_544.cfg'
@@ -41,20 +53,6 @@ cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc_1088.cfg' #higher res for smal
 #cfgfile = '/data/jeremy/pyyolo/darknet/cfg/tiny-yolo.cfg'
 #weightfile = '/data/jeremy/pyyolo/tiny-yolo.weights'
 weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
-
-
-#run 14 aka v2
-datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
-cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
-weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
-
-#run 13
-
-
-datacfg = '/data/jeremy/darknet_orig/cfg/hls_v2.dat'
-cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
-weightfile = '/data/jeremy/darknet_orig/v2/yolo-voc_100000_run13.weights'
-
 
 thresh = 0.1
 hier_thresh = 0.5
