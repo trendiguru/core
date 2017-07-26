@@ -462,7 +462,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         if img_arr is None:
             print('could not get img file '+str(imgfile))
             continue
-        proposals = bb_results.get_local_pyyolo_results(imgfile)
+        proposals = bb_results.get_local_pyyolo_results(img_arr)
         imutils.x1y1x2y2_list_to_xywh(proposals['data'])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         if gt is None:
