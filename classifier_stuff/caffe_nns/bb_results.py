@@ -19,13 +19,13 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 
-run_local_yolo=False
+run_local_yolo=True
 if run_local_yolo:
     print "Defense_falcon_yolo done with imports"
-    #run 14
+    #run 14 aka v2
     datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
     cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
-    weightfile = '/data/jeremy/darknet/yolo_120000.weights'
+    weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
     thresh = 0.1
     hier_thresh = 0.5
     import pyyolo
