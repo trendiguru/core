@@ -436,9 +436,9 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annot
 
 def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
                             img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
-                            confidence_threshold = 0.2):
-    gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels.json'
-    proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labels.json'
+                            confidence_threshold = 0.2,
+                            gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_run14.json',
+                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_run14.json' ):
     with open(imagelist,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
