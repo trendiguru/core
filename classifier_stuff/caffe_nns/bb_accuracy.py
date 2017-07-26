@@ -464,6 +464,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             print('could not get img file '+str(imgfile))
             continue
         proposals = bb_results.get_local_pyyolo_results(img_arr)
+        print('proposals:'+str(proposals))
         imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         if gt is None:
