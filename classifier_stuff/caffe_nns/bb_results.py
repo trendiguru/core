@@ -194,8 +194,10 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
         except:
             print('some trouble saving bb image or data:'+str(sys.exc_info()[0]))
 
-    print('detect yolo returning:'+str(relevant_items))
-    return relevant_items
+    output_like_api = {'annotations':relevant_items}
+    print('detect yolo returning:'+str(output_like_api))
+
+    return output_like_api
 
 
 def get_local_pyyolo_results(img_arr, url='', classes=constants.hls_yolo_categories, method='file'):
