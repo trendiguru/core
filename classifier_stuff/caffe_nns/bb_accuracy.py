@@ -250,7 +250,7 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
             all_results[cl]['fn']=all_results[cl]['fn']+results['fn']
             all_results[cl]['iou_accumulator']=all_results[cl]['iou_accumulator']+results['iou_accumulator']
             all_results[cl]['n_ious']=all_results[cl]['n_ious']+results['n_ious']
-            all_results[cl]['iou_avg']=all_results[cl]['iou_accumulator']/all_results['n_ious']
+            all_results[cl]['iou_avg']=all_results[cl]['iou_accumulator']/all_results[cl]['n_ious']
         #update number of images per class
         at_least_one_gt = (results['tp']+results['fn'])>0
         if 'n_images_for_class' in all_results[cl]:
