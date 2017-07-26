@@ -48,6 +48,13 @@ datacfg = '/data/jeremy/darknet/cfg/hls_v2.data'
 cfgfile = '/data/jeremy/darknet/cfg/yolo.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
 weightfile = '/data/jeremy/darknet/v2/yolo_120000_run14.weights'
 
+#run 13
+
+
+datacfg = '/data/jeremy/darknet_orig/cfg/hls_v2.dat'
+cfgfile = '/data/jeremy/darknet_orig/cfg/yolo-voc.2.0.cfg' #higher res for smaller objects, increase subdivisions *4 to preserve memoery
+weightfile = '/data/jeremy/darknet_orig/v2/yolo-voc_100000_run13.weights'
+
 
 thresh = 0.1
 hier_thresh = 0.5
