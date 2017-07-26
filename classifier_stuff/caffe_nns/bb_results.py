@@ -167,21 +167,23 @@ def local_yolo(img_arr, url='',classes=constants.hls_yolo_categories,save_result
         ymax=item['bbox'][3]
         assert xmin<xmax,'xmin not < xmax!!!'
         assert ymin<ymax,'xmin not < xmax!!!'
-##### TAKING OUT RELEVANT ITEMS ON ROYS SUGGESTION
+
+        relevant_items.append(item)
+
     if save_results:
         imutils.bb_with_text(img_arr,[xmin,ymin,(xmax-xmin),(ymax-ymin)],item['object'])
         marked_imgname = img_path.replace('.jpg','_bb_yolos.jpg')
         json_name = img_path.replace('.jpg','.json')
-        print('pyyolo bbs being writtten to '+str(marked_imgname))
+        print('pyyolo bb image being writtten to '+str(marked_imgname))
+        print('pyyolo bb data being writtten to '+str(json_name))
         try:
             with open(json_name,'w') as fp:
                 json.dump(yolo_results,fp,indent=4)
-          #  r=cv2.imwrite(marked_imgname,img_arr)
+            r=cv2.imwrite(marked_imgname,img_arr)
           #skip saving bb image to conserve space
-          #  print('write result '+str(r))
+            print('imgwrite result '+str(r))
         except:
-            print('some trouble saving bb image,'+str(sys.exc_info()[0]))
-        txtname=img_path.replace('.jpg','.txt')
+            print('some trouble saving bb image or data:'+str(sys.exc_info()[0]))
 
     print('detect yolo returning:'+str(relevant_items))
     return relevant_items
