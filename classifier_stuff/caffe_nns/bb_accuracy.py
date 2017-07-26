@@ -438,7 +438,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
                             img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
                             confidence_threshold = 0.2,
                             gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_run14.json',
-                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_run14.json' ):
+                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_run14.json',
+                            dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     with open(imagelist,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
@@ -463,7 +464,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             print('could not get img file '+str(imgfile))
             continue
         proposals = bb_results.get_local_pyyolo_results(img_arr)
-        imutils.x1y1x2y2_list_to_xywh(proposals['data'])
+        imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         if gt is None:
             print('got None gt for '+labelfile)
@@ -478,7 +479,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         with open(proposalsfile,'a') as fp2:
             json.dump(proposals,fp2, indent=4)
             fp2.close()
-        proposals['annotations'] = threshold_proposals_on_confidence(proposals['annotations'],confidence_threshold)
+        proposals[dict_format['annotations']] = threshold_proposals_on_confidence(proposals[dict_format['annotations']],confidence_threshold)
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
