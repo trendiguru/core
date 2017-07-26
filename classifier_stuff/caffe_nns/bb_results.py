@@ -7,7 +7,6 @@ import requests
 from trendi import constants
 logging.basicConfig(level=logging.INFO)
 import pandas as pd
-import pyyolo
 import hashlib
 import time
 import numpy as np
@@ -20,7 +19,7 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 
-run_local_yolo=True
+run_local_yolo=False
 if run_local_yolo:
     print "Defense_falcon_yolo done with imports"
     #run 14
@@ -29,6 +28,7 @@ if run_local_yolo:
     weightfile = '/data/jeremy/darknet/yolo_120000.weights'
     thresh = 0.1
     hier_thresh = 0.5
+    import pyyolo
     pyyolo.init(datacfg, cfgfile, weightfile)
 
 
