@@ -34,7 +34,7 @@ import cv2
 from trendi.utils import imutils
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
-# ssd_inception_v2_coco_11_06_2017
+MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
 # rfcn_resnet101_coco_11_06_2017
 # faster_rcnn_resnet101_coco_11_06_2017
 # faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017
