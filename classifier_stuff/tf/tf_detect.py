@@ -6,7 +6,9 @@ import os
 import sys
 os.chdir('/home/jeremy/sw/models/object_detection')
 print('cwd '+str(os.getcwd()))
-sys.path.append("..")
+#sys.path.append(".")
+#sys.path.append(str(os.getcwd()))
+#sys.path.append("..")
 sys.path.append('/home/jeremy/sw/models/')
 print sys.path
 
