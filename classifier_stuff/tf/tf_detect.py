@@ -119,12 +119,12 @@ with detection_graph.as_default():
           line_thickness=8)
       print('im shape '+str(image_np.shape))
 
-      savename =  os.path.basename(image_path)+'out.jpg'
+      savename =  os.path.basename(image_path).strip('.jpg')+MODEL_NAME+'out.jpg'
+      print('saving '+savename)
       cv2.imwrite(savename,image_np)
       visual_output=False
       if visual_output:
           plt.figure(figsize=IMAGE_SIZE)
           plt.imshow(image_np)
-          print('saving '+savename)
           plt.savefig(savename)
 
