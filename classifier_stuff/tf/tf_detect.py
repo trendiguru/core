@@ -48,7 +48,7 @@ PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 
-get_model=False
+get_model=True
 if get_model:
     opener = urllib.request.URLopener()
     opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
