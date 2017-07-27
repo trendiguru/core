@@ -117,7 +117,7 @@ with detection_graph.as_default():
           category_index,
           use_normalized_coordinates=True,
           line_thickness=8)
-      print('im shape '+image_np.shape)
+      print('im shape '+str(image_np.shape))
 
       savename =  os.path.basename(image_path)+'out.jpg'
       cv2.imwrite(savename,image_np)
