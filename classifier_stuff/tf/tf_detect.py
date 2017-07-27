@@ -29,7 +29,9 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from utils import label_map_util
 from utils import visualization_utils as vis_util
+import cv2
 
+from trendi.utils import imutils
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
 # ssd_inception_v2_coco_11_06_2017
@@ -115,9 +117,14 @@ with detection_graph.as_default():
           category_index,
           use_normalized_coordinates=True,
           line_thickness=8)
-      plt.figure(figsize=IMAGE_SIZE)
-      plt.imshow(image_np)
+      print('im shape '+image_np.shape)
+
       savename =  os.path.basename(image_path)+'out.jpg'
-      print('saving '+savename)
-      plt.savefig(savename)
+      cv2.imwrite(savename,image_np)
+      visual_output=False
+      if visual_output:
+          plt.figure(figsize=IMAGE_SIZE)
+          plt.imshow(image_np)
+          print('saving '+savename)
+          plt.savefig(savename)
 
