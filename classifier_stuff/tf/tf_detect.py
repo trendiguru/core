@@ -4,13 +4,15 @@ __author__ = 'jeremy'
 
 import os
 import sys
-os.chdir('/home/jeremy/sw/models/object_detection')
+tensordir = '/data/jeremy/tensorflow/models/object_detection'
+pardir = '/data/jeremy/tensorflow/models/'
+os.chdir(tensordir)
 print('cwd '+str(os.getcwd()))
+sys.path.append(pardir)
 #sys.path.append(".")
 #sys.path.append(str(os.getcwd()))
 #sys.path.append("..")
-sys.path.append('/home/jeremy/sw/models/')
-print sys.path
+#print sys.path
 
 import matplotlib
 import sys
@@ -30,6 +32,11 @@ from utils import visualization_utils as vis_util
 
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
+# ssd_inception_v2_coco_11_06_2017
+# rfcn_resnet101_coco_11_06_2017
+# faster_rcnn_resnet101_coco_11_06_2017
+# faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017
+
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
