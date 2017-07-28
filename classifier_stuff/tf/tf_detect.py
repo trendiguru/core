@@ -4,6 +4,7 @@ __author__ = 'jeremy'
 
 import os
 import sys
+import time
 tensordir = '/data/jeremy/tensorflow/models/object_detection'
 pardir = '/data/jeremy/tensorflow/models/'
 os.chdir(tensordir)
@@ -36,7 +37,7 @@ from trendi.utils import imutils
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
 MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
 MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'
-# faster_rcnn_resnet101_coco_11_06_2017
+MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'
 # faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017
 
 MODEL_FILE = MODEL_NAME + '.tar.gz'
@@ -57,6 +58,7 @@ if get_model:
       file_name = os.path.basename(file.name)
       if 'frozen_inference_graph.pb' in file_name:
         tar_file.extract(file, os.getcwd())
+        print('got model '+file)
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
@@ -65,7 +67,6 @@ with detection_graph.as_default():
     serialized_graph = fid.read()
     od_graph_def.ParseFromString(serialized_graph)
     tf.import_graph_def(od_graph_def, name='')
-
 label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
@@ -90,6 +91,7 @@ IMAGE_SIZE = (12, 8)
 with detection_graph.as_default():
   with tf.Session(graph=detection_graph) as sess:
     for image_path in TEST_IMAGE_PATHS:
+      start_time = time.time()
       image = Image.open(image_path)
       # the array based representation of the image will be used later in order to prepare the
       # result image with boxes and labels on it.
@@ -118,7 +120,7 @@ with detection_graph.as_default():
           use_normalized_coordinates=True,
           line_thickness=8)
       print('im shape '+str(image_np.shape))
-
+      print('elapsed time '+str(time.time-start_time))
       savename =  os.path.basename(image_path).strip('.jpg')+MODEL_NAME+'out.jpg'
       print('saving '+savename)
       cv2.imwrite(savename,image_np)
