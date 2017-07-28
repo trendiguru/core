@@ -189,8 +189,8 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       boxes_thresholded=[]
       scores_thresholded=[]
       classes_thresholded=[]
-      for i in range(len(boxes)):
-          if scores[i]<thresh:
+      for i in range(len(boxes[0])):
+          if scores[0][i]<thresh:
               continue
           else:
               boxes_thresholded.append(boxes[0][i][:])
