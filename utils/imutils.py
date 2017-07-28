@@ -1007,6 +1007,43 @@ def oversegment(img_arr):
     num_levels = 20
     cv2.SuperpixelSEEDS.createSuperpixelSEEDS(image_width, image_height, image_channels, num_superpixels, num_levels, use_prior = 2, histogram_bins=5, double_step = False)
 
+def pixlevel_to_bbs(mask,values=None):
+    params = cv2.SimpleBlobDetector_Params()
+
+    # Change thresholds
+    params.minThreshold = 0
+    params.maxThreshold = 1
+    params.ThresholdStep = 1
+
+    # Filter by Area.
+    params.filterByArea = False
+    params.minArea = 1500
+
+    # Filter by Circularity
+    params.filterByCircularity = False
+    params.minCircularity = 0.1
+
+    # Filter by Convexity
+    params.filterByConvexity = False
+    params.minConvexity = 0.87
+
+    # Filter by Inertia
+    params.filterByInertia = False
+    params.minInertiaRatio = 0.01
+
+
+    if len(mask.shape) ==3:
+        if values==None:
+            print('got 3 chan and no values so assuming its really 1 chan, taking first')
+            mask = mask[:,:,0]
+            values = np.unique(mask)
+    print('values:'+str(values))
+    for val in values:
+        thismask = np.where(mask==val,1,0)
+#        detector = cv2.SimpleBlobDetector()
+        detector = cv2.SimpleBlobDetector_create(params)
+        keypoints = detector.detect(mask)
+
 def defenestrate_labels(mask,kplist):
     matches = np.ones_like(mask)
     for i in range(0,len(kplist)):

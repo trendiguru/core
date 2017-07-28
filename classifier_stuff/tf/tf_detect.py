@@ -102,6 +102,10 @@ def do_detect():
               # the array based representation of the image will be used later in order to prepare the
               # result image with boxes and labels on it.
               image_np = load_image_into_numpy_array(image)
+
+              # new_x=int(image_np.shape[1]/factor)
+              # new_y=int(image_np.shape[0]/factor)
+              # image_np = cv2.resize(image_np,(new_x,newy))
               # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
               image_np_expanded = np.expand_dims(image_np, axis=0)
               image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -138,6 +142,7 @@ def do_detect():
 
 
 def analyze_image(image_path):
+  with tf.Session(graph=detection_graph) as sess:
       print('starting image analyse')
       start_time = time.time()
       image = Image.open(image_path)
