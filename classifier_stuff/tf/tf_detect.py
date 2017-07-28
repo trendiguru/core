@@ -180,7 +180,7 @@ def analyze_image(image_path):
 
 with detection_graph.as_default():
   gpu = True
-  gpu_n = 1
+  gpu_n = 0
   if gpu:
     with tf.device('/gpu:'+str(gpu_n)):
       print('using gpu')
