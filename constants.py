@@ -336,6 +336,10 @@ binary_caffemodels = [
 hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shirt','person_wearing_blue_shirt',
                        'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
 
+tfcc2tg_map = {'person':'person','bicycle':'bicycle','car':'car','motorcycle':'motorbike','bus':'bus','truck':'truck',
+               'backpack':'backpack','handbag':'bag','suitcase':'unattended_bag'}
+
+#aextras: boat, traffic light, stop sign,airplane, train
 
 kitti_to_hls_map = {'Pedestrian':'person', 'Truck':'truck', 'Car':'car', 'Cyclist':'person', 'DontCare':None,
                     'Misc':None, 'Van':'truck', 'Tram':'truck', 'Person_sitting':'person'}

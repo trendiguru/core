@@ -33,6 +33,7 @@ from utils import visualization_utils as vis_util
 import cv2
 
 from trendi.utils import imutils
+from trendi import constants
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
 MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
@@ -141,7 +142,7 @@ def do_detect():
                   plt.savefig(savename)
 
 
-def analyze_image(image_path):
+def analyze_image(image_path,label_conversion=constants.tfcc2tg_map):
   with tf.Session(graph=detection_graph) as sess:
       print('starting image analyse')
       start_time = time.time()
@@ -184,6 +185,9 @@ def analyze_image(image_path):
           plt.figure(figsize=IMAGE_SIZE)
           plt.imshow(image_np)
           plt.savefig(savename)
+      print('boxes '+str(boxes))
+      print('scores '+str(scores))
+      print('boxes '+str(boxes))
 
 
 with detection_graph.as_default():
