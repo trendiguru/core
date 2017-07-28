@@ -182,8 +182,9 @@ with detection_graph.as_default():
   gpu = True
   gpu_n = 0
   if gpu:
-    with tf.device('/gpu:'+str(gpu_n)):
-      print('using gpu')
+#    with tf.device('/gpu:'+str(gpu_n)):
+    with tf.device('/gpu:0'):
+      print('using gpu'+str(gpu_n))
       do_detect()
   else:
     do_detect()
