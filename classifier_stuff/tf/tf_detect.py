@@ -120,7 +120,7 @@ with detection_graph.as_default():
           use_normalized_coordinates=True,
           line_thickness=8)
       print('im shape '+str(image_np.shape))
-      print('elapsed time '+str(time.time-start_time))
+      print('elapsed time '+str(time.time()-start_time))
       savename =  os.path.basename(image_path).strip('.jpg')+MODEL_NAME+'out.jpg'
       print('saving '+savename)
       cv2.imwrite(savename,image_np)
