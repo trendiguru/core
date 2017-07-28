@@ -93,7 +93,9 @@ sess = None
 
 def do_detect():
       global sess
-      with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=True)) as sess:
+    #use the ConfigProto to determine if GPU is running
+#      with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=True)) as sess:
+      with tf.Session(graph=detection_graph)) as sess:
             for image_path in TEST_IMAGE_PATHS:
               start_time = time.time()
               image = Image.open(image_path)
@@ -181,10 +183,10 @@ def analyze_image(image_path):
 
 with detection_graph.as_default():
   gpu = True
-  gpu_n = 0
+  gpu_n = 1
   if gpu:
-#    with tf.device('/gpu:'+str(gpu_n)):
-    with tf.device('/gpu:0'):
+    with tf.device('/gpu:'+str(gpu_n)):
+#    with tf.device('/gpu:0'):
       print('using gpu'+str(gpu_n))
       do_detect()
   else:
