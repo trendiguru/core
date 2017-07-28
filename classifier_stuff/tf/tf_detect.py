@@ -89,8 +89,10 @@ TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(
 IMAGE_SIZE = (12, 8)
 
 
+sess = None
 
 def do_detect():
+      global sess
       with tf.Session(graph=detection_graph) as sess:
             for image_path in TEST_IMAGE_PATHS:
               start_time = time.time()
