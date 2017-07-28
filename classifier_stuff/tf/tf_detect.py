@@ -136,6 +136,7 @@ def do_detect():
 
 
 def analyze_image(image_path):
+      print('starting image analyse')
       start_time = time.time()
       image = Image.open(image_path)
       # the array based representation of the image will be used later in order to prepare the
@@ -156,6 +157,7 @@ def analyze_image(image_path):
           [boxes, scores, classes, num_detections],
           feed_dict={image_tensor: image_np_expanded})
       # Visualization of the results of a detection.
+      print('elapsed time '+str(time.time()-start_time))
       save_output = True
       if save_output:
           vis_util.visualize_boxes_and_labels_on_image_array(
@@ -167,7 +169,6 @@ def analyze_image(image_path):
               use_normalized_coordinates=True,
               line_thickness=8)
       print('im shape '+str(image_np.shape))
-      print('elapsed time '+str(time.time()-start_time))
       savename =  os.path.basename(image_path).strip('.jpg')+MODEL_NAME+'out.jpg'
       print('saving '+savename)
       cv2.imwrite(savename,image_np)
