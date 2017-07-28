@@ -194,10 +194,15 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
           if scores[0][i]<thresh:
               continue
           else:
-              boxes_thresholded.append(boxes[0][i][:])
-              scores_thresholded.append(scores[0][i])
+              score = scores[0][i]
+              scores_thresholded.append(score)
+              bbox_tf = boxes[0][i][:]
+              bb_x1y1x2y2 = imutils.tf_to_x1y1x2y2(bbox_tf,image.shape[0:2])
+              boxes_thresholded.append(bb_x1y1x2y2)
+              bbox_xywh = imutils.x1y1x2y2_to_xywh(bb_x1y1x2y2)
               classno=int(classes[0][i])
               classname = category_index[classno]['name']
+              imutils.bb_with_text(image_np,bbox_xywh,classname+str(score))
               if classname in label_conversion:
                   print('classno '+str(classname)+' convert to '+str(label_conversion[classname]))
                   class_names_thresholded.append(label_conversion[classname])
@@ -208,9 +213,12 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       print('scores '+str(scores_thresholded))
       print('classes '+str(class_names_thresholded))
       print('numdet '+str(num_detections))
+      #https://www.tensorflow.org/versions/r0.12/api_docs/python/image/working_with_bounding_boxes
+ #The coordinates of the each bounding box in boxes are encoded as [y_min, x_min, y_max, x_max]. The bounding box coordinates are floats in [0.0, 1.0] relative to the width and height of the underlying image.3
+
 
 with detection_graph.as_default():
-  gpu = True
+  gpu = False
   gpu_n = 1
   if gpu:
     with tf.device('/gpu:'+str(gpu_n)):

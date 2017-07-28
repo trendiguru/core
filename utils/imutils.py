@@ -1913,7 +1913,6 @@ def browse_images(dir,filter='.jpeg'):
         cv2.imshow('img',img_arr)
         cv2.waitKey(0)
 
-
 def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
     if isinstance(image,basestring):
 #        imgname = image.replace('https://','').replace('http://','').replace('/','_') #conver url to name
@@ -1938,7 +1937,6 @@ def one_person_per_image(image,save_dir='multiple_people',visual_output=False):
             cv2.imshow('image',img_arr)
             cv2.waitKey(100)
 
-
 def x1y1x2y2_list_to_xywh(list_of_dicts,kw='bbox'):
     for d in list_of_dicts:
         if kw in d:
@@ -1949,12 +1947,27 @@ def x1y1x2y2_list_to_xywh(list_of_dicts,kw='bbox'):
             print('could not find {} in dict {}'.format(kw,d))
     return(list_of_dicts)
 
-
 def x1y1x2y2_to_xywh(bb):
     assert bb[2]>bb[0],'bb not in format x1y1x2y2 {}'.format(bb)
     assert bb[3]>bb[1],'bb not in format x1y1x2y2 {}'.format(bb)
     return [bb[0],bb[1],bb[2]-bb[0],bb[3]-bb[1]]
 
+def tf_to_x1y1x2y2(bb_tf,image_dims_hxw):
+#https://www.tensorflow.org/versions/r0.12/api_docs/python/image/working_with_bounding_boxes
+#The coordinates of the each bounding box in boxes are encoded as [y_min, x_min, y_max, x_max].
+# The bounding box coordinates are floats in [0.0, 1.0] relative to the width and height of the underlying image.3
+#For example, if an image is 100 x 200 pixels and the bounding box is [0.1, 0.2, 0.5, 0.9], the bottom-left and
+# upper-right coordinates of the bounding box will be (10, 40) to (50, 180).
+#Parts of the bounding box may fall outside the image.
+    y_min_tf = bb_tf[0]*image_dims_hxw[0]
+    x_min_tf = bb_tf[0]*image_dims_hxw[1]
+    y_max_tf = bb_tf[0]*image_dims_hxw[2]
+    x_max_tf = bb_tf[0]*image_dims_hxw[3]
+#tf has origin at lower left , logically enough but annoying
+    y_max = image_dims_hxw[0]-y_min_tf
+    y_min = image_dims_hxw[0]-y_max_tf
+    bb=[int(x_min_tf),int(y_min),int(x_max_tf),int(y_max)]
+    return bb
 
 def xywh_to_x1y1x2y2(bb):
     return [bb[0],bb[1],bb[2]+bb[0],bb[3]+bb[1]]
