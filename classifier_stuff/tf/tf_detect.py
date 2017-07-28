@@ -49,7 +49,7 @@ PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 
-get_model=True
+get_model=False
 if get_model:
     opener = urllib.request.URLopener()
     opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
@@ -183,6 +183,7 @@ with detection_graph.as_default():
   gpu_n = 1
   if gpu:
     with tf.device('/gpu:'+str(gpu_n)):
+      print('using gpu')
       do_detect()
   else:
     do_detect()
