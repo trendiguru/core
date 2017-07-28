@@ -188,7 +188,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       print('box {} score {} class {}'.format(boxes.shape,scores.shape,classes.shape))
       boxes_thresholded=[]
       scores_thresholded=[]
-      classes_thresholded=[]
+      class_names_thresholded=[]
 
       for i in range(len(boxes[0])):
           if scores[0][i]<thresh:
@@ -196,14 +196,17 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
           else:
               boxes_thresholded.append(boxes[0][i][:])
               scores_thresholded.append(scores[0][i])
-              if classes[0][i] in label_conversion:
-                  print('class '+str(classes[0][i])+'convert to '+str(label_conversion[classes[0][i]]))
-                  classes_thresholded.append(label_conversion[classes[0][i]])
+              classno=int(classes[0][i])
+              classname = category_index[classno]['name']
+              if classname in label_conversion:
+                  print('classno '+str(classname)+' convert to '+str(label_conversion[classname]))
+                  class_names_thresholded.append(label_conversion[classname])
               else:
-                classes_thresholded.append(classes[0][i])
+                  #or throw out ....
+                class_names_thresholded.append(classname)
       print('boxes '+str(boxes_thresholded))
       print('scores '+str(scores_thresholded))
-      print('classes '+str(classes_thresholded))
+      print('classes '+str(class_names_thresholded))
       print('numdet '+str(num_detections))
 
 with detection_graph.as_default():
