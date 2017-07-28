@@ -142,7 +142,7 @@ def do_detect():
                   plt.savefig(savename)
 
 
-def analyze_image(image_path,label_conversion=constants.tfcc2tg_map):
+def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1):
   with tf.Session(graph=detection_graph) as sess:
       print('starting image analyse')
       start_time = time.time()
@@ -175,7 +175,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map):
               np.squeeze(scores),
               category_index,
               use_normalized_coordinates=True,
-              line_thickness=8)
+              line_thickness=1)
       print('im shape '+str(image_np.shape))
       savename =  os.path.basename(image_path).strip('.jpg')+MODEL_NAME+'out.jpg'
       print('saving '+savename)
@@ -185,10 +185,24 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map):
           plt.figure(figsize=IMAGE_SIZE)
           plt.imshow(image_np)
           plt.savefig(savename)
-      print('boxes '+str(boxes))
-      print('scores '+str(scores))
-      print('boxes '+str(boxes))
-
+      boxes_thresholded=[]
+      scores_thresholded=[]
+      classes_thresholded=[]
+      for i in range(len(boxes)):
+          if scores[i]<thresh:
+              continue
+          else:
+              boxes_thresholded.append(boxes[i])
+              scores_thresholded.append(scores[i])
+              if classes[i] in label_conversion:
+                  print('class '+str(classes[i])+'convert to '+str(label_conversion[classes[i]]))
+                  classes_thresholded.append(label_conversion[classes[i]])
+              else:
+                classes_thresholded.append(classes[i])
+      print('boxes '+str(boxes_thresholded))
+      print('scores '+str(scores_thresholded))
+      print('classes '+str(classes_thresholded))
+      print('numdet '+str(num_detections))
 
 with detection_graph.as_default():
   gpu = True
