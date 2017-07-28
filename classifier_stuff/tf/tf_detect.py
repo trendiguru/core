@@ -185,6 +185,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
           plt.figure(figsize=IMAGE_SIZE)
           plt.imshow(image_np)
           plt.savefig(savename)
+      print('box {} score {} class {}'.format(boxes.shape,scores.shape,classes.shape))
       boxes_thresholded=[]
       scores_thresholded=[]
       classes_thresholded=[]
