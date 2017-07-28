@@ -193,11 +193,11 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
           if scores[i]<thresh:
               continue
           else:
-              boxes_thresholded.append(boxes[i])
-              scores_thresholded.append(scores[i])
-              if classes[i] in label_conversion:
-                  print('class '+str(classes[i])+'convert to '+str(label_conversion[classes[i]]))
-                  classes_thresholded.append(label_conversion[classes[i]])
+              boxes_thresholded.append(boxes[0][i][:])
+              scores_thresholded.append(scores[0][i])
+              if classes[0][i] in label_conversion:
+                  print('class '+str(classes[0][i])+'convert to '+str(label_conversion[classes[0][i]]))
+                  classes_thresholded.append(label_conversion[classes[0][i]])
               else:
                 classes_thresholded.append(classes[i])
       print('boxes '+str(boxes_thresholded))
