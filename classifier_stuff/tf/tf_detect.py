@@ -58,7 +58,7 @@ if get_model:
       file_name = os.path.basename(file.name)
       if 'frozen_inference_graph.pb' in file_name:
         tar_file.extract(file, os.getcwd())
-        print('got model '+file)
+        print('got model '+file_name)
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
