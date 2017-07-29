@@ -1272,4 +1272,4 @@ FRCNN_CLASSIFIER_ADDRESS = "http://13.82.136.127:8084/hls" #allison
 YOLO_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8082/hls" #allison
 YOLO_HLS_TESTING_ADDRESS = "http://13.82.136.127:8092/hls" #allison , dont break the other one
 HYDRA_TG_CLASSIFIER_ADDRESS = "http://13.69.27.202:8090/hydra_tg"  #azure gpu-1 - as opposed to hydra_hls which is for the hls project
-TF_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8072/hls"
+TF_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8083/hls"

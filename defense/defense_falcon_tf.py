@@ -2,9 +2,9 @@ __author__ = 'jeremy'
 
 """
 run this like:
-gunicorn -b :8072 -w 1 -k gevent -n fervent_torvalds --timeout 120 trendi.defense.defense_falcon_tf:api
+gunicorn -b :8083 -w 1 -k gevent -n fervent_torvalds --timeout 120 trendi.defense.defense_falcon_tf:api
 assuming the docker was started with port 8072 specified e.g.
-nvidia-docker run -it -v /data:/data -p 8072:8072 --name fervent_torvalds eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
+nvidia-docker run -it -v /data:/data -p 8083:8083 --name fervent_torvalds eu.gcr.io/test-paper-doll/tg/base_all_machine_learning:2 sh -c 'git -C /usr/lib/python2.7/dist-packages/trendi pull && /bin/bash'
 """
 
 import falcon
@@ -97,7 +97,7 @@ class HLS_TF:
             #which net to use - pyyolo or shell yolo , default to pyyolo
             imgpath = '/data/jeremy/tensorflow/tmp.jpg'
             tmpfile = cv2.imwrite(imgpath,img_arr)
-            detected = tf_detect.analyze_image(imgpath)
+            detected = tf_detect.analyze_image(imgpath,thresh=0.1)
             print('detected:'+str(detected))
             if (r_x1, r_y1) != (0, 0):
                 for obj in detected:
