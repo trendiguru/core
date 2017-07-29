@@ -68,7 +68,7 @@ class HLS_TF:
                 print('db1')
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
-                if img_arr == None:
+                if img_arr is None:
                     print('got none for image array')
                     resp.data = serializer.dumps({"data": 'bad image at '+image_url})
                     resp.status = falcon.HTTP_200
