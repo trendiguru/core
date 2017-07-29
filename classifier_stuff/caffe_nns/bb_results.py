@@ -20,7 +20,7 @@ from trendi import constants
 from trendi.utils import imutils
 from trendi import Utils
 
-run_local_yolo=True
+run_local_yolo=False
 if run_local_yolo:
     import pyyolo
     print "bb_results done with imports"
