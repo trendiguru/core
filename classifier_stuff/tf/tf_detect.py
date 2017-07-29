@@ -31,15 +31,16 @@ from PIL import Image
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 import cv2
+import copy
 
 from trendi.utils import imutils
 from trendi import constants
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
-MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
-MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'
-MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'
-MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
+#MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
+#MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'
+#MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'
+#MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
 
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
@@ -150,6 +151,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       # the array based representation of the image will be used later in order to prepare the
       # result image with boxes and labels on it.
       image_np = load_image_into_numpy_array(image)
+      orig = copy.copy(image_np)
       # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
       image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -195,20 +197,26 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
               continue
           else:
               score = scores[0][i]
-              scores_thresholded.append(score)
               bbox_tf = boxes[0][i][:]
-              bb_x1y1x2y2 = imutils.tf_to_x1y1x2y2(bbox_tf,image.shape[0:2])
-              boxes_thresholded.append(bb_x1y1x2y2)
+              bb_x1y1x2y2 = imutils.tf_to_x1y1x2y2(bbox_tf,image_np.shape[0:2])
               bbox_xywh = imutils.x1y1x2y2_to_xywh(bb_x1y1x2y2)
               classno=int(classes[0][i])
               classname = category_index[classno]['name']
-              imutils.bb_with_text(image_np,bbox_xywh,classname+str(score))
               if classname in label_conversion:
+
+                  orig = imutils.bb_with_text(orig,bbox_xywh,classname+str(score))
+                  scores_thresholded.append(score)
+                  boxes_thresholded.append(bb_x1y1x2y2)
                   print('classno '+str(classname)+' convert to '+str(label_conversion[classname]))
+                  print('bbtf {} x1y1x2y2 {} xywh {} size {}'.format(bbox_tf,bb_x1y1x2y2,bbox_xywh,image.shape[0:2]))
                   class_names_thresholded.append(label_conversion[classname])
               else:
                   #or throw out ....
-                class_names_thresholded.append(classname)
+                pass
+#                class_names_thresholded.append(classname)
+      if visual_output:
+          cv2.imshow('ours',image_np)
+          cv2.waitKey(0)
       print('boxes '+str(boxes_thresholded))
       print('scores '+str(scores_thresholded))
       print('classes '+str(class_names_thresholded))

@@ -1960,10 +1960,11 @@ def tf_to_x1y1x2y2(bb_tf,image_dims_hxw):
 # upper-right coordinates of the bounding box will be (10, 40) to (50, 180).
 #Parts of the bounding box may fall outside the image.
     y_min_tf = bb_tf[0]*image_dims_hxw[0]
-    x_min_tf = bb_tf[0]*image_dims_hxw[1]
-    y_max_tf = bb_tf[0]*image_dims_hxw[2]
-    x_max_tf = bb_tf[0]*image_dims_hxw[3]
+    x_min_tf = bb_tf[1]*image_dims_hxw[1]
+    y_max_tf = bb_tf[2]*image_dims_hxw[0]
+    x_max_tf = bb_tf[3]*image_dims_hxw[1]
 #tf has origin at lower left , logically enough but annoying
+#so x directoin unchanged, y direction inverted
     y_max = image_dims_hxw[0]-y_min_tf
     y_min = image_dims_hxw[0]-y_max_tf
     bb=[int(x_min_tf),int(y_min),int(x_max_tf),int(y_max)]
