@@ -464,7 +464,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             print('could not get img file '+str(imgfile))
             continue
 
-        proposals = bb_results.bb_output_yolo_using_api(img_arr,CLASSIFIER_ADDRESS=constants.TF_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file'):
+        proposals = bb_results.bb_output_yolo_using_api(img_arr,CLASSIFIER_ADDRESS=constants.TF_HLS_CLASSIFIER_ADDRESS)
 #        proposals = bb_results.local_yolo(img_arr)
         print('proposals:'+str(proposals))
         proposals = Utils.replace_kw(proposals,'data','annotations')
