@@ -463,16 +463,18 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         if img_arr is None:
             print('could not get img file '+str(imgfile))
             continue
-        proposals = bb_results.local_yolo(img_arr)
+
+        proposals = bb_results.bb_output_yolo_using_api(img_arr,CLASSIFIER_ADDRESS=constants.TF_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file'):
+#        proposals = bb_results.local_yolo(img_arr)
         print('proposals:'+str(proposals))
+        proposals = Utils.replace_kw(proposals,'data','annotations')
+        proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
         if gt is None:
             print('got None gt for '+labelfile)
             continue
         print('results from api:\n{}'.format(proposals))
-        proposals = Utils.replace_kw(proposals,'data','annotations')
-        proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         print('ground truth:\n{}'.format(gt))
         with open(gtfile,'a') as fp1:
             json.dump(gt,fp1, indent=4)
