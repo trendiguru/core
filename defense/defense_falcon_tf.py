@@ -65,6 +65,7 @@ class HLS_TF:
             hier_thresh = float(loc_hier_thresh)
         elif image_url:
             try:
+                print('db1')
                 response = requests.get(image_url)
                 img_arr = cv2.imdecode(np.asarray(bytearray(response.content)), 1)
                 if img_arr == None:
@@ -88,12 +89,14 @@ class HLS_TF:
             print('get request to hls tf:' + str(req) + ' is missing both imageUrl and image param')
             raise falcon.HTTPMissingParam("imageUrl,image")
         try:
+            print('db2')
             if r_x1 or r_x2 or r_y1 or r_y2:
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                 print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 2:(", traceback.format_exc())
         try:
+            print('db3')
             #which net to use - pyyolo or shell yolo , default to pyyolo
             imgpath = '/data/jeremy/tensorflow/tmp.jpg'
             tmpfile = cv2.imwrite(imgpath,img_arr)
@@ -109,6 +112,7 @@ class HLS_TF:
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
         try:
+            print('db4')
             resp.data = serializer.dumps({"data": detected})
             resp.status = falcon.HTTP_200
         except:
