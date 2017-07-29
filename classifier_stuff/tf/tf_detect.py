@@ -227,7 +227,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.5
                   #or throw out ....
                 pass
 #                class_names_thresholded.append(classname)
-      visual_output=True
+      visual_output=False
       if visual_output:
           cv2.imshow('ours',bgr_img)
           cv2.waitKey(0)
