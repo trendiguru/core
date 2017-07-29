@@ -56,7 +56,7 @@ def bb_output_using_gunicorn(url_or_np_array):
     return multilabel_output #
 
 def bb_output_yolo_using_api(url_or_np_array,CLASSIFIER_ADDRESS=constants.YOLO_HLS_CLASSIFIER_ADDRESS,roi=None,get_or_post='GET',query='file'):
-    logging.debug('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS) +' using {}'=str(query))
+    logging.debug('starting bb_output_api at addr '+str(CLASSIFIER_ADDRESS) +' using {}'+str(query))
 #    CLASSIFIER_ADDRESS =   # "http://13.82.136.127:8082/hls"
     if isinstance(url_or_np_array,basestring): #got a url (use query= 'imageUrl') or filename, use query='file' )
         data = {query: url_or_np_array}
