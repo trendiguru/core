@@ -1959,15 +1959,17 @@ def tf_to_x1y1x2y2(bb_tf,image_dims_hxw):
 #For example, if an image is 100 x 200 pixels and the bounding box is [0.1, 0.2, 0.5, 0.9], the bottom-left and
 # upper-right coordinates of the bounding box will be (10, 40) to (50, 180).
 #Parts of the bounding box may fall outside the image.
+    print('image dims {}'.format(image_dims_hxw))
     y_min_tf = bb_tf[0]*image_dims_hxw[0]
     x_min_tf = bb_tf[1]*image_dims_hxw[1]
     y_max_tf = bb_tf[2]*image_dims_hxw[0]
     x_max_tf = bb_tf[3]*image_dims_hxw[1]
-#tf has origin at lower left , logically enough but annoying
-#so x directoin unchanged, y direction inverted
-    y_max = image_dims_hxw[0]-y_min_tf
-    y_min = image_dims_hxw[0]-y_max_tf
-    bb=[int(x_min_tf),int(y_min),int(x_max_tf),int(y_max)]
+
+    print('ymintf {} xmintf {} ymaxtf {} xmaxtf {}'.format(y_min_tf,x_min_tf,y_max_tf,x_max_tf))
+    # y_max = image_dims_hxw[0]-y_min_tf
+    # y_min = image_dims_hxw[0]-y_max_tf
+#    print('ymin {} ymax {} '.format(y_min,y_max))
+    bb=[int(x_min_tf),int(y_min_tf),int(x_max_tf),int(y_max_tf)]
     return bb
 
 def xywh_to_x1y1x2y2(bb):
@@ -2054,9 +2056,8 @@ def yolo_to_xywh(bb_yolo,image_dims_HxW):  #should change this to HxW and all ca
     logging.debug('in {} dims {} out(xywh) {} {} {} {}'.format(bb_yolo,image_dims_HxW,x,y,w,h))
     return([int(x),int(y),int(w),int(h)])
 
-def bb_with_text(img_arr,bb_xywh,text,boxcolor=None):
-    if boxcolor is None:
-        boxcolor = [50,255,50]
+def bb_with_text(img_arr,bb_xywh,text,boxcolor=[50,255,50]):
+    print('bb into bbtext:{}'.format(bb_xywh))
     text_color=[0,50,255]
     text_bgnd_color=[220,255,180]
     cv2.rectangle(img_arr,(bb_xywh[0],bb_xywh[1]),(bb_xywh[0]+bb_xywh[2],bb_xywh[1]+bb_xywh[3]),color=boxcolor,thickness=2)

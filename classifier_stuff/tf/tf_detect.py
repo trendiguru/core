@@ -36,6 +36,7 @@ import copy
 from trendi.utils import imutils
 from trendi import constants
 
+
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
 #MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
 #MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'
@@ -143,7 +144,7 @@ def do_detect():
                   plt.savefig(savename)
 
 
-def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1):
+def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.5):
   with tf.Session(graph=detection_graph) as sess:
       print('starting image analyse')
       start_time = time.time()
@@ -151,7 +152,15 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       # the array based representation of the image will be used later in order to prepare the
       # result image with boxes and labels on it.
       image_np = load_image_into_numpy_array(image)
-      orig = copy.copy(image_np)
+      bgr_img = copy.deepcopy(image_np)
+      print('origshape {}'.format(bgr_img.shape))
+#      bgr_img  = bgr_img[...,::-1]
+#      cv2.imshow('orig',orig)
+#      cv2.waitKey(0)
+   #   orig  = orig[...,[2,1,0]])
+   #   orig  = np.array(orig[...,[2,1,0]]) #or [...,::-1]
+      bgr_img = cv2.cvtColor(bgr_img,cv2.COLOR_RGB2BGR)
+      print('origshape {}'.format(bgr_img.shape))
       # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
       image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -191,7 +200,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       boxes_thresholded=[]
       scores_thresholded=[]
       class_names_thresholded=[]
-
+      relevant_boxes = []
       for i in range(len(boxes[0])):
           if scores[0][i]<thresh:
               continue
@@ -203,19 +212,24 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
               classno=int(classes[0][i])
               classname = category_index[classno]['name']
               if classname in label_conversion:
-
-                  orig = imutils.bb_with_text(orig,bbox_xywh,classname+str(score))
+                  bgr_img = imutils.bb_with_text(bgr_img,bbox_xywh,classname+str(score))
                   scores_thresholded.append(score)
                   boxes_thresholded.append(bb_x1y1x2y2)
                   print('classno '+str(classname)+' convert to '+str(label_conversion[classname]))
-                  print('bbtf {} x1y1x2y2 {} xywh {} size {}'.format(bbox_tf,bb_x1y1x2y2,bbox_xywh,image.shape[0:2]))
+                  print('bbtf {} x1y1x2y2 {} xywh {} size {}'.format(bbox_tf,bb_x1y1x2y2,bbox_xywh,image_np.shape[0:2]))
                   class_names_thresholded.append(label_conversion[classname])
+                  item = {'object':classname,'bbox':bb_x1y1x2y2,
+                          'confidence':round(float(score),3)}
+                  relevant_boxes.append(item)
+
+
               else:
                   #or throw out ....
                 pass
 #                class_names_thresholded.append(classname)
+      visual_output=True
       if visual_output:
-          cv2.imshow('ours',image_np)
+          cv2.imshow('ours',bgr_img)
           cv2.waitKey(0)
       print('boxes '+str(boxes_thresholded))
       print('scores '+str(scores_thresholded))
@@ -223,7 +237,7 @@ def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.1
       print('numdet '+str(num_detections))
       #https://www.tensorflow.org/versions/r0.12/api_docs/python/image/working_with_bounding_boxes
  #The coordinates of the each bounding box in boxes are encoded as [y_min, x_min, y_max, x_max]. The bounding box coordinates are floats in [0.0, 1.0] relative to the width and height of the underlying image.3
-
+      return(relevant_boxes)
 
 with detection_graph.as_default():
   gpu = False

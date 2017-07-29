@@ -56,6 +56,7 @@ weightfile = '/data/jeremy/darknet_orig/bb_hls1/yolo-voc_544_95000.weights'
 
 thresh = 0.1
 hier_thresh = 0.5
+
 pyyolo.init(datacfg, cfgfile, weightfile)
 
 

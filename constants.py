@@ -337,7 +337,8 @@ hls_yolo_categories = [ 'person','hat','backpack','bag','person_wearing_red_shir
                        'car','bus','truck','unattended_bag', 'bicycle',  'motorbike']
 
 tfcc2tg_map = {'person':'person','bicycle':'bicycle','car':'car','motorcycle':'motorbike','bus':'bus','truck':'truck',
-               'backpack':'backpack','handbag':'bag','suitcase':'unattended_bag'}
+               'backpack':'backpack','handbag':'bag','suitcase':'unattended_bag',
+               'airplane':'airplane','boat':'boat','tv':'tv','train':'train'}
 
 #aextras: boat, traffic light, stop sign,airplane, train
 
