@@ -11,6 +11,7 @@ import copy
 import pandas as pd
 import os
 import json
+import time
 
 from trendi import constants
 from trendi import Utils
@@ -437,8 +438,8 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annot
 def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
                             img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
                             confidence_threshold = 0.2,
-                            gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_tf1.json',
-                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_tf1.json',
+                            gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_tf3.json',
+                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_tf3.json',
                             dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     with open(imagelist,'r') as fp:
         lines = fp.readlines()
@@ -446,6 +447,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         n_tests = len(lines)
     lines=lines[0:n_tests]
     stats=None
+    start_time=time.time()
     for line in lines :
         imgfile = line.strip('\n')
         if img_dir is not None:
@@ -484,6 +486,11 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             fp2.close()
         proposals[dict_format['annotations']] = threshold_proposals_on_confidence(proposals[dict_format['annotations']],confidence_threshold)
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
+    elapsed=time.time()-start_time
+    print('elapsed {} tpi {}'.format(elapsed,elapsed/len(lines)))
+    with open(proposalsfile,'a') as fp2:
+        json.dump({'elapsed':elapsed,'tpi':elapsed/len(lines)},fp2, indent=4)
+        fp2.close()
 
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
