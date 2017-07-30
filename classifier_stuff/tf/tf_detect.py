@@ -37,11 +37,11 @@ from trendi.utils import imutils
 from trendi import constants
 
 
-MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
-#MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'
-MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'  #tf3
-#MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'  #tf1
-#MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
+MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
+#MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
+# = 'rfcn_resnet101_coco_11_06_2017'  #tf3
+MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'  #tf4
+#MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017' #tf5
 
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
