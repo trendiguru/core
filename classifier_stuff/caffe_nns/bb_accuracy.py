@@ -1,3 +1,12 @@
+'''
+    utility functions for mAP, roi, etc for detections (bounding box data).
+    Detections are dicts are in the form
+        {'annotations':[{ 'object': 'bag', 'bbox_xywh': [454, 306, 512, 360],'confidence':0.9},
+                        { 'object': 'car', 'bbox_xywh': [100, 200, 300, 400],'confidence':0.8},...]
+        'filename':'/path/to/file.jpg','dimensions_h_w_c': (375, 500, 3)}
+    unless specified otherwise in dict_format arguments, which allow the keywords to be changed.
+    To build these dicts call something like get_results_and_analyze or use a function from bb_results
+'''
 __author__ = 'jeremy'
 
 import msgpack
@@ -208,6 +217,9 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
     for gt,guess in zip(gts,guesses):
         stats = compare_bb_dicts_class_by_class(gt,guess,visual_output=True,all_results=stats)
 
+    dicts are in form
+        {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}
+    unless specified otherwqise in dict_format
     :param gt_dict: ground truths dictionary for a given image
     :param guess_dict: guesses for the same image
     :param dict_format:
@@ -492,6 +504,42 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         json.dump({'elapsed':elapsed,'tpi':elapsed/len(lines)},fp2, indent=4)
         fp2.close()
 
+def match_gts_and_proposals(gt_json,proposals_json):
+    if not os.path.exists(gt_json):
+        print('could not find results file '+str(gt_json))
+        return None
+    if not os.path.exists(proposals_json):
+        print('could not find results file '+str(proposals_json))
+        return None
+    with open(gt_json,'r') as fpgt:
+        gts = json.load(fpgt)
+        with open(proposals_json,'r') as fpproposals:
+            proposals = json.load(fpgt)
+            for gt in gts:
+                got_match = False
+                for proposal in proposals:
+                    print('gt: {}'.format(gt))
+                    print('prop: {}'.format(proposal))
+                    if gt['filename'] == proposal['filename']:
+                        if got_match :
+                            continue
+                    raw_input('ret to cont')
+                if not got_match:
+                    print('didnt get match for '+gt['filename'])
+
+
+def precision_accuracy_recall_from_json(gt_json,proposals_json,threshold):
+    '''
+    given jsons of ground-truth bbox annotations (in form
+    :param gt_json:
+    :param proposals_json:
+    :param threshold:
+    :return:
+    '''
+    #get list of (gt,proposal) for set of images
+    #where
+    matched = match_gts_and_proposals(gt_json,proposals_json)
+
 def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
     caffe.set_mode_gpu()
@@ -621,4 +669,9 @@ def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=10
 if __name__ == " __main__":
     print('main')
 #    test_compare_bb_dicts()
-    test_multiple()
+
+    gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_tf4.json',
+    proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_tf4.json',
+    threshold = 0.1
+    precision_accuracy_recall_from_json(gtfile,proposalsfile,threshold)
+

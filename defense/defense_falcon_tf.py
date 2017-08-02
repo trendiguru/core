@@ -91,6 +91,7 @@ class HLS_TF:
         try:
             print('db2')
             if r_x1 or r_x2 or r_y1 or r_y2:
+                print('cropping image')
                 img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
                 print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
         except:
@@ -103,6 +104,7 @@ class HLS_TF:
             detected = tf_detect.analyze_image(imgpath,thresh=0.1)
             print('detected:'+str(detected))
             if (r_x1, r_y1) != (0, 0):
+                print('moving bbs due to crop')
                 for obj in detected:
                     try:
                         x1, y1, x2, y2 = obj["bbox"]
