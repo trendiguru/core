@@ -450,8 +450,8 @@ def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annot
 def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
                             img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
                             confidence_threshold = 0.2,
-                            gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_tf4.json',
-                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_tf4.json',
+                            gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_results_tf4.json',
+                            proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_results_tf4.json',
                             dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
     with open(imagelist,'r') as fp:
         lines = fp.readlines()
@@ -460,6 +460,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
     lines=lines[0:n_tests]
     stats=None
     start_time=time.time()
+    all_gts=[]
+    all_proposals=[]
     for line in lines :
         imgfile = line.strip('\n')
         if img_dir is not None:
@@ -485,23 +487,24 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
+        all_gts.append(gt)
         if gt is None:
             print('got None gt for '+labelfile)
             continue
         print('results from api:\n{}'.format(proposals))
         print('ground truth:\n{}'.format(gt))
-        with open(gtfile,'a') as fp1:
-            json.dump(gt,fp1, indent=4)
-            fp1.close()
-        with open(proposalsfile,'a') as fp2:
-            json.dump(proposals,fp2, indent=4)
-            fp2.close()
         proposals[dict_format['annotations']] = threshold_proposals_on_confidence(proposals[dict_format['annotations']],confidence_threshold)
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
+
     elapsed=time.time()-start_time
     print('elapsed {} tpi {}'.format(elapsed,elapsed/len(lines)))
+    all_proposals.append({'elapsed':elapsed,'tpi':elapsed/len(lines)})
+
+    with open(gtfile,'a') as fp1:
+        json.dump(all_gts,fp1, indent=4)
+        fp1.close()
     with open(proposalsfile,'a') as fp2:
-        json.dump({'elapsed':elapsed,'tpi':elapsed/len(lines)},fp2, indent=4)
+        json.dump(all_proposals,fp2, indent=4)
         fp2.close()
 
 def match_gts_and_proposals(gt_json,proposals_json):
@@ -509,8 +512,11 @@ def match_gts_and_proposals(gt_json,proposals_json):
     Detections and proposals are dicts are in the form
         {'annotations':[{ 'object': 'bag', 'bbox_xywh': [454, 306, 512, 360],'confidence':0.9},
                         { 'object': 'car', 'bbox_xywh': [100, 200, 300, 400],'confidence':0.8},...]
-        'filename':'/path/to/file.jpg','dimensions_h_w_c': (375, 500, 3)}
+        'filename':'/path/to/file.jpg'}
+
         The jsons should have lists of such dicts, gt's generally without confidences (doesnt hurt if they are there)
+        The dicts can have different keywords as long as basic structure is same, extra fields are ok
+        The filename is used to match a given proposal to given gt
 
     :param gt_json:
     :param proposals_json:
@@ -524,17 +530,18 @@ def match_gts_and_proposals(gt_json,proposals_json):
         return None
     with open(gt_json,'r') as fpgt:
         gts = json.load(fpgt)
-        with open(proposals_json,'r') as fpproposals:
-            proposals = json.load(fpgt)
+        with open(proposals_json,'r') as fpprop:
+            proposals = json.load(fpprop)
             for gt in gts:
                 got_match = False
                 for proposal_annotation in proposals:
                     print('gt: {}'.format(gt))
                     print('prop: {}'.format(proposal_annotation))
-                    if gt['filename'] == proposals_annotation['filename']:
-                        if got_match :
-                            continue
                     raw_input('ret to cont')
+                    if gt['filename'] == proposal_annotation['filename']:
+                        got_match = True
+                        print('got match ')
+                        break
                 if not got_match:
                     print('didnt get match for '+gt['filename'])
 
@@ -684,5 +691,6 @@ if __name__ == " __main__":
     gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_labels_tf4.json',
     proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_labelsP_tf4.json',
     threshold = 0.1
-    precision_accuracy_recall_from_json(gtfile,proposalsfile,threshold)
+    #precision_accuracy_recall_from_json(gtfile,proposalsfile,threshold)
+    match_gts_and_proposals(gtfile,proposalsfile)
 
