@@ -452,7 +452,8 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
                             confidence_threshold = 0.2,
                             gtfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_gt_results_tf4.json',
                             proposalsfile = '/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_proposal_results_tf4.json',
-                            dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
+                            dict_format = {'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object',
+                                           'confidence':'confidence','filename':'filename'}):
     with open(imagelist,'r') as fp:
         lines = fp.readlines()
     if n_tests>len(lines):
@@ -462,7 +463,7 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
     start_time=time.time()
     all_gts=[]
     all_proposals=[]
-    for line in lines :
+    for line in lines:
         imgfile = line.strip('\n')
         if img_dir is not None:
             img_base=os.path.basename(imgfile)
@@ -487,14 +488,16 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
         gt = read_various_training_formats.yolo_to_tgdict(labelfile)
-        all_gts.append(gt)
         if gt is None:
             print('got None gt for '+labelfile)
             continue
         print('results from api:\n{}'.format(proposals))
         print('ground truth:\n{}'.format(gt))
         proposals[dict_format['annotations']] = threshold_proposals_on_confidence(proposals[dict_format['annotations']],confidence_threshold)
+        proposals[dict_format['filename']] = imgfile
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
+        all_gts.append(gt)
+        all_proposals.append(proposals)
 
     elapsed=time.time()-start_time
     print('elapsed {} tpi {}'.format(elapsed,elapsed/len(lines)))
