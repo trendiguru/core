@@ -483,7 +483,6 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
 
         proposals = bb_results.bb_output_yolo_using_api(imgfile,CLASSIFIER_ADDRESS=constants.TF_HLS_CLASSIFIER_ADDRESS,query='file')
 #        proposals = bb_results.local_yolo(img_arr)
-        print('proposals:'+str(proposals))
         proposals = Utils.replace_kw(proposals,'data','annotations')
         proposals = Utils.replace_kw(proposals,'bbox','bbox_xywh')
         imutils.x1y1x2y2_list_to_xywh(proposals[dict_format['annotations']])
@@ -492,10 +491,12 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
             print('got None gt for '+labelfile)
             continue
         print('results from api:\n{}'.format(proposals))
-        print('ground truth:\n{}'.format(gt))
         proposals[dict_format['annotations']] = threshold_proposals_on_confidence(proposals[dict_format['annotations']],confidence_threshold)
         proposals[dict_format['filename']] = imgfile
         stats = compare_bb_dicts_class_by_class(gt,proposals,visual_output=False,all_results=stats)
+
+        print('ground truth:\n{}'.format(gt))
+        print('proposals:'+str(proposals))
         all_gts.append(gt)
         all_proposals.append(proposals)
 
