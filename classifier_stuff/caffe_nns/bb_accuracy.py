@@ -505,6 +505,17 @@ def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_sh
         fp2.close()
 
 def match_gts_and_proposals(gt_json,proposals_json):
+    '''
+    Detections and proposals are dicts are in the form
+        {'annotations':[{ 'object': 'bag', 'bbox_xywh': [454, 306, 512, 360],'confidence':0.9},
+                        { 'object': 'car', 'bbox_xywh': [100, 200, 300, 400],'confidence':0.8},...]
+        'filename':'/path/to/file.jpg','dimensions_h_w_c': (375, 500, 3)}
+        The jsons should have lists of such dicts, gt's generally without confidences (doesnt hurt if they are there)
+
+    :param gt_json:
+    :param proposals_json:
+    :return:
+    '''
     if not os.path.exists(gt_json):
         print('could not find results file '+str(gt_json))
         return None
@@ -517,10 +528,10 @@ def match_gts_and_proposals(gt_json,proposals_json):
             proposals = json.load(fpgt)
             for gt in gts:
                 got_match = False
-                for proposal in proposals:
+                for proposal_annotation in proposals:
                     print('gt: {}'.format(gt))
-                    print('prop: {}'.format(proposal))
-                    if gt['filename'] == proposal['filename']:
+                    print('prop: {}'.format(proposal_annotation))
+                    if gt['filename'] == proposals_annotation['filename']:
                         if got_match :
                             continue
                     raw_input('ret to cont')

@@ -354,6 +354,17 @@ vietnam_to_hls_map = {'Person':'person','Person with hat':'hat','Person with hat
                        'Private Car':'car','private Car':'car','Private car':'car','private car':'car',
                       'bus':'bus','Bus':'bus','Van':'truck','Truck':'truck','Unattended bag':'unattended_bag', 'Bicycle':'bicycle', 'bicycle':'bicycle',  'Motorbike':'motorbike'}
 
+#elad hls colors
+#Roads -                     #87847CFF (135, 132, 124)
+#People -                     #1E00FFFF (30, 0, 255)
+#Props (Uncategorized objects) -         #00B5FFFF (0, 181, 255)
+#Trees -                     #126F00FF (18, 111, 0)
+#Hydrants (not sure why i separated these) -     #D80000FF (216, 0, 0)
+#edges -                     #28FF00FF (40, 255, 0)
+#Benches and chairs -                 #BC00FFFF (188, 0, 255)
+#Cars -                         #FF6F00FF (255, 111, 0)
+#Buildings -                     #FFF800FF (255, 248, 0)
+
 #van changed to bus to allow use of pascal voc#
 #the hat, backpack,bag are all worn on a person , unattended bag not
 #bicycle and motorbke added since they are avail thru the pascal voc sets
