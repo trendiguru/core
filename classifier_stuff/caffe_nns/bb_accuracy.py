@@ -21,6 +21,8 @@ import pandas as pd
 import os
 import json
 import time
+import sys
+from matplotlib import pyplot as plt
 
 from trendi import constants
 from trendi import Utils
@@ -28,13 +30,25 @@ from trendi.utils import imutils
 from trendi.classifier_stuff.caffe_nns import bb_results
 from trendi.downloaders import read_various_training_formats
 
-def threshold_proposals_on_confidence(guess_list,confidence_threshold,conf_kw='confidence'):
+def threshold_proposals_on_confidence(guesses,confidence_threshold,conf_kw='confidence',annotation_kw='annotations'):
     thresholded_list = []
-    for guess in guess_list:
-  #      print('current guess '+str(guess))
-        if guess[conf_kw] >= confidence_threshold:
-            thresholded_list.append(guess)
-    return thresholded_list
+    if isinstance(guesses,dict):
+        guess_list = guesses[annotation_kw]
+        for guess in guess_list:
+      #      print('current guess '+str(guess))
+            if guess[conf_kw] >= confidence_threshold:
+                thresholded_list.append(guess)
+        return thresholded_list
+
+    elif isinstance(guesses,list):
+        for guess in guesses:
+      #      print('current guess '+str(guess))
+            if guess[conf_kw] >= confidence_threshold:
+                thresholded_list.append(guess)
+        return thresholded_list
+    else:
+        print('threshold func wants a list or dict')
+
 
 def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'},iou_threshold=0.2):
     '''
@@ -183,13 +197,13 @@ def compare_bb_dicts(gt_list,guess_list,dict_format={'bbox_xywh':'bbox_xywh','ob
             guess_matched_with_gt[index] = 1
         else: #this should not happen afer conflict resolution done above
             logging.warning('multiple matches found for object {}'.format(row))
-        print('tp {} fn {} avg_iou {} tot_iou {}'.format(true_pos,false_neg,iou_tot/n_detections,iou_tot))
+#        print('tp {} fn {} avg_iou {} tot_iou {}'.format(true_pos,false_neg,iou_tot/n_detections,iou_tot))
 
     #check for extra guess detections
     print('guess_matched with gt:'+str(guess_matched_with_gt))
     for col in range(len(guess_matched_with_gt)):
         if guess_matched_with_gt[col] == 0 :
-            print('guess {} is a false pos'.format(col))
+  #          print('guess {} is a false pos'.format(col))
             false_pos += 1
             #should false positives affect IOU ? if so put that here...
             n_detections += 1 #yes, false pos adds 0 to iou running sum and decreases avg
@@ -270,7 +284,7 @@ def compare_bb_dicts_class_by_class(gt_dict,guess_dict,
             all_results[cl]['n_images_for_class']=all_results[cl]['n_images_for_class']+at_least_one_gt
         else:
             all_results[cl]['n_images_for_class']=at_least_one_gt*1
-        print('all results so far:'+str(all_results))
+#        print('all results so far:'+str(all_results))
     #update total number of images
     if not 'n_images' in all_results:
         all_results['n_images']=1
@@ -442,10 +456,6 @@ def get_classes_in_dicts(detection_dicts,dict_format={'annotations':'annotations
     classes.sort()
     return classes
 
-def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'}):
-
-    gt_classes = get_classes_in_dicts(gt_detections,dict_format['object'])
-    guess_classes = get_classes_in_dicts(guess_detections,dict_format['object'])
 
 def get_results_and_analyze(imagelist='/mnt/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test.txt',n_tests=1000,
                             img_dir='/data/jeremy/image_dbs/hls/voc_rio_udacity_kitti_insecam_shuf_no_aug_test/',
@@ -532,25 +542,136 @@ def match_gts_and_proposals(gt_json,proposals_json):
     if not os.path.exists(proposals_json):
         print('could not find results file '+str(proposals_json))
         return None
+    paired_results = []
     with open(gt_json,'r') as fpgt:
         gts = json.load(fpgt)
         with open(proposals_json,'r') as fpprop:
             proposals = json.load(fpprop)
             for gt in gts:
+                if not 'filename' in gt:
+                    print('gt has no filename')
+                    continue
                 got_match = False
                 for proposal_annotation in proposals:
-                    print('gt: {}'.format(gt))
-                    print('prop: {}'.format(proposal_annotation))
-                    raw_input('ret to cont')
+#                    print('gt: {}'.format(gt))
+#                    print('prop: {}'.format(proposal_annotation))
+#                    sys.stdout.write('.')
+                    if not 'filename' in proposal_annotation:
+                        print('proposal has no filename')
+                        continue
                     if gt['filename'] == proposal_annotation['filename']:
                         got_match = True
-                        print('got match ')
+ #                       print('got match ')
+                        paired_results.append((gt,proposal_annotation))
                         break
                 if not got_match:
                     print('didnt get match for '+gt['filename'])
+    print('{} gts, {} proposals, {} matched pairs'.format(len(gts),len(proposals),len(paired_results)))
+    return paired_results
+
+def mAP_and_iou(gt_detections,guess_detections,dict_format={'annotations':'annotations','bbox_xywh':'bbox_xywh','object':'object','confidence':'confidence'},thresholds = [0.1,0.5,0.7,0.9]):
+
+    matched_dicts = match_gts_and_proposals(gt_detections,guess_detections)
+    allstats = []
+    for thresh in thresholds:
+        allstats.append( precision_accuracy_recall_from_dicts(matched_dicts=matched_dicts))
+    #    raw_input('ret to cont')
+
+    example = allstats[0]
+    del example['n_images']
+    sorted_classes = sorted(example)
+    print('sorted:'+str(sorted_classes))
+    mAP_dict={}
+    for cl in sorted_classes:
+        mAP_dict[cl]=[]
+    i=0
+    for stats in allstats:
+        for cl in sorted_classes:
+            stats_for_class = stats[cl]
+            print_stats(stats_for_class)
+            print('class {} {}\n'.format(cl,stats_for_class))
+            p,r,acc = precision_recall_acc_from_tp_tn_fp_fn(stats_for_class)
+            iou=stats_for_class['iou_avg']
+            n=stats_for_class['n_images_for_class']
+            d= {'precision':p,'recall':r,'iou':iou,'n':n,'threshold':thresholds[i],'class':cl}
+            mAP_dict[cl].append(d)
+        i=i+1
+
+    print('mAP d'+str(mAP_dict))
+    plot_stats(mAP_dict)
+
+def precision_recall_acc_from_tp_tn_fp_fn(stats_for_class):
+    if (stats_for_class['tp']+stats_for_class['fp'])>0:
+        precision=float(stats_for_class['tp'])/(stats_for_class['tp']+stats_for_class['fp'])
+    else:
+        precision=0
+    if (stats_for_class['tp']+stats_for_class['fn'])>0:
+        recall=float(stats_for_class['tp'])/(stats_for_class['tp']+stats_for_class['fn'])
+    else:
+        recall=0
+    if (stats_for_class['tp']+stats_for_class['fn']+stats_for_class['fp'])>0:
+        accuracy=float(stats_for_class['tp'])/(stats_for_class['tp']+stats_for_class['fn']+stats_for_class['fp'])
+    return precision,recall,accuracy
 
 
-def precision_accuracy_recall_from_json(gt_json,proposals_json,threshold):
+def plot_stats(mAP_dict):
+    for cl in mAP_dict:
+        p=[]
+        r=[]
+        iou=[]
+        thresh=[]
+
+#        {'precision':p,'recall':r,'iou':iou,'n':n,'thresh':thresh[i],'class':cl}
+        for result in mAP_dict[cl]:
+            p.append(result['precision'])
+            r.append(result['recall'])
+            iou.append(result['iou'])
+            thresh.append(result['threshold'])
+
+        print('class {}\np {}\nr {}\niou {}\nthresh {}'.format(cl,p,r,iou,thresh) )
+
+        # Two subplots, the axes array is 1-d
+
+        fig2 = plt.figure()
+        ax3 = fig2.add_subplot(1,2,1)
+        ax3.plot(p,r,'b. ',label=cl)
+        ax3.set_xlabel('precision')
+        ax3.set_ylabel('recall')
+        ax4 = fig2.add_subplot(1,2,2)
+        ax4.plot(thresh,iou,'r. ',label='iou')
+        ax4.set_xlabel('threshold')
+        ax4.set_ylabel('iou')
+
+        #
+        # f, axarr = plt.subplots(2, sharex=True)
+        # axarr[0].plot(p, r,label=cl)
+        # axarr[0].set_title('precision-recall')
+        # axarr[0].legend()
+        # axarr[0].xlabel('precision')
+        # axarr[0].ylabel('accuracy')
+        # axarr[1].scatter(thresh, iou)
+        # axarr[1].set_title('iou-threshold')
+        plt.ion()
+        plt.show()
+
+
+        raw_input('ret to cont')
+        plt.clf()
+
+def print_stats(stats_dict):
+
+            #    all_results[cl]['tp']=all_results[cl]['tp']+results['tp']
+            # all_results[cl]['fp']=all_results[cl]['fp']+results['fp']
+            # all_results[cl]['fn']=all_results[cl]['fn']+results['fn']
+            # all_results[cl]['iou_accumulator']=all_results[cl]['iou_accumulator']+results['iou_accumulator']
+            # all_results[cl]['n_ious']=all_results[cl]['n_ious']+results['n_ious']
+            # all_results[cl]['iou_avg']=all_results[cl]['iou_accumulator']/all_results[cl]['n_ious']
+
+    for stats in stats_dict:
+        precision,recall,acc = precision_recall_acc_from_tp_tn_fp_fn(stats)
+        print('{} tp {} fp {} fn {} p {} r {} a {}'.format(stats_dict['class'],stats['tp'],stats['fp'],stats['fn'],precision,recall,acc)
+
+def precision_accuracy_recall_from_dicts(gt_json=None,proposals_json=None,threshold=0.5,matched_dicts=None):
     '''
     given jsons of ground-truth bbox annotations (in form
     :param gt_json:
@@ -560,9 +681,17 @@ def precision_accuracy_recall_from_json(gt_json,proposals_json,threshold):
     '''
     #get list of (gt,proposal) for set of images
     #where
-    matched = match_gts_and_proposals(gt_json,proposals_json)
+    if matched_dicts is None:
+        matched_dicts = match_gts_and_proposals(gt_json,proposals_json)
+    stats=None
+    for (gt,proposal) in matched_dicts:
+        thresholded_proposals = threshold_proposals_on_confidence(proposal,confidence_threshold=threshold)
+        stats = compare_bb_dicts_class_by_class(gt,proposal,visual_output=False,all_results=stats)
+    print('final stats:'+str(stats))
+    return stats
 
-def precision_accuracy_recall(caffemodel,solverproto,outlayer='label',n_tests=100):
+
+def precision_accuracy_recall_caffe(caffemodel,solverproto,outlayer='label',n_tests=100):
     #TODO dont use solver to get inferences , no need for solver for that
     caffe.set_mode_gpu()
     caffe.set_device(1)
