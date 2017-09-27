@@ -155,7 +155,7 @@ class HLS_YOLO:
         #untested
         print('\nStarting combine_gunicorn (got a post request)')
         start_time=time.time()
-        tmpfile = '/data/jeremy/image_dbs/variant/viettel_demo/'
+        tmpfile = '/data/jeremy/image_dbs/'
         N=10
         randstring = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
         tmpfile = os.path.join(tmpfile,randstring+'.jpg')
