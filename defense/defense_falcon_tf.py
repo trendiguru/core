@@ -22,7 +22,9 @@ import cv2
 import sys
 import codecs
 import pandas as pd
-
+import random
+import string
+import base64
 
 from trendi.classifier_stuff.tf import tf_detect
 from trendi import constants
@@ -120,30 +122,75 @@ class HLS_TF:
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
 
-    def on_post(self, req, resp):
-        #untested
-        serializer = json
-        resp.content_type = "application/x-msgpack"
-        print('\nStarting HLS_YOLO (posted a post request)')
+
+    def on_post(self, req, res):
+        print('\nStarting combine_gunicorn (got a post request)')
+        start_time=time.time()
+        tmpfile = '/data/jeremy/image_dbs/variant/viettel_demo/'
+        N=10
+        randstring = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+        tmpfile = os.path.join(tmpfile,randstring+'.jpg')
+
+        sent_timestamp=0
+ #      serializer = msgpack
+ #      res.content_type = "application/x-msgpack"
         try:
-            data = serializer.loads(req.stream.read())
-            print('data:{}'.format(data))
-            img_arr = data.get("image")
-            print('img arr shape {}'.format(img_arr.shape))
-            roi = data.get("roi")
-            if roi:
-                r_x1, r_y1, r_x2, r_y2 = roi
-                img_arr = img_arr[r_y1:r_y2, r_x1:r_x2]
-                print "ROI: {},{},{},{}; img_arr.shape: {}".format(r_x1, r_x2, r_y1, r_y2, str(img_arr.shape))
-            detected = self.detect_yolo_pyyolo(img_arr)
-            if roi and (r_x1, r_y1) != (0, 0):
-                for obj in detected:
-                    x1, y1, x2, y2 = obj["bbox"]
-                    obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
-            resp.data = serializer.dumps({"data": detected})
-            resp.status = falcon.HTTP_200
+            json_data = json.loads(req.stream.read().decode('utf8'))
+            if 'sent_timestamp' in json_data:
+                sent_timestamp = float(json_data['sent_timestamp'])
+                print('sent timestamp {}'.format(sent_timestamp))
+            else:
+                sent_timestamp=0 #
+            xfer_time = time.time()-sent_timestamp
+            print('xfer time:{}'.format(xfer_time))
+            base64encoded_image = json_data['image_data']
+            data = base64.b64decode(base64encoded_image)
+#            print('data type {}'.format(type(data)))
+            with open(tmpfile, "wb") as fh:
+                fh.write(data)
+                print('wrote file to {}, elapsed time for xfer {}'.format(tmpfile,time.time()-start_time))
+                decode_time = time.time()-start_time
+            try:
+                print('db2')
+#                imgpath = '/data/jeremy/tensorflow/tmp.jpg'
+#                tmpfile = cv2.imwrite(imgpath,img_arr)
+                detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
+
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
+            try:
+                print('db4')
+                res.data = json.dumps(detected)
+                res.status = falcon.HTTP_200
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
+            try:
+                self.write_log('id',detected)
+            except:
+                raise falcon.HTTPBadRequest("Something went wrong in get section 5 (wrte log):(", traceback.format_exc())
+
+#             stream = req.stream.read()
+#             print('stream {}'.format(stream))
+#             data = serializer.loads(stream)
+#             print('data:{}'.format(data))
+#             img_arr = data.get("image")
+#             print('img arr shape {}'.format(img_arr.shape))
+# #            detected = self.detect_yolo_pyyolo(img_arr)
+#             cv2.imwrite(tmpfile,img_arr)
+#             detected = self.tracker.next_frame(tmpfile)
+#             resp.data = serializer.dumps({"data": detected})
+#             resp.status = falcon.HTTP_200
+
         except:
             raise falcon.HTTPBadRequest("Something went wrong in post :(", traceback.format_exc())
+
+        res.status = falcon.HTTP_203
+#        res.body = json.dumps({'status': 1, 'message': 'success','data':json.dumps(detected)})
+        res.body = json.dumps(detected)
+
+
+#            detected = self.detect_yolo_pyyolo(img_arr)
+
 
 
 
