@@ -213,6 +213,7 @@ class HLS_YOLO:
                     del det['bbox']
                 detected = detected_vietel_format
 
+
 #            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
 
             except:
@@ -245,6 +246,7 @@ class HLS_YOLO:
 
         res.status = falcon.HTTP_203
 #        res.body = json.dumps({'status': 1, 'message': 'success','data':json.dumps(detected)})
+        print('\n\nFINAL BEING SENT {}'.format(detected))
         res.body = json.dumps(detected)
 
 
