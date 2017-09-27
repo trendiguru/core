@@ -146,7 +146,8 @@ class HLS_YOLO:
 
             detected_vietel_format={}
             detected_vietel_format['emotion']=0
-            detected_vietel_format['detections']=detected['data']
+            print('det data {}'.format(detected['data']))
+            detected_vietel_format['detections']=detected
             for obj in detected_vietel_format['detections']:
                 obj['bbox']=obj['bbox_xywh']
                 del obj['bbox']
@@ -206,6 +207,7 @@ class HLS_YOLO:
 
                 detected_vietel_format={}
                 detected_vietel_format['emotion']=0
+
                 detected_vietel_format['detections']=detected['data']
                 for obj in detected_vietel_format['detections']:
                     obj['bbox']=obj['bbox_xywh']
