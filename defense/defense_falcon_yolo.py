@@ -143,6 +143,16 @@ class HLS_YOLO:
                         obj["bbox"] = x1 + r_x1, y1 + r_y1, x2 + r_x1, y2 + r_y1
                     except (KeyError, TypeError):
                         print "No valid 'bbox' in detected"
+
+            detected_vietel_format={}
+            detected_vietel_format['emotion']=0
+            detected_vietel_format['detections']=detected['data']
+            for obj in detected_vietel_format['detections']:
+                obj['bbox']=obj['bbox_xywh']
+                del obj['bbox']
+
+            detected = detected_vietel_format
+
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
         try:
