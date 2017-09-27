@@ -124,6 +124,7 @@ class HLS_TF:
 
 
     def on_post(self, req, res):
+        #untested
         print('\nStarting combine_gunicorn (got a post request)')
         start_time=time.time()
         tmpfile = '/data/jeremy/image_dbs/variant/viettel_demo/'
