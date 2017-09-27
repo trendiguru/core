@@ -156,7 +156,8 @@ class HLS_YOLO:
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
         try:
-            resp.data = serializer.dumps({"data": detected})
+#            resp.data = serializer.dumps({"data": detected})
+            resp.data = serializer.dumps(detected)
             resp.status = falcon.HTTP_200
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 4:(", traceback.format_exc())
