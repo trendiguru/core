@@ -185,7 +185,23 @@ class HLS_YOLO:
 #                tmpfile = cv2.imwrite(imgpath,img_arr)
                 img_arr=cv2.imread(tmpfile)
                 detected = self.detect_yolo_pyyolo(img_arr)
+##desired
+  #example results {"emotion": -0.027538346377856619, "n_currently_in_frame": 2, "transfer_time": 0.05023598670959473, "detect time": 1.9451310634613037,
+                # "detections": [{"bbox_xywh": [32, 68, 172, 306], "confidence": 0.997, "object": "person 0", "id": 0}, {"bbox_xywh": [254, 36, 205, 294], "confidence": 0.981, "object": "person 1", "id": 1}], "n_total": 2, "line_length": 0}
+#actual
+#                {"data": [{"confidence": 0.6014, "object": "car", "bbox": [305, 178, 344, 195], "details": {"color": "gray"}}]}
 
+#"detections": [{"bbox_x
+
+
+                detected_vietel_format={}
+                detected_vietel_format['emotion']=0
+                detected_vietel_format['detections']=detected['data']
+                for obj in detected_vietel_format['detections']:
+                    obj['bbox']=obj['bbox_xywh']
+                    del obj['bbox']
+
+                detected = detected_vietel_format
     #            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
 
             except:
