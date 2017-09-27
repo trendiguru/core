@@ -204,14 +204,11 @@ class HLS_YOLO:
 
                 detected_vietel_format={}
                 detected_vietel_format['emotion']=0
-
-                detected_vietel_format['detections']=detected['data']
-                for obj in detected_vietel_format['detections']:
-                    obj['bbox']=obj['bbox_xywh']
-                    del obj['bbox']
+                print('det data {}'.format(detected))
+                detected_vietel_format['detections']=detected
 
                 detected = detected_vietel_format
-    #            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
+#            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
 
             except:
                 raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
