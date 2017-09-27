@@ -203,13 +203,15 @@ class HLS_YOLO:
 
 #"detections": [{"bbox_x
 
-
                 detected_vietel_format={}
                 detected_vietel_format['emotion']=0
                 print('det data {}'.format(detected))
                 detected_vietel_format['detections']=detected
-
+                for det in detected_vietel_format['detections']:
+                    det['bbox_xywh']=det['bbox']
+                    del det['bbox']
                 detected = detected_vietel_format
+
 #            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
 
             except:
