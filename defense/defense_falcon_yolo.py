@@ -77,6 +77,8 @@ class HLS_YOLO:
         serializer = json
         resp.content_type = "application/json"
         print('\nStarting HLS_YOLO (got a get request)')
+
+        vietel_format = req.get_param("vietel_format")
         image_url = req.get_param("imageUrl")
         image = req.get_param("image")
         file = req.get_param("file")
@@ -89,7 +91,7 @@ class HLS_YOLO:
         loc_hier_thresh = req.get_param("hier_threshold")
 #        for k,v in req.get_param.iteritems():
 #            print('key {} value {}'.format(k,v))
-        print('params into hls yolo on_get: url {} file {} x1 {} x2 {} y1 {} y2 {} net {} thresh {} hierthresh {}'.format(image_url,file,r_x1,r_x2,r_y1,r_y2,net,loc_thresh,loc_hier_thresh))
+        print('params into hls yolo on_get: url {} file {} x1 {} x2 {} y1 {} y2 {} net {} thresh {} hierthresh {} vtformat {}'.format(image_url,file,r_x1,r_x2,r_y1,r_y2,net,loc_thresh,loc_hier_thresh,vietel_format))
         if loc_thresh is not None:
             global thresh
             thresh = float(loc_thresh)
@@ -144,14 +146,15 @@ class HLS_YOLO:
                     except (KeyError, TypeError):
                         print "No valid 'bbox' in detected"
 
-            detected_vietel_format={}
-            detected_vietel_format['emotion']=0
-            print('det data {}'.format(detected))
-            detected_vietel_format['detections']=detected
-            for det in detected_vietel_format['detections']:
-                det['bbox_xywh']=det['bbox']
-                del det['bbox']
-            detected = detected_vietel_format
+            if vietel_format is True:
+                detected_vietel_format={}
+                detected_vietel_format['emotion']=0
+                print('det data {}'.format(detected))
+                detected_vietel_format['detections']=detected
+                for det in detected_vietel_format['detections']:
+                    det['bbox_xywh']=det['bbox']
+                    del det['bbox']
+                detected = detected_vietel_format
 
         except:
             raise falcon.HTTPBadRequest("Something went wrong in get section 3:(", traceback.format_exc())
@@ -181,6 +184,10 @@ class HLS_YOLO:
                 print('sent timestamp {}'.format(sent_timestamp))
             else:
                 sent_timestamp=0 #
+            if 'vietel_format' in json_data:
+                vietel_format = json_data['vietel_formt']
+            else:
+                vietel_format = False
             xfer_time = time.time()-sent_timestamp
             print('xfer time:{}'.format(xfer_time))
             base64encoded_image = json_data['image_data']
@@ -204,14 +211,16 @@ class HLS_YOLO:
 
 #"detections": [{"bbox_x
 
-                detected_vietel_format={}
-                detected_vietel_format['emotion']=0
-                print('det data {}'.format(detected))
-                detected_vietel_format['detections']=detected
-                for det in detected_vietel_format['detections']:
-                    det['bbox_xywh']=det['bbox']
-                    del det['bbox']
-                detected = detected_vietel_format
+
+                if vietel_format:
+                    detected_vietel_format={}
+                    detected_vietel_format['emotion']=0
+                    print('det data {}'.format(detected))
+                    detected_vietel_format['detections']=detected
+                    for det in detected_vietel_format['detections']:
+                        det['bbox_xywh']=det['bbox']
+                        del det['bbox']
+                    detected = detected_vietel_format
 
 
 #            detected = tf_detect.analyze_image(tmpfile,thresh=0.2)
