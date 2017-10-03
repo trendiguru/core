@@ -12,6 +12,10 @@ pardir = '/data/jeremy/tensorflow/models/'
 os.chdir(tensordir)
 print('cwd '+str(os.getcwd()))
 sys.path.append(pardir)
+
+from utils import label_map_util
+from utils import visualization_utils as vis_util
+
 #sys.path.append(".")
 #sys.path.append(str(os.getcwd()))
 #sys.path.append("..")
@@ -41,8 +45,6 @@ sys.path.append(tgdir)
 from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
 from trendi import constants
 
-from utils_tg import label_map_util
-from utils_tg import visualization_utils as vis_util
 
 import cv2
 import copy
