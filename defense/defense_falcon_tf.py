@@ -186,8 +186,8 @@ class HLS_TF:
             raise falcon.HTTPBadRequest("Something went wrong in post :(", traceback.format_exc())
 
         res.status = falcon.HTTP_203
-#        res.body = json.dumps({'status': 1, 'message': 'success','data':json.dumps(detected)})
-        res.body = json.dumps(detected)
+        res.body = json.dumps({'status': 1, 'message': 'success','data':json.dumps(detected)})
+#        res.body = json.dumps(detected)
 
 
 #            detected = self.detect_yolo_pyyolo(img_arr)
