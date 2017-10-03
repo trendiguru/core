@@ -13,8 +13,6 @@ os.chdir(tensordir)
 print('cwd '+str(os.getcwd()))
 sys.path.append(pardir)
 
-from utils import label_map_util
-from utils import visualization_utils as vis_util
 
 #sys.path.append(".")
 #sys.path.append(str(os.getcwd()))
@@ -35,6 +33,8 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 
+from utils import label_map_util
+from utils import visualization_utils as vis_util
 
 
 tgdir = '/usr/lib/python2.7/dist-packages/trendi'
