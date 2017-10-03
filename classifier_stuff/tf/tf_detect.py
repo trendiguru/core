@@ -2,13 +2,6 @@ __author__ = 'jeremy'
 
 # coding: utf-8
 
-tgdir = '/usr/lib/python2.7/dist-packages/trendi'
-os.chdir(tgdir)
-print('cwd '+str(os.getcwd()))
-sys.path.append(tgdir)
-
-from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
-from trendi import constants
 
 import os
 import sys
@@ -37,8 +30,20 @@ from collections import defaultdict
 from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
+
+
+
+tgdir = '/usr/lib/python2.7/dist-packages/trendi'
+os.chdir(tgdir)
+print('cwd '+str(os.getcwd()))
+sys.path.append(tgdir)
+
+from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
+from trendi import constants
+
 from utils_tg import label_map_util
 from utils_tg import visualization_utils as vis_util
+
 import cv2
 import copy
 
