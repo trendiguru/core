@@ -66,6 +66,7 @@ PATH_TO_CKPT = '/data/jeremy/tensorflow/models/object_detection/'+MODEL_NAME+'/f
 print('path to model:{}'.format(PATH_TO_CKPT))
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('/data/jeremy/tensorflow/models/object_detection/data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 
