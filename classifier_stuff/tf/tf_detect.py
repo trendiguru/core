@@ -12,6 +12,7 @@ pardir = '/data/jeremy/tensorflow/models/'
 os.chdir(tensordir)
 print('cwd '+str(os.getcwd()))
 sys.path.append(pardir)
+sys.path.append(tensordir)
 
 
 #sys.path.append(".")
