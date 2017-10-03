@@ -2,9 +2,13 @@ __author__ = 'jeremy'
 
 # coding: utf-8
 
+from trendi.utils import imutils #tf utils is hammering this one so put this first
+from trendi import constants
+
 import os
 import sys
 import time
+
 tensordir = '/data/jeremy/tensorflow/models/object_detection'
 pardir = '/data/jeremy/tensorflow/models/'
 os.chdir(tensordir)
@@ -34,15 +38,6 @@ import cv2
 import copy
 
 
-tgdir = '/usr/lib/python2.7/dist-packages/trendi'
-os.chdir(tgdir)
-print('cwd '+str(os.getcwd()))
-
-from trendi.utils import imutils
-from trendi import constants
-#
-os.chdir(tensordir)
-print('cwd '+str(os.getcwd()))
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
 #MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
