@@ -164,7 +164,7 @@ def do_detect():
 
 def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.5):
 # sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
-  with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=True)) as sess:
+  with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=False)) as sess:
       print('starting image analyse')
       start_time = time.time()
       image = Image.open(image_path)
