@@ -35,7 +35,7 @@ import copy
 
 from trendi.utils import imutils
 from trendi import constants
-
+#
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
 #MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
