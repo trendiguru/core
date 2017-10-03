@@ -33,9 +33,16 @@ from utils import visualization_utils as vis_util
 import cv2
 import copy
 
+
+tgdir = '/usr/lib/python2.7/dist-packages/trendi'
+os.chdir(tgdir)
+print('cwd '+str(os.getcwd()))
+
 from trendi.utils import imutils
 from trendi import constants
 #
+os.chdir(tensordir)
+print('cwd '+str(os.getcwd()))
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
 #MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
