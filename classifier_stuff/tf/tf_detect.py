@@ -38,10 +38,10 @@ from utils import label_map_util
 from utils import visualization_utils as vis_util
 
 
-tgdir = '/usr/lib/python2.7/dist-packages/trendi'
-os.chdir(tgdir)
-print('cwd '+str(os.getcwd()))
-sys.path.append(tgdir)
+# tgdir = '/usr/lib/python2.7/dist-packages/trendi'
+# os.chdir(tgdir)
+# print('cwd '+str(os.getcwd()))
+# sys.path.append(tgdir)
 
 from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
 from trendi import constants
