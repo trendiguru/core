@@ -62,6 +62,8 @@ MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
+PATH_TO_CKPT = '/data/jeremy/tensorflow/model/object_detection/'+MODEL_NAME+'/frozen_inference_graph.pb'
+print('path to model:{}'.format(PATH_TO_CKPT))
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
