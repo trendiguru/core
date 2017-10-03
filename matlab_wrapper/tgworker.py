@@ -41,7 +41,7 @@ from rq.worker import Worker
 #from .registry import FinishedJobRegistry, StartedJobRegistry, clean_registries
 #from .suspension import is_suspended
 #from .timeouts import UnixSignalDeathPenalty
-#from .utils import (ensure_list, enum, import_attribute, make_colorizer,
+#from .utils_tg import (ensure_list, enum, import_attribute, make_colorizer,
 #                    utcformat, utcnow, utcparse)
 #from .version import VERSION
 

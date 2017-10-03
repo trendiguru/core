@@ -13,12 +13,12 @@ import math
 
 import numpy as np
 
-import utils
+import utils_tg
 import background_removal
 
 
 def selectBest(bblist, imgurl):
-    large_img = utils.get_cv2_img_array(imgurl)
+    large_img = utils_tg.get_cv2_img_array(imgurl)
     img, ratio = background_removal.standard_resize(large_img, 400)
     height, width = img.shape[0:2]
     img_size = height * width

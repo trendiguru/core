@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 import argparse
 import shutil
 import yonatan_constants
-from .. import background_removal, utils, constants
+from .. import background_removal, utils_tg, constants
 import sys
 import skimage.io
 from scipy.ndimage import zoom
 from skimage.transform import resize
-from ..utils import imutils
+from ..utils_tg import imutils
 import argparse
 import glob
 import time

@@ -8,7 +8,7 @@ import logging
 
 import fingerprint_core as fp
 import background_removal
-import utils
+import utils_tg
 import constants
 
 fingerprint_length = constants.fingerprint_length
@@ -21,8 +21,8 @@ db = constants.db_name
 def add_new_fp(doc, x):
     image_url = doc["image"]["sizes"]["XLarge"]["url"]
 
-    image = utils.get_cv2_img_array(image_url)
-    if not utils.is_valid_image(image):
+    image = utils_tg.get_cv2_img_array(image_url)
+    if not utils_tg.is_valid_image(image):
         logging.warning("image is None. url: {url}".format(url=image_url))
         return
 

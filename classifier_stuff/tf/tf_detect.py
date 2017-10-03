@@ -2,7 +2,7 @@ __author__ = 'jeremy'
 
 # coding: utf-8
 
-from trendi.utils import imutils #tf utils is hammering this one so put this first
+from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
 from trendi import constants
 
 import os
@@ -32,8 +32,8 @@ from collections import defaultdict
 from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
-from utils import label_map_util
-from utils import visualization_utils as vis_util
+from utils_tg import label_map_util
+from utils_tg import visualization_utils as vis_util
 import cv2
 import copy
 

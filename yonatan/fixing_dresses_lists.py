@@ -6,7 +6,7 @@ from skimage.transform import resize
 import os
 import caffe
 from trendi.utils import imutils
-# from ..utils import imutils
+# from ..utils_tg import imutils
 import cv2
 import sys
 import argparse

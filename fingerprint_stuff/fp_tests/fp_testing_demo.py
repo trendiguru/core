@@ -11,7 +11,7 @@ import cv2
 
 import background_removal
 from paperdoll import paperdoll_parse_enqueue
-import utils
+import utils_tg
 import constants
 import find_similar_mongo
 from constants import db
@@ -28,7 +28,7 @@ def find_or_create_image(image_url):
     :param image url - this is coming directly from the web interface so it's all we'll ever get.
     :return: image dictionary with svgs
     """
-    image = background_removal.standard_resize(utils.get_cv2_img_array(image_url), 400)[0]
+    image = background_removal.standard_resize(utils_tg.get_cv2_img_array(image_url), 400)[0]
     if image is None:
         logging.warning("Bad url!")
         return None
@@ -103,7 +103,7 @@ def from_svg_to_similar_results(svg_url, image_url, fp_length=fingerprint_length
         if item["svg_url"] == svg_url:
             curr_item = item
             item_mask = cv2.imread(curr_item['mask_name'])[:, :, 0]
-            image = background_removal.standard_resize(utils.get_cv2_img_array(image_dict['image_urls'][0]), 400)[0]
+            image = background_removal.standard_resize(utils_tg.get_cv2_img_array(image_dict['image_urls'][0]), 400)[0]
 
             curr_item['fp'], curr_item['similar_results'] = \
                 find_similar_mongo.find_top_n_results(image, item_mask, 30, curr_item['category'], collection_name,

@@ -7,7 +7,7 @@ import requests
 import numpy as np
 import os
 import random
-from ..utils import imutils
+from ..utils_tg import imutils
 import yonatan_constants
 
 

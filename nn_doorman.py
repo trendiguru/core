@@ -8,7 +8,7 @@ import cv2
 import time
 from trendi import constants
 from trendi import Utils
-#from trendi.utils import imutils
+#from trendi.utils_tg import imutils
 
 redis_conn = constants.redis_conn
 TTL = constants.general_ttl

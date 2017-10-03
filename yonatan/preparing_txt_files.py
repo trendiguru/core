@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import argparse
 import shutil
 import yonatan_constants
-from .. import background_removal, utils, constants
+from .. import background_removal, utils_tg, constants
 import sys
 import random
 

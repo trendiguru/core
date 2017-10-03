@@ -14,7 +14,7 @@ import Utils
 import background_removal
 import constants
 from db_stuff.recruit.recruit_constants import recruit2category_idx
-from utils.imutils import resize_keep_aspect
+from utils_tg.imutils import resize_keep_aspect
 #from .falcon import sleeve_client, length_client
 from .features_api import classifier_client
 from .features import color

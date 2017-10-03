@@ -12,7 +12,7 @@ from ...paperdoll import neurodoll_falcon_client as nfc
 from ... import Utils, constants, background_removal
 from ...features_api import classifier_client
 from termcolor import colored
-from ...utils.imutils import resize_keep_aspect
+from ...utils_tg.imutils import resize_keep_aspect
 
 fingerprint_length = constants.fingerprint_length
 histograms_length = constants.histograms_length

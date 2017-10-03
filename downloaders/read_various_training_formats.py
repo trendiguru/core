@@ -50,7 +50,7 @@ from trendi import constants
 from trendi import kassper
 from trendi import background_removal
 
-#from trendi.utils import augment_images
+#from trendi.utils_tg import augment_images
 
 def kitti_to_tgdict(label_dir='/data/jeremy/image_dbs/hls/kitti/training/label_2',
                     image_dir = '/data/jeremy/image_dbs/hls/kitti/training/image_2',visual_output=True,

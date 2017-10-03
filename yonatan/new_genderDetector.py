@@ -15,7 +15,7 @@ import urllib
 import skimage
 import requests
 import dlib
-from ..utils import imutils
+from ..utils_tg import imutils
 import yonatan_classifier
 
 

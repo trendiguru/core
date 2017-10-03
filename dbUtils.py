@@ -137,7 +137,7 @@ def lookfor_next_unbounded_image(queryobject):
     got_unbounded_image = False
     urlN = None  # if nothing eventually is found None is returned for url
     images = queryobject["images"]
-    # print('utils.py:images:'+str(images))
+    # print('utils_tg.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
 
     if len(images) < min_images_per_doc:  # don't use docs with too few images
@@ -146,36 +146,36 @@ def lookfor_next_unbounded_image(queryobject):
     for entry in images:
         if 'skip_image' in entry:
             if entry['skip_image'] == True:
-                print('utils.py:image is marked to be skipped')
+                print('utils_tg.py:image is marked to be skipped')
                 logging.debug('Utils.py(debug):image is marked to be skipped')
                 continue
             else:
-                print('utils.py:image is NOT marked to be skipped')
+                print('utils_tg.py:image is NOT marked to be skipped')
                 logging.debug('Utils.py(debug):image is NOT marked to be skipped')
         if not 'human_bb' in entry:  # got a pic without a bb
             urlN = entry['url']
             got_unbounded_image = True
-            print('utils.py:no human bb entry for:' + str(entry))
+            print('utils_tg.py:no human bb entry for:' + str(entry))
             return (urlN)
         elif entry["human_bb"] is None:
             urlN = entry['url']
             got_unbounded_image = True
-            print('utils.py:human_bb is None for:' + str(entry))
+            print('utils_tg.py:human_bb is None for:' + str(entry))
             return (urlN)
         elif not isinstance(entry["human_bb"], list):
             urlN = entry['url']
             got_unbounded_image = True
-            print('utils.py:illegal bb!! (not a list) for:' + str(entry))
+            print('utils_tg.py:illegal bb!! (not a list) for:' + str(entry))
             return (urlN)
         elif not (Utils.legal_bounding_box(entry["human_bb"])):
             urlN = entry['url']
             got_unbounded_image = True
-            print('utils.py:bb is not legal (too small) for:' + str(entry))
+            print('utils_tg.py:bb is not legal (too small) for:' + str(entry))
             return (urlN)
         else:
             urlN = None
             got_unbounded_image = False
-            print('utils.py:image is bounded :(')
+            print('utils_tg.py:image is bounded :(')
             logging.debug('image is bounded.....')
     return (urlN)
 
@@ -201,7 +201,7 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
     if images is None:
         logging.debug('Utils.py(debug):images is None!!')
         return None
-    # print('utils.py:images:'+str(images))
+    # print('utils_tg.py:images:'+str(images))
     logging.debug('Utils.py(debug):images:' + str(images))
     # check for suitable number of images in doc - removed since i wanna check all the bbs
     # if len(images) < min_images_per_doc:  # don't use docs with too few images
@@ -231,7 +231,7 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
         image_index = len(images) - 1
     if image_index >= len(images):  # index starts at 0
         #image_index=0
-        print('utils - past index, returning None')
+        print('utils_tg - past index, returning None')
         return None  #get the next item if we're past last image
     for i in range(image_index, len(images)):
         entry = images[i]
@@ -251,8 +251,8 @@ def lookfor_next_bounded_image(queryobject, image_index=0, only_get_boxed_images
         elif only_get_boxed_images == False:  # no human_bb in this entry but its ok, return anyway
             return answers
 
-    print('utils.lookfor_next_bounded_image:no bounded image found in this doc:(')
-    logging.debug('utils.lookfor_next_bounded_image - no bounded image found in this doc')
+    print('utils_tg.lookfor_next_bounded_image:no bounded image found in this doc:(')
+    logging.debug('utils_tg.lookfor_next_bounded_image - no bounded image found in this doc')
     return None
 
 
