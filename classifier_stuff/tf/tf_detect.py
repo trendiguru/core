@@ -210,7 +210,8 @@ def do_detect():
       global sess
     #use the ConfigProto to determine if GPU is running
 #      with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=True)) as sess:
-      with tf.Session(graph=detection_graph) as sess:
+#      with tf.Session(graph=detection_graph) as sess:
+      if(1):
             for image_path in TEST_IMAGE_PATHS:
               start_time = time.time()
               image = Image.open(image_path)
