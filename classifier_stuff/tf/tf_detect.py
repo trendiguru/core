@@ -1,6 +1,7 @@
 __author__ = 'jeremy'
+
 # coding: utf-8
-print('start')
+
 import os
 import sys
 import time
@@ -54,6 +55,60 @@ if not os.path.exists(PATH_TO_LABELS):
     PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt') #tf of git pull negged this
 print('path to labels {}'.format(PATH_TO_LABELS))
 
+NUM_CLASSES = 90
+basewidth=400  #resizing images to this
+
+get_model=False
+if not os.path.exists(PATH_TO_CKPT):
+    get_model=True
+
+if get_model:
+    print('getting model {}'.format(MODEL_FILE))
+    opener = urllib.request.URLopener()
+    opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
+    tar_file = tarfile.open(MODEL_FILE)
+    for file in tar_file.getmembers():
+      file_name = os.path.basename(file.name)
+      if 'frozen_inference_graph.pb' in file_name:
+        tar_file.extract(file, os.getcwd())
+        print('got model '+file_name)
+
+detection_graph = tf.Graph()
+with detection_graph.as_default():
+  od_graph_def = tf.GraphDef()
+  with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+    serialized_graph = fid.read()
+    od_graph_def.ParseFromString(serialized_graph)
+    tf.import_graph_def(od_graph_def, name='')
+label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
+category_index = label_map_util.create_category_index(categories)
+
+#for analyze#
+#for memory issues see  https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory/34200194#34200194
+n_cameras=8
+memfract = 1.0/(n_cameras+1)  #+1 to keep some reserve, as extra seems to be allocated e.g. 2854 instead of 2444.3 for 24443/10
+print('memory fraction per cam {}'.format(memfract))
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=memfract)
+#config.gpu_options.allow_growth=True
+sess = tf.Session(graph=detection_graph,config=tf.ConfigProto(gpu_options=gpu_options))
+#sess = tf.Session(graph=detection_graph)
+
+def load_image_into_numpy_array(image):
+  (im_width, im_height) = image.size
+  return np.array(image.getdata()).reshape(
+      (im_height, im_width, 3)).astype(np.uint8)
+
+# For the sake of simplicity we will use only 2 images:
+# image1.jpg
+# image2.jpg
+# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+#PATH_TO_TEST_IMAGES_DIR = 'test_images'
+TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 2) ]
+
+# Size, in inches, of the output images.
+IMAGE_SIZE = (12, 8)
+
 
 # coding: utf-8
 #
@@ -105,50 +160,50 @@ print('path to labels {}'.format(PATH_TO_LABELS))
 # print('cwd '+str(os.getcwd()))
 # sys.path.append(tgdir)
 
-NUM_CLASSES = 90
+# NUM_CLASSES = 90
+#
+# get_model=False
+# if get_model:
+#     opener = urllib.request.URLopener()
+#     opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
+#     tar_file = tarfile.open(MODEL_FILE)
+#     for file in tar_file.getmembers():
+#       file_name = os.path.basename(file.name)
+#       if 'frozen_inference_graph.pb' in file_name:
+#         tar_file.extract(file, os.getcwd())
+#         print('got model '+file_name)
+#
+# detection_graph = tf.Graph()
+# with detection_graph.as_default():
+#   od_graph_def = tf.GraphDef()
+#   with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+#     serialized_graph = fid.read()
+#     od_graph_def.ParseFromString(serialized_graph)
+#     tf.import_graph_def(od_graph_def, name='')
+# label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+# categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
+# category_index = label_map_util.create_category_index(categories)
+#
+#
+# print('tf done with start')
+#
+# def load_image_into_numpy_array(image):
+#   (im_width, im_height) = image.size
+#   return np.array(image.getdata()).reshape(
+#       (im_height, im_width, 3)).astype(np.uint8)
+#
+# # For the sake of simplicity we will use only 2 images:
+# # image1.jpg
+# # image2.jpg
+# # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+# PATH_TO_TEST_IMAGES_DIR = 'test_images'
+# TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 3) ]
+#
+# # Size, in inches, of the output images.
+# IMAGE_SIZE = (12, 8)
 
-get_model=False
-if get_model:
-    opener = urllib.request.URLopener()
-    opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-    tar_file = tarfile.open(MODEL_FILE)
-    for file in tar_file.getmembers():
-      file_name = os.path.basename(file.name)
-      if 'frozen_inference_graph.pb' in file_name:
-        tar_file.extract(file, os.getcwd())
-        print('got model '+file_name)
 
-detection_graph = tf.Graph()
-with detection_graph.as_default():
-  od_graph_def = tf.GraphDef()
-  with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-    serialized_graph = fid.read()
-    od_graph_def.ParseFromString(serialized_graph)
-    tf.import_graph_def(od_graph_def, name='')
-label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
-category_index = label_map_util.create_category_index(categories)
-
-
-print('tf done with start')
-
-def load_image_into_numpy_array(image):
-  (im_width, im_height) = image.size
-  return np.array(image.getdata()).reshape(
-      (im_height, im_width, 3)).astype(np.uint8)
-
-# For the sake of simplicity we will use only 2 images:
-# image1.jpg
-# image2.jpg
-# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = 'test_images'
-TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 3) ]
-
-# Size, in inches, of the output images.
-IMAGE_SIZE = (12, 8)
-
-
-sess = None
+#sess = None
 
 def do_detect():
       global sess
@@ -203,7 +258,10 @@ def do_detect():
 
 def analyze_image(image_path,label_conversion=constants.index_v1_to_name,thresh = 0.5):
 # sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
-  with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=False)) as sess:
+  global sess
+
+#  with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=False)) as sess:
+  if(1):
       print('starting image analyse')
       start_time = time.time()
       image = Image.open(image_path)
