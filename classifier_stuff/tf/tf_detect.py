@@ -199,8 +199,9 @@ def do_detect():
                   plt.imshow(image_np)
                   plt.savefig(savename)
 
+#def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.5):index_v1_to_name
 
-def analyze_image(image_path,label_conversion=constants.tfcc2tg_map,thresh = 0.5):
+def analyze_image(image_path,label_conversion=constants.index_v1_to_name,thresh = 0.5):
 # sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
   with tf.Session(graph=detection_graph,config=tf.ConfigProto(log_device_placement=False)) as sess:
       print('starting image analyse')

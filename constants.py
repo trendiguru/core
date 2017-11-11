@@ -1276,6 +1276,22 @@ blacklisted_exceptions = {'xxxlarge',
                           'xxxhairsnap',
                           'kannada'}
 
+index_v1_to_name={0:'background',
+                1:'road',
+                2:'person',
+                3:'car',
+                4:'prop',
+                5:'tree',
+                6:'bush',
+                7:'chair',
+                8:'building',
+                9:'hat',
+                10:'bag',
+                11:'sidewalk',
+                12:'streetlight',
+                13:'weapon',
+                14:'knife'}
+
 #NEURODOLL_CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
 NEURODOLL_CLASSIFIER_ADDRESS = "http://13.69.27.202:8080/nd" #azure gpu-1
 HYDRA_HLS_CLASSIFIER_ADDRESS = "http://13.82.136.127:8081/hydra" #allison
