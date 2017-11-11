@@ -1,4 +1,59 @@
 __author__ = 'jeremy'
+# coding: utf-8
+print('start')
+import os
+import sys
+import time
+import logging
+logging.basicConfig(level=logging.INFO)
+
+tensordir = '/data/jeremy/tensorflow/models/object_detection'
+pardir = '/data/jeremy/tensorflow/models/'
+os.chdir(tensordir)
+print('cwd '+str(os.getcwd()))
+sys.path.append(pardir)
+#sys.path.append(".")
+#sys.path.append(str(os.getcwd()))
+#sys.path.append("..")
+#print sys.path
+
+import numpy as np
+import os
+import six.moves.urllib as urllib
+import tarfile
+import tensorflow as tf
+from matplotlib import pyplot as plt
+from PIL import Image
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_util
+import cv2
+
+from variant.ml import imutils
+from variant.ml import constants
+
+
+#MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
+#MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
+#MODEL_NAME = 'rfcn_resnet101_coco_11_06_2017'  #tf3
+#MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'  #tf4 , 24s cpu, 0.47 gpu
+MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017' #tf5, 76s cpu
+
+MODEL_FILE = MODEL_NAME + '.tar.gz'
+DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
+
+# List of the strings that is used to add correct label for each box.
+#PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt') #tf of git pull negged this
+PATH_TO_LABELS = os.path.join(pardir,'object_detection/data/mscoco_label_map.pbtxt')
+PATH_TO_TEST_IMAGES_DIR = os.path.join(pardir,'object_detection/test_images')
+if os.uname()[1]=='jr': #new version has /research/ in path
+    PATH_TO_LABELS = os.path.join(pardir,'research/object_detection/data/mscoco_label_map.pbtxt')
+    PATH_TO_TEST_IMAGES_DIR = os.path.join(pardir,'research/object_detection/test_images')
+
+if not os.path.exists(PATH_TO_LABELS):
+    PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt') #tf of git pull negged this
+print('path to labels {}'.format(PATH_TO_LABELS))
+
 
 # coding: utf-8
 #
@@ -49,62 +104,6 @@ __author__ = 'jeremy'
 # os.chdir(tgdir)
 # print('cwd '+str(os.getcwd()))
 # sys.path.append(tgdir)
-
-print('stat')
-# coding: utf-8
-
-import os
-import sys
-import time
-import logging
-logging.basicConfig(level=logging.INFO)
-
-tensordir = '/data/jeremy/tensorflow/models/object_detection'
-pardir = '/data/jeremy/tensorflow/models/'
-os.chdir(tensordir)
-print('cwd '+str(os.getcwd()))
-sys.path.append(pardir)
-#sys.path.append(".")
-#sys.path.append(str(os.getcwd()))
-#sys.path.append("..")
-#print sys.path
-
-import numpy as np
-import os
-import six.moves.urllib as urllib
-import tarfile
-import tensorflow as tf
-from matplotlib import pyplot as plt
-from PIL import Image
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
-import cv2
-
-from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
-from trendi import constants
-
-
-import cv2
-import copy
-
-print('tf done with import end')
-
-
-MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
-#MODEL_NAME = 'ssd_inception_v2_coco_11_06_2017'  #tf2
-# = 'rfcn_resnet101_coco_11_06_2017'  #tf3
-MODEL_NAME = 'faster_rcnn_resnet101_coco_11_06_2017'  #tf4
-#MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017' #tf5
-
-MODEL_FILE = MODEL_NAME + '.tar.gz'
-DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
-PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
-
-PATH_TO_CKPT = '/data/jeremy/tensorflow/models/object_detection/'+MODEL_NAME+'/frozen_inference_graph.pb'
-print('path to model:{}'.format(PATH_TO_CKPT))
-# List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
-PATH_TO_LABELS = os.path.join('/data/jeremy/tensorflow/models/object_detection/data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 
