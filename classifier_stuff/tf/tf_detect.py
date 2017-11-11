@@ -34,6 +34,8 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 
+print('tf done with import 1')
+
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 
@@ -50,6 +52,7 @@ from trendi import constants
 import cv2
 import copy
 
+print('tf done with import end')
 
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017' #tf1
@@ -93,7 +96,7 @@ categories = label_map_util.convert_label_map_to_categories(label_map, max_num_c
 category_index = label_map_util.create_category_index(categories)
 
 
-print('done with import')
+print('tf done with start')
 
 def load_image_into_numpy_array(image):
   (im_width, im_height) = image.size
