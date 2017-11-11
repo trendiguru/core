@@ -28,6 +28,7 @@ from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 import cv2
+import copy
 
 from variant.ml import imutils
 from variant.ml import constants

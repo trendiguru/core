@@ -36,14 +36,14 @@ TF_HLS_CLASSIFIER_ADDRESS = constants.TF_HLS_CLASSIFIER_ADDRESS # "http://13.82.
 
 class HLS_TF:
     def __init__(self):
-        print "Loaded Resource for TF YOLO"
+        print "Loaded Resource for TF"
 
 
     def on_get(self, req, resp): #/
         """Handles GET requests"""
         serializer = json
         resp.content_type = "application/json"
-        print('\nStarting HLS_YOLO (got a get request)')
+        print('\nStarting HLS_TF (got a get request)')
         image_url = req.get_param("imageUrl")
         image = req.get_param("image")
         file = req.get_param("file")
@@ -123,7 +123,7 @@ class HLS_TF:
 
     def on_post(self, req, res):
         #untested
-        print('\nStarting combine_gunicorn (got a post request)')
+        print('\nStarting combine_gunicorn tf hls (got a post request)')
         start_time=time.time()
         tmpfile = '/data/jeremy/image_dbs/variant/viettel_demo/'
         N=10
