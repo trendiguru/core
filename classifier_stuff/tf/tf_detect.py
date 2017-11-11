@@ -50,8 +50,7 @@ __author__ = 'jeremy'
 # print('cwd '+str(os.getcwd()))
 # sys.path.append(tgdir)
 
-__author__ = 'jeremy'
-
+print('stat')
 # coding: utf-8
 
 import os
