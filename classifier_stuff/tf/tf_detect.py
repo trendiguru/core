@@ -1,52 +1,85 @@
 __author__ = 'jeremy'
 
 # coding: utf-8
-
-
-import os
-import sys
-import time
-
-tensordir = '/data/jeremy/tensorflow/models/object_detection'
-pardir = '/data/jeremy/tensorflow/models/'
-os.chdir(tensordir)
-print('cwd '+str(os.getcwd()))
-sys.path.append(pardir)
-#sys.path.append(tensordir)
-
-
-#sys.path.append(".")
-#sys.path.append(str(os.getcwd()))
-#sys.path.append("..")
-#print sys.path
-
-import matplotlib
-import sys
-import numpy as np
-import os
-import six.moves.urllib as urllib
-import sys
-import tarfile
-import tensorflow as tf
-import zipfile
-from collections import defaultdict
-from io import StringIO
-from matplotlib import pyplot as plt
-from PIL import Image
-
-print('tf done with import 1')
-
-#tf changed path of demos
-#from utils import label_map_util
-#from utils import visualization_utils as vis_util
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
+#
+#
+# import os
+# import sys
+# import time
+#
+# tensordir = '/data/jeremy/tensorflow/models/object_detection'
+# pardir = '/data/jeremy/tensorflow/models/'
+# os.chdir(tensordir)
+# print('cwd '+str(os.getcwd()))
+# sys.path.append(pardir)
+# #sys.path.append(tensordir)
+#
+#
+# #sys.path.append(".")
+# #sys.path.append(str(os.getcwd()))
+# #sys.path.append("..")
+# #print sys.path
+#
+# import matplotlib
+# import sys
+# import numpy as np
+# import os
+# import six.moves.urllib as urllib
+# import sys
+# import tarfile
+# import tensorflow as tf
+# import zipfile
+# from collections import defaultdict
+# from io import StringIO
+# from matplotlib import pyplot as plt
+# from PIL import Image
+#
+# print('tf done with import 1')
+#
+# #tf changed path of demos
+# #from utils import label_map_util
+# #from utils import visualization_utils as vis_util
+# from object_detection.utils import label_map_util
+# print('tf done with import 1.1')
+#
+# from object_detection.utils import visualization_utils as vis_util
 
 
 # tgdir = '/usr/lib/python2.7/dist-packages/trendi'
 # os.chdir(tgdir)
 # print('cwd '+str(os.getcwd()))
 # sys.path.append(tgdir)
+
+__author__ = 'jeremy'
+
+# coding: utf-8
+
+import os
+import sys
+import time
+import logging
+logging.basicConfig(level=logging.INFO)
+
+tensordir = '/data/jeremy/tensorflow/models/object_detection'
+pardir = '/data/jeremy/tensorflow/models/'
+os.chdir(tensordir)
+print('cwd '+str(os.getcwd()))
+sys.path.append(pardir)
+#sys.path.append(".")
+#sys.path.append(str(os.getcwd()))
+#sys.path.append("..")
+#print sys.path
+
+import numpy as np
+import os
+import six.moves.urllib as urllib
+import tarfile
+import tensorflow as tf
+from matplotlib import pyplot as plt
+from PIL import Image
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_util
+import cv2
 
 from trendi.utils_tg import imutils #tf utils_tg is hammering this one so put this first
 from trendi import constants
