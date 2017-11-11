@@ -36,8 +36,11 @@ from PIL import Image
 
 print('tf done with import 1')
 
-from utils import label_map_util
-from utils import visualization_utils as vis_util
+#tf changed path of demos
+#from utils import label_map_util
+#from utils import visualization_utils as vis_util
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_util
 
 
 # tgdir = '/usr/lib/python2.7/dist-packages/trendi'
