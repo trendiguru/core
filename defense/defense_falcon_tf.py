@@ -28,8 +28,6 @@ import base64
 
 from trendi.classifier_stuff.tf import tf_detect
 from trendi import constants
-from trendi import Utils
-from trendi.utils import imutils
 
 print "Defense_falcon_tf done with imports"
 
