@@ -337,7 +337,7 @@ def analyze_image(image_path,label_conversion=constants.index_v1_to_name,thresh 
               boxes_thresholded.append(bb_x1y1x2y2)
               logging.debug('bbtf {} xywh {} imsize {}'.format(bbox_tf,bbox_xywh,image_np.shape[0:2]))
               bgr_img = imutils.bb_with_text(bgr_img,bbox_xywh,classname+str(score))
-              class_names_thresholded.append(label_conversion[classname])
+              class_names_thresholded.append(classname)
               item = {'object':classname,'bbox':bb_x1y1x2y2,
                       'confidence':round(float(score),3)}
     #'variant style'
