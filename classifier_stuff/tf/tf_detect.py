@@ -330,21 +330,23 @@ def analyze_image(image_path,label_conversion=constants.index_v1_to_name,thresh 
               classno=int(classes[0][i])
               classname = category_index[classno]['name']
               if classname in label_conversion:
-                  bgr_img = imutils.bb_with_text(bgr_img,bbox_xywh,classname+str(score))
-                  scores_thresholded.append(score)
-                  boxes_thresholded.append(bb_x1y1x2y2)
                   print('classno '+str(classname)+' convert to '+str(label_conversion[classname]))
-                  print('bbtf {} x1y1x2y2 {} xywh {} size {}'.format(bbox_tf,bb_x1y1x2y2,bbox_xywh,image_np.shape[0:2]))
-                  class_names_thresholded.append(label_conversion[classname])
-                  item = {'object':classname,'bbox':bb_x1y1x2y2,
-                          'confidence':round(float(score),3)}
-                  relevant_boxes.append(item)
+                  classname = label_conversion[classname]
+              class_names_thresholded.append(classname)
+              scores_thresholded.append(score)
+              boxes_thresholded.append(bb_x1y1x2y2)
+              logging.debug('bbtf {} xywh {} imsize {}'.format(bbox_tf,bbox_xywh,image_np.shape[0:2]))
+              relevant_boxes.append(item)
+              bgr_img = imutils.bb_with_text(bgr_img,bbox_xywh,classname+str(score))
+              class_names_thresholded.append(label_conversion[classname])
+              item = {'object':classname,'bbox':bb_x1y1x2y2,
+                      'confidence':round(float(score),3)}
+    #'variant style'
+              # item = {'object':classname,'bbox_xywh':bbox_xywh,
+              #         'confidence':round(float(score),3)}
+              relevant_boxes.append(item)
 
 
-              else:
-                  #or throw out ....
-                pass
-#                class_names_thresholded.append(classname)
       visual_output=False
       if visual_output:
           cv2.imshow('ours',bgr_img)
@@ -353,6 +355,7 @@ def analyze_image(image_path,label_conversion=constants.index_v1_to_name,thresh 
       print('scores '+str(scores_thresholded))
       print('classes '+str(class_names_thresholded))
       print('numdet '+str(num_detections))
+      print('numrelevant '+str(len(relevant_boxes)))
       #https://www.tensorflow.org/versions/r0.12/api_docs/python/image/working_with_bounding_boxes
  #The coordinates of the each bounding box in boxes are encoded as [y_min, x_min, y_max, x_max]. The bounding box coordinates are floats in [0.0, 1.0] relative to the width and height of the underlying image.3
       return(relevant_boxes)
